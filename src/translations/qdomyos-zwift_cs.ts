@@ -326,11 +326,11 @@ Chcete zapnout požadované služby?</translation>
     </message>
     <message>
         <source>, current value </source>
-        <translation type="unfinished"></translation>
+        <translation>, aktuální hodnota </translation>
     </message>
     <message>
         <source>. Current value </source>
-        <translation type="unfinished"></translation>
+        <translation>. Aktuální hodnota </translation>
     </message>
     <message>
         <source>Return to app</source>
@@ -393,7 +393,23 @@ Have a nice ride!
 QZ disclaims liability for incidental or consequential damages and assumes no responsibility for any loss or damage caused by use or misuse of the app.
 
 Roberto Viola</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplikace by se měla automaticky připojit k vašemu kolu, běžeckému pásu nebo veslovacímu trenažéru.
+
+Pokud se to nestane, zkontrolujte, že:
+- aplikace Echelon/Domyos je zavřená, dokud běží QZ
+- Bluetooth i oprávnění pro Bluetooth jsou zapnutá
+- trenažér je zapnutý před spuštěním QZ
+- jste restartovali své zařízení
+
+Pokud se kolo nebo běžecký pás odpojuje každých 30 sekund, vypněte v levém panelu nastavení virtuálního zařízení.
+
+S žádostí o pomoc se obraťte na roberto.viola83@gmail.com.
+
+Příjemný trénink!
+
+QZ odmítá odpovědnost za nahodilé nebo následné škody a nenese žádnou odpovědnost za ztrátu nebo škodu způsobenou používáním nebo nesprávným používáním aplikace.
+
+Roberto Viola</translation>
     </message>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
@@ -2076,125 +2092,125 @@ Aktualizovat nastavení QZ?</translation>
     </message>
     <message>
         <source>Workout name</source>
-        <translation type="unfinished"></translation>
+        <translation>Název tréninku</translation>
     </message>
     <message>
         <source>Workout device type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ zařízení pro trénink</translation>
     </message>
     <message>
         <source>Create a new workout</source>
-        <translation type="unfinished"></translation>
+        <translation>Vytvořit nový trénink</translation>
     </message>
     <message>
         <source>Paste XML from the Clipboard to the Workout Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Vložit XML ze schránky do editoru tréninků</translation>
     </message>
     <message>
         <source>Save workout</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit trénink</translation>
     </message>
     <message>
         <source>Save workout and start it</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit a spustit trénink</translation>
     </message>
     <message>
         <source>Show advanced interval fields</source>
-        <translation type="unfinished"></translation>
+        <translation>Zobrazit pokročilá pole intervalů</translation>
     </message>
     <message>
         <source>Workout editor controls</source>
-        <translation type="unfinished"></translation>
+        <translation>Ovládací prvky editoru tréninků</translation>
     </message>
     <message>
         <source>Add interval</source>
-        <translation type="unfinished"></translation>
+        <translation>Přidat interval</translation>
     </message>
     <message>
         <source>Repeat selected intervals</source>
-        <translation type="unfinished"></translation>
+        <translation>Opakovat vybrané intervaly</translation>
     </message>
     <message>
         <source>Clear all intervals</source>
-        <translation type="unfinished"></translation>
+        <translation>Vymazat všechny intervaly</translation>
     </message>
     <message>
         <source>Workout preview chart</source>
-        <translation type="unfinished"></translation>
+        <translation>Graf náhledu tréninku</translation>
     </message>
     <message>
         <source>Chart legend</source>
-        <translation type="unfinished"></translation>
+        <translation>Legenda grafu</translation>
     </message>
     <message>
         <source>Saved workout programs</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložené tréninkové programy</translation>
     </message>
     <message>
         <source>Load selected workout program</source>
-        <translation type="unfinished"></translation>
+        <translation>Načíst vybraný tréninkový program</translation>
     </message>
     <message>
         <source>Delete selected workout program</source>
-        <translation type="unfinished"></translation>
+        <translation>Odstranit vybraný tréninkový program</translation>
     </message>
     <message>
         <source>Refresh workout program list</source>
-        <translation type="unfinished"></translation>
+        <translation>Obnovit seznam tréninkových programů</translation>
     </message>
     <message>
         <source>Select interval {number}</source>
         <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vybrat interval {number}</translation>
     </message>
     <message>
         <source>Move interval {number} up</source>
         <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Posunout interval {number} nahoru</translation>
     </message>
     <message>
         <source>Move interval {number} down</source>
         <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Posunout interval {number} dolů</translation>
     </message>
     <message>
         <source>Copy interval {number}</source>
         <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Kopírovat interval {number}</translation>
     </message>
     <message>
         <source>Delete interval {number}</source>
         <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Odstranit interval {number}</translation>
     </message>
     <message>
         <source>Enable {field} for interval {number}</source>
         <extracomment>Screen reader name of a field checkbox; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zapnout pole {field} pro interval {number}</translation>
     </message>
     <message>
         <source>{field} for interval {number}</source>
         <extracomment>Screen reader name of a field; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>{field}, interval {number}</translation>
     </message>
     <message>
         <source>Decrease {field} for interval {number}</source>
         <extracomment>Screen reader name of the - button; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Snížit hodnotu pole {field} pro interval {number}</translation>
     </message>
     <message>
         <source>Increase {field} for interval {number}</source>
         <extracomment>Screen reader name of the + button; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zvýšit hodnotu pole {field} pro interval {number}</translation>
     </message>
     <message>
         <source>{name} preview chart. {count} intervals. Total duration {duration}.</source>
         <extracomment>Screen reader description of the chart; {name} is the workout name, {count} the number of intervals, {duration} like 0:45:00</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Graf náhledu: {name}. Počet intervalů: {count}. Celková doba trvání: {duration}.</translation>
     </message>
     <message>
         <source>Dialog input</source>
-        <translation type="unfinished"></translation>
+        <translation>Vstupní pole dialogu</translation>
     </message>
     <message>
         <source>Training Programs Browser</source>
@@ -2770,7 +2786,7 @@ Následující otázky přizpůsobí QZ vašemu trenažéru a cílům.</translat
     </message>
     <message>
         <source>Opens the Peloton login page</source>
-        <translation type="unfinished"></translation>
+        <translation>Otevře přihlašovací stránku Peloton</translation>
     </message>
     <message>
         <source>Peloton Difficulty</source>
@@ -2786,11 +2802,11 @@ Následující otázky přizpůsobí QZ vašemu trenažéru a cílům.</translat
     </message>
     <message>
         <source>Peloton difficulty level</source>
-        <translation type="unfinished"></translation>
+        <translation>Úroveň obtížnosti Peloton</translation>
     </message>
     <message>
         <source>Choose whether QZ targets the lower, upper or average of the instructor&apos;s range</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyberte, zda má QZ cílit na dolní mez, horní mez, nebo průměr rozsahu instruktora</translation>
     </message>
     <message>
         <source>Finish</source>
@@ -2806,11 +2822,11 @@ Následující otázky přizpůsobí QZ vašemu trenažéru a cílům.</translat
     </message>
     <message>
         <source>Resistance level for flat road</source>
-        <translation type="unfinished"></translation>
+        <translation>Úroveň odporu pro rovinu</translation>
     </message>
     <message>
         <source>Resistance level that feels like riding on flat ground. Range 0 to 100.</source>
-        <translation type="unfinished"></translation>
+        <translation>Úroveň odporu, která odpovídá jízdě po rovině. Rozsah 0 až 100.</translation>
     </message>
     <message>
         <source>Next</source>
@@ -2858,7 +2874,7 @@ Následující otázky přizpůsobí QZ vašemu trenažéru a cílům.</translat
     </message>
     <message>
         <source>Zwift username</source>
-        <translation type="unfinished"></translation>
+        <translation>Uživatelské jméno Zwift</translation>
     </message>
     <message>
         <source>Password</source>
@@ -2866,7 +2882,7 @@ Následující otázky přizpůsobí QZ vašemu trenažéru a cílům.</translat
     </message>
     <message>
         <source>Zwift password</source>
-        <translation type="unfinished"></translation>
+        <translation>Heslo Zwift</translation>
     </message>
     <message>
         <source>Zwift Play and Click</source>
@@ -2882,7 +2898,7 @@ Následující otázky přizpůsobí QZ vašemu trenažéru a cílům.</translat
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapnuto</translation>
     </message>
     <message>
         <source>Zwift Play</source>
@@ -2922,7 +2938,7 @@ Následující otázky přizpůsobí QZ vašemu trenažéru a cílům.</translat
     </message>
     <message>
         <source>Email support</source>
-        <translation type="unfinished"></translation>
+        <translation>Poslat e-mail podpoře</translation>
     </message>
     <message>
         <source>Close</source>
@@ -2934,11 +2950,11 @@ Následující otázky přizpůsobí QZ vašemu trenažéru a cílům.</translat
     </message>
     <message>
         <source>Fitness device</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitness zařízení</translation>
     </message>
     <message>
         <source>Select your fitness device from the list of nearby Bluetooth devices. Tap Refresh to scan again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyberte svůj trenažér ze seznamu okolních zařízení Bluetooth. Klepnutím na „Obnovit“ spustíte nové vyhledávání.</translation>
     </message>
     <message>
         <source>Unit System</source>
@@ -2950,11 +2966,11 @@ Následující otázky přizpůsobí QZ vašemu trenažéru a cílům.</translat
     </message>
     <message>
         <source>Unit system</source>
-        <translation type="unfinished"></translation>
+        <translation>Soustava jednotek</translation>
     </message>
     <message>
         <source>Metric uses kilometers and kilograms. Imperial uses miles and pounds.</source>
-        <translation type="unfinished"></translation>
+        <translation>Metrická: kilometry a kilogramy. Imperiální: míle a libry.</translation>
     </message>
     <message>
         <source>User Information</source>
@@ -2962,15 +2978,15 @@ Následující otázky přizpůsobí QZ vašemu trenažéru a cílům.</translat
     </message>
     <message>
         <source>Body weight</source>
-        <translation type="unfinished"></translation>
+        <translation>Tělesná hmotnost</translation>
     </message>
     <message>
         <source>Your weight in pounds</source>
-        <translation type="unfinished"></translation>
+        <translation>Vaše hmotnost v librách</translation>
     </message>
     <message>
         <source>Your weight in kilograms</source>
-        <translation type="unfinished"></translation>
+        <translation>Vaše hmotnost v kilogramech</translation>
     </message>
     <message>
         <source>Age</source>
@@ -2978,7 +2994,7 @@ Následující otázky přizpůsobí QZ vašemu trenažéru a cílům.</translat
     </message>
     <message>
         <source>Your age in years. Used for heart rate zone calculations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Váš věk v letech. Používá se k výpočtu tepových zón.</translation>
     </message>
     <message>
         <source>Gender</source>
@@ -2986,7 +3002,7 @@ Následující otázky přizpůsobí QZ vašemu trenažéru a cílům.</translat
     </message>
     <message>
         <source>Used for calorie calculations</source>
-        <translation type="unfinished"></translation>
+        <translation>Používá se k výpočtu kalorií</translation>
     </message>
     <message>
         <source>Select Your Heart Rate Device</source>
@@ -2998,11 +3014,11 @@ Následující otázky přizpůsobí QZ vašemu trenažéru a cílům.</translat
     </message>
     <message>
         <source>Heart rate belt</source>
-        <translation type="unfinished"></translation>
+        <translation>Hrudní pás</translation>
     </message>
     <message>
         <source>Select your Bluetooth heart rate belt from the list. Tap Refresh to scan again. Choose Disabled if using a smartwatch.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyberte ze seznamu svůj hrudní pás Bluetooth. Klepnutím na „Obnovit“ spustíte nové vyhledávání. Pokud používáte chytré hodinky, zvolte „Vypnuto“.</translation>
     </message>
     <message>
         <source>Or select a smartwatch option:</source>
@@ -3105,11 +3121,11 @@ Následující otázky přizpůsobí QZ vašemu trenažéru a cílům.</translat
     </message>
     <message>
         <source>Loading workout editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Načítání editoru tréninků</translation>
     </message>
     <message>
         <source>The workout editor is loading</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor tréninků se načítá</translation>
     </message>
 </context>
 <context>
@@ -3757,19 +3773,19 @@ Při prvním spuštění to může chvíli trvat.</translation>
     </message>
     <message>
         <source>Speed %1 kilometers per hour</source>
-        <translation type="unfinished"></translation>
+        <translation>Rychlost %1 kilometru za hodinu</translation>
     </message>
     <message>
         <source>Speed %1 miles per hour</source>
-        <translation type="unfinished"></translation>
+        <translation>Rychlost %1 míle za hodinu</translation>
     </message>
     <message>
         <source>Inclination %1 percent</source>
-        <translation type="unfinished"></translation>
+        <translation>Sklon %1 procenta</translation>
     </message>
     <message>
         <source>Resistance %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Odpor %1</translation>
     </message>
     <message>
         <source>Stop</source>
@@ -4652,11 +4668,11 @@ V dalším okně povolte přístup ke složce QZ.</translation>
     </message>
     <message>
         <source>Return to the previous screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Vrátí se na předchozí obrazovku</translation>
     </message>
     <message>
         <source>Open the main navigation menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Otevře hlavní navigační nabídku</translation>
     </message>
     <message>
         <source>Floating window</source>
@@ -4664,7 +4680,7 @@ V dalším okně povolte přístup ke složce QZ.</translation>
     </message>
     <message>
         <source>Open the floating workout display</source>
-        <translation type="unfinished"></translation>
+        <translation>Otevře plovoucí okno s tréninkem</translation>
     </message>
     <message>
         <source>You can move the tiles!</source>
@@ -4680,7 +4696,7 @@ V dalším okně povolte přístup ke složce QZ.</translation>
     </message>
     <message>
         <source>Open the saved settings list</source>
-        <translation type="unfinished"></translation>
+        <translation>Otevře seznam uložených nastavení</translation>
     </message>
     <message>
         <source>Search settings</source>
@@ -4692,7 +4708,7 @@ V dalším okně povolte přístup ke složce QZ.</translation>
     </message>
     <message>
         <source>Save the current settings profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Uloží aktuální profil nastavení</translation>
     </message>
     <message>
         <source>Map</source>
@@ -4700,7 +4716,7 @@ V dalším okně povolte přístup ke složce QZ.</translation>
     </message>
     <message>
         <source>Open the route map</source>
-        <translation type="unfinished"></translation>
+        <translation>Otevře mapu trasy</translation>
     </message>
     <message>
         <source>Video</source>
@@ -4708,7 +4724,7 @@ V dalším okně povolte přístup ke složce QZ.</translation>
     </message>
     <message>
         <source>Show or hide the workout video</source>
-        <translation type="unfinished"></translation>
+        <translation>Zobrazí nebo skryje video tréninku</translation>
     </message>
     <message>
         <source>Chart</source>
@@ -4716,7 +4732,7 @@ V dalším okně povolte přístup ke složce QZ.</translation>
     </message>
     <message>
         <source>Show or hide the workout chart</source>
-        <translation type="unfinished"></translation>
+        <translation>Zobrazí nebo skryje graf tréninku</translation>
     </message>
     <message>
         <source>Share FIT file</source>
@@ -4732,11 +4748,11 @@ V dalším okně povolte přístup ke složce QZ.</translation>
     </message>
     <message>
         <source>Prevent workout tiles from being moved</source>
-        <translation type="unfinished"></translation>
+        <translation>Zabrání přesouvání dlaždic tréninku</translation>
     </message>
     <message>
         <source>Allow workout tiles to be moved</source>
-        <translation type="unfinished"></translation>
+        <translation>Umožní přesouvat dlaždice tréninku</translation>
     </message>
     <message>
         <source>Disable auto resistance</source>
@@ -4748,7 +4764,7 @@ V dalším okně povolte přístup ke složce QZ.</translation>
     </message>
     <message>
         <source>Toggle automatic resistance control</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapne nebo vypne automatické řízení odporu</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4820,11 +4836,11 @@ V dalším okně povolte přístup ke složce QZ.</translation>
     </message>
     <message>
         <source>Tap to log out of Strava</source>
-        <translation type="unfinished"></translation>
+        <translation>Klepnutím se odhlásíte ze Stravy</translation>
     </message>
     <message>
         <source>Tap to connect your Strava account</source>
-        <translation type="unfinished"></translation>
+        <translation>Klepnutím připojíte svůj účet Strava</translation>
     </message>
     <message>
         <source>Disconnect from Peloton</source>
@@ -4836,11 +4852,11 @@ V dalším okně povolte přístup ke složce QZ.</translation>
     </message>
     <message>
         <source>Tap to log out of Peloton</source>
-        <translation type="unfinished"></translation>
+        <translation>Klepnutím se odhlásíte z Pelotonu</translation>
     </message>
     <message>
         <source>Tap to connect your Peloton account</source>
-        <translation type="unfinished"></translation>
+        <translation>Klepnutím připojíte svůj účet Peloton</translation>
     </message>
     <message>
         <source>Garmin Connect settings</source>
@@ -4848,7 +4864,7 @@ V dalším okně povolte přístup ke složce QZ.</translation>
     </message>
     <message>
         <source>Open Garmin Connect integration settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Otevře nastavení integrace Garmin Connect</translation>
     </message>
     <message>
         <source>Disconnect from Intervals.icu</source>
@@ -4860,11 +4876,11 @@ V dalším okně povolte přístup ke složce QZ.</translation>
     </message>
     <message>
         <source>Tap to log out of Intervals.icu</source>
-        <translation type="unfinished"></translation>
+        <translation>Klepnutím se odhlásíte z Intervals.icu</translation>
     </message>
     <message>
         <source>Tap to connect your Intervals.icu account</source>
-        <translation type="unfinished"></translation>
+        <translation>Klepnutím připojíte svůj účet Intervals.icu</translation>
     </message>
     <message>
         <source>Workout</source>
@@ -5457,7 +5473,7 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Save Player Weight</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Hmotnost</translation>
     </message>
     <message>
         <source>Enter your weight in kilograms so QZ can more accurately calculate calories burned. NOTE: If you choose to use miles as the unit for distance traveled, you will be asked to enter your weight in pounds (lbs) unless you enable &apos;Use kg for weight&apos;.</source>
@@ -5473,7 +5489,7 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Save Player Height</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Výška</translation>
     </message>
     <message>
         <source>Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet&apos;inches&quot; format (e.g., 5&apos;10&quot;) for imperial units.</source>
@@ -5485,11 +5501,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Player Age</source>
-        <translation type="unfinished"></translation>
+        <translation>Věk</translation>
     </message>
     <message>
         <source>Save Player Age</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Věk</translation>
     </message>
     <message>
         <source>Enter your age so that calories burned can be more accurately calculated.</source>
@@ -5501,11 +5517,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Gender</source>
-        <translation type="unfinished">Pohlaví</translation>
+        <translation>Pohlaví</translation>
     </message>
     <message>
         <source>Save Gender</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Pohlaví</translation>
     </message>
     <message>
         <source>Select your gender so that calories burned can be more accurately calculated.</source>
@@ -5517,11 +5533,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>FTP value</source>
-        <translation type="unfinished"></translation>
+        <translation>Hodnota FTP</translation>
     </message>
     <message>
         <source>Save FTP value</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Hodnota FTP</translation>
     </message>
     <message>
         <source>If you train to specific output (or watts) levels, for example in Peloton Power Zone classes,and have taken an FTP test (Functional Threshold Power), enter your FTP here. This number is used to calculate your Power Zones (Zones 1 to 7 for Peloton and 1 to 6 for Zwift).</source>
@@ -5533,11 +5549,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Critical Power Run value</source>
-        <translation type="unfinished"></translation>
+        <translation>Kritický výkon v běhu</translation>
     </message>
     <message>
         <source>Save Critical Power Run value</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Kritický výkon v běhu</translation>
     </message>
     <message>
         <source>If you train to specific output (or watts) levels, for example with Stryd,and have taken an CP test (Critical Power Test), enter your CP here. This number is used to calculate your RSS.</source>
@@ -5549,11 +5565,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Nickname</source>
-        <translation type="unfinished"></translation>
+        <translation>Přezdívka</translation>
     </message>
     <message>
         <source>Save Nickname</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Přezdívka</translation>
     </message>
     <message>
         <source>No need to enter data here. It is for a possible future QZ feature.</source>
@@ -5565,11 +5581,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Email</source>
-        <translation type="unfinished"></translation>
+        <translation>E-mail</translation>
     </message>
     <message>
         <source>Save Email</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: E-mail</translation>
     </message>
     <message>
         <source>Enter your email address to receive an automated email with stats and charts when you hit STOP at the end of each workout. Make sure there are no spaces before or after the email address; this is the most common reason the automated email is not sent. Privacy Note: Email addresses are not collected by the developer and are only saved locally on your device.</source>
@@ -5681,11 +5697,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Zone 1 %</source>
-        <translation type="unfinished"></translation>
+        <translation>Zóna 1 (%)</translation>
     </message>
     <message>
         <source>Save Zone 1 %</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Zóna 1 (%)</translation>
     </message>
     <message>
         <source>Zone 2 %:</source>
@@ -5693,11 +5709,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Zone 2 %</source>
-        <translation type="unfinished"></translation>
+        <translation>Zóna 2 (%)</translation>
     </message>
     <message>
         <source>Save Zone 2 %</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Zóna 2 (%)</translation>
     </message>
     <message>
         <source>Zone 3 %:</source>
@@ -5705,11 +5721,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Zone 3 %</source>
-        <translation type="unfinished"></translation>
+        <translation>Zóna 3 (%)</translation>
     </message>
     <message>
         <source>Save Zone 3 %</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Zóna 3 (%)</translation>
     </message>
     <message>
         <source>Zone 4 %:</source>
@@ -5717,11 +5733,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Zone 4 %</source>
-        <translation type="unfinished"></translation>
+        <translation>Zóna 4 (%)</translation>
     </message>
     <message>
         <source>Save Zone 4 %</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Zóna 4 (%)</translation>
     </message>
     <message>
         <source>Zone 5 will be calculated automatically based on Zone 4 end percentage and max HR.</source>
@@ -5745,7 +5761,7 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Save Max Heart Rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Max. tep</translation>
     </message>
     <message>
         <source>QZ uses a standard age-based calculation for maximum heart rate and then sets the heart rate zones based on that max heart rate. If you know your actual max heart rate (the highest your heart rate is known to reach), turn this option on and enter your actual max heart rate. Then click OK.</source>
@@ -5757,7 +5773,7 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Save Resting Heart Rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Klidový tep</translation>
     </message>
     <message>
         <source>Enter your resting heart rate (the lowest your heart rate reaches when fully rested). This is used for accurate training load calculations. Default is 60 bpm.</source>
@@ -5773,11 +5789,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Session 1 Watt</source>
-        <translation type="unfinished"></translation>
+        <translation>Měření 1 – výkon</translation>
     </message>
     <message>
         <source>Save Session 1 Watt</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Měření 1 – výkon</translation>
     </message>
     <message>
         <source>Session 1 HR:</source>
@@ -5785,11 +5801,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Session 1 HR</source>
-        <translation type="unfinished"></translation>
+        <translation>Měření 1 – tep</translation>
     </message>
     <message>
         <source>Save Session 1 HR</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Měření 1 – tep</translation>
     </message>
     <message>
         <source>Session 2 Watt:</source>
@@ -5797,11 +5813,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Session 2 Watt</source>
-        <translation type="unfinished"></translation>
+        <translation>Měření 2 – výkon</translation>
     </message>
     <message>
         <source>Save Session 2 Watt</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Měření 2 – výkon</translation>
     </message>
     <message>
         <source>Session 2 HR:</source>
@@ -5809,11 +5825,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Session 2 HR</source>
-        <translation type="unfinished"></translation>
+        <translation>Měření 2 – tep</translation>
     </message>
     <message>
         <source>Save Session 2 HR</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Měření 2 – tep</translation>
     </message>
     <message>
         <source>Expand the bars to the right to display the options under this setting. These settings are used to calculate power (watts) for bikes that do not have power meters. Instead QZ estimates power from your cadence and heart rate. You can calibrate how QZ calculates your power from heart rate as follows: If you know that at a stable pace you produce 100W of power at a heart rate of 150 BPM and 150W at 170 BPM, you can add these values under Sessions 1 and 2 Watt and HR and QZ will calculate your power based on that trend line.</source>
@@ -5849,11 +5865,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Gear Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Převod</translation>
     </message>
     <message>
         <source>Save Gear Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Převod</translation>
     </message>
     <message>
         <source>Specify a particular gear value to be restored at startup. This will override the &apos;Restore Gears on Startup&apos; setting.</source>
@@ -5865,7 +5881,7 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Save Rolling Resistance Factor</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Koeficient valivého odporu</translation>
     </message>
     <message>
         <source>0.005 = Clinchers
@@ -5877,11 +5893,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Bike Weight</source>
-        <translation type="unfinished"></translation>
+        <translation>Hmotnost kola</translation>
     </message>
     <message>
         <source>Save Bike Weight</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Hmotnost kola</translation>
     </message>
     <message>
         <source>Enables QZ to include the weight of your bike when calculating speed. For example, if you are competing against yourself on VZfit, adding bike weight will &apos;level the playing field&apos; against your virtual self. If you have set QZ to calculate distance in miles, enter the bike weight in pounds (lbs) unless you enable &apos;Use kg for weight&apos;. Default unit is kilograms (kgs).</source>
@@ -5893,7 +5909,7 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Save Rolling Res. Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Násobitel valivého odporu</translation>
     </message>
     <message>
         <source>Wind Res. Gain</source>
@@ -5901,7 +5917,7 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Save Wind Res. Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Násobitel odporu vzduchu</translation>
     </message>
     <message>
         <source>Zwift Workout/Erg Mode</source>
@@ -5917,11 +5933,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Zwift Resistance Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Korekce odporu Zwift</translation>
     </message>
     <message>
         <source>Save Zwift Resistance Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Korekce odporu Zwift</translation>
     </message>
     <message>
         <source>This setting sets your “flat road” in Zwift. All communicated resistance changes will be based on this setting. The value entered is personal preference and will be dependent on your level of fitness. The suggested value for Echelon bikes is between 18 and 20. Default is 4.</source>
@@ -5933,11 +5949,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Zwift Power Offset (W)</source>
-        <translation type="unfinished"></translation>
+        <translation>Korekce výkonu Zwift (W)</translation>
     </message>
     <message>
         <source>Save Zwift Power Offset (W)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Korekce výkonu Zwift (W)</translation>
     </message>
     <message>
         <source>Add an offset in watts to the requested power from apps like Zwift. Positive values increase power, negative values decrease it. Default is 0.</source>
@@ -5949,11 +5965,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Zwift Resistance Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Násobitel odporu Zwift</translation>
     </message>
     <message>
         <source>Save Zwift Resistance Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Násobitel odporu Zwift</translation>
     </message>
     <message>
         <source>(for bikes and treadmills when using “treadmill as a bike” setting). This setting scales the resistance from your bike or the speed from your treadmill before sending it to Zwift. Default is 1.</source>
@@ -5965,11 +5981,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Zwift ERG Watt Up Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift ERG: filtr zvýšení výkonu</translation>
     </message>
     <message>
         <source>Save Zwift ERG Watt Up Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Zwift ERG: filtr zvýšení výkonu</translation>
     </message>
     <message>
         <source>In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 watts or more than 110 watts. Default is 10.</source>
@@ -5981,11 +5997,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Zwift ERG Watt Down Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift ERG: filtr snížení výkonu</translation>
     </message>
     <message>
         <source>Save Zwift ERG Watt Down Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Zwift ERG: filtr snížení výkonu</translation>
     </message>
     <message>
         <source>See above. Default is 10.</source>
@@ -5997,11 +6013,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Min. Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. odpor</translation>
     </message>
     <message>
         <source>Save Min. Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Min. odpor</translation>
     </message>
     <message>
         <source>Use this setting to set a minimum target resistance. For example, if you do not want to ride at a resistance below 25, enter a value of 25 and QZ will not set a target resistance below 25. Default is 0.</source>
@@ -6013,11 +6029,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Max. Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. odpor</translation>
     </message>
     <message>
         <source>Save Max. Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Max. odpor</translation>
     </message>
     <message>
         <source>Similar to the above, but sets a maximum target resistance. Default is 999.</source>
@@ -6029,11 +6045,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Resistance at Startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Odpor při spuštění</translation>
     </message>
     <message>
         <source>Save Resistance at Startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Odpor při spuštění</translation>
     </message>
     <message>
         <source>(only for bikes with electronically-controlled resistance): Enter the resistance level you want QZ to set at startup. Default is 1.</source>
@@ -6045,11 +6061,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Gears Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Násobitel převodů</translation>
     </message>
     <message>
         <source>Save Gears Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Násobitel převodů</translation>
     </message>
     <message>
         <source>Applies a multiplier to the gears. Default is 1.</source>
@@ -6065,11 +6081,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Gears Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Korekce převodů</translation>
     </message>
     <message>
         <source>Save Gears Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Korekce převodů</translation>
     </message>
     <message>
         <source>Applies an offset to the gears. Default is 0.</source>
@@ -6093,7 +6109,7 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Profil</translation>
     </message>
     <message>
         <source>Cruise Profile Settings</source>
@@ -6105,11 +6121,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Cruise - Gear Up Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Jízda – kadence pro vyšší převod (RPM)</translation>
     </message>
     <message>
         <source>Save Cruise - Gear Up Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Jízda – kadence pro vyšší převod (RPM)</translation>
     </message>
     <message>
         <source>Cruise - Gear Up Time (seconds):</source>
@@ -6117,11 +6133,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Cruise - Gear Up Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Jízda – čas do vyššího převodu (s)</translation>
     </message>
     <message>
         <source>Save Cruise - Gear Up Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Jízda – čas do vyššího převodu (s)</translation>
     </message>
     <message>
         <source>Cruise - Gear Down Cadence (RPM):</source>
@@ -6129,11 +6145,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Cruise - Gear Down Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Jízda – kadence pro nižší převod (RPM)</translation>
     </message>
     <message>
         <source>Save Cruise - Gear Down Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Jízda – kadence pro nižší převod (RPM)</translation>
     </message>
     <message>
         <source>Cruise - Gear Down Time (seconds):</source>
@@ -6141,11 +6157,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Cruise - Gear Down Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Jízda – čas do nižšího převodu (s)</translation>
     </message>
     <message>
         <source>Save Cruise - Gear Down Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Jízda – čas do nižšího převodu (s)</translation>
     </message>
     <message>
         <source>Climb Profile Settings</source>
@@ -6157,11 +6173,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Climb - Gear Up Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Stoupání – kadence pro vyšší převod (RPM)</translation>
     </message>
     <message>
         <source>Save Climb - Gear Up Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Stoupání – kadence pro vyšší převod (RPM)</translation>
     </message>
     <message>
         <source>Climb - Gear Up Time (seconds):</source>
@@ -6169,11 +6185,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Climb - Gear Up Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Stoupání – čas do vyššího převodu (s)</translation>
     </message>
     <message>
         <source>Save Climb - Gear Up Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Stoupání – čas do vyššího převodu (s)</translation>
     </message>
     <message>
         <source>Climb - Gear Down Cadence (RPM):</source>
@@ -6181,11 +6197,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Climb - Gear Down Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Stoupání – kadence pro nižší převod (RPM)</translation>
     </message>
     <message>
         <source>Save Climb - Gear Down Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Stoupání – kadence pro nižší převod (RPM)</translation>
     </message>
     <message>
         <source>Climb - Gear Down Time (seconds):</source>
@@ -6193,11 +6209,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Climb - Gear Down Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Stoupání – čas do nižšího převodu (s)</translation>
     </message>
     <message>
         <source>Save Climb - Gear Down Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Stoupání – čas do nižšího převodu (s)</translation>
     </message>
     <message>
         <source>Sprint Profile Settings</source>
@@ -6209,11 +6225,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Sprint - Gear Up Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprint – kadence pro vyšší převod (RPM)</translation>
     </message>
     <message>
         <source>Save Sprint - Gear Up Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Sprint – kadence pro vyšší převod (RPM)</translation>
     </message>
     <message>
         <source>Sprint - Gear Up Time (seconds):</source>
@@ -6221,11 +6237,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Sprint - Gear Up Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprint – čas do vyššího převodu (s)</translation>
     </message>
     <message>
         <source>Save Sprint - Gear Up Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Sprint – čas do vyššího převodu (s)</translation>
     </message>
     <message>
         <source>Sprint - Gear Down Cadence (RPM):</source>
@@ -6233,11 +6249,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Sprint - Gear Down Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprint – kadence pro nižší převod (RPM)</translation>
     </message>
     <message>
         <source>Save Sprint - Gear Down Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Sprint – kadence pro nižší převod (RPM)</translation>
     </message>
     <message>
         <source>Sprint - Gear Down Time (seconds):</source>
@@ -6245,11 +6261,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Sprint - Gear Down Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprint – čas do nižšího převodu (s)</translation>
     </message>
     <message>
         <source>Save Sprint - Gear Down Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Sprint – čas do nižšího převodu (s)</translation>
     </message>
     <message>
         <source>FTMS Bike:</source>
@@ -6289,11 +6305,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Resistance Smoothing</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyhlazení odporu</translation>
     </message>
     <message>
         <source>Save Resistance Smoothing</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Vyhlazení odporu</translation>
     </message>
     <message>
         <source>Since this bike doesn&apos;t send resistance over Bluetooth, QZ is calculating it using cadence and wattage. The result could be a little &apos;jumpy&apos; and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.</source>
@@ -6309,11 +6325,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>GR7 Cadence Multiplier</source>
-        <translation type="unfinished"></translation>
+        <translation>Násobitel kadence GR7</translation>
     </message>
     <message>
         <source>Save GR7 Cadence Multiplier</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Násobitel kadence GR7</translation>
     </message>
     <message>
         <source>Echelon Bike Options</source>
@@ -6325,11 +6341,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Watt Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Profil výkonu</translation>
     </message>
     <message>
         <source>Save Watt Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Profil výkonu</translation>
     </message>
     <message>
         <source>Resistance Gain:</source>
@@ -6337,11 +6353,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Resistance Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Násobitel odporu</translation>
     </message>
     <message>
         <source>Save Resistance Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Násobitel odporu</translation>
     </message>
     <message>
         <source>Resistance Offset:</source>
@@ -6349,11 +6365,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Resistance Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Korekce odporu</translation>
     </message>
     <message>
         <source>Save Resistance Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Korekce odporu</translation>
     </message>
     <message>
         <source>Change gears using knob (Experimental)</source>
@@ -6457,11 +6473,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Samples Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr nulových hodnot</translation>
     </message>
     <message>
         <source>Save Samples Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Filtr nulových hodnot</translation>
     </message>
     <message>
         <source>Domyos Bike Options</source>
@@ -6473,11 +6489,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Cadence Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr kadence</translation>
     </message>
     <message>
         <source>Save Cadence Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Filtr kadence</translation>
     </message>
     <message>
         <source>Ignore FTMS</source>
@@ -6522,11 +6538,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Wheel Ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Převodový poměr kola</translation>
     </message>
     <message>
         <source>Save Wheel Ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Převodový poměr kola</translation>
     </message>
     <message>
         <source>Specific Model:</source>
@@ -6542,11 +6558,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>TDF1 IP</source>
-        <translation type="unfinished"></translation>
+        <translation>IP adresa TDF1</translation>
     </message>
     <message>
         <source>Save TDF1 IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: IP adresa TDF1</translation>
     </message>
     <message>
         <source>TDF4 IP:</source>
@@ -6554,11 +6570,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>TDF4 IP</source>
-        <translation type="unfinished"></translation>
+        <translation>IP adresa TDF4</translation>
     </message>
     <message>
         <source>Save TDF4 IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: IP adresa TDF4</translation>
     </message>
     <message>
         <source>TDF Companion IP:</source>
@@ -6566,11 +6582,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>TDF Companion IP</source>
-        <translation type="unfinished"></translation>
+        <translation>IP adresa TDF Companion</translation>
     </message>
     <message>
         <source>Save TDF Companion IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: IP adresa TDF Companion</translation>
     </message>
     <message>
         <source>ADB Remote</source>
@@ -6590,11 +6606,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Serial Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Sériový port</translation>
     </message>
     <message>
         <source>Save Serial Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Sériový port</translation>
     </message>
     <message>
         <source>Kettler USB Bike Options</source>
@@ -6602,11 +6618,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Baudrate</source>
-        <translation type="unfinished"></translation>
+        <translation>Přenosová rychlost</translation>
     </message>
     <message>
         <source>Save Baudrate</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Přenosová rychlost</translation>
     </message>
     <message>
         <source>M3i Bike Options</source>
@@ -6622,11 +6638,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Bike ID</source>
-        <translation type="unfinished"></translation>
+        <translation>ID kola</translation>
     </message>
     <message>
         <source>Save Bike ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: ID kola</translation>
     </message>
     <message>
         <source>Speed Buffer Size:</source>
@@ -6634,11 +6650,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Speed Buffer Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyhlazení rychlosti (počet hodnot)</translation>
     </message>
     <message>
         <source>Save Speed Buffer Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Vyhlazení rychlosti (počet hodnot)</translation>
     </message>
     <message>
         <source>Use KCal from the Bike</source>
@@ -6670,11 +6686,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>ANT+ Bike Device Number (0=Auto)</source>
-        <translation type="unfinished"></translation>
+        <translation>Číslo zařízení ANT+ kola (0 = auto)</translation>
     </message>
     <message>
         <source>Save ANT+ Bike Device Number (0=Auto)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Číslo zařízení ANT+ kola (0 = auto)</translation>
     </message>
     <message>
         <source>Toputure Bikes</source>
@@ -6706,7 +6722,7 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Save ANT+ Speed Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Korekce rychlosti ANT+</translation>
     </message>
     <message>
         <source>You can increase/decrease your speed sent over ANT+. The number you enter as an Offset adds that amount to your speed.</source>
@@ -6718,11 +6734,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>ANT+ Speed Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Násobitel rychlosti ANT+</translation>
     </message>
     <message>
         <source>Save ANT+ Speed Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Násobitel rychlosti ANT+</translation>
     </message>
     <message>
         <source>You can increase/decrease your speed output sent over ANT+. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.</source>
@@ -6738,11 +6754,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>ANT+ Heart Device Number (0=Auto)</source>
-        <translation type="unfinished"></translation>
+        <translation>Číslo zařízení ANT+ snímače tepu (0 = auto)</translation>
     </message>
     <message>
         <source>Save ANT+ Heart Device Number (0=Auto)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Číslo zařízení ANT+ snímače tepu (0 = auto)</translation>
     </message>
     <message>
         <source>This setting enables receiving the heart rate from an external HRM over ANT+ instead of from QZ.</source>
@@ -6766,7 +6782,7 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Save Tile Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Velikost dlaždic</translation>
     </message>
     <message>
         <source>Use System Text Size</source>
@@ -6794,11 +6810,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Floating Window Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ plovoucího okna</translation>
     </message>
     <message>
         <source>Save Floating Window Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Typ plovoucího okna</translation>
     </message>
     <message>
         <source>Choose the floating window layout type. Classic uses the standard floating.htm file, while Horizontal uses the hfloating.htm file for horizontal layout.</source>
@@ -6814,11 +6830,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Floating Window Width</source>
-        <translation type="unfinished"></translation>
+        <translation>Šířka plovoucího okna</translation>
     </message>
     <message>
         <source>Save Floating Window Width</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Šířka plovoucího okna</translation>
     </message>
     <message>
         <source>Android Only: width of the floating window.</source>
@@ -6830,11 +6846,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Floating Window Height</source>
-        <translation type="unfinished"></translation>
+        <translation>Výška plovoucího okna</translation>
     </message>
     <message>
         <source>Save Floating Window Height</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Výška plovoucího okna</translation>
     </message>
     <message>
         <source>Android Only: height of the floating window.</source>
@@ -6846,11 +6862,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Floating Window % Transparency</source>
-        <translation type="unfinished"></translation>
+        <translation>Průhlednost plovoucího okna (%)</translation>
     </message>
     <message>
         <source>Save Floating Window % Transparency</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Průhlednost plovoucího okna (%)</translation>
     </message>
     <message>
         <source>Android Only: transparency percentage of the floating window.</source>
@@ -6874,11 +6890,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Chart Display Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Režim grafů</translation>
     </message>
     <message>
         <source>Save Chart Display Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Režim grafů</translation>
     </message>
     <message>
         <source>Choose which charts to display in the footer: both heart rate and power charts, only heart rate chart, or only power chart.</source>
@@ -6890,11 +6906,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>iOS Live Activity Left Metric</source>
-        <translation type="unfinished"></translation>
+        <translation>Levý údaj Live Activity (iOS)</translation>
     </message>
     <message>
         <source>Save iOS Live Activity Left Metric</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Levý údaj Live Activity (iOS)</translation>
     </message>
     <message>
         <source>iOS Live Activity Right Metric:</source>
@@ -6902,11 +6918,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>iOS Live Activity Right Metric</source>
-        <translation type="unfinished"></translation>
+        <translation>Pravý údaj Live Activity (iOS)</translation>
     </message>
     <message>
         <source>Save iOS Live Activity Right Metric</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Pravý údaj Live Activity (iOS)</translation>
     </message>
     <message>
         <source>iOS only: choose which two metrics are shown in the compact Dynamic Island bar for Live Activities. Default is Heart Rate on the left and Watt on the right.</source>
@@ -6926,11 +6942,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Background Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Barva pozadí</translation>
     </message>
     <message>
         <source>Save Background Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Barva pozadí</translation>
     </message>
     <message>
         <source>Please choose a color</source>
@@ -6942,11 +6958,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Tiles Background Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Barva pozadí dlaždic</translation>
     </message>
     <message>
         <source>Save Tiles Background Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Barva pozadí dlaždic</translation>
     </message>
     <message>
         <source>Tiles Shadow</source>
@@ -6958,11 +6974,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Tiles Shadow Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Barva stínu dlaždic</translation>
     </message>
     <message>
         <source>Save Tiles Shadow Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Barva stínu dlaždic</translation>
     </message>
     <message>
         <source>Statusbar Background Color:</source>
@@ -6970,11 +6986,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Statusbar Background Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Barva pozadí stavového řádku</translation>
     </message>
     <message>
         <source>Save Statusbar Background Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Barva pozadí stavového řádku</translation>
     </message>
     <message>
         <source>2nd line tile text size:</source>
@@ -6982,11 +6998,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>2nd line tile text size</source>
-        <translation type="unfinished"></translation>
+        <translation>Velikost textu 2. řádku dlaždice</translation>
     </message>
     <message>
         <source>Save 2nd line tile text size</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Velikost textu 2. řádku dlaždice</translation>
     </message>
     <message>
         <source>Peloton Options</source>
@@ -6994,11 +7010,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Connect to Peloton</source>
-        <translation type="unfinished">Připojit Peloton</translation>
+        <translation>Připojit Peloton</translation>
     </message>
     <message>
         <source>Opens the Peloton login page</source>
-        <translation type="unfinished"></translation>
+        <translation>Otevře přihlašovací stránku Peloton</translation>
     </message>
     <message>
         <source>Difficulty:</source>
@@ -7006,11 +7022,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Difficulty</source>
-        <translation type="unfinished">Obtížnost</translation>
+        <translation>Obtížnost</translation>
     </message>
     <message>
         <source>Save Difficulty</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Obtížnost</translation>
     </message>
     <message>
         <source>Typically, Peloton coaches call out a range for target incline, resistance and/or speed. Use this setting to choose the difficulty of the target QZ communicates. Difficulty level can be set to lower, upper or average. Click OK.</source>
@@ -7022,11 +7038,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Treadmill Level</source>
-        <translation type="unfinished"></translation>
+        <translation>Úroveň pro běžecký pás</translation>
     </message>
     <message>
         <source>Save Treadmill Level</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Úroveň pro běžecký pás</translation>
     </message>
     <message>
         <source>Difficulty level for Peloton treadmill classes. 1 is easy 10 is hard.</source>
@@ -7038,11 +7054,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Treadmill Walk Level</source>
-        <translation type="unfinished"></translation>
+        <translation>Úroveň chůze na běžeckém pásu</translation>
     </message>
     <message>
         <source>Save Treadmill Walk Level</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Úroveň chůze na běžeckém pásu</translation>
     </message>
     <message>
         <source>Difficulty level for Peloton treadmill walking classes. 1 is easy 10 is hard.</source>
@@ -7054,11 +7070,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Walking Min Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. rychlost chůze</translation>
     </message>
     <message>
         <source>Save Walking Min Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Min. rychlost chůze</translation>
     </message>
     <message>
         <source>Minimum speed for Peloton walking sessions. Set to 0 to disable. Applied to all speed targets in walking workouts.</source>
@@ -7070,11 +7086,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Running Min Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. rychlost běhu</translation>
     </message>
     <message>
         <source>Save Running Min Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Min. rychlost běhu</translation>
     </message>
     <message>
         <source>Minimum speed for Peloton running sessions. Set to 0 to disable. Applied to all speed targets in running workouts.</source>
@@ -7086,11 +7102,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Rower Level</source>
-        <translation type="unfinished"></translation>
+        <translation>Úroveň pro veslovací trenažér</translation>
     </message>
     <message>
         <source>Save Rower Level</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Úroveň pro veslovací trenažér</translation>
     </message>
     <message>
         <source>Difficulty level for Peloton rower classes. 1 is easy 10 is hard.</source>
@@ -7102,11 +7118,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>PZP Username</source>
-        <translation type="unfinished"></translation>
+        <translation>Uživatelské jméno PZP</translation>
     </message>
     <message>
         <source>Save PZP Username</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Uživatelské jméno PZP</translation>
     </message>
     <message>
         <source>As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave (or change back to) the default of “username” (without quotation marks, all lowercase and all one word) until further notice.</source>
@@ -7118,11 +7134,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>PZP Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Heslo PZP</translation>
     </message>
     <message>
         <source>Save PZP Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Heslo PZP</translation>
     </message>
     <message>
         <source>As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave this setting blank until further notice.</source>
@@ -7134,11 +7150,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Conversion Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Násobitel přepočtu</translation>
     </message>
     <message>
         <source>Save Conversion Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Násobitel přepočtu</translation>
     </message>
     <message>
         <source>Conversion gain is a multiplier. Use this setting to align the Peloton resistance calculated by QZ with the relative effort required by your bike. In most cases the default values will be correct.</source>
@@ -7150,11 +7166,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Conversion Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Korekce přepočtu</translation>
     </message>
     <message>
         <source>Save Conversion Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Korekce přepočtu</translation>
     </message>
     <message>
         <source>Increases the resistance that QZ displays in the Peloton Resistance tile. If QZ’s calculated conversion from your bike’s resistance scale to Peloton’s seems too low, the number you enter here will be added to the calculated resistance without increasing your effort or actual resistance. (Example: If QZ displays Peloton resistance of 30 and you enter 5, QZ will display 35.)</source>
@@ -7190,11 +7206,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Override HR Metric</source>
-        <translation type="unfinished"></translation>
+        <translation>Místo tepu posílat</translation>
     </message>
     <message>
         <source>Save Override HR Metric</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Místo tepu posílat</translation>
     </message>
     <message>
         <source>By default, QZ communicates heart rate to Peloton. Use this setting to change the metric that appears on the Peloton screen.</source>
@@ -7206,11 +7222,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Date on Strava</source>
-        <translation type="unfinished"></translation>
+        <translation>Datum na Stravě</translation>
     </message>
     <message>
         <source>Save Date on Strava</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Datum na Stravě</translation>
     </message>
     <message>
         <source>Allows you to choose whether you would like the Peloton class air date to display before or after the class title on Strava.</source>
@@ -7222,11 +7238,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Date Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Formát data</translation>
     </message>
     <message>
         <source>Save Date Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Formát data</translation>
     </message>
     <message>
         <source>Activity Link in Strava</source>
@@ -7270,11 +7286,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Username</source>
-        <translation type="unfinished">Uživatelské jméno</translation>
+        <translation>Uživatelské jméno</translation>
     </message>
     <message>
         <source>Save Username</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Uživatelské jméno</translation>
     </message>
     <message>
         <source>Enter the email address you use to login to Zwift. Ensure there are no spaces before or after your email. Click OK.</source>
@@ -7286,11 +7302,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Password</source>
-        <translation type="unfinished">Heslo</translation>
+        <translation>Heslo</translation>
     </message>
     <message>
         <source>Save Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Heslo</translation>
     </message>
     <message>
         <source>Enter the password you use to login to Zwift. Click OK.</source>
@@ -7326,11 +7342,11 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Poll Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Interval aktualizace</translation>
     </message>
     <message>
         <source>Save Poll Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Interval aktualizace</translation>
     </message>
     <message>
         <source>Define the number of delay seconds between each inclination change from Zwift. This value can&apos;t be less than 5. Default: 5</source>
@@ -7422,23 +7438,23 @@ Povolit QZ tuto hodnotu měnit?
     </message>
     <message>
         <source>Garmin Email</source>
-        <translation type="unfinished"></translation>
+        <translation>E-mail Garmin</translation>
     </message>
     <message>
         <source>Save Garmin Email</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: E-mail Garmin</translation>
     </message>
     <message>
         <source>Garmin Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Heslo Garmin</translation>
     </message>
     <message>
         <source>Save Garmin Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Heslo Garmin</translation>
     </message>
     <message>
         <source>Garmin Server</source>
-        <translation type="unfinished"></translation>
+        <translation>Server Garmin</translation>
     </message>
     <message>
         <source>Test Garmin Login</source>
@@ -7813,215 +7829,215 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>PID on Heart Zone</source>
-        <translation type="unfinished"></translation>
+        <translation>Udržování tepové zóny</translation>
     </message>
     <message>
         <source>Save PID on Heart Zone</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Udržování tepové zóny</translation>
     </message>
     <message>
         <source>Save PID HR actuator</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Udržování tepu mění</translation>
     </message>
     <message>
         <source>PID on HR min</source>
-        <translation type="unfinished"></translation>
+        <translation>Udržování tepu – min.</translation>
     </message>
     <message>
         <source>Save PID on HR min</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Udržování tepu – min.</translation>
     </message>
     <message>
         <source>PID on HR max</source>
-        <translation type="unfinished"></translation>
+        <translation>Udržování tepu – max.</translation>
     </message>
     <message>
         <source>Save PID on HR max</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Udržování tepu – max.</translation>
     </message>
     <message>
         <source>1 mile pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tempo na 1 míli (celkový čas)</translation>
     </message>
     <message>
         <source>Save 1 mile pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Tempo na 1 míli (celkový čas)</translation>
     </message>
     <message>
         <source>5 km pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tempo na 5 km (celkový čas)</translation>
     </message>
     <message>
         <source>Save 5 km pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Tempo na 5 km (celkový čas)</translation>
     </message>
     <message>
         <source>10 km pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tempo na 10 km (celkový čas)</translation>
     </message>
     <message>
         <source>Save 10 km pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Tempo na 10 km (celkový čas)</translation>
     </message>
     <message>
         <source>Half Marathon pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tempo na půlmaraton (celkový čas)</translation>
     </message>
     <message>
         <source>Save Half Marathon pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Tempo na půlmaraton (celkový čas)</translation>
     </message>
     <message>
         <source>Marathon pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tempo na maraton (celkový čas)</translation>
     </message>
     <message>
         <source>Save Marathon pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Tempo na maraton (celkový čas)</translation>
     </message>
     <message>
         <source>Default Pace</source>
-        <translation type="unfinished"></translation>
+        <translation>Výchozí tempo</translation>
     </message>
     <message>
         <source>Save Default Pace</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Výchozí tempo</translation>
     </message>
     <message>
         <source>ERG Mode Watt Step</source>
-        <translation type="unfinished"></translation>
+        <translation>Krok výkonu v režimu ERG</translation>
     </message>
     <message>
         <source>Save ERG Mode Watt Step</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Krok výkonu v režimu ERG</translation>
     </message>
     <message>
         <source>Duration (minutes)</source>
-        <translation type="unfinished"></translation>
+        <translation>Doba trvání (minuty)</translation>
     </message>
     <message>
         <source>Save Duration (minutes)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Doba trvání (minuty)</translation>
     </message>
     <message>
         <source>Period (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Perioda (sekundy)</translation>
     </message>
     <message>
         <source>Save Period (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Perioda (sekundy)</translation>
     </message>
     <message>
         <source>Speed min.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rychlost min.</translation>
     </message>
     <message>
         <source>Save Speed min.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Rychlost min.</translation>
     </message>
     <message>
         <source>Speed max.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rychlost max.</translation>
     </message>
     <message>
         <source>Save Speed max.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Rychlost max.</translation>
     </message>
     <message>
         <source>Incline min.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sklon min.</translation>
     </message>
     <message>
         <source>Save Incline min.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Sklon min.</translation>
     </message>
     <message>
         <source>Incline max.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sklon max.</translation>
     </message>
     <message>
         <source>Save Incline max.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Sklon max.</translation>
     </message>
     <message>
         <source>Resistance min.</source>
-        <translation type="unfinished"></translation>
+        <translation>Odpor min.</translation>
     </message>
     <message>
         <source>Save Resistance min.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Odpor min.</translation>
     </message>
     <message>
         <source>Resistance max.</source>
-        <translation type="unfinished"></translation>
+        <translation>Odpor max.</translation>
     </message>
     <message>
         <source>Save Resistance max.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Odpor max.</translation>
     </message>
     <message>
         <source>Speed Step</source>
-        <translation type="unfinished"></translation>
+        <translation>Krok rychlosti</translation>
     </message>
     <message>
         <source>Save Speed Step</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Krok rychlosti</translation>
     </message>
     <message>
         <source>Min. Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. sklon</translation>
     </message>
     <message>
         <source>Save Min. Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Min. sklon</translation>
     </message>
     <message>
         <source>Max. Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. sklon</translation>
     </message>
     <message>
         <source>Save Max. Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Max. sklon</translation>
     </message>
     <message>
         <source>Max. Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. rychlost</translation>
     </message>
     <message>
         <source>Save Max. Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Max. rychlost</translation>
     </message>
     <message>
         <source>Min. Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. rychlost</translation>
     </message>
     <message>
         <source>Save Min. Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Min. rychlost</translation>
     </message>
     <message>
         <source>Step Count Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Násobitel kroků</translation>
     </message>
     <message>
         <source>Save Step Count Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Násobitel kroků</translation>
     </message>
     <message>
         <source>Proform IP</source>
-        <translation type="unfinished"></translation>
+        <translation>IP adresa Proform</translation>
     </message>
     <message>
         <source>Save Proform IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: IP adresa Proform</translation>
     </message>
     <message>
         <source>Nordictrack 2950 IP</source>
-        <translation type="unfinished"></translation>
+        <translation>IP adresa Nordictrack 2950</translation>
     </message>
     <message>
         <source>Save Nordictrack 2950 IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: IP adresa Nordictrack 2950</translation>
     </message>
     <message>
         <source>Echelon Options</source>
@@ -8041,19 +8057,19 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>Life Fitness username/email</source>
-        <translation type="unfinished"></translation>
+        <translation>Uživatelské jméno/e-mail Life Fitness</translation>
     </message>
     <message>
         <source>Save Life Fitness username/email</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Uživatelské jméno/e-mail Life Fitness</translation>
     </message>
     <message>
         <source>Life Fitness password</source>
-        <translation type="unfinished"></translation>
+        <translation>Heslo Life Fitness</translation>
     </message>
     <message>
         <source>Save Life Fitness password</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Heslo Life Fitness</translation>
     </message>
     <message>
         <source>RunnerT Options</source>
@@ -8093,11 +8109,11 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>Remap 5 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>Přemapovat tlačítko 5 km/h</translation>
     </message>
     <message>
         <source>Save Remap 5 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Přemapovat tlačítko 5 km/h</translation>
     </message>
     <message>
         <source>Remap 10 km/h button:</source>
@@ -8105,11 +8121,11 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>Remap 10 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>Přemapovat tlačítko 10 km/h</translation>
     </message>
     <message>
         <source>Save Remap 10 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Přemapovat tlačítko 10 km/h</translation>
     </message>
     <message>
         <source>Remap 16 km/h button:</source>
@@ -8117,11 +8133,11 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>Remap 16 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>Přemapovat tlačítko 16 km/h</translation>
     </message>
     <message>
         <source>Save Remap 16 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Přemapovat tlačítko 16 km/h</translation>
     </message>
     <message>
         <source>Remap 22 km/h button:</source>
@@ -8129,11 +8145,11 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>Remap 22 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>Přemapovat tlačítko 22 km/h</translation>
     </message>
     <message>
         <source>Save Remap 22 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Přemapovat tlačítko 22 km/h</translation>
     </message>
     <message>
         <source>Pool time (ms):</source>
@@ -8141,11 +8157,11 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>Pool time (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Interval aktualizace (ms)</translation>
     </message>
     <message>
         <source>Save Pool time (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Interval aktualizace (ms)</translation>
     </message>
     <message>
         <source>Default: 200. Change this only if you have random issues with speed or inclination (try to put 300)</source>
@@ -8185,11 +8201,11 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>User ID</source>
-        <translation type="unfinished"></translation>
+        <translation>ID uživatele</translation>
     </message>
     <message>
         <source>Save User ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: ID uživatele</translation>
     </message>
     <message>
         <source>ESLinker Treadmill Options</source>
@@ -8233,11 +8249,11 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>User 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Uživatel 1</translation>
     </message>
     <message>
         <source>Save User 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Uživatel 1</translation>
     </message>
     <message>
         <source>User 2:</source>
@@ -8245,11 +8261,11 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>User 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Uživatel 2</translation>
     </message>
     <message>
         <source>Save User 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Uživatel 2</translation>
     </message>
     <message>
         <source>User 3:</source>
@@ -8257,11 +8273,11 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>User 3</source>
-        <translation type="unfinished"></translation>
+        <translation>Uživatel 3</translation>
     </message>
     <message>
         <source>Save User 3</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Uživatel 3</translation>
     </message>
     <message>
         <source>User 4:</source>
@@ -8269,11 +8285,11 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>User 4</source>
-        <translation type="unfinished"></translation>
+        <translation>Uživatel 4</translation>
     </message>
     <message>
         <source>Save User 4</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Uživatel 4</translation>
     </message>
     <message>
         <source>User 5:</source>
@@ -8281,11 +8297,11 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>User 5</source>
-        <translation type="unfinished"></translation>
+        <translation>Uživatel 5</translation>
     </message>
     <message>
         <source>Save User 5</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Uživatel 5</translation>
     </message>
     <message>
         <source>Bodytone Treadmill Options</source>
@@ -8385,11 +8401,11 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>ProForm Rower IP</source>
-        <translation type="unfinished"></translation>
+        <translation>IP adresa veslovacího trenažéru ProForm</translation>
     </message>
     <message>
         <source>Save ProForm Rower IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: IP adresa veslovacího trenažéru ProForm</translation>
     </message>
     <message>
         <source>Elliptical Options</source>
@@ -8405,7 +8421,7 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>Save Domyos Elliptical Speed Ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Poměr rychlosti eliptického trenažéru Domyos</translation>
     </message>
     <message>
         <source>Inclination Supported</source>
@@ -8433,11 +8449,11 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>Companion IP</source>
-        <translation type="unfinished"></translation>
+        <translation>IP adresa Companion</translation>
     </message>
     <message>
         <source>Save Companion IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: IP adresa Companion</translation>
     </message>
     <message>
         <source>Sole Elliptical Options</source>
@@ -8481,11 +8497,11 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>Watt Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Korekce výkonu</translation>
     </message>
     <message>
         <source>Save Watt Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Korekce výkonu</translation>
     </message>
     <message>
         <source>You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. The number you enter as an Offset adds that amount to your watts.</source>
@@ -8497,11 +8513,11 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>Watt Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Násobitel výkonu</translation>
     </message>
     <message>
         <source>Save Watt Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Násobitel výkonu</translation>
     </message>
     <message>
         <source>You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. For example, to use a rower to cycle in Zwift, you could double your watt output to better match your cycling speed by entering 2. The number you enter is a multiplier applied to your actual watts.</source>
@@ -8513,7 +8529,7 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>Save Speed Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Korekce rychlosti</translation>
     </message>
     <message>
         <source>You can increase/decrease your speed for moving your avatar faster/slower in Zwift if your equipment outputs speed but not watts. The number you enter as an Offset adds that amount to your speed.</source>
@@ -8525,11 +8541,11 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>Speed Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Násobitel rychlosti</translation>
     </message>
     <message>
         <source>Save Speed Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Násobitel rychlosti</translation>
     </message>
     <message>
         <source>You can increase/decrease your speed output for moving your avatar faster/slower in Zwift or other apps as a way of calibrating your equipment if your equipment outputs speed but not watts. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.</source>
@@ -8541,7 +8557,7 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>Save Cadence Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Korekce kadence</translation>
     </message>
     <message>
         <source>You can increase/decrease your cadence output. The number you enter as an Offset adds that amount to your cadence.</source>
@@ -8553,7 +8569,7 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>Save Cadence Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Násobitel kadence</translation>
     </message>
     <message>
         <source>You can increase/decrease your cadence output as a way of calibrating your equipment if your equipment outputs cadence but not watts. The number you enter is a multiplier applied to your actual cadence.</source>
@@ -8569,11 +8585,11 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>Strava Upload</source>
-        <translation type="unfinished"></translation>
+        <translation>Nahrávání do Stravy</translation>
     </message>
     <message>
         <source>Save Strava Upload</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Nahrávání do Stravy</translation>
     </message>
     <message>
         <source>Suffix activity:</source>
@@ -8581,11 +8597,11 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>Suffix activity</source>
-        <translation type="unfinished"></translation>
+        <translation>Přípona aktivity</translation>
     </message>
     <message>
         <source>Save Suffix activity</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Přípona aktivity</translation>
     </message>
     <message>
         <source>Default is “QZ.” Please leave this set to default so that other Strava users will see the QZ; a tiny bit of advertising that helps promote the app and support its development. If you choose to remove it, please consider contributing to the developer’s Patreon or Buy Me a Coffee accounts or just subscribe to the Swag bag in the left side bar to allow me to continue developing and supporting the app.</source>
@@ -8645,7 +8661,7 @@ Zadejte ho níže:</translation>
     </message>
     <message>
         <source>Power Averaging Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Režim průměrování výkonu</translation>
     </message>
     <message>
         <source>If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. Uses harmonic averaging which smooths power spikes better than arithmetic averaging. If any reading is 0, power immediately becomes 0. Default is Off.
@@ -8685,11 +8701,11 @@ DŮLEŽITÉ:
     </message>
     <message>
         <source>Zwift Inclination Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Korekce sklonu Zwift</translation>
     </message>
     <message>
         <source>Save Zwift Inclination Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Korekce sklonu Zwift</translation>
     </message>
     <message>
         <source>Inclination Offset and Gain are used to adjust the incline set by Zwift instead of, or in addition to, using the QZ Zwift Gain setting. For example, when Zwift changes the incline to 1%, you can have your treadmill change to 2%. The number you enter as an offset adds to the inclination sent from Zwift or any other 3rd party app. Default is 0.</source>
@@ -8701,11 +8717,11 @@ DŮLEŽITÉ:
     </message>
     <message>
         <source>Zwift Inclination Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Násobitel sklonu Zwift</translation>
     </message>
     <message>
         <source>Save Zwift Inclination Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Násobitel sklonu Zwift</translation>
     </message>
     <message>
         <source>The number you enter as a Gain is a multiplier applied to the inclination sent from Zwift or any other 3rd party app. Default is 1.</source>
@@ -8717,11 +8733,11 @@ DŮLEŽITÉ:
     </message>
     <message>
         <source>Minimum Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimální sklon</translation>
     </message>
     <message>
         <source>Save Minimum Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Minimální sklon</translation>
     </message>
     <message>
         <source>If you don&apos;t want to go below a certain inclination value for bikes and treadmill set the min. value here. Default: -999.</source>
@@ -8733,11 +8749,11 @@ DŮLEŽITÉ:
     </message>
     <message>
         <source>Inclination Step</source>
-        <translation type="unfinished"></translation>
+        <translation>Krok sklonu</translation>
     </message>
     <message>
         <source>Save Inclination Step</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Krok sklonu</translation>
     </message>
     <message>
         <source>(Incline Tile) This controls the amount of the increase or decrease in the inclination when you press the plus or minus button in the Incline Tile for both treadmills and bikes. Default is 0.5.</source>
@@ -8773,11 +8789,11 @@ DŮLEŽITÉ:
     </message>
     <message>
         <source>AutoLap on Distance</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatický okruh po vzdálenosti</translation>
     </message>
     <message>
         <source>Save AutoLap on Distance</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Automatický okruh po vzdálenosti</translation>
     </message>
     <message>
         <source>Inclination Delay:</source>
@@ -8785,11 +8801,11 @@ DŮLEŽITÉ:
     </message>
     <message>
         <source>Inclination Delay</source>
-        <translation type="unfinished"></translation>
+        <translation>Zpoždění sklonu</translation>
     </message>
     <message>
         <source>Save Inclination Delay</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Zpoždění sklonu</translation>
     </message>
     <message>
         <source>This slow down the inclination changes adding a delay between each change. This is not applied to all the model of treadmill/bike. Default is 0.</source>
@@ -8849,11 +8865,11 @@ DŮLEŽITÉ:
     </message>
     <message>
         <source>Resistance Level 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Úroveň odporu 1</translation>
     </message>
     <message>
         <source>Save Resistance Level 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Úroveň odporu 1</translation>
     </message>
     <message>
         <source>Watt 1:</source>
@@ -8861,11 +8877,11 @@ DŮLEŽITÉ:
     </message>
     <message>
         <source>Watt 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Výkon 1</translation>
     </message>
     <message>
         <source>Save Watt 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Výkon 1</translation>
     </message>
     <message>
         <source>Resistance Level 2:</source>
@@ -8873,11 +8889,11 @@ DŮLEŽITÉ:
     </message>
     <message>
         <source>Resistance Level 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Úroveň odporu 2</translation>
     </message>
     <message>
         <source>Save Resistance Level 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Úroveň odporu 2</translation>
     </message>
     <message>
         <source>Watt 2:</source>
@@ -8885,11 +8901,11 @@ DŮLEŽITÉ:
     </message>
     <message>
         <source>Watt 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Výkon 2</translation>
     </message>
     <message>
         <source>Save Watt 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Výkon 2</translation>
     </message>
     <message>
         <source>QZ will build a linear equation from the two resistance/watt points and clamp the effective resistance using the existing Min. Resistance and Max. Resistance settings.</source>
@@ -9017,11 +9033,11 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Difficulty/Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Obtížnost/násobitel</translation>
     </message>
     <message>
         <source>Save Difficulty/Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Obtížnost/násobitel</translation>
     </message>
     <message>
         <source>Elite Sterzo Smart Options</source>
@@ -9045,7 +9061,7 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save Shift Step</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Krok řazení</translation>
     </message>
     <message>
         <source>Max Resistance</source>
@@ -9053,7 +9069,7 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save Max Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Max. odpor</translation>
     </message>
     <message>
         <source>Min Resistance</source>
@@ -9061,7 +9077,7 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save Min Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Min. odpor</translation>
     </message>
     <message>
         <source>Advanced SmartSpin2k Calibration</source>
@@ -9073,7 +9089,7 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save Resistance Sample 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Odpor, měření 1</translation>
     </message>
     <message>
         <source>Shift Step Sample 1</source>
@@ -9081,7 +9097,7 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save Shift Step Sample 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Krok řazení, měření 1</translation>
     </message>
     <message>
         <source>Resistance Sample 2</source>
@@ -9089,7 +9105,7 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save Resistance Sample 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Odpor, měření 2</translation>
     </message>
     <message>
         <source>Shift Step Sample 2</source>
@@ -9097,7 +9113,7 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save Shift Step Sample 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Krok řazení, měření 2</translation>
     </message>
     <message>
         <source>Resistance Sample 3</source>
@@ -9105,7 +9121,7 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save Resistance Sample 3</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Odpor, měření 3</translation>
     </message>
     <message>
         <source>Shift Step Sample 3</source>
@@ -9113,7 +9129,7 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save Shift Step Sample 3</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Krok řazení, měření 3</translation>
     </message>
     <message>
         <source>Resistance Sample 4</source>
@@ -9121,7 +9137,7 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save Resistance Sample 4</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Odpor, měření 4</translation>
     </message>
     <message>
         <source>Shift Step Sample 4</source>
@@ -9129,7 +9145,7 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save Shift Step Sample 4</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Krok řazení, měření 4</translation>
     </message>
     <message>
         <source>Fitmetria Fitfan™ Options</source>
@@ -9145,11 +9161,11 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Režim</translation>
     </message>
     <message>
         <source>Save Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Režim</translation>
     </message>
     <message>
         <source>Min. value (0-100):</source>
@@ -9157,11 +9173,11 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Min. value (0-100)</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. hodnota (0-100)</translation>
     </message>
     <message>
         <source>Save Min. value (0-100)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Min. hodnota (0-100)</translation>
     </message>
     <message>
         <source>Max value (0-100):</source>
@@ -9169,11 +9185,11 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Max value (0-100)</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. hodnota (0-100)</translation>
     </message>
     <message>
         <source>Save Max value (0-100)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Max. hodnota (0-100)</translation>
     </message>
     <message>
         <source>Wahoo Kickr HeadWind Options</source>
@@ -9273,11 +9289,11 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Maps Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ mapy</translation>
     </message>
     <message>
         <source>Save Maps Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Typ mapy</translation>
     </message>
     <message>
         <source>Loop Start-End-Start</source>
@@ -9409,15 +9425,15 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Wahoo device ID</source>
-        <translation type="unfinished"></translation>
+        <translation>ID zařízení Wahoo</translation>
     </message>
     <message>
         <source>Virtual Wahoo device ID. Change if you have multiple QZ instances. Default: 0</source>
-        <translation type="unfinished"></translation>
+        <translation>ID virtuálního zařízení Wahoo. Změňte, pokud používáte více instancí QZ. Výchozí: 0</translation>
     </message>
     <message>
         <source>Save Wahoo device ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: ID zařízení Wahoo</translation>
     </message>
     <message>
         <source>If you have multiple QZ instances, you can change the id of the virtual wahoo device. Default: 0</source>
@@ -9429,15 +9445,15 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Wahoo direct connect server port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port serveru přímého připojení Wahoo</translation>
     </message>
     <message>
         <source>TCP port for the Wahoo direct connect server. Default: 36866</source>
-        <translation type="unfinished"></translation>
+        <translation>Port TCP serveru přímého připojení Wahoo. Výchozí: 36866</translation>
     </message>
     <message>
         <source>Save server port</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Port serveru</translation>
     </message>
     <message>
         <source>MQTT Settings</source>
@@ -9449,11 +9465,11 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>MQTT Host</source>
-        <translation type="unfinished"></translation>
+        <translation>Hostitel MQTT</translation>
     </message>
     <message>
         <source>Save MQTT Host</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Hostitel MQTT</translation>
     </message>
     <message>
         <source>Enter the MQTT broker hostname or IP address</source>
@@ -9465,11 +9481,11 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>MQTT Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port MQTT</translation>
     </message>
     <message>
         <source>Save MQTT Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Port MQTT</translation>
     </message>
     <message>
         <source>Enter the MQTT broker port (default: 1883)</source>
@@ -9489,11 +9505,11 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Device ID</source>
-        <translation type="unfinished"></translation>
+        <translation>ID zařízení</translation>
     </message>
     <message>
         <source>Save Device ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: ID zařízení</translation>
     </message>
     <message>
         <source>Enter a unique device identifier for MQTT client</source>
@@ -9509,11 +9525,11 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>OSC IP</source>
-        <translation type="unfinished"></translation>
+        <translation>IP adresa OSC</translation>
     </message>
     <message>
         <source>Save OSC IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: IP adresa OSC</translation>
     </message>
     <message>
         <source>OSC Port:</source>
@@ -9521,11 +9537,11 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>OSC Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port OSC</translation>
     </message>
     <message>
         <source>Save OSC Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Port OSC</translation>
     </message>
     <message>
         <source>Race Mode</source>
@@ -11307,11 +11323,11 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Announcement interval in seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>Interval hlášení v sekundách</translation>
     </message>
     <message>
         <source>How often workout metrics are read aloud. Default: 120 seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>Jak často se nahlas čtou údaje o tréninku. Výchozí: 120 sekund</translation>
     </message>
     <message>
         <source>OK</source>
@@ -11323,7 +11339,7 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save announcement interval</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit: Interval hlášení</translation>
     </message>
     <message>
         <source>TTS Description Enabled</source>

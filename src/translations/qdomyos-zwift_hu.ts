@@ -310,11 +310,11 @@ Szeretné bekapcsolni a szükséges szolgáltatásokat?</translation>
     </message>
     <message>
         <source>, current value </source>
-        <translation type="unfinished"></translation>
+        <translation>, jelenlegi érték </translation>
     </message>
     <message>
         <source>. Current value </source>
-        <translation type="unfinished"></translation>
+        <translation>. Jelenlegi érték </translation>
     </message>
     <message>
         <source>Return to app</source>
@@ -377,7 +377,23 @@ Have a nice ride!
 QZ disclaims liability for incidental or consequential damages and assumes no responsibility for any loss or damage caused by use or misuse of the app.
 
 Roberto Viola</source>
-        <translation type="unfinished"></translation>
+        <translation>Az alkalmazás automatikusan csatlakozik a kerékpárhoz, a futópadhoz vagy az evezőgéphez.
+
+Ha mégsem, ellenőrizze, hogy:
+- az Echelon/Domyos alkalmazás be van zárva, amíg a QZ fut
+- a Bluetooth és a Bluetooth-engedélyek be vannak kapcsolva
+- az edzőgép be van kapcsolva a QZ indítása előtt
+- újraindította a készüléket
+
+Ha a kerékpár vagy a futópad 30 másodpercenként leválik, kapcsolja ki a Virtuális eszköz beállítást a bal oldali sávban.
+
+Segítségért írjon ide: roberto.viola83@gmail.com.
+
+Jó edzést!
+
+A QZ nem vállal felelősséget a járulékos vagy következményes károkért, sem az alkalmazás használatából vagy helytelen használatából eredő veszteségekért vagy károkért.
+
+Roberto Viola</translation>
     </message>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
@@ -2060,125 +2076,125 @@ Szeretné frissíteni a QZ beállításait?</translation>
     </message>
     <message>
         <source>Workout name</source>
-        <translation type="unfinished"></translation>
+        <translation>Edzés neve</translation>
     </message>
     <message>
         <source>Workout device type</source>
-        <translation type="unfinished"></translation>
+        <translation>Edzőgép típusa</translation>
     </message>
     <message>
         <source>Create a new workout</source>
-        <translation type="unfinished"></translation>
+        <translation>Új edzés létrehozása</translation>
     </message>
     <message>
         <source>Paste XML from the Clipboard to the Workout Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>XML beillesztése a vágólapról az edzésszerkesztőbe</translation>
     </message>
     <message>
         <source>Save workout</source>
-        <translation type="unfinished"></translation>
+        <translation>Edzés mentése</translation>
     </message>
     <message>
         <source>Save workout and start it</source>
-        <translation type="unfinished"></translation>
+        <translation>Edzés mentése és indítása</translation>
     </message>
     <message>
         <source>Show advanced interval fields</source>
-        <translation type="unfinished"></translation>
+        <translation>Speciális szakaszmezők megjelenítése</translation>
     </message>
     <message>
         <source>Workout editor controls</source>
-        <translation type="unfinished"></translation>
+        <translation>Edzésszerkesztő vezérlői</translation>
     </message>
     <message>
         <source>Add interval</source>
-        <translation type="unfinished"></translation>
+        <translation>Szakasz hozzáadása</translation>
     </message>
     <message>
         <source>Repeat selected intervals</source>
-        <translation type="unfinished"></translation>
+        <translation>Kijelölt szakaszok ismétlése</translation>
     </message>
     <message>
         <source>Clear all intervals</source>
-        <translation type="unfinished"></translation>
+        <translation>Összes szakasz törlése</translation>
     </message>
     <message>
         <source>Workout preview chart</source>
-        <translation type="unfinished"></translation>
+        <translation>Edzés előnézeti diagramja</translation>
     </message>
     <message>
         <source>Chart legend</source>
-        <translation type="unfinished"></translation>
+        <translation>Jelmagyarázat</translation>
     </message>
     <message>
         <source>Saved workout programs</source>
-        <translation type="unfinished"></translation>
+        <translation>Mentett edzésprogramok</translation>
     </message>
     <message>
         <source>Load selected workout program</source>
-        <translation type="unfinished"></translation>
+        <translation>Kijelölt edzésprogram betöltése</translation>
     </message>
     <message>
         <source>Delete selected workout program</source>
-        <translation type="unfinished"></translation>
+        <translation>Kijelölt edzésprogram törlése</translation>
     </message>
     <message>
         <source>Refresh workout program list</source>
-        <translation type="unfinished"></translation>
+        <translation>Edzésprogramlista frissítése</translation>
     </message>
     <message>
         <source>Select interval {number}</source>
         <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>{number}. szakasz kijelölése</translation>
     </message>
     <message>
         <source>Move interval {number} up</source>
         <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>{number}. szakasz mozgatása felfelé</translation>
     </message>
     <message>
         <source>Move interval {number} down</source>
         <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>{number}. szakasz mozgatása lefelé</translation>
     </message>
     <message>
         <source>Copy interval {number}</source>
         <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>{number}. szakasz másolása</translation>
     </message>
     <message>
         <source>Delete interval {number}</source>
         <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>{number}. szakasz törlése</translation>
     </message>
     <message>
         <source>Enable {field} for interval {number}</source>
         <extracomment>Screen reader name of a field checkbox; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>{number}. szakasz: {field} bekapcsolása</translation>
     </message>
     <message>
         <source>{field} for interval {number}</source>
         <extracomment>Screen reader name of a field; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>{number}. szakasz: {field}</translation>
     </message>
     <message>
         <source>Decrease {field} for interval {number}</source>
         <extracomment>Screen reader name of the - button; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>{number}. szakasz: {field} csökkentése</translation>
     </message>
     <message>
         <source>Increase {field} for interval {number}</source>
         <extracomment>Screen reader name of the + button; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>{number}. szakasz: {field} növelése</translation>
     </message>
     <message>
         <source>{name} preview chart. {count} intervals. Total duration {duration}.</source>
         <extracomment>Screen reader description of the chart; {name} is the workout name, {count} the number of intervals, {duration} like 0:45:00</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Előnézeti diagram: {name}. Szakaszok száma: {count}. Teljes időtartam: {duration}.</translation>
     </message>
     <message>
         <source>Dialog input</source>
-        <translation type="unfinished"></translation>
+        <translation>Párbeszédpanel beviteli mezője</translation>
     </message>
     <message>
         <source>Training Programs Browser</source>
@@ -2754,7 +2770,7 @@ A következő kérdésekkel a QZ-t az edzőgépéhez és a céljaihoz szabhatja.
     </message>
     <message>
         <source>Opens the Peloton login page</source>
-        <translation type="unfinished"></translation>
+        <translation>Megnyitja a Peloton bejelentkezési oldalát</translation>
     </message>
     <message>
         <source>Peloton Difficulty</source>
@@ -2770,11 +2786,11 @@ A következő kérdésekkel a QZ-t az edzőgépéhez és a céljaihoz szabhatja.
     </message>
     <message>
         <source>Peloton difficulty level</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton-nehézségi szint</translation>
     </message>
     <message>
         <source>Choose whether QZ targets the lower, upper or average of the instructor&apos;s range</source>
-        <translation type="unfinished"></translation>
+        <translation>Válassza ki, hogy a QZ az oktató által megadott tartomány alsó, felső vagy átlagos értékét célozza meg</translation>
     </message>
     <message>
         <source>Finish</source>
@@ -2790,11 +2806,11 @@ A következő kérdésekkel a QZ-t az edzőgépéhez és a céljaihoz szabhatja.
     </message>
     <message>
         <source>Resistance level for flat road</source>
-        <translation type="unfinished"></translation>
+        <translation>Ellenállási szint sík úton</translation>
     </message>
     <message>
         <source>Resistance level that feels like riding on flat ground. Range 0 to 100.</source>
-        <translation type="unfinished"></translation>
+        <translation>Az az ellenállási szint, amely sík terepen való tekerésnek felel meg. Tartomány: 0–100.</translation>
     </message>
     <message>
         <source>Next</source>
@@ -2842,7 +2858,7 @@ A következő kérdésekkel a QZ-t az edzőgépéhez és a céljaihoz szabhatja.
     </message>
     <message>
         <source>Zwift username</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift-felhasználónév</translation>
     </message>
     <message>
         <source>Password</source>
@@ -2850,7 +2866,7 @@ A következő kérdésekkel a QZ-t az edzőgépéhez és a céljaihoz szabhatja.
     </message>
     <message>
         <source>Zwift password</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift-jelszó</translation>
     </message>
     <message>
         <source>Zwift Play and Click</source>
@@ -2866,7 +2882,7 @@ A következő kérdésekkel a QZ-t az edzőgépéhez és a céljaihoz szabhatja.
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Bekapcsolva</translation>
     </message>
     <message>
         <source>Zwift Play</source>
@@ -2906,7 +2922,7 @@ A következő kérdésekkel a QZ-t az edzőgépéhez és a céljaihoz szabhatja.
     </message>
     <message>
         <source>Email support</source>
-        <translation type="unfinished"></translation>
+        <translation>E-mail küldése a támogatásnak</translation>
     </message>
     <message>
         <source>Close</source>
@@ -2918,11 +2934,11 @@ A következő kérdésekkel a QZ-t az edzőgépéhez és a céljaihoz szabhatja.
     </message>
     <message>
         <source>Fitness device</source>
-        <translation type="unfinished"></translation>
+        <translation>Edzőgép</translation>
     </message>
     <message>
         <source>Select your fitness device from the list of nearby Bluetooth devices. Tap Refresh to scan again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Válassza ki az edzőgépét a közeli Bluetooth-eszközök listájából. Az újbóli kereséshez koppintson a Frissítés gombra.</translation>
     </message>
     <message>
         <source>Unit System</source>
@@ -2934,11 +2950,11 @@ A következő kérdésekkel a QZ-t az edzőgépéhez és a céljaihoz szabhatja.
     </message>
     <message>
         <source>Unit system</source>
-        <translation type="unfinished"></translation>
+        <translation>Mértékegységrendszer</translation>
     </message>
     <message>
         <source>Metric uses kilometers and kilograms. Imperial uses miles and pounds.</source>
-        <translation type="unfinished"></translation>
+        <translation>A metrikus rendszer kilométert és kilogrammot, az angolszász mérföldet és fontot használ.</translation>
     </message>
     <message>
         <source>User Information</source>
@@ -2946,15 +2962,15 @@ A következő kérdésekkel a QZ-t az edzőgépéhez és a céljaihoz szabhatja.
     </message>
     <message>
         <source>Body weight</source>
-        <translation type="unfinished"></translation>
+        <translation>Testsúly</translation>
     </message>
     <message>
         <source>Your weight in pounds</source>
-        <translation type="unfinished"></translation>
+        <translation>Testsúlya fontban</translation>
     </message>
     <message>
         <source>Your weight in kilograms</source>
-        <translation type="unfinished"></translation>
+        <translation>Testsúlya kilogrammban</translation>
     </message>
     <message>
         <source>Age</source>
@@ -2962,7 +2978,7 @@ A következő kérdésekkel a QZ-t az edzőgépéhez és a céljaihoz szabhatja.
     </message>
     <message>
         <source>Your age in years. Used for heart rate zone calculations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Életkora években. A pulzuszónák kiszámításához szükséges.</translation>
     </message>
     <message>
         <source>Gender</source>
@@ -2970,7 +2986,7 @@ A következő kérdésekkel a QZ-t az edzőgépéhez és a céljaihoz szabhatja.
     </message>
     <message>
         <source>Used for calorie calculations</source>
-        <translation type="unfinished"></translation>
+        <translation>A kalóriák kiszámításához szükséges</translation>
     </message>
     <message>
         <source>Select Your Heart Rate Device</source>
@@ -2982,11 +2998,11 @@ A következő kérdésekkel a QZ-t az edzőgépéhez és a céljaihoz szabhatja.
     </message>
     <message>
         <source>Heart rate belt</source>
-        <translation type="unfinished"></translation>
+        <translation>Mellkasi pulzusmérő</translation>
     </message>
     <message>
         <source>Select your Bluetooth heart rate belt from the list. Tap Refresh to scan again. Choose Disabled if using a smartwatch.</source>
-        <translation type="unfinished"></translation>
+        <translation>Válassza ki a Bluetooth-os mellkasi pulzusmérőjét a listából. Az újbóli kereséshez koppintson a Frissítés gombra. Ha okosórát használ, válassza a Kikapcsolva lehetőséget.</translation>
     </message>
     <message>
         <source>Or select a smartwatch option:</source>
@@ -3089,11 +3105,11 @@ A következő kérdésekkel a QZ-t az edzőgépéhez és a céljaihoz szabhatja.
     </message>
     <message>
         <source>Loading workout editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Edzésszerkesztő betöltése</translation>
     </message>
     <message>
         <source>The workout editor is loading</source>
-        <translation type="unfinished"></translation>
+        <translation>Az edzésszerkesztő betöltődik</translation>
     </message>
 </context>
 <context>
@@ -3741,19 +3757,19 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
     </message>
     <message>
         <source>Speed %1 kilometers per hour</source>
-        <translation type="unfinished"></translation>
+        <translation>Sebesség: %1 kilométer per óra</translation>
     </message>
     <message>
         <source>Speed %1 miles per hour</source>
-        <translation type="unfinished"></translation>
+        <translation>Sebesség: %1 mérföld per óra</translation>
     </message>
     <message>
         <source>Inclination %1 percent</source>
-        <translation type="unfinished"></translation>
+        <translation>Emelkedés: %1 százalék</translation>
     </message>
     <message>
         <source>Resistance %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ellenállás: %1</translation>
     </message>
     <message>
         <source>Stop</source>
@@ -4636,11 +4652,11 @@ A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translati
     </message>
     <message>
         <source>Return to the previous screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Visszalép az előző képernyőre</translation>
     </message>
     <message>
         <source>Open the main navigation menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Megnyitja a fő navigációs menüt</translation>
     </message>
     <message>
         <source>Floating window</source>
@@ -4648,7 +4664,7 @@ A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translati
     </message>
     <message>
         <source>Open the floating workout display</source>
-        <translation type="unfinished"></translation>
+        <translation>Megnyitja a lebegő edzésablakot</translation>
     </message>
     <message>
         <source>You can move the tiles!</source>
@@ -4664,7 +4680,7 @@ A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translati
     </message>
     <message>
         <source>Open the saved settings list</source>
-        <translation type="unfinished"></translation>
+        <translation>Megnyitja a mentett beállítások listáját</translation>
     </message>
     <message>
         <source>Search settings</source>
@@ -4676,7 +4692,7 @@ A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translati
     </message>
     <message>
         <source>Save the current settings profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Menti az aktuális beállításprofilt</translation>
     </message>
     <message>
         <source>Map</source>
@@ -4684,7 +4700,7 @@ A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translati
     </message>
     <message>
         <source>Open the route map</source>
-        <translation type="unfinished"></translation>
+        <translation>Megnyitja az útvonaltérképet</translation>
     </message>
     <message>
         <source>Video</source>
@@ -4692,7 +4708,7 @@ A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translati
     </message>
     <message>
         <source>Show or hide the workout video</source>
-        <translation type="unfinished"></translation>
+        <translation>Megjeleníti vagy elrejti az edzésvideót</translation>
     </message>
     <message>
         <source>Chart</source>
@@ -4700,7 +4716,7 @@ A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translati
     </message>
     <message>
         <source>Show or hide the workout chart</source>
-        <translation type="unfinished"></translation>
+        <translation>Megjeleníti vagy elrejti az edzésdiagramot</translation>
     </message>
     <message>
         <source>Share FIT file</source>
@@ -4716,11 +4732,11 @@ A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translati
     </message>
     <message>
         <source>Prevent workout tiles from being moved</source>
-        <translation type="unfinished"></translation>
+        <translation>Megakadályozza a csempék áthelyezését</translation>
     </message>
     <message>
         <source>Allow workout tiles to be moved</source>
-        <translation type="unfinished"></translation>
+        <translation>Lehetővé teszi a csempék áthelyezését</translation>
     </message>
     <message>
         <source>Disable auto resistance</source>
@@ -4732,7 +4748,7 @@ A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translati
     </message>
     <message>
         <source>Toggle automatic resistance control</source>
-        <translation type="unfinished"></translation>
+        <translation>Be- vagy kikapcsolja az automatikus ellenállást</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4804,11 +4820,11 @@ A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translati
     </message>
     <message>
         <source>Tap to log out of Strava</source>
-        <translation type="unfinished"></translation>
+        <translation>Koppintson ide a Stravából való kijelentkezéshez</translation>
     </message>
     <message>
         <source>Tap to connect your Strava account</source>
-        <translation type="unfinished"></translation>
+        <translation>Koppintson ide a Strava-fiókja csatlakoztatásához</translation>
     </message>
     <message>
         <source>Disconnect from Peloton</source>
@@ -4820,11 +4836,11 @@ A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translati
     </message>
     <message>
         <source>Tap to log out of Peloton</source>
-        <translation type="unfinished"></translation>
+        <translation>Koppintson ide a Pelotonból való kijelentkezéshez</translation>
     </message>
     <message>
         <source>Tap to connect your Peloton account</source>
-        <translation type="unfinished"></translation>
+        <translation>Koppintson ide a Peloton-fiókja csatlakoztatásához</translation>
     </message>
     <message>
         <source>Garmin Connect settings</source>
@@ -4832,7 +4848,7 @@ A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translati
     </message>
     <message>
         <source>Open Garmin Connect integration settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Megnyitja a Garmin Connect-integráció beállításait</translation>
     </message>
     <message>
         <source>Disconnect from Intervals.icu</source>
@@ -4844,11 +4860,11 @@ A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translati
     </message>
     <message>
         <source>Tap to log out of Intervals.icu</source>
-        <translation type="unfinished"></translation>
+        <translation>Koppintson ide az Intervals.icu szolgáltatásból való kijelentkezéshez</translation>
     </message>
     <message>
         <source>Tap to connect your Intervals.icu account</source>
-        <translation type="unfinished"></translation>
+        <translation>Koppintson ide az Intervals.icu-fiókja csatlakoztatásához</translation>
     </message>
     <message>
         <source>Workout</source>
@@ -5433,7 +5449,7 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Save Player Weight</source>
-        <translation type="unfinished"></translation>
+        <translation>Testsúly mentése</translation>
     </message>
     <message>
         <source>Enter your weight in kilograms so QZ can more accurately calculate calories burned. NOTE: If you choose to use miles as the unit for distance traveled, you will be asked to enter your weight in pounds (lbs) unless you enable &apos;Use kg for weight&apos;.</source>
@@ -5449,7 +5465,7 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Save Player Height</source>
-        <translation type="unfinished"></translation>
+        <translation>Testmagasság mentése</translation>
     </message>
     <message>
         <source>Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet&apos;inches&quot; format (e.g., 5&apos;10&quot;) for imperial units.</source>
@@ -5461,11 +5477,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Player Age</source>
-        <translation type="unfinished"></translation>
+        <translation>Életkor</translation>
     </message>
     <message>
         <source>Save Player Age</source>
-        <translation type="unfinished"></translation>
+        <translation>Életkor mentése</translation>
     </message>
     <message>
         <source>Enter your age so that calories burned can be more accurately calculated.</source>
@@ -5477,11 +5493,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Gender</source>
-        <translation type="unfinished">Nem</translation>
+        <translation>Nem</translation>
     </message>
     <message>
         <source>Save Gender</source>
-        <translation type="unfinished"></translation>
+        <translation>A nem beállításának mentése</translation>
     </message>
     <message>
         <source>Select your gender so that calories burned can be more accurately calculated.</source>
@@ -5493,11 +5509,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>FTP value</source>
-        <translation type="unfinished"></translation>
+        <translation>FTP-érték</translation>
     </message>
     <message>
         <source>Save FTP value</source>
-        <translation type="unfinished"></translation>
+        <translation>FTP-érték mentése</translation>
     </message>
     <message>
         <source>If you train to specific output (or watts) levels, for example in Peloton Power Zone classes,and have taken an FTP test (Functional Threshold Power), enter your FTP here. This number is used to calculate your Power Zones (Zones 1 to 7 for Peloton and 1 to 6 for Zwift).</source>
@@ -5509,11 +5525,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Critical Power Run value</source>
-        <translation type="unfinished"></translation>
+        <translation>Kritikus futóteljesítmény értéke</translation>
     </message>
     <message>
         <source>Save Critical Power Run value</source>
-        <translation type="unfinished"></translation>
+        <translation>Kritikus futóteljesítmény értékének mentése</translation>
     </message>
     <message>
         <source>If you train to specific output (or watts) levels, for example with Stryd,and have taken an CP test (Critical Power Test), enter your CP here. This number is used to calculate your RSS.</source>
@@ -5525,11 +5541,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Nickname</source>
-        <translation type="unfinished"></translation>
+        <translation>Becenév</translation>
     </message>
     <message>
         <source>Save Nickname</source>
-        <translation type="unfinished"></translation>
+        <translation>Becenév mentése</translation>
     </message>
     <message>
         <source>No need to enter data here. It is for a possible future QZ feature.</source>
@@ -5541,11 +5557,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Email</source>
-        <translation type="unfinished"></translation>
+        <translation>E-mail</translation>
     </message>
     <message>
         <source>Save Email</source>
-        <translation type="unfinished"></translation>
+        <translation>E-mail-cím mentése</translation>
     </message>
     <message>
         <source>Enter your email address to receive an automated email with stats and charts when you hit STOP at the end of each workout. Make sure there are no spaces before or after the email address; this is the most common reason the automated email is not sent. Privacy Note: Email addresses are not collected by the developer and are only saved locally on your device.</source>
@@ -5657,11 +5673,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Zone 1 %</source>
-        <translation type="unfinished"></translation>
+        <translation>1. zóna (%)</translation>
     </message>
     <message>
         <source>Save Zone 1 %</source>
-        <translation type="unfinished"></translation>
+        <translation>1. zóna (%) mentése</translation>
     </message>
     <message>
         <source>Zone 2 %:</source>
@@ -5669,11 +5685,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Zone 2 %</source>
-        <translation type="unfinished"></translation>
+        <translation>2. zóna (%)</translation>
     </message>
     <message>
         <source>Save Zone 2 %</source>
-        <translation type="unfinished"></translation>
+        <translation>2. zóna (%) mentése</translation>
     </message>
     <message>
         <source>Zone 3 %:</source>
@@ -5681,11 +5697,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Zone 3 %</source>
-        <translation type="unfinished"></translation>
+        <translation>3. zóna (%)</translation>
     </message>
     <message>
         <source>Save Zone 3 %</source>
-        <translation type="unfinished"></translation>
+        <translation>3. zóna (%) mentése</translation>
     </message>
     <message>
         <source>Zone 4 %:</source>
@@ -5693,11 +5709,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Zone 4 %</source>
-        <translation type="unfinished"></translation>
+        <translation>4. zóna (%)</translation>
     </message>
     <message>
         <source>Save Zone 4 %</source>
-        <translation type="unfinished"></translation>
+        <translation>4. zóna (%) mentése</translation>
     </message>
     <message>
         <source>Zone 5 will be calculated automatically based on Zone 4 end percentage and max HR.</source>
@@ -5721,7 +5737,7 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Save Max Heart Rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. pulzus mentése</translation>
     </message>
     <message>
         <source>QZ uses a standard age-based calculation for maximum heart rate and then sets the heart rate zones based on that max heart rate. If you know your actual max heart rate (the highest your heart rate is known to reach), turn this option on and enter your actual max heart rate. Then click OK.</source>
@@ -5733,7 +5749,7 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Save Resting Heart Rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Nyugalmi pulzus mentése</translation>
     </message>
     <message>
         <source>Enter your resting heart rate (the lowest your heart rate reaches when fully rested). This is used for accurate training load calculations. Default is 60 bpm.</source>
@@ -5749,11 +5765,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Session 1 Watt</source>
-        <translation type="unfinished"></translation>
+        <translation>1. mérés, watt</translation>
     </message>
     <message>
         <source>Save Session 1 Watt</source>
-        <translation type="unfinished"></translation>
+        <translation>1. mérés, watt mentése</translation>
     </message>
     <message>
         <source>Session 1 HR:</source>
@@ -5761,11 +5777,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Session 1 HR</source>
-        <translation type="unfinished"></translation>
+        <translation>1. mérés, pulzus</translation>
     </message>
     <message>
         <source>Save Session 1 HR</source>
-        <translation type="unfinished"></translation>
+        <translation>1. mérés, pulzus mentése</translation>
     </message>
     <message>
         <source>Session 2 Watt:</source>
@@ -5773,11 +5789,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Session 2 Watt</source>
-        <translation type="unfinished"></translation>
+        <translation>2. mérés, watt</translation>
     </message>
     <message>
         <source>Save Session 2 Watt</source>
-        <translation type="unfinished"></translation>
+        <translation>2. mérés, watt mentése</translation>
     </message>
     <message>
         <source>Session 2 HR:</source>
@@ -5785,11 +5801,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Session 2 HR</source>
-        <translation type="unfinished"></translation>
+        <translation>2. mérés, pulzus</translation>
     </message>
     <message>
         <source>Save Session 2 HR</source>
-        <translation type="unfinished"></translation>
+        <translation>2. mérés, pulzus mentése</translation>
     </message>
     <message>
         <source>Expand the bars to the right to display the options under this setting. These settings are used to calculate power (watts) for bikes that do not have power meters. Instead QZ estimates power from your cadence and heart rate. You can calibrate how QZ calculates your power from heart rate as follows: If you know that at a stable pace you produce 100W of power at a heart rate of 150 BPM and 150W at 170 BPM, you can add these values under Sessions 1 and 2 Watt and HR and QZ will calculate your power based on that trend line.</source>
@@ -5825,11 +5841,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Gear Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Fokozat értéke</translation>
     </message>
     <message>
         <source>Save Gear Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Fokozat értékének mentése</translation>
     </message>
     <message>
         <source>Specify a particular gear value to be restored at startup. This will override the &apos;Restore Gears on Startup&apos; setting.</source>
@@ -5841,7 +5857,7 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Save Rolling Resistance Factor</source>
-        <translation type="unfinished"></translation>
+        <translation>Gördülési ellenállás tényezőjének mentése</translation>
     </message>
     <message>
         <source>0.005 = Clinchers
@@ -5853,11 +5869,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Bike Weight</source>
-        <translation type="unfinished"></translation>
+        <translation>Kerékpár súlya</translation>
     </message>
     <message>
         <source>Save Bike Weight</source>
-        <translation type="unfinished"></translation>
+        <translation>Kerékpár súlyának mentése</translation>
     </message>
     <message>
         <source>Enables QZ to include the weight of your bike when calculating speed. For example, if you are competing against yourself on VZfit, adding bike weight will &apos;level the playing field&apos; against your virtual self. If you have set QZ to calculate distance in miles, enter the bike weight in pounds (lbs) unless you enable &apos;Use kg for weight&apos;. Default unit is kilograms (kgs).</source>
@@ -5869,7 +5885,7 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Save Rolling Res. Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Gördülési ellenállás szorzójának mentése</translation>
     </message>
     <message>
         <source>Wind Res. Gain</source>
@@ -5877,7 +5893,7 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Save Wind Res. Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Légellenállás szorzójának mentése</translation>
     </message>
     <message>
         <source>Zwift Workout/Erg Mode</source>
@@ -5893,11 +5909,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Zwift Resistance Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift-ellenállás eltolása</translation>
     </message>
     <message>
         <source>Save Zwift Resistance Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift-ellenállás eltolásának mentése</translation>
     </message>
     <message>
         <source>This setting sets your “flat road” in Zwift. All communicated resistance changes will be based on this setting. The value entered is personal preference and will be dependent on your level of fitness. The suggested value for Echelon bikes is between 18 and 20. Default is 4.</source>
@@ -5909,11 +5925,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Zwift Power Offset (W)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift-teljesítmény eltolása (W)</translation>
     </message>
     <message>
         <source>Save Zwift Power Offset (W)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift-teljesítmény eltolásának (W) mentése</translation>
     </message>
     <message>
         <source>Add an offset in watts to the requested power from apps like Zwift. Positive values increase power, negative values decrease it. Default is 0.</source>
@@ -5925,11 +5941,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Zwift Resistance Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift-ellenállás szorzója</translation>
     </message>
     <message>
         <source>Save Zwift Resistance Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift-ellenállás szorzójának mentése</translation>
     </message>
     <message>
         <source>(for bikes and treadmills when using “treadmill as a bike” setting). This setting scales the resistance from your bike or the speed from your treadmill before sending it to Zwift. Default is 1.</source>
@@ -5941,11 +5957,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Zwift ERG Watt Up Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift ERG felső wattszűrő</translation>
     </message>
     <message>
         <source>Save Zwift ERG Watt Up Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift ERG felső wattszűrő mentése</translation>
     </message>
     <message>
         <source>In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 watts or more than 110 watts. Default is 10.</source>
@@ -5957,11 +5973,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Zwift ERG Watt Down Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift ERG alsó wattszűrő</translation>
     </message>
     <message>
         <source>Save Zwift ERG Watt Down Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift ERG alsó wattszűrő mentése</translation>
     </message>
     <message>
         <source>See above. Default is 10.</source>
@@ -5973,11 +5989,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Min. Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. ellenállás</translation>
     </message>
     <message>
         <source>Save Min. Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. ellenállás mentése</translation>
     </message>
     <message>
         <source>Use this setting to set a minimum target resistance. For example, if you do not want to ride at a resistance below 25, enter a value of 25 and QZ will not set a target resistance below 25. Default is 0.</source>
@@ -5989,11 +6005,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Max. Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. ellenállás</translation>
     </message>
     <message>
         <source>Save Max. Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. ellenállás mentése</translation>
     </message>
     <message>
         <source>Similar to the above, but sets a maximum target resistance. Default is 999.</source>
@@ -6005,11 +6021,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Resistance at Startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Ellenállás indításkor</translation>
     </message>
     <message>
         <source>Save Resistance at Startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Indítási ellenállás mentése</translation>
     </message>
     <message>
         <source>(only for bikes with electronically-controlled resistance): Enter the resistance level you want QZ to set at startup. Default is 1.</source>
@@ -6021,11 +6037,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Gears Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Fokozatok szorzója</translation>
     </message>
     <message>
         <source>Save Gears Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Fokozatok szorzójának mentése</translation>
     </message>
     <message>
         <source>Applies a multiplier to the gears. Default is 1.</source>
@@ -6041,11 +6057,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Gears Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Fokozatok eltolása</translation>
     </message>
     <message>
         <source>Save Gears Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Fokozatok eltolásának mentése</translation>
     </message>
     <message>
         <source>Applies an offset to the gears. Default is 0.</source>
@@ -6069,7 +6085,7 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Profil</translation>
     </message>
     <message>
         <source>Cruise Profile Settings</source>
@@ -6081,11 +6097,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Cruise - Gear Up Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Túra – fokozat fel, kadencia (RPM)</translation>
     </message>
     <message>
         <source>Save Cruise - Gear Up Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Túra – fokozat fel, kadencia (RPM) mentése</translation>
     </message>
     <message>
         <source>Cruise - Gear Up Time (seconds):</source>
@@ -6093,11 +6109,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Cruise - Gear Up Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Túra – fokozat fel, idő (másodperc)</translation>
     </message>
     <message>
         <source>Save Cruise - Gear Up Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Túra – fokozat fel, idő (másodperc) mentése</translation>
     </message>
     <message>
         <source>Cruise - Gear Down Cadence (RPM):</source>
@@ -6105,11 +6121,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Cruise - Gear Down Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Túra – fokozat le, kadencia (RPM)</translation>
     </message>
     <message>
         <source>Save Cruise - Gear Down Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Túra – fokozat le, kadencia (RPM) mentése</translation>
     </message>
     <message>
         <source>Cruise - Gear Down Time (seconds):</source>
@@ -6117,11 +6133,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Cruise - Gear Down Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Túra – fokozat le, idő (másodperc)</translation>
     </message>
     <message>
         <source>Save Cruise - Gear Down Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Túra – fokozat le, idő (másodperc) mentése</translation>
     </message>
     <message>
         <source>Climb Profile Settings</source>
@@ -6133,11 +6149,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Climb - Gear Up Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Mászás – fokozat fel, kadencia (RPM)</translation>
     </message>
     <message>
         <source>Save Climb - Gear Up Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Mászás – fokozat fel, kadencia (RPM) mentése</translation>
     </message>
     <message>
         <source>Climb - Gear Up Time (seconds):</source>
@@ -6145,11 +6161,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Climb - Gear Up Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Mászás – fokozat fel, idő (másodperc)</translation>
     </message>
     <message>
         <source>Save Climb - Gear Up Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Mászás – fokozat fel, idő (másodperc) mentése</translation>
     </message>
     <message>
         <source>Climb - Gear Down Cadence (RPM):</source>
@@ -6157,11 +6173,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Climb - Gear Down Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Mászás – fokozat le, kadencia (RPM)</translation>
     </message>
     <message>
         <source>Save Climb - Gear Down Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Mászás – fokozat le, kadencia (RPM) mentése</translation>
     </message>
     <message>
         <source>Climb - Gear Down Time (seconds):</source>
@@ -6169,11 +6185,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Climb - Gear Down Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Mászás – fokozat le, idő (másodperc)</translation>
     </message>
     <message>
         <source>Save Climb - Gear Down Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Mászás – fokozat le, idő (másodperc) mentése</translation>
     </message>
     <message>
         <source>Sprint Profile Settings</source>
@@ -6185,11 +6201,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Sprint - Gear Up Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprint – fokozat fel, kadencia (RPM)</translation>
     </message>
     <message>
         <source>Save Sprint - Gear Up Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprint – fokozat fel, kadencia (RPM) mentése</translation>
     </message>
     <message>
         <source>Sprint - Gear Up Time (seconds):</source>
@@ -6197,11 +6213,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Sprint - Gear Up Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprint – fokozat fel, idő (másodperc)</translation>
     </message>
     <message>
         <source>Save Sprint - Gear Up Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprint – fokozat fel, idő (másodperc) mentése</translation>
     </message>
     <message>
         <source>Sprint - Gear Down Cadence (RPM):</source>
@@ -6209,11 +6225,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Sprint - Gear Down Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprint – fokozat le, kadencia (RPM)</translation>
     </message>
     <message>
         <source>Save Sprint - Gear Down Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprint – fokozat le, kadencia (RPM) mentése</translation>
     </message>
     <message>
         <source>Sprint - Gear Down Time (seconds):</source>
@@ -6221,11 +6237,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Sprint - Gear Down Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprint – fokozat le, idő (másodperc)</translation>
     </message>
     <message>
         <source>Save Sprint - Gear Down Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprint – fokozat le, idő (másodperc) mentése</translation>
     </message>
     <message>
         <source>FTMS Bike:</source>
@@ -6265,11 +6281,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Resistance Smoothing</source>
-        <translation type="unfinished"></translation>
+        <translation>Ellenállás simítása</translation>
     </message>
     <message>
         <source>Save Resistance Smoothing</source>
-        <translation type="unfinished"></translation>
+        <translation>Ellenállás simításának mentése</translation>
     </message>
     <message>
         <source>Since this bike doesn&apos;t send resistance over Bluetooth, QZ is calculating it using cadence and wattage. The result could be a little &apos;jumpy&apos; and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.</source>
@@ -6285,11 +6301,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>GR7 Cadence Multiplier</source>
-        <translation type="unfinished"></translation>
+        <translation>GR7-kadenciaszorzó</translation>
     </message>
     <message>
         <source>Save GR7 Cadence Multiplier</source>
-        <translation type="unfinished"></translation>
+        <translation>GR7-kadenciaszorzó mentése</translation>
     </message>
     <message>
         <source>Echelon Bike Options</source>
@@ -6301,11 +6317,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Watt Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Wattprofil</translation>
     </message>
     <message>
         <source>Save Watt Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Wattprofil mentése</translation>
     </message>
     <message>
         <source>Resistance Gain:</source>
@@ -6313,11 +6329,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Resistance Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Ellenállás szorzója</translation>
     </message>
     <message>
         <source>Save Resistance Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Ellenállás szorzójának mentése</translation>
     </message>
     <message>
         <source>Resistance Offset:</source>
@@ -6325,11 +6341,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Resistance Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Ellenállás-eltolás</translation>
     </message>
     <message>
         <source>Save Resistance Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Ellenállás-eltolás mentése</translation>
     </message>
     <message>
         <source>Change gears using knob (Experimental)</source>
@@ -6433,11 +6449,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Samples Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Mérésszűrő</translation>
     </message>
     <message>
         <source>Save Samples Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Mérésszűrő mentése</translation>
     </message>
     <message>
         <source>Domyos Bike Options</source>
@@ -6449,11 +6465,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Cadence Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Kadenciaszűrő</translation>
     </message>
     <message>
         <source>Save Cadence Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Kadenciaszűrő mentése</translation>
     </message>
     <message>
         <source>Ignore FTMS</source>
@@ -6498,11 +6514,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Wheel Ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Kerékarány</translation>
     </message>
     <message>
         <source>Save Wheel Ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Kerékarány mentése</translation>
     </message>
     <message>
         <source>Specific Model:</source>
@@ -6518,11 +6534,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>TDF1 IP</source>
-        <translation type="unfinished"></translation>
+        <translation>TDF1 IP-cím</translation>
     </message>
     <message>
         <source>Save TDF1 IP</source>
-        <translation type="unfinished"></translation>
+        <translation>TDF1 IP-cím mentése</translation>
     </message>
     <message>
         <source>TDF4 IP:</source>
@@ -6530,11 +6546,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>TDF4 IP</source>
-        <translation type="unfinished"></translation>
+        <translation>TDF4 IP-cím</translation>
     </message>
     <message>
         <source>Save TDF4 IP</source>
-        <translation type="unfinished"></translation>
+        <translation>TDF4 IP-cím mentése</translation>
     </message>
     <message>
         <source>TDF Companion IP:</source>
@@ -6542,11 +6558,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>TDF Companion IP</source>
-        <translation type="unfinished"></translation>
+        <translation>TDF Companion IP-cím</translation>
     </message>
     <message>
         <source>Save TDF Companion IP</source>
-        <translation type="unfinished"></translation>
+        <translation>TDF Companion IP-cím mentése</translation>
     </message>
     <message>
         <source>ADB Remote</source>
@@ -6566,11 +6582,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Serial Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Soros port</translation>
     </message>
     <message>
         <source>Save Serial Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Soros port mentése</translation>
     </message>
     <message>
         <source>Kettler USB Bike Options</source>
@@ -6578,11 +6594,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Baudrate</source>
-        <translation type="unfinished"></translation>
+        <translation>Adatátviteli sebesség (baud)</translation>
     </message>
     <message>
         <source>Save Baudrate</source>
-        <translation type="unfinished"></translation>
+        <translation>Adatátviteli sebesség (baud) mentése</translation>
     </message>
     <message>
         <source>M3i Bike Options</source>
@@ -6598,11 +6614,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Bike ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Kerékpár-azonosító</translation>
     </message>
     <message>
         <source>Save Bike ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Kerékpár-azonosító mentése</translation>
     </message>
     <message>
         <source>Speed Buffer Size:</source>
@@ -6610,11 +6626,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Speed Buffer Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Sebességpuffer mérete</translation>
     </message>
     <message>
         <source>Save Speed Buffer Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Sebességpuffer méretének mentése</translation>
     </message>
     <message>
         <source>Use KCal from the Bike</source>
@@ -6646,11 +6662,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>ANT+ Bike Device Number (0=Auto)</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+ kerékpár eszközszáma (0=automatikus)</translation>
     </message>
     <message>
         <source>Save ANT+ Bike Device Number (0=Auto)</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+ kerékpár eszközszámának (0=automatikus) mentése</translation>
     </message>
     <message>
         <source>Toputure Bikes</source>
@@ -6682,7 +6698,7 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Save ANT+ Speed Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+ sebességeltolás mentése</translation>
     </message>
     <message>
         <source>You can increase/decrease your speed sent over ANT+. The number you enter as an Offset adds that amount to your speed.</source>
@@ -6694,11 +6710,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>ANT+ Speed Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+ sebességszorzó</translation>
     </message>
     <message>
         <source>Save ANT+ Speed Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+ sebességszorzó mentése</translation>
     </message>
     <message>
         <source>You can increase/decrease your speed output sent over ANT+. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.</source>
@@ -6714,11 +6730,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>ANT+ Heart Device Number (0=Auto)</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+ pulzusmérő eszközszáma (0=automatikus)</translation>
     </message>
     <message>
         <source>Save ANT+ Heart Device Number (0=Auto)</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+ pulzusmérő eszközszámának (0=automatikus) mentése</translation>
     </message>
     <message>
         <source>This setting enables receiving the heart rate from an external HRM over ANT+ instead of from QZ.</source>
@@ -6742,7 +6758,7 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Save Tile Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Csempeméret mentése</translation>
     </message>
     <message>
         <source>Top Bar Enabled</source>
@@ -6754,11 +6770,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Floating Window Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Lebegő ablak típusa</translation>
     </message>
     <message>
         <source>Save Floating Window Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Lebegő ablak típusának mentése</translation>
     </message>
     <message>
         <source>Choose the floating window layout type. Classic uses the standard floating.htm file, while Horizontal uses the hfloating.htm file for horizontal layout.</source>
@@ -6774,11 +6790,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Floating Window Width</source>
-        <translation type="unfinished"></translation>
+        <translation>Lebegő ablak szélessége</translation>
     </message>
     <message>
         <source>Save Floating Window Width</source>
-        <translation type="unfinished"></translation>
+        <translation>Lebegő ablak szélességének mentése</translation>
     </message>
     <message>
         <source>Android Only: width of the floating window.</source>
@@ -6790,11 +6806,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Floating Window Height</source>
-        <translation type="unfinished"></translation>
+        <translation>Lebegő ablak magassága</translation>
     </message>
     <message>
         <source>Save Floating Window Height</source>
-        <translation type="unfinished"></translation>
+        <translation>Lebegő ablak magasságának mentése</translation>
     </message>
     <message>
         <source>Android Only: height of the floating window.</source>
@@ -6806,11 +6822,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Floating Window % Transparency</source>
-        <translation type="unfinished"></translation>
+        <translation>Lebegő ablak átlátszósága (%)</translation>
     </message>
     <message>
         <source>Save Floating Window % Transparency</source>
-        <translation type="unfinished"></translation>
+        <translation>Lebegő ablak átlátszóságának (%) mentése</translation>
     </message>
     <message>
         <source>Android Only: transparency percentage of the floating window.</source>
@@ -6834,11 +6850,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Chart Display Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagram megjelenítési módja</translation>
     </message>
     <message>
         <source>Save Chart Display Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagram megjelenítési módjának mentése</translation>
     </message>
     <message>
         <source>Choose which charts to display in the footer: both heart rate and power charts, only heart rate chart, or only power chart.</source>
@@ -6850,11 +6866,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>iOS Live Activity Left Metric</source>
-        <translation type="unfinished"></translation>
+        <translation>iOS Élő tevékenység, bal oldali mérőszám</translation>
     </message>
     <message>
         <source>Save iOS Live Activity Left Metric</source>
-        <translation type="unfinished"></translation>
+        <translation>iOS Élő tevékenység, bal oldali mérőszám mentése</translation>
     </message>
     <message>
         <source>iOS Live Activity Right Metric:</source>
@@ -6862,11 +6878,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>iOS Live Activity Right Metric</source>
-        <translation type="unfinished"></translation>
+        <translation>iOS Élő tevékenység, jobb oldali mérőszám</translation>
     </message>
     <message>
         <source>Save iOS Live Activity Right Metric</source>
-        <translation type="unfinished"></translation>
+        <translation>iOS Élő tevékenység, jobb oldali mérőszám mentése</translation>
     </message>
     <message>
         <source>iOS only: choose which two metrics are shown in the compact Dynamic Island bar for Live Activities. Default is Heart Rate on the left and Watt on the right.</source>
@@ -6886,11 +6902,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Background Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Háttérszín</translation>
     </message>
     <message>
         <source>Save Background Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Háttérszín mentése</translation>
     </message>
     <message>
         <source>Please choose a color</source>
@@ -6902,11 +6918,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Tiles Background Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Csempék háttérszíne</translation>
     </message>
     <message>
         <source>Save Tiles Background Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Csempék háttérszínének mentése</translation>
     </message>
     <message>
         <source>Tiles Shadow</source>
@@ -6918,11 +6934,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Tiles Shadow Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Csempék árnyékszíne</translation>
     </message>
     <message>
         <source>Save Tiles Shadow Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Csempék árnyékszínének mentése</translation>
     </message>
     <message>
         <source>Statusbar Background Color:</source>
@@ -6930,11 +6946,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Statusbar Background Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Állapotsor háttérszíne</translation>
     </message>
     <message>
         <source>Save Statusbar Background Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Állapotsor háttérszínének mentése</translation>
     </message>
     <message>
         <source>2nd line tile text size:</source>
@@ -6942,11 +6958,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>2nd line tile text size</source>
-        <translation type="unfinished"></translation>
+        <translation>A csempe 2. sorának szövegmérete</translation>
     </message>
     <message>
         <source>Save 2nd line tile text size</source>
-        <translation type="unfinished"></translation>
+        <translation>A csempe 2. sora szövegméretének mentése</translation>
     </message>
     <message>
         <source>Peloton Options</source>
@@ -6954,11 +6970,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Connect to Peloton</source>
-        <translation type="unfinished">Csatlakozás a Pelotonhoz</translation>
+        <translation>Csatlakozás a Pelotonhoz</translation>
     </message>
     <message>
         <source>Opens the Peloton login page</source>
-        <translation type="unfinished"></translation>
+        <translation>Megnyitja a Peloton bejelentkezési oldalát</translation>
     </message>
     <message>
         <source>Difficulty:</source>
@@ -6966,11 +6982,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Difficulty</source>
-        <translation type="unfinished">Nehézség</translation>
+        <translation>Nehézség</translation>
     </message>
     <message>
         <source>Save Difficulty</source>
-        <translation type="unfinished"></translation>
+        <translation>Nehézség mentése</translation>
     </message>
     <message>
         <source>Typically, Peloton coaches call out a range for target incline, resistance and/or speed. Use this setting to choose the difficulty of the target QZ communicates. Difficulty level can be set to lower, upper or average. Click OK.</source>
@@ -6982,11 +6998,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Treadmill Level</source>
-        <translation type="unfinished"></translation>
+        <translation>Futópad szintje</translation>
     </message>
     <message>
         <source>Save Treadmill Level</source>
-        <translation type="unfinished"></translation>
+        <translation>Futópad szintjének mentése</translation>
     </message>
     <message>
         <source>Difficulty level for Peloton treadmill classes. 1 is easy 10 is hard.</source>
@@ -6998,11 +7014,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Treadmill Walk Level</source>
-        <translation type="unfinished"></translation>
+        <translation>Futópad gyaloglási szintje</translation>
     </message>
     <message>
         <source>Save Treadmill Walk Level</source>
-        <translation type="unfinished"></translation>
+        <translation>Futópad gyaloglási szintjének mentése</translation>
     </message>
     <message>
         <source>Difficulty level for Peloton treadmill walking classes. 1 is easy 10 is hard.</source>
@@ -7014,11 +7030,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Walking Min Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. sebesség gyalogláshoz</translation>
     </message>
     <message>
         <source>Save Walking Min Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. gyaloglási sebesség mentése</translation>
     </message>
     <message>
         <source>Minimum speed for Peloton walking sessions. Set to 0 to disable. Applied to all speed targets in walking workouts.</source>
@@ -7030,11 +7046,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Running Min Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. sebesség futáshoz</translation>
     </message>
     <message>
         <source>Save Running Min Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. futási sebesség mentése</translation>
     </message>
     <message>
         <source>Minimum speed for Peloton running sessions. Set to 0 to disable. Applied to all speed targets in running workouts.</source>
@@ -7046,11 +7062,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Rower Level</source>
-        <translation type="unfinished"></translation>
+        <translation>Evezőgép szintje</translation>
     </message>
     <message>
         <source>Save Rower Level</source>
-        <translation type="unfinished"></translation>
+        <translation>Evezőgép szintjének mentése</translation>
     </message>
     <message>
         <source>Difficulty level for Peloton rower classes. 1 is easy 10 is hard.</source>
@@ -7062,11 +7078,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>PZP Username</source>
-        <translation type="unfinished"></translation>
+        <translation>PZP-felhasználónév</translation>
     </message>
     <message>
         <source>Save PZP Username</source>
-        <translation type="unfinished"></translation>
+        <translation>PZP-felhasználónév mentése</translation>
     </message>
     <message>
         <source>As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave (or change back to) the default of “username” (without quotation marks, all lowercase and all one word) until further notice.</source>
@@ -7078,11 +7094,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>PZP Password</source>
-        <translation type="unfinished"></translation>
+        <translation>PZP-jelszó</translation>
     </message>
     <message>
         <source>Save PZP Password</source>
-        <translation type="unfinished"></translation>
+        <translation>PZP-jelszó mentése</translation>
     </message>
     <message>
         <source>As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave this setting blank until further notice.</source>
@@ -7094,11 +7110,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Conversion Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Átváltási szorzó</translation>
     </message>
     <message>
         <source>Save Conversion Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Átváltási szorzó mentése</translation>
     </message>
     <message>
         <source>Conversion gain is a multiplier. Use this setting to align the Peloton resistance calculated by QZ with the relative effort required by your bike. In most cases the default values will be correct.</source>
@@ -7110,11 +7126,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Conversion Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Átváltási eltolás</translation>
     </message>
     <message>
         <source>Save Conversion Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Átváltási eltolás mentése</translation>
     </message>
     <message>
         <source>Increases the resistance that QZ displays in the Peloton Resistance tile. If QZ’s calculated conversion from your bike’s resistance scale to Peloton’s seems too low, the number you enter here will be added to the calculated resistance without increasing your effort or actual resistance. (Example: If QZ displays Peloton resistance of 30 and you enter 5, QZ will display 35.)</source>
@@ -7150,11 +7166,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Override HR Metric</source>
-        <translation type="unfinished"></translation>
+        <translation>Pulzusmérőszám felülbírálása</translation>
     </message>
     <message>
         <source>Save Override HR Metric</source>
-        <translation type="unfinished"></translation>
+        <translation>Pulzusmérőszám felülbírálásának mentése</translation>
     </message>
     <message>
         <source>By default, QZ communicates heart rate to Peloton. Use this setting to change the metric that appears on the Peloton screen.</source>
@@ -7166,11 +7182,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Date on Strava</source>
-        <translation type="unfinished"></translation>
+        <translation>Dátum a Stravában</translation>
     </message>
     <message>
         <source>Save Date on Strava</source>
-        <translation type="unfinished"></translation>
+        <translation>Strava-dátum mentése</translation>
     </message>
     <message>
         <source>Allows you to choose whether you would like the Peloton class air date to display before or after the class title on Strava.</source>
@@ -7182,11 +7198,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Date Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Dátumformátum</translation>
     </message>
     <message>
         <source>Save Date Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Dátumformátum mentése</translation>
     </message>
     <message>
         <source>Activity Link in Strava</source>
@@ -7230,11 +7246,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Username</source>
-        <translation type="unfinished">Felhasználónév</translation>
+        <translation>Felhasználónév</translation>
     </message>
     <message>
         <source>Save Username</source>
-        <translation type="unfinished"></translation>
+        <translation>Felhasználónév mentése</translation>
     </message>
     <message>
         <source>Enter the email address you use to login to Zwift. Ensure there are no spaces before or after your email. Click OK.</source>
@@ -7246,11 +7262,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Password</source>
-        <translation type="unfinished">Jelszó</translation>
+        <translation>Jelszó</translation>
     </message>
     <message>
         <source>Save Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Jelszó mentése</translation>
     </message>
     <message>
         <source>Enter the password you use to login to Zwift. Click OK.</source>
@@ -7286,11 +7302,11 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Poll Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Lekérdezési időköz</translation>
     </message>
     <message>
         <source>Save Poll Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Lekérdezési időköz mentése</translation>
     </message>
     <message>
         <source>Define the number of delay seconds between each inclination change from Zwift. This value can&apos;t be less than 5. Default: 5</source>
@@ -7382,23 +7398,23 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     </message>
     <message>
         <source>Garmin Email</source>
-        <translation type="unfinished"></translation>
+        <translation>Garmin e-mail-cím</translation>
     </message>
     <message>
         <source>Save Garmin Email</source>
-        <translation type="unfinished"></translation>
+        <translation>Garmin e-mail-cím mentése</translation>
     </message>
     <message>
         <source>Garmin Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Garmin-jelszó</translation>
     </message>
     <message>
         <source>Save Garmin Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Garmin-jelszó mentése</translation>
     </message>
     <message>
         <source>Garmin Server</source>
-        <translation type="unfinished"></translation>
+        <translation>Garmin-kiszolgáló</translation>
     </message>
     <message>
         <source>Test Garmin Login</source>
@@ -7765,215 +7781,215 @@ Please enter it below:</source>
     </message>
     <message>
         <source>PID on Heart Zone</source>
-        <translation type="unfinished"></translation>
+        <translation>PID-pulzuszóna</translation>
     </message>
     <message>
         <source>Save PID on Heart Zone</source>
-        <translation type="unfinished"></translation>
+        <translation>PID-pulzuszóna mentése</translation>
     </message>
     <message>
         <source>Save PID HR actuator</source>
-        <translation type="unfinished"></translation>
+        <translation>PID-pulzusszabályozás módjának mentése</translation>
     </message>
     <message>
         <source>PID on HR min</source>
-        <translation type="unfinished"></translation>
+        <translation>PID min. pulzus</translation>
     </message>
     <message>
         <source>Save PID on HR min</source>
-        <translation type="unfinished"></translation>
+        <translation>PID min. pulzus mentése</translation>
     </message>
     <message>
         <source>PID on HR max</source>
-        <translation type="unfinished"></translation>
+        <translation>PID max. pulzus</translation>
     </message>
     <message>
         <source>Save PID on HR max</source>
-        <translation type="unfinished"></translation>
+        <translation>PID max. pulzus mentése</translation>
     </message>
     <message>
         <source>1 mile pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>1 mérföldes tempó (teljes idő)</translation>
     </message>
     <message>
         <source>Save 1 mile pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>1 mérföldes tempó (teljes idő) mentése</translation>
     </message>
     <message>
         <source>5 km pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>5 km-es tempó (teljes idő)</translation>
     </message>
     <message>
         <source>Save 5 km pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>5 km-es tempó (teljes idő) mentése</translation>
     </message>
     <message>
         <source>10 km pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>10 km-es tempó (teljes idő)</translation>
     </message>
     <message>
         <source>Save 10 km pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>10 km-es tempó (teljes idő) mentése</translation>
     </message>
     <message>
         <source>Half Marathon pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>Félmaratoni tempó (teljes idő)</translation>
     </message>
     <message>
         <source>Save Half Marathon pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>Félmaratoni tempó (teljes idő) mentése</translation>
     </message>
     <message>
         <source>Marathon pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>Maratoni tempó (teljes idő)</translation>
     </message>
     <message>
         <source>Save Marathon pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>Maratoni tempó (teljes idő) mentése</translation>
     </message>
     <message>
         <source>Default Pace</source>
-        <translation type="unfinished"></translation>
+        <translation>Alapértelmezett tempó</translation>
     </message>
     <message>
         <source>Save Default Pace</source>
-        <translation type="unfinished"></translation>
+        <translation>Alapértelmezett tempó mentése</translation>
     </message>
     <message>
         <source>ERG Mode Watt Step</source>
-        <translation type="unfinished"></translation>
+        <translation>ERG-mód wattlépésköze</translation>
     </message>
     <message>
         <source>Save ERG Mode Watt Step</source>
-        <translation type="unfinished"></translation>
+        <translation>ERG-mód wattlépésközének mentése</translation>
     </message>
     <message>
         <source>Duration (minutes)</source>
-        <translation type="unfinished"></translation>
+        <translation>Időtartam (perc)</translation>
     </message>
     <message>
         <source>Save Duration (minutes)</source>
-        <translation type="unfinished"></translation>
+        <translation>Időtartam (perc) mentése</translation>
     </message>
     <message>
         <source>Period (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Periódus (másodperc)</translation>
     </message>
     <message>
         <source>Save Period (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Periódus (másodperc) mentése</translation>
     </message>
     <message>
         <source>Speed min.</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. sebesség</translation>
     </message>
     <message>
         <source>Save Speed min.</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. sebesség mentése</translation>
     </message>
     <message>
         <source>Speed max.</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. sebesség</translation>
     </message>
     <message>
         <source>Save Speed max.</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. sebesség mentése</translation>
     </message>
     <message>
         <source>Incline min.</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. emelkedés</translation>
     </message>
     <message>
         <source>Save Incline min.</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. emelkedés mentése</translation>
     </message>
     <message>
         <source>Incline max.</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. emelkedés</translation>
     </message>
     <message>
         <source>Save Incline max.</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. emelkedés mentése</translation>
     </message>
     <message>
         <source>Resistance min.</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. ellenállás</translation>
     </message>
     <message>
         <source>Save Resistance min.</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. ellenállás mentése</translation>
     </message>
     <message>
         <source>Resistance max.</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. ellenállás</translation>
     </message>
     <message>
         <source>Save Resistance max.</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. ellenállás mentése</translation>
     </message>
     <message>
         <source>Speed Step</source>
-        <translation type="unfinished"></translation>
+        <translation>Sebességlépésköz</translation>
     </message>
     <message>
         <source>Save Speed Step</source>
-        <translation type="unfinished"></translation>
+        <translation>Sebességlépésköz mentése</translation>
     </message>
     <message>
         <source>Min. Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. emelkedés</translation>
     </message>
     <message>
         <source>Save Min. Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. emelkedés mentése</translation>
     </message>
     <message>
         <source>Max. Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. emelkedés</translation>
     </message>
     <message>
         <source>Save Max. Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. emelkedés mentése</translation>
     </message>
     <message>
         <source>Max. Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. sebesség</translation>
     </message>
     <message>
         <source>Save Max. Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. sebesség mentése</translation>
     </message>
     <message>
         <source>Min. Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. sebesség</translation>
     </message>
     <message>
         <source>Save Min. Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. sebesség mentése</translation>
     </message>
     <message>
         <source>Step Count Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Lépésszámszorzó</translation>
     </message>
     <message>
         <source>Save Step Count Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Lépésszámszorzó mentése</translation>
     </message>
     <message>
         <source>Proform IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Proform IP-cím</translation>
     </message>
     <message>
         <source>Save Proform IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Proform IP-cím mentése</translation>
     </message>
     <message>
         <source>Nordictrack 2950 IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Nordictrack 2950 IP-cím</translation>
     </message>
     <message>
         <source>Save Nordictrack 2950 IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Nordictrack 2950 IP-cím mentése</translation>
     </message>
     <message>
         <source>Echelon Options</source>
@@ -7993,19 +8009,19 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Life Fitness username/email</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitness felhasználónév/e-mail</translation>
     </message>
     <message>
         <source>Save Life Fitness username/email</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitness felhasználónév/e-mail mentése</translation>
     </message>
     <message>
         <source>Life Fitness password</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitness jelszó</translation>
     </message>
     <message>
         <source>Save Life Fitness password</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitness jelszó mentése</translation>
     </message>
     <message>
         <source>RunnerT Options</source>
@@ -8045,11 +8061,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Remap 5 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>5 km/h gomb átkiosztása</translation>
     </message>
     <message>
         <source>Save Remap 5 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>5 km/h gomb átkiosztásának mentése</translation>
     </message>
     <message>
         <source>Remap 10 km/h button:</source>
@@ -8057,11 +8073,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Remap 10 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>10 km/h gomb átkiosztása</translation>
     </message>
     <message>
         <source>Save Remap 10 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>10 km/h gomb átkiosztásának mentése</translation>
     </message>
     <message>
         <source>Remap 16 km/h button:</source>
@@ -8069,11 +8085,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Remap 16 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>16 km/h gomb átkiosztása</translation>
     </message>
     <message>
         <source>Save Remap 16 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>16 km/h gomb átkiosztásának mentése</translation>
     </message>
     <message>
         <source>Remap 22 km/h button:</source>
@@ -8081,11 +8097,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Remap 22 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>22 km/h gomb átkiosztása</translation>
     </message>
     <message>
         <source>Save Remap 22 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>22 km/h gomb átkiosztásának mentése</translation>
     </message>
     <message>
         <source>Pool time (ms):</source>
@@ -8093,11 +8109,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Pool time (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Lekérdezési időköz (ms)</translation>
     </message>
     <message>
         <source>Save Pool time (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Lekérdezési időköz (ms) mentése</translation>
     </message>
     <message>
         <source>Default: 200. Change this only if you have random issues with speed or inclination (try to put 300)</source>
@@ -8137,11 +8153,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>User ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Felhasználói azonosító</translation>
     </message>
     <message>
         <source>Save User ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Felhasználói azonosító mentése</translation>
     </message>
     <message>
         <source>ESLinker Treadmill Options</source>
@@ -8185,11 +8201,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>User 1</source>
-        <translation type="unfinished"></translation>
+        <translation>1. felhasználó</translation>
     </message>
     <message>
         <source>Save User 1</source>
-        <translation type="unfinished"></translation>
+        <translation>1. felhasználó mentése</translation>
     </message>
     <message>
         <source>User 2:</source>
@@ -8197,11 +8213,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>User 2</source>
-        <translation type="unfinished"></translation>
+        <translation>2. felhasználó</translation>
     </message>
     <message>
         <source>Save User 2</source>
-        <translation type="unfinished"></translation>
+        <translation>2. felhasználó mentése</translation>
     </message>
     <message>
         <source>User 3:</source>
@@ -8209,11 +8225,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>User 3</source>
-        <translation type="unfinished"></translation>
+        <translation>3. felhasználó</translation>
     </message>
     <message>
         <source>Save User 3</source>
-        <translation type="unfinished"></translation>
+        <translation>3. felhasználó mentése</translation>
     </message>
     <message>
         <source>User 4:</source>
@@ -8221,11 +8237,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>User 4</source>
-        <translation type="unfinished"></translation>
+        <translation>4. felhasználó</translation>
     </message>
     <message>
         <source>Save User 4</source>
-        <translation type="unfinished"></translation>
+        <translation>4. felhasználó mentése</translation>
     </message>
     <message>
         <source>User 5:</source>
@@ -8233,11 +8249,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>User 5</source>
-        <translation type="unfinished"></translation>
+        <translation>5. felhasználó</translation>
     </message>
     <message>
         <source>Save User 5</source>
-        <translation type="unfinished"></translation>
+        <translation>5. felhasználó mentése</translation>
     </message>
     <message>
         <source>Bodytone Treadmill Options</source>
@@ -8337,11 +8353,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>ProForm Rower IP</source>
-        <translation type="unfinished"></translation>
+        <translation>ProForm evezőgép IP-cím</translation>
     </message>
     <message>
         <source>Save ProForm Rower IP</source>
-        <translation type="unfinished"></translation>
+        <translation>ProForm evezőgép IP-cím mentése</translation>
     </message>
     <message>
         <source>Elliptical Options</source>
@@ -8357,7 +8373,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Save Domyos Elliptical Speed Ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyos elliptikus tréner sebességarányának mentése</translation>
     </message>
     <message>
         <source>Inclination Supported</source>
@@ -8385,11 +8401,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Companion IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Companion IP-cím</translation>
     </message>
     <message>
         <source>Save Companion IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Companion IP-cím mentése</translation>
     </message>
     <message>
         <source>Sole Elliptical Options</source>
@@ -8433,11 +8449,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Watt Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Watteltolás</translation>
     </message>
     <message>
         <source>Save Watt Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Watteltolás mentése</translation>
     </message>
     <message>
         <source>You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. The number you enter as an Offset adds that amount to your watts.</source>
@@ -8449,11 +8465,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Watt Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Wattszorzó</translation>
     </message>
     <message>
         <source>Save Watt Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Wattszorzó mentése</translation>
     </message>
     <message>
         <source>You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. For example, to use a rower to cycle in Zwift, you could double your watt output to better match your cycling speed by entering 2. The number you enter is a multiplier applied to your actual watts.</source>
@@ -8465,7 +8481,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Save Speed Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Sebességeltolás mentése</translation>
     </message>
     <message>
         <source>You can increase/decrease your speed for moving your avatar faster/slower in Zwift if your equipment outputs speed but not watts. The number you enter as an Offset adds that amount to your speed.</source>
@@ -8477,11 +8493,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Speed Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Sebességszorzó</translation>
     </message>
     <message>
         <source>Save Speed Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Sebességszorzó mentése</translation>
     </message>
     <message>
         <source>You can increase/decrease your speed output for moving your avatar faster/slower in Zwift or other apps as a way of calibrating your equipment if your equipment outputs speed but not watts. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.</source>
@@ -8493,7 +8509,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Save Cadence Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Kadenciaeltolás mentése</translation>
     </message>
     <message>
         <source>You can increase/decrease your cadence output. The number you enter as an Offset adds that amount to your cadence.</source>
@@ -8505,7 +8521,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Save Cadence Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Kadenciaszorzó mentése</translation>
     </message>
     <message>
         <source>You can increase/decrease your cadence output as a way of calibrating your equipment if your equipment outputs cadence but not watts. The number you enter is a multiplier applied to your actual cadence.</source>
@@ -8521,11 +8537,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Strava Upload</source>
-        <translation type="unfinished"></translation>
+        <translation>Strava-feltöltés</translation>
     </message>
     <message>
         <source>Save Strava Upload</source>
-        <translation type="unfinished"></translation>
+        <translation>Strava-feltöltés mentése</translation>
     </message>
     <message>
         <source>Suffix activity:</source>
@@ -8533,11 +8549,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Suffix activity</source>
-        <translation type="unfinished"></translation>
+        <translation>Tevékenység utótagja</translation>
     </message>
     <message>
         <source>Save Suffix activity</source>
-        <translation type="unfinished"></translation>
+        <translation>Tevékenység utótagjának mentése</translation>
     </message>
     <message>
         <source>Default is “QZ.” Please leave this set to default so that other Strava users will see the QZ; a tiny bit of advertising that helps promote the app and support its development. If you choose to remove it, please consider contributing to the developer’s Patreon or Buy Me a Coffee accounts or just subscribe to the Swag bag in the left side bar to allow me to continue developing and supporting the app.</source>
@@ -8597,7 +8613,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Power Averaging Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Teljesítményátlagolás módja</translation>
     </message>
     <message>
         <source>If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. Uses harmonic averaging which smooths power spikes better than arithmetic averaging. If any reading is 0, power immediately becomes 0. Default is Off.
@@ -8637,11 +8653,11 @@ FONTOS MEGJEGYZÉSEK:
     </message>
     <message>
         <source>Zwift Inclination Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift-emelkedés eltolása</translation>
     </message>
     <message>
         <source>Save Zwift Inclination Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift-emelkedés eltolásának mentése</translation>
     </message>
     <message>
         <source>Inclination Offset and Gain are used to adjust the incline set by Zwift instead of, or in addition to, using the QZ Zwift Gain setting. For example, when Zwift changes the incline to 1%, you can have your treadmill change to 2%. The number you enter as an offset adds to the inclination sent from Zwift or any other 3rd party app. Default is 0.</source>
@@ -8653,11 +8669,11 @@ FONTOS MEGJEGYZÉSEK:
     </message>
     <message>
         <source>Zwift Inclination Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift-emelkedés szorzója</translation>
     </message>
     <message>
         <source>Save Zwift Inclination Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift-emelkedés szorzójának mentése</translation>
     </message>
     <message>
         <source>The number you enter as a Gain is a multiplier applied to the inclination sent from Zwift or any other 3rd party app. Default is 1.</source>
@@ -8669,11 +8685,11 @@ FONTOS MEGJEGYZÉSEK:
     </message>
     <message>
         <source>Minimum Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. emelkedés</translation>
     </message>
     <message>
         <source>Save Minimum Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. emelkedés mentése</translation>
     </message>
     <message>
         <source>If you don&apos;t want to go below a certain inclination value for bikes and treadmill set the min. value here. Default: -999.</source>
@@ -8685,11 +8701,11 @@ FONTOS MEGJEGYZÉSEK:
     </message>
     <message>
         <source>Inclination Step</source>
-        <translation type="unfinished"></translation>
+        <translation>Emelkedési lépésköz</translation>
     </message>
     <message>
         <source>Save Inclination Step</source>
-        <translation type="unfinished"></translation>
+        <translation>Emelkedési lépésköz mentése</translation>
     </message>
     <message>
         <source>(Incline Tile) This controls the amount of the increase or decrease in the inclination when you press the plus or minus button in the Incline Tile for both treadmills and bikes. Default is 0.5.</source>
@@ -8725,11 +8741,11 @@ FONTOS MEGJEGYZÉSEK:
     </message>
     <message>
         <source>AutoLap on Distance</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatikus kör távolság szerint</translation>
     </message>
     <message>
         <source>Save AutoLap on Distance</source>
-        <translation type="unfinished"></translation>
+        <translation>Távolság szerinti automatikus kör mentése</translation>
     </message>
     <message>
         <source>Inclination Delay:</source>
@@ -8737,11 +8753,11 @@ FONTOS MEGJEGYZÉSEK:
     </message>
     <message>
         <source>Inclination Delay</source>
-        <translation type="unfinished"></translation>
+        <translation>Emelkedés késleltetése</translation>
     </message>
     <message>
         <source>Save Inclination Delay</source>
-        <translation type="unfinished"></translation>
+        <translation>Emelkedés késleltetésének mentése</translation>
     </message>
     <message>
         <source>This slow down the inclination changes adding a delay between each change. This is not applied to all the model of treadmill/bike. Default is 0.</source>
@@ -8801,11 +8817,11 @@ FONTOS MEGJEGYZÉSEK:
     </message>
     <message>
         <source>Resistance Level 1</source>
-        <translation type="unfinished"></translation>
+        <translation>1. ellenállási szint</translation>
     </message>
     <message>
         <source>Save Resistance Level 1</source>
-        <translation type="unfinished"></translation>
+        <translation>1. ellenállási szint mentése</translation>
     </message>
     <message>
         <source>Watt 1:</source>
@@ -8813,11 +8829,11 @@ FONTOS MEGJEGYZÉSEK:
     </message>
     <message>
         <source>Watt 1</source>
-        <translation type="unfinished"></translation>
+        <translation>1. watt</translation>
     </message>
     <message>
         <source>Save Watt 1</source>
-        <translation type="unfinished"></translation>
+        <translation>1. watt mentése</translation>
     </message>
     <message>
         <source>Resistance Level 2:</source>
@@ -8825,11 +8841,11 @@ FONTOS MEGJEGYZÉSEK:
     </message>
     <message>
         <source>Resistance Level 2</source>
-        <translation type="unfinished"></translation>
+        <translation>2. ellenállási szint</translation>
     </message>
     <message>
         <source>Save Resistance Level 2</source>
-        <translation type="unfinished"></translation>
+        <translation>2. ellenállási szint mentése</translation>
     </message>
     <message>
         <source>Watt 2:</source>
@@ -8837,11 +8853,11 @@ FONTOS MEGJEGYZÉSEK:
     </message>
     <message>
         <source>Watt 2</source>
-        <translation type="unfinished"></translation>
+        <translation>2. watt</translation>
     </message>
     <message>
         <source>Save Watt 2</source>
-        <translation type="unfinished"></translation>
+        <translation>2. watt mentése</translation>
     </message>
     <message>
         <source>QZ will build a linear equation from the two resistance/watt points and clamp the effective resistance using the existing Min. Resistance and Max. Resistance settings.</source>
@@ -8969,11 +8985,11 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Difficulty/Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Nehézség/szorzó</translation>
     </message>
     <message>
         <source>Save Difficulty/Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Nehézség/szorzó mentése</translation>
     </message>
     <message>
         <source>Elite Sterzo Smart Options</source>
@@ -8997,7 +9013,7 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save Shift Step</source>
-        <translation type="unfinished"></translation>
+        <translation>Váltási lépésköz mentése</translation>
     </message>
     <message>
         <source>Max Resistance</source>
@@ -9005,7 +9021,7 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save Max Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. ellenállás mentése</translation>
     </message>
     <message>
         <source>Min Resistance</source>
@@ -9013,7 +9029,7 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save Min Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. ellenállás mentése</translation>
     </message>
     <message>
         <source>Advanced SmartSpin2k Calibration</source>
@@ -9025,7 +9041,7 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save Resistance Sample 1</source>
-        <translation type="unfinished"></translation>
+        <translation>1. mérés, ellenállás mentése</translation>
     </message>
     <message>
         <source>Shift Step Sample 1</source>
@@ -9033,7 +9049,7 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save Shift Step Sample 1</source>
-        <translation type="unfinished"></translation>
+        <translation>1. mérés, váltási lépésköz mentése</translation>
     </message>
     <message>
         <source>Resistance Sample 2</source>
@@ -9041,7 +9057,7 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save Resistance Sample 2</source>
-        <translation type="unfinished"></translation>
+        <translation>2. mérés, ellenállás mentése</translation>
     </message>
     <message>
         <source>Shift Step Sample 2</source>
@@ -9049,7 +9065,7 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save Shift Step Sample 2</source>
-        <translation type="unfinished"></translation>
+        <translation>2. mérés, váltási lépésköz mentése</translation>
     </message>
     <message>
         <source>Resistance Sample 3</source>
@@ -9057,7 +9073,7 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save Resistance Sample 3</source>
-        <translation type="unfinished"></translation>
+        <translation>3. mérés, ellenállás mentése</translation>
     </message>
     <message>
         <source>Shift Step Sample 3</source>
@@ -9065,7 +9081,7 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save Shift Step Sample 3</source>
-        <translation type="unfinished"></translation>
+        <translation>3. mérés, váltási lépésköz mentése</translation>
     </message>
     <message>
         <source>Resistance Sample 4</source>
@@ -9073,7 +9089,7 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save Resistance Sample 4</source>
-        <translation type="unfinished"></translation>
+        <translation>4. mérés, ellenállás mentése</translation>
     </message>
     <message>
         <source>Shift Step Sample 4</source>
@@ -9081,7 +9097,7 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save Shift Step Sample 4</source>
-        <translation type="unfinished"></translation>
+        <translation>4. mérés, váltási lépésköz mentése</translation>
     </message>
     <message>
         <source>Fitmetria Fitfan™ Options</source>
@@ -9097,11 +9113,11 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Mód</translation>
     </message>
     <message>
         <source>Save Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Mód mentése</translation>
     </message>
     <message>
         <source>Min. value (0-100):</source>
@@ -9109,11 +9125,11 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Min. value (0-100)</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. érték (0–100)</translation>
     </message>
     <message>
         <source>Save Min. value (0-100)</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. érték (0–100) mentése</translation>
     </message>
     <message>
         <source>Max value (0-100):</source>
@@ -9121,11 +9137,11 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Max value (0-100)</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. érték (0–100)</translation>
     </message>
     <message>
         <source>Save Max value (0-100)</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. érték (0–100) mentése</translation>
     </message>
     <message>
         <source>Wahoo Kickr HeadWind Options</source>
@@ -9225,11 +9241,11 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Maps Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Térkép típusa</translation>
     </message>
     <message>
         <source>Save Maps Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Térkép típusának mentése</translation>
     </message>
     <message>
         <source>Loop Start-End-Start</source>
@@ -9361,15 +9377,15 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Wahoo device ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Wahoo-eszközazonosító</translation>
     </message>
     <message>
         <source>Virtual Wahoo device ID. Change if you have multiple QZ instances. Default: 0</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuális Wahoo-eszközazonosító. Módosítsa, ha több QZ-példányt futtat. Alapértelmezett: 0</translation>
     </message>
     <message>
         <source>Save Wahoo device ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Wahoo-eszközazonosító mentése</translation>
     </message>
     <message>
         <source>If you have multiple QZ instances, you can change the id of the virtual wahoo device. Default: 0</source>
@@ -9381,15 +9397,15 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Wahoo direct connect server port</source>
-        <translation type="unfinished"></translation>
+        <translation>Wahoo közvetlen csatlakozás kiszolgálóportja</translation>
     </message>
     <message>
         <source>TCP port for the Wahoo direct connect server. Default: 36866</source>
-        <translation type="unfinished"></translation>
+        <translation>A Wahoo közvetlen csatlakozás kiszolgálójának TCP-portja. Alapértelmezett: 36866</translation>
     </message>
     <message>
         <source>Save server port</source>
-        <translation type="unfinished"></translation>
+        <translation>Kiszolgálóport mentése</translation>
     </message>
     <message>
         <source>MQTT Settings</source>
@@ -9401,11 +9417,11 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>MQTT Host</source>
-        <translation type="unfinished"></translation>
+        <translation>MQTT-gazdagép</translation>
     </message>
     <message>
         <source>Save MQTT Host</source>
-        <translation type="unfinished"></translation>
+        <translation>MQTT-gazdagép mentése</translation>
     </message>
     <message>
         <source>Enter the MQTT broker hostname or IP address</source>
@@ -9417,11 +9433,11 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>MQTT Port</source>
-        <translation type="unfinished"></translation>
+        <translation>MQTT-port</translation>
     </message>
     <message>
         <source>Save MQTT Port</source>
-        <translation type="unfinished"></translation>
+        <translation>MQTT-port mentése</translation>
     </message>
     <message>
         <source>Enter the MQTT broker port (default: 1883)</source>
@@ -9441,11 +9457,11 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Device ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Eszközazonosító</translation>
     </message>
     <message>
         <source>Save Device ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Eszközazonosító mentése</translation>
     </message>
     <message>
         <source>Enter a unique device identifier for MQTT client</source>
@@ -9461,11 +9477,11 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>OSC IP</source>
-        <translation type="unfinished"></translation>
+        <translation>OSC IP-cím</translation>
     </message>
     <message>
         <source>Save OSC IP</source>
-        <translation type="unfinished"></translation>
+        <translation>OSC IP-cím mentése</translation>
     </message>
     <message>
         <source>OSC Port:</source>
@@ -9473,11 +9489,11 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>OSC Port</source>
-        <translation type="unfinished"></translation>
+        <translation>OSC-port</translation>
     </message>
     <message>
         <source>Save OSC Port</source>
-        <translation type="unfinished"></translation>
+        <translation>OSC-port mentése</translation>
     </message>
     <message>
         <source>Race Mode</source>
@@ -11283,11 +11299,11 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Announcement interval in seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>Felolvasási időköz másodpercben</translation>
     </message>
     <message>
         <source>How often workout metrics are read aloud. Default: 120 seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>Milyen gyakran olvassa fel az alkalmazás az edzés mérőszámait. Alapértelmezett: 120 másodperc</translation>
     </message>
     <message>
         <source>OK</source>
@@ -11299,7 +11315,7 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Save announcement interval</source>
-        <translation type="unfinished"></translation>
+        <translation>Felolvasási időköz mentése</translation>
     </message>
     <message>
         <source>TTS Description Enabled</source>

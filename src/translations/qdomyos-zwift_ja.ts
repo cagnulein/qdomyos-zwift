@@ -302,7 +302,7 @@ Would you like to do that now?</source>
     </message>
     <message>
         <source>, current value </source>
-        <translation type="unfinished"></translation>
+        <translation>、現在の値 </translation>
     </message>
     <message>
         <source>Decrease the value of </source>
@@ -310,7 +310,7 @@ Would you like to do that now?</source>
     </message>
     <message>
         <source>. Current value </source>
-        <translation type="unfinished"></translation>
+        <translation>。現在の値 </translation>
     </message>
     <message>
         <source>Increase </source>
@@ -393,7 +393,23 @@ Have a nice ride!
 QZ disclaims liability for incidental or consequential damages and assumes no responsibility for any loss or damage caused by use or misuse of the app.
 
 Roberto Viola</source>
-        <translation type="unfinished"></translation>
+        <translation>このアプリは、お使いのバイク、トレッドミル、ローイングマシンに自動的に接続します。
+
+接続されない場合は、次の点を確認してください:
+- QZの実行中はEchelon/Domyosアプリを閉じている
+- BluetoothとBluetoothの権限が有効になっている
+- QZを起動する前に機器の電源が入っている
+- デバイスを再起動した
+
+バイクやトレッドミルが30秒ごとに切断される場合は、左側のバーでバーチャルデバイス設定を無効にしてください。
+
+サポートが必要な場合は、roberto.viola83@gmail.com までご連絡ください。
+
+快適なライドを！
+
+QZは、アプリの使用または誤用により生じた付随的損害または結果的損害について責任を負わず、いかなる損失または損害についても一切の責任を負いません。
+
+Roberto Viola</translation>
     </message>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
@@ -2128,125 +2144,125 @@ QZの設定を更新しますか?</translation>
     </message>
     <message>
         <source>Workout name</source>
-        <translation type="unfinished"></translation>
+        <translation>ワークアウト名</translation>
     </message>
     <message>
         <source>Workout device type</source>
-        <translation type="unfinished"></translation>
+        <translation>ワークアウトの機器タイプ</translation>
     </message>
     <message>
         <source>Create a new workout</source>
-        <translation type="unfinished"></translation>
+        <translation>新しいワークアウトを作成</translation>
     </message>
     <message>
         <source>Paste XML from the Clipboard to the Workout Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>クリップボードのXMLをワークアウトエディターに貼り付け</translation>
     </message>
     <message>
         <source>Save workout</source>
-        <translation type="unfinished"></translation>
+        <translation>ワークアウトを保存</translation>
     </message>
     <message>
         <source>Save workout and start it</source>
-        <translation type="unfinished"></translation>
+        <translation>ワークアウトを保存して開始</translation>
     </message>
     <message>
         <source>Show advanced interval fields</source>
-        <translation type="unfinished"></translation>
+        <translation>インターバルの詳細項目を表示</translation>
     </message>
     <message>
         <source>Workout editor controls</source>
-        <translation type="unfinished"></translation>
+        <translation>ワークアウトエディターの操作</translation>
     </message>
     <message>
         <source>Add interval</source>
-        <translation type="unfinished"></translation>
+        <translation>インターバルを追加</translation>
     </message>
     <message>
         <source>Repeat selected intervals</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したインターバルを繰り返す</translation>
     </message>
     <message>
         <source>Clear all intervals</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのインターバルをクリア</translation>
     </message>
     <message>
         <source>Workout preview chart</source>
-        <translation type="unfinished"></translation>
+        <translation>ワークアウトのプレビューチャート</translation>
     </message>
     <message>
         <source>Chart legend</source>
-        <translation type="unfinished"></translation>
+        <translation>チャートの凡例</translation>
     </message>
     <message>
         <source>Saved workout programs</source>
-        <translation type="unfinished"></translation>
+        <translation>保存済みのワークアウトプログラム</translation>
     </message>
     <message>
         <source>Load selected workout program</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したワークアウトプログラムを読み込む</translation>
     </message>
     <message>
         <source>Delete selected workout program</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したワークアウトプログラムを削除</translation>
     </message>
     <message>
         <source>Refresh workout program list</source>
-        <translation type="unfinished"></translation>
+        <translation>ワークアウトプログラムの一覧を更新</translation>
     </message>
     <message>
         <source>Select interval {number}</source>
         <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>インターバル {number} を選択</translation>
     </message>
     <message>
         <source>Move interval {number} up</source>
         <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>インターバル {number} を上へ移動</translation>
     </message>
     <message>
         <source>Move interval {number} down</source>
         <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>インターバル {number} を下へ移動</translation>
     </message>
     <message>
         <source>Copy interval {number}</source>
         <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>インターバル {number} をコピー</translation>
     </message>
     <message>
         <source>Delete interval {number}</source>
         <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>インターバル {number} を削除</translation>
     </message>
     <message>
         <source>Enable {field} for interval {number}</source>
         <extracomment>Screen reader name of a field checkbox; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>インターバル {number} の{field}を有効にする</translation>
     </message>
     <message>
         <source>{field} for interval {number}</source>
         <extracomment>Screen reader name of a field; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>インターバル {number} の{field}</translation>
     </message>
     <message>
         <source>Decrease {field} for interval {number}</source>
         <extracomment>Screen reader name of the - button; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>インターバル {number} の{field}を減らす</translation>
     </message>
     <message>
         <source>Increase {field} for interval {number}</source>
         <extracomment>Screen reader name of the + button; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>インターバル {number} の{field}を増やす</translation>
     </message>
     <message>
         <source>{name} preview chart. {count} intervals. Total duration {duration}.</source>
         <extracomment>Screen reader description of the chart; {name} is the workout name, {count} the number of intervals, {duration} like 0:45:00</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>{name} のプレビューチャート。インターバル {count} 個。合計時間 {duration}。</translation>
     </message>
     <message>
         <source>Dialog input</source>
-        <translation type="unfinished"></translation>
+        <translation>ダイアログの入力欄</translation>
     </message>
     <message>
         <source>Training Programs Browser</source>
@@ -2794,7 +2810,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Opens the Peloton login page</source>
-        <translation type="unfinished"></translation>
+        <translation>Pelotonのログインページを開きます</translation>
     </message>
     <message>
         <source>Peloton Difficulty</source>
@@ -2822,11 +2838,11 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Peloton difficulty level</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton 難易度</translation>
     </message>
     <message>
         <source>Choose whether QZ targets the lower, upper or average of the instructor&apos;s range</source>
-        <translation type="unfinished"></translation>
+        <translation>インストラクターが示す範囲の下限、上限、平均のどれをQZの目標にするかを選択します</translation>
     </message>
     <message>
         <source>Finish</source>
@@ -2842,11 +2858,11 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Resistance level for flat road</source>
-        <translation type="unfinished"></translation>
+        <translation>平地の負荷レベル</translation>
     </message>
     <message>
         <source>Resistance level that feels like riding on flat ground. Range 0 to 100.</source>
-        <translation type="unfinished"></translation>
+        <translation>平地を走っているように感じる負荷レベル。範囲は0～100です。</translation>
     </message>
     <message>
         <source>Next</source>
@@ -2894,7 +2910,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Zwift username</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwiftユーザー名</translation>
     </message>
     <message>
         <source>Password</source>
@@ -2902,7 +2918,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Zwift password</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwiftパスワード</translation>
     </message>
     <message>
         <source>Zwift Play and Click</source>
@@ -2918,7 +2934,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>有効</translation>
     </message>
     <message>
         <source>Zwift Play</source>
@@ -2958,7 +2974,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Email support</source>
-        <translation type="unfinished"></translation>
+        <translation>メールでサポートに連絡</translation>
     </message>
     <message>
         <source>Close</source>
@@ -2974,11 +2990,11 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Fitness device</source>
-        <translation type="unfinished"></translation>
+        <translation>フィットネス機器</translation>
     </message>
     <message>
         <source>Select your fitness device from the list of nearby Bluetooth devices. Tap Refresh to scan again.</source>
-        <translation type="unfinished"></translation>
+        <translation>近くのBluetoothデバイスの一覧からフィットネス機器を選択してください。再スキャンするには「更新」をタップします。</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -3002,11 +3018,11 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Unit system</source>
-        <translation type="unfinished"></translation>
+        <translation>単位系</translation>
     </message>
     <message>
         <source>Metric uses kilometers and kilograms. Imperial uses miles and pounds.</source>
-        <translation type="unfinished"></translation>
+        <translation>メートル法ではキロメートルとキログラム、ヤード・ポンド法ではマイルとポンドを使用します。</translation>
     </message>
     <message>
         <source>User Information</source>
@@ -3026,15 +3042,15 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Body weight</source>
-        <translation type="unfinished"></translation>
+        <translation>体重</translation>
     </message>
     <message>
         <source>Your weight in pounds</source>
-        <translation type="unfinished"></translation>
+        <translation>ポンド単位の体重</translation>
     </message>
     <message>
         <source>Your weight in kilograms</source>
-        <translation type="unfinished"></translation>
+        <translation>キログラム単位の体重</translation>
     </message>
     <message>
         <source>Age</source>
@@ -3042,7 +3058,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Your age in years. Used for heart rate zone calculations.</source>
-        <translation type="unfinished"></translation>
+        <translation>年齢（歳）。心拍ゾーンの計算に使用されます。</translation>
     </message>
     <message>
         <source>Gender</source>
@@ -3058,7 +3074,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Used for calorie calculations</source>
-        <translation type="unfinished"></translation>
+        <translation>消費カロリーの計算に使用されます</translation>
     </message>
     <message>
         <source>Select Your Heart Rate Device</source>
@@ -3070,11 +3086,11 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Heart rate belt</source>
-        <translation type="unfinished"></translation>
+        <translation>心拍計</translation>
     </message>
     <message>
         <source>Select your Bluetooth heart rate belt from the list. Tap Refresh to scan again. Choose Disabled if using a smartwatch.</source>
-        <translation type="unfinished"></translation>
+        <translation>一覧からBluetooth心拍計を選択してください。再スキャンするには「更新」をタップします。スマートウォッチを使用する場合は「無効」を選択してください。</translation>
     </message>
     <message>
         <source>Or select a smartwatch option:</source>
@@ -3105,11 +3121,11 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Loading workout editor</source>
-        <translation type="unfinished"></translation>
+        <translation>ワークアウトエディターを読み込み中</translation>
     </message>
     <message>
         <source>The workout editor is loading</source>
-        <translation type="unfinished"></translation>
+        <translation>ワークアウトエディターを読み込んでいます</translation>
     </message>
 </context>
 <context>
@@ -3793,19 +3809,19 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Speed %1 kilometers per hour</source>
-        <translation type="unfinished"></translation>
+        <translation>速度 時速%1キロメートル</translation>
     </message>
     <message>
         <source>Speed %1 miles per hour</source>
-        <translation type="unfinished"></translation>
+        <translation>速度 時速%1マイル</translation>
     </message>
     <message>
         <source>Inclination %1 percent</source>
-        <translation type="unfinished"></translation>
+        <translation>傾斜 %1パーセント</translation>
     </message>
     <message>
         <source>Resistance %1</source>
-        <translation type="unfinished"></translation>
+        <translation>負荷 %1</translation>
     </message>
     <message>
         <source>Stop</source>
@@ -4758,11 +4774,11 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Return to the previous screen</source>
-        <translation type="unfinished"></translation>
+        <translation>前の画面に戻ります</translation>
     </message>
     <message>
         <source>Open the main navigation menu</source>
-        <translation type="unfinished"></translation>
+        <translation>メインのナビゲーションメニューを開きます</translation>
     </message>
     <message>
         <source>Floating window</source>
@@ -4770,7 +4786,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Open the floating workout display</source>
-        <translation type="unfinished"></translation>
+        <translation>フローティングのワークアウト表示を開きます</translation>
     </message>
     <message>
         <source>Auto Resistance enabled</source>
@@ -4794,7 +4810,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Open the saved settings list</source>
-        <translation type="unfinished"></translation>
+        <translation>保存済みの設定一覧を開きます</translation>
     </message>
     <message>
         <source>Search settings</source>
@@ -4806,7 +4822,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Save the current settings profile</source>
-        <translation type="unfinished"></translation>
+        <translation>現在の設定プロファイルを保存します</translation>
     </message>
     <message>
         <source>Map</source>
@@ -4814,7 +4830,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Open the route map</source>
-        <translation type="unfinished"></translation>
+        <translation>ルートマップを開きます</translation>
     </message>
     <message>
         <source>Video</source>
@@ -4822,7 +4838,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Show or hide the workout video</source>
-        <translation type="unfinished"></translation>
+        <translation>ワークアウト動画の表示/非表示を切り替えます</translation>
     </message>
     <message>
         <source>Chart</source>
@@ -4830,7 +4846,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Show or hide the workout chart</source>
-        <translation type="unfinished"></translation>
+        <translation>ワークアウトチャートの表示/非表示を切り替えます</translation>
     </message>
     <message>
         <source>Share FIT file</source>
@@ -4846,11 +4862,11 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Prevent workout tiles from being moved</source>
-        <translation type="unfinished"></translation>
+        <translation>ワークアウトのタイルを移動できないようにします</translation>
     </message>
     <message>
         <source>Allow workout tiles to be moved</source>
-        <translation type="unfinished"></translation>
+        <translation>ワークアウトのタイルを移動できるようにします</translation>
     </message>
     <message>
         <source>Disable auto resistance</source>
@@ -4862,7 +4878,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Toggle automatic resistance control</source>
-        <translation type="unfinished"></translation>
+        <translation>自動負荷制御のオン/オフを切り替えます</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4926,31 +4942,31 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Tap to log out of Strava</source>
-        <translation type="unfinished"></translation>
+        <translation>タップするとStravaからログアウトします</translation>
     </message>
     <message>
         <source>Tap to connect your Strava account</source>
-        <translation type="unfinished"></translation>
+        <translation>タップするとStravaアカウントを接続します</translation>
     </message>
     <message>
         <source>Tap to log out of Peloton</source>
-        <translation type="unfinished"></translation>
+        <translation>タップするとPelotonからログアウトします</translation>
     </message>
     <message>
         <source>Tap to connect your Peloton account</source>
-        <translation type="unfinished"></translation>
+        <translation>タップするとPelotonアカウントを接続します</translation>
     </message>
     <message>
         <source>Open Garmin Connect integration settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Garmin Connect連携の設定を開きます</translation>
     </message>
     <message>
         <source>Tap to log out of Intervals.icu</source>
-        <translation type="unfinished"></translation>
+        <translation>タップするとIntervals.icuからログアウトします</translation>
     </message>
     <message>
         <source>Tap to connect your Intervals.icu account</source>
-        <translation type="unfinished"></translation>
+        <translation>タップするとIntervals.icuアカウントを接続します</translation>
     </message>
     <message>
         <source>Please choose a file</source>
@@ -5245,11 +5261,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Save Player Weight</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザーの体重を保存</translation>
     </message>
     <message>
         <source>Save Player Height</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザーの身長を保存</translation>
     </message>
     <message>
         <source>Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet&apos;inches&quot; format (e.g., 5&apos;10&quot;) for imperial units.</source>
@@ -5261,11 +5277,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Player Age</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザーの年齢</translation>
     </message>
     <message>
         <source>Save Player Age</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザーの年齢を保存</translation>
     </message>
     <message>
         <source>Enter your age so that calories burned can be more accurately calculated.</source>
@@ -5285,11 +5301,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Gender</source>
-        <translation type="unfinished">性別</translation>
+        <translation>性別</translation>
     </message>
     <message>
         <source>Save Gender</source>
-        <translation type="unfinished"></translation>
+        <translation>性別を保存</translation>
     </message>
     <message>
         <source>Select your gender so that calories burned can be more accurately calculated.</source>
@@ -5301,11 +5317,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>FTP value</source>
-        <translation type="unfinished"></translation>
+        <translation>FTP値</translation>
     </message>
     <message>
         <source>Save FTP value</source>
-        <translation type="unfinished"></translation>
+        <translation>FTP値を保存</translation>
     </message>
     <message>
         <source>If you train to specific output (or watts) levels, for example in Peloton Power Zone classes,and have taken an FTP test (Functional Threshold Power), enter your FTP here. This number is used to calculate your Power Zones (Zones 1 to 7 for Peloton and 1 to 6 for Zwift).</source>
@@ -5317,11 +5333,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Critical Power Run value</source>
-        <translation type="unfinished"></translation>
+        <translation>ランCP値 (Critical Power)</translation>
     </message>
     <message>
         <source>Save Critical Power Run value</source>
-        <translation type="unfinished"></translation>
+        <translation>ランCP値 (Critical Power)を保存</translation>
     </message>
     <message>
         <source>If you train to specific output (or watts) levels, for example with Stryd,and have taken an CP test (Critical Power Test), enter your CP here. This number is used to calculate your RSS.</source>
@@ -5333,11 +5349,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Nickname</source>
-        <translation type="unfinished"></translation>
+        <translation>ニックネーム</translation>
     </message>
     <message>
         <source>Save Nickname</source>
-        <translation type="unfinished"></translation>
+        <translation>ニックネームを保存</translation>
     </message>
     <message>
         <source>No need to enter data here. It is for a possible future QZ feature.</source>
@@ -5349,11 +5365,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Email</source>
-        <translation type="unfinished"></translation>
+        <translation>メールアドレス</translation>
     </message>
     <message>
         <source>Save Email</source>
-        <translation type="unfinished"></translation>
+        <translation>メールアドレスを保存</translation>
     </message>
     <message>
         <source>Enter your email address to receive an automated email with stats and charts when you hit STOP at the end of each workout. Make sure there are no spaces before or after the email address; this is the most common reason the automated email is not sent. Privacy Note: Email addresses are not collected by the developer and are only saved locally on your device.</source>
@@ -5457,11 +5473,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Zone 1 %</source>
-        <translation type="unfinished"></translation>
+        <translation>ゾーン1 %</translation>
     </message>
     <message>
         <source>Save Zone 1 %</source>
-        <translation type="unfinished"></translation>
+        <translation>ゾーン1 %を保存</translation>
     </message>
     <message>
         <source>Zone 2 %:</source>
@@ -5469,11 +5485,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Zone 2 %</source>
-        <translation type="unfinished"></translation>
+        <translation>ゾーン2 %</translation>
     </message>
     <message>
         <source>Save Zone 2 %</source>
-        <translation type="unfinished"></translation>
+        <translation>ゾーン2 %を保存</translation>
     </message>
     <message>
         <source>Zone 3 %:</source>
@@ -5481,11 +5497,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Zone 3 %</source>
-        <translation type="unfinished"></translation>
+        <translation>ゾーン3 %</translation>
     </message>
     <message>
         <source>Save Zone 3 %</source>
-        <translation type="unfinished"></translation>
+        <translation>ゾーン3 %を保存</translation>
     </message>
     <message>
         <source>Zone 4 %:</source>
@@ -5493,11 +5509,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Zone 4 %</source>
-        <translation type="unfinished"></translation>
+        <translation>ゾーン4 %</translation>
     </message>
     <message>
         <source>Save Zone 4 %</source>
-        <translation type="unfinished"></translation>
+        <translation>ゾーン4 %を保存</translation>
     </message>
     <message>
         <source>Zone 5 will be calculated automatically based on Zone 4 end percentage and max HR.</source>
@@ -5521,7 +5537,7 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Save Max Heart Rate</source>
-        <translation type="unfinished"></translation>
+        <translation>最大心拍数を保存</translation>
     </message>
     <message>
         <source>QZ uses a standard age-based calculation for maximum heart rate and then sets the heart rate zones based on that max heart rate. If you know your actual max heart rate (the highest your heart rate is known to reach), turn this option on and enter your actual max heart rate. Then click OK.</source>
@@ -5529,7 +5545,7 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Save Resting Heart Rate</source>
-        <translation type="unfinished"></translation>
+        <translation>安静時心拍数を保存</translation>
     </message>
     <message>
         <source>Power from Heart Rate Options</source>
@@ -5541,11 +5557,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Session 1 Watt</source>
-        <translation type="unfinished"></translation>
+        <translation>計測ポイント1：パワー</translation>
     </message>
     <message>
         <source>Save Session 1 Watt</source>
-        <translation type="unfinished"></translation>
+        <translation>計測ポイント1：パワーを保存</translation>
     </message>
     <message>
         <source>Session 1 HR:</source>
@@ -5553,11 +5569,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Session 1 HR</source>
-        <translation type="unfinished"></translation>
+        <translation>計測ポイント1：心拍数</translation>
     </message>
     <message>
         <source>Save Session 1 HR</source>
-        <translation type="unfinished"></translation>
+        <translation>計測ポイント1：心拍数を保存</translation>
     </message>
     <message>
         <source>Session 2 Watt:</source>
@@ -5565,11 +5581,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Session 2 Watt</source>
-        <translation type="unfinished"></translation>
+        <translation>計測ポイント2：パワー</translation>
     </message>
     <message>
         <source>Save Session 2 Watt</source>
-        <translation type="unfinished"></translation>
+        <translation>計測ポイント2：パワーを保存</translation>
     </message>
     <message>
         <source>Session 2 HR:</source>
@@ -5577,11 +5593,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Session 2 HR</source>
-        <translation type="unfinished"></translation>
+        <translation>計測ポイント2：心拍数</translation>
     </message>
     <message>
         <source>Save Session 2 HR</source>
-        <translation type="unfinished"></translation>
+        <translation>計測ポイント2：心拍数を保存</translation>
     </message>
     <message>
         <source>Expand the bars to the right to display the options under this setting. These settings are used to calculate power (watts) for bikes that do not have power meters. Instead QZ estimates power from your cadence and heart rate. You can calibrate how QZ calculates your power from heart rate as follows: If you know that at a stable pace you produce 100W of power at a heart rate of 150 BPM and 150W at 170 BPM, you can add these values under Sessions 1 and 2 Watt and HR and QZ will calculate your power based on that trend line.</source>
@@ -5617,11 +5633,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Gear Value</source>
-        <translation type="unfinished"></translation>
+        <translation>ギア値</translation>
     </message>
     <message>
         <source>Save Gear Value</source>
-        <translation type="unfinished"></translation>
+        <translation>ギア値を保存</translation>
     </message>
     <message>
         <source>Specify a particular gear value to be restored at startup. This will override the &apos;Restore Gears on Startup&apos; setting.</source>
@@ -5633,7 +5649,7 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Save Rolling Resistance Factor</source>
-        <translation type="unfinished"></translation>
+        <translation>転がり抵抗係数を保存</translation>
     </message>
     <message>
         <source>0.005 = Clinchers
@@ -5649,7 +5665,7 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Save Bike Weight</source>
-        <translation type="unfinished"></translation>
+        <translation>バイク重量を保存</translation>
     </message>
     <message>
         <source>Rolling Res. Gain</source>
@@ -5657,7 +5673,7 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Save Rolling Res. Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>転がり抵抗係数（補正倍率）を保存</translation>
     </message>
     <message>
         <source>Wind Res. Gain</source>
@@ -5665,7 +5681,7 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Save Wind Res. Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>空気抵抗係数（補正倍率）を保存</translation>
     </message>
     <message>
         <source>Zwift Workout/Erg Mode</source>
@@ -5829,11 +5845,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Zwift Resistance Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift 負荷基準値（オフセット）</translation>
     </message>
     <message>
         <source>Save Zwift Resistance Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift 負荷基準値（オフセット）を保存</translation>
     </message>
     <message>
         <source>This setting sets your “flat road” in Zwift. All communicated resistance changes will be based on this setting. The value entered is personal preference and will be dependent on your level of fitness. The suggested value for Echelon bikes is between 18 and 20. Default is 4.</source>
@@ -5845,11 +5861,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Zwift Power Offset (W)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift パワー補正値 (W)</translation>
     </message>
     <message>
         <source>Save Zwift Power Offset (W)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift パワー補正値 (W)を保存</translation>
     </message>
     <message>
         <source>Add an offset in watts to the requested power from apps like Zwift. Positive values increase power, negative values decrease it. Default is 0.</source>
@@ -5861,11 +5877,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Zwift Resistance Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift 負荷連動倍率（ゲイン）</translation>
     </message>
     <message>
         <source>Save Zwift Resistance Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift 負荷連動倍率（ゲイン）を保存</translation>
     </message>
     <message>
         <source>(for bikes and treadmills when using “treadmill as a bike” setting). This setting scales the resistance from your bike or the speed from your treadmill before sending it to Zwift. Default is 1.</source>
@@ -5877,11 +5893,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Zwift ERG Watt Up Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift ERGパワー追従フィルター（出力上昇時）</translation>
     </message>
     <message>
         <source>Save Zwift ERG Watt Up Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift ERGパワー追従フィルター（出力上昇時）を保存</translation>
     </message>
     <message>
         <source>In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 watts or more than 110 watts. Default is 10.</source>
@@ -5893,11 +5909,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Zwift ERG Watt Down Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift ERGパワー追従フィルター（出力下降時）</translation>
     </message>
     <message>
         <source>Save Zwift ERG Watt Down Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift ERGパワー追従フィルター（出力下降時）を保存</translation>
     </message>
     <message>
         <source>See above. Default is 10.</source>
@@ -5909,11 +5925,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Min. Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>最小負荷制限値</translation>
     </message>
     <message>
         <source>Save Min. Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>最小負荷制限値を保存</translation>
     </message>
     <message>
         <source>Use this setting to set a minimum target resistance. For example, if you do not want to ride at a resistance below 25, enter a value of 25 and QZ will not set a target resistance below 25. Default is 0.</source>
@@ -5925,11 +5941,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Max. Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>最大負荷制限値</translation>
     </message>
     <message>
         <source>Save Max. Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>最大負荷制限値を保存</translation>
     </message>
     <message>
         <source>Similar to the above, but sets a maximum target resistance. Default is 999.</source>
@@ -5941,11 +5957,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Resistance at Startup</source>
-        <translation type="unfinished"></translation>
+        <translation>アプリ起動時の初期負荷設定</translation>
     </message>
     <message>
         <source>Save Resistance at Startup</source>
-        <translation type="unfinished"></translation>
+        <translation>アプリ起動時の初期負荷設定を保存</translation>
     </message>
     <message>
         <source>(only for bikes with electronically-controlled resistance): Enter the resistance level you want QZ to set at startup. Default is 1.</source>
@@ -5957,11 +5973,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Gears Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>バーチャルギア段数（倍率）補正</translation>
     </message>
     <message>
         <source>Save Gears Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>バーチャルギア段数（倍率）補正を保存</translation>
     </message>
     <message>
         <source>Applies a multiplier to the gears. Default is 1.</source>
@@ -5977,11 +5993,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Gears Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>バーチャルギア初期位置（オフセット）</translation>
     </message>
     <message>
         <source>Save Gears Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>バーチャルギア初期位置（オフセット）を保存</translation>
     </message>
     <message>
         <source>Applies an offset to the gears. Default is 0.</source>
@@ -6017,7 +6033,7 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>プロファイル</translation>
     </message>
     <message>
         <source>Cruise Profile Settings</source>
@@ -6029,11 +6045,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Cruise - Gear Up Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>クルーズ - ギアアップ ケイデンス (RPM)</translation>
     </message>
     <message>
         <source>Save Cruise - Gear Up Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>クルーズ - ギアアップ ケイデンス (RPM)を保存</translation>
     </message>
     <message>
         <source>Cruise - Gear Up Time (seconds):</source>
@@ -6041,11 +6057,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Cruise - Gear Up Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>クルーズ - ギアアップ時間 (秒)</translation>
     </message>
     <message>
         <source>Save Cruise - Gear Up Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>クルーズ - ギアアップ時間 (秒)を保存</translation>
     </message>
     <message>
         <source>Cruise - Gear Down Cadence (RPM):</source>
@@ -6053,11 +6069,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Cruise - Gear Down Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>クルーズ - ギアダウンケイデンス (RPM)</translation>
     </message>
     <message>
         <source>Save Cruise - Gear Down Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>クルーズ - ギアダウンケイデンス (RPM)を保存</translation>
     </message>
     <message>
         <source>Cruise - Gear Down Time (seconds):</source>
@@ -6065,11 +6081,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Cruise - Gear Down Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>クルーズ - ギアダウン時間（秒）</translation>
     </message>
     <message>
         <source>Save Cruise - Gear Down Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>クルーズ - ギアダウン時間（秒）を保存</translation>
     </message>
     <message>
         <source>Climb Profile Settings</source>
@@ -6081,11 +6097,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Climb - Gear Up Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>登坂 - ギアアップ ケイデンス (RPM)</translation>
     </message>
     <message>
         <source>Save Climb - Gear Up Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>登坂 - ギアアップ ケイデンス (RPM)を保存</translation>
     </message>
     <message>
         <source>Climb - Gear Up Time (seconds):</source>
@@ -6093,11 +6109,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Climb - Gear Up Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>登坂 - ギアアップ時間 (秒)</translation>
     </message>
     <message>
         <source>Save Climb - Gear Up Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>登坂 - ギアアップ時間 (秒)を保存</translation>
     </message>
     <message>
         <source>Climb - Gear Down Cadence (RPM):</source>
@@ -6105,11 +6121,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Climb - Gear Down Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>登坂 - ギアダウンケイデンス (RPM)</translation>
     </message>
     <message>
         <source>Save Climb - Gear Down Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>登坂 - ギアダウンケイデンス (RPM)を保存</translation>
     </message>
     <message>
         <source>Climb - Gear Down Time (seconds):</source>
@@ -6117,11 +6133,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Climb - Gear Down Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>登坂 - ギアダウン時間（秒）</translation>
     </message>
     <message>
         <source>Save Climb - Gear Down Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>登坂 - ギアダウン時間（秒）を保存</translation>
     </message>
     <message>
         <source>Sprint Profile Settings</source>
@@ -6133,11 +6149,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Sprint - Gear Up Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>スプリント - ギアアップケイデンス (RPM)</translation>
     </message>
     <message>
         <source>Save Sprint - Gear Up Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>スプリント - ギアアップケイデンス (RPM)を保存</translation>
     </message>
     <message>
         <source>Sprint - Gear Up Time (seconds):</source>
@@ -6145,11 +6161,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Sprint - Gear Up Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>スプリント - ギアアップ時間（秒）</translation>
     </message>
     <message>
         <source>Save Sprint - Gear Up Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>スプリント - ギアアップ時間（秒）を保存</translation>
     </message>
     <message>
         <source>Sprint - Gear Down Cadence (RPM):</source>
@@ -6157,11 +6173,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Sprint - Gear Down Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>スプリント - ギアダウンケイデンス (RPM)</translation>
     </message>
     <message>
         <source>Save Sprint - Gear Down Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>スプリント - ギアダウンケイデンス (RPM)を保存</translation>
     </message>
     <message>
         <source>Sprint - Gear Down Time (seconds):</source>
@@ -6169,11 +6185,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Sprint - Gear Down Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>スプリント - ギアダウン時間（秒）</translation>
     </message>
     <message>
         <source>Save Sprint - Gear Down Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>スプリント - ギアダウン時間（秒）を保存</translation>
     </message>
     <message>
         <source>If you have a generic FTMS bike and the tiles don&apos;t appear on the main QZ screen, select here the Bluetooth name of your bike.</source>
@@ -6209,11 +6225,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Resistance Smoothing</source>
-        <translation type="unfinished"></translation>
+        <translation>負荷表示の滑らかさ（スムージング）</translation>
     </message>
     <message>
         <source>Save Resistance Smoothing</source>
-        <translation type="unfinished"></translation>
+        <translation>負荷表示の滑らかさ（スムージング）を保存</translation>
     </message>
     <message>
         <source>Since this bike doesn&apos;t send resistance over Bluetooth, QZ is calculating it using cadence and wattage. The result could be a little &apos;jumpy&apos; and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.</source>
@@ -6229,11 +6245,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>GR7 Cadence Multiplier</source>
-        <translation type="unfinished"></translation>
+        <translation>GR7 ケイデンス（回転数）補正倍率</translation>
     </message>
     <message>
         <source>Save GR7 Cadence Multiplier</source>
-        <translation type="unfinished"></translation>
+        <translation>GR7 ケイデンス（回転数）補正倍率を保存</translation>
     </message>
     <message>
         <source>Echelon Bike Options</source>
@@ -6245,11 +6261,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Watt Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>ワット出力プロファイル</translation>
     </message>
     <message>
         <source>Save Watt Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>ワット出力プロファイルを保存</translation>
     </message>
     <message>
         <source>Resistance Gain:</source>
@@ -6257,11 +6273,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Resistance Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>負荷連動倍率（ゲイン）</translation>
     </message>
     <message>
         <source>Save Resistance Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>負荷連動倍率（ゲイン）を保存</translation>
     </message>
     <message>
         <source>Resistance Offset:</source>
@@ -6269,11 +6285,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Resistance Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>負荷基準値（オフセット）</translation>
     </message>
     <message>
         <source>Save Resistance Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>負荷基準値（オフセット）を保存</translation>
     </message>
     <message>
         <source>Change gears using knob (Experimental)</source>
@@ -6365,11 +6381,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Samples Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>データ受信時の平滑化フィルター感度</translation>
     </message>
     <message>
         <source>Save Samples Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>データ受信時の平滑化フィルター感度を保存</translation>
     </message>
     <message>
         <source>Domyos Bike Options</source>
@@ -6381,11 +6397,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Cadence Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>ケイデンス（回転数）フィルター感度</translation>
     </message>
     <message>
         <source>Save Cadence Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>ケイデンス（回転数）フィルター感度を保存</translation>
     </message>
     <message>
         <source>Ignore FTMS</source>
@@ -6430,11 +6446,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Wheel Ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>ホイール比（プーリー/フライホイール径補正）</translation>
     </message>
     <message>
         <source>Save Wheel Ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>ホイール比（プーリー/フライホイール径補正）を保存</translation>
     </message>
     <message>
         <source>Specific Model:</source>
@@ -6446,27 +6462,27 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>TDF1 IP</source>
-        <translation type="unfinished"></translation>
+        <translation>TDF1 IPアドレス</translation>
     </message>
     <message>
         <source>Save TDF1 IP</source>
-        <translation type="unfinished"></translation>
+        <translation>TDF1 IPアドレスを保存</translation>
     </message>
     <message>
         <source>TDF4 IP</source>
-        <translation type="unfinished"></translation>
+        <translation>TDF4 IPアドレス設定</translation>
     </message>
     <message>
         <source>Save TDF4 IP</source>
-        <translation type="unfinished"></translation>
+        <translation>TDF4 IPアドレス設定を保存</translation>
     </message>
     <message>
         <source>TDF Companion IP</source>
-        <translation type="unfinished"></translation>
+        <translation>TDFコンパニオンアプリ IPアドレス</translation>
     </message>
     <message>
         <source>Save TDF Companion IP</source>
-        <translation type="unfinished"></translation>
+        <translation>TDFコンパニオンアプリ IPアドレスを保存</translation>
     </message>
     <message>
         <source>Use Resistance instead of Inc.</source>
@@ -6482,11 +6498,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Serial Port</source>
-        <translation type="unfinished"></translation>
+        <translation>シリアルポート（接続ポート選択）</translation>
     </message>
     <message>
         <source>Save Serial Port</source>
-        <translation type="unfinished"></translation>
+        <translation>シリアルポート（接続ポート選択）を保存</translation>
     </message>
     <message>
         <source>Kettler USB Bike Options</source>
@@ -6498,11 +6514,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Baudrate</source>
-        <translation type="unfinished"></translation>
+        <translation>ボーレート（通信速度設定）</translation>
     </message>
     <message>
         <source>Save Baudrate</source>
-        <translation type="unfinished"></translation>
+        <translation>ボーレート（通信速度設定）を保存</translation>
     </message>
     <message>
         <source>Freebeat Bike Options</source>
@@ -6522,11 +6538,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Bike ID</source>
-        <translation type="unfinished"></translation>
+        <translation>バイク識別用固有ID (Bike ID)</translation>
     </message>
     <message>
         <source>Save Bike ID</source>
-        <translation type="unfinished"></translation>
+        <translation>バイク識別用固有ID (Bike ID)を保存</translation>
     </message>
     <message>
         <source>Speed Buffer Size:</source>
@@ -6534,11 +6550,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Speed Buffer Size</source>
-        <translation type="unfinished"></translation>
+        <translation>速度データ蓄積用のバッファサイズ</translation>
     </message>
     <message>
         <source>Save Speed Buffer Size</source>
-        <translation type="unfinished"></translation>
+        <translation>速度データ蓄積用のバッファサイズを保存</translation>
     </message>
     <message>
         <source>Use KCal from the Bike</source>
@@ -6566,11 +6582,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>ANT+ Bike Device Number (0=Auto)</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+バイクデバイス番号 (0=自動取得)</translation>
     </message>
     <message>
         <source>Save ANT+ Bike Device Number (0=Auto)</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+バイクデバイス番号 (0=自動取得)を保存</translation>
     </message>
     <message>
         <source>Ant+ Options (only for some Android)</source>
@@ -6594,7 +6610,7 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Save ANT+ Speed Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+速度補正（一律増減）を保存</translation>
     </message>
     <message>
         <source>You can increase/decrease your speed sent over ANT+. The number you enter as an Offset adds that amount to your speed.</source>
@@ -6606,11 +6622,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>ANT+ Speed Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+速度連動倍率（ゲイン）</translation>
     </message>
     <message>
         <source>Save ANT+ Speed Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+速度連動倍率（ゲイン）を保存</translation>
     </message>
     <message>
         <source>You can increase/decrease your speed output sent over ANT+. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.</source>
@@ -6626,11 +6642,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>ANT+ Heart Device Number (0=Auto)</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+心拍計デバイス番号 (0=自動取得)</translation>
     </message>
     <message>
         <source>Save ANT+ Heart Device Number (0=Auto)</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+心拍計デバイス番号 (0=自動取得)を保存</translation>
     </message>
     <message>
         <source>This setting enables receiving the heart rate from an external HRM over ANT+ instead of from QZ.</source>
@@ -6654,7 +6670,7 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Save Tile Size</source>
-        <translation type="unfinished"></translation>
+        <translation>画面表示（タイル）サイズを保存</translation>
     </message>
     <message>
         <source>Top Bar Enabled</source>
@@ -6666,11 +6682,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Floating Window Type</source>
-        <translation type="unfinished"></translation>
+        <translation>フローティングウィンドウの種類</translation>
     </message>
     <message>
         <source>Save Floating Window Type</source>
-        <translation type="unfinished"></translation>
+        <translation>フローティングウィンドウの種類を保存</translation>
     </message>
     <message>
         <source>Choose the floating window layout type. Classic uses the standard floating.htm file, while Horizontal uses the hfloating.htm file for horizontal layout.</source>
@@ -6686,11 +6702,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Floating Window Width</source>
-        <translation type="unfinished"></translation>
+        <translation>フローティングウィンドウの幅</translation>
     </message>
     <message>
         <source>Save Floating Window Width</source>
-        <translation type="unfinished"></translation>
+        <translation>フローティングウィンドウの幅を保存</translation>
     </message>
     <message>
         <source>Android Only: width of the floating window.</source>
@@ -6702,11 +6718,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Floating Window Height</source>
-        <translation type="unfinished"></translation>
+        <translation>フローティングウィンドウの高さ</translation>
     </message>
     <message>
         <source>Save Floating Window Height</source>
-        <translation type="unfinished"></translation>
+        <translation>フローティングウィンドウの高さを保存</translation>
     </message>
     <message>
         <source>Android Only: height of the floating window.</source>
@@ -6718,11 +6734,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Floating Window % Transparency</source>
-        <translation type="unfinished"></translation>
+        <translation>フローティングウィンドウの透明度（%）</translation>
     </message>
     <message>
         <source>Save Floating Window % Transparency</source>
-        <translation type="unfinished"></translation>
+        <translation>フローティングウィンドウの透明度（%）を保存</translation>
     </message>
     <message>
         <source>Android Only: transparency percentage of the floating window.</source>
@@ -6742,11 +6758,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Chart Display Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>チャート表示モード</translation>
     </message>
     <message>
         <source>Save Chart Display Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>チャート表示モードを保存</translation>
     </message>
     <message>
         <source>Choose which charts to display in the footer: both heart rate and power charts, only heart rate chart, or only power chart.</source>
@@ -6754,19 +6770,19 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>iOS Live Activity Left Metric</source>
-        <translation type="unfinished"></translation>
+        <translation>iOSライブアクティビティ左メトリック</translation>
     </message>
     <message>
         <source>Save iOS Live Activity Left Metric</source>
-        <translation type="unfinished"></translation>
+        <translation>iOSライブアクティビティ左メトリックを保存</translation>
     </message>
     <message>
         <source>iOS Live Activity Right Metric</source>
-        <translation type="unfinished"></translation>
+        <translation>iOSライブアクティビティ右メトリック</translation>
     </message>
     <message>
         <source>Save iOS Live Activity Right Metric</source>
-        <translation type="unfinished"></translation>
+        <translation>iOSライブアクティビティ右メトリックを保存</translation>
     </message>
     <message>
         <source>UI Themes</source>
@@ -6782,11 +6798,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Background Color</source>
-        <translation type="unfinished"></translation>
+        <translation>背景色</translation>
     </message>
     <message>
         <source>Save Background Color</source>
-        <translation type="unfinished"></translation>
+        <translation>背景色を保存</translation>
     </message>
     <message>
         <source>Tiles Background Color:</source>
@@ -6794,11 +6810,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Tiles Background Color</source>
-        <translation type="unfinished"></translation>
+        <translation>タイルの背景色</translation>
     </message>
     <message>
         <source>Save Tiles Background Color</source>
-        <translation type="unfinished"></translation>
+        <translation>タイルの背景色を保存</translation>
     </message>
     <message>
         <source>Tiles Shadow Color:</source>
@@ -6806,11 +6822,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Tiles Shadow Color</source>
-        <translation type="unfinished"></translation>
+        <translation>タイルの影の色</translation>
     </message>
     <message>
         <source>Save Tiles Shadow Color</source>
-        <translation type="unfinished"></translation>
+        <translation>タイルの影の色を保存</translation>
     </message>
     <message>
         <source>Statusbar Background Color:</source>
@@ -6818,11 +6834,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Statusbar Background Color</source>
-        <translation type="unfinished"></translation>
+        <translation>ステータスバーの背景色</translation>
     </message>
     <message>
         <source>Save Statusbar Background Color</source>
-        <translation type="unfinished"></translation>
+        <translation>ステータスバーの背景色を保存</translation>
     </message>
     <message>
         <source>2nd line tile text size:</source>
@@ -6830,11 +6846,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>2nd line tile text size</source>
-        <translation type="unfinished"></translation>
+        <translation>タイル2行目の文字サイズ</translation>
     </message>
     <message>
         <source>Save 2nd line tile text size</source>
-        <translation type="unfinished"></translation>
+        <translation>タイル2行目の文字サイズを保存</translation>
     </message>
     <message>
         <source>Peloton Options</source>
@@ -6842,11 +6858,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Connect to Peloton</source>
-        <translation type="unfinished">Pelotonに接続</translation>
+        <translation>Pelotonに接続</translation>
     </message>
     <message>
         <source>Opens the Peloton login page</source>
-        <translation type="unfinished"></translation>
+        <translation>Pelotonのログインページを開きます</translation>
     </message>
     <message>
         <source>Difficulty:</source>
@@ -6854,11 +6870,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Difficulty</source>
-        <translation type="unfinished">難易度</translation>
+        <translation>難易度</translation>
     </message>
     <message>
         <source>Save Difficulty</source>
-        <translation type="unfinished"></translation>
+        <translation>難易度を保存</translation>
     </message>
     <message>
         <source>Typically, Peloton coaches call out a range for target incline, resistance and/or speed. Use this setting to choose the difficulty of the target QZ communicates. Difficulty level can be set to lower, upper or average. Click OK.</source>
@@ -6870,11 +6886,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Treadmill Level</source>
-        <translation type="unfinished"></translation>
+        <translation>トレッドミルレベル</translation>
     </message>
     <message>
         <source>Save Treadmill Level</source>
-        <translation type="unfinished"></translation>
+        <translation>トレッドミルレベルを保存</translation>
     </message>
     <message>
         <source>Difficulty level for Peloton treadmill classes. 1 is easy 10 is hard.</source>
@@ -6886,11 +6902,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Treadmill Walk Level</source>
-        <translation type="unfinished"></translation>
+        <translation>トレッドミルウォーキングレベル</translation>
     </message>
     <message>
         <source>Save Treadmill Walk Level</source>
-        <translation type="unfinished"></translation>
+        <translation>トレッドミルウォーキングレベルを保存</translation>
     </message>
     <message>
         <source>Difficulty level for Peloton treadmill walking classes. 1 is easy 10 is hard.</source>
@@ -6898,19 +6914,19 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Walking Min Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>ウォーキングの最小速度</translation>
     </message>
     <message>
         <source>Save Walking Min Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>ウォーキングの最小速度を保存</translation>
     </message>
     <message>
         <source>Running Min Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>最小走行速度</translation>
     </message>
     <message>
         <source>Save Running Min Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>最小走行速度を保存</translation>
     </message>
     <message>
         <source>Rower Level:</source>
@@ -6918,11 +6934,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Rower Level</source>
-        <translation type="unfinished"></translation>
+        <translation>ローイングマシンレベル</translation>
     </message>
     <message>
         <source>Save Rower Level</source>
-        <translation type="unfinished"></translation>
+        <translation>ローイングマシンレベルを保存</translation>
     </message>
     <message>
         <source>Difficulty level for Peloton rower classes. 1 is easy 10 is hard.</source>
@@ -6934,11 +6950,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>PZP Username</source>
-        <translation type="unfinished"></translation>
+        <translation>PZPユーザー名</translation>
     </message>
     <message>
         <source>Save PZP Username</source>
-        <translation type="unfinished"></translation>
+        <translation>PZPユーザー名を保存</translation>
     </message>
     <message>
         <source>As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave (or change back to) the default of “username” (without quotation marks, all lowercase and all one word) until further notice.</source>
@@ -6950,11 +6966,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>PZP Password</source>
-        <translation type="unfinished"></translation>
+        <translation>PZPパスワード</translation>
     </message>
     <message>
         <source>Save PZP Password</source>
-        <translation type="unfinished"></translation>
+        <translation>PZPパスワードを保存</translation>
     </message>
     <message>
         <source>As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave this setting blank until further notice.</source>
@@ -6966,11 +6982,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Conversion Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>換算ゲイン</translation>
     </message>
     <message>
         <source>Save Conversion Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>換算ゲインを保存</translation>
     </message>
     <message>
         <source>Conversion gain is a multiplier. Use this setting to align the Peloton resistance calculated by QZ with the relative effort required by your bike. In most cases the default values will be correct.</source>
@@ -6982,11 +6998,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Conversion Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>換算オフセット</translation>
     </message>
     <message>
         <source>Save Conversion Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>換算オフセットを保存</translation>
     </message>
     <message>
         <source>Increases the resistance that QZ displays in the Peloton Resistance tile. If QZ’s calculated conversion from your bike’s resistance scale to Peloton’s seems too low, the number you enter here will be added to the calculated resistance without increasing your effort or actual resistance. (Example: If QZ displays Peloton resistance of 30 and you enter 5, QZ will display 35.)</source>
@@ -7410,11 +7426,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Override HR Metric</source>
-        <translation type="unfinished"></translation>
+        <translation>心拍数の代わりに送る指標</translation>
     </message>
     <message>
         <source>Save Override HR Metric</source>
-        <translation type="unfinished"></translation>
+        <translation>心拍数の代わりに送る指標を保存</translation>
     </message>
     <message>
         <source>By default, QZ communicates heart rate to Peloton. Use this setting to change the metric that appears on the Peloton screen.</source>
@@ -7434,11 +7450,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Date on Strava</source>
-        <translation type="unfinished"></translation>
+        <translation>Stravaの日付</translation>
     </message>
     <message>
         <source>Save Date on Strava</source>
-        <translation type="unfinished"></translation>
+        <translation>Stravaの日付を保存</translation>
     </message>
     <message>
         <source>Allows you to choose whether you would like the Peloton class air date to display before or after the class title on Strava.</source>
@@ -7450,11 +7466,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Date Format</source>
-        <translation type="unfinished"></translation>
+        <translation>日付の形式</translation>
     </message>
     <message>
         <source>Save Date Format</source>
-        <translation type="unfinished"></translation>
+        <translation>日付の形式を保存</translation>
     </message>
     <message>
         <source>Activity Link in Strava</source>
@@ -7498,11 +7514,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Username</source>
-        <translation type="unfinished">ユーザー名</translation>
+        <translation>ユーザー名</translation>
     </message>
     <message>
         <source>Save Username</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザー名を保存</translation>
     </message>
     <message>
         <source>Enter the email address you use to login to Zwift. Ensure there are no spaces before or after your email. Click OK.</source>
@@ -7514,11 +7530,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Password</source>
-        <translation type="unfinished">パスワード</translation>
+        <translation>パスワード</translation>
     </message>
     <message>
         <source>Save Password</source>
-        <translation type="unfinished"></translation>
+        <translation>パスワードを保存</translation>
     </message>
     <message>
         <source>Enter the password you use to login to Zwift. Click OK.</source>
@@ -7554,11 +7570,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Poll Time</source>
-        <translation type="unfinished"></translation>
+        <translation>更新間隔</translation>
     </message>
     <message>
         <source>Save Poll Time</source>
-        <translation type="unfinished"></translation>
+        <translation>更新間隔を保存</translation>
     </message>
     <message>
         <source>Define the number of delay seconds between each inclination change from Zwift. This value can&apos;t be less than 5. Default: 5</source>
@@ -7658,11 +7674,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Garmin Email</source>
-        <translation type="unfinished"></translation>
+        <translation>Garmin メール</translation>
     </message>
     <message>
         <source>Save Garmin Email</source>
-        <translation type="unfinished"></translation>
+        <translation>Garmin メールを保存</translation>
     </message>
     <message>
         <source>Garmin Password:</source>
@@ -7670,11 +7686,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Garmin Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Garminパスワード</translation>
     </message>
     <message>
         <source>Save Garmin Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Garminパスワードを保存</translation>
     </message>
     <message>
         <source>Garmin Server:</source>
@@ -7690,7 +7706,7 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Garmin Server</source>
-        <translation type="unfinished"></translation>
+        <translation>Garmin サーバー</translation>
     </message>
     <message>
         <source>Test Garmin Login</source>
@@ -7804,11 +7820,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>PID on HR min</source>
-        <translation type="unfinished"></translation>
+        <translation>心拍数の維持（下限）</translation>
     </message>
     <message>
         <source>Save PID on HR min</source>
-        <translation type="unfinished"></translation>
+        <translation>心拍数の維持（下限）を保存</translation>
     </message>
     <message>
         <source>PID on HR max:</source>
@@ -7816,11 +7832,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>PID on HR max</source>
-        <translation type="unfinished"></translation>
+        <translation>心拍数の維持（上限）</translation>
     </message>
     <message>
         <source>Save PID on HR max</source>
-        <translation type="unfinished"></translation>
+        <translation>心拍数の維持（上限）を保存</translation>
     </message>
     <message>
         <source>Alternatively to &apos;PID on Heart Zone&apos; setting you can use this couple of settings in order to specify a HR range.</source>
@@ -7864,11 +7880,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>1 mile pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>1マイルのペース（合計時間）</translation>
     </message>
     <message>
         <source>Save 1 mile pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>1マイルのペース（合計時間）を保存</translation>
     </message>
     <message>
         <source>Enter your 1 mile time goal, click OK. This setting will be used when you’re following a training program with the speed control. These settings should also match the Zwift app settings. More info: https://github.com/cagnulein/qdomyos-zwift/issues/609.</source>
@@ -7880,11 +7896,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>5 km pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>5 kmのペース（合計時間）</translation>
     </message>
     <message>
         <source>Save 5 km pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>5 kmのペース（合計時間）を保存</translation>
     </message>
     <message>
         <source>See 1 Mile Pace above; same except 5 km instead of 1 mile.</source>
@@ -7896,11 +7912,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>10 km pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>10 kmのペース（合計時間）</translation>
     </message>
     <message>
         <source>Save 10 km pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>10 kmのペース（合計時間）を保存</translation>
     </message>
     <message>
         <source>See 1 Mile Pace above; same except 10 km instead of 1 mile.</source>
@@ -7912,11 +7928,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Half Marathon pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>ハーフマラソンのペース（合計時間）</translation>
     </message>
     <message>
         <source>Save Half Marathon pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>ハーフマラソンのペース（合計時間）を保存</translation>
     </message>
     <message>
         <source>See 1 Mile Pace above; same except half marathon distance instead of 1 mile.</source>
@@ -7928,11 +7944,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Marathon pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>マラソンのペース（合計時間）</translation>
     </message>
     <message>
         <source>Save Marathon pace (total time)</source>
-        <translation type="unfinished"></translation>
+        <translation>マラソンのペース（合計時間）を保存</translation>
     </message>
     <message>
         <source>See 1 Mile Pace above; same except marathon distance instead of 1 mile.</source>
@@ -7976,11 +7992,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Default Pace</source>
-        <translation type="unfinished"></translation>
+        <translation>デフォルトのペース</translation>
     </message>
     <message>
         <source>Save Default Pace</source>
-        <translation type="unfinished"></translation>
+        <translation>デフォルトのペースを保存</translation>
     </message>
     <message>
         <source>Select the default Pace to be used when the ZWO file does not indicate a precise pace.</source>
@@ -7992,11 +8008,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>ERG Mode Watt Step</source>
-        <translation type="unfinished"></translation>
+        <translation>ERGモードのワットステップ</translation>
     </message>
     <message>
         <source>Save ERG Mode Watt Step</source>
-        <translation type="unfinished"></translation>
+        <translation>ERGモードのワットステップを保存</translation>
     </message>
     <message>
         <source>Set the wattage step increment for ERG mode heart rate zone training. Default: 5 watts.</source>
@@ -8012,11 +8028,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Duration (minutes)</source>
-        <translation type="unfinished"></translation>
+        <translation>実施時間（分）</translation>
     </message>
     <message>
         <source>Save Duration (minutes)</source>
-        <translation type="unfinished"></translation>
+        <translation>実施時間（分）を保存</translation>
     </message>
     <message>
         <source>Period (seconds):</source>
@@ -8024,11 +8040,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Period (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>周期（秒）</translation>
     </message>
     <message>
         <source>Save Period (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>周期（秒）を保存</translation>
     </message>
     <message>
         <source>Speed min.:</source>
@@ -8036,11 +8052,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Speed min.</source>
-        <translation type="unfinished"></translation>
+        <translation>最低速度</translation>
     </message>
     <message>
         <source>Save Speed min.</source>
-        <translation type="unfinished"></translation>
+        <translation>最低速度を保存</translation>
     </message>
     <message>
         <source>Speed max.:</source>
@@ -8048,11 +8064,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Speed max.</source>
-        <translation type="unfinished"></translation>
+        <translation>最高速度</translation>
     </message>
     <message>
         <source>Save Speed max.</source>
-        <translation type="unfinished"></translation>
+        <translation>最高速度を保存</translation>
     </message>
     <message>
         <source>Incline min.:</source>
@@ -8060,11 +8076,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Incline min.</source>
-        <translation type="unfinished"></translation>
+        <translation>最低傾斜</translation>
     </message>
     <message>
         <source>Save Incline min.</source>
-        <translation type="unfinished"></translation>
+        <translation>最低傾斜を保存</translation>
     </message>
     <message>
         <source>Incline max.:</source>
@@ -8072,11 +8088,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Incline max.</source>
-        <translation type="unfinished"></translation>
+        <translation>最高傾斜</translation>
     </message>
     <message>
         <source>Save Incline max.</source>
-        <translation type="unfinished"></translation>
+        <translation>最高傾斜を保存</translation>
     </message>
     <message>
         <source>Resistance min.:</source>
@@ -8084,11 +8100,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Resistance min.</source>
-        <translation type="unfinished"></translation>
+        <translation>最小負荷制限値</translation>
     </message>
     <message>
         <source>Save Resistance min.</source>
-        <translation type="unfinished"></translation>
+        <translation>最小負荷制限値を保存</translation>
     </message>
     <message>
         <source>Resistance max.:</source>
@@ -8096,11 +8112,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Resistance max.</source>
-        <translation type="unfinished"></translation>
+        <translation>最大負荷制限値</translation>
     </message>
     <message>
         <source>Save Resistance max.</source>
-        <translation type="unfinished"></translation>
+        <translation>最大負荷制限値を保存</translation>
     </message>
     <message>
         <source>Turn on and enter your choices for workout time (in minutes and seconds) and the maximum and minimum speed, incline (treadmill), and resistance (bike) and QZ will randomly change your speed and resistance or incline accordingly for the period of time you have selected.</source>
@@ -8168,11 +8184,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Speed Step</source>
-        <translation type="unfinished"></translation>
+        <translation>速度の増減幅</translation>
     </message>
     <message>
         <source>Save Speed Step</source>
-        <translation type="unfinished"></translation>
+        <translation>速度の増減幅を保存</translation>
     </message>
     <message>
         <source>(Speed Tile) This controls the amount of the increase or decrease in the speed (in kph/mph) when you press the plus or minus button in the Speed Tile. Default is 0.5 kph.</source>
@@ -8184,11 +8200,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Min. Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>最小傾斜</translation>
     </message>
     <message>
         <source>Save Min. Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>最小傾斜を保存</translation>
     </message>
     <message>
         <source>This overrides the minimum inclination value of your treadmill (in order to reduce the inclination movement). Default is -100</source>
@@ -8200,11 +8216,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Max. Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>最大傾斜</translation>
     </message>
     <message>
         <source>Save Max. Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>最大傾斜を保存</translation>
     </message>
     <message>
         <source>This overrides the maximum inclination value of your treadmill (in order to reduce the inclination movement). Default is -100</source>
@@ -8216,11 +8232,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Max. Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>最高速度</translation>
     </message>
     <message>
         <source>Save Max. Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>最高速度を保存</translation>
     </message>
     <message>
         <source>This overrides the maximum speed value of your treadmill (in order to limit the max speed). Default is 100 km/h (62.1 mph)</source>
@@ -8232,11 +8248,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Min. Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>最小速度</translation>
     </message>
     <message>
         <source>Save Min. Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>最小速度を保存</translation>
     </message>
     <message>
         <source>This overrides the minimum speed value of your treadmill (in order to limit the min speed). Default is 0 km/h (0 mph)</source>
@@ -8248,11 +8264,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Step Count Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>歩数の補正倍率</translation>
     </message>
     <message>
         <source>Save Step Count Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>歩数の補正倍率を保存</translation>
     </message>
     <message>
         <source>Multiplier applied to the step count calculated from cadence for calibration. Increase above 1.0 to count more steps, decrease below 1.0 to count fewer steps. Default is 1.0.</source>
@@ -8297,11 +8313,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Proform IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Proform IP</translation>
     </message>
     <message>
         <source>Save Proform IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Proform IPを保存</translation>
     </message>
     <message>
         <source>Nordictrack 2950 IP:</source>
@@ -8309,11 +8325,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Nordictrack 2950 IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Nordictrack 2950 IP</translation>
     </message>
     <message>
         <source>Save Nordictrack 2950 IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Nordictrack 2950 IPを保存</translation>
     </message>
     <message>
         <source>Pafers Options</source>
@@ -8409,11 +8425,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>PID on Heart Zone</source>
-        <translation type="unfinished"></translation>
+        <translation>心拍ゾーンの維持</translation>
     </message>
     <message>
         <source>Save PID on Heart Zone</source>
-        <translation type="unfinished"></translation>
+        <translation>心拍ゾーンの維持を保存</translation>
     </message>
     <message>
         <source>Speed</source>
@@ -8421,7 +8437,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Save PID HR actuator</source>
-        <translation type="unfinished"></translation>
+        <translation>心拍数の維持で調整する項目を保存</translation>
     </message>
     <message>
         <source>Echelon Options</source>
@@ -8441,19 +8457,19 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Life Fitness username/email</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitnessユーザー名/メール</translation>
     </message>
     <message>
         <source>Save Life Fitness username/email</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitnessユーザー名/メールを保存</translation>
     </message>
     <message>
         <source>Life Fitness password</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitnessパスワード</translation>
     </message>
     <message>
         <source>Save Life Fitness password</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitnessパスワードを保存</translation>
     </message>
     <message>
         <source>RunnerT Options</source>
@@ -8493,11 +8509,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Remap 5 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>5 km/hボタンの再マッピング</translation>
     </message>
     <message>
         <source>Save Remap 5 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>5 km/hボタンの再マッピングを保存</translation>
     </message>
     <message>
         <source>Remap 10 km/h button:</source>
@@ -8505,11 +8521,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Remap 10 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>10 km/hボタンの再マッピング</translation>
     </message>
     <message>
         <source>Save Remap 10 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>10 km/hボタンの再マッピングを保存</translation>
     </message>
     <message>
         <source>Remap 16 km/h button:</source>
@@ -8517,11 +8533,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Remap 16 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>16 km/hボタンの再マッピング</translation>
     </message>
     <message>
         <source>Save Remap 16 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>16 km/hボタンの再マッピングを保存</translation>
     </message>
     <message>
         <source>Remap 22 km/h button:</source>
@@ -8529,11 +8545,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Remap 22 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>22 km/h ボタンの再設定</translation>
     </message>
     <message>
         <source>Save Remap 22 km/h button</source>
-        <translation type="unfinished"></translation>
+        <translation>22 km/h ボタンの再設定を保存</translation>
     </message>
     <message>
         <source>Pool time (ms):</source>
@@ -8541,11 +8557,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Pool time (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>更新間隔（ms）</translation>
     </message>
     <message>
         <source>Save Pool time (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>更新間隔（ms）を保存</translation>
     </message>
     <message>
         <source>Default: 200. Change this only if you have random issues with speed or inclination (try to put 300)</source>
@@ -8585,11 +8601,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>User ID</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザーID</translation>
     </message>
     <message>
         <source>Save User ID</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザーIDを保存</translation>
     </message>
     <message>
         <source>ESLinker Treadmill Options</source>
@@ -8633,11 +8649,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>User 1</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザー 1</translation>
     </message>
     <message>
         <source>Save User 1</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザー 1を保存</translation>
     </message>
     <message>
         <source>User 2:</source>
@@ -8645,11 +8661,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>User 2</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザー2</translation>
     </message>
     <message>
         <source>Save User 2</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザー2を保存</translation>
     </message>
     <message>
         <source>User 3:</source>
@@ -8657,11 +8673,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>User 3</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザー3</translation>
     </message>
     <message>
         <source>Save User 3</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザー3を保存</translation>
     </message>
     <message>
         <source>User 4:</source>
@@ -8669,11 +8685,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>User 4</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザー 4</translation>
     </message>
     <message>
         <source>Save User 4</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザー 4を保存</translation>
     </message>
     <message>
         <source>User 5:</source>
@@ -8681,11 +8697,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>User 5</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザー5</translation>
     </message>
     <message>
         <source>Save User 5</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザー5を保存</translation>
     </message>
     <message>
         <source>Bodytone Treadmill Options</source>
@@ -8801,11 +8817,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>ProForm Rower IP</source>
-        <translation type="unfinished"></translation>
+        <translation>ProForm ローイングマシン IP</translation>
     </message>
     <message>
         <source>Save ProForm Rower IP</source>
-        <translation type="unfinished"></translation>
+        <translation>ProForm ローイングマシン IPを保存</translation>
     </message>
     <message>
         <source>Elliptical Options</source>
@@ -8821,7 +8837,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Save Domyos Elliptical Speed Ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyos エリプティカルのスピード比を保存</translation>
     </message>
     <message>
         <source>Inclination Supported</source>
@@ -8849,11 +8865,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Companion IP</source>
-        <translation type="unfinished"></translation>
+        <translation>コンパニオンIP</translation>
     </message>
     <message>
         <source>Save Companion IP</source>
-        <translation type="unfinished"></translation>
+        <translation>コンパニオンIPを保存</translation>
     </message>
     <message>
         <source>Sole Elliptical Options</source>
@@ -8897,11 +8913,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Watt Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>ワットオフセット</translation>
     </message>
     <message>
         <source>Save Watt Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>ワットオフセットを保存</translation>
     </message>
     <message>
         <source>You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. The number you enter as an Offset adds that amount to your watts.</source>
@@ -8913,11 +8929,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Watt Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>ワットゲイン</translation>
     </message>
     <message>
         <source>Save Watt Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>ワットゲインを保存</translation>
     </message>
     <message>
         <source>You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. For example, to use a rower to cycle in Zwift, you could double your watt output to better match your cycling speed by entering 2. The number you enter is a multiplier applied to your actual watts.</source>
@@ -8937,7 +8953,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Save Speed Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>スピードオフセットを保存</translation>
     </message>
     <message>
         <source>You can increase/decrease your speed for moving your avatar faster/slower in Zwift if your equipment outputs speed but not watts. The number you enter as an Offset adds that amount to your speed.</source>
@@ -8949,11 +8965,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Speed Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>スピードゲイン</translation>
     </message>
     <message>
         <source>Save Speed Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>スピードゲインを保存</translation>
     </message>
     <message>
         <source>You can increase/decrease your speed output for moving your avatar faster/slower in Zwift or other apps as a way of calibrating your equipment if your equipment outputs speed but not watts. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.</source>
@@ -8965,7 +8981,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Save Cadence Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>ケイデンスオフセットを保存</translation>
     </message>
     <message>
         <source>You can increase/decrease your cadence output. The number you enter as an Offset adds that amount to your cadence.</source>
@@ -8977,7 +8993,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Save Cadence Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>ケイデンスゲインを保存</translation>
     </message>
     <message>
         <source>You can increase/decrease your cadence output as a way of calibrating your equipment if your equipment outputs cadence but not watts. The number you enter is a multiplier applied to your actual cadence.</source>
@@ -9001,11 +9017,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Strava Upload</source>
-        <translation type="unfinished"></translation>
+        <translation>Stravaアップロード</translation>
     </message>
     <message>
         <source>Save Strava Upload</source>
-        <translation type="unfinished"></translation>
+        <translation>Stravaアップロードを保存</translation>
     </message>
     <message>
         <source>Suffix activity:</source>
@@ -9013,11 +9029,11 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Suffix activity</source>
-        <translation type="unfinished"></translation>
+        <translation>活動サフィックス</translation>
     </message>
     <message>
         <source>Save Suffix activity</source>
-        <translation type="unfinished"></translation>
+        <translation>活動サフィックスを保存</translation>
     </message>
     <message>
         <source>Default is “QZ.” Please leave this set to default so that other Strava users will see the QZ; a tiny bit of advertising that helps promote the app and support its development. If you choose to remove it, please consider contributing to the developer’s Patreon or Buy Me a Coffee accounts or just subscribe to the Swag bag in the left side bar to allow me to continue developing and supporting the app.</source>
@@ -9193,47 +9209,47 @@ IMPORTANT NOTES:
     </message>
     <message>
         <source>Power Averaging Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>パワー平均モード</translation>
     </message>
     <message>
         <source>Zwift Inclination Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift傾斜オフセット</translation>
     </message>
     <message>
         <source>Save Zwift Inclination Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift傾斜オフセットを保存</translation>
     </message>
     <message>
         <source>Zwift Inclination Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift傾斜ゲイン（乗数）</translation>
     </message>
     <message>
         <source>Save Zwift Inclination Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift傾斜ゲイン（乗数）を保存</translation>
     </message>
     <message>
         <source>Minimum Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>最低傾斜の制限</translation>
     </message>
     <message>
         <source>Save Minimum Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>最低傾斜の制限を保存</translation>
     </message>
     <message>
         <source>Inclination Step</source>
-        <translation type="unfinished"></translation>
+        <translation>傾斜ステップの幅</translation>
     </message>
     <message>
         <source>Save Inclination Step</source>
-        <translation type="unfinished"></translation>
+        <translation>傾斜ステップの幅を保存</translation>
     </message>
     <message>
         <source>AutoLap on Distance</source>
-        <translation type="unfinished"></translation>
+        <translation>距離による自動ラップ</translation>
     </message>
     <message>
         <source>Save AutoLap on Distance</source>
-        <translation type="unfinished"></translation>
+        <translation>距離による自動ラップを保存</translation>
     </message>
     <message>
         <source>Inclination Delay:</source>
@@ -9241,11 +9257,11 @@ IMPORTANT NOTES:
     </message>
     <message>
         <source>Inclination Delay</source>
-        <translation type="unfinished"></translation>
+        <translation>傾斜変更の遅延秒数</translation>
     </message>
     <message>
         <source>Save Inclination Delay</source>
-        <translation type="unfinished"></translation>
+        <translation>傾斜変更の遅延秒数を保存</translation>
     </message>
     <message>
         <source>This slow down the inclination changes adding a delay between each change. This is not applied to all the model of treadmill/bike. Default is 0.</source>
@@ -9305,11 +9321,11 @@ IMPORTANT NOTES:
     </message>
     <message>
         <source>Resistance Level 1</source>
-        <translation type="unfinished"></translation>
+        <translation>負荷レベル 1</translation>
     </message>
     <message>
         <source>Save Resistance Level 1</source>
-        <translation type="unfinished"></translation>
+        <translation>負荷レベル 1を保存</translation>
     </message>
     <message>
         <source>Watt 1:</source>
@@ -9317,11 +9333,11 @@ IMPORTANT NOTES:
     </message>
     <message>
         <source>Watt 1</source>
-        <translation type="unfinished"></translation>
+        <translation>ワット 1</translation>
     </message>
     <message>
         <source>Save Watt 1</source>
-        <translation type="unfinished"></translation>
+        <translation>ワット 1を保存</translation>
     </message>
     <message>
         <source>Resistance Level 2:</source>
@@ -9329,11 +9345,11 @@ IMPORTANT NOTES:
     </message>
     <message>
         <source>Resistance Level 2</source>
-        <translation type="unfinished"></translation>
+        <translation>負荷レベル 2</translation>
     </message>
     <message>
         <source>Save Resistance Level 2</source>
-        <translation type="unfinished"></translation>
+        <translation>負荷レベル 2を保存</translation>
     </message>
     <message>
         <source>Watt 2:</source>
@@ -9341,11 +9357,11 @@ IMPORTANT NOTES:
     </message>
     <message>
         <source>Watt 2</source>
-        <translation type="unfinished"></translation>
+        <translation>ワット2</translation>
     </message>
     <message>
         <source>Save Watt 2</source>
-        <translation type="unfinished"></translation>
+        <translation>ワット2を保存</translation>
     </message>
     <message>
         <source>QZ will build a linear equation from the two resistance/watt points and clamp the effective resistance using the existing Min. Resistance and Max. Resistance settings.</source>
@@ -9493,11 +9509,11 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Difficulty/Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>難易度/ゲイン</translation>
     </message>
     <message>
         <source>Save Difficulty/Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>難易度/ゲインを保存</translation>
     </message>
     <message>
         <source>Elite Sterzo Smart Options</source>
@@ -9521,7 +9537,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Save Shift Step</source>
-        <translation type="unfinished"></translation>
+        <translation>シフトステップを保存</translation>
     </message>
     <message>
         <source>Max Resistance</source>
@@ -9529,7 +9545,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Save Max Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>最高負荷を保存</translation>
     </message>
     <message>
         <source>Min Resistance</source>
@@ -9537,7 +9553,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Save Min Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>最小負荷を保存</translation>
     </message>
     <message>
         <source>Advanced SmartSpin2k Calibration</source>
@@ -9549,7 +9565,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Save Resistance Sample 1</source>
-        <translation type="unfinished"></translation>
+        <translation>負荷サンプル 1を保存</translation>
     </message>
     <message>
         <source>Shift Step Sample 1</source>
@@ -9557,7 +9573,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Save Shift Step Sample 1</source>
-        <translation type="unfinished"></translation>
+        <translation>シフトステップサンプル 1を保存</translation>
     </message>
     <message>
         <source>Resistance Sample 2</source>
@@ -9565,7 +9581,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Save Resistance Sample 2</source>
-        <translation type="unfinished"></translation>
+        <translation>負荷サンプル 2を保存</translation>
     </message>
     <message>
         <source>Shift Step Sample 2</source>
@@ -9573,7 +9589,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Save Shift Step Sample 2</source>
-        <translation type="unfinished"></translation>
+        <translation>シフトステップサンプル 2を保存</translation>
     </message>
     <message>
         <source>Resistance Sample 3</source>
@@ -9581,7 +9597,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Save Resistance Sample 3</source>
-        <translation type="unfinished"></translation>
+        <translation>負荷サンプル 3を保存</translation>
     </message>
     <message>
         <source>Shift Step Sample 3</source>
@@ -9589,7 +9605,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Save Shift Step Sample 3</source>
-        <translation type="unfinished"></translation>
+        <translation>シフトステップサンプル 3を保存</translation>
     </message>
     <message>
         <source>Resistance Sample 4</source>
@@ -9597,7 +9613,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Save Resistance Sample 4</source>
-        <translation type="unfinished"></translation>
+        <translation>負荷サンプル 4を保存</translation>
     </message>
     <message>
         <source>Shift Step Sample 4</source>
@@ -9605,7 +9621,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Save Shift Step Sample 4</source>
-        <translation type="unfinished"></translation>
+        <translation>シフトステップサンプル 4を保存</translation>
     </message>
     <message>
         <source>Fitmetria Fitfan™ Options</source>
@@ -9781,11 +9797,11 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Maps Type</source>
-        <translation type="unfinished"></translation>
+        <translation>マップの種類</translation>
     </message>
     <message>
         <source>Save Maps Type</source>
-        <translation type="unfinished"></translation>
+        <translation>マップの種類を保存</translation>
     </message>
     <message>
         <source>Loop Start-End-Start</source>
@@ -9925,15 +9941,15 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Wahoo device ID</source>
-        <translation type="unfinished"></translation>
+        <translation>WahooデバイスID</translation>
     </message>
     <message>
         <source>Virtual Wahoo device ID. Change if you have multiple QZ instances. Default: 0</source>
-        <translation type="unfinished"></translation>
+        <translation>仮想WahooデバイスのID。複数のQZを使用している場合は変更してください。デフォルト: 0</translation>
     </message>
     <message>
         <source>Save Wahoo device ID</source>
-        <translation type="unfinished"></translation>
+        <translation>WahooデバイスIDを保存</translation>
     </message>
     <message>
         <source>If you have multiple QZ instances, you can change the id of the virtual wahoo device. Default: 0</source>
@@ -9945,15 +9961,15 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Wahoo direct connect server port</source>
-        <translation type="unfinished"></translation>
+        <translation>Wahoo Direct Connectサーバーのポート</translation>
     </message>
     <message>
         <source>TCP port for the Wahoo direct connect server. Default: 36866</source>
-        <translation type="unfinished"></translation>
+        <translation>Wahoo Direct ConnectサーバーのTCPポート。デフォルト: 36866</translation>
     </message>
     <message>
         <source>Save server port</source>
-        <translation type="unfinished"></translation>
+        <translation>サーバーポートを保存</translation>
     </message>
     <message>
         <source>MQTT Settings</source>
@@ -9965,11 +9981,11 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>MQTT Host</source>
-        <translation type="unfinished"></translation>
+        <translation>MQTTホスト</translation>
     </message>
     <message>
         <source>Save MQTT Host</source>
-        <translation type="unfinished"></translation>
+        <translation>MQTTホストを保存</translation>
     </message>
     <message>
         <source>Enter the MQTT broker hostname or IP address</source>
@@ -9981,11 +9997,11 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>MQTT Port</source>
-        <translation type="unfinished"></translation>
+        <translation>MQTTポート</translation>
     </message>
     <message>
         <source>Save MQTT Port</source>
-        <translation type="unfinished"></translation>
+        <translation>MQTTポートを保存</translation>
     </message>
     <message>
         <source>Enter the MQTT broker port (default: 1883)</source>
@@ -10005,11 +10021,11 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Device ID</source>
-        <translation type="unfinished"></translation>
+        <translation>デバイスID</translation>
     </message>
     <message>
         <source>Save Device ID</source>
-        <translation type="unfinished"></translation>
+        <translation>デバイスIDを保存</translation>
     </message>
     <message>
         <source>Enter a unique device identifier for MQTT client</source>
@@ -10025,11 +10041,11 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>OSC IP</source>
-        <translation type="unfinished"></translation>
+        <translation>OSC IP</translation>
     </message>
     <message>
         <source>Save OSC IP</source>
-        <translation type="unfinished"></translation>
+        <translation>OSC IPを保存</translation>
     </message>
     <message>
         <source>OSC Port:</source>
@@ -10037,11 +10053,11 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>OSC Port</source>
-        <translation type="unfinished"></translation>
+        <translation>OSCポート</translation>
     </message>
     <message>
         <source>Save OSC Port</source>
-        <translation type="unfinished"></translation>
+        <translation>OSCポートを保存</translation>
     </message>
     <message>
         <source>Race Mode</source>
@@ -10289,27 +10305,27 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>モード</translation>
     </message>
     <message>
         <source>Save Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>モードを保存</translation>
     </message>
     <message>
         <source>Min. value (0-100)</source>
-        <translation type="unfinished"></translation>
+        <translation>最小値 (0-100)</translation>
     </message>
     <message>
         <source>Save Min. value (0-100)</source>
-        <translation type="unfinished"></translation>
+        <translation>最小値 (0-100)を保存</translation>
     </message>
     <message>
         <source>Max value (0-100)</source>
-        <translation type="unfinished"></translation>
+        <translation>最大値（0-100）</translation>
     </message>
     <message>
         <source>Save Max value (0-100)</source>
-        <translation type="unfinished"></translation>
+        <translation>最大値（0-100）を保存</translation>
     </message>
     <message>
         <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
@@ -11379,11 +11395,11 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Announcement interval in seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>アナウンス間隔（秒）</translation>
     </message>
     <message>
         <source>How often workout metrics are read aloud. Default: 120 seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>ワークアウトの指標を読み上げる間隔。デフォルト: 120秒</translation>
     </message>
     <message>
         <source>OK</source>
@@ -11395,7 +11411,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Save announcement interval</source>
-        <translation type="unfinished"></translation>
+        <translation>アナウンス間隔を保存</translation>
     </message>
     <message>
         <source>TTS Description Enabled</source>
