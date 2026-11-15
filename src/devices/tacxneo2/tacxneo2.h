@@ -87,7 +87,7 @@ class tacxneo2 : public bike {
     bool noHeartService = false;
 
     uint16_t oldLastCrankEventTime = 0;
-    uint16_t oldCrankRevs = 0;
+    uint32_t oldCrankRevs = 0; // Cycling Power wheel counters may be 32-bit
     uint16_t CrankRevsRead = 0;
 
     double lastGearValue = -1;
