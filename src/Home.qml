@@ -451,6 +451,18 @@ HomeForm {
         id: gridView
         objectName: "gridview"
 
+        // Modern look: a thin bar while the tiles move, at the screen edge (the grid is as wide as
+        // its columns and centred: on it the bar would lie over the last column). Qt places the bar
+        // only when its parent is the grid, so x, y and height are set here. Classic look: no bar,
+        // as before
+        ScrollIndicator.vertical: ScrollIndicator {
+            visible: window.ui.modern
+            parent: gridBox
+            x: mirrored ? 0 : gridBox.width - width
+            y: gridView.y
+            height: gridView.height
+        }
+
         // The app toolbar slides away while the tiles scroll down and comes back as soon as they
         // scroll up, 1:1 with them (Material "scroll|enterAlways"): it hangs over the grid
         // (main.qml), so the tiles never move under the finger. scrolledNow, not contentY: at

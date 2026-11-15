@@ -245,7 +245,10 @@ ColumnLayout {
         Layout.fillWidth: true
         Layout.fillHeight: true
         Layout.leftMargin: profilesPage.modernMargin
-        Layout.rightMargin: profilesPage.modernMargin
+        // To the screen edge on the right: the cards keep the page margin (their width), and the
+        // scroll indicator, placed by Qt at the right edge of the list, goes into it as on the
+        // settings page, not over the cards
+        ScrollIndicator.vertical: ScrollIndicator {}
         // 12 from the hint, as on the settings file page; 6 above the pill below (12 seen with
         // its inset), the gap it had with the page spacing
         Layout.topMargin: 12
@@ -262,7 +265,7 @@ ColumnLayout {
             readonly property bool selected: ListView.isCurrentItem
             readonly property string profileName: fileName.substring(0, fileName.length-4)
             readonly property bool active: profileName === settings.profile_name
-            width: ListView.view.width
+            width: ListView.view.width - profilesPage.modernMargin
             // Material 3 list item: two lines (name, "Active") at least 72, the icon and the button 16
             // from the edges, the text 16 after the icon; a bigger text grows it, 8 above and below
             height: Math.max(72, Math.max(40, cardText.implicitHeight) + 16)
