@@ -57,6 +57,11 @@ class zwiftclickremote : public bluetoothdevice {
         frame.append(signedReply);
         return frame;
     }
+    // An echoed RideOn close to the challenge means that the controller is
+    // already functioning. Otherwise a signed reply may be necessary.
+    static bool needsDLockReply(qint64 lastRideOnEchoMs, qint64 challengeAtMs) {
+        return lastRideOnEchoMs <= 0 || lastRideOnEchoMs < challengeAtMs - 2000;
+    }
     AbstractZapDevice::ZWIFT_PLAY_TYPE typeZap = AbstractZapDevice::NONE;
     
     // Wrapper per characteristicChanged che accetta direttamente QBluetoothUuid
