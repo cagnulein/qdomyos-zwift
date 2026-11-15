@@ -135,6 +135,12 @@ private slots:
             qDebug() << "Access Token received successfully";
             emit tokenReceived(true, QObject::tr("Zwift Login OK!"));
         } else {
+            // An invalid Game Client refresh grant must not poison all later
+            // Click unlocks. Retry with credentials on the next challenge.
+            if (gameClient) {
+                refresh_token.clear();
+                refresh_token_expiration = 0;
+            }
             qDebug() << "Error fetching token: " << reply->errorString();
             emit tokenReceived(false, QObject::tr("Zwift Auth Failed!"));
         }
