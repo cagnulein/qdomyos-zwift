@@ -2,8 +2,8 @@ name: Release iOS to TestFlight
 
 on:
   pull_request:
-    branches:
-      - master
+    # Allow labeled same-repository stacked PRs that target non-master branches.
+    # The release-ios job below still refuses fork PRs with signing secrets.
     types:
       - labeled
   workflow_dispatch:

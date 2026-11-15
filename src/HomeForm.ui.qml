@@ -532,6 +532,16 @@ Page {
                 Behavior on bottomMargin { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
                 clip: true
                 boundsBehavior: Flickable.StopAtBounds
+                // A thin bar while the checklist moves (a large text, landscape), at the screen edge, not
+                // over the card: the list is at most 560 wide and centred. Qt places the bar only when its
+                // parent is the flickable, so x, y and height are set here (the loader's box)
+                ScrollIndicator.vertical: ScrollIndicator {
+                    visible: modernEmpty.visible
+                    parent: modernEmpty.parent
+                    x: mirrored ? 0 : parent.width - width
+                    y: modernEmpty.y
+                    height: modernEmpty.height
+                }
 
                 // qsTr inside an expression looks the text up under the context "HomeForm" (the file
                 // name up to the first dot), while lupdate writes "HomeForm.ui": the context is given
