@@ -68,6 +68,8 @@ class tacxneo2 : public bike {
     QDateTime lastRefreshCharacteristicChanged2AD2 = QDateTime::currentDateTime();
     QDateTime lastRefreshCharacteristicChangedPower = QDateTime::currentDateTime();
     QDateTime lastGoodCadence = QDateTime::currentDateTime();
+    // Per-trainer timestamp: never let a single positive FTMS reading suppress CSC indefinitely.
+    QDateTime lastValidFtmsCadence;
     uint8_t firstStateChanged = 0;
 
     bool initDone = false;
