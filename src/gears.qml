@@ -630,7 +630,7 @@ ScrollView {
                     // Modern look: a long label at a large text size takes two lines, not the
                     // width of the page
                     // with a bigger text the label wraps in two lines
-                    Layout.preferredHeight: window.ui.modern ? Math.max(50, contentItem.implicitHeight + 16) : (window.textScale !== 1 ? Math.max(50, contentItem.implicitHeight + 16) : 50)
+                    Layout.preferredHeight: window.ui.modern ? Math.max(48, contentItem.implicitHeight + 24) : (window.textScale !== 1 ? Math.max(50, contentItem.implicitHeight + 16) : 50)
                     font.bold: true
                     background: Rectangle {
                         // Modern look: the tonal pill of the other buttons, the bright purple
@@ -968,13 +968,13 @@ ScrollView {
                                     // "undefined" in the classic look reset them to the Qt defaults, not to the
                                     // Material ones the classic field had
                                     // with a bigger text the field takes the cell and grows with the row
-                                    // Material pads 8 above and 16 below: the number sat 4 px over the middle
                                     width: window.textScale !== 1 ? parent.width - 8 : parent.width * 0.8
                                     height: window.ui.modern ? 36 : window.fontPx(30)
                                     Binding on topPadding { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
                                     Binding on bottomPadding { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
                                     Binding on topInset { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
                                     Binding on bottomInset { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
+                                    // Material pads 8 above and 16 below: the number sat 4 px over the middle
                                     topPadding: window.textScale !== 1 ? 0 : 8
                                     bottomPadding: window.textScale !== 1 ? 0 : 16
                                     from: 1

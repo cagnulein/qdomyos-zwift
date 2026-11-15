@@ -269,7 +269,11 @@ ScrollView {
                         border.color: window.ui.modern ? window.ui.alpha(window.ui.outline, 0.4) : "#cccccc"
                         color: "transparent"
 
+                        // A number typed but not confirmed is applied first: the -/+ of the modern
+                        // look are MouseAreas, they do not take the focus from the field (T-561)
                         function stepOffset(delta) {
+                            if (window.ui.modern)
+                                offsetTextField.applyOffset()
                             gearRows[index].offset = clampOffset(parseOffset(gearRows[index].offset) + delta)
                             offsetTextField.text = gearRows[index].offset
                             saveGearRows()

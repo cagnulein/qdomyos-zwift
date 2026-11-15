@@ -29,6 +29,12 @@ ScrollView {
         property string label
         signal step(real delta)
         signal edited(string value)
+        // A number typed but not confirmed is applied first: a MouseArea does not take the focus
+        // from the field, so its editing does not finish before the step (the classic buttons do)
+        function stepBy(delta) {
+            stepper.edited(stepperInput.text)
+            stepper.step(delta)
+        }
         radius: 12
         color: window.ui.surfaceHighest
 
@@ -38,10 +44,10 @@ ScrollView {
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             width: height
-            onClicked: stepper.step(-0.5)
+            onClicked: stepper.stepBy(-0.5)
             Accessible.role: Accessible.Button
             Accessible.name: qsTr("Decrease %1").arg(stepper.label)
-            Accessible.onPressAction: stepper.step(-0.5)
+            Accessible.onPressAction: stepper.stepBy(-0.5)
             Rectangle { anchors.fill: parent; radius: 12; color: window.ui.surfaceHigh; visible: stepperMinus.pressed }
             Rectangle { anchors.centerIn: parent; width: 12; height: 2; radius: 1; color: window.ui.textMain }
         }
@@ -51,10 +57,10 @@ ScrollView {
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             width: height
-            onClicked: stepper.step(0.5)
+            onClicked: stepper.stepBy(0.5)
             Accessible.role: Accessible.Button
             Accessible.name: qsTr("Increase %1").arg(stepper.label)
-            Accessible.onPressAction: stepper.step(0.5)
+            Accessible.onPressAction: stepper.stepBy(0.5)
             Rectangle { anchors.fill: parent; radius: 12; color: window.ui.surfaceHigh; visible: stepperPlus.pressed }
             Rectangle { anchors.centerIn: parent; width: 12; height: 2; radius: 1; color: window.ui.textMain }
             Rectangle { anchors.centerIn: parent; width: 2; height: 12; radius: 1; color: window.ui.textMain }
