@@ -4864,6 +4864,10 @@ void bluetooth::restart() {
         delete kettlerClassicBike;
         kettlerClassicBike = nullptr;
     }
+    if (kettlerCoachRower) {
+        delete kettlerCoachRower;
+        kettlerCoachRower = nullptr;
+    }
     if (toorx) {
 
         delete toorx;
@@ -5387,6 +5391,8 @@ bluetoothdevice *bluetooth::device() {
         return stagesBike;
     } else if (kettlerClassicBike) {
         return kettlerClassicBike;
+    } else if (kettlerCoachRower) {
+        return kettlerCoachRower;
     } else if (toorx) {
         return toorx;
     } else if (iconsole) {
