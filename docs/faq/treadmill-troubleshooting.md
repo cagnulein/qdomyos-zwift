@@ -1,5 +1,11 @@
 # Treadmill troubleshooting
 
+## Domyos Run 500 connects in QZ but shows no treadmill data. How can I select the correct device?
+
+If QZ discovers more than one Bluetooth device when a **Domyos Run 500** is powered on, it may connect without showing live treadmill metrics. Open **QZ Settings > Advanced Settings > Manual Device** and select the treadmill's Bluetooth device explicitly. Then reconnect and check that speed and incline update while the treadmill is running.
+
+**Confirmed result:** In a support case where QZ appeared connected but showed no treadmill data, selecting the Run 500 through **Manual Device** restored the connection. This is a device-selection workaround, not a fix for unrelated Bluetooth or workout-recording issues. If metrics still do not appear, collect a QZ debug log to identify which Bluetooth device and profile QZ selected.
+
 ## Domyos Run 500: QZ remains paused after starting or resuming on the treadmill console
 
 On a Domyos Run 500, QZ may continue to display live speed and incline while its workout session remains **paused** after Start or Resume is pressed on the treadmill console. Live readings alone do not mean that QZ is recording: elapsed workout data, distance, averages and maxima may not advance during the paused interval.
