@@ -67,3 +67,39 @@ TEST(KettlerClassicProtocol, PreservesIncompleteEscapedByte) {
     EXPECT_EQ(frames.at(0).function, 0x001b);
     EXPECT_EQ(frames.at(0).payload, QByteArray(1, '\x02'));
 }
+
+TEST(KettlerClassicProtocol, CoachSCapturedHandshakeMatchesWireBytes) {
+    // 2026-11-15 Sony Xperia L1 HCI snoop, successful Kinomap/Coach S session.
+    const QByteArray challenge = QByteArray::fromHex("2d61bc3de75ad3dfe2973ef18a637da428d6");
+    EXPECT_EQ(kettlerclassicprotocol::encodeFrame(0x0001, 0x01, challenge),
+              QByteArray::fromHex("0200010100122d61bc3de75ad3dfe2973ef18a637da428d603ba96"));
+
+    QByteArray response = QByteArray::fromHex(
+        "020001102300127849dfe4e0a14e4f14451817bf974991a44c03ed52");
+    const auto frames = kettlerclassicprotocol::consumeFrames(response);
+    ASSERT_EQ(frames.size(), 1);
+    EXPECT_EQ(frames.at(0).function, 0x0001);
+    EXPECT_EQ(frames.at(0).subFunction, 0x03);
+    EXPECT_EQ(frames.at(0).payload, QByteArray::fromHex("7849dfe4e0a14e4f14451817bf974991a44c"));
+    EXPECT_TRUE(response.isEmpty());
+}
+
+TEST(KettlerClassicProtocol, CoachSCapturedRowingTelemetryDecodesAcrossFragments) {
+    // Captured E0 frame contains escaped 0x02 inside the rowing-data block.
+    const QByteArray captured = QByteArray::fromHex(
+        "0200e0102300180004000d0026008800b81022ec2f371022ca004a013423d8000403a889");
+    QByteArray stream = captured.left(13);
+    EXPECT_TRUE(kettlerclassicprotocol::consumeFrames(stream).isEmpty());
+    stream.append(captured.mid(13));
+    stream.append(QByteArray::fromHex("0200d3010000038769"));
+    const auto frames = kettlerclassicprotocol::consumeFrames(stream);
+    ASSERT_EQ(frames.size(), 2);
+    EXPECT_EQ(frames.at(0).function, 0x00e0);
+    EXPECT_EQ(frames.at(0).subFunction, 0x03);
+    EXPECT_EQ(frames.at(0).payload.size(), 24);
+    EXPECT_EQ(frames.at(0).payload,
+              QByteArray::fromHex("0004000d0026008800b802ec2f3702ca004a013423d80004"));
+    EXPECT_EQ(frames.at(1).function, 0x00d3);
+    EXPECT_EQ(frames.at(1).subFunction, 0x01);
+    EXPECT_TRUE(stream.isEmpty());
+}
