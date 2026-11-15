@@ -52,6 +52,7 @@ function isTrueSetting(value) {
 // FTP -- each race distance gives its own reference pace -- so we use all five, sorted from slowest
 // (marathon) to fastest (1 mile), as the zone boundaries.
 var paceZoneLabels = ['Marathon', 'Half Marathon', '10K', '5K', '1 Mile'];
+var paceZoneLabelKeys = ['chart.paceMarathon', 'chart.paceHalfMarathon', 'chart.pace10k', 'chart.pace5k', 'chart.pace1Mile'];
 var paceZones = [8, 10, 11, 12, 14]; // km/h fallback if settings can't be read; overwritten in dochart_init()
 var paceZoneColorsT = ['greyt', 'limegreent', 'goldt', 'oranget', 'darkoranget', 'redt'];
 
@@ -369,7 +370,7 @@ function process_arr(arr) {
                         color: 'black',
                         callback: value => {
                             const i = paceZones.findIndex(z => Math.abs(z - value) < 0.5);
-                            return i === -1 ? Math.round(value) : `${Math.round(value)} (${paceZoneLabels[i]})`;
+                            return i === -1 ? Math.round(value) : `${Math.round(value)} (${t(paceZoneLabelKeys[i], paceZoneLabels[i])})`;
                         }
                     }
                 },

@@ -186,7 +186,7 @@ void fakebike::switchToClassicVirtualBikeBridge() {
     classicVirtualBridgeActive = true;
     if (homeform::singleton()) {
         homeform::singleton()->setEchelonBridgeSwitchPromptRequested(false);
-        homeform::singleton()->setToastRequested(QStringLiteral("Switching to classic Bluetooth bridge"));
+        homeform::singleton()->setToastRequested(QObject::tr("Switching to classic Bluetooth bridge"));
     }
 
 #ifdef Q_OS_IOS

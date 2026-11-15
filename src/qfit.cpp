@@ -28,6 +28,18 @@
 
 using namespace std;
 
+// MSVC builds use _ITERATOR_DEBUG_LEVEL=0 (qdomyos-zwift.pri) against the debug Qt5Cored.dll, which uses level 2,
+// so a std::wstring must not cross the Qt DLL boundary: QString::toStdWString()/fromStdWString() run inside the DLL
+// and hand over a string with a different layout (crash in the FIT SDK on save, #3053, #3095). These are the bodies
+// of the Qt 5.15 inline functions, built here; toWCharArray()/fromWCharArray() take only plain pointers.
+static std::wstring toFitString(const QString &s) {
+    std::wstring w(s.size(), L'\0');
+    w.resize(s.toWCharArray(&w[0]));
+    return w;
+}
+
+static QString fromFitString(const std::wstring &w) { return QString::fromWCharArray(w.c_str(), int(w.size())); }
+
 qfit::qfit(QObject *parent) : QObject(parent) {}
 
 void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_TYPE type,
@@ -49,6 +61,10 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             .value(QZSettings::powr_sensor_running_cadence_half_on_strava,
                    QZSettings::default_powr_sensor_running_cadence_half_on_strava)
             .toBool();
+    // Apply the same cadence conversion to FIT records and session summaries.
+    const auto cadenceForFit = [powr_sensor_running_cadence_half_on_strava](uint8_t cadence) -> uint8_t {
+        return powr_sensor_running_cadence_half_on_strava ? cadence / 2 : cadence;
+    };
     std::list<fit::RecordMesg> records;
     fit::Encode encode(fit::ProtocolVersion::V20);
     if (session.isEmpty()) {
@@ -127,8 +143,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     userMesg.SetAge(settings.value(QZSettings::age, QZSettings::default_age).toUInt());
     userMesg.SetGender(settings.value(QZSettings::sex, QZSettings::default_sex).toString().startsWith(QZSettings::default_sex) ? FIT_GENDER_MALE
                                                                                                    : FIT_GENDER_FEMALE);
-    userMesg.SetFriendlyName(
-        settings.value(QZSettings::user_nickname, QZSettings::default_user_nickname).toString().toStdWString());
+    userMesg.SetFriendlyName(toFitString(
+        settings.value(QZSettings::user_nickname, QZSettings::default_user_nickname).toString()));
     userMesg.SetHeight(settings.value(QZSettings::height, QZSettings::default_height).toFloat() / 100.0f);
     userMesg.SetDefaultMaxHeartRate(user_max_hr);
     userMesg.SetRestingHeartRate(user_resting_hr);
@@ -214,8 +230,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             }
         } else {
             min_alt = 0;
-            if (max_alt < session.at(i).elevationGain)
-                max_alt = session.at(i).elevationGain;
+            double net_altitude = session.at(i).elevationGain - session.at(i).negativeElevationGain;
+            if (max_alt < net_altitude)
+                max_alt = net_altitude;
         }
 
         if (session.at(i).speed > 0) {
@@ -245,12 +262,13 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         }
         np_power_samples.push_back(session.at(i).watt > 0 ? session.at(i).watt : 0.0);
 
-        // Collect cadence data (all device types)
-        if (session.at(i).cadence > 0) {
-            cadence_sum += session.at(i).cadence;
+        // Collect the values actually written to FIT records.
+        const uint8_t cadence = cadenceForFit(session.at(i).cadence);
+        if (cadence > 0) {
+            cadence_sum += cadence;
             cadence_count++;
-            if (session.at(i).cadence > max_cadence)
-                max_cadence = session.at(i).cadence;
+            if (cadence > max_cadence)
+                max_cadence = cadence;
         }
 
         // Max speed (m/s — session.speed is in km/h)
@@ -276,40 +294,22 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         qDebug() << "average speed from the fit file" << speed_avg;
     }
 
-    // Calculate training load: TSS for cycling with power, TRIMP otherwise
+    // Training load remains TRIMP-first for Garmin load/Training Effect compatibility.
+    // IF/TSS are calculated separately from Normalized Power below.
     float training_load = 0.0f;
-    float tss = 0.0f;  // Training Stress Score (for cycling with power)
+    float tss = 0.0f;
+    float intensity_factor = 0.0f;
+    float ftp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toFloat();
     uint32_t duration_seconds = session.last().elapsedTime;
     bool has_tss = false;
 
-    // For cycling with power data, calculate TSS (Training Stress Score)
-    if (type == BIKE && watt_count > 0) {
-        double avg_watt = watt_sum / watt_count;
-        float ftp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toFloat();
-
-        if (ftp > 0 && avg_watt > 0) {
-            // TSS formula: (duration_seconds × average_power × IF) / (FTP × 36)
-            // where IF (Intensity Factor) = average_power / FTP
-            double intensity_factor = avg_watt / ftp;
-            tss = (duration_seconds * avg_watt * intensity_factor) / (ftp * 36.0);
-            training_load = tss;  // Use TSS as training load in the worst scenario
-            has_tss = true;
-
-            qDebug() << "Training Load (TSS) calculated:" << tss
-                     << "Duration:" << (duration_seconds / 60) << "min"
-                     << "Avg Power:" << avg_watt << "W"
-                     << "FTP:" << ftp << "W"
-                     << "IF:" << intensity_factor;
-        }
-    }
-
     // Always calculate TRIMP if we have HR data (fallback or additional metric)
-    if (hr_count > 0) {
+    if (hr_count > 0 && user_max_hr > user_resting_hr) {
         double avg_hr = hr_sum / hr_count;
         uint32_t duration_minutes = duration_seconds / 60;
 
         // Bannister's TRIMP formula: D * HR_ratio * exp(b * HR_ratio)
-        // where HR_ratio = (avg_hr - resting_hr) / (max_hr - resting_hr)
+        // where HR_ratio = (HR - resting_hr) / (max_hr - resting_hr)
         //
         // COEFFICIENT SELECTION:
         // Standard Bannister formula uses b = 1.92 (men) and b = 1.67 (women)
@@ -317,17 +317,39 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         // to match Garmin's training load calculations more closely.
         // We use b = 1.67 for everyone to ensure compatibility with Garmin Connect's
         // acute training load and training status features.
-        double hr_ratio = 0;
-        if (user_max_hr > user_resting_hr) {
-            hr_ratio = (avg_hr - user_resting_hr) / (double)(user_max_hr - user_resting_hr);
+        //
+        // INTEGRATION, NOT A SINGLE AVERAGE:
+        // exp() is convex, so applying the formula once to the *session average* HR
+        // (as opposed to integrating it sample by sample) systematically underestimates
+        // the true load for any workout with HR variability (intervals, surges, sprints):
+        // by Jensen's inequality, avg(exp(b*x)) >= exp(b*avg(x)). A steady Zone 2 ride and
+        // an interval session with the same average HR would otherwise score identically,
+        // even though the interval session carries more real physiological strain — this
+        // is also how a real Garmin device computes it, accumulating load minute by minute.
+        double b = 1.67;
+        double integrated_trimp = 0.0;
+        uint32_t prev_elapsed = session.at(firstRealIndex).elapsedTime;
+        for (int i = firstRealIndex; i < session.length(); i++) {
+            if (session.at(i).heart == 0)
+                continue;
+
+            uint32_t elapsed = session.at(i).elapsedTime;
+            double delta_seconds = (elapsed > prev_elapsed) ? (double)(elapsed - prev_elapsed) : 1.0;
+            if (delta_seconds > 30.0) // guard against pauses/reconnects: cap a single gap
+                delta_seconds = 30.0;
+            prev_elapsed = elapsed;
+
+            double hr_ratio_i = (session.at(i).heart - user_resting_hr) / (double)(user_max_hr - user_resting_hr);
+            if (hr_ratio_i <= 0)
+                continue;
+            if (hr_ratio_i > 1.5) // guard against sensor spikes/HR above configured max
+                hr_ratio_i = 1.5;
+
+            integrated_trimp += (delta_seconds / 60.0) * hr_ratio_i * std::exp(b * hr_ratio_i);
         }
 
-        // Use coefficient 1.67 (matches Garmin implementation)
-        double b = 1.67;
-
-        // Calculate TRIMP
-        if (hr_ratio > 0 && hr_ratio < 2.0) {  // Sanity check
-            training_load = duration_minutes * hr_ratio * std::exp(b * hr_ratio);
+        if (integrated_trimp > 0) {
+            training_load = (float)integrated_trimp;
             qDebug() << "Training Load (TRIMP) calculated:" << training_load
                      << "Duration:" << duration_minutes << "min"
                      << "Avg HR:" << avg_hr
@@ -336,22 +358,39 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         }
     }
 
-    // Normalized Power: 30-second rolling average → 4th-power mean → 4th root
+    // Normalized Power: use complete 30-s rolling windows only, then
+    // fourth-power mean and fourth root. This is the value used by IF/TSS.
     uint16_t normalized_power = 0;
     if (np_power_samples.size() >= 30) {
         std::vector<double> rolling30;
-        rolling30.reserve(np_power_samples.size());
-        for (size_t idx = 0; idx < np_power_samples.size(); idx++) {
+        rolling30.reserve(np_power_samples.size() - 29);
+        for (size_t idx = 29; idx < np_power_samples.size(); idx++) {
             double sum = 0;
-            size_t start = idx >= 29 ? idx - 29 : 0;
-            for (size_t j = start; j <= idx; j++)
+            for (size_t j = idx - 29; j <= idx; j++)
                 sum += np_power_samples[j];
-            rolling30.push_back(sum / (idx - start + 1));
+            rolling30.push_back(sum / 30.0);
         }
         double sum4 = 0;
         for (double v : rolling30)
             sum4 += std::pow(v, 4.0);
         normalized_power = (uint16_t)std::pow(sum4 / rolling30.size(), 0.25);
+    }
+
+    // TSS was originally added in January 2026 before qfit had a Normalized Power
+    // calculation, so it used average power as an approximation. NP was added later
+    // for Garmin Endurance Score support; use it now for the canonical IF/TSS formulas.
+    if (type == BIKE && ftp > 0 && normalized_power > 0) {
+        intensity_factor = normalized_power / ftp;
+        tss = (duration_seconds * normalized_power * intensity_factor) / (ftp * 36.0f);
+        has_tss = true;
+        if (training_load == 0.0f)
+            training_load = tss;
+
+        qDebug() << "TSS calculated from Normalized Power:" << tss
+                 << "Duration:" << (duration_seconds / 60) << "min"
+                 << "NP:" << normalized_power << "W"
+                 << "FTP:" << ftp << "W"
+                 << "IF:" << intensity_factor;
     }
 
     // Training Effect (aerobic + anaerobic) from HR zones and power
@@ -400,9 +439,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
 
         // Anaerobic TE: from power if available, else from time in Z4+Z5
         if (watt_count > 0) {
-            float ftp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toFloat();
-            if (ftp > 0) {
-                double threshold_w = ftp * 1.05;
+            float ftp_for_te = settings.value(QZSettings::ftp, QZSettings::default_ftp).toFloat();
+            if (ftp_for_te > 0) {
+                double threshold_w = ftp_for_te * 1.05;
                 double time_above = 0, intensity_above = 0;
                 for (int i = firstRealIndex; i < session.length(); i++) {
                     if (session.at(i).watt > threshold_w) {
@@ -437,9 +476,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         zonesTargetMesg.SetMaxHeartRate(user_max_hr);
         float zone3_pct = settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toFloat();
         zonesTargetMesg.SetThresholdHeartRate((uint8_t)(zone3_pct / 100.0f * user_max_hr));
-        uint16_t ftp = (uint16_t)settings.value(QZSettings::ftp, QZSettings::default_ftp).toFloat();
-        if (ftp > 0)
-            zonesTargetMesg.SetFunctionalThresholdPower(ftp);
+        uint16_t ftp_target = (uint16_t)settings.value(QZSettings::ftp, QZSettings::default_ftp).toFloat();
+        if (ftp_target > 0)
+            zonesTargetMesg.SetFunctionalThresholdPower(ftp_target);
         zonesTargetMesg.SetHrCalcType(FIT_HR_ZONE_CALC_PERCENT_MAX_HR);
         zonesTargetMesg.SetPwrCalcType(FIT_PWR_ZONE_CALC_PERCENT_FTP);
         encode.Write(zonesTargetMesg);
@@ -546,20 +585,10 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     if (workoutFeel >= 0)
         sessionMesg.SetWorkoutFeel(static_cast<FIT_UINT8>(workoutFeel));
 
-    // Set training load in FIT file
-    // Always set training_load_peak (Garmin uses this for acute training load)
-    // COMMENTED OUT: Garmin Connect doesn't properly reflect these values
-    // Moving to developer data message instead
+    // Keep training_load_peak disabled: #4200/#4202 showed that Garmin Connect did
+    // not reflect this field reliably. TSS/IF/FTP below are independent cycling stats.
     if (training_load > 0) {
-        //sessionMesg.SetTrainingLoadPeak(training_load);
-        qDebug() << "Training load will be stored in developer data:" << training_load;
-    }
-
-    // For cycling with power, also set training_stress_score (TSS)
-    // COMMENTED OUT: Moving to developer data message
-    if (has_tss) {
-        //sessionMesg.SetTrainingStressScore(tss);
-        qDebug() << "TSS will be stored in developer data:" << tss;
+        qDebug() << "Training load remains calculated but training_load_peak is not written:" << training_load;
     }
 
     const FIT_SPORT treadmill_activity_sport =
@@ -655,6 +684,15 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             sessionMesg.SetNormalizedPower(normalized_power);
         if (total_work_joules > 0)
             sessionMesg.SetTotalWork(total_work_joules);
+    }
+    if (type == BIKE && ftp > 0) {
+        sessionMesg.SetThresholdPower((uint16_t)ftp);
+        if (has_tss) {
+            sessionMesg.SetIntensityFactor(intensity_factor);
+            sessionMesg.SetTrainingStressScore(tss);
+            qDebug() << "Writing cycling stats to FIT: FTP" << ftp
+                     << "IF" << intensity_factor << "TSS" << tss;
+        }
     }
     if (max_speed_ms > 0) {
         sessionMesg.SetEnhancedMaxSpeed((float)max_speed_ms);
@@ -759,29 +797,29 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     ftpSessionField.AddValue(settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble());
 
     fit::DeveloperField activityTitleField(activityTitle, devIdMesg);
-    activityTitleField.SetSTRINGValue(workoutName.toStdWString());
+    activityTitleField.SetSTRINGValue(toFitString(workoutName));
 
     // Create our new developer fields
     fit::DeveloperField workoutSourceField(workoutSourceMesg, devIdMesg);
     if (!workoutSource.isEmpty()) {
-        workoutSourceField.SetSTRINGValue(workoutSource.toStdWString());
+        workoutSourceField.SetSTRINGValue(toFitString(workoutSource));
     } else {
         workoutSourceField.SetSTRINGValue(L"QZ"); // Default to QZ if not specified
     }
 
     fit::DeveloperField pelotonWorkoutIdField(pelotonWorkoutIdMesg, devIdMesg);
     if (!pelotonWorkoutId.isEmpty()) {
-        pelotonWorkoutIdField.SetSTRINGValue(pelotonWorkoutId.toStdWString());
+        pelotonWorkoutIdField.SetSTRINGValue(toFitString(pelotonWorkoutId));
     }
 
     fit::DeveloperField pelotonUrlField(pelotonUrlMesg, devIdMesg);
     if (!pelotonUrl.isEmpty()) {
-        pelotonUrlField.SetSTRINGValue(pelotonUrl.toStdWString());
+        pelotonUrlField.SetSTRINGValue(toFitString(pelotonUrl));
     }
 
     fit::DeveloperField trainingProgramFileField(trainingProgramFileMesg, devIdMesg);
     if (!trainingProgramFile.isEmpty()) {
-        trainingProgramFileField.SetSTRINGValue(trainingProgramFile.toStdWString());
+        trainingProgramFileField.SetSTRINGValue(toFitString(trainingProgramFile));
     }
 
     auto addCoreTemperatureSummaryFields = [&](fit::Mesg &mesg,
@@ -821,8 +859,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     activityMesg.SetType(FIT_ACTIVITY_MANUAL);
     activityMesg.SetEvent(FIT_EVENT_WORKOUT);
     activityMesg.SetEventType(FIT_EVENT_TYPE_START);
-    activityMesg.SetLocalTimestamp(fit::DateTime((time_t)session.last().time.toSecsSinceEpoch())
-                                       .GetTimeStamp()); // seconds since 00:00 Dec d31 1989 in local time zone
+    // Per the FIT spec, local_timestamp = timestamp + UTC offset (same instant as timestamp above)
+    activityMesg.SetLocalTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L +
+                                   session.at(firstRealIndex).time.offsetFromUtc());
     activityMesg.SetEvent(FIT_EVENT_ACTIVITY);
     activityMesg.SetEventType(FIT_EVENT_TYPE_STOP);
 
@@ -874,10 +913,11 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     // System Timestamp: Same as timestamp (session start)
     timestampCorrelationMesg.SetSystemTimestamp(sessionStartTimestamp);
 
-    // Local Timestamp: User's local time at session start
-    // Convert the local time to FIT format
-    fit::DateTime localDateTime((time_t)session.at(firstRealIndex).time.toSecsSinceEpoch());
-    timestampCorrelationMesg.SetLocalTimestamp(localDateTime.GetTimeStamp());
+    // Local Timestamp: session start expressed in the user's local wall-clock time.
+    // Per the FIT spec, local_timestamp = timestamp + UTC offset, so consumers can
+    // derive the offset as (local_timestamp - timestamp).
+    qint64 utcOffsetSeconds = session.at(firstRealIndex).time.offsetFromUtc();
+    timestampCorrelationMesg.SetLocalTimestamp(sessionStartTimestamp + utcOffsetSeconds);
 
     encode.Write(timestampCorrelationMesg);
 
@@ -893,9 +933,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         fit::WorkoutMesg workout;
         workout.SetSport(sessionMesg.GetSport());
         workout.SetSubSport(sessionMesg.GetSubSport());
-#ifndef _WIN32
-        workout.SetWktName(workoutName.toStdWString());
-#endif
+        workout.SetWktName(toFitString(workoutName));
         workout.SetNumValidSteps(1);
 
         // Add developer fields to workout message
@@ -963,9 +1001,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         lapMesg.SetSport(FIT_SPORT_CYCLING);
     }
 
-    encode.Write(sessionMesg);
-    encode.Write(activityMesg);
-
     SessionLine sl;
     if (processFlag & QFIT_PROCESS_DISTANCENOISE) {
         double distanceOld = -1.0;
@@ -1013,10 +1048,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
 
         // fit::DateTime date((time_t)session.at(i).time.toSecsSinceEpoch());
         newRecord.SetHeartRate(sl.heart);
-        uint8_t cad = sl.cadence;
-        if (powr_sensor_running_cadence_half_on_strava)
-            cad = cad / 2;
-        newRecord.SetCadence(cad);
+        newRecord.SetCadence(cadenceForFit(sl.cadence));
         newRecord.SetDistance((sl.distance - startingDistanceOffset) * 1000.0); // meters
         newRecord.SetSpeed(sl.speed / 3.6);                                     // meter per second
         newRecord.SetPower(sl.watt);
@@ -1028,7 +1060,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             newRecord.SetStanceTime(sl.groundContactMS);
         }
 
-               // Add custom developer fields for temperature data
+        // Add custom developer fields for temperature data
         if (sl.coreTemp) {
             fit::DeveloperField coreTemperatureField(coreTemperatureFieldDesc, coreDevIdMesg);
             coreTemperatureField.SetFLOAT32Value((float)sl.coreTemp);
@@ -1061,8 +1093,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             newRecord.AddDeveloperField(heatStrainIndexField);
         }
 
-               // if a gps track contains a point without the gps information, it has to be discarded, otherwise the database
-               // structure is corrupted and 2 tracks are saved in the FIT file causing mapping issue.
+        // if a gps track contains a point without the gps information, it has to be discarded, otherwise the database
+        // structure is corrupted and 2 tracks are saved in the FIT file causing mapping issue.
         if (!sl.coordinate.isValid() && gps_data) {
             continue;
         }
@@ -1072,12 +1104,13 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             newRecord.SetPositionLat(pow(2, 31) * (sl.coordinate.latitude()) / 180.0);
             newRecord.SetPositionLong(pow(2, 31) * (sl.coordinate.longitude()) / 180.0);
         } else {
-            newRecord.SetAltitude(sl.elevationGain);
+            // With no GPS track, cumulative ascent/descent form the relative altitude profile.
+            newRecord.SetAltitude(sl.elevationGain - sl.negativeElevationGain);
         }
 
-               // using just the start point as reference in order to avoid pause time
-               // strava ignore the elapsed field
-               // this workaround could leads an accuracy issue.
+        // using just the start point as reference in order to avoid pause time
+        // strava ignore the elapsed field
+        // this workaround could leads an accuracy issue.
         newRecord.SetTimestamp(date.GetTimeStamp() + i);
 
         if (sl.coreTemp > 0) {
@@ -1163,6 +1196,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
                                         lapCoreTempMax);
     }
     encode.Write(lapMesgToWrite);
+    encode.Write(sessionMesg);
+    encode.Write(activityMesg);
 
     if (!encode.Close()) {
 
@@ -1239,24 +1274,24 @@ class Listener : public fit::FileIdMesgListener,
                 std::string fieldName = devField.GetName();
                 if (fieldName == "Activity Title" && workoutName != nullptr) {
                     std::wstring wWorkoutName = devField.GetSTRINGValue(0);
-                    *workoutName = QString::fromStdWString(wWorkoutName);
-                    printf("   Found Activity Title in workout: %s\n", workoutName->toStdString().c_str());
+                    *workoutName = fromFitString(wWorkoutName);
+                    printf("   Found Activity Title in workout: %s\n", qUtf8Printable(*workoutName));
                 } else if (fieldName == "Workout Source" && workoutSource != nullptr) {
                     std::wstring wWorkoutSource = devField.GetSTRINGValue(0);
-                    *workoutSource = QString::fromStdWString(wWorkoutSource);
-                    printf("   Found Workout Source in workout: %s\n", workoutSource->toStdString().c_str());
+                    *workoutSource = fromFitString(wWorkoutSource);
+                    printf("   Found Workout Source in workout: %s\n", qUtf8Printable(*workoutSource));
                 } else if (fieldName == "Peloton Workout ID" && pelotonWorkoutId != nullptr) {
                     std::wstring wPelotonWorkoutId = devField.GetSTRINGValue(0);
-                    *pelotonWorkoutId = QString::fromStdWString(wPelotonWorkoutId);
-                    printf("   Found Peloton Workout ID in workout: %s\n", pelotonWorkoutId->toStdString().c_str());
+                    *pelotonWorkoutId = fromFitString(wPelotonWorkoutId);
+                    printf("   Found Peloton Workout ID in workout: %s\n", qUtf8Printable(*pelotonWorkoutId));
                 } else if (fieldName == "Peloton URL" && pelotonUrl != nullptr) {
                     std::wstring wPelotonUrl = devField.GetSTRINGValue(0);
-                    *pelotonUrl = QString::fromStdWString(wPelotonUrl);
-                    printf("   Found Peloton URL in workout: %s\n", pelotonUrl->toStdString().c_str());
+                    *pelotonUrl = fromFitString(wPelotonUrl);
+                    printf("   Found Peloton URL in workout: %s\n", qUtf8Printable(*pelotonUrl));
                 } else if (fieldName == "Training Program File" && trainingProgramFile != nullptr) {
                     std::wstring wTrainingProgramFile = devField.GetSTRINGValue(0);
-                    *trainingProgramFile = QString::fromStdWString(wTrainingProgramFile);
-                    printf("   Found Training Program File in workout: %s\n", trainingProgramFile->toStdString().c_str());
+                    *trainingProgramFile = fromFitString(wTrainingProgramFile);
+                    printf("   Found Training Program File in workout: %s\n", qUtf8Printable(*trainingProgramFile));
                 }
             }
         }
@@ -1430,10 +1465,20 @@ class Listener : public fit::FileIdMesgListener,
             s.instantaneousStrideLengthCM = record.GetStepLength() / 10;
             s.verticalOscillationMM = record.GetVerticalOscillation();
             s.groundContactMS = record.GetStanceTime();
-            s.coordinate.setAltitude(record.GetAltitude());
-            s.coordinate.setLatitude((record.GetPositionLat() * 180) / pow(2, 31));
-            s.coordinate.setLongitude((record.GetPositionLong() * 180) / pow(2, 31));
-            if (!s.coordinate.isValid()) {
+            // Missing FIT positions must not be interpreted as GPS coordinates.
+            // Multiply by a floating-point factor to avoid 32-bit integer overflow.
+            if (record.IsAltitudeValid()) {
+                s.coordinate.setAltitude(record.GetAltitude());
+            }
+            if (record.IsPositionLatValid() && record.IsPositionLongValid()) {
+                constexpr double degreesPerSemicircle = 180.0 / 2147483648.0;
+                s.coordinate.setLatitude(record.GetPositionLat() * degreesPerSemicircle);
+                s.coordinate.setLongitude(record.GetPositionLong() * degreesPerSemicircle);
+            }
+            s.elevationGain = 0.0;
+            s.negativeElevationGain = 0.0;
+            if (!s.coordinate.isValid() && record.IsAltitudeValid()) {
+                // Preserve the existing relative-altitude representation for indoor FIT files.
                 s.elevationGain = record.GetAltitude();
             }
             s.time = QDateTime::fromSecsSinceEpoch(record.GetTimestamp() + 631065600L);
@@ -1462,24 +1507,24 @@ class Listener : public fit::FileIdMesgListener,
                 std::string fieldName = devField.GetName();
                 if (fieldName == "Activity Title") {
                     std::wstring wWorkoutName = devField.GetSTRINGValue(0);
-                    *workoutName = QString::fromStdWString(wWorkoutName);
-                    printf("   Found Activity Title: %s\n", workoutName->toStdString().c_str());
+                    *workoutName = fromFitString(wWorkoutName);
+                    printf("   Found Activity Title: %s\n", qUtf8Printable(*workoutName));
                 } else if (fieldName == "Workout Source" && workoutSource != nullptr) {
                     std::wstring wWorkoutSource = devField.GetSTRINGValue(0);
-                    *workoutSource = QString::fromStdWString(wWorkoutSource);
-                    printf("   Found Workout Source: %s\n", workoutSource->toStdString().c_str());
+                    *workoutSource = fromFitString(wWorkoutSource);
+                    printf("   Found Workout Source: %s\n", qUtf8Printable(*workoutSource));
                 } else if (fieldName == "Peloton Workout ID" && pelotonWorkoutId != nullptr) {
                     std::wstring wPelotonWorkoutId = devField.GetSTRINGValue(0);
-                    *pelotonWorkoutId = QString::fromStdWString(wPelotonWorkoutId);
-                    printf("   Found Peloton Workout ID: %s\n", pelotonWorkoutId->toStdString().c_str());
+                    *pelotonWorkoutId = fromFitString(wPelotonWorkoutId);
+                    printf("   Found Peloton Workout ID: %s\n", qUtf8Printable(*pelotonWorkoutId));
                 } else if (fieldName == "Peloton URL" && pelotonUrl != nullptr) {
                     std::wstring wPelotonUrl = devField.GetSTRINGValue(0);
-                    *pelotonUrl = QString::fromStdWString(wPelotonUrl);
-                    printf("   Found Peloton URL: %s\n", pelotonUrl->toStdString().c_str());
+                    *pelotonUrl = fromFitString(wPelotonUrl);
+                    printf("   Found Peloton URL: %s\n", qUtf8Printable(*pelotonUrl));
                 } else if (fieldName == "Training Program File" && trainingProgramFile != nullptr) {
                     std::wstring wTrainingProgramFile = devField.GetSTRINGValue(0);
-                    *trainingProgramFile = QString::fromStdWString(wTrainingProgramFile);
-                    printf("   Found Training Program File: %s\n", trainingProgramFile->toStdString().c_str());
+                    *trainingProgramFile = fromFitString(wTrainingProgramFile);
+                    printf("   Found Training Program File: %s\n", qUtf8Printable(*trainingProgramFile));
                 } else if (fieldName == "Instructor Name" || fieldName == "Coach Name") {
                     // Future: handle instructor name if needed
                     printf("   Found Instructor/Coach field: %s\n", fieldName.c_str());
@@ -1512,7 +1557,7 @@ void qfit::open(const QString &filename, QList<SessionLine> *output, FIT_SPORT *
 #endif
 
     if (!file.is_open()) {
-        std::system_error(errno, std::system_category(), "failed to open " + filename.toStdString());
+        std::system_error(errno, std::system_category(), std::string("failed to open ") + filename.toUtf8().constData());
         qDebug() << "opened " << filename << errno;
         printf("Error opening file ExampleActivity.fit\n");
         return;

@@ -11,9 +11,9 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
 @objc public class virtualbike_zwift: NSObject {
     private var peripheralManager: BLEPeripheralManagerZwift!
     
-    @objc public init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool, zwift_play_emulator: Bool, watt_bike_emulator: Bool) {
+    @objc public init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool, zwift_play_emulator: Bool, watt_bike_emulator: Bool, tacx: Bool) {
       super.init()
-      peripheralManager = BLEPeripheralManagerZwift(disable_hr: disable_hr, garmin_bluetooth_compatibility: garmin_bluetooth_compatibility, zwift_play_emulator: zwift_play_emulator, watt_bike_emulator: watt_bike_emulator)
+      peripheralManager = BLEPeripheralManagerZwift(disable_hr: disable_hr, garmin_bluetooth_compatibility: garmin_bluetooth_compatibility, zwift_play_emulator: zwift_play_emulator, watt_bike_emulator: watt_bike_emulator, tacx: tacx)
     }
     
     @objc public func updateHeartRate(HeartRate: UInt8)
@@ -59,10 +59,20 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
         peripheralManager.LastFTMSMessageReceived?.removeAll()
         return peripheralManager.LastFTMSMessageReceivedAndPassed
     }
+
+    // the latest load command (inclination, resistance level, target power, simulation) written to the control point
+    // since the previous call, nil if none arrived: getLastFTMSMessage() keeps
+    // only the first unread frame, so a newer command written before the next tick only shows up here
+    @objc public func getLatestFTMSMessage() -> Data? {
+        let latest = peripheralManager.LatestFTMSMessageUnread
+        peripheralManager.LatestFTMSMessageUnread = nil
+        return latest
+    }
 }
 
 class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   private var garmin_bluetooth_compatibility: Bool = false
+  private var tacx: Bool = false
   private var zwift_play_emulator: Bool = false
   private var watt_bike_emulator: Bool = false
     private var disable_hr: Bool = false
@@ -114,6 +124,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     
     public var LastFTMSMessageReceived: Data?
     public var LastFTMSMessageReceivedAndPassed: Data?
+    public var LatestFTMSMessageUnread: Data?
     
     public var serviceToggle: UInt8 = 0
     
@@ -128,9 +139,11 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   let SwiftDebug = swiftDebug()
   //var delegate: BLEPeripheralManagerDelegate?
 
-  init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool, zwift_play_emulator: Bool, watt_bike_emulator: Bool) {
+
+  init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool, zwift_play_emulator: Bool, watt_bike_emulator: Bool, tacx: Bool) {
     super.init()
     self.disable_hr = disable_hr
+    self.tacx = tacx
     self.garmin_bluetooth_compatibility = garmin_bluetooth_compatibility
     self.zwift_play_emulator = zwift_play_emulator
     self.watt_bike_emulator = watt_bike_emulator
@@ -354,6 +367,10 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
           let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
                                 CBAdvertisementDataServiceUUIDsKey: [PowerServiceUUID]] as [String : Any]
           peripheralManager.startAdvertising(advertisementData)
+      } else if(tacx) {
+          let advertisementData = [CBAdvertisementDataLocalNameKey: "Tacx Neo 17867",
+                                CBAdvertisementDataServiceUUIDsKey: [PowerServiceUUID, CSCServiceUUID]] as [String : Any]
+          peripheralManager.startAdvertising(advertisementData)
       } else if(disable_hr) {
           // useful in order to hide HR from Garmin devices
           let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
@@ -409,6 +426,10 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     if requests.first!.characteristic == self.FitnessMachineControlPointCharacteristic {        
         if(LastFTMSMessageReceived == nil || LastFTMSMessageReceived?.count == 0) {
             LastFTMSMessageReceived = requests.first!.value
+        }
+        // only commands that set the load: a start (0x07) or a request control (0x00) right after a grade must not hide it
+        if let code = requests.first!.value?.first, code == 0x03 || code == 0x04 || code == 0x05 || code == 0x11 {
+            LatestFTMSMessageUnread = requests.first!.value
         }
         if(requests.first!.value?.first == 0x11)
         {
@@ -520,6 +541,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
           slope[0] = UInt8(Int16(self.CurrentSlope) & 0xFF)
           slope[1] = UInt8((Int16(self.CurrentSlope) >> 8) & 0x00FF)
           LastFTMSMessageReceived = Data([0x11, 0x69, 0x01, slope[0], slope[1], 0x32, 0x28])
+          LatestFTMSMessageUnread = LastFTMSMessageReceived
           
           do {
               let response = try ZwiftHubBike.ridingData(power: UInt32(self.CurrentWatt), cadence: UInt32(self.CurrentCadence / 2), speed: 0, HR: UInt32(self.heartRate), unkown1: self.calculateUnknown1(power: self.CurrentWatt), unkown2: 0)
@@ -583,6 +605,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         let (power, _)  = decodeVarint(protobuf, startIndex: 0)
         self.PowerRequested = (Double)(power);
         LastFTMSMessageReceived = Data([0x05, UInt8(UInt16(power) & 0xff), UInt8(((UInt16(power) & 0xff00) >> 8) & 0x00ff)])
+        LatestFTMSMessageUnread = LastFTMSMessageReceived
           
           do {
               let response = try ZwiftHubBike.ridingData(power: UInt32(power), cadence: UInt32(self.CurrentCadence / 2), speed: Double(self.NormalizeSpeed) / 100.0, HR: UInt32(self.heartRate), unkown1: self.calculateUnknown1(power: self.CurrentWatt), unkown2: 0)

@@ -36,6 +36,20 @@ class AbstractServer;
 class QMDNSENGINE_EXPORT HostnamePrivate;
 
 /**
+ * @brief Address families a %Hostname publishes and answers queries for
+ *
+ * A DIRCON client resolves the SRV target with an ordinary resolver and
+ * connects to whatever address comes back. QZ's DIRCON server listens on IPv4
+ * only, so answering AAAA hands out a link-local address that nothing is
+ * bound to - MyWhoosh picked it and sat in SYN_SENT until the connect timed
+ * out. Publish only what the service actually accepts.
+ *
+ * Scoped rather than a bool so it cannot swallow the QObject* parent argument
+ * of the neighbouring overload through pointer-to-bool conversion.
+ */
+enum class HostnameAddressFamily { IPv4AndIPv6, IPv4Only };
+
+/**
  * @brief %Hostname reserved for exclusive use
  *
  * In order to provide services on the local network, a unique hostname must
@@ -63,6 +77,14 @@ class QMDNSENGINE_EXPORT Hostname : public QObject {
      * @brief Create a new hostname with desired value to register
      */
     Hostname(AbstractServer *server, const QByteArray &desired, QObject *parent = 0);
+
+    /**
+     * @brief Create a new hostname restricted to a single address family
+     *
+     * Use HostnameAddressFamily::IPv4Only when the service behind this
+     * hostname does not listen on IPv6.
+     */
+    Hostname(AbstractServer *server, const QByteArray &desired, HostnameAddressFamily family, QObject *parent = 0);
 
     /**
      * @brief Determine if a hostname has been registered

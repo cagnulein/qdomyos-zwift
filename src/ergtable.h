@@ -86,9 +86,10 @@ class ergTable : public QObject {
         loadSettings();
     }
 
-    ~ergTable() {
-        saveSettings();
-    }
+    // No save here: every change is already saved when it happens. Every bluetoothdevice owns an
+    // ergTable (heart rate belts and sensors too), so saving in the destructor let a copy loaded at
+    // startup overwrite the points the bike learned during the session.
+    ~ergTable() {}
 
     void reset() {
         wattageData.clear();
@@ -281,6 +282,11 @@ class ergTable : public QObject {
         for (int i = consolidatedData.size() - 1; i >= 0; --i) {
             if (consolidatedData[i].cadence == pair.cadence &&
                 consolidatedData[i].resistance == pair.resistance) {
+                // This runs on every metrics update once a pair has enough samples; when the median
+                // did not move there is nothing to update, and rewriting the settings file would
+                // only cost I/O on the main thread.
+                if (consolidatedData[i].wattage == medianWattage)
+                    return;
                 consolidatedData.removeAt(i);
                 break;
             }
@@ -288,6 +294,7 @@ class ergTable : public QObject {
 
         // Add new point
         consolidatedData.append(ergDataPoint(pair.cadence, medianWattage, pair.resistance));
+
         qDebug() << "Added/Updated point:"
                  << "C:" << pair.cadence
                  << "W:" << medianWattage

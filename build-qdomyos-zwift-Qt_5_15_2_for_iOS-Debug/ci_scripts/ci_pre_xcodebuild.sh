@@ -175,6 +175,8 @@ if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
     sed -i '' 's|/Users/cagnulein/Qt/5\.15\.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
     sed -i '' 's|../../Qt/5\.15\.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
     sed -i '' 's|../Qt/5\.15\.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
+    sed -i '' 's|"/Users/cagnulein/Qt/5\.15\.2/ios"|"/tmp/Qt-5.15.2/ios"|g' qdomyoszwift.xcodeproj/project.pbxproj
+    sed -i '' 's|"/Users/cagnulein/Qt/5\.15\.2/ios-simulator-arm64"|"/tmp/Qt-5.15.2/ios"|g' qdomyoszwift.xcodeproj/project.pbxproj
 
     # 2. Fix source file paths to relative (must be before general fix)
     sed -i '' 's|/Users/cagnulein/qdomyos-zwift/src/|../src/|g' qdomyoszwift.xcodeproj/project.pbxproj
@@ -213,6 +215,22 @@ if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
     sed -i '' 's|-l\([a-zA-Z0-9_]*\)_debug|-l\1|g' qdomyoszwift.xcodeproj/project.pbxproj
     echo "Replaced all _debug library references with release versions"
 
+    # The UIScene delegate is registered through Objective-C runtime metadata.
+    # Force-load the patched QPA so the linker cannot dead-strip it.
+    QIOS_FORCE_LOAD_FLAG="-Wl,-force_load,/tmp/Qt-5.15.2/ios/plugins/platforms/libqios.a"
+    QIOS_FORCE_LOAD_QT_FLAG='"-Wl,-force_load,$(QZ_QT_ROOT)/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a",'
+    if ! grep -Fq -e "$QIOS_FORCE_LOAD_FLAG" qdomyoszwift.xcodeproj/project.pbxproj && \
+       ! grep -Fq -e "$QIOS_FORCE_LOAD_QT_FLAG" qdomyoszwift.xcodeproj/project.pbxproj; then
+        awk -v flag="$QIOS_FORCE_LOAD_FLAG" '
+            { print }
+            /"-Wl,-e,_qt_main_wrapper",/ {
+                print "\t\t\t\t\t\"" flag "\",";
+            }
+        ' qdomyoszwift.xcodeproj/project.pbxproj > qdomyoszwift.xcodeproj/project.pbxproj.qz_tmp
+        mv qdomyoszwift.xcodeproj/project.pbxproj.qz_tmp qdomyoszwift.xcodeproj/project.pbxproj
+        echo "Added force-load for the patched qios plugin"
+    fi
+
     # Add ALL necessary Qt library search paths
     # qmake generates these but they might be missing from the committed project
     echo "Adding all Qt library search paths..."
@@ -237,9 +255,16 @@ cd "$PROJECT_ROOT/src"
 
 # Copy all generated files (cpp, o, json, a) but exclude directories
 echo "Looking for generated files in: $(pwd)"
-find . -maxdepth 1 -type f \( -name "moc_*.cpp" -o -name "moc_*.cpp.json" -o -name "qrc_*.cpp" -o -name "*.o" -o -name "*.a" -o -name "*_qmltyperegistrations.*" -o -name "*.qmltypes" -o -name "*_metatypes.json" -o -name "*_plugin_import.cpp" \) -print -exec cp {} "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/" \;
+find . -maxdepth 1 -type f \( -name "moc_*.cpp" -o -name "moc_*.cpp.json" -o -name "qrc_*.cpp" -o -name "*.o" -o -name "*.a" -o -name "*_qmltyperegistrations.*" -o -name "*.qmltypes" -o -name "*_metatypes.json" -o -name "*_plugin_import.cpp" -o -name "qmlcache_*.cpp" -o -name "*_qmlcache_loader.cpp" \) -print -exec cp {} "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/" \;
 
 echo "Generated files copied to build directory"
+
+# The settings pages compiled at build time (qmlcachegen, qdomyos-zwift.pri); the Xcode project
+# compiles these three files
+echo "Verifying the compiled settings pages exist:"
+ls -la "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/"qmlcache_settings_qml.cpp \
+       "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/"qmlcache_settings-tiles_qml.cpp \
+       "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/"settings_qmlcache_loader.cpp 2>&1
 
 # CRITICAL FIX: Rename qdomyos-zwift_qmltyperegistrations.cpp to qdomyoszwift_qmltyperegistrations.cpp
 # qmake generates the file with a hyphen but Xcode project expects it without hyphen

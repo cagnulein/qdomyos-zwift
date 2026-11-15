@@ -14,24 +14,21 @@ CharacteristicWriteProcessor2AD9::CharacteristicWriteProcessor2AD9(double bikeRe
 int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArray &data, QByteArray &reply) {
     if (data.size()) {
         BLUETOOTH_TYPE dt = Bike->deviceType();
+        QSettings settings;
+        char cmd = data.at(0);
+        if (cmd == FTMS_SET_TARGET_POWER) {
+            settings.setValue(QZSettings::zwift_erg, true);
+        } else if (cmd == FTMS_SET_TARGET_INCLINATION ||
+                   cmd == FTMS_SET_TARGET_RESISTANCE_LEVEL ||
+                   cmd == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
+            settings.setValue(QZSettings::zwift_erg, false);
+        }
         if (dt == BIKE || dt == ROWING) {
-            QSettings settings;
-            bool force_resistance =
-                settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance)
-                    .toBool();
-            bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
-            char cmd = data.at(0);
             emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(), data);
             if (cmd == FTMS_SET_TARGET_RESISTANCE_LEVEL) {
 
                 // Set Target Resistance
-                resistance_t uresistance = data.at(1);
-                uresistance = uresistance / 10;
-                if (force_resistance && !erg_mode) {
-                    Bike->changeResistance(uresistance);
-                }
-                qDebug() << QStringLiteral("new requested resistance ") + QString::number(uresistance) +
-                                QStringLiteral(" enabled ") + force_resistance;
+                changeResistanceLevel(data.at(1));
                 reply.append((quint8)FTMS_RESPONSE_CODE);
                 reply.append((quint8)FTMS_SET_TARGET_RESISTANCE_LEVEL);
                 reply.append((quint8)FTMS_SUCCESS);
@@ -56,7 +53,7 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
                 reply.append((quint8)FTMS_SUCCESS);
 
                 uint16_t power = (((uint8_t)data.at(1)) + (data.at(2) << 8));
-                changePower(power);
+                changePowerFromApp(power);
             } else if (cmd == FTMS_START_RESUME) {
                 qDebug() << QStringLiteral("start simulation!");
 
@@ -85,7 +82,9 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
         } else if (dt == TREADMILL || dt == ELLIPTICAL) {
             // Forward FTMS writes (including Start/Stop) to listeners for treadmill/elliptical devices.
             emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(), data);
-            char a, b;
+            // Target values are little-endian bytes, including high-bit speed
+            // fractions and signed inclination. Do not sign-extend the low byte.
+            uint8_t a, b;
             if ((char)data.at(0) == 0x02) {
                 // Set Target Speed
                 a = data.at(1);
@@ -141,4 +140,22 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
         return CP_OK;
     } else
         return CP_INVALID;
+}
+
+void CharacteristicWriteProcessor2AD9::changeResistanceLevel(resistance_t level) {
+    QSettings settings;
+    bool force_resistance =
+        settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance)
+            .toBool();
+    bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
+    resistance_t uresistance = level / 10;
+    if (force_resistance && !erg_mode) {
+        if (Bike->deviceType() == BIKE) {
+            ((bike *)Bike)->changeResistanceFromApp(uresistance);
+        } else {
+            Bike->changeResistance(uresistance);
+        }
+    }
+    qDebug() << QStringLiteral("new requested resistance ") + QString::number(uresistance) +
+                    QStringLiteral(" enabled ") + force_resistance;
 }

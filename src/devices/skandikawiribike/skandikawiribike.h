@@ -45,6 +45,7 @@ class skandikawiribike : public bike {
   private:
     resistance_t max_resistance = 32;
     resistance_t min_resistance = 1;
+    resistance_t lastEffectiveResistance = -1;
 
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(QByteArray packet);

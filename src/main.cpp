@@ -8,6 +8,9 @@
 #include "EventHandler.h"
 #endif
 #endif
+#ifdef Q_OS_ANDROID
+#include <unistd.h> // _exit
+#endif
 #include <QQmlContext>
 #include <QTranslator>
 #include <QLocale>
@@ -22,6 +25,7 @@
 #include <QGuiApplication>
 #include <QFileOpenEvent>
 #include <QEvent>
+#include <QLoggingCategory>
 #include <QOperatingSystemVersion>
 #include <QQmlApplicationEngine>
 #include <QSettings>
@@ -38,7 +42,28 @@
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#include <QAccessible>
+#include <QAndroidJniEnvironment>
+#include <QAndroidJniObject>
+#include <QKeyEvent>
+#include <QQuickItem>
+#include <QQuickWindow>
+#include <QSemaphore>
+#include <QSharedPointer>
+#include <QThread>
+#include <QTimer>
 #include <QtAndroid>
+#include <QtMath>
+#include <QVector>
+#include <QWindow>
+#include <jni.h>
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 9)
+#include <QtCore/private/qjni_p.h>
+#include <QtGui/private/qguiapplication_p.h>
+#include <QtGui/private/qhighdpiscaling_p.h>
+#include <qpa/qplatformaccessibility.h>
+#include <qpa/qplatformintegration.h>
+#endif
 #endif
 
 #ifdef Q_OS_MACOS
@@ -498,14 +523,20 @@ void initializeLogThread() {
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
 
-    QSettings settings;
-    static bool logdebug = settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
+    // QSettings only for the first call: this runs for every log line, even with the debug log off
+    static bool logdebug =
+        QSettings().value(QZSettings::log_debug, QZSettings::default_log_debug).toBool() || homeform::firstSetupLog;
 #if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
     if ( (logs == false && !forceQml) || (logdebug == false && forceQml))
 #else
     if (logdebug == false)
 #endif
+    {
+        // Qt aborts after a fatal message: print it even with the log off
+        if (type == QtFatalMsg)
+            (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
         return;
+    }
 
     // QByteArray localMsg = msg.toLocal8Bit(); // NOTE: clazy-unused-non-trivial-variable
     const char *file = context.file ? context.file : "";
@@ -527,6 +558,10 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         break;
     case QtFatalMsg:
         txt += QStringLiteral("Fatal: %1 %2 %3\n").arg(file, function, msg); // NOTE: clazy-qstring-arg
+        // the log thread would not get to this line before the abort: write it here
+        if (logs == true || logdebug == true)
+            LogWriter().writeLog(homeform::getWritableAppDir() + logfilename, txt);
+        (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
         abort();
     }
 
@@ -546,6 +581,708 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     }
     (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
 }
+
+#ifdef Q_OS_ANDROID
+// Android scrolls its own lists to the item TalkBack moves to, Qt 5.15 does not: TalkBack would
+// stop on an item below the screen, draw its frame there and miss it with a double tap. Each
+// Flickable around the item (a ScrollView, a ListView in it) is scrolled just enough to show it.
+static bool scrollItemIntoView(QQuickItem *item) {
+    bool scrolled = false;
+    for (QQuickItem *flickable = item->parentItem(); flickable; flickable = flickable->parentItem()) {
+        if (!flickable->inherits("QQuickFlickable") || !flickable->property("interactive").toBool())
+            continue;
+        const QRectF rect = item->mapRectToItem(flickable, QRectF(0, 0, item->width(), item->height()));
+        const qreal height = flickable->height();
+        // as Android's ScrollView: an item that already covers the whole view stays where it is,
+        // one taller than the view is shown from its top
+        qreal delta = 0;
+        if (rect.top() < 0 && rect.bottom() <= height)
+            delta = rect.top();
+        else if (rect.top() > 0 && rect.bottom() > height)
+            delta = qMin(rect.bottom() - height, rect.top());
+        if (delta == 0)
+            continue;
+        const qreal contentY = flickable->property("contentY").toReal();
+        const qreal originY = flickable->property("originY").toReal();
+        const qreal top = originY - flickable->property("topMargin").toReal();
+        const qreal bottom = originY + flickable->property("contentHeight").toReal() +
+                             flickable->property("bottomMargin").toReal() - height;
+        const qreal target = qMax(top, qMin(contentY + delta, bottom));
+        if (target != contentY) {
+            flickable->setProperty("contentY", target);
+            scrolled = true;
+        }
+    }
+    return scrolled;
+}
+
+// CustomQtActivity: TalkBack put its focus on this accessible object (Android UI thread)
+extern "C" JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeScrollToAccessibleObject(JNIEnv *env, jclass clazz, jint id) {
+    Q_UNUSED(env)
+    Q_UNUSED(clazz)
+    if (!QCoreApplication::instance())
+        return;
+    QMetaObject::invokeMethod(
+        QCoreApplication::instance(),
+        [id] {
+            QAccessibleInterface *iface = QAccessible::accessibleInterface(QAccessible::Id(id));
+            QQuickItem *item = iface && iface->isValid() ? qobject_cast<QQuickItem *>(iface->object()) : nullptr;
+            if (item && item->isVisible() && scrollItemIntoView(item))
+                QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity",
+                                                          "accessibilityTreeChanged", "()V");
+        },
+        Qt::QueuedConnection);
+}
+
+// The space key a keyboard presses a Qt Quick Controls button with (Qt thread)
+static void pressWithSpace(QQuickItem *button) {
+    QKeyEvent press(QEvent::KeyPress, Qt::Key_Space, Qt::NoModifier, QStringLiteral(" "));
+    QKeyEvent release(QEvent::KeyRelease, Qt::Key_Space, Qt::NoModifier, QStringLiteral(" "));
+    QCoreApplication::sendEvent(button, &press);
+    QCoreApplication::sendEvent(button, &release);
+}
+
+// How TalkBack's double tap presses an accessible object (Qt thread). A Qt Quick Controls button
+// gets the space key a keyboard presses it with (nextCheckState() with exclusive groups, clicked(),
+// its Action): QQuickAbstractButton has no accessible press in Qt 5.15, and Qt's press action
+// would run its Accessible.onPressAction, or flip the checked of a switch, even when it is disabled
+// or hidden, though a finger's tap on it does nothing; so a button that is disabled or hidden is not
+// pressed. Anything else (e.g. a Rectangle or a MouseArea with Accessible.onPressAction) gets its
+// press action, or else its toggle action, as Qt does since 5.15.3 and 6.0.1 (qtbase fd20bc2277,
+// QTBUG-79611), whatever its state, as in Qt 6 and as Qt 5.15.0 ran it: the Bluetooth icon of the
+// home page, on the screen, is hidden by Qt 5.15's state() and hidden or disabled by
+// QQuickItem::isVisible()/isEnabled() on every emulator API level, so such a check would leave its
+// press to TalkBack's tap. As in Qt 6, a role that has a press of its own (Button, CheckBox,
+// RadioButton) lists it without a handler too, and such an object is "pressed" with no handler
+// run: any other item given such a role needs Accessible.onPressAction (or onToggleAction).
+enum class ClickKind { None, Key, Press, Toggle };
+
+static ClickKind clickKind(QAccessibleInterface *iface) {
+    if (!iface || !iface->isValid() || !iface->actionInterface())
+        return ClickKind::None;
+    QQuickItem *item = qobject_cast<QQuickItem *>(iface->object());
+    if (item && item->inherits("QQuickAbstractButton"))
+        return item->isVisible() && item->isEnabled() ? ClickKind::Key : ClickKind::None;
+    const QStringList actions = iface->actionInterface()->actionNames();
+    if (actions.contains(QAccessibleActionInterface::pressAction()))
+        return ClickKind::Press;
+    if (actions.contains(QAccessibleActionInterface::toggleAction()))
+        return ClickKind::Toggle;
+    return ClickKind::None;
+}
+
+static void runClick(QAccessibleInterface *iface, ClickKind kind) {
+    if (kind == ClickKind::Key) {
+        if (QQuickItem *button = qobject_cast<QQuickItem *>(iface->object()))
+            pressWithSpace(button);
+    } else if (kind != ClickKind::None) {
+        iface->actionInterface()->doAction(kind == ClickKind::Press ? QAccessibleActionInterface::pressAction()
+                                                                    : QAccessibleActionInterface::toggleAction());
+    }
+}
+
+// CustomQtActivity: TalkBack's double tap on this accessible object (Android UI thread). Qt 5.15.0
+// runs the press of an object that is not a button and answers false even so, and does nothing for
+// a button and answers false; on false TalkBack taps the middle of the node too: such an object was
+// pressed twice (a settings section opened its page twice), and the tap misses the indicator of a
+// switch with a MouseArea over it (IndicatorOnlySwitch) and may hit something else on a moved page.
+// Here the object is pressed as clickKind() says and true is answered; with nothing to press, false
+// is answered and TalkBack's tap is the press. CustomQtActivity then sends the clicked event itself
+// (when the node is still there), later, so Qt's performAction() (clickAction() below) and the read
+// of the description Qt's Java part makes on true are not reached.
+// The object is looked up and pressed on the Qt thread, where QML items are created and destroyed
+// (as Qt 6 does with runInObjectContext()), right after each other in the same call, so the object
+// found is the one pressed; this thread waits only for the lookup, not for what the press runs.
+// Qt 5.15 has no guard against a Qt thread that waits for this one, so the wait is limited: when the
+// Qt thread is busy that long, nothing is pressed (not later either), false is answered and
+// TalkBack's tap is the only press. 3 s: the Qt thread can be busy for well over a second while a
+// device connects, and Android waits 5 s for the answer to an accessibility action, counted from
+// TalkBack's request (the Android UI thread may still be busy with something else then), after which
+// it takes the answer as false and TalkBack would tap too (Qt 6 waits with no limit).
+extern "C" JNIEXPORT jboolean JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeAccessibleClick(JNIEnv *env, jclass clazz, jint id) {
+    Q_UNUSED(env)
+    Q_UNUSED(clazz)
+    if (!QCoreApplication::instance())
+        return false;
+    struct Click {
+        QSemaphore found;
+        QAtomicInt state; // 0 waiting, 1 started on the Qt thread, 2 given up by this thread
+        ClickKind kind = ClickKind::None;
+    };
+    const QSharedPointer<Click> pending = QSharedPointer<Click>::create();
+    QMetaObject::invokeMethod(
+        QCoreApplication::instance(),
+        [pending, id] {
+            if (!pending->state.testAndSetOrdered(0, 1))
+                return;
+            QAccessibleInterface *iface = QAccessible::accessibleInterface(QAccessible::Id(id));
+            const ClickKind kind = clickKind(iface);
+            pending->kind = kind;
+            pending->found.release();
+            runClick(iface, kind);
+        },
+        Qt::QueuedConnection);
+    if (!pending->found.tryAcquire(1, 3000)) {
+        if (pending->state.testAndSetOrdered(0, 2))
+            return false;
+        // started just now: the lookup does not wait for this thread
+        pending->found.acquire();
+    }
+    return pending->kind != ClickKind::None;
+}
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 9)
+// Qt 5.15 runs the functions its accessibility layer gives Java (QtNativeAccessibility) on the
+// Android UI thread, while the QML items and accessible interfaces they read are made and
+// destroyed on the Qt thread. A screen reader that reads a page Qt is building or removing (the
+// settings of the tiles: some 90 items) crashes QZ (QTBUG-95764; here in QAccessibleCache), and
+// turning accessibility on while QZ is open makes Qt Quick objects on the wrong thread
+// (QTBUG-144911). Qt runs them on the Qt thread since 6.2.4 and 5.15.9 (qtbase e0c61193ea), and
+// setActive() too since 6.8.10 (4708e204c2). Here they are registered over Qt's own: the code of
+// Qt 5.15.0's androidjniaccessibility.cpp, with what touches Qt objects moved to the Qt thread.
+// Unlike Qt 6 the wait is limited, as for nativeAccessibleClick() above: Qt 5.15.0's accessibility
+// layer takes no guard against a Qt thread that waits for the Android UI thread (QTBUG-105958; Qt 6
+// also skips the wait while the event loop is stopped, QTBUG-102594, which QZ's manifest turns off
+// with android.app.background_running). After 2 s a read gives up with the answer for an object
+// that is gone, the next reads answer that at once until the Qt thread runs again, and then
+// TalkBack is told to read the tree anew. A press or scroll waits for the lookup only, not for
+// what it runs (the event Qt's Java part sends after it reads the object, after what it runs).
+namespace androidAccessibility {
+
+static QAtomicInt qtThreadStuck; // 1 after a read gave up, until the Qt thread runs again
+
+// The result of func run on the Qt thread, or fallback when that thread did not start it within
+// 2 s (neither func nor after is run then). after(result) runs on the Qt thread once the result is
+// given, in the same call, so nothing else runs there in between (a press right after its lookup);
+// the calling thread does not wait for it. On the Qt thread both are run directly.
+template <typename T, typename Func, typename After>
+static T runOnQtThread(const T &fallback, Func func, After after) {
+    QCoreApplication *app = QCoreApplication::instance();
+    if (!app)
+        return fallback;
+    if (QThread::currentThread() == app->thread()) {
+        const T result = func();
+        after(result);
+        return result;
+    }
+    if (qtThreadStuck.loadAcquire())
+        return fallback;
+    struct Call {
+        QSemaphore done;
+        QAtomicInt state; // 0 waiting, 1 started on the Qt thread, 2 given up by this thread
+        T result;
+    };
+    const QSharedPointer<Call> call = QSharedPointer<Call>::create();
+    call->result = fallback;
+    QMetaObject::invokeMethod(
+        app,
+        [call, func, after] {
+            if (!call->state.testAndSetOrdered(0, 1))
+                return;
+            const T result = func();
+            call->result = result;
+            call->done.release();
+            after(result);
+        },
+        Qt::QueuedConnection);
+    if (!call->done.tryAcquire(1, 2000)) {
+        if (call->state.testAndSetOrdered(0, 2)) {
+            qtThreadStuck.storeRelease(1);
+            qWarning() << "accessibility: the Qt thread did not answer in 2 s, answering empty until it runs";
+            // queued after the flag is set, so it is cleared once the Qt thread runs again; the
+            // empty answers given meanwhile are what TalkBack cached, so it reads the tree anew
+            QMetaObject::invokeMethod(
+                app,
+                [] {
+                    if (qtThreadStuck.fetchAndStoreOrdered(0) == 1 && QAccessible::isActive())
+                        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity",
+                                                                  "accessibilityTreeChanged", "()V");
+                },
+                Qt::QueuedConnection);
+            return fallback;
+        }
+        // started just now: a read of the accessibility tree does not wait for this thread
+        call->done.acquire();
+    }
+    return call->result;
+}
+
+template <typename T, typename Func> static T runOnQtThread(const T &fallback, Func func) {
+    return runOnQtThread(fallback, func, [](const T &) {});
+}
+
+// The rest runs on the Qt thread, unless said otherwise
+
+static QAccessibleInterface *interfaceFromId(jint objectId) {
+    if (objectId == -1) {
+        QWindow *window = QGuiApplication::focusWindow();
+        return window ? window->accessibleRoot() : nullptr;
+    }
+    return QAccessible::accessibleInterface(QAccessible::Id(objectId));
+}
+
+// QAccessibleBridgeUtils of Qt 5.15.0: a value control can be stepped up and down
+static QStringList effectiveActionNames(QAccessibleInterface *iface) {
+    QStringList actions;
+    if (QAccessibleActionInterface *actionIface = iface->actionInterface())
+        actions = actionIface->actionNames();
+    if (iface->valueInterface()) {
+        if (!actions.contains(QAccessibleActionInterface::increaseAction()))
+            actions << QAccessibleActionInterface::increaseAction();
+        if (!actions.contains(QAccessibleActionInterface::decreaseAction()))
+            actions << QAccessibleActionInterface::decreaseAction();
+    }
+    return actions;
+}
+
+static void performEffectiveAction(QAccessibleInterface *iface, const QString &actionName) {
+    if (QAccessibleActionInterface *actionIface = iface->actionInterface()) {
+        if (actionIface->actionNames().contains(actionName)) {
+            actionIface->doAction(actionName);
+            return;
+        }
+    }
+    QAccessibleValueInterface *valueIface = iface->valueInterface();
+    if (!valueIface)
+        return;
+    bool ok;
+    const QVariant current = valueIface->currentValue();
+    double step = valueIface->minimumStepSize().toDouble(&ok);
+    if (!ok || qFuzzyIsNull(step)) {
+        const double min = valueIface->minimumValue().toDouble(&ok);
+        if (!ok)
+            return;
+        const double max = valueIface->maximumValue().toDouble(&ok);
+        if (!ok)
+            return;
+        step = (max - min) / 10;
+        if (current.userType() != QMetaType::Float && current.userType() != QMetaType::Double)
+            step = qCeil(step);
+    }
+    const double value = current.toDouble(&ok);
+    if (!ok)
+        return;
+    if (actionName == QAccessibleActionInterface::decreaseAction())
+        step = -step;
+    valueIface->setCurrentValue(value + step);
+}
+
+static QString accessibleDescription(QAccessibleInterface *iface) {
+    QString description;
+    if (iface && iface->isValid()) {
+        description = iface->text(QAccessible::Name);
+        if (description.isEmpty())
+            description = iface->text(QAccessible::Description);
+        if (description.isEmpty()) {
+            description = iface->text(QAccessible::Value);
+            if (description.isEmpty()) {
+                if (QAccessibleValueInterface *valueIface = iface->valueInterface())
+                    description = valueIface->currentValue().toString();
+            }
+        }
+    }
+    return description;
+}
+
+// What populateNode() sets on an AccessibilityNodeInfo
+struct NodeData {
+    bool valid = false;
+    QString description;
+    bool hasSelection = false;
+    int selectionStart = 0;
+    int selectionEnd = 0;
+    bool enabled = false;
+    bool checkable = false;
+    bool checked = false;
+    bool focusable = false;
+    bool focused = false;
+    bool visible = false;
+    bool clickable = false;
+    bool increase = false;
+    bool decrease = false;
+};
+
+static NodeData nodeData(jint objectId) {
+    NodeData data;
+    QAccessibleInterface *iface = interfaceFromId(objectId);
+    if (!iface || !iface->isValid())
+        return data;
+    data.valid = true;
+    const QAccessible::State state = iface->state();
+    const QStringList actions = effectiveActionNames(iface);
+    data.clickable = actions.contains(QAccessibleActionInterface::pressAction()) ||
+                     actions.contains(QAccessibleActionInterface::toggleAction());
+    data.increase = actions.contains(QAccessibleActionInterface::increaseAction());
+    data.decrease = actions.contains(QAccessibleActionInterface::decreaseAction());
+    data.description = accessibleDescription(iface);
+    if (QAccessibleTextInterface *textIface = iface->textInterface()) {
+        if (textIface->selectionCount() > 0) {
+            data.hasSelection = true;
+            textIface->selection(0, &data.selectionStart, &data.selectionEnd);
+        }
+    }
+    data.enabled = !state.disabled;
+    data.checkable = state.checkable;
+    data.checked = state.checked;
+    data.focusable = state.focusable;
+    data.focused = state.focused;
+    data.visible = !state.invisible;
+    return data;
+}
+
+// Runs a press or a scroll later on the Qt thread, as the press of a finger would
+static void performLater(jint objectId, const QString &actionName) {
+    QMetaObject::invokeMethod(
+        QCoreApplication::instance(),
+        [objectId, actionName] {
+            QAccessibleInterface *iface = interfaceFromId(objectId);
+            if (iface && iface->isValid())
+                performEffectiveAction(iface, actionName);
+        },
+        Qt::QueuedConnection);
+}
+
+// The functions Java calls, on the Android UI thread
+
+static jclass rectClass = nullptr;
+static jmethodID rectConstructor = nullptr;
+static jmethodID addActionMethod = nullptr;
+static jmethodID setCheckableMethod = nullptr;
+static jmethodID setCheckedMethod = nullptr;
+static jmethodID setClickableMethod = nullptr;
+static jmethodID setContentDescriptionMethod = nullptr;
+static jmethodID setEnabledMethod = nullptr;
+static jmethodID setFocusableMethod = nullptr;
+static jmethodID setFocusedMethod = nullptr;
+static jmethodID setScrollableMethod = nullptr;
+static jmethodID setTextSelectionMethod = nullptr;
+static jmethodID setVisibleToUserMethod = nullptr;
+
+// Not waited for (Qt 6.8.10); on the Qt thread (restoreLostAccessibility()) it applies at once
+static void setActive(JNIEnv *, jclass, jboolean active) {
+    QCoreApplication *app = QCoreApplication::instance();
+    if (!app)
+        return;
+    const bool on = active;
+    const auto apply = [on] {
+        QPlatformIntegration *integration = QGuiApplicationPrivate::platformIntegration();
+        QPlatformAccessibility *accessibility = integration ? integration->accessibility() : nullptr;
+        if (accessibility)
+            accessibility->setActive(on);
+    };
+    if (QThread::currentThread() == app->thread())
+        apply();
+    else
+        QMetaObject::invokeMethod(app, apply, Qt::QueuedConnection);
+}
+
+static jintArray childIdListForAccessibleObject(JNIEnv *env, jclass, jint objectId) {
+    const QVector<jint> ids = runOnQtThread(QVector<jint>(), [objectId] {
+        QVector<jint> ids;
+        QAccessibleInterface *iface = interfaceFromId(objectId);
+        if (iface && iface->isValid()) {
+            const int count = iface->childCount();
+            for (int i = 0; i < count; ++i) {
+                QAccessibleInterface *child = iface->child(i);
+                if (child && child->isValid())
+                    ids.append(jint(QAccessible::uniqueId(child)));
+            }
+        }
+        return ids;
+    });
+    jintArray array = env->NewIntArray(jsize(ids.size()));
+    env->SetIntArrayRegion(array, 0, jsize(ids.size()), ids.constData());
+    return array;
+}
+
+static jint parentId(JNIEnv *, jclass, jint objectId) {
+    return runOnQtThread(jint(-1), [objectId] {
+        QAccessibleInterface *iface = interfaceFromId(objectId);
+        if (iface && iface->isValid()) {
+            QAccessibleInterface *parent = iface->parent();
+            if (parent && parent->isValid()) {
+                if (parent->role() == QAccessible::Application)
+                    return jint(-1);
+                return jint(QAccessible::uniqueId(parent));
+            }
+        }
+        return jint(-1);
+    });
+}
+
+static jstring descriptionForAccessibleObject(JNIEnv *env, jclass, jint objectId) {
+    const QString description =
+        runOnQtThread(QString(), [objectId] { return accessibleDescription(interfaceFromId(objectId)); });
+    return env->NewString(reinterpret_cast<const jchar *>(description.constData()), jsize(description.size()));
+}
+
+static jobject screenRect(JNIEnv *env, jclass, jint objectId) {
+    const QRect rect = runOnQtThread(QRect(), [objectId] {
+        QAccessibleInterface *iface = interfaceFromId(objectId);
+        if (iface && iface->isValid())
+            return QHighDpi::toNativePixels(iface->rect(), iface->window());
+        return QRect();
+    });
+    return env->NewObject(rectClass, rectConstructor, rect.left(), rect.top(), rect.right(), rect.bottom());
+}
+
+static jint hitTest(JNIEnv *, jclass, jfloat x, jfloat y) {
+    return runOnQtThread(jint(-1), [x, y] {
+        QAccessibleInterface *root = interfaceFromId(-1);
+        if (root && root->isValid()) {
+            const QPoint pos = QHighDpi::fromNativePixels(QPoint(int(x), int(y)), root->window());
+            QAccessibleInterface *child = root->childAt(pos.x(), pos.y());
+            QAccessibleInterface *lastChild = nullptr;
+            while (child && child != lastChild) {
+                lastChild = child;
+                child = child->childAt(pos.x(), pos.y());
+            }
+            if (lastChild)
+                return jint(QAccessible::uniqueId(lastChild));
+        }
+        return jint(-1);
+    });
+}
+
+// TalkBack's double tap, when CustomQtActivity does not answer it itself (Qt has set its
+// accessibility delegate, first or again, and CustomQtActivity has not wrapped it yet): pressed as
+// nativeAccessibleClick() does, right after the lookup in the same call, and true is answered
+// (Qt 5.15.0 answered false after the press too, and TalkBack tapped as well); with nothing to press, or the Qt thread busy for 2 s, false is
+// answered and nothing is pressed. On true Qt's Java part sends a clicked event with the
+// description of the object, and that read waits for the press, as in Qt 6.
+static jboolean clickAction(JNIEnv *, jclass, jint objectId) {
+    const ClickKind kind = runOnQtThread(
+        ClickKind::None, [objectId] { return clickKind(interfaceFromId(objectId)); },
+        [objectId](ClickKind found) {
+            QAccessibleInterface *iface = interfaceFromId(objectId);
+            if (found != ClickKind::None && iface && iface->isValid() && iface->actionInterface())
+                runClick(iface, found);
+        });
+    return kind != ClickKind::None;
+}
+
+static jboolean scroll(jint objectId, const QString &actionName) {
+    const bool scrollable = runOnQtThread(false, [objectId, actionName] {
+        QAccessibleInterface *iface = interfaceFromId(objectId);
+        return iface && iface->isValid() && effectiveActionNames(iface).contains(actionName);
+    });
+    if (scrollable)
+        performLater(objectId, actionName);
+    return scrollable;
+}
+
+static jboolean scrollForward(JNIEnv *, jclass, jint objectId) {
+    return scroll(objectId, QAccessibleActionInterface::increaseAction());
+}
+
+static jboolean scrollBackward(JNIEnv *, jclass, jint objectId) {
+    return scroll(objectId, QAccessibleActionInterface::decreaseAction());
+}
+
+static jboolean populateNode(JNIEnv *env, jclass, jint objectId, jobject node) {
+    const NodeData data = runOnQtThread(NodeData(), [objectId] { return nodeData(objectId); });
+    if (!data.valid)
+        return false;
+    if (data.hasSelection)
+        env->CallVoidMethod(node, setTextSelectionMethod, data.selectionStart, data.selectionEnd);
+    env->CallVoidMethod(node, setEnabledMethod, jboolean(data.enabled));
+    env->CallVoidMethod(node, setCheckableMethod, jboolean(data.checkable));
+    env->CallVoidMethod(node, setCheckedMethod, jboolean(data.checked));
+    env->CallVoidMethod(node, setFocusableMethod, jboolean(data.focusable));
+    env->CallVoidMethod(node, setFocusedMethod, jboolean(data.focused));
+    env->CallVoidMethod(node, setVisibleToUserMethod, jboolean(data.visible));
+    env->CallVoidMethod(node, setScrollableMethod, jboolean(data.increase || data.decrease));
+    env->CallVoidMethod(node, setClickableMethod, jboolean(data.clickable));
+    if (data.clickable)
+        env->CallVoidMethod(node, addActionMethod, jint(16)); // ACTION_CLICK
+    if (data.increase)
+        env->CallVoidMethod(node, addActionMethod, jint(4096)); // ACTION_SCROLL_FORWARD
+    if (data.decrease)
+        env->CallVoidMethod(node, addActionMethod, jint(8192)); // ACTION_SCROLL_BACKWARD
+    jstring description =
+        env->NewString(reinterpret_cast<const jchar *>(data.description.constData()), jsize(data.description.size()));
+    env->CallVoidMethod(node, setContentDescriptionMethod, description);
+    env->DeleteLocalRef(description);
+    return true;
+}
+
+// On the Qt thread in main(), once QApplication exists; Qt's own functions answer until then
+static void registerOverQt() {
+    QAndroidJniEnvironment env;
+    // a lookup that fails leaves an exception, and no JNI call may follow it: each is cleared at once
+    const auto findClass = [&env](const char *name) {
+        jclass found = env->FindClass(name);
+        if (env->ExceptionCheck()) {
+            env->ExceptionClear();
+            return jclass(nullptr);
+        }
+        return found;
+    };
+    const auto findMethod = [&env](jclass clazz, const char *name, const char *signature) {
+        jmethodID found = env->GetMethodID(clazz, name, signature);
+        if (env->ExceptionCheck()) {
+            env->ExceptionClear();
+            return jmethodID(nullptr);
+        }
+        return found;
+    };
+    jclass nativeClass =
+        QJNIEnvironmentPrivate::findClass("org/qtproject/qt5/android/accessibility/QtNativeAccessibility", env);
+    if (env->ExceptionCheck())
+        env->ExceptionClear();
+    jclass nodeClass = findClass("android/view/accessibility/AccessibilityNodeInfo");
+    jclass rect = findClass("android/graphics/Rect");
+    if (!nativeClass || !nodeClass || !rect) {
+        qWarning() << "accessibility: Qt's accessibility classes not found, its functions stay on the Android UI thread";
+        return;
+    }
+    rectClass = static_cast<jclass>(env->NewGlobalRef(rect));
+    rectConstructor = findMethod(rect, "<init>", "(IIII)V");
+    addActionMethod = findMethod(nodeClass, "addAction", "(I)V");
+    setCheckableMethod = findMethod(nodeClass, "setCheckable", "(Z)V");
+    setCheckedMethod = findMethod(nodeClass, "setChecked", "(Z)V");
+    setClickableMethod = findMethod(nodeClass, "setClickable", "(Z)V");
+    setContentDescriptionMethod = findMethod(nodeClass, "setContentDescription", "(Ljava/lang/CharSequence;)V");
+    setEnabledMethod = findMethod(nodeClass, "setEnabled", "(Z)V");
+    setFocusableMethod = findMethod(nodeClass, "setFocusable", "(Z)V");
+    setFocusedMethod = findMethod(nodeClass, "setFocused", "(Z)V");
+    setScrollableMethod = findMethod(nodeClass, "setScrollable", "(Z)V");
+    setTextSelectionMethod = findMethod(nodeClass, "setTextSelection", "(II)V");
+    setVisibleToUserMethod = findMethod(nodeClass, "setVisibleToUser", "(Z)V");
+    env->DeleteLocalRef(nodeClass);
+    env->DeleteLocalRef(rect);
+    if (!rectConstructor || !addActionMethod || !setCheckableMethod || !setCheckedMethod || !setClickableMethod ||
+        !setContentDescriptionMethod || !setEnabledMethod || !setFocusableMethod || !setFocusedMethod ||
+        !setScrollableMethod || !setTextSelectionMethod || !setVisibleToUserMethod) {
+        qWarning() << "accessibility: a method of AccessibilityNodeInfo not found, Qt's functions stay on the Android UI thread";
+        return;
+    }
+    static const JNINativeMethod methods[] = {
+        {"setActive", "(Z)V", reinterpret_cast<void *>(setActive)},
+        {"childIdListForAccessibleObject", "(I)[I", reinterpret_cast<void *>(childIdListForAccessibleObject)},
+        {"parentId", "(I)I", reinterpret_cast<void *>(parentId)},
+        {"descriptionForAccessibleObject", "(I)Ljava/lang/String;",
+         reinterpret_cast<void *>(descriptionForAccessibleObject)},
+        {"screenRect", "(I)Landroid/graphics/Rect;", reinterpret_cast<void *>(screenRect)},
+        {"hitTest", "(FF)I", reinterpret_cast<void *>(hitTest)},
+        {"populateNode", "(ILandroid/view/accessibility/AccessibilityNodeInfo;)Z", reinterpret_cast<void *>(populateNode)},
+        {"clickAction", "(I)Z", reinterpret_cast<void *>(clickAction)},
+        {"scrollForward", "(I)Z", reinterpret_cast<void *>(scrollForward)},
+        {"scrollBackward", "(I)Z", reinterpret_cast<void *>(scrollBackward)},
+    };
+    if (env->RegisterNatives(nativeClass, methods, sizeof(methods) / sizeof(methods[0])) < 0) {
+        env->ExceptionClear();
+        qWarning() << "accessibility: RegisterNatives failed, Qt's functions stay on the Android UI thread";
+        return;
+    }
+    qDebug() << "accessibility: Qt's accessibility functions run on the Qt thread";
+}
+
+} // namespace androidAccessibility
+#endif
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 3)
+// Before 5.15.3 Qt sends a screen reader on Android no event at all (its notifyAccessibilityUpdate()
+// is a FIXME), so TalkBack keeps the nodes it cached: after a page is pushed it still walks the page
+// under it, after a scroll it still has the rows where they were. Two things change what TalkBack
+// should see. A page or a popup that shows or hides: Qt reports ObjectShow/ObjectHide for its items
+// to the update handler below, which replaces Qt's own (empty) one. A list that stops scrolling: a
+// Flickable reports nothing, but emits movementEnded(), so when a finger is lifted each Flickable
+// that is moving is connected to it. Both start one zero timer, so the many items a page shows at
+// once give CustomQtActivity a single call. None of this runs while accessibility is off.
+// The timer is made in main() on the Qt thread; Qt 5.15 runs some accessibility actions on the
+// Android UI thread (unless androidAccessibility::registerOverQt() moved them to the Qt thread),
+// so a show or hide that comes from there starts it through a queued call.
+static QTimer *accessibilityRefreshTimer() {
+    static QTimer *timer = nullptr;
+    if (!timer) {
+        timer = new QTimer(QCoreApplication::instance());
+        timer->setSingleShot(true);
+        timer->setInterval(0);
+        QObject::connect(timer, &QTimer::timeout, [] {
+            if (QAccessible::isActive())
+                QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity",
+                                                          "accessibilityTreeChanged", "()V");
+        });
+    }
+    return timer;
+}
+
+// Accessible.ignored: a decorative item, e.g. a tile icon that blinks every 500 ms on the home page
+static bool accessibleIgnored(QObject *object) {
+    const QObjectList children = object->children();
+    for (QObject *child : children) {
+        if (child->inherits("QQuickAccessibleAttached"))
+            return child->property("ignored").toBool();
+    }
+    return false;
+}
+
+static void androidAccessibilityUpdate(QAccessibleEvent *event) {
+    if (event->type() != QAccessible::ObjectShow && event->type() != QAccessible::ObjectHide)
+        return;
+    if (!event->object() || accessibleIgnored(event->object()))
+        return;
+    QTimer *timer = accessibilityRefreshTimer();
+    if (QThread::currentThread() == timer->thread())
+        timer->start();
+    else
+        QMetaObject::invokeMethod(timer, "start", Qt::QueuedConnection);
+}
+
+static void watchMovingFlickables(QQuickItem *item) {
+    // a hidden page of a StackView cannot be scrolling
+    if (!item->isVisible())
+        return;
+    if (item->inherits("QQuickFlickable") && item->property("moving").toBool())
+        QObject::connect(item, SIGNAL(movementEnded()), accessibilityRefreshTimer(), SLOT(start()),
+                         Qt::UniqueConnection);
+    const QList<QQuickItem *> children = item->childItems();
+    for (QQuickItem *child : children)
+        watchMovingFlickables(child);
+}
+
+// Sees a finger lifted from the window before its items do, while a dragged Flickable still moves
+class ScrollEndWatcher : public QObject {
+  public:
+    using QObject::QObject;
+
+  protected:
+    bool eventFilter(QObject *watched, QEvent *event) override {
+        if ((event->type() == QEvent::TouchEnd || event->type() == QEvent::MouseButtonRelease) &&
+            QAccessible::isActive()) {
+            QQuickWindow *window = qobject_cast<QQuickWindow *>(watched);
+            if (window && window->contentItem())
+                watchMovingFlickables(window->contentItem());
+        }
+        return false;
+    }
+};
+#endif
+
+// Qt 5.15 turns its accessibility on when Android reports it enabled. The report comes on the
+// Android UI thread, and when it comes before Qt published its platform integration (a service
+// such as TalkBack already on at launch), Qt logs "Could not activate platform accessibility" and
+// stays off. Qt Quick Controls then set no role or name: buttons are missing from TalkBack's tree,
+// a group box has no title, a spin box takes no focus (QTBUG-77320, fixed in later Qt the same way:
+// keep the report and apply it once the integration exists). Qt publishes the integration from an
+// event it posts while QApplication is constructed, so a call queued after that runs once it is
+// published: either Qt has got the report by then, or Android already says accessibility is on
+// and one setActive() is enough.
+static void restoreLostAccessibility() {
+    if (QAccessible::isActive())
+        return;
+    if (QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/CustomQtActivity",
+                                                      "accessibilityOn", "(Landroid/content/Context;)Z",
+                                                      QtAndroid::androidContext().object())) {
+        QAndroidJniObject::callStaticMethod<void>("org/qtproject/qt5/android/accessibility/QtNativeAccessibility",
+                                                  "setActive", "(Z)V", jboolean(true));
+        qDebug() << "accessibility: Qt lost Android's report at launch, active after setActive:" << QAccessible::isActive();
+    }
+}
+#endif
 
 int main(int argc, char *argv[]) {
 #ifdef Q_OS_WIN32
@@ -624,6 +1361,19 @@ int main(int argc, char *argv[]) {
 
     if (!profileToLoad.isEmpty()) {
         homeform::loadSettings(profileToLoad);
+    }
+
+    // Before myMessageOutput() reads it: a new user's QZ writes the debug log until the first workout with data
+    // (homeform::startFirstSetupLog()). A log on only for this stops growing at 50 MB per run
+#if defined(Q_OS_LINUX) // as in myMessageOutput(): without QML the log follows -no-log, not log_debug
+    const bool logOnAnyway =
+        forceQml ? settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool() : logs;
+#else
+    const bool logOnAnyway = settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
+#endif
+    if (homeform::startFirstSetupLog() && !logOnAnyway) {
+        homeform::firstSetupLog = true;
+        LogWriter::maxFileSize = 50 * 1024 * 1024;
     }
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
@@ -707,10 +1457,37 @@ int main(int argc, char *argv[]) {
 
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
-    foreach (QString s, settings.allKeys()) {
-        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email") && !s.contains("username") && !s.contains("token") && !s.contains("garmin_device_serial") && !s.contains("garmin_email")) {
+    // Foreground/background switches: Android may throttle or kill QZ in the background, and without this the
+    // log can't tell whether a lost connection to Zwift happened while QZ was on screen
+    if (QGuiApplication *guiApp = qobject_cast<QGuiApplication *>(app.data())) {
+        QObject::connect(guiApp, &QGuiApplication::applicationStateChanged,
+                         [](Qt::ApplicationState state) { qDebug() << "applicationStateChanged" << state; });
+        // the signal only reports changes: log the state QZ starts in (background when Android restarts it)
+        qDebug() << "applicationState at start" << guiApp->applicationState();
+    }
 
-            qDebug() << s << settings.value(s);
+    // myMessageOutput() drops every message when the log is off (same condition as there), so don't
+    // build the messages nobody reads: the dump of all the settings and the Qt Bluetooth debug output,
+    // which Qt formats for every packet once its category is enabled
+    const bool logdebug =
+        settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool() || homeform::firstSetupLog;
+#if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
+    const bool logEnabled = forceQml ? logdebug : logs;
+#else
+    const bool logEnabled = logdebug;
+#endif
+    if (logEnabled) {
+        if (homeform::firstSetupLog) {
+            qDebug() << "first-setup debug log on since"
+                     << settings.value(QZSettings::log_debug_first_setup_since,
+                                       QZSettings::default_log_debug_first_setup_since)
+                            .toString();
+        }
+        QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
+        foreach (QString s, settings.allKeys()) {
+            if (!QZSettings::isSensitiveSettingKey(s)) {
+                qDebug() << s << settings.value(s);
+            }
         }
     }
 
@@ -809,28 +1586,41 @@ int main(int argc, char *argv[]) {
             qDebug() << "READ_EXTERNAL_STORAGE denied!";
     }
 
-    result = QtAndroid::checkPermission(QString("android.permission.ACCESS_FINE_LOCATION"));
-    if (result == QtAndroid::PermissionResult::Denied) {
-        QtAndroid::PermissionResultMap resultHash =
-            QtAndroid::requestPermissionsSync(QStringList({"android.permission.ACCESS_FINE_LOCATION"}));
-        if (resultHash["android.permission.ACCESS_FINE_LOCATION"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "ACCESS_FINE_LOCATION denied!";
+    // Android 11 and earlier require Location permission for Bluetooth scanning.
+    // The patched Qt backend uses Nearby devices alone on Android 12+ when
+    // BLUETOOTH_SCAN is declared with neverForLocation.
+    const int androidSdkVersion =
+        QAndroidJniObject::getStaticField<jint>("android/os/Build$VERSION", "SDK_INT");
+    if (androidSdkVersion <= 30) {
+        const QString locationPermission = QStringLiteral("android.permission.ACCESS_FINE_LOCATION");
+        if (QtAndroid::checkPermission(locationPermission) == QtAndroid::PermissionResult::Denied) {
+            const QtAndroid::PermissionResultMap locationResult =
+                QtAndroid::requestPermissionsSync(QStringList({locationPermission}));
+            if (locationResult.value(locationPermission) == QtAndroid::PermissionResult::Denied)
+                qWarning() << "Bluetooth scanning may be blocked by missing legacy Location permission:"
+                           << locationPermission;
+        }
     }
 
-    result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH"));
-    if (result == QtAndroid::PermissionResult::Denied) {
-        QtAndroid::PermissionResultMap resultHash =
-            QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH"}));
-        if (resultHash["android.permission.BLUETOOTH"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "BLUETOOTH denied!";
-    }
+    // BLUETOOTH and BLUETOOTH_ADMIN are legacy, install-time-only permissions.
+    // They are not available on API 31+ once maxSdkVersion=30 is set.
+    if (androidSdkVersion <= 30) {
+        result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH"));
+        if (result == QtAndroid::PermissionResult::Denied) {
+            QtAndroid::PermissionResultMap resultHash =
+                QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH"}));
+            if (resultHash["android.permission.BLUETOOTH"] == QtAndroid::PermissionResult::Denied)
+                qDebug() << "BLUETOOTH denied!";
+        }
 
-    result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_ADMIN"));
-    if (result == QtAndroid::PermissionResult::Denied) {
-        QtAndroid::PermissionResultMap resultHash =
-            QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_ADMIN"}));
-        if (resultHash["android.permission.BLUETOOTH_ADMIN"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "BLUETOOTH_ADMIN denied!";
+        result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_ADMIN"));
+        if (result == QtAndroid::PermissionResult::Denied) {
+            QtAndroid::PermissionResultMap resultHash =
+                QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_ADMIN"}));
+            if (resultHash["android.permission.BLUETOOTH_ADMIN"] == QtAndroid::PermissionResult::Denied)
+                qDebug() << "BLUETOOTH_ADMIN denied!";
+        }
+
     }
 
     result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_SCAN"));
@@ -855,6 +1645,21 @@ int main(int argc, char *argv[]) {
             QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_CONNECT"}));
         if (resultHash["android.permission.BLUETOOTH_CONNECT"] == QtAndroid::PermissionResult::Denied)
             qDebug() << "BLUETOOTH_CONNECT denied!";
+    }
+
+    // API 37 blocks direct LAN sockets (including TCP, UDP and mDNS) unless the
+    // Nearby devices / Local network permission is granted. Request it before
+    // starting the device managers, which may publish or discover LAN services.
+    // Earlier Android versions have implicit LAN access through INTERNET.
+    if (QAndroidJniObject::getStaticField<jint>("android/os/Build$VERSION", "SDK_INT") >= 37) {
+        const QString localNetworkPermission = QStringLiteral("android.permission.ACCESS_LOCAL_NETWORK");
+        if (QtAndroid::checkPermission(localNetworkPermission) == QtAndroid::PermissionResult::Denied) {
+            const QtAndroid::PermissionResultMap localResult =
+                QtAndroid::requestPermissionsSync(QStringList({localNetworkPermission}));
+            if (localResult.value(localNetworkPermission) == QtAndroid::PermissionResult::Denied)
+                qWarning() << "ACCESS_LOCAL_NETWORK denied: LAN-based equipment, DIRCON, and"
+                           << "network discovery may not work. Grant Nearby devices in Android settings.";
+        }
     }
 
     result = QtAndroid::checkPermission(QString("android.permission.POST_NOTIFICATIONS"));
@@ -912,40 +1717,38 @@ int main(int argc, char *argv[]) {
         fontManager.initializeEmojiFont();
 #endif
 
-        // Load translations based on explicit app setting or system locale.
-        QTranslator *translator = new QTranslator(app.data());
-        QString configuredLanguage =
-            settings.value(QZSettings::app_language, QZSettings::default_app_language).toString().trimmed();
-        QString locale = configuredLanguage.compare(QStringLiteral("auto"), Qt::CaseInsensitive) == 0 ||
-                                 configuredLanguage.isEmpty()
-                             ? QLocale::system().name()
-                             : configuredLanguage;
-        locale.replace(QLatin1Char('-'), QLatin1Char('_'));
-
-        auto tryLoadTranslation = [&](const QString &localeKey, const QString &sourceLabel) -> bool {
-            if (localeKey.isEmpty()) {
-                return false;
-            }
-            if (translator->load(QStringLiteral(":/translations/translations/qdomyos-zwift_") + localeKey)) {
-                app->installTranslator(translator);
-                qDebug() << "Translation loaded successfully for" << sourceLabel << ":" << localeKey;
-                return true;
-            }
-            return false;
+        // Standard dialog buttons (MessageDialog Yes/No/Abort...) are labelled by the Qt platform
+        // theme, and Qt's own translations are not shipped with the app. Listing the theme's
+        // strings here lets lupdate put them into our .ts files, so the app translator covers them.
+        static const char *const qtStandardButtonTexts[] = {
+            QT_TRANSLATE_NOOP("QAndroidPlatformTheme", "Yes"),
+            QT_TRANSLATE_NOOP("QAndroidPlatformTheme", "Yes to All"),
+            QT_TRANSLATE_NOOP("QAndroidPlatformTheme", "No"),
+            QT_TRANSLATE_NOOP("QAndroidPlatformTheme", "No to All"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "OK"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Save"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Save All"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Open"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "&Yes"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Yes to &All"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "&No"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "N&o to All"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Abort"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Retry"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Ignore"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Close"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Cancel"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Discard"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Help"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Apply"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Reset"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Restore Defaults"),
         };
+        Q_UNUSED(qtStandardButtonTexts);
 
-        // "en" is the built-in source language, so we don't load any translator for it.
-        if (locale.startsWith(QStringLiteral("en"), Qt::CaseInsensitive)) {
-            qDebug() << "Language setting resolves to English. Using built-in source strings.";
-        } else {
-            bool loaded = tryLoadTranslation(locale, QStringLiteral("locale"));
-            if (!loaded && locale.contains(QLatin1Char('_'))) {
-                loaded = tryLoadTranslation(locale.section(QLatin1Char('_'), 0, 0), QStringLiteral("language"));
-            }
-            if (!loaded) {
-                qDebug() << "No translation available for locale:" << locale << "- using default (English)";
-            }
-        }
+        // Load translations based on explicit app setting or system locale.
+        homeform::loadAppTranslation(
+            settings.value(QZSettings::app_language, QZSettings::default_app_language).toString());
 
         QQmlApplicationEngine engine;
         const QUrl url(QStringLiteral("qrc:/main.qml"));
@@ -976,10 +1779,35 @@ int main(int argc, char *argv[]) {
         FileSearcher fileSearcher;
         engine.rootContext()->setContextProperty("fileSearcher", &fileSearcher);
 
+#if defined(Q_OS_ANDROID) && QT_VERSION < QT_VERSION_CHECK(5, 15, 9)
+        androidAccessibility::registerOverQt();
+#endif
         engine.load(url);
+#ifdef Q_OS_ANDROID
+        QTimer::singleShot(0, [] { restoreLostAccessibility(); });
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 3)
+        accessibilityRefreshTimer();
+        QAccessible::installUpdateHandler(androidAccessibilityUpdate);
+        if (!engine.rootObjects().isEmpty()) {
+            if (QQuickWindow *window = qobject_cast<QQuickWindow *>(engine.rootObjects().constFirst()))
+                window->installEventFilter(new ScrollEndWatcher(window));
+        }
+#endif
+#endif
         homeform *h = new homeform(&engine, &bl);
         QObject::connect(app.data(), &QCoreApplication::aboutToQuit, h,
                          &homeform::aboutToQuit); // NOTE: clazy-unneeded-cast
+#ifdef Q_OS_ANDROID
+        // Qt 5.15.0 calls exit() twice when QZ closes: from its thread after main() returns and from
+        // System.exit() in QtActivityDelegate.onDestroy(). Their static destructors abort the process:
+        // two at once in the QML type data ("Cannot remove multiple registrations for QtQuick 2"), and
+        // any of them while the hwui threads still use their mutex (QTBUG-82617). An atexit() handler
+        // registered last runs first: the first exit() ends the process without them, the locals of
+        // main() are destroyed by then. Registered at aboutToQuit, not at startup, to come after the
+        // static objects of the QML plugins loaded during the run. QT_ANDROID_NO_EXIT_CALL (Qt 5.15.4)
+        // skips only the exit() of the Qt thread.
+        QObject::connect(app.data(), &QCoreApplication::aboutToQuit, [] { atexit([] { _exit(0); }); });
+#endif
 
         {
 #ifdef Q_OS_ANDROID

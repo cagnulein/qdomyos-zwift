@@ -1,4 +1,5 @@
 #include "templateinfosenderbuilder.h"
+#include "localipaddress.h"
 #include "webtranslation.h"
 #include "devices/bike.h"
 #include "treadmill.h"
@@ -67,6 +68,7 @@ QString openEndedRowLabel(const trainrow &row) {
     item[QStringLiteral("speed")] = row.speed;                                                              \
     item[QStringLiteral("minSpeed")] = row.minSpeed;                                                        \
     item[QStringLiteral("maxSpeed")] = row.maxSpeed;                                                        \
+    item[QStringLiteral("maxInclination")] = row.maxInclination; \
     item[QStringLiteral("fanspeed")] = row.fanspeed;                                                        \
     if (row.inclination >= -50) {\
         item[QStringLiteral("inclination")] = row.inclination;\
@@ -81,6 +83,9 @@ QString openEndedRowLabel(const trainrow &row) {
     item[QStringLiteral("lower_requested_peloton_resistance")] = row.lower_requested_peloton_resistance;    \
     item[QStringLiteral("upper_requested_peloton_resistance")] = row.upper_requested_peloton_resistance;    \
     item[QStringLiteral("power")] = row.power;                                                              \
+    item[QStringLiteral("rampIsFtpFraction")] = row.rampIsFtpFraction;                                      \
+    item[QStringLiteral("rampPowerFromOriginal")] = row.rampPowerFromOriginal;                               \
+    item[QStringLiteral("rampPowerToOriginal")] = row.rampPowerToOriginal;                                   \
     item[QStringLiteral("cadence")] = row.cadence;                                                          \
     item[QStringLiteral("lower_cadence")] = row.lower_cadence;                                              \
     item[QStringLiteral("upper_cadence")] = row.upper_cadence;                                              \
@@ -89,6 +94,7 @@ QString openEndedRowLabel(const trainrow &row) {
     item[QStringLiteral("zoneHR")] = row.zoneHR;                                                            \
     item[QStringLiteral("HRmin")] = row.HRmin;                                                              \
     item[QStringLiteral("HRmax")] = row.HRmax;                                                              \
+    item[QStringLiteral("pidHRMode")] = trainprogram::pidHrModeToString(row.pidHrMode);\
     item[QStringLiteral("HRabove")] = row.HRabove;                                                          \
     item[QStringLiteral("HRbelow")] = row.HRbelow;                                                          \
     item[QStringLiteral("latitude")] = row.latitude;                                                        \
@@ -98,14 +104,7 @@ QString openEndedRowLabel(const trainrow &row) {
 
 namespace {
 QString sanitizeTrainingProgramName(const QString &input) {
-    QString trimmed = input.trimmed();
-    if (trimmed.isEmpty()) {
-        trimmed = QStringLiteral("Workout");
-    }
-    QRegularExpression invalid(QStringLiteral("[^A-Za-z0-9_\\- ]"));
-    trimmed.replace(invalid, QStringLiteral("_"));
-    trimmed.replace(QRegularExpression(QStringLiteral("\\s+")), QStringLiteral("_"));
-    return trimmed;
+    return homeform::safeFileName(input, QStringLiteral("Workout"));
 }
 
 QString uniqueTrainingProgramName(const QString &trainingDir, const QString &baseName) {
@@ -238,11 +237,8 @@ void TemplateInfoSenderBuilder::load(const QString &idInfo, const QStringList &f
     if (!globalFolderList.isEmpty()) {
         QStringList addressList;
         qDebug() << QStringLiteral("Folder List") << globalFolderList;
-        const QHostAddress &localhost = QHostAddress(QHostAddress::LocalHost);
-        for (auto &address : QNetworkInterface::allAddresses()) {
-            if (address.protocol() == QAbstractSocket::IPv4Protocol && address != localhost) {
-                addressList += address.toString();
-            }
+        for (const QHostAddress &address : localipaddress::allIPv4()) {
+            addressList += address.toString();
         }
         qDebug() << QStringLiteral("addressList ") << addressList;
         QString templateId = idInfo + "_" + QStringLiteral(TEMPLATE_PRIVATE_WEBSERVER_ID);
@@ -338,10 +334,12 @@ void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue &val, TemplateInf
                 outObj.insert(key, 1);
                 QRegExp regex(key.mid(1));
                 for (auto &keypresent : settings.allKeys()) {
-                    if (regex.indexIn(keypresent) >= 0) {
+                    if (regex.indexIn(keypresent) >= 0 && !QZSettings::isSensitiveSettingKey(keypresent)) {
                         outObj.insert(keypresent, QJsonValue::fromVariant(settings.value(keypresent)));
                     }
                 }
+            } else if (QZSettings::isSensitiveSettingKey(key)) {
+                continue;
             } else if (settings.contains(key)) {
                 outObj.insert(key, QJsonValue::fromVariant(settings.value(key)));
             } else {
@@ -350,7 +348,9 @@ void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue &val, TemplateInf
         }
     } else {
         for (auto &key : settings.allKeys()) {
-            outObj.insert(key, QJsonValue::fromVariant(settings.value(key)));
+            if (!QZSettings::isSensitiveSettingKey(key)) {
+                outObj.insert(key, QJsonValue::fromVariant(settings.value(key)));
+            }
         }
     }
     QJsonObject main;
@@ -490,6 +490,9 @@ void TemplateInfoSenderBuilder::onSetSettings(const QJsonValue &msgContent, Temp
     QJsonObject outObj;
     QSettings settings;
     for (auto &key : keys) {
+        if (QZSettings::isSensitiveSettingKey(key)) {
+            continue;
+        }
         val = obj[key];
         valConv = val.toVariant();
         if (settings.contains(key)) {
@@ -573,20 +576,58 @@ void TemplateInfoSenderBuilder::onGetTrainingProgram(const QJsonValue &msgConten
     QString fileXml;
     if (homeform::singleton() && homeform::singleton()->trainingProgram()) {
         QList<trainrow> lst = homeform::singleton()->trainingProgram()->loadedRows;
-        for (auto &row : lst) {
-            QJsonObject item;
-            TRAINPROGRAM_FIELD_TO_STRING();
-            if (!row.textEvents.isEmpty()) {
-                QJsonArray textEvents;
-                for (const auto &evt : row.textEvents) {
-                    QJsonObject textEvent;
-                    textEvent[QStringLiteral("timeoffset")] = static_cast<int>(evt.timeoffset);
-                    textEvent[QStringLiteral("message")] = evt.message;
-                    textEvents.append(textEvent);
+        int idx = 0;
+        while (idx < lst.size()) {
+            const trainrow &curRow = lst[idx];
+            if (curRow.rampPowerFromOriginal >= 0.0) {
+                double fromOrig = curRow.rampPowerFromOriginal;
+                double toOrig = curRow.rampPowerToOriginal;
+                bool isFtp = curRow.rampIsFtpFraction;
+                trainrow firstRow = curRow;
+                int totalSecs = 0;
+                while (idx < lst.size() &&
+                       lst[idx].rampPowerFromOriginal == fromOrig &&
+                       lst[idx].rampPowerToOriginal == toOrig) {
+                    totalSecs += QTime(0,0,0).secsTo(lst[idx].duration);
+                    idx++;
                 }
-                item[QStringLiteral("textEvents")] = textEvents;
+                QJsonObject item;
+                {
+                    trainrow compactRow = firstRow;
+                    compactRow.duration = QTime(0,0,0).addSecs(totalSecs);
+                    compactRow.rampPowerFromOriginal = -1.0;
+                    compactRow.rampPowerToOriginal = -1.0;
+                    const trainrow &row = compactRow;
+                    TRAINPROGRAM_FIELD_TO_STRING();
+                }
+                item[QStringLiteral("duration")] = QTime(0,0,0).addSecs(totalSecs).toString(QStringLiteral("hh:mm:ss"));
+                if (isFtp) {
+                    item[QStringLiteral("powerzonefrom")] = fromOrig;
+                    item[QStringLiteral("powerzoneto")] = toOrig;
+                    item[QStringLiteral("powerrampunit")] = QStringLiteral("% FTP");
+                } else {
+                    item[QStringLiteral("powerfrom")] = (int)fromOrig;
+                    item[QStringLiteral("powerto")] = (int)toOrig;
+                    item[QStringLiteral("powerrampunit")] = QStringLiteral("W");
+                }
+                outArr.append(item);
+            } else {
+                QJsonObject item;
+                const trainrow &row = curRow;
+                TRAINPROGRAM_FIELD_TO_STRING();
+                if (!curRow.textEvents.isEmpty()) {
+                    QJsonArray textEvents;
+                    for (const auto &evt : curRow.textEvents) {
+                        QJsonObject textEvent;
+                        textEvent[QStringLiteral("timeoffset")] = static_cast<int>(evt.timeoffset);
+                        textEvent[QStringLiteral("message")] = evt.message;
+                        textEvents.append(textEvent);
+                    }
+                    item[QStringLiteral("textEvents")] = textEvents;
+                }
+                outArr.append(item);
+                idx++;
             }
-            outArr.append(item);
         }
         outObj[QStringLiteral("device")] =
             trainprogram::deviceTypeToXmlKey(homeform::singleton()->trainingProgram()->loadedDeviceType);
@@ -878,6 +919,7 @@ void TemplateInfoSenderBuilder::onWorkoutEditorEnv(TemplateInfoSender *tempSende
     QSettings settings;
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     outObj[QStringLiteral("miles")] = miles;
+    outObj[QStringLiteral("ftp")] = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
     if (device) {
         outObj[QStringLiteral("device")] = trainprogram::deviceTypeToXmlKey(device->deviceType());
     } else {
@@ -1103,6 +1145,9 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
             if (row.contains(QStringLiteral("maxSpeed"))) {
                 tR.maxSpeed = row[QStringLiteral("maxSpeed")].toDouble();
             }
+            if (row.contains(QStringLiteral("maxInclination"))) {
+                tR.maxInclination = row[QStringLiteral("maxInclination")].toDouble();
+            }
             if (row.contains(QStringLiteral("fanspeed"))) {
                 tR.fanspeed = row[QStringLiteral("fanspeed")].toInt();
             }
@@ -1120,6 +1165,24 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
             }
             if (row.contains(QStringLiteral("power"))) {
                 tR.power = row[QStringLiteral("power")].toInt();
+            }
+            if (row.contains(QStringLiteral("powerfrom")) && row.contains(QStringLiteral("powerto"))) {
+                double from = row[QStringLiteral("powerfrom")].toDouble();
+                double to = row[QStringLiteral("powerto")].toDouble();
+                tR.power = (int)from;
+                tR.rampPowerFromOriginal = from;
+                tR.rampPowerToOriginal = to;
+                tR.rampIsFtpFraction = false;
+            }
+            if (row.contains(QStringLiteral("powerzonefrom")) && row.contains(QStringLiteral("powerzoneto"))) {
+                QSettings localSettings;
+                double from = row[QStringLiteral("powerzonefrom")].toDouble();
+                double to = row[QStringLiteral("powerzoneto")].toDouble();
+                double ftp = localSettings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+                tR.power = (int)(from * ftp);
+                tR.rampPowerFromOriginal = from;
+                tR.rampPowerToOriginal = to;
+                tR.rampIsFtpFraction = true;
             }
             if (row.contains(QStringLiteral("cadence"))) {
                 tR.cadence = row[QStringLiteral("cadence")].toInt();
@@ -1141,6 +1204,9 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
             }
             if (row.contains(QStringLiteral("HRmax"))) {
                 tR.HRmax = row[QStringLiteral("HRmax")].toInt();
+            }
+            if (row.contains(QStringLiteral("pidHRMode"))) {
+                tR.pidHrMode = trainprogram::pidHrModeFromString(row[QStringLiteral("pidHRMode")].toString());
             }
             if (row.contains(QStringLiteral("HRabove"))) {
                 tR.HRabove = row[QStringLiteral("HRabove")].toInt();

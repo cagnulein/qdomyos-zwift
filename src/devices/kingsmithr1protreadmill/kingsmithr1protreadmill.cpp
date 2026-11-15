@@ -493,7 +493,7 @@ void kingsmithr1protreadmill::serviceScanDone(void) {
             settings.setValue(QZSettings::ftms_treadmill, bluetoothDevice.name());
             qDebug() << "forcing FTMS treadmill since it has FTMS service but not the main kingsmith service";
             if(homeform::singleton())
-                homeform::singleton()->setToastRequested("FTMS treadmill found, restart the app to apply the change");
+                homeform::singleton()->setToastRequested(QObject::tr("FTMS treadmill found, restart the app to apply the change"));
             delete ftmsService;
         }
         return;
@@ -570,7 +570,7 @@ void kingsmithr1protreadmill::controllerStateChanged(QLowEnergyController::Contr
         qDebug() << QStringLiteral("trying to connect back again...");
 
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 

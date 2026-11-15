@@ -86,6 +86,67 @@ bool ServerPrivate::bindSocket(QUdpSocket &socket, const QHostAddress &address)
     return true;
 }
 
+void ServerPrivate::writeToAllInterfaces(QUdpSocket &socket, const QByteArray &packet,
+                                         const QHostAddress &group, quint16 port)
+{
+    // A socket bound to the any-address sends a multicast datagram out exactly
+    // one interface: whichever the OS picks for 224.0.0.251. On a host with a
+    // virtual adapter (VirtualBox, VMware, Docker, Hyper-V) that is regularly
+    // not the interface the training app is on, and discovery then fails with
+    // no error anywhere - we join the group on every interface, so queries are
+    // still received, and only the answers go astray. Interface metrics do not
+    // reliably steer this on Windows. Real mDNS responders send one copy per
+    // interface, so do that.
+
+    const bool wantIPv4 = group.protocol() == QAbstractSocket::IPv4Protocol;
+    const QNetworkInterface previous = socket.multicastInterface();
+    bool sent = false;
+
+    const auto interfaces = QNetworkInterface::allInterfaces();
+    for (const QNetworkInterface &networkInterface : interfaces) {
+        const auto flags = networkInterface.flags();
+        // Loopback is deliberately included. onTimeout() joins the multicast group
+        // on every interface that can carry it, loopback among them, so a client on
+        // this same machine is heard - but skipping loopback here meant it could
+        // never be answered. A training app querying over ::1 (MyWhoosh does) saw
+        // QZ reply on fe80:: instead, which is not where it asked, so it waited for
+        // an answer that was never coming. Rouvy was unaffected only because it
+        // browses over the real network interface.
+        if (!flags.testFlag(QNetworkInterface::IsUp) ||
+            !flags.testFlag(QNetworkInterface::IsRunning) ||
+            !flags.testFlag(QNetworkInterface::CanMulticast)) {
+            continue;
+        }
+
+        // An interface with no address of the right family cannot carry this
+        // datagram, and asking it to only produces a send error.
+        bool usable = false;
+        const auto entries = networkInterface.addressEntries();
+        for (const QNetworkAddressEntry &entry : entries) {
+            if ((entry.ip().protocol() == QAbstractSocket::IPv4Protocol) == wantIPv4) {
+                usable = true;
+                break;
+            }
+        }
+        if (!usable) {
+            continue;
+        }
+
+        socket.setMulticastInterface(networkInterface);
+        if (socket.writeDatagram(packet, group, port) != -1) {
+            sent = true;
+        }
+    }
+
+    socket.setMulticastInterface(previous);
+
+    // If no interface looked usable, fall back to the old behaviour rather
+    // than silently sending nothing.
+    if (!sent) {
+        socket.writeDatagram(packet, group, port);
+    }
+}
+
 void ServerPrivate::onTimeout()
 {
     // A timer is used to run a set of operations once per minute; first, the
@@ -144,9 +205,18 @@ void Server::sendMessage(const Message &message)
     QByteArray packet;
     toPacket(message, packet);
     if (message.address().protocol() == QAbstractSocket::IPv4Protocol) {
-        d->ipv4Socket.writeDatagram(packet, message.address(), message.port());
+        if (message.address() == MdnsIpv4Address) {
+            d->writeToAllInterfaces(d->ipv4Socket, packet, message.address(), message.port());
+        } else {
+            // A unicast reply goes back to one peer, so ordinary routing is right.
+            d->ipv4Socket.writeDatagram(packet, message.address(), message.port());
+        }
     } else {
-        d->ipv6Socket.writeDatagram(packet, message.address(), message.port());
+        if (message.address() == MdnsIpv6Address) {
+            d->writeToAllInterfaces(d->ipv6Socket, packet, message.address(), message.port());
+        } else {
+            d->ipv6Socket.writeDatagram(packet, message.address(), message.port());
+        }
     }
 }
 
@@ -154,6 +224,6 @@ void Server::sendMessageToAll(const Message &message)
 {
     QByteArray packet;
     toPacket(message, packet);
-    d->ipv4Socket.writeDatagram(packet, MdnsIpv4Address, MdnsPort);
-    d->ipv6Socket.writeDatagram(packet, MdnsIpv6Address, MdnsPort);
+    d->writeToAllInterfaces(d->ipv4Socket, packet, MdnsIpv4Address, MdnsPort);
+    d->writeToAllInterfaces(d->ipv6Socket, packet, MdnsIpv6Address, MdnsPort);
 }

@@ -41,6 +41,8 @@ protocol WorkoutTrackingProtocol {
     static let configuration = HKWorkoutConfiguration()
     static var workoutBuilder: HKWorkoutBuilder!
     static var workoutInProgress: Bool = false
+    private static var stepsOnlyMode = false
+    private static var sessionStartDate = Date()
     private var heartRateQuery: HKAnchoredObjectQuery?
     private var heartRateQueryAnchor: HKQueryAnchor?
     private let heartRateUnit = HKUnit.count().unitDivided(by: HKUnit.minute())
@@ -278,13 +280,22 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         }
         WorkoutTracking.authorizeHealthKit()
         WorkoutTracking.workoutInProgress = true;
-        WorkoutTracking.lastDateMetric = Date()
+        WorkoutTracking.sessionStartDate = Date()
+        WorkoutTracking.lastDateMetric = WorkoutTracking.sessionStartDate
+        WorkoutTracking.stepsOnlyMode = WorkoutTracking.healthStore.authorizationStatus(for: .workoutType()) == .sharingDenied
+        if WorkoutTracking.stepsOnlyMode {
+            WorkoutTracking.steps = 0
+        }
         // Reset flights climbed, elevation gain and previous distance for new workout
         WorkoutTracking.flightsClimbed = 0
         WorkoutTracking.elevationGain = 0
         WorkoutTracking.previousDistance = 0
         SwiftDebug.qtDebug("WorkoutTracking: Start workout")
         setSport(Int(deviceType))
+        if WorkoutTracking.stepsOnlyMode {
+            SwiftDebug.qtDebug("WorkoutTracking: Workouts write denied, collecting steps only")
+            return
+        }
         configWorkout()
         // Always start HealthKit HR query (will be stopped if Bluetooth HR arrives)
         startHeartRateStreamingQuery()
@@ -303,6 +314,32 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
 
         // Reset Bluetooth HR flag
         WorkoutTracking.isUsingBluetoothHR = false
+
+        if WorkoutTracking.stepsOnlyMode ||
+            WorkoutTracking.healthStore.authorizationStatus(for: .workoutType()) == .sharingDenied {
+            WorkoutTracking.stepsOnlyMode = false
+            WorkoutTracking.workoutInProgress = false
+
+            guard let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount),
+                  WorkoutTracking.healthStore.authorizationStatus(for: stepType) == .sharingAuthorized,
+                  WorkoutTracking.steps > 0 else {
+                SwiftDebug.qtDebug("WorkoutTracking: Steps-only save skipped (steps unavailable, zero, or not authorized)")
+                return
+            }
+
+            let sample = HKQuantitySample(type: stepType,
+                                          quantity: HKQuantity(unit: .count(), doubleValue: WorkoutTracking.steps),
+                                          start: WorkoutTracking.sessionStartDate,
+                                          end: Date())
+            WorkoutTracking.healthStore.save(sample) { success, error in
+                if let error = error {
+                    SwiftDebug.qtDebug("WorkoutTracking: Steps-only save failed: " + error.localizedDescription)
+                } else {
+                    SwiftDebug.qtDebug("WorkoutTracking: Steps-only save " + (success ? "succeeded" : "failed"))
+                }
+            }
+            return
+        }
 
         guard let workoutBuilder = WorkoutTracking.workoutBuilder,
               let startDate = workoutBuilder.startDate else {
@@ -489,6 +526,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
     
     @objc func addMetrics(power: Double, cadence: Double, speed: Double, kcal: Double, steps: Double, deviceType: UInt8, distance: Double, totalKcal: Double, elevationGain: Double = 0, heartRate: Double = 0) {
         SwiftDebug.qtDebug("WorkoutTracking: GET DATA: \(Date())")
+        SwiftDebug.qtDebug("WorkoutTracking: received elevation gain: \(elevationGain)m")
 
         if !WorkoutTracking.workoutInProgress {
             if power > 0 && WorkoutTracking.firstWorkout {
@@ -506,6 +544,11 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         WorkoutTracking.totalKcal = totalKcal
         WorkoutTracking.steps = steps
         WorkoutTracking.distance = distance
+
+        // Without Workouts write permission, save only the final steps via HKHealthStore on stop.
+        if WorkoutTracking.stepsOnlyMode {
+            return
+        }
 
         // Store elevation gain for all sports
         if elevationGain > 0 {
@@ -806,8 +849,8 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
     }
 
     @objc func setBluetoothHeartRate(heartRate: Double) {
-        if !WorkoutTracking.workoutInProgress {
-            SwiftDebug.qtDebug("WorkoutTracking: Cannot write HR - workout not in progress")
+        if !WorkoutTracking.workoutInProgress || WorkoutTracking.stepsOnlyMode {
+            SwiftDebug.qtDebug("WorkoutTracking: Cannot write HR - workout not in progress or steps-only mode")
             return
         }
         let now = Date()
