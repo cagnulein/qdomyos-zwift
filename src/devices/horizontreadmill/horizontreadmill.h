@@ -39,6 +39,8 @@ class horizontreadmill : public treadmill {
   public:
     horizontreadmill(bool noWriteResistance, bool noHeartService);
     bool connected() override;
+    // Pure protocol helper, exposed for captured-packet regression tests.
+    static bool isExpectedInitPacket(const QByteArray &packet, uint8_t stage);
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
     double minStepInclination() override;
@@ -51,7 +53,6 @@ class horizontreadmill : public treadmill {
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, uint8_t *data,
                              uint8_t data_len, QString info, bool disable_log = false, bool wait_for_response = false);
     void waitForAPacket();
-    static bool isExpectedInitPacket(const QByteArray &packet, uint8_t stage);
     void startDiscover();
     void btinit();
     void setDirectDistance(double treadmillDistance, bool increment);
