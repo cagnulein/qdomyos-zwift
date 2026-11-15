@@ -18,3 +18,11 @@ TEST(ZwiftClickV2DLockTest, PrependsSignedReplyWithoutChangingBytes) {
     EXPECT_EQ(zwiftclickremote::dLockResponseFrame(QByteArray()),
               QByteArray::fromHex("ff0400"));
 }
+
+TEST(ZwiftClickV2DLockTest, UsesRecentRideOnEchoToAvoidUnneededLogin) {
+    EXPECT_TRUE(zwiftclickremote::needsDLockReply(0, 10000));
+    EXPECT_TRUE(zwiftclickremote::needsDLockReply(5000, 10000));
+    EXPECT_FALSE(zwiftclickremote::needsDLockReply(8100, 10000));
+    EXPECT_FALSE(zwiftclickremote::needsDLockReply(10050, 10000));
+    EXPECT_TRUE(zwiftclickremote::needsDLockReply(10000, 15000));
+}
