@@ -12,6 +12,8 @@ In confirmed support cases, waiting about three minutes in Zwift before continui
 
 An active Zwift subscription is not required for this handshake procedure; a Zwift account that can reach the pairing flow is sufficient.
 
+**Experimental automatic unlock:** QZ can now request a server-signed Click V2 unlock itself (without opening the Zwift app first). Enable **QZ Settings > Accessories > Zwift Devices Options > Zwift Click**, then enable **Automatic Zwift Click V2 Unlock (experimental)**. Configure your Zwift username and password under **Zwift Options**, save and restart QZ. The setting is off by default, applies only to the LEFT Click V2 controller and needs an internet connection and a Zwift account; it does not require a paid subscription. It does not affect Zwift Play/Ride or Click V1. If the Zwift d-lock service rejects a request or is unreachable, QZ falls back to the previous empty BLE acknowledgement. If the controller remains locked, disable the setting and use the manual Zwift handshake procedure above. This implementation is pending hardware confirmation on iOS and Android.
+
 ## Why can't Zwift find QZ or Wahoo KICKR 0000 when QZ is in the background on iOS?
 
 On iPhone, **initial discovery** of QZ's virtual trainer can behave differently from keeping an **already-paired** connection alive. If Zwift's pairing screen does not list **QZ** (Bluetooth) or **Wahoo KICKR 0000** (Wahoo Direct Connect / Wi-Fi), try this confirmed workaround:
