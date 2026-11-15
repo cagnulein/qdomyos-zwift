@@ -242,7 +242,7 @@ void kettlercoachrower::processTelemetry(const QByteArray &payload) {
         Distance1s = meters / 1000.0;
     }
     emit debug(QStringLiteral("Coach S e0 counters strokes=%1 distanceCandidate=%2 fields=%3")
-                   .arg(strokes).arg(meters).arg(payload.toHex(' ')));
+                   .arg(strokes).arg(meters).arg(QString::fromLatin1(payload.toHex(' '))));
 }
 
 void kettlercoachrower::update() {
