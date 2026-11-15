@@ -2494,12 +2494,15 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             }
 #ifndef Q_OS_IOS
             else if (bh_spada_2 &&
-                     b.name().toUpper().startsWith("RACER S") &&
+                     (upperDeviceName.startsWith(QStringLiteral("RACER S")) ||
+                      upperDeviceName == QStringLiteral("COACH S") ||
+                      upperDeviceName.startsWith(QStringLiteral("COACH S "))) &&
                      !kettlerClassicBike && filter) {
                 // MyHomeFIT's Kettler Classic connector uses BR/EDR SPP.
-                // Route RACER S-prefixed names to this driver when BH SPADA
-                // Compatibility is enabled; otherwise preserve the existing
-                // BLE Stages path below.
+                // When BH SPADA Compatibility is enabled, also try the SPP
+                // driver for Kettler Coach S devices (e.g. "COACH S 42FC38").
+                // Coach S protocol compatibility still needs a hardware test;
+                // retain the existing RACER S and BLE Stages routing.
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 kettlerClassicBike = new kettlerclassicbike(noWriteResistance, noHeartService, testResistance,
