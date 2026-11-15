@@ -120,6 +120,22 @@
         <translation>Não perguntar novamente</translation>
     </message>
     <message>
+        <source>Strong signal</source>
+        <translation>Sinal forte</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Sinal bom</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Sinal razoável</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Sinal fraco</translation>
+    </message>
+    <message>
         <source>Choose a heart rate sensor</source>
         <translation>Escolha um sensor de FC</translation>
     </message>

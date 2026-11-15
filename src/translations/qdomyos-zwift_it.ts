@@ -120,6 +120,22 @@
         <translation>Non chiedere più</translation>
     </message>
     <message>
+        <source>Strong signal</source>
+        <translation>Segnale forte</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Segnale buono</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Segnale discreto</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Segnale debole</translation>
+    </message>
+    <message>
         <source>Choose a heart rate sensor</source>
         <translation>Scegli un sensore FC</translation>
     </message>

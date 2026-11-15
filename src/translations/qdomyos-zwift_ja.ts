@@ -120,6 +120,22 @@
         <translation>今後表示しない</translation>
     </message>
     <message>
+        <source>Strong signal</source>
+        <translation>強い信号</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>良好な信号</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>普通の信号</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>弱い信号</translation>
+    </message>
+    <message>
         <source>Choose a heart rate sensor</source>
         <translation>心拍センサーを選択</translation>
     </message>
