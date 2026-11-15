@@ -43,7 +43,8 @@ ScrollView {
             anchors.left: parent.left
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            width: height
+            // Not square: at 52 high, a 360 dp screen left 28 dp for the number between them
+            width: 44
             onClicked: stepper.stepBy(-0.5)
             Accessible.role: Accessible.Button
             Accessible.name: qsTr("Decrease %1").arg(stepper.label)
@@ -56,7 +57,7 @@ ScrollView {
             anchors.right: parent.right
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            width: height
+            width: 44
             onClicked: stepper.stepBy(0.5)
             Accessible.role: Accessible.Button
             Accessible.name: qsTr("Increase %1").arg(stepper.label)
