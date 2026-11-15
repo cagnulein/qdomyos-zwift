@@ -221,18 +221,32 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
     uint8_t heart = 0;
     bool disable_hr_frommachinery =
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
-    static bool validCadenceFrom2ad2 = false;
+    // FTMS has priority while it is delivering valid cadence; CSC is the fallback.
+    // Do not use a function-static flag: it persists across trainers and reconnects.
+    const bool externalCadenceDisabled =
+        settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+            .toString().startsWith(QStringLiteral("Disabled"));
+    const bool ftmsCadenceFresh = lastValidFtmsCadence.isValid() &&
+                                   lastValidFtmsCadence.msecsTo(now) <= 2000;
 
-    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A5B) && !validCadenceFrom2ad2) {
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A5B)) {
         lastPacket = newValue;
 
+        if (newValue.isEmpty()) {
+            emit debug(QStringLiteral("Empty CSC notification"));
+            return;
+        }
         uint8_t index = 1;
 
-        if (newValue.at(0) == 0x02 && newValue.length() < 4) {
+        if (newValue.at(0) == 0x02 && newValue.length() < 5) {
             emit debug(QStringLiteral("Crank revolution data present with wrong bytes ") +
                        QString::number(newValue.length()));
             return;
-        } else if (newValue.at(0) == 0x01 && newValue.length() < 6) {
+        } else if (newValue.at(0) == 0x03 && newValue.length() < 11) {
+            emit debug(QStringLiteral("Wheel/crank CSC notification is truncated: ") +
+                       QString::number(newValue.length()));
+            return;
+        } else if (newValue.at(0) == 0x01 && newValue.length() < 7) {
             emit debug(QStringLiteral("Wheel revolution data present with wrong bytes ") +
                        QString::number(newValue.length()));
             return;
@@ -262,6 +276,15 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         }
         uint16_t LastCrankEventTimeRead =
             (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+
+        // Keep CSC counters synchronized even while FTMS is preferred, so the
+        // first fallback packet does not include minutes of accumulated revolutions.
+        if (!externalCadenceDisabled || ftmsCadenceFresh) {
+            oldLastCrankEventTime = LastCrankEventTimeRead;
+            oldCrankRevs = CrankRevsRead;
+            lastRefreshCharacteristicChanged2A5B = now;
+            return;
+        }
 
         int16_t deltaT = LastCrankEventTimeRead - oldLastCrankEventTime;
         if (deltaT < 0) {
@@ -356,12 +379,29 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
         emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
     } else if (characteristic.uuid() == QBluetoothUuid::CharacteristicType::CyclingPowerMeasurement) {
+        if (newValue.size() < 4) {
+            emit debug(QStringLiteral("Truncated Cycling Power notification: ") +
+                       QString::number(newValue.size()));
+            return;
+        }
         uint16_t flags = (((uint16_t)((uint8_t)newValue.at(1)) << 8) | (uint16_t)((uint8_t)newValue.at(0)));
         bool cadence_present = false;
         bool wheel_revs = false;
         bool crank_rev_present = false;
         uint16_t time_division = 1024;
         uint8_t index = 4;
+        if (THINK_X) {
+            // Power Balance, Torque, Wheel (6 bytes), and Crank (4 bytes).
+            const int expectedLength = 4 + ((flags & 0x01) ? 1 : 0) +
+                                       ((flags & 0x04) ? 2 : 0) +
+                                       ((flags & 0x10) ? 6 : 0) +
+                                       ((flags & 0x20) ? 4 : 0);
+            if (newValue.size() < expectedLength) {
+                emit debug(QStringLiteral("Truncated ThinkRider Cycling Power notification: ") +
+                           QString::number(newValue.size()));
+                return;
+            }
+        }
 
         if (newValue.length() > 3) {
             double tacx_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
@@ -568,10 +608,30 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
             uint16_t word_flags;
         };
 
+        if (newValue.size() < 2) {
+            emit debug(QStringLiteral("Truncated FTMS Indoor Bike notification: ") +
+                       QString::number(newValue.size()));
+            return;
+        }
         flags Flags;
         int index = 0;
-        Flags.word_flags = (newValue.at(1) << 8) | newValue.at(0);
+        Flags.word_flags = (static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(1))) << 8) |
+                           static_cast<uint8_t>(newValue.at(0));
         index += 2;
+
+        // Validate all optional fields before accessing QByteArray::at(). Invalid
+        // notifications must not reach Qt assertions (seen in issue #5531).
+        const int expectedLength = 2 + (!Flags.moreData ? 2 : 0) + (Flags.avgSpeed ? 2 : 0) +
+                                   (Flags.instantCadence ? 2 : 0) + (Flags.avgCadence ? 2 : 0) +
+                                   (Flags.totDistance ? 3 : 0) + (Flags.resistanceLvl ? 2 : 0) +
+                                   (Flags.instantPower ? 2 : 0) + (Flags.avgPower ? 2 : 0) +
+                                   (Flags.expEnergy ? 5 : 0) + (Flags.heartRate ? 1 : 0);
+        if (newValue.size() < expectedLength) {
+            emit debug(QStringLiteral("Truncated FTMS Indoor Bike notification: ") +
+                       QString::number(newValue.size()) + QStringLiteral(" expected ") +
+                       QString::number(expectedLength));
+            return;
+        }
 
         if (!Flags.moreData) {
             if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
@@ -600,11 +660,17 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
-                Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                    (uint16_t)((uint8_t)newValue.at(index)))) /
-                          2.0;
-                if(Cadence.value() > 0)
-                    validCadenceFrom2ad2 = true;
+                const double ftmsCadence =
+                    ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                              (uint16_t)((uint8_t)newValue.at(index)))) / 2.0;
+                if (ftmsCadence > 0 && ftmsCadence < 255) {
+                    Cadence = ftmsCadence;
+                    lastValidFtmsCadence = now;
+                } else if (!ftmsCadenceFresh) {
+                    // FTMS no longer has usable cadence. CSC can replace this
+                    // value on its next notification; never latch onto FTMS forever.
+                    Cadence = 0;
+                }
             }
             index += 2;
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
