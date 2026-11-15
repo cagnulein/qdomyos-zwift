@@ -177,10 +177,18 @@ T.Button {
             clipRadius: control.modern ? height / 2 : 2
             width: parent.width
             height: parent.height
-            pressed: control.pressed
+            // Modern: no wave, only the pressed tint. Qt 5.15 clips the wave by the bounding
+            // rectangle (qquickmaterialripple.cpp, clipNode->setRadius is commented out, QTBUG-51894;
+            // fixed in Qt 6.5) - clipRadius rounds the tint, not the wave, and a pill showed square
+            // corners
+            pressed: control.modern ? false : control.pressed
             anchor: control
             active: control.down || control.visualFocus || control.hovered
-            color: control.flat && control.highlighted ? control.Material.highlightedRippleColor : control.Material.rippleColor
+            // Modern: the Material 3 state layer - the label colour at 10 %, so a dark label darkens
+            // the pill and a light one lightens it on any fill (the Qt 5 ripple is black 6 % or white
+            // 12.5 % by the theme alone, whatever the pill)
+            color: control.modern ? window.ui.alpha(control.labelColor, 0.10)
+                 : control.flat && control.highlighted ? control.Material.highlightedRippleColor : control.Material.rippleColor
         }
     }
 }

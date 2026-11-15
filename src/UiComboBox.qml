@@ -6,6 +6,7 @@ import QtQuick.Templates 2.15 as T
 import QtQuick.Controls.Material 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls.Material.impl 2.15
+import QtGraphicalEffects 1.12
 
 // ComboBox of the settings pages and the wizard: the Qt 5.15 Material ComboBox, copied as
 // is (qtquickcontrols2 5.15, src/imports/controls/material/ComboBox.qml), so nothing changes
@@ -53,6 +54,11 @@ T.ComboBox {
 
     // Width of the widest item, measured when the list opens (#5236)
     property real widestItem: 0
+
+    // Modern: the two items of the list pressed last while it is open (-1 - none) - they keep the
+    // rounded mask of their ripple (see the delegate)
+    property int pressedItemIndex: -1
+    property int previousPressedItemIndex: -1
 
     TextMetrics {
         id: itemMetrics
@@ -105,6 +111,12 @@ T.ComboBox {
         Material.foreground: control.currentIndex === index ? ListView.view.contentItem.Material.accent : ListView.view.contentItem.Material.foreground
         highlighted: control.highlightedIndex === index
         hoverEnabled: control.hoverEnabled
+        onPressedChanged: {
+            if (pressed && control.pressedItemIndex !== index) {
+                control.previousPressedItemIndex = control.pressedItemIndex
+                control.pressedItemIndex = index
+            }
+        }
 
         // Material's MenuItem background; modern: the highlight is a rounded block inset from
         // the edges, not a square bar across the whole list
@@ -117,15 +129,44 @@ T.ComboBox {
             radius: control.modern ? 10 : 0
             color: menuItem.highlighted ? menuItem.Material.listHighlightColor : "transparent"
 
-            Ripple {
+            // Modern: the mask of the rounded block for the ripple below
+            Rectangle {
+                id: rippleMask
+                visible: false
                 width: parent.width
                 height: parent.height
-                clip: visible
-                clipRadius: parent.radius
-                pressed: menuItem.pressed
-                anchor: menuItem
-                active: menuItem.down || menuItem.highlighted
-                color: menuItem.Material.rippleColor
+                radius: parent.radius
+            }
+
+            // Qt 5.15 clips the ripple wave by its bounding rectangle - clipRadius rounds only the
+            // pressed tint (qquickmaterialripple.cpp, clipNode->setRadius commented out,
+            // QTBUG-51894; fixed in Qt 6.5): an item held by a finger showed the wave with square
+            // corners. Modern: the wave is cut by the rounded block with a layer, only on the two
+            // items pressed last (old exercise bike consoles: at most two small layers). A released
+            // wave still grows and fades for 333 ms, so the layer stays after the press until the
+            // list closes (popup onClosed comes after the exit transition): a pick, a press taken
+            // over by a drag of the list, and that one while another item is pressed right after it
+            Item {
+                width: parent.width
+                height: parent.height
+                layer.enabled: control.modern
+                               && (menuItem.down || control.pressedItemIndex === index
+                                   || control.previousPressedItemIndex === index)
+                layer.effect: OpacityMask {
+                    maskSource: rippleMask
+                }
+
+                Ripple {
+                    width: parent.width
+                    height: parent.height
+                    clip: visible
+                    clipRadius: rippleMask.radius
+                    pressed: menuItem.pressed
+                    anchor: menuItem
+                    active: menuItem.down || menuItem.highlighted
+                    // Modern: the Material 3 state layer, the text colour at 10 % (as UiButton)
+                    color: control.modern ? window.ui.alpha(window.ui.textMain, 0.10) : menuItem.Material.rippleColor
+                }
             }
         }
     }
@@ -188,14 +229,20 @@ T.ComboBox {
             x: control.editable && control.indicator ? control.indicator.x : 0
             width: control.editable && control.indicator ? control.indicator.width : parent.width
             height: parent.height
-            pressed: control.pressed
+            // Modern: no wave, only the pressed tint - Qt 5.15 does not round the wave (see the
+            // items of the list)
+            pressed: control.modern ? false : control.pressed
             anchor: control.editable && control.indicator ? control.indicator : control
             active: control.pressed || control.visualFocus || control.hovered
-            color: control.Material.rippleColor
+            color: control.modern ? window.ui.alpha(window.ui.textMain, 0.10) : control.Material.rippleColor
         }
     }
 
     popup: T.Popup {
+        onClosed: {
+            control.pressedItemIndex = -1
+            control.previousPressedItemIndex = -1
+        }
         y: control.editable ? control.height - 5 : 0
         // As wide as the longest item (long labels were cut off), not narrower than the field
         // and kept inside the window; the height from the item count, the ListView builds its
