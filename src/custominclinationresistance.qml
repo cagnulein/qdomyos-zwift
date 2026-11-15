@@ -15,7 +15,8 @@ ScrollView {
     clip: true
 
     property string defaultInclinationResistanceTable: "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16"
-    property int rowHeight: 55
+    // Modern look: the +/- fields 52 high, 8 between them (4 above and 4 below each)
+    property int rowHeight: window.ui.modern ? 60 : 55
     property int controlHeight: 43
 
     // Modern look: a +/- field of the table, as on the Wahoo Options page. The classic one is a
@@ -260,8 +261,8 @@ ScrollView {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.topMargin: 10
-        anchors.leftMargin: window.contentSideMargin
-        anchors.rightMargin: window.contentSideMargin
+        anchors.leftMargin: window.ui.modern ? Math.max(16, window.contentSideMargin) : window.contentSideMargin
+        anchors.rightMargin: window.ui.modern ? Math.max(16, window.contentSideMargin) : window.contentSideMargin
         spacing: 10
 
         IndicatorOnlySwitch {
@@ -282,7 +283,7 @@ ScrollView {
             text: qsTr("Set the resistance QZ should target at each incline. QZ interpolates automatically between points and uses the nearest endpoint outside the configured range. Changes are saved automatically.")
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
-            font.pixelSize: window.fontHint
+            font.pixelSize: window.ui.modern ? window.ui.fontCaption : window.fontHint
             bottomPadding: window.hintGap
             color: window.ui.modern ? window.ui.textMuted : Material.accent
         }
@@ -309,7 +310,7 @@ ScrollView {
                 Layout.preferredWidth: 1
                 wrapMode: window.ui.modern ? Text.WordWrap : window.labelWrap
             }
-            Item { Layout.preferredWidth: 44 }
+            Item { Layout.preferredWidth: 48 }
         }
 
         Rectangle {
@@ -382,8 +383,8 @@ ScrollView {
                 RowLayout {
                     visible: window.ui.modern
                     anchors.fill: parent
-                    anchors.topMargin: 5
-                    anchors.bottomMargin: 6
+                    anchors.topMargin: 4
+                    anchors.bottomMargin: 4
                     spacing: 8
 
                     Stepper {
@@ -418,7 +419,7 @@ ScrollView {
 
                     MouseArea {
                         id: removeButton
-                        Layout.preferredWidth: 44
+                        Layout.preferredWidth: 48
                         Layout.fillHeight: true
                         enabled: pointListModel.count > 1
                         onClicked: removePoint(index)
@@ -585,7 +586,7 @@ ScrollView {
                 wrapsText: true
                 text: qsTr("Add Point")
                 Layout.fillWidth: true
-                Layout.preferredHeight: window.ui.modern ? Math.max(40, contentItem.implicitHeight + 24) : 40
+                Layout.preferredHeight: window.ui.modern ? Math.max(48, contentItem.implicitHeight + 24) : 40
                 onClicked: addPoint()
             }
 
@@ -593,7 +594,7 @@ ScrollView {
                 wrapsText: true
                 text: qsTr("Reset Example")
                 Layout.fillWidth: true
-                Layout.preferredHeight: window.ui.modern ? Math.max(40, contentItem.implicitHeight + 24) : 40
+                Layout.preferredHeight: window.ui.modern ? Math.max(48, contentItem.implicitHeight + 24) : 40
                 onClicked: {
                     setPoints(defaultPoints())
                     savePoints()

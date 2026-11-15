@@ -114,8 +114,8 @@ ScrollView {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.topMargin: 10
-        anchors.leftMargin: window.contentSideMargin
-        anchors.rightMargin: window.contentSideMargin
+        anchors.leftMargin: window.ui.modern ? Math.max(16, window.contentSideMargin) : window.contentSideMargin
+        anchors.rightMargin: window.ui.modern ? Math.max(16, window.contentSideMargin) : window.contentSideMargin
         spacing: 10
 
         IndicatorOnlySwitch {
@@ -136,7 +136,7 @@ ScrollView {
             text: qsTr("Each gear uses the offset below instead of the raw gear value. QZ applies it automatically to resistance, inclination, or slope depending on the trainer path. Default is linear.")
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
-            font.pixelSize: window.fontHint
+            font.pixelSize: window.ui.modern ? window.ui.fontCaption : window.fontHint
             bottomPadding: window.hintGap
             color: window.ui.modern ? window.ui.textMuted : Material.accent
         }
@@ -145,7 +145,7 @@ ScrollView {
             wrapsText: true
             text: qsTr("Reset to Linear Defaults")
             Layout.fillWidth: true
-            Layout.preferredHeight: window.ui.modern ? Math.max(40, contentItem.implicitHeight + 24) : window.fontPx(40)
+            Layout.preferredHeight: window.ui.modern ? Math.max(48, contentItem.implicitHeight + 24) : window.fontPx(40)
             onClicked: {
                 gearRows = defaultGearRows()
                 updateGearListModel()
@@ -226,7 +226,7 @@ ScrollView {
             interactive: !window.ui.modern
             clip: true
             // Modern look: rounded rows apart from each other
-            spacing: window.ui.modern ? 4 : 0
+            spacing: window.ui.modern ? 8 : 0
             model: gearListModel
 
             Component.onCompleted: {
@@ -239,7 +239,7 @@ ScrollView {
 
             delegate: Rectangle {
                 width: gearTable.width
-                height: window.ui.modern ? 48 : rowHeight
+                height: window.ui.modern ? 52 : rowHeight
                 radius: window.ui.modern ? 12 : 0
                 color: window.ui.modern ? window.ui.surface : (index % 2 === 0 ? "white" : "#fafafa")
 

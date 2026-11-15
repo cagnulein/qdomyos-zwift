@@ -339,7 +339,7 @@ ScrollView {
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.margins: window.ui.modern ? window.contentSideMargin : 20
+        anchors.margins: window.ui.modern ? Math.max(16, window.contentSideMargin) : 20
         spacing: window.ui.modern ? 12 : 20
         id: chainringColumn
 
@@ -385,7 +385,7 @@ ScrollView {
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
                     Layout.maximumWidth: chainringColumn.width - 20
-                    font.pixelSize: window.fontHint
+                    font.pixelSize: window.ui.modern ? window.ui.fontCaption : window.fontHint
                     bottomPadding: window.hintGap
                     color: window.ui.modern ? window.ui.textMuted : Material.accent
                 }
@@ -720,7 +720,7 @@ ScrollView {
                         wrapsText: true
                         text: qsTr("Add Gear")
                         Layout.fillWidth: true
-                        Layout.preferredHeight: window.ui.modern ? Math.max(40, contentItem.implicitHeight + 24) : window.fontPx(40)
+                        Layout.preferredHeight: window.ui.modern ? Math.max(48, contentItem.implicitHeight + 24) : window.fontPx(40)
                         onClicked: addNewGear()
                     }
 
@@ -728,7 +728,7 @@ ScrollView {
                         wrapsText: true
                         text: qsTr("Clear Selected Gear and Following")
                         Layout.fillWidth: true
-                        Layout.preferredHeight: window.ui.modern ? Math.max(40, contentItem.implicitHeight + 24) : window.fontPx(40)
+                        Layout.preferredHeight: window.ui.modern ? Math.max(48, contentItem.implicitHeight + 24) : window.fontPx(40)
                         onClicked: {
                             if (gearTable.currentRow >= 0) {
                                 clearGearsFromIndex(gearTable.currentRow)
@@ -740,7 +740,7 @@ ScrollView {
                         wrapsText: true
                         text: qsTr("Reset All Gears")
                         Layout.fillWidth: true
-                        Layout.preferredHeight: window.ui.modern ? Math.max(40, contentItem.implicitHeight + 24) : window.fontPx(40)
+                        Layout.preferredHeight: window.ui.modern ? Math.max(48, contentItem.implicitHeight + 24) : window.fontPx(40)
                         onClicked: initializeGearRows()
                     }
                 }
@@ -843,7 +843,7 @@ ScrollView {
                     interactive: false
                     clip: true
                     // Modern look: rounded rows apart from each other
-                    spacing: window.ui.modern ? 4 : 0
+                    spacing: window.ui.modern ? 8 : 0
                     property int currentRow: -1
                     model: ListModel {
                         id: gearListModel
@@ -893,7 +893,7 @@ ScrollView {
                     delegate: Rectangle {
                         width: gearTable.width
                         // the rows, the fields and their -/+ grow with the text
-                        height: window.ui.modern ? 48 : window.fontPx(40)
+                        height: window.ui.modern ? 52 : window.fontPx(40)
                         radius: window.ui.modern ? 12 : 0
                         color: window.ui.modern ? (gearTable.currentRow === index ? window.ui.alpha(window.ui.accent, 0.14) : window.ui.surface) : (gearTable.currentRow === index ? "#e0e0e0" : "white")
 
