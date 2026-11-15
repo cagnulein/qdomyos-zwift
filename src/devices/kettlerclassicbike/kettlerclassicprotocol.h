@@ -15,6 +15,9 @@ struct Frame {
 
 quint16 crc16(const QByteArray &data);
 QByteArray encodeFrame(quint16 function, quint8 subFunction, const QByteArray &payload = QByteArray());
+// Coach S Kinomap handshake counts escaped payload bytes in its length field.
+// Keep the standard encoder unchanged for other devices and regular commands.
+QByteArray encodeFrameWithEscapedPayloadLength(quint16 function, quint8 subFunction, const QByteArray &payload);
 QVector<Frame> consumeFrames(QByteArray &buffer);
 
 } // namespace kettlerclassicprotocol
