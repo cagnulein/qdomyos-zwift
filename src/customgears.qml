@@ -179,11 +179,11 @@ ScrollView {
                         anchors.centerIn: parent
                         // Modern look: one line inside its column, smaller if it does not fit
                         width: window.ui.modern ? parent.width - 8 : implicitWidth
-                        horizontalAlignment: Text.AlignHCenter
+                        horizontalAlignment: window.ui.modern ? Text.AlignHCenter : Text.AlignLeft
                         fontSizeMode: window.ui.modern ? Text.HorizontalFit : Text.FixedSize
                         // A shrunk text keeps the height of the full size: it fills the cell and stays in the middle
                         height: window.ui.modern ? parent.height : implicitHeight
-                        verticalAlignment: Text.AlignVCenter
+                        verticalAlignment: window.ui.modern ? Text.AlignVCenter : Text.AlignTop
                         minimumPixelSize: 9
                         text: qsTr("Gear")
                         font.bold: true
@@ -202,11 +202,11 @@ ScrollView {
                         Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         anchors.centerIn: parent
                         width: window.ui.modern ? parent.width - 8 : implicitWidth
-                        horizontalAlignment: Text.AlignHCenter
+                        horizontalAlignment: window.ui.modern ? Text.AlignHCenter : Text.AlignLeft
                         fontSizeMode: window.ui.modern ? Text.HorizontalFit : Text.FixedSize
                         // A shrunk text keeps the height of the full size: it fills the cell and stays in the middle
                         height: window.ui.modern ? parent.height : implicitHeight
-                        verticalAlignment: Text.AlignVCenter
+                        verticalAlignment: window.ui.modern ? Text.AlignVCenter : Text.AlignTop
                         minimumPixelSize: 9
                         text: qsTr("Offset")
                         font.bold: true
