@@ -1367,8 +1367,9 @@ const QString QZSettings::ui_theme_mode = QStringLiteral("ui_theme_mode");
 const QString QZSettings::default_ui_theme_mode = QStringLiteral("auto");
 
 const QString QZSettings::wahoo_wheel_question_answered = QStringLiteral("wahoo_wheel_question_answered");
+const QString QZSettings::strava_clear_treadmill_tag_after_upload = QStringLiteral("strava_clear_treadmill_tag_after_upload");
 
-const uint32_t allSettingsCount = 1056;
+const uint32_t allSettingsCount = 1057;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2451,6 +2452,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::ui_theme_mode, QZSettings::default_ui_theme_mode},
     {QZSettings::wahoo_wheel_question_answered, QZSettings::default_wahoo_wheel_question_answered},
     {QZSettings::proform_use_console_gears, QZSettings::default_proform_use_console_gears},
+    {QZSettings::strava_clear_treadmill_tag_after_upload, QZSettings::default_strava_clear_treadmill_tag_after_upload},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
