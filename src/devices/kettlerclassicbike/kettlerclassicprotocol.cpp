@@ -55,14 +55,24 @@ quint16 crc16(const QByteArray &data) {
     return crc;
 }
 
-QByteArray encodeFrame(quint16 function, quint8 subFunction, const QByteArray &payload) {
+namespace {
+QByteArray encodeFrameImpl(quint16 function, quint8 subFunction, const QByteArray &payload,
+                           bool countEscapedPayloadBytes) {
     QByteArray raw;
     raw.reserve(5 + payload.size());
     raw.append(static_cast<char>((function >> 8) & 0xff));
     raw.append(static_cast<char>(function & 0xff));
     raw.append(static_cast<char>(subFunction));
-    raw.append(static_cast<char>((payload.size() >> 8) & 0xff));
-    raw.append(static_cast<char>(payload.size() & 0xff));
+    // Kinomap Coach S handshake: header length counts the encoded (escaped)
+    // payload size, whereas regular Classic frames count decoded bytes.
+    qsizetype advertisedLength = payload.size();
+    if (countEscapedPayloadBytes) {
+        for (const char byte : payload) {
+            if (isControlByte(static_cast<quint8>(byte))) ++advertisedLength;
+        }
+    }
+    raw.append(static_cast<char>((advertisedLength >> 8) & 0xff));
+    raw.append(static_cast<char>(advertisedLength & 0xff));
     raw.append(payload);
 
     const quint16 checksum = crc16(raw);
@@ -76,6 +86,16 @@ QByteArray encodeFrame(quint16 function, quint8 subFunction, const QByteArray &p
     appendEscaped(encoded, static_cast<quint8>((checksum >> 8) & 0xff));
     appendEscaped(encoded, static_cast<quint8>(checksum & 0xff));
     return encoded;
+}
+} // namespace
+
+QByteArray encodeFrame(quint16 function, quint8 subFunction, const QByteArray &payload) {
+    return encodeFrameImpl(function, subFunction, payload, false);
+}
+
+QByteArray encodeFrameWithEscapedPayloadLength(quint16 function, quint8 subFunction,
+                                               const QByteArray &payload) {
+    return encodeFrameImpl(function, subFunction, payload, true);
 }
 
 QVector<Frame> consumeFrames(QByteArray &buffer) {
