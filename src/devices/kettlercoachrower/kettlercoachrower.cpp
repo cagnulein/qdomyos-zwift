@@ -99,7 +99,9 @@ void kettlercoachrower::createSocket() {
     connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error),
             this, &kettlercoachrower::onSocketErrorOccurred);
 #ifdef Q_OS_ANDROID
-    socket->setPreferredSecurityFlags(QBluetooth::NoSecurity);
+    // Kinomap's successful Coach S HCI capture shows encrypted RFCOMM.
+    // Use a secured socket only for Coach S; other Kettler drivers are unchanged.
+    socket->setPreferredSecurityFlags(QBluetooth::Encryption);
 #endif
 }
 
