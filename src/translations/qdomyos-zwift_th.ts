@@ -72,6 +72,26 @@
         <source>Restore files</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Parent folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>HeartRateSuggestion</name>
@@ -261,6 +281,14 @@ Would you like to enable the required services?</source>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">ยกเลิก</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -298,6 +326,18 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1175,6 +1215,18 @@ Do you want to update QZ settings?</source>
         <source>Restore files</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SettingsNumberField</name>
@@ -1398,6 +1450,71 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Start Workout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">ยกเลิก</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>sec</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2364,6 +2481,16 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Interval {number}, {field}: {error}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4362,11 +4489,11 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Not now</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ไม่ใช่ตอนนี้</translation>
     </message>
     <message>
         <source>Don&apos;t ask again</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ไม่ต้องถามอีก</translation>
     </message>
     <message>
         <source>Auto Resistance enabled</source>
@@ -4378,6 +4505,114 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Please choose a file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Services</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4464,6 +4699,30 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Other folders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -8174,6 +8433,14 @@ Default: A = -0.96, B = 1.33</source>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>ในการออกกำลังกาย GPX ให้ข้ามการเปลี่ยนความชันที่น้อยกว่าค่านี้ และส่งคำสั่งใหม่เมื่อผลต่างจากค่าที่ส่งล่าสุดถึงเกณฑ์ที่กำหนดเท่านั้น ค่าเริ่มต้น: 0 (ปิดใช้งาน)</translation>
     </message>
+    <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>
@@ -8984,6 +9251,10 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>km/h</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
