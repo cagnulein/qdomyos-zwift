@@ -12,6 +12,11 @@ import QtQuick.Controls.Material 2.0
 // - `minimum` / `maximum` when set: out of range is not valid
 // - not valid: a red line and the reason under the field, also for a value already saved
 //   before this check existed; nothing is changed or reset by itself
+// - `savedText`: the row binds the saved setting here instead of `text`; the field shows it
+//   and shows it again whenever the setting changes (after OK too). `dirty` - the number in
+//   the field is not the saved one ("75.0" for a saved 75 is not), the OK button of the row
+//   is enabled by `valid && dirty`: a grey OK means there is nothing to save. A field without
+//   `savedText` is never dirty
 // The rule is a regular expression, not IntValidator/DoubleValidator: those follow the
 // locale of the phone (comma or point), the very thing that broke the decimal input
 TextField {
@@ -21,8 +26,12 @@ TextField {
     property int decimals: 2
     property var minimum: undefined
     property var maximum: undefined
+    property var savedText: undefined
 
     readonly property real value: Number(text.replace(",", "."))
+    readonly property bool dirty: savedText !== undefined
+        && (valid ? value !== Number(String(savedText).replace(",", "."))
+                  : text !== String(savedText))
     readonly property bool inRange: (minimum === undefined || value >= minimum)
                                     && (maximum === undefined || value <= maximum)
     readonly property bool valid: acceptableInput && inRange
@@ -47,6 +56,9 @@ TextField {
 
     // Room for the reason under the line while the value is not valid
     bottomPadding: valid ? 16 : 16 + reason.implicitHeight
+
+    onSavedTextChanged: if (savedText !== undefined) text = savedText
+    Component.onCompleted: if (savedText !== undefined) text = savedText
 
     onTextEdited: {
         if (decimals <= 0)
@@ -77,7 +89,7 @@ TextField {
         y: field.height - implicitHeight - 2
         wrapMode: Text.WordWrap
         horizontalAlignment: field.horizontalAlignment
-        font.pixelSize: Qt.application.font.pixelSize - 3
+        font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize - 3 : window.fontPx(window.appFontPx - 3)
         color: Material.color(Material.Red)
     }
 }

@@ -129,6 +129,7 @@ class WorkoutModel : public QAbstractListModel {
     QString getStreakMessage(int streak) const;
     void applyDateFilter();
     QString makeAbsolutePath(const QString& relativePath) const;
+    QString resolveTrainingProgramPath(const QString& savedPath) const;
 
     QList<QVariantMap> m_workouts;
     QList<QVariantMap> m_allWorkouts;
@@ -143,7 +144,6 @@ class WorkoutModel : public QAbstractListModel {
     QString m_dbPath;
     int m_currentStreak;
     int m_longestStreak;
-    QString m_streakMessage;
     bool m_isDateFiltered;
     QDate m_filteredDate;
 };

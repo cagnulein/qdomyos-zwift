@@ -68,6 +68,61 @@
         <source>Other folders</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>मूल फ़ोल्डर</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>खोलें</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>यहाँ कोई GPX फ़ाइल नहीं है</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 किमी</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 मी</translation>
+    </message>
+</context>
+<context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>हृदय गति सेंसर मिला: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>हृदय गति सेंसर मिले: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>कनेक्ट करें</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>चुनें</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>अभी नहीं</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>फिर न पूछें</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>हृदय गति सेंसर चुनें</translation>
+    </message>
 </context>
 <context>
     <name>Home</name>
@@ -96,19 +151,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>QZ requires both Bluetooth and Location Services to be enabled.
-Location Services are necessary on Android to allow the app to find Bluetooth devices.
-The GPS will not be used.
-
-Would you like to enable them?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Reminder Preference</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Would you like to be reminded about enabling Location Services next time?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -210,7 +253,7 @@ Would you like to do that now?</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>ठीक है</translation>
     </message>
     <message>
         <source>Good</source>
@@ -227,6 +270,24 @@ Would you like to do that now?</source>
     <message>
         <source>Save</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.
+
+Would you like to enable the required services?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>रोकें</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>रद्द करें</translation>
     </message>
 </context>
 <context>
@@ -267,6 +328,18 @@ Would you like to do that now?</source>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>आपके उपकरण को खोजा जा रहा है…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>अपनी बाइक, ट्रेडमिल या रोइंग मशीन चालू करें: QZ उससे अपने आप कनेक्ट हो जाएगा।</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>कनेक्ट नहीं हो रहा?</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -288,7 +361,7 @@ Would you like to do that now?</source>
     </message>
     <message>
         <source>Chart</source>
-        <translation type="unfinished"></translation>
+        <translation>चार्ट</translation>
     </message>
     <message>
         <source>Treadmill Status</source>
@@ -476,7 +549,7 @@ Would you like to do that now?</source>
     <name>QAndroidPlatformTheme</name>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation>हाँ</translation>
     </message>
     <message>
         <source>Yes to All</source>
@@ -484,7 +557,7 @@ Would you like to do that now?</source>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation>नहीं</translation>
     </message>
     <message>
         <source>No to All</source>
@@ -997,6 +1070,34 @@ Do you want to update QZ settings?</source>
         <source>Zwift device: UPGRADE THE FIRMWARE!</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (हृदय गति सेंसर): हृदय गति उपलब्ध नहीं है। सुनिश्चित करें कि सेंसर हृदय गति प्रसारित कर रहा है।</translation>
+    </message>
+    <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>हृदय गति सेंसर खोजे जा रहे हैं...</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>%1 (हृदय गति सेंसर) खोजा जा रहा है...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>%1 (हृदय गति सेंसर) नहीं मिला। सुनिश्चित करें कि यह चालू है और हृदय गति प्रसारित कर रहा है।</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>आसपास कोई हृदय गति सेंसर नहीं मिला। सुनिश्चित करें कि वह चालू है और हृदय गति प्रसारित कर रहा है।</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1050,7 +1151,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>रद्द करें</translation>
     </message>
     <message>
         <source>Discard</source>
@@ -1110,6 +1211,22 @@ Do you want to update QZ settings?</source>
         <source>Other folders</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>फ़ाइल चुनने के लिए उस पर टैप करें, फिर लोड करें दबाएँ।</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>लोड करें</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>कोई सहेजी गई सेटिंग नहीं</translation>
+    </message>
 </context>
 <context>
     <name>SettingsNumberField</name>
@@ -1136,6 +1253,69 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Maximum: %1</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>QZ सहायता से संपर्क करें</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>निदान जानकारी के साथ सहायता ईमेल तैयार करें</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>कोई डिवाइस कनेक्ट नहीं है</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>गति और पावर शून्य हैं</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ सहायता</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>हो गया</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>कीबोर्ड छिपाएँ</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>सहायता अनुरोध बंद करें</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>हमें बताएँ कि क्या काम नहीं कर रहा। QZ आपके डिवाइस और ऐप की जानकारी जोड़ देगा।</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>समस्या बताएँ...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>समस्या बताएँ</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>उपलब्ध होने पर डिबग लॉग संलग्न करें</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>भेजने से पहले आप ईमेल की समीक्षा या संपादन कर सकते हैं। कुछ भी अपने आप नहीं भेजा जाता।</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>रद्द करें</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>ईमेल खोलें</translation>
     </message>
 </context>
 <context>
@@ -1215,7 +1395,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>हटाएँ</translation>
     </message>
     <message>
         <source>Other folders</source>
@@ -1257,6 +1437,10 @@ Do you want to update QZ settings?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1266,6 +1450,82 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Start Workout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>मूल फ़ोल्डर</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>कोई वर्कआउट नहीं मिला</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>यहाँ कोई वर्कआउट नहीं है</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>कम दिखाएँ</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>और दिखाएँ</translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>हाँ</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>नहीं</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>ठीक है</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>रद्द करें</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>विस्तृत</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>संकुचित</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>घंटे</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>मिनट</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>सेकंड</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1298,7 +1558,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">रद्द करें</translation>
     </message>
     <message>
         <source>Confirm</source>
@@ -1322,7 +1582,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation>लोड करें</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -1338,7 +1598,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>वापस</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -2146,6 +2406,104 @@ Do you want to update QZ settings?</source>
         <source>Auto Resistance</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Max Incline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>W</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>kJ</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>kcal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>km</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>mi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>rpm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>bpm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>mph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>min/km</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>min/mi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>lvl</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>spm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter a number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Allowed range: {min} to {max}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Minimum: {min}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maximum: {max}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the duration as hh:mm:ss</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The duration must be longer than 0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the pace as mm:ss, at least 1:00</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interval {number}, {field}: {error}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>हृदय गति PID एक्चुएटर</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>डिफ़ॉल्ट</translation>
+    </message>
 </context>
 <context>
     <name>Wizard</name>
@@ -2441,6 +2799,14 @@ The following questions will customize QZ for your equipment and goals.</source>
         <source>Female</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>lbs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>kg</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>WorkoutEditor</name>
@@ -2665,6 +3031,50 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter by date</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import workouts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open on Peloton</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load training program</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>mi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>km</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>kcal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Previous month</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Next month</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>has a workout</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3283,11 +3693,27 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error retrieving access token, %1 (%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3304,6 +3730,10 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Workouts imported: %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file could not be copied to the QZ folder.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3333,6 +3763,397 @@ This may take a few moments on first startup.</source>
     <message>
         <source>License not found</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>km</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>m</source>
+        <comment>unit: meters</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Kg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>cm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>mi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ft</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>in</source>
+        <comment>unit: inches</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Oz</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HRV (ms)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Searching for the device...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search stopped, tap the Bluetooth icon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Next search in %1 s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Android allows 5 Bluetooth searches in 30 s, the next one starts in %1 s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Odometer (m)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pace (m/500m)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Avg Pace (m/500m)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>T.Pace(m/500m)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>offset </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> /min</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> sec.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Incl: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1%2W</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>3s avg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>5s avg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gain: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MIN: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>W </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>meters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>feet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Great workout!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Average Speed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Speed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Calories burned: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distance: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Elevation Gain (%1): %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Average Watt: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Watt: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Average Watt/Kg: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Watt/Kg: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Average Heart Rate: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Heart Rate: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Heart Rate Z%1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Total Output: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Elapsed Time: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Moving Time: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Weight Loss (%1): %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Estimated VO2Max: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Running Stress Score: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>5 Seconds Power: %1W %2W/Kg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1 Minute Power: %1W %2W/Kg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>5 Minutes Power: %1W %2W/Kg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Estimated FTP: %1W</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FTP IMPROVED +%1W!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Average Cadence: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Cadence: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Average Resistance: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Resistance: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Average Peloton Resistance: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Peloton Resistance: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Average Pace: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Pace: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Average Strokes Length: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Spotify songs:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Support request</source>
+        <translation>सहायता अनुरोध</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZ समस्या | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>नमस्ते Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>मुझे QZ के लिए सहायता चाहिए।</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>समस्या:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[कृपया समस्या बताएँ]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>अपेक्षित व्यवहार:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[कृपया बताएँ कि क्या होना चाहिए]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ निदान ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZ संस्करण: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>प्लेटफ़ॉर्म: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>प्रोफ़ाइल: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>डिवाइस: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>कनेक्ट है</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>कनेक्ट नहीं है</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>कनेक्शन: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>गति: %1 किमी/घंटा</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>उपलब्ध नहीं</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>पावर: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>पहचानी गई स्थिति: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>डिबग लॉग का अनुरोध नहीं किया गया।</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>डिबग लॉग बंद है। समस्या दोहराने से पहले डिबग लॉग चालू करें और QZ को फिर से शुरू करें।</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>डिबग लॉग नहीं मिला।</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>डिबग लॉग उपलब्ध नहीं है या तैयार करने के लिए बहुत बड़ा है।</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>डिबग लॉग संलग्न है (gzip)।</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>डिबग लॉग संलग्नक लिख नहीं सके।</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>डिबग लॉग संपीड़ित नहीं हो सका या संलग्नक 10 MB से बड़ा है।</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>बनाया गया डिबग लॉग मैन्युअल रूप से संलग्न करें</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>कोई डिवाइस नहीं मिला</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>ईमेल ऐप नहीं खोला जा सका</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ चल रहा है</translation>
     </message>
 </context>
 <context>
@@ -3454,6 +4275,17 @@ Do you want to start it now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3475,6 +4307,10 @@ Do you want to start it now?</source>
     </message>
     <message>
         <source>Search settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3664,11 +4500,11 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Not now</source>
-        <translation type="unfinished"></translation>
+        <translation>अभी नहीं</translation>
     </message>
     <message>
         <source>Don&apos;t ask again</source>
-        <translation type="unfinished"></translation>
+        <translation>फिर न पूछें</translation>
     </message>
     <message>
         <source>Auto Resistance enabled</source>
@@ -3681,6 +4517,118 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Please choose a file</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>सहेज लिया गया! Files ऐप में देखें।</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>सहेज लिया गया! ऐप के निजी फ़ोल्डर में देखें।</translation>
+    </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Wahoo वर्चुअल गियर</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>वर्चुअल गियर का अनुकरण करने के लिए QZ आपके ट्रेनर में सहेजी गई पहिये की परिधि बदलता है। QZ बंद करने के बाद भी यह मान ट्रेनर में रह सकता है और दूसरे ऐप में उसके व्यवहार को प्रभावित कर सकता है।
+
+क्या QZ को इसे बदलने की अनुमति दें?
+
+नहीं चुनने पर QZ, Without Wheel Diameter Protocol (सेटिंग &gt; बाइक विकल्प &gt; Wahoo विकल्प) चालू करता है और वर्चुअल गियर ढलान के ज़रिये काम करते हैं। हाँ चुनने पर आप इसे बाद में वापस कर सकते हैं: वह विकल्प चालू करें और ट्रेनर के कनेक्ट रहने पर Restore Default Setting to the Trainer दबाएँ।</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>वापस</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>मुख्य मेनू</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>फ़्लोटिंग विंडो</translation>
+    </message>
+    <message>
+        <source>Load settings</source>
+        <translation>सेटिंग लोड करें</translation>
+    </message>
+    <message>
+        <source>Save settings</source>
+        <translation>सेटिंग सहेजें</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>मैप</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>वीडियो</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>चार्ट</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>टाइल लॉक करें</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>टाइल अनलॉक करें</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>ऑटो रेजिस्टेंस बंद करें</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>ऑटो रेजिस्टेंस चालू करें</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>Strava से डिस्कनेक्ट करें</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Strava से कनेक्ट करें</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Peloton से डिस्कनेक्ट करें</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Peloton से कनेक्ट करें</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Garmin Connect सेटिंग</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Intervals.icu से डिस्कनेक्ट करें</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Intervals.icu से कनेक्ट करें</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>वर्कआउट</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>ऐप</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>सेवाएँ</translation>
     </message>
 </context>
 <context>
@@ -3757,12 +4705,40 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Other folders</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>हटाएँ</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>नई प्रोफ़ाइल</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>सहेजी गई प्रोफ़ाइल</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>प्रोफ़ाइल चुनने के लिए उस पर टैप करें और फिर लोड करें दबाएँ। हटाने के लिए देर तक दबाएँ।</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>सक्रिय</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>लोड करें</translation>
     </message>
 </context>
 <context>
@@ -3920,15 +4896,19 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Open</source>
+        <source>Changed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No changed settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Changed settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>General Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>UI Zoom:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3940,15 +4920,11 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>App Language:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4764,7 +5740,7 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Tiles Options</source>
-        <translation type="unfinished"></translation>
+        <translation>टाइल विकल्प</translation>
     </message>
     <message>
         <source>General UI Options</source>
@@ -5197,7 +6173,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">रद्द करें</translation>
     </message>
     <message>
         <source>Submit</source>
@@ -5265,10 +6241,6 @@ Please enter it below:</source>
     </message>
     <message>
         <source>PID on Heart Zone:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6749,7 +7721,11 @@ Default: A = -0.96, B = 1.33</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Hidden on its page right now: change it here</source>
+        <source>On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7187,6 +8163,298 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Enables a virtual bluetooth bridge to the Tacx App.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>lbs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>kg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ft/in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>cm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>mph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PID HR actuator:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>5 km</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>10 km</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>KM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use System Text Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Workout History Charts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Heart Rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Peloton Resistance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cadence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Power Distribution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Speed and Inclination</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restore default order</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Moovio Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lynx Konect 2.0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cadence Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>iOS Background Keep Alive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>तय करें कि वर्चुअल ऐप के झुकाव को बाइक के प्रतिरोध में कैसे बदला जाए।</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>जब QZ वर्चुअल ऐप के झुकाव को प्रतिरोध में बदलता है, तब कस्टम मैपिंग का उपयोग करें।</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>हर पंक्ति में एक झुकाव|प्रतिरोध जोड़ी दर्ज करें। QZ बिंदुओं के बीच मान निकालता है और निर्धारित सीमा के बाहर के मान सीमित करता है।</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>सेवा में साइन इन करने के लिए Life Fitness खाते का उपयोगकर्ता नाम। स्थानीय रूप से संग्रहीत होता है और डिबग लॉग में कभी नहीं लिखा जाता।</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>सेवा में साइन इन करने के लिए Life Fitness खाते का पासवर्ड। स्थानीय रूप से संग्रहीत होता है और डिबग लॉग में कभी नहीं लिखा जाता।</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>कैमरा क्रिया</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>इमोट क्रिया</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbike एमुलेटर</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>पावर चार्ट की स्थिति</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>हृदय गति चार्ट की स्थिति</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>प्रतिरोध बनाम लक्ष्य प्रतिरोध चार्ट की स्थिति</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Peloton प्रतिरोध चार्ट की स्थिति</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>कैडेंस चार्ट की स्थिति</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>पावर वितरण चार्ट की स्थिति</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>गति और झुकाव चार्ट की स्थिति</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>वर्कआउट इतिहास में इस चार्ट का संख्यात्मक स्थान। सामान्य UI विकल्पों में ऊपर और नीचे बटन से क्रम बदलें।</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>शुरू होने पर हृदय गति सेंसर खोजें</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>फ़िटनेस मशीन जुड़ने के पहले 5 मिनट में यदि हृदय गति प्राप्त नहीं होती, तो QZ हर मिनट सेंसर खोजता है। चुनी गई हृदय गति बेल्ट मिलते ही कनेक्ट करता है; कोई बेल्ट चुनी नहीं गई हो तो पास में मिले सेंसर का सुझाव देता है। होम स्क्रीन पर हृदय गति टाइल या Bluetooth आइकन दबाकर किसी भी समय खोज सकते हैं।</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Daum बाइक विकल्प</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>8008 TRS 3 जैसे पुराने Daum एर्गोमीटर के लिए सीरियल पोर्ट। Android पर USB-से-सीरियल अडैप्टर के साथ &apos;usb&apos; इस्तेमाल करें। COM1, COM2 आदि Android पर USB अडैप्टर खोजने के उपनाम हैं, Android पोर्ट के नाम नहीं। Windows पर COM1 या COM3 और Linux/macOS पर सीरियल डिवाइस पथ, जैसे /dev/ttyUSB0, इस्तेमाल करें।</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>प्रतिरोध पोलिंग विलंब:</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>QZ द्वारा Daum को प्रतिरोध और पावर अपडेट भेजने की आवृत्ति सीमित करने के लिए झुकाव विलंब सेटिंग का उपयोग करता है। डिफ़ॉल्ट: 0 सेकंड।</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>झुकाव फ़िल्टर (%):</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>GPX वर्कआउट में इस मान से छोटे झुकाव बदलावों को अनदेखा करें। नया झुकाव आदेश तभी भेजें जब पिछली भेजी गई वैल्यू से अंतर निर्धारित सीमा तक पहुँच जाए। डिफ़ॉल्ट: 0 (बंद)।</translation>
+    </message>
+    <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>यह सेटिंग सेटिंग पेजों पर नहीं मिली</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>कंसोल गियर का उपयोग करें</translation>
     </message>
 </context>
 <context>
@@ -7991,6 +9259,18 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Stroke Length</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>mph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>टाइल विकल्प</translation>
     </message>
 </context>
 <context>

@@ -68,3 +68,16 @@ TEST(MetricMaxWattHelperTest, NonPositiveMaxWattLeavesValueUnchanged) {
     EXPECT_DOUBLE_EQ(metric::capWatt(2000.0, 0.0), 2000.0);
     EXPECT_DOUBLE_EQ(metric::capWatt(2000.0, -1.0), 2000.0);
 }
+
+TEST(MetricUpdateSequenceTest, CountsRepeatedHeartRateWrites) {
+    metric heart;
+    EXPECT_EQ(heart.updateSequence(), 0u);
+
+    heart = 103.0;
+    const quint64 healthKitWrite = heart.updateSequence();
+    EXPECT_EQ(healthKitWrite, 1u);
+
+    // A device reporting the same BPM must still count as a new source write.
+    heart = 103.0;
+    EXPECT_EQ(heart.updateSequence(), healthKitWrite + 1);
+}

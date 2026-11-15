@@ -41,6 +41,22 @@ class trxappgateusbrower : public rower {
     trxappgateusbrower(bool noWriteResistance = false, bool noHeartService = false, int8_t bikeResistanceOffset = 4,
                    double bikeResistanceGain = 1.0);
     bool connected() override;
+    resistance_t maxResistance() override;
+
+    struct IConsoleRowerMetrics {
+        bool valid = false;
+        int elapsed = 0;
+        int strokes = 0;
+        int cadence = 0;
+        int distanceMeters = 0;
+        int calories = 0;
+        int heart = 0;
+        int watts = 0;
+        int resistance = 0;
+        int paceSeconds = 0;
+        double speed = 0;
+    };
+    static IConsoleRowerMetrics iConsoleRowerMetricsFromPacket(const QByteArray &packet);
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,

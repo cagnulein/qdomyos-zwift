@@ -33,7 +33,7 @@ proformwifitreadmill::proformwifitreadmill(bool noWriteResistance, bool noHeartS
     ok = connect(&websocket, &QWebSocket::connected, [&]() { qDebug() << "connected!"; });
     ok = connect(&websocket, &QWebSocket::disconnected, [&]() {
         qDebug() << "disconnected!";
-        connectToDevice();
+        connectToDeviceLater();
     });
 
     connectToDevice();
@@ -82,6 +82,17 @@ void proformwifitreadmill::connectToDevice() {
     websocket.open(QUrl(
         "ws://" + settings.value(QZSettings::proformtreadmillip, QZSettings::default_proformtreadmillip).toString() +
         "/control"));
+}
+
+void proformwifitreadmill::connectToDeviceLater() {
+    if (reconnectPending)
+        return;
+    reconnectPending = true;
+    QTimer::singleShot(1000, this, [this]() {
+        reconnectPending = false;
+        if (websocket.state() == QAbstractSocket::UnconnectedState)
+            connectToDevice();
+    });
 }
 
 void proformwifitreadmill::forceSpeed(double requestSpeed) {

@@ -24,7 +24,7 @@ public class NotificationClient
 	 public static void notify(Context context, String message) {
                   _context = context;
                   serviceIntent = new Intent(context, ForegroundService.class);
-		  serviceIntent.putExtra("inputExtra", "QZ is Running");
+		  serviceIntent.putExtra("inputExtra", message);
                   serviceIntent.putExtra(EXTRA_FOREGROUND_SERVICE_TYPE,
                                          FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
 
