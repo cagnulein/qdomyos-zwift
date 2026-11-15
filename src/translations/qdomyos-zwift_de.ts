@@ -8592,7 +8592,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Use Console Gears</source>
-        <translation type="unfinished"></translation>
+        <translation>Gänge der Konsole verwenden</translation>
     </message>
 </context>
 <context>

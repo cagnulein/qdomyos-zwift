@@ -8572,7 +8572,7 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Use Console Gears</source>
-        <translation type="unfinished"></translation>
+        <translation>Použít převody z konzole</translation>
     </message>
 </context>
 <context>

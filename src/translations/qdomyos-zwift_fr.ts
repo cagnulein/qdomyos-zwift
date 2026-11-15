@@ -8612,7 +8612,7 @@ Par défaut : A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Use Console Gears</source>
-        <translation type="unfinished"></translation>
+        <translation>Utiliser les vitesses de la console</translation>
     </message>
 </context>
 <context>

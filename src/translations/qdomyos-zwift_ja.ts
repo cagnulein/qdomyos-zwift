@@ -8636,7 +8636,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Use Console Gears</source>
-        <translation type="unfinished"></translation>
+        <translation>コンソールのギアを使用</translation>
     </message>
 </context>
 <context>

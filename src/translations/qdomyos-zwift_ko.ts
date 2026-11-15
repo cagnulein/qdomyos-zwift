@@ -8572,7 +8572,7 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
     </message>
     <message>
         <source>Use Console Gears</source>
-        <translation type="unfinished"></translation>
+        <translation>콘솔 기어 사용</translation>
     </message>
 </context>
 <context>

@@ -74,23 +74,23 @@
     </message>
     <message>
         <source>Parent folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Dosar părinte</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation>Deschide</translation>
     </message>
     <message>
         <source>No GPX files here</source>
-        <translation type="unfinished"></translation>
+        <translation>Nu există fișiere GPX aici</translation>
     </message>
     <message>
         <source>%1 km</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 km</translation>
     </message>
     <message>
         <source>%1 m</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 m</translation>
     </message>
 </context>
 <context>
@@ -253,7 +253,7 @@ Would you like to do that now?</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Good</source>
@@ -283,11 +283,11 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>Oprește</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Anulare</translation>
+        <translation>Anulează</translation>
     </message>
 </context>
 <context>
@@ -330,15 +330,15 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Looking for your equipment…</source>
-        <translation type="unfinished"></translation>
+        <translation>Se caută echipamentul…</translation>
     </message>
     <message>
         <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pornește bicicleta, banda de alergare sau aparatul de vâslit: QZ se conectează automat.</translation>
     </message>
     <message>
         <source>Not connecting?</source>
-        <translation type="unfinished"></translation>
+        <translation>Nu se conectează?</translation>
     </message>
 </context>
 <context>
@@ -361,7 +361,7 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Chart</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafic</translation>
     </message>
     <message>
         <source>Treadmill Status</source>
@@ -549,7 +549,7 @@ Would you like to enable the required services?</source>
     <name>QAndroidPlatformTheme</name>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation>Da</translation>
     </message>
     <message>
         <source>Yes to All</source>
@@ -557,7 +557,7 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation>Nu</translation>
     </message>
     <message>
         <source>No to All</source>
@@ -1151,7 +1151,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Anulare</translation>
+        <translation>Anulează</translation>
     </message>
     <message>
         <source>Discard</source>
@@ -1217,15 +1217,15 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Tap a file to select it, then Load.</source>
-        <translation type="unfinished"></translation>
+        <translation>Atinge un fișier pentru a-l selecta, apoi Încarcă.</translation>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation>Încarcă</translation>
     </message>
     <message>
         <source>No saved settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicio setare salvată</translation>
     </message>
 </context>
 <context>
@@ -1395,7 +1395,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Șterge</translation>
     </message>
     <message>
         <source>Other folders</source>
@@ -1454,23 +1454,23 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Parent folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Dosar părinte</translation>
     </message>
     <message>
         <source>No workouts found</source>
-        <translation type="unfinished"></translation>
+        <translation>Nu s-au găsit antrenamente</translation>
     </message>
     <message>
         <source>No workouts here</source>
-        <translation type="unfinished"></translation>
+        <translation>Nu există antrenamente aici</translation>
     </message>
     <message>
         <source>Show less</source>
-        <translation type="unfinished"></translation>
+        <translation>Afișează mai puțin</translation>
     </message>
     <message>
         <source>Show more</source>
-        <translation type="unfinished"></translation>
+        <translation>Afișează mai mult</translation>
     </message>
 </context>
 <context>
@@ -1496,26 +1496,26 @@ Do you want to update QZ settings?</source>
     <name>UiSectionHeader</name>
     <message>
         <source>Expanded</source>
-        <translation type="unfinished"></translation>
+        <translation>Extins</translation>
     </message>
     <message>
         <source>Collapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>Restrâns</translation>
     </message>
 </context>
 <context>
     <name>UiTextField</name>
     <message>
         <source>hours</source>
-        <translation type="unfinished"></translation>
+        <translation>ore</translation>
     </message>
     <message>
         <source>min</source>
-        <translation type="unfinished"></translation>
+        <translation>min</translation>
     </message>
     <message>
         <source>sec</source>
-        <translation type="unfinished"></translation>
+        <translation>sec</translation>
     </message>
 </context>
 <context>
@@ -1571,7 +1571,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation>Încarcă</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -1587,7 +1587,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>Înapoi</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -2486,12 +2486,12 @@ Do you want to update QZ settings?</source>
     <message>
         <source>HR PID actuator</source>
         <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Actuator PID pentru ritmul cardiac</translation>
     </message>
     <message>
         <source>Default</source>
         <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Implicit</translation>
     </message>
 </context>
 <context>
@@ -4489,11 +4489,11 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Not now</source>
-        <translation type="unfinished">Nu acum</translation>
+        <translation>Nu acum</translation>
     </message>
     <message>
         <source>Don&apos;t ask again</source>
-        <translation type="unfinished">Nu mai întreba</translation>
+        <translation>Nu mai întreba</translation>
     </message>
     <message>
         <source>Auto Resistance enabled</source>
@@ -4509,15 +4509,15 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Saved! Look in the Files app.</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvat! Caută în aplicația Fișiere.</translation>
     </message>
     <message>
         <source>Saved! Look in the app&apos;s private folder.</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvat! Caută în dosarul privat al aplicației.</translation>
     </message>
     <message>
         <source>Wahoo Virtual Gears</source>
-        <translation type="unfinished"></translation>
+        <translation>Trepte virtuale Wahoo</translation>
     </message>
     <message>
         <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
@@ -4525,7 +4525,11 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
 Allow QZ to change it?
 
 No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pentru a simula treptele virtuale, QZ modifică circumferința roții stocată în trainer. Această valoare poate rămâne în trainer după închiderea QZ și îi poate afecta funcționarea în alte aplicații.
+
+Permiți ca QZ să o modifice?
+
+Dacă alegi Nu, QZ activează Without Wheel Diameter Protocol (Setări &gt; Opțiuni bicicletă &gt; Opțiuni Wahoo), iar treptele virtuale funcționează prin înclinație. Dacă alegi Da, poți anula modificarea ulterior: activează opțiunea respectivă și, cu trainerul conectat, apasă Restore Default Setting to the Trainer.</translation>
     </message>
     <message>
         <source>Back</source>
@@ -4533,27 +4537,27 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>Main menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Meniu principal</translation>
     </message>
     <message>
         <source>Floating window</source>
-        <translation type="unfinished"></translation>
+        <translation>Fereastră flotantă</translation>
     </message>
     <message>
         <source>Load settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Încarcă setările</translation>
     </message>
     <message>
         <source>Save settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvează setările</translation>
     </message>
     <message>
         <source>Map</source>
-        <translation type="unfinished"></translation>
+        <translation>Hartă</translation>
     </message>
     <message>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Video</translation>
     </message>
     <message>
         <source>Chart</source>
@@ -4561,59 +4565,59 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>Lock tiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Blochează panourile</translation>
     </message>
     <message>
         <source>Unlock tiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Deblochează panourile</translation>
     </message>
     <message>
         <source>Disable auto resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Dezactivează rezistența automată</translation>
     </message>
     <message>
         <source>Enable auto resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Activează rezistența automată</translation>
     </message>
     <message>
         <source>Disconnect from Strava</source>
-        <translation type="unfinished"></translation>
+        <translation>Deconectează de la Strava</translation>
     </message>
     <message>
         <source>Connect with Strava</source>
-        <translation type="unfinished"></translation>
+        <translation>Conectează la Strava</translation>
     </message>
     <message>
         <source>Disconnect from Peloton</source>
-        <translation type="unfinished"></translation>
+        <translation>Deconectează de la Peloton</translation>
     </message>
     <message>
         <source>Connect with Peloton</source>
-        <translation type="unfinished"></translation>
+        <translation>Conectează la Peloton</translation>
     </message>
     <message>
         <source>Garmin Connect settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Setări Garmin Connect</translation>
     </message>
     <message>
         <source>Disconnect from Intervals.icu</source>
-        <translation type="unfinished"></translation>
+        <translation>Deconectează de la Intervals.icu</translation>
     </message>
     <message>
         <source>Connect with Intervals.icu</source>
-        <translation type="unfinished"></translation>
+        <translation>Conectează la Intervals.icu</translation>
     </message>
     <message>
         <source>Workout</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenament</translation>
     </message>
     <message>
         <source>App</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplicație</translation>
     </message>
     <message>
         <source>Services</source>
-        <translation type="unfinished"></translation>
+        <translation>Servicii</translation>
     </message>
 </context>
 <context>
@@ -4707,19 +4711,19 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>New profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Profil nou</translation>
     </message>
     <message>
         <source>Saved profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Profiluri salvate</translation>
     </message>
     <message>
         <source>Tap a profile to select it, then Load. Long press to delete it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Atinge un profil pentru a-l selecta, apoi Încarcă. Apasă lung pentru a-l șterge.</translation>
     </message>
     <message>
         <source>Active</source>
-        <translation type="unfinished"></translation>
+        <translation>Activ</translation>
     </message>
     <message>
         <source>Load</source>
@@ -5725,7 +5729,7 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>Tiles Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opțiuni panouri</translation>
     </message>
     <message>
         <source>General UI Options</source>
@@ -8435,11 +8439,11 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>This setting was not found on the settings pages</source>
-        <translation type="unfinished"></translation>
+        <translation>Această setare nu a fost găsită în paginile de setări</translation>
     </message>
     <message>
         <source>Use Console Gears</source>
-        <translation type="unfinished"></translation>
+        <translation>Folosește treptele consolei</translation>
     </message>
 </context>
 <context>

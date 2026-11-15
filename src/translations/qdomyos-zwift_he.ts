@@ -74,23 +74,23 @@
     </message>
     <message>
         <source>Parent folder</source>
-        <translation type="unfinished"></translation>
+        <translation>תיקיית אב</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation>פתח</translation>
     </message>
     <message>
         <source>No GPX files here</source>
-        <translation type="unfinished"></translation>
+        <translation>אין כאן קובצי GPX</translation>
     </message>
     <message>
         <source>%1 km</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ק״מ</translation>
     </message>
     <message>
         <source>%1 m</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 מ׳</translation>
     </message>
 </context>
 <context>
@@ -253,7 +253,7 @@ Would you like to do that now?</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>אישור</translation>
     </message>
     <message>
         <source>Good</source>
@@ -283,11 +283,11 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>עצור</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">ביטול</translation>
+        <translation>ביטול</translation>
     </message>
 </context>
 <context>
@@ -330,15 +330,15 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Looking for your equipment…</source>
-        <translation type="unfinished"></translation>
+        <translation>מחפש את הציוד שלך…</translation>
     </message>
     <message>
         <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>הפעל את האופניים, ההליכון או מכונת החתירה: QZ יתחבר אליהם אוטומטית.</translation>
     </message>
     <message>
         <source>Not connecting?</source>
-        <translation type="unfinished"></translation>
+        <translation>אין חיבור?</translation>
     </message>
 </context>
 <context>
@@ -361,7 +361,7 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Chart</source>
-        <translation type="unfinished"></translation>
+        <translation>תרשים</translation>
     </message>
     <message>
         <source>Treadmill Status</source>
@@ -549,7 +549,7 @@ Would you like to enable the required services?</source>
     <name>QAndroidPlatformTheme</name>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation>כן</translation>
     </message>
     <message>
         <source>Yes to All</source>
@@ -557,7 +557,7 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation>לא</translation>
     </message>
     <message>
         <source>No to All</source>
@@ -1151,7 +1151,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">ביטול</translation>
+        <translation>ביטול</translation>
     </message>
     <message>
         <source>Discard</source>
@@ -1217,15 +1217,15 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Tap a file to select it, then Load.</source>
-        <translation type="unfinished"></translation>
+        <translation>הקש על קובץ כדי לבחור בו ואז על טען.</translation>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation>טען</translation>
     </message>
     <message>
         <source>No saved settings</source>
-        <translation type="unfinished"></translation>
+        <translation>אין הגדרות שמורות</translation>
     </message>
 </context>
 <context>
@@ -1395,7 +1395,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>מחק</translation>
     </message>
     <message>
         <source>Other folders</source>
@@ -1454,23 +1454,23 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Parent folder</source>
-        <translation type="unfinished"></translation>
+        <translation>תיקיית אב</translation>
     </message>
     <message>
         <source>No workouts found</source>
-        <translation type="unfinished"></translation>
+        <translation>לא נמצאו אימונים</translation>
     </message>
     <message>
         <source>No workouts here</source>
-        <translation type="unfinished"></translation>
+        <translation>אין כאן אימונים</translation>
     </message>
     <message>
         <source>Show less</source>
-        <translation type="unfinished"></translation>
+        <translation>הצג פחות</translation>
     </message>
     <message>
         <source>Show more</source>
-        <translation type="unfinished"></translation>
+        <translation>הצג עוד</translation>
     </message>
 </context>
 <context>
@@ -1496,26 +1496,26 @@ Do you want to update QZ settings?</source>
     <name>UiSectionHeader</name>
     <message>
         <source>Expanded</source>
-        <translation type="unfinished"></translation>
+        <translation>מורחב</translation>
     </message>
     <message>
         <source>Collapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>מכווץ</translation>
     </message>
 </context>
 <context>
     <name>UiTextField</name>
     <message>
         <source>hours</source>
-        <translation type="unfinished"></translation>
+        <translation>שעות</translation>
     </message>
     <message>
         <source>min</source>
-        <translation type="unfinished"></translation>
+        <translation>דקות</translation>
     </message>
     <message>
         <source>sec</source>
-        <translation type="unfinished"></translation>
+        <translation>שניות</translation>
     </message>
 </context>
 <context>
@@ -1571,7 +1571,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation>טען</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -1587,7 +1587,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>חזרה</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -2486,12 +2486,12 @@ Do you want to update QZ settings?</source>
     <message>
         <source>HR PID actuator</source>
         <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>מפעיל PID לדופק</translation>
     </message>
     <message>
         <source>Default</source>
         <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ברירת מחדל</translation>
     </message>
 </context>
 <context>
@@ -4489,11 +4489,11 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Not now</source>
-        <translation type="unfinished">לא עכשיו</translation>
+        <translation>לא עכשיו</translation>
     </message>
     <message>
         <source>Don&apos;t ask again</source>
-        <translation type="unfinished">אל תשאל שוב</translation>
+        <translation>אל תשאל שוב</translation>
     </message>
     <message>
         <source>Auto Resistance enabled</source>
@@ -4509,15 +4509,15 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Saved! Look in the Files app.</source>
-        <translation type="unfinished"></translation>
+        <translation>נשמר! חפש באפליקציית הקבצים.</translation>
     </message>
     <message>
         <source>Saved! Look in the app&apos;s private folder.</source>
-        <translation type="unfinished"></translation>
+        <translation>נשמר! חפש בתיקייה הפרטית של האפליקציה.</translation>
     </message>
     <message>
         <source>Wahoo Virtual Gears</source>
-        <translation type="unfinished"></translation>
+        <translation>הילוכים וירטואליים של Wahoo</translation>
     </message>
     <message>
         <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
@@ -4525,7 +4525,11 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
 Allow QZ to change it?
 
 No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
-        <translation type="unfinished"></translation>
+        <translation>כדי לדמות הילוכים וירטואליים, QZ משנה את היקף הגלגל השמור במכשיר האימון. הערך הזה עלול להישאר במכשיר גם לאחר סגירת QZ ולהשפיע על השימוש בו באפליקציות אחרות.
+
+האם לאפשר ל-QZ לשנות אותו?
+
+בחירה ב״לא״ תפעיל את Without Wheel Diameter Protocol (הגדרות &gt; אפשרויות אופניים &gt; אפשרויות Wahoo), וההילוכים הווירטואליים יפעלו באמצעות השיפוע. אם בחרת ״כן״, אפשר לבטל את השינוי בהמשך: הפעל את האפשרות הזאת, וכשמכשיר האימון מחובר לחץ על Restore Default Setting to the Trainer.</translation>
     </message>
     <message>
         <source>Back</source>
@@ -4533,27 +4537,27 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>Main menu</source>
-        <translation type="unfinished"></translation>
+        <translation>תפריט ראשי</translation>
     </message>
     <message>
         <source>Floating window</source>
-        <translation type="unfinished"></translation>
+        <translation>חלון צף</translation>
     </message>
     <message>
         <source>Load settings</source>
-        <translation type="unfinished"></translation>
+        <translation>טען הגדרות</translation>
     </message>
     <message>
         <source>Save settings</source>
-        <translation type="unfinished"></translation>
+        <translation>שמור הגדרות</translation>
     </message>
     <message>
         <source>Map</source>
-        <translation type="unfinished"></translation>
+        <translation>מפה</translation>
     </message>
     <message>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation>וידאו</translation>
     </message>
     <message>
         <source>Chart</source>
@@ -4561,59 +4565,59 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>Lock tiles</source>
-        <translation type="unfinished"></translation>
+        <translation>נעל אריחים</translation>
     </message>
     <message>
         <source>Unlock tiles</source>
-        <translation type="unfinished"></translation>
+        <translation>בטל נעילת אריחים</translation>
     </message>
     <message>
         <source>Disable auto resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>השבת התנגדות אוטומטית</translation>
     </message>
     <message>
         <source>Enable auto resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>הפעל התנגדות אוטומטית</translation>
     </message>
     <message>
         <source>Disconnect from Strava</source>
-        <translation type="unfinished"></translation>
+        <translation>התנתק מ-Strava</translation>
     </message>
     <message>
         <source>Connect with Strava</source>
-        <translation type="unfinished"></translation>
+        <translation>התחבר ל-Strava</translation>
     </message>
     <message>
         <source>Disconnect from Peloton</source>
-        <translation type="unfinished"></translation>
+        <translation>התנתק מ-Peloton</translation>
     </message>
     <message>
         <source>Connect with Peloton</source>
-        <translation type="unfinished"></translation>
+        <translation>התחבר ל-Peloton</translation>
     </message>
     <message>
         <source>Garmin Connect settings</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדרות Garmin Connect</translation>
     </message>
     <message>
         <source>Disconnect from Intervals.icu</source>
-        <translation type="unfinished"></translation>
+        <translation>התנתק מ-Intervals.icu</translation>
     </message>
     <message>
         <source>Connect with Intervals.icu</source>
-        <translation type="unfinished"></translation>
+        <translation>התחבר ל-Intervals.icu</translation>
     </message>
     <message>
         <source>Workout</source>
-        <translation type="unfinished"></translation>
+        <translation>אימון</translation>
     </message>
     <message>
         <source>App</source>
-        <translation type="unfinished"></translation>
+        <translation>אפליקציה</translation>
     </message>
     <message>
         <source>Services</source>
-        <translation type="unfinished"></translation>
+        <translation>שירותים</translation>
     </message>
 </context>
 <context>
@@ -4707,19 +4711,19 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>New profile</source>
-        <translation type="unfinished"></translation>
+        <translation>פרופיל חדש</translation>
     </message>
     <message>
         <source>Saved profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>פרופילים שמורים</translation>
     </message>
     <message>
         <source>Tap a profile to select it, then Load. Long press to delete it.</source>
-        <translation type="unfinished"></translation>
+        <translation>הקש על פרופיל כדי לבחור בו ואז על טען. לחיצה ארוכה תמחק אותו.</translation>
     </message>
     <message>
         <source>Active</source>
-        <translation type="unfinished"></translation>
+        <translation>פעיל</translation>
     </message>
     <message>
         <source>Load</source>
@@ -5725,7 +5729,7 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>Tiles Options</source>
-        <translation type="unfinished"></translation>
+        <translation>אפשרויות אריחים</translation>
     </message>
     <message>
         <source>General UI Options</source>
@@ -8435,11 +8439,11 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>This setting was not found on the settings pages</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדרה זו לא נמצאה בדפי ההגדרות</translation>
     </message>
     <message>
         <source>Use Console Gears</source>
-        <translation type="unfinished"></translation>
+        <translation>השתמש בהילוכים של הקונסולה</translation>
     </message>
 </context>
 <context>

@@ -74,23 +74,23 @@
     </message>
     <message>
         <source>Parent folder</source>
-        <translation type="unfinished"></translation>
+        <translation>โฟลเดอร์หลัก</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation>เปิด</translation>
     </message>
     <message>
         <source>No GPX files here</source>
-        <translation type="unfinished"></translation>
+        <translation>ไม่มีไฟล์ GPX ที่นี่</translation>
     </message>
     <message>
         <source>%1 km</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 กม.</translation>
     </message>
     <message>
         <source>%1 m</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ม.</translation>
     </message>
 </context>
 <context>
@@ -253,7 +253,7 @@ Would you like to do that now?</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>ตกลง</translation>
     </message>
     <message>
         <source>Good</source>
@@ -283,11 +283,11 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>หยุด</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">ยกเลิก</translation>
+        <translation>ยกเลิก</translation>
     </message>
 </context>
 <context>
@@ -330,15 +330,15 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Looking for your equipment…</source>
-        <translation type="unfinished"></translation>
+        <translation>กำลังค้นหาอุปกรณ์ของคุณ…</translation>
     </message>
     <message>
         <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>เปิดจักรยาน ลู่วิ่ง หรือเครื่องกรรเชียงบก: QZ จะเชื่อมต่อโดยอัตโนมัติ</translation>
     </message>
     <message>
         <source>Not connecting?</source>
-        <translation type="unfinished"></translation>
+        <translation>เชื่อมต่อไม่ได้ใช่ไหม?</translation>
     </message>
 </context>
 <context>
@@ -361,7 +361,7 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Chart</source>
-        <translation type="unfinished"></translation>
+        <translation>กราฟ</translation>
     </message>
     <message>
         <source>Treadmill Status</source>
@@ -549,7 +549,7 @@ Would you like to enable the required services?</source>
     <name>QAndroidPlatformTheme</name>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation>ใช่</translation>
     </message>
     <message>
         <source>Yes to All</source>
@@ -557,7 +557,7 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation>ไม่</translation>
     </message>
     <message>
         <source>No to All</source>
@@ -1151,7 +1151,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">ยกเลิก</translation>
+        <translation>ยกเลิก</translation>
     </message>
     <message>
         <source>Discard</source>
@@ -1217,15 +1217,15 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Tap a file to select it, then Load.</source>
-        <translation type="unfinished"></translation>
+        <translation>แตะไฟล์เพื่อเลือก จากนั้นแตะโหลด</translation>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation>โหลด</translation>
     </message>
     <message>
         <source>No saved settings</source>
-        <translation type="unfinished"></translation>
+        <translation>ไม่มีการตั้งค่าที่บันทึกไว้</translation>
     </message>
 </context>
 <context>
@@ -1395,7 +1395,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>ลบ</translation>
     </message>
     <message>
         <source>Other folders</source>
@@ -1454,23 +1454,23 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Parent folder</source>
-        <translation type="unfinished"></translation>
+        <translation>โฟลเดอร์หลัก</translation>
     </message>
     <message>
         <source>No workouts found</source>
-        <translation type="unfinished"></translation>
+        <translation>ไม่พบการออกกำลังกาย</translation>
     </message>
     <message>
         <source>No workouts here</source>
-        <translation type="unfinished"></translation>
+        <translation>ไม่มีการออกกำลังกายที่นี่</translation>
     </message>
     <message>
         <source>Show less</source>
-        <translation type="unfinished"></translation>
+        <translation>แสดงน้อยลง</translation>
     </message>
     <message>
         <source>Show more</source>
-        <translation type="unfinished"></translation>
+        <translation>แสดงเพิ่มเติม</translation>
     </message>
 </context>
 <context>
@@ -1496,26 +1496,26 @@ Do you want to update QZ settings?</source>
     <name>UiSectionHeader</name>
     <message>
         <source>Expanded</source>
-        <translation type="unfinished"></translation>
+        <translation>ขยายแล้ว</translation>
     </message>
     <message>
         <source>Collapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>ยุบแล้ว</translation>
     </message>
 </context>
 <context>
     <name>UiTextField</name>
     <message>
         <source>hours</source>
-        <translation type="unfinished"></translation>
+        <translation>ชั่วโมง</translation>
     </message>
     <message>
         <source>min</source>
-        <translation type="unfinished"></translation>
+        <translation>นาที</translation>
     </message>
     <message>
         <source>sec</source>
-        <translation type="unfinished"></translation>
+        <translation>วินาที</translation>
     </message>
 </context>
 <context>
@@ -1571,7 +1571,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation>โหลด</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -1587,7 +1587,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>ย้อนกลับ</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -2486,12 +2486,12 @@ Do you want to update QZ settings?</source>
     <message>
         <source>HR PID actuator</source>
         <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ตัวกระตุ้น PID อัตราการเต้นหัวใจ</translation>
     </message>
     <message>
         <source>Default</source>
         <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ค่าเริ่มต้น</translation>
     </message>
 </context>
 <context>
@@ -4489,11 +4489,11 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Not now</source>
-        <translation type="unfinished">ไม่ใช่ตอนนี้</translation>
+        <translation>ไม่ใช่ตอนนี้</translation>
     </message>
     <message>
         <source>Don&apos;t ask again</source>
-        <translation type="unfinished">ไม่ต้องถามอีก</translation>
+        <translation>ไม่ต้องถามอีก</translation>
     </message>
     <message>
         <source>Auto Resistance enabled</source>
@@ -4509,15 +4509,15 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Saved! Look in the Files app.</source>
-        <translation type="unfinished"></translation>
+        <translation>บันทึกแล้ว! ดูในแอปไฟล์</translation>
     </message>
     <message>
         <source>Saved! Look in the app&apos;s private folder.</source>
-        <translation type="unfinished"></translation>
+        <translation>บันทึกแล้ว! ดูในโฟลเดอร์ส่วนตัวของแอป</translation>
     </message>
     <message>
         <source>Wahoo Virtual Gears</source>
-        <translation type="unfinished"></translation>
+        <translation>เกียร์เสมือนของ Wahoo</translation>
     </message>
     <message>
         <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
@@ -4525,7 +4525,11 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
 Allow QZ to change it?
 
 No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
-        <translation type="unfinished"></translation>
+        <translation>เพื่อจำลองเกียร์เสมือน QZ จะเปลี่ยนค่าเส้นรอบวงล้อที่บันทึกไว้ในเทรนเนอร์ของคุณ ค่านี้อาจยังคงอยู่หลังจากปิด QZ และส่งผลต่อการใช้งานร่วมกับแอปอื่น
+
+อนุญาตให้ QZ เปลี่ยนค่านี้หรือไม่?
+
+หากเลือก ไม่ QZ จะเปิดใช้ Without Wheel Diameter Protocol (การตั้งค่า &gt; ตัวเลือกจักรยาน &gt; ตัวเลือก Wahoo) และเกียร์เสมือนจะทำงานผ่านความชัน หากเลือก ใช่ คุณสามารถยกเลิกการเปลี่ยนแปลงภายหลังได้: เปิดตัวเลือกดังกล่าว และเมื่อเชื่อมต่อเทรนเนอร์แล้ว ให้แตะ Restore Default Setting to the Trainer</translation>
     </message>
     <message>
         <source>Back</source>
@@ -4533,27 +4537,27 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>Main menu</source>
-        <translation type="unfinished"></translation>
+        <translation>เมนูหลัก</translation>
     </message>
     <message>
         <source>Floating window</source>
-        <translation type="unfinished"></translation>
+        <translation>หน้าต่างลอย</translation>
     </message>
     <message>
         <source>Load settings</source>
-        <translation type="unfinished"></translation>
+        <translation>โหลดการตั้งค่า</translation>
     </message>
     <message>
         <source>Save settings</source>
-        <translation type="unfinished"></translation>
+        <translation>บันทึกการตั้งค่า</translation>
     </message>
     <message>
         <source>Map</source>
-        <translation type="unfinished"></translation>
+        <translation>แผนที่</translation>
     </message>
     <message>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation>วิดีโอ</translation>
     </message>
     <message>
         <source>Chart</source>
@@ -4561,59 +4565,59 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>Lock tiles</source>
-        <translation type="unfinished"></translation>
+        <translation>ล็อกไทล์</translation>
     </message>
     <message>
         <source>Unlock tiles</source>
-        <translation type="unfinished"></translation>
+        <translation>ปลดล็อกไทล์</translation>
     </message>
     <message>
         <source>Disable auto resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>ปิดความต้านทานอัตโนมัติ</translation>
     </message>
     <message>
         <source>Enable auto resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>เปิดความต้านทานอัตโนมัติ</translation>
     </message>
     <message>
         <source>Disconnect from Strava</source>
-        <translation type="unfinished"></translation>
+        <translation>ยกเลิกการเชื่อมต่อ Strava</translation>
     </message>
     <message>
         <source>Connect with Strava</source>
-        <translation type="unfinished"></translation>
+        <translation>เชื่อมต่อ Strava</translation>
     </message>
     <message>
         <source>Disconnect from Peloton</source>
-        <translation type="unfinished"></translation>
+        <translation>ยกเลิกการเชื่อมต่อ Peloton</translation>
     </message>
     <message>
         <source>Connect with Peloton</source>
-        <translation type="unfinished"></translation>
+        <translation>เชื่อมต่อ Peloton</translation>
     </message>
     <message>
         <source>Garmin Connect settings</source>
-        <translation type="unfinished"></translation>
+        <translation>การตั้งค่า Garmin Connect</translation>
     </message>
     <message>
         <source>Disconnect from Intervals.icu</source>
-        <translation type="unfinished"></translation>
+        <translation>ยกเลิกการเชื่อมต่อ Intervals.icu</translation>
     </message>
     <message>
         <source>Connect with Intervals.icu</source>
-        <translation type="unfinished"></translation>
+        <translation>เชื่อมต่อ Intervals.icu</translation>
     </message>
     <message>
         <source>Workout</source>
-        <translation type="unfinished"></translation>
+        <translation>การออกกำลังกาย</translation>
     </message>
     <message>
         <source>App</source>
-        <translation type="unfinished"></translation>
+        <translation>แอป</translation>
     </message>
     <message>
         <source>Services</source>
-        <translation type="unfinished"></translation>
+        <translation>บริการ</translation>
     </message>
 </context>
 <context>
@@ -4707,19 +4711,19 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>New profile</source>
-        <translation type="unfinished"></translation>
+        <translation>โปรไฟล์ใหม่</translation>
     </message>
     <message>
         <source>Saved profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>โปรไฟล์ที่บันทึกไว้</translation>
     </message>
     <message>
         <source>Tap a profile to select it, then Load. Long press to delete it.</source>
-        <translation type="unfinished"></translation>
+        <translation>แตะโปรไฟล์เพื่อเลือก แล้วแตะโหลด กดค้างเพื่อลบ</translation>
     </message>
     <message>
         <source>Active</source>
-        <translation type="unfinished"></translation>
+        <translation>ทำงานอยู่</translation>
     </message>
     <message>
         <source>Load</source>
@@ -5725,7 +5729,7 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>Tiles Options</source>
-        <translation type="unfinished"></translation>
+        <translation>ตัวเลือกไทล์</translation>
     </message>
     <message>
         <source>General UI Options</source>
@@ -8435,11 +8439,11 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>This setting was not found on the settings pages</source>
-        <translation type="unfinished"></translation>
+        <translation>ไม่พบการตั้งค่านี้ในหน้าการตั้งค่า</translation>
     </message>
     <message>
         <source>Use Console Gears</source>
-        <translation type="unfinished"></translation>
+        <translation>ใช้เกียร์จากคอนโซล</translation>
     </message>
 </context>
 <context>

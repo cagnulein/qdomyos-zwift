@@ -74,23 +74,23 @@
     </message>
     <message>
         <source>Parent folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Folder induk</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation>Buka</translation>
     </message>
     <message>
         <source>No GPX files here</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak ada file GPX di sini</translation>
     </message>
     <message>
         <source>%1 km</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 km</translation>
     </message>
     <message>
         <source>%1 m</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 m</translation>
     </message>
 </context>
 <context>
@@ -253,7 +253,7 @@ Would you like to do that now?</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Good</source>
@@ -283,11 +283,11 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>Hentikan</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Batal</translation>
+        <translation>Batal</translation>
     </message>
 </context>
 <context>
@@ -330,15 +330,15 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Looking for your equipment…</source>
-        <translation type="unfinished"></translation>
+        <translation>Mencari perangkat Anda…</translation>
     </message>
     <message>
         <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nyalakan sepeda, treadmill, atau mesin dayung Anda: QZ akan terhubung secara otomatis.</translation>
     </message>
     <message>
         <source>Not connecting?</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak terhubung?</translation>
     </message>
 </context>
 <context>
@@ -361,7 +361,7 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Chart</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafik</translation>
     </message>
     <message>
         <source>Treadmill Status</source>
@@ -549,7 +549,7 @@ Would you like to enable the required services?</source>
     <name>QAndroidPlatformTheme</name>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ya</translation>
     </message>
     <message>
         <source>Yes to All</source>
@@ -557,7 +557,7 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak</translation>
     </message>
     <message>
         <source>No to All</source>
@@ -1151,7 +1151,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Batal</translation>
+        <translation>Batal</translation>
     </message>
     <message>
         <source>Discard</source>
@@ -1217,15 +1217,15 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Tap a file to select it, then Load.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ketuk file untuk memilihnya, lalu ketuk Muat.</translation>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation>Muat</translation>
     </message>
     <message>
         <source>No saved settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak ada pengaturan tersimpan</translation>
     </message>
 </context>
 <context>
@@ -1395,7 +1395,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Hapus</translation>
     </message>
     <message>
         <source>Other folders</source>
@@ -1454,23 +1454,23 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Parent folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Folder induk</translation>
     </message>
     <message>
         <source>No workouts found</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak ada latihan yang ditemukan</translation>
     </message>
     <message>
         <source>No workouts here</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak ada latihan di sini</translation>
     </message>
     <message>
         <source>Show less</source>
-        <translation type="unfinished"></translation>
+        <translation>Tampilkan lebih sedikit</translation>
     </message>
     <message>
         <source>Show more</source>
-        <translation type="unfinished"></translation>
+        <translation>Tampilkan lebih banyak</translation>
     </message>
 </context>
 <context>
@@ -1496,26 +1496,26 @@ Do you want to update QZ settings?</source>
     <name>UiSectionHeader</name>
     <message>
         <source>Expanded</source>
-        <translation type="unfinished"></translation>
+        <translation>Diperluas</translation>
     </message>
     <message>
         <source>Collapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>Diciutkan</translation>
     </message>
 </context>
 <context>
     <name>UiTextField</name>
     <message>
         <source>hours</source>
-        <translation type="unfinished"></translation>
+        <translation>jam</translation>
     </message>
     <message>
         <source>min</source>
-        <translation type="unfinished"></translation>
+        <translation>menit</translation>
     </message>
     <message>
         <source>sec</source>
-        <translation type="unfinished"></translation>
+        <translation>detik</translation>
     </message>
 </context>
 <context>
@@ -1571,7 +1571,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation>Muat</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -1587,7 +1587,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>Kembali</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -2486,12 +2486,12 @@ Do you want to update QZ settings?</source>
     <message>
         <source>HR PID actuator</source>
         <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Aktuator PID detak jantung</translation>
     </message>
     <message>
         <source>Default</source>
         <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Bawaan</translation>
     </message>
 </context>
 <context>
@@ -4489,11 +4489,11 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Not now</source>
-        <translation type="unfinished">Jangan sekarang</translation>
+        <translation>Jangan sekarang</translation>
     </message>
     <message>
         <source>Don&apos;t ask again</source>
-        <translation type="unfinished">Jangan tanya lagi</translation>
+        <translation>Jangan tanya lagi</translation>
     </message>
     <message>
         <source>Auto Resistance enabled</source>
@@ -4509,15 +4509,15 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Saved! Look in the Files app.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tersimpan! Lihat di aplikasi File.</translation>
     </message>
     <message>
         <source>Saved! Look in the app&apos;s private folder.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tersimpan! Lihat di folder pribadi aplikasi.</translation>
     </message>
     <message>
         <source>Wahoo Virtual Gears</source>
-        <translation type="unfinished"></translation>
+        <translation>Gigi virtual Wahoo</translation>
     </message>
     <message>
         <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
@@ -4525,7 +4525,11 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
 Allow QZ to change it?
 
 No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Untuk menyimulasikan gigi virtual, QZ mengubah keliling roda yang tersimpan di trainer Anda. Nilai ini mungkin tetap tersimpan setelah QZ ditutup dan memengaruhi penggunaan trainer di aplikasi lain.
+
+Izinkan QZ mengubahnya?
+
+Jika memilih Tidak, QZ mengaktifkan Without Wheel Diameter Protocol (Pengaturan &gt; Opsi Sepeda &gt; Opsi Wahoo), dan gigi virtual bekerja melalui kemiringan. Jika memilih Ya, Anda dapat membatalkannya nanti: aktifkan opsi tersebut lalu, saat trainer terhubung, ketuk Restore Default Setting to the Trainer.</translation>
     </message>
     <message>
         <source>Back</source>
@@ -4533,27 +4537,27 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>Main menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Menu utama</translation>
     </message>
     <message>
         <source>Floating window</source>
-        <translation type="unfinished"></translation>
+        <translation>Jendela mengambang</translation>
     </message>
     <message>
         <source>Load settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Muat pengaturan</translation>
     </message>
     <message>
         <source>Save settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Simpan pengaturan</translation>
     </message>
     <message>
         <source>Map</source>
-        <translation type="unfinished"></translation>
+        <translation>Peta</translation>
     </message>
     <message>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Video</translation>
     </message>
     <message>
         <source>Chart</source>
@@ -4561,59 +4565,59 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>Lock tiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunci ubin</translation>
     </message>
     <message>
         <source>Unlock tiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Buka kunci ubin</translation>
     </message>
     <message>
         <source>Disable auto resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Nonaktifkan resistansi otomatis</translation>
     </message>
     <message>
         <source>Enable auto resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktifkan resistansi otomatis</translation>
     </message>
     <message>
         <source>Disconnect from Strava</source>
-        <translation type="unfinished"></translation>
+        <translation>Putuskan sambungan dari Strava</translation>
     </message>
     <message>
         <source>Connect with Strava</source>
-        <translation type="unfinished"></translation>
+        <translation>Hubungkan ke Strava</translation>
     </message>
     <message>
         <source>Disconnect from Peloton</source>
-        <translation type="unfinished"></translation>
+        <translation>Putuskan sambungan dari Peloton</translation>
     </message>
     <message>
         <source>Connect with Peloton</source>
-        <translation type="unfinished"></translation>
+        <translation>Hubungkan ke Peloton</translation>
     </message>
     <message>
         <source>Garmin Connect settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Pengaturan Garmin Connect</translation>
     </message>
     <message>
         <source>Disconnect from Intervals.icu</source>
-        <translation type="unfinished"></translation>
+        <translation>Putuskan sambungan dari Intervals.icu</translation>
     </message>
     <message>
         <source>Connect with Intervals.icu</source>
-        <translation type="unfinished"></translation>
+        <translation>Hubungkan ke Intervals.icu</translation>
     </message>
     <message>
         <source>Workout</source>
-        <translation type="unfinished"></translation>
+        <translation>Latihan</translation>
     </message>
     <message>
         <source>App</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplikasi</translation>
     </message>
     <message>
         <source>Services</source>
-        <translation type="unfinished"></translation>
+        <translation>Layanan</translation>
     </message>
 </context>
 <context>
@@ -4707,19 +4711,19 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>New profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Profil baru</translation>
     </message>
     <message>
         <source>Saved profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Profil tersimpan</translation>
     </message>
     <message>
         <source>Tap a profile to select it, then Load. Long press to delete it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ketuk profil untuk memilihnya, lalu ketuk Muat. Tekan lama untuk menghapusnya.</translation>
     </message>
     <message>
         <source>Active</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktif</translation>
     </message>
     <message>
         <source>Load</source>
@@ -5725,7 +5729,7 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>Tiles Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opsi ubin</translation>
     </message>
     <message>
         <source>General UI Options</source>
@@ -8435,11 +8439,11 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>This setting was not found on the settings pages</source>
-        <translation type="unfinished"></translation>
+        <translation>Pengaturan ini tidak ditemukan di halaman pengaturan</translation>
     </message>
     <message>
         <source>Use Console Gears</source>
-        <translation type="unfinished"></translation>
+        <translation>Gunakan gigi konsol</translation>
     </message>
 </context>
 <context>

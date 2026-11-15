@@ -8548,7 +8548,7 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Use Console Gears</source>
-        <translation type="unfinished"></translation>
+        <translation>Konzol fokozatainak használata</translation>
     </message>
 </context>
 <context>

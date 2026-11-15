@@ -8632,7 +8632,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Use Console Gears</source>
-        <translation type="unfinished"></translation>
+        <translation>使用控制台档位</translation>
     </message>
 </context>
 <context>
