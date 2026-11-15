@@ -3,6 +3,7 @@
 #include "qzsettings.h"
 #include "virtualdevices/virtualrower.h"
 
+#include <QRandomGenerator>
 #include <QSettings>
 #include <QtGlobal>
 
@@ -20,10 +21,18 @@ constexpr quint8 SUB_ANSWER = 0x03;
 constexpr int POLL_INTERVAL_MS = 500;
 constexpr int REQUEST_TIMEOUT_MS = 2000;
 
-// 18-byte challenge observed in Jacek's successful Kinomap -> Coach S HCI
-// capture (2026-11-15). The Coach S will confirm whether replaying this
-// particular challenge is accepted. Do not reuse it for Kettler bikes.
-const char *const COACH_S_TEST_CHALLENGE = "2d61bc3de75ad3dfe2973ef18a637da428d6";
+// Experimental: three independent successful Kinomap captures each start with
+// a different 18-byte client challenge and no preceding application-level seed.
+// Test whether the Coach S accepts fresh random bytes rather than replayed
+// challenges. Do not assume the random-only construction is proven.
+QByteArray freshCoachChallenge() {
+    QByteArray challenge(18, '\0');
+    auto *rng = QRandomGenerator::system();
+    for (int i = 0; i < challenge.size(); ++i) {
+        challenge[i] = static_cast<char>(rng->generate() & 0xff);
+    }
+    return challenge;
+}
 
 bool isSerialPortService(const QBluetoothServiceInfo &service) {
     return service.serviceUuid() == QBluetoothUuid(SERIAL_PORT_UUID) ||
@@ -128,7 +137,7 @@ void kettlercoachrower::rfCommConnected() {
     lastDistanceTime = QDateTime();
     lastStrokes = 0;
     lastDistanceMeters = 0;
-    activeRequest = Request{HANDSHAKE, SUB_READ, QByteArray::fromHex(COACH_S_TEST_CHALLENGE)};
+    activeRequest = Request{HANDSHAKE, SUB_READ, freshCoachChallenge()};
     requestInFlight = true;
     const QByteArray bytes = kettlerclassicprotocol::encodeFrameWithEscapedPayloadLength(
         activeRequest.function, activeRequest.operation, activeRequest.payload);
@@ -273,7 +282,7 @@ void kettlercoachrower::requestTimeout() {
                QString::number(activeRequest.function, 16));
     requestInFlight = false;
     if (awaitingHandshake) {
-        disconnectAfterError(QStringLiteral("handshake timed out (experimental captured challenge)"));
+        disconnectAfterError(QStringLiteral("handshake timed out (experimental random challenge)"));
     } else {
         sendNextRequest();
     }
