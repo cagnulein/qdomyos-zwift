@@ -469,34 +469,24 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     index += 2;
                 }
 
-                int16_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
-                if (deltaT < 0) {
-                    // Handle rollover - use 65536 for proper wraparound calculation
-                    deltaT = LastCrankEventTime + 65536 - oldLastCrankEventTime;
-                }
+                // 16-bit event time wraps naturally. A signed int16_t overflows
+                // at rollover and can discard otherwise valid cadence events.
+                const uint16_t deltaT = static_cast<uint16_t>(LastCrankEventTime - oldLastCrankEventTime);
 
                 if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                         .toString()
                         .startsWith(QStringLiteral("Disabled"))) {
-                    if (CrankRevs != oldCrankRevs && deltaT) {
-                        // Calculate crank revolution delta, handling potential rollover
-                        int32_t crankDelta = CrankRevs - oldCrankRevs;
-
-                        // Detect invalid data: if crank revs decreased significantly (not a simple rollover)
-                        // or if deltaT is still unreasonably small after rollover correction
-                        if (crankDelta < 0 && crankDelta > -100) {
-                            // Assume 16-bit rollover for crank revs
-                            crankDelta += 65536;
-                        } else if (crankDelta < -100) {
-                            // Invalid data - large negative jump, skip this update
-                            qDebug() << "Invalid crank data detected: crankDelta =" << crankDelta << "deltaT =" << deltaT;
-                        } else if (crankDelta > 0 && deltaT > 0) {
-                            // Valid positive change
-                            double cadence = (crankDelta / (double)deltaT) * time_division * 60;
+                    // Cycling Power uses 16-bit crank revolutions or 32-bit
+                    // wheel revolutions. Keep their rollover arithmetic separate.
+                    const uint32_t currentRevs = static_cast<uint32_t>(CrankRevs);
+                    const uint32_t crankDelta = crank_rev_present
+                        ? static_cast<uint16_t>(currentRevs - oldCrankRevs)
+                        : static_cast<uint32_t>(currentRevs - oldCrankRevs);
+                    if (crankDelta > 0 && deltaT > 0) {
+                        if (crankDelta <= 32) {
+                            double cadence = (crankDelta / double(deltaT)) * time_division * 60;
                             if (!crank_rev_present)
-                                cadence =
-                                    cadence /
-                                    2; // I really don't like this, there is no relationship between wheel rev and crank rev
+                                cadence /= 2; // Existing ThinkRider wheel-derived cadence approximation.
                             if (cadence > 0 && cadence < 255) {
                                 lastNativeCadence = cadence;
                                 lastValidNativeCadence = now;
@@ -504,6 +494,9 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
                                     Cadence = cadence;
                                 lastGoodCadence = now;
                             }
+                        } else {
+                            qDebug() << "Invalid crank data detected: crankDelta =" << crankDelta
+                                     << "deltaT =" << deltaT;
                         }
                     } else if (lastGoodCadence.msecsTo(now) > 2000 && !ftmsCadenceFresh) {
                         Cadence = (lastValidNativeCadence.isValid() &&
