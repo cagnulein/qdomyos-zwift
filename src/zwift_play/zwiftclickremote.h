@@ -67,7 +67,10 @@ class zwiftclickremote : public bluetoothdevice {
     QNetworkAccessManager unlockNetwork;
     AuthToken *unlockAuth = nullptr;
     QByteArray pendingUnlockPayload;
-    bool automaticUnlock = false;
+    bool clickV2Left = false; // detected from LEFT + device name, no setting
+    bool unlockDecisionPending = false;
+    qint64 lastRideOnEchoMs = 0;
+    bool credentialsPromptShown = false;
     bool unlockTokenPending = false;
     bool unlockRequestPending = false;
     bool unlockRetriedUnauthorized = false;
