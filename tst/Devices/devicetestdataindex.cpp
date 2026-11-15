@@ -841,19 +841,23 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<keepbike>()
         ->acceptDeviceName("KEEP_BIKE_", DeviceNameComparison::StartsWithIgnoreCase);
 
-    // Kettler Classic / MyHomeFIT RFCOMM
+    // The two Classic Bluetooth Kettler devices share framing, not driver or metrics.
     RegisterNewDeviceTestData(DeviceIndex::KettlerClassicBike)
         ->expectDevice<kettlerclassicbike>()
-        // bluetooth.cpp matches RACER S and COACH S Classic names with BH SPADA enabled.
         ->acceptDeviceName("RACER S", DeviceNameComparison::StartsWithIgnoreCase)
+        ->rejectDeviceName("COACH S 42FC38", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("RACER", DeviceNameComparison::IgnoreCase)
+        ->configureSettingsWith(QZSettings::bh_spada_2);
+
+    RegisterNewDeviceTestData(DeviceIndex::KettlerCoachRower)
+        ->expectDevice<kettlercoachrower>()
         ->acceptDeviceName("COACH S 42FC38", DeviceNameComparison::IgnoreCase)
         ->acceptDeviceName("coach s 42fc38", DeviceNameComparison::IgnoreCase)
         ->acceptDeviceName("COACH S", DeviceNameComparison::IgnoreCase)
-        ->rejectDeviceName("RACER", DeviceNameComparison::IgnoreCase)
-        ->rejectDeviceName("XRACER S", DeviceNameComparison::IgnoreCase)
         ->rejectDeviceName("XCOACH S 42FC38", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("COACH SX", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("RACER S", DeviceNameComparison::IgnoreCase)
         ->configureSettingsWith(QZSettings::bh_spada_2);
-
 
     // A DYNAMAX is an FTMS bike only when this specific device is selected as the FTMS bike.
     RegisterNewDeviceTestData(DeviceIndex::DynamaxSprintFTMSBike)
