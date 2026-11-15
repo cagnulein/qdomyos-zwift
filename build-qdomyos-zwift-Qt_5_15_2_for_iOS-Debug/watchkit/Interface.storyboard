@@ -36,10 +36,18 @@
                         <outlet property="startButton" destination="vZg-X8-uY5" id="pJc-09-kfV"/>
                         <outlet property="stepCountsLabel" destination="HpA-e9-6YV" id="Z88-ej-6oG"/>
                         <outlet property="userNameLabel" destination="SlU-M7-WGB" id="Y2O-Lg-bDx"/>
+                        <segue destination="NwP-xT-LZY" kind="relationship" relationship="nextPage" id="Swp-mu-570"/>
                     </connections>
                 </controller>
             </objects>
             <point key="canvasLocation" x="220" y="345"/>
+        </scene>
+        <!--Now Playing: swipe to this page while the workout keeps running-->
+        <scene sceneID="QZp-L8-CV3">
+            <objects>
+                <controller identifier="NowPlaying" hidesWhenLoading="NO" id="NwP-xT-LZY" customClass="NowPlayingController" customModule="watchkit_Extension" customModuleProvider="target"/>
+            </objects>
+            <point key="canvasLocation" x="470" y="345"/>
         </scene>
         <!--Static Notification Interface Controller-->
         <scene sceneID="AEw-b0-oYE">
