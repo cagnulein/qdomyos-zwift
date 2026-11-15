@@ -151,5 +151,5 @@ TEST(KettlerClassicProtocol, CoachSAuthenticationMatchesSixKinomapVectors) {
         EXPECT_FALSE(kettlerclassicprotocol::isValidCoachSHandshake(tampered));
     }
     EXPECT_TRUE(kettlerclassicprotocol::coachSHandshakeForSalt(QByteArray("a")).isEmpty());
-    EXPECT_FALSE(kettlerclassicprotocol::isValidCoachSHandshake(QByteArray(18, '\\0')));
+    EXPECT_FALSE(kettlerclassicprotocol::isValidCoachSHandshake(QByteArray(18, char(0))));
 }
