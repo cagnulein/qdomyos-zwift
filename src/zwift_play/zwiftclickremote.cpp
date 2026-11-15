@@ -7,6 +7,7 @@
 #include <QMetaEnum>
 #include <QSettings>
 #include <QThread>
+#include <QNetworkRequest>
 
 using namespace std::chrono_literals;
 
@@ -54,6 +55,7 @@ void zwiftclickremote::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void zwiftclickremote::disconnectBluetooth() {
+    resetDLockSession();
     qDebug() << QStringLiteral("zwiftclickremote::disconnect") << m_control;
 
     if (m_control) {
@@ -71,6 +73,14 @@ void zwiftclickremote::handleCharacteristicValueChanged(const QBluetoothUuid &uu
     countRxTimeout = 0;
 
     qDebug() << QStringLiteral(" << ") << newValue.toHex(' ') << QString(newValue) << uuid.toString() << typeZap;
+
+    // Only Click V2 LEFT pods use the signed unlock. Preserve all existing
+    // controller notifications and button handling regardless of this setting.
+    if (automaticUnlock &&
+        uuid == QBluetoothUuid(QStringLiteral("00000002-19CA-4651-86E5-FA29DCDD09D1")) &&
+        !dLockChallengePayload(newValue).isEmpty()) {
+        handleDLockChallenge(newValue);
+    }
 
     if(uuid == QBluetoothUuid(QStringLiteral("00000002-19CA-4651-86E5-FA29DCDD09D1"))) {
         playDevice->processCharacteristic("Async", newValue, typeZap);
@@ -279,6 +289,11 @@ void zwiftclickremote::error(QLowEnergyController::Error err) {
 
 void zwiftclickremote::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QSettings settings;
+    resetDLockSession();
+    automaticUnlock = typeZap == AbstractZapDevice::LEFT &&
+                      device.name().toUpper().startsWith(QStringLiteral("ZWIFT CLICK")) &&
+                      settings.value(QZSettings::zwift_click_auto_unlock,
+                                     QZSettings::default_zwift_click_auto_unlock).toBool();
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     
@@ -343,6 +358,7 @@ bool zwiftclickremote::connected() {
 void zwiftclickremote::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState) {
+        resetDLockSession();
         qDebug() << QStringLiteral("trying to connect back again...");
         initRequest = false;
         initDone = false;
@@ -362,4 +378,134 @@ void zwiftclickremote::vibrate(uint8_t pattern) {
     QByteArray s = QByteArray::fromHex("1212080A060802100018");
     s.append(pattern);
     writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "vibrate", false, false);
+}
+
+/*
+ * Click V2 server-signed d-lock exchange, adapted from the MIT-licensed
+ * ZwiftBoard project by Thomas Champagne (see docs/third-party/zwiftboard-MIT.txt).
+ * HTTP is asynchronous; a stale challenge from a previous BLE connection is
+ * never sent to the pod, and repeated notifications coalesce to the latest.
+ */
+void zwiftclickremote::resetDLockSession() {
+    ++unlockGeneration;
+    pendingUnlockPayload.clear();
+    unlockRequestPending = false;
+    unlockRetriedUnauthorized = false;
+}
+
+void zwiftclickremote::sendDLockFrame(const QByteArray &signedReply) {
+    const QByteArray frame = dLockResponseFrame(signedReply);
+    if (frame.size() > 255) {
+        emit debug(QStringLiteral("Zwift Click V2 unlock reply is too large; sending legacy ACK"));
+        const QByteArray ack = dLockResponseFrame(QByteArray());
+        writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic,
+                            reinterpret_cast<uint8_t *>(const_cast<char *>(ack.constData())),
+                            static_cast<uint8_t>(ack.size()), QStringLiteral("Click V2 legacy ACK"), true);
+        return;
+    }
+    writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic,
+                        reinterpret_cast<uint8_t *>(const_cast<char *>(frame.constData())),
+                        static_cast<uint8_t>(frame.size()),
+                        signedReply.isEmpty() ? QStringLiteral("Click V2 legacy ACK")
+                                              : QStringLiteral("Click V2 signed unlock"), true);
+}
+
+void zwiftclickremote::handleDLockChallenge(const QByteArray &frame) {
+    const QByteArray payload = dLockChallengePayload(frame);
+    if (payload.isEmpty())
+        return;
+    if (pendingUnlockPayload != payload) {
+        pendingUnlockPayload = payload;
+        unlockRetriedUnauthorized = false;
+    }
+    startDLockRequest();
+}
+
+void zwiftclickremote::startDLockRequest() {
+    if (!automaticUnlock || pendingUnlockPayload.isEmpty() ||
+        unlockTokenPending || unlockRequestPending)
+        return;
+
+    if (!unlockAuth) {
+        const QSettings settings;
+        const QString username = settings.value(QZSettings::zwift_username,
+                                                 QZSettings::default_zwift_username).toString();
+        const QString password = settings.value(QZSettings::zwift_password,
+                                                 QZSettings::default_zwift_password).toString();
+        if (username.isEmpty() || password.isEmpty()) {
+            emit debug(QStringLiteral("Zwift Click V2 auto-unlock needs Zwift credentials"));
+            sendDLockFrame(QByteArray());
+            pendingUnlockPayload.clear();
+            return;
+        }
+        // Reuse QZ's AuthToken and its settings. Only the token client differs:
+        // d-lock requires the Zwift Game Client instead of Zwift Mobile Link.
+        unlockAuth = new AuthToken(username, password, this, true);
+        connect(unlockAuth, &AuthToken::tokenReceived, this,
+                [this](bool success, const QString &) {
+            unlockTokenPending = false;
+            if (pendingUnlockPayload.isEmpty())
+                return;
+            if (!success || !unlockAuth->haveValidAccessToken()) {
+                emit debug(QStringLiteral("Zwift Click V2 unlock login failed; using legacy ACK"));
+                sendDLockFrame(QByteArray());
+                pendingUnlockPayload.clear();
+                return;
+            }
+            startDLockRequest();
+        });
+    }
+
+    if (!unlockAuth->haveValidAccessToken()) {
+        unlockTokenPending = true;
+        unlockAuth->updateTokenData();
+        return;
+    }
+
+    const QByteArray payload = pendingUnlockPayload;
+    const quint64 generation = unlockGeneration;
+    QNetworkRequest request(QUrl(QStringLiteral(
+        "https://us-or-rly101.zwift.com/api/d-lock-service/device/authenticate")));
+    request.setRawHeader("Authorization", "Bearer " + unlockAuth->access_token.toUtf8());
+    request.setRawHeader("Accept", "application/x-protobuf-lite");
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-protobuf-lite");
+    unlockRequestPending = true;
+    QNetworkReply *reply = unlockNetwork.post(request, payload);
+    QTimer::singleShot(10000, reply, [reply]() {
+        if (reply->isRunning())
+            reply->abort();
+    });
+    connect(reply, &QNetworkReply::finished, this, [this, reply, payload, generation]() {
+        const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        const QNetworkReply::NetworkError error = reply->error();
+        const QByteArray signedReply = reply->readAll();
+        reply->deleteLater();
+        if (generation != unlockGeneration)
+            return;
+        unlockRequestPending = false;
+        if (payload != pendingUnlockPayload) {
+            startDLockRequest(); // A newer challenge arrived before the REST reply.
+            return;
+        }
+        if (error == QNetworkReply::NoError && status == 200 && !signedReply.isEmpty()) {
+            sendDLockFrame(signedReply);
+            pendingUnlockPayload.clear();
+            unlockRetriedUnauthorized = false;
+            emit debug(QStringLiteral("Zwift Click V2 signed unlock reply sent"));
+            return;
+        }
+        if (status == 401 && !unlockRetriedUnauthorized) {
+            unlockRetriedUnauthorized = true;
+            // Re-authenticate only this Game Client instance; do not affect the
+            // Mobile Link token used by QZ's existing Zwift integration.
+            unlockAuth->access_token.clear();
+            unlockAuth->refresh_token.clear();
+            startDLockRequest();
+            return;
+        }
+        emit debug(QStringLiteral("Zwift Click V2 unlock unavailable (HTTP %1); using legacy ACK").arg(status));
+        sendDLockFrame(QByteArray());
+        pendingUnlockPayload.clear();
+        unlockRetriedUnauthorized = false;
+    });
 }
