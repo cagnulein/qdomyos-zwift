@@ -110,29 +110,29 @@ trixterxdreambike::trixterxdreambike(bool noWriteResistance, bool noHeartService
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
 
-           // Set the fake bluetooth device info
+    // Set the fake bluetooth device info
     this->bluetoothDevice =
         QBluetoothDeviceInfo(QBluetoothUuid {QStringLiteral("774f25bd-6636-4cdc-9398-839de026be1d")}, "Trixter X-Dream Bike", 0);
 
-           // Set the wheel diameter for speed and distance calculations
+    // Set the wheel diameter for speed and distance calculations
     this->set_wheelDiameter(DefaultWheelDiameter);
 
-           // Create the settings object and load from QSettings.
+    // Create the settings object and load from QSettings.
     this->appSettings = new trixterxdreamsettings();
 
-           // QZ things from expected constructor
+    // QZ things from expected constructor
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
     this->noVirtualDevice = noVirtualDevice;
     this->noSteering = !appSettings->get_steeringEnabled();
 
-           // Calculate the steering mapping
+    // Calculate the steering mapping
     this->calculateSteeringMap();
 
-           // fake hardware support for ERG mode
+    // fake hardware support for ERG mode
     this->ergModeSupported = true;
 
-           // create the objects that monitor the activation of the gear buttons
+    // create the objects that monitor the activation of the gear buttons
     const double buttonSamplePeriod = 50; // the sampling period for the button, in the units of the chronometer used for its updates
     const double activationThreshold = 0.9; // button pressed for this proportion of the sampling period is interpreted as pressed
     const double deactivationThreshold = 0.1; // button pressed for this proportion of the sampling period is interpreted as released
@@ -148,34 +148,35 @@ bool trixterxdreambike::connect(QString portName) {
     // In case already connected, disconnect.
     this->disconnectPort();
 
-           // Get the current time in milliseconds since ancient times.
+    // Get the current time in milliseconds since ancient times.
     this->t0 = getTime();
 
-           // create the port object and connect it
+    // create the port object and connect it
     auto thisObject = this;
     this->port = new trixterxdreamserial(this);
     this->port->set_receiveBytes([thisObject](const QByteArray& bytes)->void{thisObject->receiveBytes(bytes);});
     this->port->set_getTime(getTime);
 
-           // tell the client where to get the time
+    // tell the client where to get the time
     this->client.set_GetTime(getTime);
 
-           // tell the client how to send data to the device
+    // tell the client how to send data to the device
     if(!noWriteResistance) {
         auto device=this->port;
         this->client.set_WriteBytes([device](uint8_t * bytes, int length)->void{ device->write(QByteArray((const char *)bytes, length));});
     }
+
     // Set up a stopwatch to time the connection operations
     QElapsedTimer stopWatch;
     stopWatch.start();
 
-           // open the port.
+    // open the port.
     if(!this->port->open(portName)) {
         qDebug() << "Failed to open port, determined after " << stopWatch.elapsed() << "milliseconds";
         return false;
     }
 
-           // Start the metrics update timer
+    // Start the metrics update timer
     this->metricsUpdateTimerId = this->startTimer(UpdateMetricsInterval, Qt::PreciseTimer);
     if(this->metricsUpdateTimerId==0)
     {
@@ -183,7 +184,7 @@ bool trixterxdreambike::connect(QString portName) {
         throw "Failed to start metrics timer";
     }
 
-           // wait for up to the configured connection timeout for some packets to arrive
+    // wait for up to the configured connection timeout for some packets to arrive
     for(uint32_t start = getTime(), limit=start+this->appSettings->get_connectionTimeoutMilliseconds(); getTime()<limit;) {
         if(this->connected()) {
             qDebug() << "Connected after " << stopWatch.elapsed() << "milliseconds";
@@ -285,7 +286,7 @@ resistance_t trixterxdreambike::resistanceFromPowerRequest(uint16_t power) {
     if(power<=0)
         return 0;
 
-           // round the current cadence
+    // round the current cadence
     int32_t c = (int32_t)(this->Cadence.value() + 0.5);
 
     if(c==0)
@@ -313,19 +314,29 @@ double trixterxdreambike::calculatePower(int cadenceRPM, int resistance) {
 
 uint16_t trixterxdreambike::calculatePowerFromInclination(double inclination, double speedMetresPerSecond) {
 
+    constexpr double g = 9.8067;
     double Crr = settingsCache.Crr;
     double totalMass = settingsCache.weight+settingsCache.bikeWeight;
+    double totalWeight = g * totalMass;
     double angleOfInclination = atan(0.01 * inclination);
 
-    constexpr double g = 9.8067;
-    double p = g*totalMass*speedMetresPerSecond*(sin(angleOfInclination) + Crr*cos(angleOfInclination));
 
-    uint16_t power = (uint16_t)(p+0.5);
+    constexpr double CdA = 0.4; // estimate drag coefficient * frontal area for wide MTB grip stance
+    //double altitude = elevationGain().value(); // 1m above sea level
+    double altitude = 1.0; // 1m above sea level
+    const static double pressure = 1.225 * exp(-0.00011856 * altitude); // air pressure
+    constexpr double windspeed = 0;
+    double totalSpeed = speedMetresPerSecond + windspeed;
+    double Fa = 0.5 * CdA * pressure * totalSpeed * totalSpeed;
+    double Fg = totalWeight*sin(angleOfInclination);
+    double Fr = totalWeight*cos(angleOfInclination) * Crr;
+    double totalPower = (Fg + Fr + Fa) * speedMetresPerSecond; // / (1.0-loss)
+    uint16_t power = (uint16_t)(totalPower+0.5);
 
     qDebug() << "Inclination%:" << inclination
              << " Angle of Inclination:" << angleOfInclination
              << " Speed:" << speedMetresPerSecond << "m/s "
-             << " Crr: " << Crr
+             << " (Fg,Fr,Fa): (" << Fg << "," << Fr << "," << Fa << ")"
              << " Total Mass:"<< totalMass << "kg "
              << "= Power:" << power << "W ";
 
@@ -340,7 +351,7 @@ bool trixterxdreambike::connected() {
         return true;
     lockerA.unlock();
 
-           // Queue of states is empty...
+    // Queue of states is empty...
     QMutexLocker lockerB(&this->updateMutex);
     return (this->getTime()-this->lastPacketProcessedTime) < DisconnectionTimeout;
 }
@@ -354,7 +365,7 @@ uint32_t trixterxdreambike::getTime() {
 void trixterxdreambike::timerEvent(QTimerEvent *event) {
     int timerId = event->timerId();
 
-           // check the options, most frequent to least frequent
+    // check the options, most frequent to least frequent
     if(timerId==this->metricsUpdateTimerId) {
         event->accept();
         this->update();
@@ -392,19 +403,19 @@ void trixterxdreambike::receiveBytes(const QByteArray &bytes) {
 void trixterxdreambike::update() {
     QMutexLocker locker(&this->updateMutex);
 
-           // check that the gears have been engaged, because when this was written, this defaulted to 0
+    // check that the gears have been engaged, because when this was written, this defaulted to 0
     if(this->gears()==0.0)
         this->gearUp();
 
-           // get the current time
+    // get the current time
     auto currentTime = getTime();
 
-           // Lock the states mutex and grab a copy of the queue
+    // Lock the states mutex and grab a copy of the queue
     QMutexLocker statesLocker(&this->statesMutex);
     queue<trixterxdreamclient::state> ups = this->states;
     statesLocker.unlock();
 
-           // If there are no states waiting to be processed, clear the metrics and return.
+    // If there are no states waiting to be processed, clear the metrics and return.
     if(ups.empty()) {
         qDebug() << "no states in queue";
         this->stopping = false;
@@ -416,8 +427,8 @@ void trixterxdreambike::update() {
         return;
     }
 
-           // sweep the recent states calculating some averages over the last update interval
-           // steering can ba a particularly wobbly signal so smoothing is important
+    // sweep the recent states calculating some averages over the last update interval
+    // steering can ba a particularly wobbly signal so smoothing is important
     double steering=0, cadence=0, flywheel=0, brakeLevel=0, heartRate = 0;
     int count = ups.size();
 
@@ -437,7 +448,7 @@ void trixterxdreambike::update() {
         flywheel += state.FlywheelRPM;
         cadence += state.CrankRPM;
 
-               // Set the steering
+        // Set the steering
         if(!this->noSteering) {
             steering += this->steeringMap[state.Steering];
         }
@@ -529,7 +540,7 @@ void trixterxdreambike::update() {
         resistance_t finalResistance = 0;
 
         if(this->requestIsPower) {
-            // simulate ERG hardware - value is target power in watts
+     // simulate ERG hardware - value is target power in watts
             finalResistance = this->resistanceFromPowerRequest(value);
 
             qDebug() << "Power request: "
@@ -572,7 +583,7 @@ void trixterxdreambike::update() {
         }
 
         // Experiment with active braking
-        if(brakeLevel> 10 && flywheel > 5.1 * cadence) {
+        if(brakeLevel > 10 && flywheel > 5.1 /*physical crank to flywheel ration is 5 */ * cadence) {
             // give it a bit extra to coax the flywheel back to a speed where it actually needs
             // effort put into it.
             finalResistance += finalResistance >> 3;
@@ -590,10 +601,10 @@ void trixterxdreambike::update() {
     }
     this->requestResistance = -1;
 
-           // update the power output
+    // update the power output
     this->update_metrics(true, this->watts());
 
-           // check if the settings have been updated and adjust accordingly
+    // check if the settings have been updated and adjust accordingly
     if(this->appSettings->get_version()!=this->lastAppSettingsVersion) {
 
         this->noHeartRate = this->noHeartService || !this->appSettings->get_heartRateEnabled();
@@ -612,16 +623,16 @@ void trixterxdreambike::update() {
         this->lastAppSettingsVersion = this->appSettings->get_version();
     }
 
-           // set the elapsed time
+    // set the elapsed time
     this->elapsed = (currentTime - this->t0) * 0.001;
 
     if(steeringAngleChanged)
         emit this->steeringAngleChanged(this->m_steeringAngle.value());
 
-           // get the current time
+    // get the current time
     auto updateTime = getTime()-currentTime;
 
-           // Check the update was quick enough.
+    // Check the update was quick enough.
     if(updateTime>UpdateMetricsInterval/4)
         qDebug() << "WARNING: Update took too long: " << updateTime << "ms";
 }
@@ -632,7 +643,7 @@ void trixterxdreambike::calculateSteeringMap() {
 
     vector<double> newMap;
 
-           // Map the calibration values from [-info.max,+info.max] to [0, 2*info.max]
+    // Map the calibration values from [-info.max,+info.max] to [0, 2*info.max]
     double mid = info.max, max = 2*mid;
 
     double l = mid+info.left;
@@ -669,20 +680,20 @@ void trixterxdreambike::calculateSteeringMap() {
 void trixterxdreambike::set_resistance(resistance_t resistanceLevel) {
     qDebug() << "setting resistance: " << resistanceLevel << this->noWriteResistance;
 
-           // ignore the resistance if this option was selected
+    // ignore the resistance if this option was selected
     if(this->noWriteResistance)
         return;
 
     QMutexLocker locker(&this->updateMutex);
 
-           // Clip the incoming values
+    // Clip the incoming values
     resistance_t unclipped = resistanceLevel;
     if(resistanceLevel<0) resistanceLevel = 0;
     if(resistanceLevel>maxResistance()) resistanceLevel = maxResistance();
     if(unclipped!=resistanceLevel)
         qDebug() << "clipped resistance of " << unclipped << " to " << resistanceLevel;
 
-           // store the resistance level as a metric for the UI
+    // store the resistance level as a metric for the UI
     constexpr double pelotonScaleFactor = 100.0 / trixterxdreamclient::MaxResistance;
     bool resistanceChanged = false;
 
@@ -692,11 +703,11 @@ void trixterxdreambike::set_resistance(resistance_t resistanceLevel) {
     }
     this->m_pelotonResistance.setValue(round(pelotonScaleFactor * resistanceLevel));
 
-           // store the new resistance level. This might be the same as lastRequestedResistance(),Value
-           // but it doesn't involve a function call and a cast to get the value.
+    // store the new resistance level. This might be the same as lastRequestedResistance(),Value
+    // but it doesn't involve a function call and a cast to get the value.
     this->resistanceLevel = resistanceLevel;
 
-           // if there's been a change of resistance, signal it.
+    // if there's been a change of resistance, signal it.
     if(resistanceChanged)
         emit this->resistanceRead(resistanceLevel);
 
@@ -745,14 +756,14 @@ trixterxdreambike::~trixterxdreambike() {
     if(this->port) delete this->port;
     if(this->appSettings) delete this->appSettings;
 
-           // NOTE: bluetooth::restart() deletes this object, then deletes the bike object
-           //if(this->virtualBike) delete this->virtualBike;
+    // NOTE: bluetooth::restart() deletes this object, then deletes the bike object
+    //if(this->virtualBike) delete this->virtualBike;
 }
 
 void trixterxdreambike::set_wheelDiameter(double value) {
     QMutexLocker locker(&this->updateMutex);
 
-           // clip the value
+    // clip the value
     value = std::min(MaxWheelDiameter, std::max(value, MinWheelDiameter));
 
     this->wheelCircumference = value * M_PI;
@@ -771,7 +782,7 @@ trixterxdreambike * trixterxdreambike::tryCreate(bool noWriteResistance, bool no
     return nullptr;
 #endif
 
-           // first check if there's a port specified
+    // first check if there's a port specified
     if(portName!=nullptr && !portName.isEmpty())
     {
         qDebug() << "Looking for Trixter X-Dream device on port: " << portName;
@@ -785,7 +796,7 @@ trixterxdreambike * trixterxdreambike::tryCreate(bool noWriteResistance, bool no
         } catch(...) {
             qDebug() << "Error thrown looking for Trixter X-Dream device on port: " << portName;
 
-                   // make absolutely sure the object is delete otherwise the serial port it opened will remain blocked.
+            // make absolutely sure the object is delete otherwise the serial port it opened will remain blocked.
             if(result) {
                 qDebug() << "Deleting object that was not able to connect";
                 delete result;
@@ -796,7 +807,7 @@ trixterxdreambike * trixterxdreambike::tryCreate(bool noWriteResistance, bool no
         return nullptr;
     }
 
-           // Find the available ports and return the first success
+    // Find the available ports and return the first success
     auto availablePorts = trixterxdreamserial::availablePorts();
 
     for(int i=0; i<availablePorts.length(); i++)
