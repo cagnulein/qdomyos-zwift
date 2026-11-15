@@ -127,3 +127,29 @@ TEST(KettlerClassicProtocol, CoachSThirdKinomapChallengeCountsEscapedWirePayload
               QByteArray::fromHex("fbbe2e001bcda9e3a53b52c1847f276449bd"));
     EXPECT_TRUE(response.isEmpty());
 }
+
+TEST(KettlerClassicProtocol, CoachSAuthenticationMatchesSixKinomapVectors) {
+    // Three complete and independent successful Kinomap sessions, each with
+    // a client challenge and a Coach S reply. Both are salt + MD5(salt || key).
+    struct Vector { const char *request; const char *reply; };
+    const Vector vectors[] = {
+        {"2d61bc3de75ad3dfe2973ef18a637da428d6", "7849dfe4e0a14e4f14451817bf974991a44c"},
+        {"5fb8892e145cb599a16e1832573e3384b6bb", "45034120c3281fcdd2c01ffae49e62b72415"},
+        {"927c6464e25210a2a48e02fa7e9006107599", "fbbe2e001bcda9e3a53b52c1847f276449bd"}
+    };
+    for (const auto &v : vectors) {
+        const QByteArray request = QByteArray::fromHex(v.request);
+        const QByteArray reply = QByteArray::fromHex(v.reply);
+        ASSERT_EQ(request.size(), 18);
+        ASSERT_EQ(reply.size(), 18);
+        EXPECT_EQ(kettlerclassicprotocol::coachSHandshakeForSalt(request.left(2)), request);
+        EXPECT_EQ(kettlerclassicprotocol::coachSHandshakeForSalt(reply.left(2)), reply);
+        EXPECT_TRUE(kettlerclassicprotocol::isValidCoachSHandshake(request));
+        EXPECT_TRUE(kettlerclassicprotocol::isValidCoachSHandshake(reply));
+        QByteArray tampered = reply;
+        tampered[17] = static_cast<char>(tampered.at(17) ^ 0x01);
+        EXPECT_FALSE(kettlerclassicprotocol::isValidCoachSHandshake(tampered));
+    }
+    EXPECT_TRUE(kettlerclassicprotocol::coachSHandshakeForSalt(QByteArray("a")).isEmpty());
+    EXPECT_FALSE(kettlerclassicprotocol::isValidCoachSHandshake(QByteArray(18, '\\0')));
+}
