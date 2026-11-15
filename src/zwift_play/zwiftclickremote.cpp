@@ -467,7 +467,7 @@ void zwiftclickremote::handleDLockChallenge(const QByteArray &frame) {
 
         // Echo received shortly before or after this challenge: the pod is
         // already unlocked. A legacy ACK suffices and needs no Zwift account.
-        if (lastRideOnEchoMs > 0 && lastRideOnEchoMs >= challengeAt - 2000) {
+        if (!needsDLockReply(lastRideOnEchoMs, challengeAt)) {
             emit debug(QStringLiteral("Zwift Click V2 already unlocked (RideOn echo)"));
             sendDLockFrame(QByteArray());
             pendingUnlockPayload.clear();
