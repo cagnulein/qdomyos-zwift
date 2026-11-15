@@ -1477,19 +1477,19 @@ Do you want to update QZ settings?</source>
     <name>UiMessageDialog</name>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ya</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Batal</translation>
+        <translation>Batal</translation>
     </message>
 </context>
 <context>
@@ -4533,7 +4533,7 @@ Jika memilih Tidak, QZ mengaktifkan Without Wheel Diameter Protocol (Pengaturan 
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>Kembali</translation>
     </message>
     <message>
         <source>Main menu</source>
@@ -4561,7 +4561,7 @@ Jika memilih Tidak, QZ mengaktifkan Without Wheel Diameter Protocol (Pengaturan 
     </message>
     <message>
         <source>Chart</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafik</translation>
     </message>
     <message>
         <source>Lock tiles</source>
@@ -4707,7 +4707,7 @@ Jika memilih Tidak, QZ mengaktifkan Without Wheel Diameter Protocol (Pengaturan 
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Hapus</translation>
     </message>
     <message>
         <source>New profile</source>
@@ -4727,7 +4727,7 @@ Jika memilih Tidak, QZ mengaktifkan Without Wheel Diameter Protocol (Pengaturan 
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation>Muat</translation>
     </message>
 </context>
 <context>
@@ -9259,7 +9259,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Tiles Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opsi ubin</translation>
     </message>
 </context>
 <context>

@@ -1477,19 +1477,19 @@ Do you want to update QZ settings?</source>
     <name>UiMessageDialog</name>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation>Có</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation>Không</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Hủy</translation>
+        <translation>Hủy</translation>
     </message>
 </context>
 <context>
@@ -4533,7 +4533,7 @@ Nếu chọn Không, QZ sẽ bật Without Wheel Diameter Protocol (Cài đặt 
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>Quay lại</translation>
     </message>
     <message>
         <source>Main menu</source>
@@ -4561,7 +4561,7 @@ Nếu chọn Không, QZ sẽ bật Without Wheel Diameter Protocol (Cài đặt 
     </message>
     <message>
         <source>Chart</source>
-        <translation type="unfinished"></translation>
+        <translation>Biểu đồ</translation>
     </message>
     <message>
         <source>Lock tiles</source>
@@ -4707,7 +4707,7 @@ Nếu chọn Không, QZ sẽ bật Without Wheel Diameter Protocol (Cài đặt 
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Xóa</translation>
     </message>
     <message>
         <source>New profile</source>
@@ -4727,7 +4727,7 @@ Nếu chọn Không, QZ sẽ bật Without Wheel Diameter Protocol (Cài đặt 
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation>Tải</translation>
     </message>
 </context>
 <context>
@@ -9259,7 +9259,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Tiles Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Tùy chọn các ô</translation>
     </message>
 </context>
 <context>

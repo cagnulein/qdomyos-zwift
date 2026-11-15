@@ -1477,19 +1477,19 @@ Do you want to update QZ settings?</source>
     <name>UiMessageDialog</name>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation>हाँ</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation>नहीं</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>ठीक है</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">रद्द करें</translation>
+        <translation>रद्द करें</translation>
     </message>
 </context>
 <context>
@@ -4533,7 +4533,7 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>वापस</translation>
     </message>
     <message>
         <source>Main menu</source>
@@ -4561,7 +4561,7 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>Chart</source>
-        <translation type="unfinished"></translation>
+        <translation>चार्ट</translation>
     </message>
     <message>
         <source>Lock tiles</source>
@@ -4707,7 +4707,7 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>हटाएँ</translation>
     </message>
     <message>
         <source>New profile</source>
@@ -4727,7 +4727,7 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation>लोड करें</translation>
     </message>
 </context>
 <context>
@@ -9259,7 +9259,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Tiles Options</source>
-        <translation type="unfinished"></translation>
+        <translation>टाइल विकल्प</translation>
     </message>
 </context>
 <context>

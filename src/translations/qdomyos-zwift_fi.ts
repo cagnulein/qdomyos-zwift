@@ -1477,19 +1477,19 @@ Do you want to update QZ settings?</source>
     <name>UiMessageDialog</name>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation>Kyllä</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation>Ei</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Peruuta</translation>
+        <translation>Peruuta</translation>
     </message>
 </context>
 <context>
@@ -4533,7 +4533,7 @@ Jos valitset Ei, QZ ottaa käyttöön asetuksen Without Wheel Diameter Protocol 
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>Takaisin</translation>
     </message>
     <message>
         <source>Main menu</source>
@@ -4561,7 +4561,7 @@ Jos valitset Ei, QZ ottaa käyttöön asetuksen Without Wheel Diameter Protocol 
     </message>
     <message>
         <source>Chart</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaavio</translation>
     </message>
     <message>
         <source>Lock tiles</source>
@@ -4707,7 +4707,7 @@ Jos valitset Ei, QZ ottaa käyttöön asetuksen Without Wheel Diameter Protocol 
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Poista</translation>
     </message>
     <message>
         <source>New profile</source>
@@ -4727,7 +4727,7 @@ Jos valitset Ei, QZ ottaa käyttöön asetuksen Without Wheel Diameter Protocol 
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation>Lataa</translation>
     </message>
 </context>
 <context>
@@ -9259,7 +9259,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Tiles Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Ruutujen asetukset</translation>
     </message>
 </context>
 <context>
