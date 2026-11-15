@@ -2504,6 +2504,8 @@ import AndroidStatusBar 1.0
             property string ui_theme_mode: "auto"
             property bool proform_treadmill_cst_505_pftl59420_2026: false
             property bool proform_use_console_gears: false
+            // Experimental Strava upload post-processing. Append new properties here for profile compatibility.
+            property bool strava_clear_treadmill_tag_after_upload: false
 
         }
 
@@ -15209,6 +15211,34 @@ import AndroidStatusBar 1.0
 
                     Label {
                         text: qsTr("Append the Treadmill Tag to the Strava Activity when you are using a treadmill. If you want to see the elevation on Strava, you need to disable this.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Strava: Clear Treadmill Tag After Upload (Experimental)")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.strava_clear_treadmill_tag_after_upload
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.strava_clear_treadmill_tag_after_upload = checked
+                    }
+
+                    Label {
+                        text: qsTr("For virtual treadmill runs uploaded directly from QZ, try removing Strava's Treadmill tag via the Strava API once processing completes. Experimental: it may not restore the elevation graph. Off by default.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
