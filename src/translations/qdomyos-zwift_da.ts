@@ -309,6 +309,14 @@ Vil du aktivere de nødvendige tjenester?</translation>
         <translation>Vil du have en påmindelse om at aktivere Bluetooth eller placeringstjenester næste gang?</translation>
     </message>
     <message>
+        <source>, current value </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>. Current value </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Return to app</source>
         <translation>Tilbage til appen</translation>
     </message>
@@ -352,8 +360,28 @@ Vil du aktivere de nødvendige tjenester?</translation>
         <translation>Registrer ny omgang</translation>
     </message>
     <message>
+        <source>This app should automatically connect to your bike, treadmill, or rower.
+
+If it doesn&apos;t, check that:
+- the Echelon/Domyos app is closed while QZ is running
+- Bluetooth and Bluetooth permissions are enabled
+- your equipment is turned on before starting QZ
+- you have restarted your device
+
+If your bike or treadmill disconnects every 30 seconds, disable the Virtual Device setting in the left bar.
+
+For help, contact roberto.viola83@gmail.com.
+
+Have a nice ride!
+
+QZ disclaims liability for incidental or consequential damages and assumes no responsibility for any loss or damage caused by use or misuse of the app.
+
+Roberto Viola</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
-        <translation>Denne app bør automatisk oprette forbindelse til din cykel, dit løbebånd eller din romaskine. &lt;b&gt;Hvis det ikke sker, skal du kontrollere følgende&lt;/b&gt;:&lt;br&gt;1) Echelon/Domyos-appen SKAL være lukket, mens qdomyos-zwift kører;&lt;br&gt;2) både Bluetooth og Bluetooth-tilladelser SKAL være aktiveret&lt;br&gt;3) cyklen, løbebåndet eller romaskinen skal være tændt, FØR du starter denne app&lt;br&gt;4) prøv at genstarte enheden&lt;br&gt;&lt;br&gt;Hvis cyklen eller løbebåndet afbryder forbindelsen hvert 30. sekund, kan du prøve at deaktivere indstillingen &quot;Aktivér virtuel enhed&quot; i menuen til venstre.&lt;br&gt;&lt;br&gt;Hvis du har problemer, er du velkommen til at kontakte mig på roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;God tur!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ fraskriver sig udtrykkeligt ansvaret for&lt;br&gt;hændelige skader og følgeskader og påtager sig&lt;br&gt;intet ansvar for tab&lt;br&gt;eller skader, som nogen måtte lide som følge af&lt;br&gt;brug eller misbrug af appen.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+        <translation type="vanished">Denne app bør automatisk oprette forbindelse til din cykel, dit løbebånd eller din romaskine. &lt;b&gt;Hvis det ikke sker, skal du kontrollere følgende&lt;/b&gt;:&lt;br&gt;1) Echelon/Domyos-appen SKAL være lukket, mens qdomyos-zwift kører;&lt;br&gt;2) både Bluetooth og Bluetooth-tilladelser SKAL være aktiveret&lt;br&gt;3) cyklen, løbebåndet eller romaskinen skal være tændt, FØR du starter denne app&lt;br&gt;4) prøv at genstarte enheden&lt;br&gt;&lt;br&gt;Hvis cyklen eller løbebåndet afbryder forbindelsen hvert 30. sekund, kan du prøve at deaktivere indstillingen &quot;Aktivér virtuel enhed&quot; i menuen til venstre.&lt;br&gt;&lt;br&gt;Hvis du har problemer, er du velkommen til at kontakte mig på roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;God tur!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ fraskriver sig udtrykkeligt ansvaret for&lt;br&gt;hændelige skader og følgeskader og påtager sig&lt;br&gt;intet ansvar for tab&lt;br&gt;eller skader, som nogen måtte lide som følge af&lt;br&gt;brug eller misbrug af appen.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
     </message>
     <message>
         <source>Looking for your equipment…</source>
@@ -2031,6 +2059,128 @@ Vil du opdatere QZ-indstillingerne?</translation>
         <translation>Fejl ved gentagelse af markering: {message}</translation>
     </message>
     <message>
+        <source>Workout name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Workout device type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create a new workout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Paste XML from the Clipboard to the Workout Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save workout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save workout and start it</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show advanced interval fields</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Workout editor controls</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add interval</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Repeat selected intervals</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear all intervals</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Workout preview chart</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Chart legend</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saved workout programs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load selected workout program</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete selected workout program</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Refresh workout program list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select interval {number}</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move interval {number} up</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move interval {number} down</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy interval {number}</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete interval {number}</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable {field} for interval {number}</source>
+        <extracomment>Screen reader name of a field checkbox; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>{field} for interval {number}</source>
+        <extracomment>Screen reader name of a field; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Decrease {field} for interval {number}</source>
+        <extracomment>Screen reader name of the - button; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Increase {field} for interval {number}</source>
+        <extracomment>Screen reader name of the + button; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>{name} preview chart. {count} intervals. Total duration {duration}.</source>
+        <extracomment>Screen reader description of the chart; {name} is the workout name, {count} the number of intervals, {duration} like 0:45:00</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dialog input</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Training Programs Browser</source>
         <translation>Oversigt over træningsprogrammer</translation>
     </message>
@@ -2603,6 +2753,10 @@ De følgende spørgsmål tilpasser QZ til dit udstyr og dine mål.</translation>
         <translation>Klik på knappen nedenfor for at oprette forbindelse til din Peloton-konto</translation>
     </message>
     <message>
+        <source>Opens the Peloton login page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Peloton Difficulty</source>
         <translation>Peloton-sværhedsgrad</translation>
     </message>
@@ -2615,6 +2769,14 @@ De følgende spørgsmål tilpasser QZ til dit udstyr og dine mål.</translation>
         <translation>Sværhedsgrad</translation>
     </message>
     <message>
+        <source>Peloton difficulty level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose whether QZ targets the lower, upper or average of the instructor&apos;s range</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Finish</source>
         <translation>Afslut</translation>
     </message>
@@ -2625,6 +2787,14 @@ De følgende spørgsmål tilpasser QZ til dit udstyr og dine mål.</translation>
     <message>
         <source>What resistance level feels like a flat road on your bike?</source>
         <translation>Hvilket modstandsniveau på cyklen føles som en flad vej?</translation>
+    </message>
+    <message>
+        <source>Resistance level for flat road</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resistance level that feels like riding on flat ground. Range 0 to 100.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Next</source>
@@ -2671,8 +2841,16 @@ De følgende spørgsmål tilpasser QZ til dit udstyr og dine mål.</translation>
         <translation>Brugernavn</translation>
     </message>
     <message>
+        <source>Zwift username</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Password</source>
         <translation>Adgangskode</translation>
+    </message>
+    <message>
+        <source>Zwift password</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Zwift Play and Click</source>
@@ -2685,6 +2863,10 @@ De følgende spørgsmål tilpasser QZ til dit udstyr og dine mål.</translation>
     <message>
         <source>Zwift Click</source>
         <translation>Zwift Click</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Zwift Play</source>
@@ -2723,12 +2905,24 @@ De følgende spørgsmål tilpasser QZ til dit udstyr og dine mål.</translation>
         <translation>Hvis du har spørgsmål eller brug for mere hjælp, er du velkommen til at skrive til mig på roberto.viola83@gmail.com. Du kan også starte denne guide igen fra menuen til venstre. Nogle ændringer kræver måske, at du genstarter appen.</translation>
     </message>
     <message>
+        <source>Email support</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Close</source>
         <translation>Luk</translation>
     </message>
     <message>
         <source>Select Your Fitness Device</source>
         <translation>Vælg træningsmaskine</translation>
+    </message>
+    <message>
+        <source>Fitness device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select your fitness device from the list of nearby Bluetooth devices. Tap Refresh to scan again.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unit System</source>
@@ -2739,16 +2933,44 @@ De følgende spørgsmål tilpasser QZ til dit udstyr og dine mål.</translation>
         <translation>Vælg det foretrukne enhedssystem</translation>
     </message>
     <message>
+        <source>Unit system</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Metric uses kilometers and kilograms. Imperial uses miles and pounds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>User Information</source>
         <translation>Brugeroplysninger</translation>
+    </message>
+    <message>
+        <source>Body weight</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Your weight in pounds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Your weight in kilograms</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Age</source>
         <translation>Alder</translation>
     </message>
     <message>
+        <source>Your age in years. Used for heart rate zone calculations.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Gender</source>
         <translation>Køn</translation>
+    </message>
+    <message>
+        <source>Used for calorie calculations</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Select Your Heart Rate Device</source>
@@ -2757,6 +2979,14 @@ De følgende spørgsmål tilpasser QZ til dit udstyr og dine mål.</translation>
     <message>
         <source>Choose your heart rate belt or select a smartwatch option:</source>
         <translation>Vælg dit pulsbælte, eller vælg en mulighed med smartwatch:</translation>
+    </message>
+    <message>
+        <source>Heart rate belt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select your Bluetooth heart rate belt from the list. Tap Refresh to scan again. Choose Disabled if using a smartwatch.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Or select a smartwatch option:</source>
@@ -2856,6 +3086,14 @@ De følgende spørgsmål tilpasser QZ til dit udstyr og dine mål.</translation>
     <message>
         <source>Workout Editor</source>
         <translation>Træningseditor</translation>
+    </message>
+    <message>
+        <source>Loading workout editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The workout editor is loading</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3500,6 +3738,22 @@ Det kan tage et øjeblik ved første start.</translation>
     <message>
         <source>Step Count</source>
         <translation>Antal skridt</translation>
+    </message>
+    <message>
+        <source>Speed %1 kilometers per hour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Speed %1 miles per hour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Inclination %1 percent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resistance %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Stop</source>
@@ -4381,8 +4635,20 @@ Tillad adgang til QZ-mappen i det næste vindue.</translation>
         <translation>Hovedmenu</translation>
     </message>
     <message>
+        <source>Return to the previous screen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open the main navigation menu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Floating window</source>
         <translation>Flydende vindue</translation>
+    </message>
+    <message>
+        <source>Open the floating workout display</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>You can move the tiles!</source>
@@ -4397,6 +4663,10 @@ Tillad adgang til QZ-mappen i det næste vindue.</translation>
         <translation>Indlæs indstillinger</translation>
     </message>
     <message>
+        <source>Open the saved settings list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>Søg i indstillinger</translation>
     </message>
@@ -4405,16 +4675,32 @@ Tillad adgang til QZ-mappen i det næste vindue.</translation>
         <translation>Gem indstillinger</translation>
     </message>
     <message>
+        <source>Save the current settings profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Map</source>
         <translation>Kort</translation>
+    </message>
+    <message>
+        <source>Open the route map</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Video</source>
         <translation>Video</translation>
     </message>
     <message>
+        <source>Show or hide the workout video</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Chart</source>
         <translation>Graf</translation>
+    </message>
+    <message>
+        <source>Show or hide the workout chart</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Share FIT file</source>
@@ -4429,12 +4715,24 @@ Tillad adgang til QZ-mappen i det næste vindue.</translation>
         <translation>Lås felterne</translation>
     </message>
     <message>
+        <source>Prevent workout tiles from being moved</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Allow workout tiles to be moved</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Disable auto resistance</source>
         <translation>Deaktiver automatisk modstand</translation>
     </message>
     <message>
         <source>Enable auto resistance</source>
         <translation>Aktivér automatisk modstand</translation>
+    </message>
+    <message>
+        <source>Toggle automatic resistance control</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4505,6 +4803,14 @@ Tillad adgang til QZ-mappen i det næste vindue.</translation>
         <translation>Opret forbindelse til Strava</translation>
     </message>
     <message>
+        <source>Tap to log out of Strava</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tap to connect your Strava account</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Disconnect from Peloton</source>
         <translation>Afbryd forbindelsen til Peloton</translation>
     </message>
@@ -4513,8 +4819,20 @@ Tillad adgang til QZ-mappen i det næste vindue.</translation>
         <translation>Opret forbindelse til Peloton</translation>
     </message>
     <message>
+        <source>Tap to log out of Peloton</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tap to connect your Peloton account</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Garmin Connect settings</source>
         <translation>Indstillinger for Garmin Connect</translation>
+    </message>
+    <message>
+        <source>Open Garmin Connect integration settings</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Disconnect from Intervals.icu</source>
@@ -4523,6 +4841,14 @@ Tillad adgang til QZ-mappen i det næste vindue.</translation>
     <message>
         <source>Connect with Intervals.icu</source>
         <translation>Opret forbindelse til Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Tap to log out of Intervals.icu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tap to connect your Intervals.icu account</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Workout</source>
@@ -5106,6 +5432,10 @@ Må QZ ændre værdien?
         <translation>Vægt</translation>
     </message>
     <message>
+        <source>Save Player Weight</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enter your weight in kilograms so QZ can more accurately calculate calories burned. NOTE: If you choose to use miles as the unit for distance traveled, you will be asked to enter your weight in pounds (lbs) unless you enable &apos;Use kg for weight&apos;.</source>
         <translation>Angiv din vægt i kilogram, så QZ kan beregne forbrændte kalorier mere præcist. BEMÆRK: hvis du vælger miles som enhed for distance, bliver du bedt om at angive din vægt i pund (lbs), medmindre du aktiverer &quot;Brug kg til vægt&quot;.</translation>
     </message>
@@ -5118,12 +5448,24 @@ Må QZ ændre værdien?
         <translation>Ugyldigt format! Brug fod&apos;tommer (f.eks. 6&apos;2&quot;)</translation>
     </message>
     <message>
+        <source>Save Player Height</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet&apos;inches&quot; format (e.g., 5&apos;10&quot;) for imperial units.</source>
         <translation>Angiv din højde for at få en mere præcis beregning af BMR og aktive kalorier. Brug centimeter for metriske enheder eller formatet fod&apos;tommer&quot; (f.eks. 5&apos;10&quot;) for imperiale enheder.</translation>
     </message>
     <message>
         <source>Player Age:</source>
         <translation>Alder:</translation>
+    </message>
+    <message>
+        <source>Player Age</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Player Age</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter your age so that calories burned can be more accurately calculated.</source>
@@ -5134,12 +5476,28 @@ Må QZ ændre værdien?
         <translation>Køn:</translation>
     </message>
     <message>
+        <source>Gender</source>
+        <translation type="unfinished">Køn</translation>
+    </message>
+    <message>
+        <source>Save Gender</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Select your gender so that calories burned can be more accurately calculated.</source>
         <translation>Vælg dit køn, så forbrændte kalorier kan beregnes mere præcist.</translation>
     </message>
     <message>
         <source>FTP value:</source>
         <translation>FTP-værdi:</translation>
+    </message>
+    <message>
+        <source>FTP value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save FTP value</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>If you train to specific output (or watts) levels, for example in Peloton Power Zone classes,and have taken an FTP test (Functional Threshold Power), enter your FTP here. This number is used to calculate your Power Zones (Zones 1 to 7 for Peloton and 1 to 6 for Zwift).</source>
@@ -5150,6 +5508,14 @@ Må QZ ændre værdien?
         <translation>Kritisk effekt ved løb:</translation>
     </message>
     <message>
+        <source>Critical Power Run value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Critical Power Run value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>If you train to specific output (or watts) levels, for example with Stryd,and have taken an CP test (Critical Power Test), enter your CP here. This number is used to calculate your RSS.</source>
         <translation>Hvis du træner efter bestemte effektniveauer (watt), f.eks. med Stryd, og har taget en CP-test (Critical Power), skal du angive din CP her. Tallet bruges til at beregne din RSS.</translation>
     </message>
@@ -5158,12 +5524,28 @@ Må QZ ændre værdien?
         <translation>Kaldenavn:</translation>
     </message>
     <message>
+        <source>Nickname</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Nickname</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>No need to enter data here. It is for a possible future QZ feature.</source>
         <translation>Du behøver ikke at angive noget her. Feltet er til en mulig fremtidig QZ-funktion.</translation>
     </message>
     <message>
         <source>Email:</source>
         <translation>E-mail:</translation>
+    </message>
+    <message>
+        <source>Email</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Email</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter your email address to receive an automated email with stats and charts when you hit STOP at the end of each workout. Make sure there are no spaces before or after the email address; this is the most common reason the automated email is not sent. Privacy Note: Email addresses are not collected by the developer and are only saved locally on your device.</source>
@@ -5274,16 +5656,48 @@ Må QZ ændre værdien?
         <translation>Zone 1 %:</translation>
     </message>
     <message>
+        <source>Zone 1 %</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Zone 1 %</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Zone 2 %:</source>
         <translation>Zone 2 %:</translation>
+    </message>
+    <message>
+        <source>Zone 2 %</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Zone 2 %</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Zone 3 %:</source>
         <translation>Zone 3 %:</translation>
     </message>
     <message>
+        <source>Zone 3 %</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Zone 3 %</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Zone 4 %:</source>
         <translation>Zone 4 %:</translation>
+    </message>
+    <message>
+        <source>Zone 4 %</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Zone 4 %</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Zone 5 will be calculated automatically based on Zone 4 end percentage and max HR.</source>
@@ -5306,12 +5720,20 @@ Må QZ ændre værdien?
         <translation>Maks. puls</translation>
     </message>
     <message>
+        <source>Save Max Heart Rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>QZ uses a standard age-based calculation for maximum heart rate and then sets the heart rate zones based on that max heart rate. If you know your actual max heart rate (the highest your heart rate is known to reach), turn this option on and enter your actual max heart rate. Then click OK.</source>
         <translation>QZ bruger en standardberegning ud fra alder til at finde din maksimale puls og fastsætter derefter pulszonerne ud fra den. Hvis du kender din faktiske maksimale puls (den højeste puls, du kan nå), skal du slå denne indstilling til og indtaste den. Klik derefter på OK.</translation>
     </message>
     <message>
         <source>Resting Heart Rate</source>
         <translation>Hvilepuls</translation>
+    </message>
+    <message>
+        <source>Save Resting Heart Rate</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter your resting heart rate (the lowest your heart rate reaches when fully rested). This is used for accurate training load calculations. Default is 60 bpm.</source>
@@ -5326,16 +5748,48 @@ Må QZ ændre værdien?
         <translation>Måling 1, effekt:</translation>
     </message>
     <message>
+        <source>Session 1 Watt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Session 1 Watt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Session 1 HR:</source>
         <translation>Måling 1, puls:</translation>
+    </message>
+    <message>
+        <source>Session 1 HR</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Session 1 HR</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Session 2 Watt:</source>
         <translation>Måling 2, effekt:</translation>
     </message>
     <message>
+        <source>Session 2 Watt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Session 2 Watt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Session 2 HR:</source>
         <translation>Måling 2, puls:</translation>
+    </message>
+    <message>
+        <source>Session 2 HR</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Session 2 HR</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Expand the bars to the right to display the options under this setting. These settings are used to calculate power (watts) for bikes that do not have power meters. Instead QZ estimates power from your cadence and heart rate. You can calibrate how QZ calculates your power from heart rate as follows: If you know that at a stable pace you produce 100W of power at a heart rate of 150 BPM and 150W at 170 BPM, you can add these values under Sessions 1 and 2 Watt and HR and QZ will calculate your power based on that trend line.</source>
@@ -5370,12 +5824,24 @@ Må QZ ændre værdien?
         <translation>Gearværdi:</translation>
     </message>
     <message>
+        <source>Gear Value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Gear Value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Specify a particular gear value to be restored at startup. This will override the &apos;Restore Gears on Startup&apos; setting.</source>
         <translation>Angiv en bestemt gearværdi, der skal gendannes ved opstart. Denne indstilling har forrang for &quot;Gendan gear ved opstart&quot;.</translation>
     </message>
     <message>
         <source>Rolling Resistance Factor</source>
         <translation>Rullemodstandsfaktor</translation>
+    </message>
+    <message>
+        <source>Save Rolling Resistance Factor</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>0.005 = Clinchers
@@ -5386,6 +5852,14 @@ Må QZ ændre værdien?
 0.012 = MTB</translation>
     </message>
     <message>
+        <source>Bike Weight</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Bike Weight</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enables QZ to include the weight of your bike when calculating speed. For example, if you are competing against yourself on VZfit, adding bike weight will &apos;level the playing field&apos; against your virtual self. If you have set QZ to calculate distance in miles, enter the bike weight in pounds (lbs) unless you enable &apos;Use kg for weight&apos;. Default unit is kilograms (kgs).</source>
         <translation>Giver QZ mulighed for at medregne din cykels vægt, når hastigheden beregnes. Hvis du f.eks. konkurrerer mod dig selv på VZfit, giver cyklens vægt lige vilkår mod dit virtuelle jeg. Hvis QZ er indstillet til at beregne distance i miles, skal du angive cyklens vægt i pund (lbs), medmindre du har aktiveret &quot;Brug kg til vægt&quot;. Standardenheden er kilogram (kgs).</translation>
     </message>
@@ -5394,8 +5868,16 @@ Må QZ ændre værdien?
         <translation>Multiplikator for rullemodstand</translation>
     </message>
     <message>
+        <source>Save Rolling Res. Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Wind Res. Gain</source>
         <translation>Multiplikator for luftmodstand</translation>
+    </message>
+    <message>
+        <source>Save Wind Res. Gain</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Zwift Workout/Erg Mode</source>
@@ -5410,12 +5892,28 @@ Må QZ ændre værdien?
         <translation>Justering af Zwift-modstand:</translation>
     </message>
     <message>
+        <source>Zwift Resistance Offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Zwift Resistance Offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>This setting sets your “flat road” in Zwift. All communicated resistance changes will be based on this setting. The value entered is personal preference and will be dependent on your level of fitness. The suggested value for Echelon bikes is between 18 and 20. Default is 4.</source>
         <translation>Denne indstilling angiver din &quot;flade vej&quot; i Zwift. Alle modstandsændringer, der sendes, tager udgangspunkt i denne indstilling. Værdien afhænger af din personlige præference og din form. Den anbefalede værdi for Echelon-cykler er mellem 18 og 20. Standard: 4.</translation>
     </message>
     <message>
         <source>Zwift Power Offset (W):</source>
         <translation>Justering af Zwift-effekt (W):</translation>
+    </message>
+    <message>
+        <source>Zwift Power Offset (W)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Zwift Power Offset (W)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add an offset in watts to the requested power from apps like Zwift. Positive values increase power, negative values decrease it. Default is 0.</source>
@@ -5426,12 +5924,28 @@ Må QZ ændre værdien?
         <translation>Multiplikator for Zwift-modstand:</translation>
     </message>
     <message>
+        <source>Zwift Resistance Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Zwift Resistance Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>(for bikes and treadmills when using “treadmill as a bike” setting). This setting scales the resistance from your bike or the speed from your treadmill before sending it to Zwift. Default is 1.</source>
         <translation>(for cykler og for løbebånd, når indstillingen &quot;Løbebånd som cykel&quot; bruges). Denne indstilling skalerer modstanden fra din cykel eller hastigheden fra dit løbebånd, før den sendes til Zwift. Standard: 1.</translation>
     </message>
     <message>
         <source>Zwift ERG Watt Up Filter:</source>
         <translation>Zwift ERG-effektfilter op:</translation>
+    </message>
+    <message>
+        <source>Zwift ERG Watt Up Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Zwift ERG Watt Up Filter</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 watts or more than 110 watts. Default is 10.</source>
@@ -5442,12 +5956,28 @@ Må QZ ændre værdien?
         <translation>Zwift ERG-effektfilter ned:</translation>
     </message>
     <message>
+        <source>Zwift ERG Watt Down Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Zwift ERG Watt Down Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>See above. Default is 10.</source>
         <translation>Se ovenfor. Standard: 10.</translation>
     </message>
     <message>
         <source>Min. Resistance:</source>
         <translation>Min. modstand:</translation>
+    </message>
+    <message>
+        <source>Min. Resistance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Min. Resistance</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Use this setting to set a minimum target resistance. For example, if you do not want to ride at a resistance below 25, enter a value of 25 and QZ will not set a target resistance below 25. Default is 0.</source>
@@ -5458,6 +5988,14 @@ Må QZ ændre værdien?
         <translation>Maks. modstand:</translation>
     </message>
     <message>
+        <source>Max. Resistance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Max. Resistance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Similar to the above, but sets a maximum target resistance. Default is 999.</source>
         <translation>Som ovenfor, men angiver en maksimal målmodstand. Standard: 999.</translation>
     </message>
@@ -5466,12 +6004,28 @@ Må QZ ændre værdien?
         <translation>Modstand ved opstart:</translation>
     </message>
     <message>
+        <source>Resistance at Startup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Resistance at Startup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>(only for bikes with electronically-controlled resistance): Enter the resistance level you want QZ to set at startup. Default is 1.</source>
         <translation>(kun for cykler med elektronisk styret modstand): indtast det modstandsniveau, QZ skal indstille ved opstart. Standard: 1.</translation>
     </message>
     <message>
         <source>Gears Gain:</source>
         <translation>Gearmultiplikator:</translation>
+    </message>
+    <message>
+        <source>Gears Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Gears Gain</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Applies a multiplier to the gears. Default is 1.</source>
@@ -5484,6 +6038,14 @@ Må QZ ændre værdien?
     <message>
         <source>Gears Offset:</source>
         <translation>Gearjustering:</translation>
+    </message>
+    <message>
+        <source>Gears Offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Gears Offset</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Applies an offset to the gears. Default is 0.</source>
@@ -5506,6 +6068,10 @@ Må QZ ændre værdien?
         <translation>Profil:</translation>
     </message>
     <message>
+        <source>Profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Cruise Profile Settings</source>
         <translation>Indstillinger for profilen &quot;Tur&quot;</translation>
     </message>
@@ -5514,16 +6080,48 @@ Må QZ ændre værdien?
         <translation>Tur – kadence for gear op (RPM):</translation>
     </message>
     <message>
+        <source>Cruise - Gear Up Cadence (RPM)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Cruise - Gear Up Cadence (RPM)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Cruise - Gear Up Time (seconds):</source>
         <translation>Tur – tid før gear op (sekunder):</translation>
+    </message>
+    <message>
+        <source>Cruise - Gear Up Time (seconds)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Cruise - Gear Up Time (seconds)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Cruise - Gear Down Cadence (RPM):</source>
         <translation>Tur – kadence for gear ned (RPM):</translation>
     </message>
     <message>
+        <source>Cruise - Gear Down Cadence (RPM)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Cruise - Gear Down Cadence (RPM)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Cruise - Gear Down Time (seconds):</source>
         <translation>Tur – tid før gear ned (sekunder):</translation>
+    </message>
+    <message>
+        <source>Cruise - Gear Down Time (seconds)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Cruise - Gear Down Time (seconds)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Climb Profile Settings</source>
@@ -5534,16 +6132,48 @@ Må QZ ændre værdien?
         <translation>Klatring – kadence for gear op (RPM):</translation>
     </message>
     <message>
+        <source>Climb - Gear Up Cadence (RPM)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Climb - Gear Up Cadence (RPM)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Climb - Gear Up Time (seconds):</source>
         <translation>Klatring – tid før gear op (sekunder):</translation>
+    </message>
+    <message>
+        <source>Climb - Gear Up Time (seconds)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Climb - Gear Up Time (seconds)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Climb - Gear Down Cadence (RPM):</source>
         <translation>Klatring – kadence for gear ned (RPM):</translation>
     </message>
     <message>
+        <source>Climb - Gear Down Cadence (RPM)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Climb - Gear Down Cadence (RPM)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Climb - Gear Down Time (seconds):</source>
         <translation>Klatring – tid før gear ned (sekunder):</translation>
+    </message>
+    <message>
+        <source>Climb - Gear Down Time (seconds)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Climb - Gear Down Time (seconds)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sprint Profile Settings</source>
@@ -5554,16 +6184,48 @@ Må QZ ændre værdien?
         <translation>Spurt – kadence for gear op (RPM):</translation>
     </message>
     <message>
+        <source>Sprint - Gear Up Cadence (RPM)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Sprint - Gear Up Cadence (RPM)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Sprint - Gear Up Time (seconds):</source>
         <translation>Spurt – tid før gear op (sekunder):</translation>
+    </message>
+    <message>
+        <source>Sprint - Gear Up Time (seconds)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Sprint - Gear Up Time (seconds)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sprint - Gear Down Cadence (RPM):</source>
         <translation>Spurt – kadence for gear ned (RPM):</translation>
     </message>
     <message>
+        <source>Sprint - Gear Down Cadence (RPM)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Sprint - Gear Down Cadence (RPM)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Sprint - Gear Down Time (seconds):</source>
         <translation>Spurt – tid før gear ned (sekunder):</translation>
+    </message>
+    <message>
+        <source>Sprint - Gear Down Time (seconds)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Sprint - Gear Down Time (seconds)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>FTMS Bike:</source>
@@ -5602,6 +6264,14 @@ Må QZ ændre værdien?
         <translation>Modstandsudjævning:</translation>
     </message>
     <message>
+        <source>Resistance Smoothing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Resistance Smoothing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Since this bike doesn&apos;t send resistance over Bluetooth, QZ is calculating it using cadence and wattage. The result could be a little &apos;jumpy&apos; and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.</source>
         <translation>Da denne cykel ikke sender modstanden via Bluetooth, beregner QZ den ud fra kadence og effekt. Resultatet kan svinge lidt, så med denne indstilling kan du filtrere værdien i modstandsfeltet. Enheden er modstandsniveauer, så hvis du angiver 5, ser du kun en ændring, når modstanden ændrer sig med 5 niveauer.</translation>
     </message>
@@ -5614,6 +6284,14 @@ Må QZ ændre værdien?
         <translation>GR7-kadencemultiplikator:</translation>
     </message>
     <message>
+        <source>GR7 Cadence Multiplier</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save GR7 Cadence Multiplier</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Echelon Bike Options</source>
         <translation>Indstillinger for Echelon-cykel</translation>
     </message>
@@ -5622,12 +6300,36 @@ Må QZ ændre værdien?
         <translation>Effektprofil:</translation>
     </message>
     <message>
+        <source>Watt Profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Watt Profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Resistance Gain:</source>
         <translation>Modstandsmultiplikator:</translation>
     </message>
     <message>
+        <source>Resistance Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Resistance Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Resistance Offset:</source>
         <translation>Modstandsjustering:</translation>
+    </message>
+    <message>
+        <source>Resistance Offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Resistance Offset</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Change gears using knob (Experimental)</source>
@@ -5730,12 +6432,28 @@ Må QZ ændre værdien?
         <translation>Filter for nulmålinger:</translation>
     </message>
     <message>
+        <source>Samples Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Samples Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Domyos Bike Options</source>
         <translation>Indstillinger for Domyos-cykel</translation>
     </message>
     <message>
         <source>Cadence Filter:</source>
         <translation>Kadencefilter:</translation>
+    </message>
+    <message>
+        <source>Cadence Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Cadence Filter</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Ignore FTMS</source>
@@ -5779,6 +6497,14 @@ Må QZ ændre værdien?
         <translation>Hjulforhold:</translation>
     </message>
     <message>
+        <source>Wheel Ratio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Wheel Ratio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Specific Model:</source>
         <translation>Model:</translation>
     </message>
@@ -5791,12 +6517,36 @@ Må QZ ændre værdien?
         <translation>IP-adresse for TDF1:</translation>
     </message>
     <message>
+        <source>TDF1 IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save TDF1 IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>TDF4 IP:</source>
         <translation>IP-adresse for TDF4:</translation>
     </message>
     <message>
+        <source>TDF4 IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save TDF4 IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>TDF Companion IP:</source>
         <translation>IP-adresse for TDF Companion:</translation>
+    </message>
+    <message>
+        <source>TDF Companion IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save TDF Companion IP</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>ADB Remote</source>
@@ -5815,8 +6565,24 @@ Må QZ ændre værdien?
         <translation>Seriel port:</translation>
     </message>
     <message>
+        <source>Serial Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Serial Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Kettler USB Bike Options</source>
         <translation>Indstillinger for Kettler USB-cykel</translation>
+    </message>
+    <message>
+        <source>Baudrate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Baudrate</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>M3i Bike Options</source>
@@ -5831,8 +6597,24 @@ Må QZ ændre værdien?
         <translation>Cykel-ID:</translation>
     </message>
     <message>
+        <source>Bike ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Bike ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Speed Buffer Size:</source>
         <translation>Udjævning af hastighed (antal målinger):</translation>
+    </message>
+    <message>
+        <source>Speed Buffer Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Speed Buffer Size</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Use KCal from the Bike</source>
@@ -5863,6 +6645,14 @@ Må QZ ændre værdien?
         <translation>Nummer på ANT+-cykelenhed (0=auto):</translation>
     </message>
     <message>
+        <source>ANT+ Bike Device Number (0=Auto)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save ANT+ Bike Device Number (0=Auto)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Toputure Bikes</source>
         <translation>Toputure-cykler</translation>
     </message>
@@ -5891,12 +6681,24 @@ Må QZ ændre værdien?
         <translation>ANT+-hastighedsjustering</translation>
     </message>
     <message>
+        <source>Save ANT+ Speed Offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>You can increase/decrease your speed sent over ANT+. The number you enter as an Offset adds that amount to your speed.</source>
         <translation>Du kan øge eller sænke den hastighed, der sendes via ANT+. Det tal, du angiver som justering, lægges til din hastighed.</translation>
     </message>
     <message>
         <source>ANT+ Speed Gain:</source>
         <translation>ANT+-hastighedsmultiplikator:</translation>
+    </message>
+    <message>
+        <source>ANT+ Speed Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save ANT+ Speed Gain</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>You can increase/decrease your speed output sent over ANT+. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.</source>
@@ -5909,6 +6711,14 @@ Må QZ ændre værdien?
     <message>
         <source>ANT+ Heart Device Number (0=Auto):</source>
         <translation>Nummer på ANT+-pulsmåler (0=auto):</translation>
+    </message>
+    <message>
+        <source>ANT+ Heart Device Number (0=Auto)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save ANT+ Heart Device Number (0=Auto)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>This setting enables receiving the heart rate from an external HRM over ANT+ instead of from QZ.</source>
@@ -5931,12 +6741,24 @@ Må QZ ændre værdien?
         <translation>Generelle indstillinger for brugerflade</translation>
     </message>
     <message>
+        <source>Save Tile Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Top Bar Enabled</source>
         <translation>Vis topbjælke</translation>
     </message>
     <message>
         <source>Floating Window Type:</source>
         <translation>Type af flydende vindue:</translation>
+    </message>
+    <message>
+        <source>Floating Window Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Floating Window Type</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Choose the floating window layout type. Classic uses the standard floating.htm file, while Horizontal uses the hfloating.htm file for horizontal layout.</source>
@@ -5951,6 +6773,14 @@ Må QZ ændre værdien?
         <translation>Bredde på flydende vindue:</translation>
     </message>
     <message>
+        <source>Floating Window Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Floating Window Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Android Only: width of the floating window.</source>
         <translation>Kun Android: bredden på det flydende vindue.</translation>
     </message>
@@ -5959,12 +6789,28 @@ Må QZ ændre værdien?
         <translation>Højde på flydende vindue:</translation>
     </message>
     <message>
+        <source>Floating Window Height</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Floating Window Height</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Android Only: height of the floating window.</source>
         <translation>Kun Android: højden på det flydende vindue.</translation>
     </message>
     <message>
         <source>Floating Window % Transparency:</source>
         <translation>Gennemsigtighed på flydende vindue (%):</translation>
+    </message>
+    <message>
+        <source>Floating Window % Transparency</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Floating Window % Transparency</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Android Only: transparency percentage of the floating window.</source>
@@ -5987,6 +6833,14 @@ Må QZ ændre værdien?
         <translation>Visningstilstand for grafer:</translation>
     </message>
     <message>
+        <source>Chart Display Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Chart Display Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Choose which charts to display in the footer: both heart rate and power charts, only heart rate chart, or only power chart.</source>
         <translation>Vælg, hvilke grafer der skal vises i bunden af skærmen: både puls og effekt, kun puls eller kun effekt.</translation>
     </message>
@@ -5995,8 +6849,24 @@ Må QZ ændre værdien?
         <translation>Venstre måleværdi i Liveaktivitet (iOS):</translation>
     </message>
     <message>
+        <source>iOS Live Activity Left Metric</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save iOS Live Activity Left Metric</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>iOS Live Activity Right Metric:</source>
         <translation>Højre måleværdi i Liveaktivitet (iOS):</translation>
+    </message>
+    <message>
+        <source>iOS Live Activity Right Metric</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save iOS Live Activity Right Metric</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>iOS only: choose which two metrics are shown in the compact Dynamic Island bar for Live Activities. Default is Heart Rate on the left and Watt on the right.</source>
@@ -6015,12 +6885,28 @@ Må QZ ændre værdien?
         <translation>Baggrundsfarve:</translation>
     </message>
     <message>
+        <source>Background Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Background Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Please choose a color</source>
         <translation>Vælg en farve</translation>
     </message>
     <message>
         <source>Tiles Background Color:</source>
         <translation>Baggrundsfarve for felter:</translation>
+    </message>
+    <message>
+        <source>Tiles Background Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Tiles Background Color</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Tiles Shadow</source>
@@ -6031,20 +6917,60 @@ Må QZ ændre værdien?
         <translation>Farve på feltskygge:</translation>
     </message>
     <message>
+        <source>Tiles Shadow Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Tiles Shadow Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Statusbar Background Color:</source>
         <translation>Baggrundsfarve for statuslinje:</translation>
+    </message>
+    <message>
+        <source>Statusbar Background Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Statusbar Background Color</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>2nd line tile text size:</source>
         <translation>Tekststørrelse for 2. linje i felter:</translation>
     </message>
     <message>
+        <source>2nd line tile text size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save 2nd line tile text size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Peloton Options</source>
         <translation>Peloton-indstillinger</translation>
     </message>
     <message>
+        <source>Connect to Peloton</source>
+        <translation type="unfinished">Opret forbindelse til Peloton</translation>
+    </message>
+    <message>
+        <source>Opens the Peloton login page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Difficulty:</source>
         <translation>Sværhedsgrad:</translation>
+    </message>
+    <message>
+        <source>Difficulty</source>
+        <translation type="unfinished">Sværhedsgrad</translation>
+    </message>
+    <message>
+        <source>Save Difficulty</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Typically, Peloton coaches call out a range for target incline, resistance and/or speed. Use this setting to choose the difficulty of the target QZ communicates. Difficulty level can be set to lower, upper or average. Click OK.</source>
@@ -6055,12 +6981,28 @@ Må QZ ændre værdien?
         <translation>Niveau for løbebånd:</translation>
     </message>
     <message>
+        <source>Treadmill Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Treadmill Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Difficulty level for Peloton treadmill classes. 1 is easy 10 is hard.</source>
         <translation>Sværhedsgrad for Peloton-klasser på løbebånd. 1 er let, 10 er hårdt.</translation>
     </message>
     <message>
         <source>Treadmill Walk Level:</source>
         <translation>Niveau for gang på løbebånd:</translation>
+    </message>
+    <message>
+        <source>Treadmill Walk Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Treadmill Walk Level</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Difficulty level for Peloton treadmill walking classes. 1 is easy 10 is hard.</source>
@@ -6071,12 +7013,28 @@ Må QZ ændre værdien?
         <translation>Min. ganghastighed:</translation>
     </message>
     <message>
+        <source>Walking Min Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Walking Min Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Minimum speed for Peloton walking sessions. Set to 0 to disable. Applied to all speed targets in walking workouts.</source>
         <translation>Minimumshastighed for Peloton-gangtræning. Angiv 0 for at deaktivere. Gælder alle målhastigheder i gangtræning.</translation>
     </message>
     <message>
         <source>Running Min Speed:</source>
         <translation>Min. løbehastighed:</translation>
+    </message>
+    <message>
+        <source>Running Min Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Running Min Speed</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Minimum speed for Peloton running sessions. Set to 0 to disable. Applied to all speed targets in running workouts.</source>
@@ -6087,12 +7045,28 @@ Må QZ ændre værdien?
         <translation>Niveau for romaskine:</translation>
     </message>
     <message>
+        <source>Rower Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Rower Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Difficulty level for Peloton rower classes. 1 is easy 10 is hard.</source>
         <translation>Sværhedsgrad for Peloton-klasser på romaskine. 1 er let, 10 er hårdt.</translation>
     </message>
     <message>
         <source>PZP Username:</source>
         <translation>PZP-brugernavn:</translation>
+    </message>
+    <message>
+        <source>PZP Username</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save PZP Username</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave (or change back to) the default of “username” (without quotation marks, all lowercase and all one word) until further notice.</source>
@@ -6103,6 +7077,14 @@ Må QZ ændre værdien?
         <translation>PZP-adgangskode:</translation>
     </message>
     <message>
+        <source>PZP Password</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save PZP Password</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave this setting blank until further notice.</source>
         <translation>Siden 1. april 2022 virker denne funktion ikke på grund af en ændring på webstedet Power Zone Pack (PZP). Lad denne indstilling stå tom indtil videre.</translation>
     </message>
@@ -6111,12 +7093,28 @@ Må QZ ændre værdien?
         <translation>Omregningsmultiplikator:</translation>
     </message>
     <message>
+        <source>Conversion Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Conversion Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Conversion gain is a multiplier. Use this setting to align the Peloton resistance calculated by QZ with the relative effort required by your bike. In most cases the default values will be correct.</source>
         <translation>Omregningsmultiplikatoren er en faktor. Brug denne indstilling til at afstemme den Peloton-modstand, QZ beregner, med den relative indsats, din cykel kræver. I de fleste tilfælde er standardværdierne korrekte.</translation>
     </message>
     <message>
         <source>Conversion Offset:</source>
         <translation>Omregningsjustering:</translation>
+    </message>
+    <message>
+        <source>Conversion Offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Conversion Offset</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Increases the resistance that QZ displays in the Peloton Resistance tile. If QZ’s calculated conversion from your bike’s resistance scale to Peloton’s seems too low, the number you enter here will be added to the calculated resistance without increasing your effort or actual resistance. (Example: If QZ displays Peloton resistance of 30 and you enter 5, QZ will display 35.)</source>
@@ -6151,6 +7149,14 @@ Må QZ ændre værdien?
         <translation>Send i stedet for puls:</translation>
     </message>
     <message>
+        <source>Override HR Metric</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Override HR Metric</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>By default, QZ communicates heart rate to Peloton. Use this setting to change the metric that appears on the Peloton screen.</source>
         <translation>Som standard sender QZ pulsen til Peloton. Brug denne indstilling til at ændre, hvilken måleværdi der vises på Peloton-skærmen.</translation>
     </message>
@@ -6159,12 +7165,28 @@ Må QZ ændre værdien?
         <translation>Dato på Strava:</translation>
     </message>
     <message>
+        <source>Date on Strava</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Date on Strava</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Allows you to choose whether you would like the Peloton class air date to display before or after the class title on Strava.</source>
         <translation>Her kan du vælge, om sendedatoen for Peloton-klassen skal vises før eller efter klassens titel på Strava.</translation>
     </message>
     <message>
         <source>Date Format:</source>
         <translation>Datoformat:</translation>
+    </message>
+    <message>
+        <source>Date Format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Date Format</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Activity Link in Strava</source>
@@ -6207,12 +7229,28 @@ Må QZ ændre værdien?
         <translation>Brugernavn:</translation>
     </message>
     <message>
+        <source>Username</source>
+        <translation type="unfinished">Brugernavn</translation>
+    </message>
+    <message>
+        <source>Save Username</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enter the email address you use to login to Zwift. Ensure there are no spaces before or after your email. Click OK.</source>
         <translation>Indtast den e-mailadresse, du bruger til at logge ind på Zwift. Kontrollér, at der ikke er mellemrum før eller efter adressen. Klik på OK.</translation>
     </message>
     <message>
         <source>Password:</source>
         <translation>Adgangskode:</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation type="unfinished">Adgangskode</translation>
+    </message>
+    <message>
+        <source>Save Password</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter the password you use to login to Zwift. Click OK.</source>
@@ -6245,6 +7283,14 @@ Må QZ ændre værdien?
     <message>
         <source>Poll Time:</source>
         <translation>Opdateringsinterval:</translation>
+    </message>
+    <message>
+        <source>Poll Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Poll Time</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Define the number of delay seconds between each inclination change from Zwift. This value can&apos;t be less than 5. Default: 5</source>
@@ -6333,6 +7379,26 @@ Må QZ ændre værdien?
     <message>
         <source>Garmin Email:</source>
         <translation>Garmin-e-mail:</translation>
+    </message>
+    <message>
+        <source>Garmin Email</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Garmin Email</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Garmin Password</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Garmin Password</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Garmin Server</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Test Garmin Login</source>
@@ -6698,6 +7764,218 @@ Indtast den herunder:</translation>
         <translation>Hældning</translation>
     </message>
     <message>
+        <source>PID on Heart Zone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save PID on Heart Zone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save PID HR actuator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PID on HR min</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save PID on HR min</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PID on HR max</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save PID on HR max</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1 mile pace (total time)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save 1 mile pace (total time)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>5 km pace (total time)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save 5 km pace (total time)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>10 km pace (total time)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save 10 km pace (total time)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Half Marathon pace (total time)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Half Marathon pace (total time)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Marathon pace (total time)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Marathon pace (total time)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default Pace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Default Pace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ERG Mode Watt Step</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save ERG Mode Watt Step</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duration (minutes)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Duration (minutes)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Period (seconds)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Period (seconds)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Speed min.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Speed min.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Speed max.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Speed max.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Incline min.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Incline min.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Incline max.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Incline max.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resistance min.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Resistance min.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resistance max.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Resistance max.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Speed Step</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Speed Step</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Min. Inclination</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Min. Inclination</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max. Inclination</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Max. Inclination</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max. Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Max. Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Min. Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Min. Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Step Count Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Step Count Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Proform IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Proform IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Nordictrack 2950 IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Nordictrack 2950 IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Echelon Options</source>
         <translation>Echelon-indstillinger</translation>
     </message>
@@ -6712,6 +7990,22 @@ Indtast den herunder:</translation>
     <message>
         <source>Enable handling of physical Start/Pause/Stop buttons on the treadmill hardware</source>
         <translation>Aktivér håndtering af de fysiske knapper Start/Pause/Stop på løbebåndet</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Life Fitness username/email</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness password</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Life Fitness password</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>RunnerT Options</source>
@@ -6750,20 +8044,60 @@ Indtast den herunder:</translation>
         <translation>Omtildel 5 km/t-knap:</translation>
     </message>
     <message>
+        <source>Remap 5 km/h button</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Remap 5 km/h button</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Remap 10 km/h button:</source>
         <translation>Omtildel 10 km/t-knap:</translation>
+    </message>
+    <message>
+        <source>Remap 10 km/h button</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Remap 10 km/h button</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Remap 16 km/h button:</source>
         <translation>Omtildel 16 km/t-knap:</translation>
     </message>
     <message>
+        <source>Remap 16 km/h button</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Remap 16 km/h button</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Remap 22 km/h button:</source>
         <translation>Omtildel 22 km/t-knap:</translation>
     </message>
     <message>
+        <source>Remap 22 km/h button</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Remap 22 km/h button</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Pool time (ms):</source>
         <translation>Opdateringsinterval (ms):</translation>
+    </message>
+    <message>
+        <source>Pool time (ms)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Pool time (ms)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Default: 200. Change this only if you have random issues with speed or inclination (try to put 300)</source>
@@ -6800,6 +8134,14 @@ Indtast den herunder:</translation>
     <message>
         <source>User ID:</source>
         <translation>Bruger-ID:</translation>
+    </message>
+    <message>
+        <source>User ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save User ID</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>ESLinker Treadmill Options</source>
@@ -6842,20 +8184,60 @@ Indtast den herunder:</translation>
         <translation>Bruger 1:</translation>
     </message>
     <message>
+        <source>User 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save User 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>User 2:</source>
         <translation>Bruger 2:</translation>
+    </message>
+    <message>
+        <source>User 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save User 2</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>User 3:</source>
         <translation>Bruger 3:</translation>
     </message>
     <message>
+        <source>User 3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save User 3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>User 4:</source>
         <translation>Bruger 4:</translation>
     </message>
     <message>
+        <source>User 4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save User 4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>User 5:</source>
         <translation>Bruger 5:</translation>
+    </message>
+    <message>
+        <source>User 5</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save User 5</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Bodytone Treadmill Options</source>
@@ -6954,6 +8336,14 @@ Indtast den herunder:</translation>
         <translation>IP-adresse for ProForm-romaskine:</translation>
     </message>
     <message>
+        <source>ProForm Rower IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save ProForm Rower IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Elliptical Options</source>
         <translation>Crosstrainerindstillinger</translation>
     </message>
@@ -6964,6 +8354,10 @@ Indtast den herunder:</translation>
     <message>
         <source>Speed Ratio:</source>
         <translation>Hastighedsforhold:</translation>
+    </message>
+    <message>
+        <source>Save Domyos Elliptical Speed Ratio</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Inclination Supported</source>
@@ -6988,6 +8382,14 @@ Indtast den herunder:</translation>
     <message>
         <source>Companion IP:</source>
         <translation>IP-adresse for Companion:</translation>
+    </message>
+    <message>
+        <source>Companion IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Companion IP</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sole Elliptical Options</source>
@@ -7030,12 +8432,28 @@ Indtast den herunder:</translation>
         <translation>Effektjustering:</translation>
     </message>
     <message>
+        <source>Watt Offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Watt Offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. The number you enter as an Offset adds that amount to your watts.</source>
         <translation>Du kan øge eller sænke din effekt for at flytte din avatar hurtigere eller langsommere i Zwift eller lignende apps og på den måde kalibrere dit udstyr. Det tal, du indtaster som justering, lægges til din effekt.</translation>
     </message>
     <message>
         <source>Watt Gain:</source>
         <translation>Effektmultiplikator:</translation>
+    </message>
+    <message>
+        <source>Watt Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Watt Gain</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. For example, to use a rower to cycle in Zwift, you could double your watt output to better match your cycling speed by entering 2. The number you enter is a multiplier applied to your actual watts.</source>
@@ -7046,12 +8464,24 @@ Indtast den herunder:</translation>
         <translation>Hastighedsjustering</translation>
     </message>
     <message>
+        <source>Save Speed Offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>You can increase/decrease your speed for moving your avatar faster/slower in Zwift if your equipment outputs speed but not watts. The number you enter as an Offset adds that amount to your speed.</source>
         <translation>Du kan øge eller sænke din hastighed for at flytte din avatar hurtigere eller langsommere i Zwift, hvis dit udstyr sender hastighed, men ikke effekt. Det tal, du indtaster som justering, lægges til din hastighed.</translation>
     </message>
     <message>
         <source>Speed Gain:</source>
         <translation>Hastighedsmultiplikator:</translation>
+    </message>
+    <message>
+        <source>Speed Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Speed Gain</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>You can increase/decrease your speed output for moving your avatar faster/slower in Zwift or other apps as a way of calibrating your equipment if your equipment outputs speed but not watts. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.</source>
@@ -7062,12 +8492,20 @@ Indtast den herunder:</translation>
         <translation>Kadencejustering</translation>
     </message>
     <message>
+        <source>Save Cadence Offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>You can increase/decrease your cadence output. The number you enter as an Offset adds that amount to your cadence.</source>
         <translation>Du kan øge eller sænke din kadence. Det tal, du indtaster som justering, lægges til din kadence.</translation>
     </message>
     <message>
         <source>Cadence Gain:</source>
         <translation>Kadencemultiplikator:</translation>
+    </message>
+    <message>
+        <source>Save Cadence Gain</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>You can increase/decrease your cadence output as a way of calibrating your equipment if your equipment outputs cadence but not watts. The number you enter is a multiplier applied to your actual cadence.</source>
@@ -7082,8 +8520,24 @@ Indtast den herunder:</translation>
         <translation>Strava-upload:</translation>
     </message>
     <message>
+        <source>Strava Upload</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Strava Upload</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Suffix activity:</source>
         <translation>Aktivitetssuffiks:</translation>
+    </message>
+    <message>
+        <source>Suffix activity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Suffix activity</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Default is “QZ.” Please leave this set to default so that other Strava users will see the QZ; a tiny bit of advertising that helps promote the app and support its development. If you choose to remove it, please consider contributing to the developer’s Patreon or Buy Me a Coffee accounts or just subscribe to the Swag bag in the left side bar to allow me to continue developing and supporting the app.</source>
@@ -7142,6 +8596,10 @@ Indtast den herunder:</translation>
         <translation>Tilstand for effektgennemsnit:</translation>
     </message>
     <message>
+        <source>Power Averaging Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. Uses harmonic averaging which smooths power spikes better than arithmetic averaging. If any reading is 0, power immediately becomes 0. Default is Off.
 
 IMPORTANT NOTES:
@@ -7178,12 +8636,28 @@ VIGTIGT:
         <translation>Hældningsjustering for Zwift:</translation>
     </message>
     <message>
+        <source>Zwift Inclination Offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Zwift Inclination Offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Inclination Offset and Gain are used to adjust the incline set by Zwift instead of, or in addition to, using the QZ Zwift Gain setting. For example, when Zwift changes the incline to 1%, you can have your treadmill change to 2%. The number you enter as an offset adds to the inclination sent from Zwift or any other 3rd party app. Default is 0.</source>
         <translation>Hældningsjustering og -multiplikator bruges til at tilpasse den hældning, Zwift angiver, i stedet for eller sammen med QZ&apos;s indstilling for Zwift-multiplikator. Når Zwift f.eks. ændrer hældningen til 1%, kan løbebåndet skifte til 2%. Det tal, du angiver som justering, lægges til den hældning, der sendes fra Zwift eller en anden tredjepartsapp. Standard: 0.</translation>
     </message>
     <message>
         <source>Zwift Inclination Gain:</source>
         <translation>Hældningsmultiplikator for Zwift:</translation>
+    </message>
+    <message>
+        <source>Zwift Inclination Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Zwift Inclination Gain</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The number you enter as a Gain is a multiplier applied to the inclination sent from Zwift or any other 3rd party app. Default is 1.</source>
@@ -7194,12 +8668,28 @@ VIGTIGT:
         <translation>Minimumshældning:</translation>
     </message>
     <message>
+        <source>Minimum Inclination</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Minimum Inclination</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>If you don&apos;t want to go below a certain inclination value for bikes and treadmill set the min. value here. Default: -999.</source>
         <translation>Hvis du ikke vil under en bestemt hældning på cykel og løbebånd, kan du angive minimumsværdien her. Standard: -999.</translation>
     </message>
     <message>
         <source>Inclination Step:</source>
         <translation>Hældningstrin:</translation>
+    </message>
+    <message>
+        <source>Inclination Step</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Inclination Step</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>(Incline Tile) This controls the amount of the increase or decrease in the inclination when you press the plus or minus button in the Incline Tile for both treadmills and bikes. Default is 0.5.</source>
@@ -7234,8 +8724,24 @@ VIGTIGT:
         <translation>Automatisk omgang efter distance:</translation>
     </message>
     <message>
+        <source>AutoLap on Distance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save AutoLap on Distance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Inclination Delay:</source>
         <translation>Hældningsforsinkelse:</translation>
+    </message>
+    <message>
+        <source>Inclination Delay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Inclination Delay</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>This slow down the inclination changes adding a delay between each change. This is not applied to all the model of treadmill/bike. Default is 0.</source>
@@ -7294,16 +8800,48 @@ VIGTIGT:
         <translation>Modstandsniveau 1:</translation>
     </message>
     <message>
+        <source>Resistance Level 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Resistance Level 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Watt 1:</source>
         <translation>Effekt 1:</translation>
+    </message>
+    <message>
+        <source>Watt 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Watt 1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Resistance Level 2:</source>
         <translation>Modstandsniveau 2:</translation>
     </message>
     <message>
+        <source>Resistance Level 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Resistance Level 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Watt 2:</source>
         <translation>Effekt 2:</translation>
+    </message>
+    <message>
+        <source>Watt 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Watt 2</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>QZ will build a linear equation from the two resistance/watt points and clamp the effective resistance using the existing Min. Resistance and Max. Resistance settings.</source>
@@ -7430,6 +8968,14 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>Sværhedsgrad/multiplikator:</translation>
     </message>
     <message>
+        <source>Difficulty/Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Difficulty/Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Elite Sterzo Smart Options</source>
         <translation>Indstillinger for Elite Sterzo Smart</translation>
     </message>
@@ -7450,12 +8996,24 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>Skiftetrin</translation>
     </message>
     <message>
+        <source>Save Shift Step</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Max Resistance</source>
         <translation>Maks. modstand</translation>
     </message>
     <message>
+        <source>Save Max Resistance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Min Resistance</source>
         <translation>Min. modstand</translation>
+    </message>
+    <message>
+        <source>Save Min Resistance</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Advanced SmartSpin2k Calibration</source>
@@ -7466,32 +9024,64 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>Modstand, måling 1</translation>
     </message>
     <message>
+        <source>Save Resistance Sample 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Shift Step Sample 1</source>
         <translation>Skiftetrin, måling 1</translation>
+    </message>
+    <message>
+        <source>Save Shift Step Sample 1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Resistance Sample 2</source>
         <translation>Modstand, måling 2</translation>
     </message>
     <message>
+        <source>Save Resistance Sample 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Shift Step Sample 2</source>
         <translation>Skiftetrin, måling 2</translation>
+    </message>
+    <message>
+        <source>Save Shift Step Sample 2</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Resistance Sample 3</source>
         <translation>Modstand, måling 3</translation>
     </message>
     <message>
+        <source>Save Resistance Sample 3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Shift Step Sample 3</source>
         <translation>Skiftetrin, måling 3</translation>
+    </message>
+    <message>
+        <source>Save Shift Step Sample 3</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Resistance Sample 4</source>
         <translation>Modstand, måling 4</translation>
     </message>
     <message>
+        <source>Save Resistance Sample 4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Shift Step Sample 4</source>
         <translation>Skiftetrin, måling 4</translation>
+    </message>
+    <message>
+        <source>Save Shift Step Sample 4</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Fitmetria Fitfan™ Options</source>
@@ -7506,12 +9096,36 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>Tilstand:</translation>
     </message>
     <message>
+        <source>Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Min. value (0-100):</source>
         <translation>Min. værdi (0-100):</translation>
     </message>
     <message>
+        <source>Min. value (0-100)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Min. value (0-100)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Max value (0-100):</source>
         <translation>Maks. værdi (0-100):</translation>
+    </message>
+    <message>
+        <source>Max value (0-100)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Max value (0-100)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Wahoo Kickr HeadWind Options</source>
@@ -7608,6 +9222,14 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Maps Type:</source>
         <translation>Korttype:</translation>
+    </message>
+    <message>
+        <source>Maps Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Maps Type</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Loop Start-End-Start</source>
@@ -7738,12 +9360,36 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>ID:</translation>
     </message>
     <message>
+        <source>Wahoo device ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Virtual Wahoo device ID. Change if you have multiple QZ instances. Default: 0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Wahoo device ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>If you have multiple QZ instances, you can change the id of the virtual wahoo device. Default: 0</source>
         <translation>Hvis du kører flere forekomster af QZ, kan du ændre ID&apos;et for den virtuelle Wahoo-enhed. Standard: 0.</translation>
     </message>
     <message>
         <source>Server Port:</source>
         <translation>Serverport:</translation>
+    </message>
+    <message>
+        <source>Wahoo direct connect server port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TCP port for the Wahoo direct connect server. Default: 36866</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save server port</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>MQTT Settings</source>
@@ -7754,12 +9400,28 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>MQTT-vært:</translation>
     </message>
     <message>
+        <source>MQTT Host</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save MQTT Host</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enter the MQTT broker hostname or IP address</source>
         <translation>Angiv MQTT-brokerens værtsnavn eller IP-adresse</translation>
     </message>
     <message>
         <source>MQTT Port:</source>
         <translation>MQTT-port:</translation>
+    </message>
+    <message>
+        <source>MQTT Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save MQTT Port</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter the MQTT broker port (default: 1883)</source>
@@ -7778,6 +9440,14 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>Enheds-ID:</translation>
     </message>
     <message>
+        <source>Device ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Device ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enter a unique device identifier for MQTT client</source>
         <translation>Angiv et entydigt enheds-ID til MQTT-klienten</translation>
     </message>
@@ -7790,8 +9460,24 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>OSC-IP:</translation>
     </message>
     <message>
+        <source>OSC IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save OSC IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>OSC Port:</source>
         <translation>OSC-port:</translation>
+    </message>
+    <message>
+        <source>OSC Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save OSC Port</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Race Mode</source>
@@ -9596,12 +11282,24 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>Sekunder mellem opsummeringer:</translation>
     </message>
     <message>
+        <source>Announcement interval in seconds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How often workout metrics are read aloud. Default: 120 seconds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
         <source>Setting saved!</source>
         <translation>Indstillingen er gemt!</translation>
+    </message>
+    <message>
+        <source>Save announcement interval</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>TTS Description Enabled</source>
