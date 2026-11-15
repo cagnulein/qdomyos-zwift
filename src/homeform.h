@@ -1283,7 +1283,9 @@ public:
     QNetworkReply *replyStrava;
     QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunction(const QUrl &clientIdentifier,
                                                                            const QUrl &clientIdentifierSharedKey);
-    bool strava_upload_file(const QByteArray &data, const QString &remotename);
+    bool strava_upload_file(const QByteArray &data, const QString &remotename, bool fromCurrentWorkout = false);
+    void stravaPollUploadForTreadmillTag(const QString &uploadId, int attempt = 0);
+    void stravaClearTreadmillTag(const QString &activityId);
     QString stravaAuthUrl;
     bool stravaAuthWebVisible;
 
