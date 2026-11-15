@@ -224,6 +224,12 @@ Page {
                 anchors.rightMargin: window.contentSideMargin
                 width: 48
                 height: 48
+                // one import at a time: a second copy would report its count into the same block
+                enabled: !(rootItem && rootItem.fitImportRunning)
+                opacity: enabled ? 1 : 0.4
+                // Qt 5.15 does not report a disabled item to TalkBack (fixed in Qt 6 by
+                // qtdeclarative 20fd2902a6): left in, it would be read as a button that works
+                Accessible.ignored: !enabled
 
                 background: Rectangle {
                     radius: 8

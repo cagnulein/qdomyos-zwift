@@ -437,6 +437,8 @@ void FitDatabaseProcessor::doWork() {
             newFiles << fileName;
         }
     }
+    // a line on every start, as the progress of every file was before: how many workouts the folder has
+    qDebug() << "FitDatabaseProcessor:" << fitFiles.size() << "files," << newFiles.size() << "new";
 
     const int totalFiles = newFiles.size();
     int processedFiles = 0;
