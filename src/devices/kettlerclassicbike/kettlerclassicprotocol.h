@@ -18,6 +18,10 @@ QByteArray encodeFrame(quint16 function, quint8 subFunction, const QByteArray &p
 // Coach S Kinomap handshake counts escaped payload bytes in its length field.
 // Keep the standard encoder unchanged for other devices and regular commands.
 QByteArray encodeFrameWithEscapedPayloadLength(quint16 function, quint8 subFunction, const QByteArray &payload);
+// Coach S handshake: 2-byte salt || MD5(salt || 16-byte S-FIT key).
+// The Coach S response uses an independently generated salt.
+QByteArray coachSHandshakeForSalt(const QByteArray &salt);
+bool isValidCoachSHandshake(const QByteArray &payload);
 QVector<Frame> consumeFrames(QByteArray &buffer);
 
 } // namespace kettlerclassicprotocol
