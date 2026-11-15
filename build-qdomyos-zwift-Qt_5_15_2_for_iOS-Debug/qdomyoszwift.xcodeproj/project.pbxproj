@@ -287,6 +287,12 @@
 		87F000012F00000000000002 /* moc_fitplusrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F000012F00000000000005 /* moc_fitplusrower.cpp */; };
 		87F000032F00000000000001 /* pafersrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F000032F00000000000005 /* pafersrower.cpp */; };
 		87F000032F00000000000002 /* moc_pafersrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F000032F00000000000006 /* moc_pafersrower.cpp */; };
+		A5F74610C71644B9B0D4BB31 /* kettlerracersbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = A48609DC38574694AB2525BD /* kettlerracersbike.cpp */; };
+		E4C94CAFDE1A4533B33F5D88 /* moc_kettlerracersbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = D37BE327BE9C471090B2E579 /* moc_kettlerracersbike.cpp */; };
+		4E87C4658E1D4279B4640471 /* kettlerracersrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = C22B045584F14AA4AEA4105F /* kettlerracersrower.cpp */; };
+		36EF2D5197004C57BE868C8A /* moc_kettlerracersrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = D3D9B18E47154314ADD33F29 /* moc_kettlerracersrower.cpp */; };
+		178B1E92454F4B469D83823D /* kettlerhandshake.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 08FCB0BE607249ADA1F8C01C /* kettlerhandshake.cpp */; };
+		F4213D1F5258471EBB417599 /* workoutimport.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 353504F14C4E49A48823032A /* workoutimport.cpp */; };
 		8745B2762AFCB4A300991A39 /* android in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8745B2752AFCB4A300991A39 /* android */; };
 		87473A9627ECA9EE00C203F5 /* proformrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87473A9527ECA9EE00C203F5 /* proformrower.cpp */; };
 		87473A9827ECAA0500C203F5 /* moc_proformrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87473A9727ECAA0500C203F5 /* moc_proformrower.cpp */; };
@@ -1274,6 +1280,16 @@
 		87F000032F00000000000004 /* pafersrower.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pafersrower.h; path = ../src/devices/pafersrower/pafersrower.h; sourceTree = "<group>"; };
 		87F000032F00000000000005 /* pafersrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pafersrower.cpp; path = ../src/devices/pafersrower/pafersrower.cpp; sourceTree = "<group>"; };
 		87F000032F00000000000006 /* moc_pafersrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_pafersrower.cpp; sourceTree = "<group>"; };
+		A48609DC38574694AB2525BD /* kettlerracersbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = kettlerracersbike.cpp; path = ../src/devices/kettlerracersbike/kettlerracersbike.cpp; sourceTree = "<group>"; };
+		C8E49012CECE4AA7A3C812CF /* kettlerracersbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kettlerracersbike.h; path = ../src/devices/kettlerracersbike/kettlerracersbike.h; sourceTree = "<group>"; };
+		D37BE327BE9C471090B2E579 /* moc_kettlerracersbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_kettlerracersbike.cpp; sourceTree = "<group>"; };
+		C22B045584F14AA4AEA4105F /* kettlerracersrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = kettlerracersrower.cpp; path = ../src/devices/kettlerracersrower/kettlerracersrower.cpp; sourceTree = "<group>"; };
+		AE8D5F6AEDA14B20A73C24D4 /* kettlerracersrower.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kettlerracersrower.h; path = ../src/devices/kettlerracersrower/kettlerracersrower.h; sourceTree = "<group>"; };
+		D3D9B18E47154314ADD33F29 /* moc_kettlerracersrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_kettlerracersrower.cpp; sourceTree = "<group>"; };
+		08FCB0BE607249ADA1F8C01C /* kettlerhandshake.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = kettlerhandshake.cpp; path = ../src/devices/kettlerracersbike/kettlerhandshake.cpp; sourceTree = "<group>"; };
+		68AF0DB1903C4A878CE5197F /* kettlerhandshake.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kettlerhandshake.h; path = ../src/devices/kettlerracersbike/kettlerhandshake.h; sourceTree = "<group>"; };
+		353504F14C4E49A48823032A /* workoutimport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = workoutimport.cpp; path = ../src/workoutimport.cpp; sourceTree = "<group>"; };
+		D0E465C5C2924469812E2674 /* workoutimport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = workoutimport.h; path = ../src/workoutimport.h; sourceTree = "<group>"; };
 		8745B2742AFCB3B300991A39 /* libadb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libadb.a; path = ../src/ios/libadb.a; sourceTree = "<group>"; };
 		8745B2752AFCB4A300991A39 /* android */ = {isa = PBXFileReference; lastKnownFileType = folder; name = android; path = ../src/ios/android; sourceTree = "<group>"; };
 		8745B2772AFCB52800991A39 /* AdbClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AdbClient.h; path = ../src/ios/AdbClient.h; sourceTree = "<group>"; };
@@ -2720,6 +2736,16 @@
 				87F000032F00000000000004 /* pafersrower.h */,
 				87F000032F00000000000005 /* pafersrower.cpp */,
 				87F000032F00000000000006 /* moc_pafersrower.cpp */,
+				A48609DC38574694AB2525BD /* kettlerracersbike.cpp */,
+				C8E49012CECE4AA7A3C812CF /* kettlerracersbike.h */,
+				D37BE327BE9C471090B2E579 /* moc_kettlerracersbike.cpp */,
+				C22B045584F14AA4AEA4105F /* kettlerracersrower.cpp */,
+				AE8D5F6AEDA14B20A73C24D4 /* kettlerracersrower.h */,
+				D3D9B18E47154314ADD33F29 /* moc_kettlerracersrower.cpp */,
+				08FCB0BE607249ADA1F8C01C /* kettlerhandshake.cpp */,
+				68AF0DB1903C4A878CE5197F /* kettlerhandshake.h */,
+				353504F14C4E49A48823032A /* workoutimport.cpp */,
+				D0E465C5C2924469812E2674 /* workoutimport.h */,
 				87473A9527ECA9EE00C203F5 /* proformrower.cpp */,
 				87473A9427ECA9EE00C203F5 /* proformrower.h */,
 				873824D527E647A6004F1B46 /* abstractserver.cpp */,
@@ -3876,6 +3902,12 @@
 				87473A9627ECA9EE00C203F5 /* proformrower.cpp in Compile Sources */,
 				87F000032F00000000000001 /* pafersrower.cpp in Compile Sources */,
 				87F000032F00000000000002 /* moc_pafersrower.cpp in Compile Sources */,
+				A5F74610C71644B9B0D4BB31 /* kettlerracersbike.cpp in Compile Sources */,
+				E4C94CAFDE1A4533B33F5D88 /* moc_kettlerracersbike.cpp in Compile Sources */,
+				4E87C4658E1D4279B4640471 /* kettlerracersrower.cpp in Compile Sources */,
+				36EF2D5197004C57BE868C8A /* moc_kettlerracersrower.cpp in Compile Sources */,
+				178B1E92454F4B469D83823D /* kettlerhandshake.cpp in Compile Sources */,
+				F4213D1F5258471EBB417599 /* workoutimport.cpp in Compile Sources */,
 				87F000012F00000000000001 /* fitplusrower.cpp in Compile Sources */,
 				87F000012F00000000000006 /* freebeatboombike.cpp in Compile Sources */,
 				CA6F83698EA1420883B66D30 /* wahookickruntreadmill.cpp in Compile Sources */,
