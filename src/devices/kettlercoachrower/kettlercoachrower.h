@@ -66,7 +66,6 @@ class kettlercoachrower : public rower {
 
     QBluetoothDeviceInfo bluetoothDevice;
     QBluetoothServiceDiscoveryAgent *discoveryAgent = nullptr;
-    QBluetoothServiceInfo serialPortService;
     QBluetoothSocket *socket = nullptr;
     QByteArray socketReadBuffer;
     QQueue<Request> requestQueue;
