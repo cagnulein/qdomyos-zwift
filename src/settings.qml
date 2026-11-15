@@ -2504,6 +2504,8 @@ import AndroidStatusBar 1.0
             property string ui_theme_mode: "auto"
             property bool proform_treadmill_cst_505_pftl59420_2026: false
             property bool proform_use_console_gears: false
+            // Keep new properties at the end (tools/check_settings_property_order.py).
+            property bool zwift_click_auto_unlock: false
 
         }
 
@@ -17443,6 +17445,35 @@ import AndroidStatusBar 1.0
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: { settings.zwift_click = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Automatic Zwift Click V2 Unlock (experimental)")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                visible: settings.zwift_click
+                                checked: settings.zwift_click_auto_unlock
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.zwift_click_auto_unlock = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            Label {
+                                visible: settings.zwift_click
+                                text: qsTr("Automatically unlock the left Click V2 via Zwift's servers. Requires your Zwift username and password in Zwift Options and an internet connection; no active subscription required. Default: disabled.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
                             }
 
                             Label {
