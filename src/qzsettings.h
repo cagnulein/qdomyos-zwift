@@ -3497,6 +3497,10 @@ class QZSettings {
     static const QString wahoo_wheel_question_answered;
     static constexpr bool default_wahoo_wheel_question_answered = false;
 
+    // Experimental: clear Strava's trainer flag after uploading a virtual treadmill run.
+    static const QString strava_clear_treadmill_tag_after_upload;
+    static constexpr bool default_strava_clear_treadmill_tag_after_upload = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
