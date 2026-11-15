@@ -125,7 +125,8 @@ Page {
                                                                           : qsTranslate("HomeForm.ui", "Device not connected"))
                             Accessible.description: window.equipmentConnected ? qsTranslate("HomeForm.ui", "Device connected")
                                                                               : qsTranslate("HomeForm.ui", "Device not connected")
-                            Accessible.focusable: true
+                            Accessible.focusable: !drawer.opened
+                            Accessible.ignored: drawer.opened
                             Accessible.onPressAction: { rootItem.bluetoothSearchNow(); rootItem.reconnectHeartRateBelt(); }
                         }
                     }
@@ -177,7 +178,8 @@ Page {
                     // only the long variant of the label (see the Label above)
                     Accessible.name: rootItem.startText.split("\u009C")[0]
                     Accessible.description: qsTr("Start workout")
-                    Accessible.focusable: true
+                    Accessible.focusable: !drawer.opened
+                    Accessible.ignored: drawer.opened
                     Accessible.onPressAction: start.clicked()
                 }
 
@@ -217,7 +219,8 @@ Page {
                     Accessible.role: Accessible.Button
                     Accessible.name: rootItem.stopText
                     Accessible.description: qsTr("Stop workout")
-                    Accessible.focusable: true
+                    Accessible.focusable: !drawer.opened
+                    Accessible.ignored: drawer.opened
                     Accessible.onPressAction: stop.clicked()
                 }
 
@@ -247,7 +250,8 @@ Page {
                     Accessible.role: Accessible.Button
                     Accessible.name: qsTr("Lap")
                     Accessible.description: qsTr("Record a new lap")
-                    Accessible.focusable: true
+                    Accessible.focusable: !drawer.opened
+                    Accessible.ignored: drawer.opened
                     Accessible.onPressAction: if (modernLap.enabled) lap.clicked()
                 }
             }
@@ -314,7 +318,8 @@ Page {
                             Accessible.role: Accessible.Button
                             Accessible.name: qsTr("Bluetooth connection") + ": " + (rootItem.device ? qsTr("Device connected") : qsTr("Device not connected"))
                             Accessible.description: rootItem.device ? qsTr("Device connected") : qsTr("Device not connected")
-                            Accessible.focusable: true
+                            Accessible.focusable: !drawer.opened
+                            Accessible.ignored: drawer.opened
                             Accessible.onPressAction: { rootItem.bluetoothSearchNow(); rootItem.reconnectHeartRateBelt(); }
                         }
                     }
