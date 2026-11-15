@@ -39,11 +39,17 @@ Item {
     // changes nothing on the screen, whichever of the two comes first. A pass starts from 0 again.
     function sync() {
         if (total > 0) {
-            if (!active || holdTimer.running)
+            // a new pass: the bar starts at its first count, not sliding back from the full bar of
+            // the pass before while the block opens (the bindings of the bar run at each assignment)
+            const newPass = !active || holdTimer.running
+            if (newPass) {
+                fillAnimation.enabled = false
                 shownDone = 0
+            }
             holdTimer.stop()
             shownDone = Math.max(shownDone, Math.min(done, total))
             shownTotal = total
+            fillAnimation.enabled = true
             active = true
         } else if (active && !holdTimer.running) {
             holdTimer.start()
@@ -124,7 +130,10 @@ Item {
                 height: parent.height
                 radius: 2
                 color: control.barColor
-                Behavior on width { NumberAnimation { duration: 200 } }
+                Behavior on width {
+                    id: fillAnimation
+                    NumberAnimation { duration: 200 }
+                }
             }
         }
     }
