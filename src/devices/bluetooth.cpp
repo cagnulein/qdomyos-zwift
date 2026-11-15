@@ -2494,15 +2494,26 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             }
 #ifndef Q_OS_IOS
             else if (bh_spada_2 &&
-                     (upperDeviceName.startsWith(QStringLiteral("RACER S")) ||
-                      upperDeviceName == QStringLiteral("COACH S") ||
+                     (upperDeviceName == QStringLiteral("COACH S") ||
                       upperDeviceName.startsWith(QStringLiteral("COACH S "))) &&
-                     !kettlerClassicBike && filter) {
-                // MyHomeFIT's Kettler Classic connector uses BR/EDR SPP.
-                // When BH SPADA Compatibility is enabled, also try the SPP
-                // driver for Kettler Coach S devices (e.g. "COACH S 42FC38").
-                // Coach S protocol compatibility still needs a hardware test;
-                // retain the existing RACER S and BLE Stages routing.
+                     !kettlerCoachRower && filter) {
+                // Coach S uses Classic SPP but its rowing command set differs
+                // from the Kettler Classic bike. Do not route it as a bike.
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                kettlerCoachRower = new kettlercoachrower(noWriteResistance, noHeartService);
+                emit deviceConnected(b);
+                connect(kettlerCoachRower, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(kettlerCoachRower, &kettlercoachrower::debug, this, &bluetooth::debug);
+                connect(kettlerCoachRower, &kettlercoachrower::disconnected, this, &bluetooth::restart,
+                        Qt::QueuedConnection);
+                kettlerCoachRower->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(kettlerCoachRower);
+            } else if (bh_spada_2 &&
+                       upperDeviceName.startsWith(QStringLiteral("RACER S")) &&
+                       !kettlerClassicBike && filter) {
+                // Preserve the unchanged Classic bike route for Racer S.
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 kettlerClassicBike = new kettlerclassicbike(noWriteResistance, noHeartService, testResistance,
