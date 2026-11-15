@@ -67,3 +67,35 @@ TEST(KettlerClassicProtocol, PreservesIncompleteEscapedByte) {
     EXPECT_EQ(frames.at(0).function, 0x001b);
     EXPECT_EQ(frames.at(0).payload, QByteArray(1, '\x02'));
 }
+
+TEST(KettlerClassicProtocol, KdriRun7HandshakeSurvivesBle20ByteChunking) {
+    const QByteArray handshake = kettlerclassicprotocol::encodeFrame(
+        0x0001, 0x01, QByteArray::fromHex("2d24f22496a4ff9829f921be9daa9e4d0117"));
+    // The Kettler RUN 7 BLE driver writes this 27-byte frame as 20 + 7
+    // bytes over the ISSC UART characteristic, without changing the IRMP codec.
+    ASSERT_EQ(handshake.size(), 27);
+    QByteArray rx;
+    rx.append(handshake.left(20));
+    EXPECT_TRUE(kettlerclassicprotocol::consumeFrames(rx).isEmpty());
+    rx.append(handshake.mid(20));
+    const auto messages = kettlerclassicprotocol::consumeFrames(rx);
+    ASSERT_EQ(messages.size(), 1);
+    EXPECT_EQ(messages.at(0).function, 0x0001);
+    EXPECT_EQ(messages.at(0).payload, QByteArray::fromHex("2d24f22496a4ff9829f921be9daa9e4d0117"));
+    EXPECT_TRUE(rx.isEmpty());
+}
+
+TEST(KettlerClassicProtocol, DecodesRun7SpeedInclineAndTreadmillTypeAnswers) {
+    const QByteArray bytes =
+        kettlerclassicprotocol::encodeFrame(0x0018, 0x03, QByteArray(1, 'T')) +
+        kettlerclassicprotocol::encodeFrame(0x0023, 0x03, QByteArray::fromHex("0069")) +
+        kettlerclassicprotocol::encodeFrame(0x001f, 0x03, QByteArray::fromHex("0019"));
+    QByteArray rx = bytes;
+    const auto messages = kettlerclassicprotocol::consumeFrames(rx);
+    ASSERT_EQ(messages.size(), 3);
+    EXPECT_EQ(messages.at(0).payload, QByteArray(1, 'T'));
+    EXPECT_EQ(messages.at(1).function, 0x0023);
+    EXPECT_EQ(messages.at(1).payload, QByteArray::fromHex("0069")); // 10.5 km/h
+    EXPECT_EQ(messages.at(2).function, 0x001f);
+    EXPECT_EQ(messages.at(2).payload, QByteArray::fromHex("0019")); // 2.5%
+}
