@@ -8,6 +8,9 @@ on:
       - 'src/settings-tts.qml'
       - 'src/SettingsNumberField.qml'
       - 'src/SettingsFormatField.qml'
+      - 'src/SettingsTextField.qml'
+      - 'src/UiComboBox.qml'
+      - 'src/ValueComboBox.qml'
       - 'tools/check_settings_fields.py'
       - 'tst/qml/**'
       - '.github/workflows/settings-fields.yml'
@@ -29,7 +32,7 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y --no-install-recommends qtdeclarative5-dev-tools qml-module-qttest \
             qml-module-qtquick2 qml-module-qtquick-controls2 qml-module-qtquick-templates2 \
-            qml-module-qtquick-window2 qml-module-qtquick-layouts
+            qml-module-qtquick-window2 qml-module-qtquick-layouts qml-module-qtgraphicaleffects
 
       - name: Test the field components
         env:
