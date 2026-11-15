@@ -1872,10 +1872,12 @@ ApplicationWindow {
                 editorPage.closeRequested.connect(function() {
                     stackView.pop()
                 })
-                // Close editor when workout is started from Save & Start
+                // Close editor when workout is started from Save & Start.
+                // Use closeEditor() so the native modal (VoiceOver path) is
+                // dismissed before the page is popped.
                 trainprogram_autostart_requested.connect(function() {
                     console.log("[main.qml] trainprogram_autostart_requested received, closing editor")
-                    editorPage.closeRequested()
+                    editorPage.closeEditor()
                 })
             }
             break
@@ -2636,6 +2638,7 @@ ApplicationWindow {
         SupportHelpButton {
             id: supportHelpButton
             activeOnHome: window.rootReady && stackView.depth === 1 && !window.lockTiles
+            screenReaderHidden: drawer.opened
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             anchors.rightMargin: 16 + window.getRightPadding()

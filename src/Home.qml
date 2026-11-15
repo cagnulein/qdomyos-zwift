@@ -690,7 +690,13 @@ HomeForm {
                     minimumPointSize: 10
                     font.bold: true
                     visible: !largeButton
-                    Accessible.ignored: true
+                    // Writable tiles: the value is read here, as myValue of the classic tile (the tile
+                    // item itself is ignored for them); the other tiles are read by the tile item
+                    Accessible.role: Accessible.StaticText
+                    Accessible.name: name + ": " + value
+                    Accessible.description: qsTr("Adjustable. Current value: ") + value
+                    Accessible.focusable: writable && id1.enabled && !drawer.opened
+                    Accessible.ignored: !writable || !id1.enabled || drawer.opened
                 }
 
                 Text {
@@ -746,9 +752,10 @@ HomeForm {
                     contentItem: Item {}
 
                     Accessible.role: Accessible.Button
-                    Accessible.name: qsTr("Decrease ") + name
-                    Accessible.description: qsTr("Decrease the value of ") + name
-                    Accessible.focusable: true
+                    Accessible.name: value.length > 0 ? qsTr("Decrease ") + name + qsTr(", current value ") + value : qsTr("Decrease ") + name
+                    Accessible.description: value.length > 0 ? qsTr("Decrease the value of ") + name + qsTr(". Current value ") + value : qsTr("Decrease the value of ") + name
+                    Accessible.focusable: id1.enabled && !drawer.opened
+                    Accessible.ignored: !id1.enabled || drawer.opened
                     Accessible.onPressAction: { minus_clicked(objectName) }
                 }
 
@@ -789,9 +796,10 @@ HomeForm {
                     contentItem: Item {}
 
                     Accessible.role: Accessible.Button
-                    Accessible.name: qsTr("Increase ") + name
-                    Accessible.description: qsTr("Increase the value of ") + name
-                    Accessible.focusable: true
+                    Accessible.name: value.length > 0 ? qsTr("Increase ") + name + qsTr(", current value ") + value : qsTr("Increase ") + name
+                    Accessible.description: value.length > 0 ? qsTr("Increase the value of ") + name + qsTr(". Current value ") + value : qsTr("Increase the value of ") + name
+                    Accessible.focusable: id1.enabled && !drawer.opened
+                    Accessible.ignored: !id1.enabled || drawer.opened
                     Accessible.onPressAction: { plus_clicked(objectName) }
                 }
 
@@ -821,7 +829,8 @@ HomeForm {
                     Accessible.role: Accessible.Button
                     Accessible.name: largeButtonLabel
                     Accessible.description: name + ": " + largeButtonLabel
-                    Accessible.focusable: true
+                    Accessible.focusable: !drawer.opened
+                    Accessible.ignored: drawer.opened
                     Accessible.onPressAction: { largeButton_clicked(objectName) }
                 }
             }
@@ -945,7 +954,8 @@ HomeForm {
                 Accessible.role: Accessible.Button
                 Accessible.name: text
                 Accessible.description: qsTr("Give load control back to the app")
-                Accessible.focusable: true
+                Accessible.focusable: !drawer.opened
+                Accessible.ignored: drawer.opened
                 Accessible.onPressAction: { rootItem.releaseTargetPower() }
             }
             Text {
