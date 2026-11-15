@@ -770,7 +770,7 @@ ApplicationWindow {
 
             ValueComboBox {
                 id: gymModeDeviceComboBox
-                Accessible.name: qsTr("Select Your Gym Device")
+                Accessible.name: qsTr("Select Your Gym Device") + ": " + displayText
                 width: parent.width
                 model: rootItem.bluetoothDevices
                 labels: ({ "Disabled": qsTr("Disabled") })

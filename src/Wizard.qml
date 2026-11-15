@@ -557,7 +557,7 @@ Page {
                             settings.peloton_difficulty = pelotonDifficultyTextField.currentValue;
                         }
                         Accessible.role: Accessible.ComboBox
-                        Accessible.name: qsTr("Peloton difficulty level")
+                        Accessible.name: qsTr("Peloton difficulty level") + ": " + displayText
                         Accessible.description: qsTr("Choose whether QZ targets the lower, upper or average of the instructor's range")
                     }
 
@@ -633,7 +633,7 @@ Page {
                         to: 100
                         value: 18
                         editable: true
-                        Accessible.name: qsTr("Resistance level for flat road")
+                        Accessible.name: qsTr("Resistance level for flat road") + ": " + textFromValue(value, locale)
                         Accessible.description: qsTr("Resistance level that feels like riding on flat ground. Range 0 to 100.")
                     }
 
@@ -857,7 +857,7 @@ Page {
                         onAccepted: settings.zwift_username = text
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         Accessible.role: Accessible.EditableText
-                        Accessible.name: qsTr("Zwift username")
+                        Accessible.name: qsTr("Zwift username") + ": " + text
                     }
 
                     AccessibleText {
@@ -1272,7 +1272,7 @@ Page {
                                 console.log("combomodel activated" + filterDeviceTextField.currentIndex)
                             }
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Fitness device")
+                            Accessible.name: qsTr("Fitness device") + ": " + displayText
                             Accessible.description: qsTr("Select your fitness device from the list of nearby Bluetooth devices. Tap Refresh to scan again.")
                         }
                     }
@@ -1355,7 +1355,7 @@ Page {
                         model: [qsTr("Metric"), qsTr("Imperial")]
                         currentIndex: settings.miles_unit ? 1 : 0
                         Accessible.role: Accessible.ComboBox
-                        Accessible.name: qsTr("Unit system")
+                        Accessible.name: qsTr("Unit system") + ": " + displayText
                         Accessible.description: qsTr("Metric uses kilometers and kilograms. Imperial uses miles and pounds.")
                     }
 
@@ -1447,7 +1447,7 @@ Page {
                             settings.weight = realValue
                         }
 
-                        Accessible.name: qsTr("Body weight")
+                        Accessible.name: qsTr("Body weight") + ": " + textFromValue(value, locale)
                         Accessible.description: (settings.miles_unit && !settings.weight_kg_unit) ? qsTr("Your weight in pounds") : qsTr("Your weight in kilograms")
                     }
 
@@ -1468,7 +1468,7 @@ Page {
                         to: 120
                         value: settings.age
                         editable: true
-                        Accessible.name: qsTr("Age")
+                        Accessible.name: qsTr("Age") + ": " + textFromValue(value, locale)
                         Accessible.description: qsTr("Your age in years. Used for heart rate zone calculations.")
                     }
 
@@ -1490,7 +1490,7 @@ Page {
                         currentIndex: settings.sex === "Male" ? 0 : 1
                         value: settings.sex === "Male" ? "Male" : "Female"
                         Accessible.role: Accessible.ComboBox
-                        Accessible.name: qsTr("Gender")
+                        Accessible.name: qsTr("Gender") + ": " + displayText
                         Accessible.description: qsTr("Used for calorie calculations")
                     }
 
@@ -1576,7 +1576,7 @@ Page {
                                 console.log("combomodel activated" + heartBeltNameTextField.currentIndex)
                             }
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Heart rate belt")
+                            Accessible.name: qsTr("Heart rate belt") + ": " + displayText
                             Accessible.description: qsTr("Select your Bluetooth heart rate belt from the list. Tap Refresh to scan again. Choose Disabled if using a smartwatch.")
                         }
                     }

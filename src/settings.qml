@@ -2636,7 +2636,7 @@ import AndroidStatusBar 1.0
 
                 TextField {
                     id: settingsSearchTextField
-                    Accessible.name: qsTr("Search settings")
+                    Accessible.name: qsTr("Search settings") + ": " + text
                     Layout.fillWidth: true
                     placeholderText: qsTr("Search settings")
                     selectByMouse: true
@@ -2874,7 +2874,7 @@ import AndroidStatusBar 1.0
                         }
                         UiComboBox {
                             id: appLanguageCombo
-                            Accessible.name: qsTr("App Language:")
+                            Accessible.name: qsTr("App Language:") + " " + displayText
                             model: appLanguageOptions
                             textRole: "label"
                             Layout.fillHeight: false
@@ -2940,7 +2940,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.weight = ((settings.miles_unit && !settings.weight_kg_unit)?value / 2.20462:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Player Weight")
+                            Accessible.name: qsTr("Player Weight") + ": " + text
                         }
                         Button {
                             id: okWeightButton
@@ -2994,7 +2994,7 @@ import AndroidStatusBar 1.0
                             }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Player Height")
+                            Accessible.name: qsTr("Player Height") + ": " + text
                         }
                         Button {
                             id: okHeightButton
@@ -3054,7 +3054,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.age = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Player Age")
+                            Accessible.name: qsTr("Player Age") + ": " + text
                         }
                         Button {
                             id: okAgeButton
@@ -3101,7 +3101,7 @@ import AndroidStatusBar 1.0
                              }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Gender")
+                            Accessible.name: qsTr("Gender") + ": " + displayText
                         }
                         Button {
                             id: okSex
@@ -3149,7 +3149,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.ftp = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("FTP value")
+                            Accessible.name: qsTr("FTP value") + ": " + text
                         }
                         Button {
                             id: okFTPButton
@@ -3195,7 +3195,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.ftp_run = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Critical Power Run value")
+                            Accessible.name: qsTr("Critical Power Run value") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -3238,7 +3238,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.user_nickname = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Nickname")
+                            Accessible.name: qsTr("Nickname") + ": " + text
                         }
                         Button {
                             id: okNicknameButton
@@ -3284,7 +3284,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.user_email = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Email")
+                            Accessible.name: qsTr("Email") + ": " + text
                         }
                         Button {
                             id: okEmailButton
@@ -3607,7 +3607,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: heartBeltNameTextField
-                            Accessible.name: qsTr("Heart Belt Name:")
+                            Accessible.name: qsTr("Heart Belt Name:") + " " + displayText
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.heart_rate_belt_name
@@ -3710,7 +3710,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.heart_rate_zone1 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Zone 1 %")
+                                    Accessible.name: qsTr("Zone 1 %") + ": " + text
                                 }
                                 Button {
                                     id: okHeartRateZone1Button
@@ -3742,7 +3742,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.heart_rate_zone2 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Zone 2 %")
+                                    Accessible.name: qsTr("Zone 2 %") + ": " + text
                                 }
                                 Button {
                                     id: okHeartRateZone2Button
@@ -3774,7 +3774,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.heart_rate_zone3 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Zone 3 %")
+                                    Accessible.name: qsTr("Zone 3 %") + ": " + text
                                 }
                                 Button {
                                     id: okHeartRateZone3Button
@@ -3806,7 +3806,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.heart_rate_zone4 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Zone 4 %")
+                                    Accessible.name: qsTr("Zone 4 %") + ": " + text
                                 }
                                 Button {
                                     id: okHeartRateZone4Button
@@ -3890,7 +3890,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: if (valid) settings.heart_max_override_value = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Max Heart Rate")
+                                            Accessible.name: qsTr("Max Heart Rate") + ": " + text
                                         }
                                         Button {
                                             id: okHeartRateMaxOverrideValue
@@ -3938,7 +3938,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: if (valid) settings.heart_rate_resting = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Resting Heart Rate")
+                                            Accessible.name: qsTr("Resting Heart Rate") + ": " + text
                                         }
                                         Button {
                                             id: okHeartRateRestingValue
@@ -3995,7 +3995,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: if (valid) settings.power_hr_pwr1 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Session 1 Watt")
+                                            Accessible.name: qsTr("Session 1 Watt") + ": " + text
                                         }
                                         Button {
                                             id: okPowerFromHeartPWR1
@@ -4028,7 +4028,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: if (valid) settings.power_hr_hr1 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Session 1 HR")
+                                            Accessible.name: qsTr("Session 1 HR") + ": " + text
                                         }
                                         Button {
                                             id: okPowerFromHeartHR1
@@ -4061,7 +4061,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: if (valid) settings.power_hr_pwr2 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Session 2 Watt")
+                                            Accessible.name: qsTr("Session 2 Watt") + ": " + text
                                         }
                                         Button {
                                             id: okPowerFromHeartPWR2
@@ -4094,7 +4094,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: if (valid) settings.power_hr_hr2 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Session 2 HR")
+                                            Accessible.name: qsTr("Session 2 HR") + ": " + text
                                         }
                                         Button {
                                             id: okPowerFromHeartHR2
@@ -4239,7 +4239,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.gears_current_value_f = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Gear Value")
+                            Accessible.name: qsTr("Gear Value") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -4285,7 +4285,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.rolling_resistance = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Rolling Resistance Factor")
+                            Accessible.name: qsTr("Rolling Resistance Factor") + ": " + text
                         }
                         Button {
                             id: okRollingResistanceButton
@@ -4324,7 +4324,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.bike_weight = ((settings.miles_unit && !settings.weight_kg_unit)?value / 2.20462:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Bike Weight")
+                            Accessible.name: qsTr("Bike Weight") + ": " + text
                         }
                         Button {
                             id: okBikeWeightButton
@@ -4369,7 +4369,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.crrGain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Rolling Res. Gain")
+                            Accessible.name: qsTr("Rolling Res. Gain") + ": " + text
                         }
                         Button {
                             id: okCRRGainButton
@@ -4399,7 +4399,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.cwGain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Wind Res. Gain")
+                            Accessible.name: qsTr("Wind Res. Gain") + ": " + text
                         }
                         Button {
                             id: okCWGainButton
@@ -4508,7 +4508,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Left Up:")
+                                    Accessible.name: qsTr("Left Up:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_up
                                     onActivated: { settings.mywhoosh_link_left_up = currentIndex; window.settings_restart_to_apply = true; }
@@ -4522,7 +4522,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Left Down:")
+                                    Accessible.name: qsTr("Left Down:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_down
                                     onActivated: { settings.mywhoosh_link_left_down = currentIndex; window.settings_restart_to_apply = true; }
@@ -4536,7 +4536,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Left Left:")
+                                    Accessible.name: qsTr("Left Left:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_left
                                     onActivated: { settings.mywhoosh_link_left_left = currentIndex; window.settings_restart_to_apply = true; }
@@ -4550,7 +4550,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Left Right:")
+                                    Accessible.name: qsTr("Left Right:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_right
                                     onActivated: { settings.mywhoosh_link_left_right = currentIndex; window.settings_restart_to_apply = true; }
@@ -4564,7 +4564,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Left Shoulder:")
+                                    Accessible.name: qsTr("Left Shoulder:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_shoulder
                                     onActivated: { settings.mywhoosh_link_left_shoulder = currentIndex; window.settings_restart_to_apply = true; }
@@ -4578,7 +4578,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Left Power:")
+                                    Accessible.name: qsTr("Left Power:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_power
                                     onActivated: { settings.mywhoosh_link_left_power = currentIndex; window.settings_restart_to_apply = true; }
@@ -4601,7 +4601,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Right Y:")
+                                    Accessible.name: qsTr("Right Y:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_y
                                     onActivated: { settings.mywhoosh_link_right_y = currentIndex; window.settings_restart_to_apply = true; }
@@ -4615,7 +4615,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Right A:")
+                                    Accessible.name: qsTr("Right A:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_a
                                     onActivated: { settings.mywhoosh_link_right_a = currentIndex; window.settings_restart_to_apply = true; }
@@ -4629,7 +4629,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Right B:")
+                                    Accessible.name: qsTr("Right B:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_b
                                     onActivated: { settings.mywhoosh_link_right_b = currentIndex; window.settings_restart_to_apply = true; }
@@ -4643,7 +4643,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Right Z:")
+                                    Accessible.name: qsTr("Right Z:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_z
                                     onActivated: { settings.mywhoosh_link_right_z = currentIndex; window.settings_restart_to_apply = true; }
@@ -4657,7 +4657,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Right Shoulder:")
+                                    Accessible.name: qsTr("Right Shoulder:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_shoulder
                                     onActivated: { settings.mywhoosh_link_right_shoulder = currentIndex; window.settings_restart_to_apply = true; }
@@ -4671,7 +4671,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Right Power:")
+                                    Accessible.name: qsTr("Right Power:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_power
                                     onActivated: { settings.mywhoosh_link_right_power = currentIndex; window.settings_restart_to_apply = true; }
@@ -4714,7 +4714,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.bike_resistance_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Zwift Resistance Offset")
+                            Accessible.name: qsTr("Zwift Resistance Offset") + ": " + text
                         }
                         Button {
                             id: okBikeResistanceOffsetButton
@@ -4761,7 +4761,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.bike_power_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Zwift Power Offset (W)")
+                            Accessible.name: qsTr("Zwift Power Offset (W)") + ": " + text
                         }
                         Button {
                             id: okBikePowerOffsetButton
@@ -4806,7 +4806,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.bike_resistance_gain_f = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Zwift Resistance Gain")
+                            Accessible.name: qsTr("Zwift Resistance Gain") + ": " + text
                         }
                         Button {
                             id: okBikeResistanceGainButton
@@ -4851,7 +4851,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.zwift_erg_filter = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Zwift ERG Watt Up Filter")
+                            Accessible.name: qsTr("Zwift ERG Watt Up Filter") + ": " + text
                         }
                         Button {
                             id: okzwiftErgFilterButton
@@ -4896,7 +4896,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.zwift_erg_filter_down = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Zwift ERG Watt Down Filter")
+                            Accessible.name: qsTr("Zwift ERG Watt Down Filter") + ": " + text
                         }
                         Button {
                             id: okzwiftErgDownFilterButton
@@ -4941,7 +4941,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.zwift_erg_resistance_down = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Min. Resistance")
+                            Accessible.name: qsTr("Min. Resistance") + ": " + text
                         }
                         Button {
                             id: okzwiftErgResistanceDownButton
@@ -4986,7 +4986,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.zwift_erg_resistance_up = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Max. Resistance")
+                            Accessible.name: qsTr("Max. Resistance") + ": " + text
                         }
                         Button {
                             id: okzwiftErgResistanceUpButton
@@ -5032,7 +5032,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.bike_resistance_start = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Resistance at Startup")
+                            Accessible.name: qsTr("Resistance at Startup") + ": " + text
                         }
                         Button {
                             id: okBikeResistanceStartButton
@@ -5076,7 +5076,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.gears_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Gears Gain")
+                            Accessible.name: qsTr("Gears Gain") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -5138,7 +5138,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.gears_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Gears Offset")
+                            Accessible.name: qsTr("Gears Offset") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -5221,7 +5221,7 @@ import AndroidStatusBar 1.0
                                         settings.automatic_virtual_shifting_profile = currentIndex
                                     }
                                     Accessible.role: Accessible.ComboBox
-                                    Accessible.name: qsTr("Profile")
+                                    Accessible.name: qsTr("Profile") + ": " + displayText
                                 }
                             }
 
@@ -5257,7 +5257,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_gear_up_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Cruise - Gear Up Cadence (RPM)")
+                                    Accessible.name: qsTr("Cruise - Gear Up Cadence (RPM)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5287,7 +5287,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.automatic_virtual_shifting_gear_up_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Cruise - Gear Up Time (seconds)")
+                                    Accessible.name: qsTr("Cruise - Gear Up Time (seconds)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5320,7 +5320,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_gear_down_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Cruise - Gear Down Cadence (RPM)")
+                                    Accessible.name: qsTr("Cruise - Gear Down Cadence (RPM)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5350,7 +5350,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.automatic_virtual_shifting_gear_down_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Cruise - Gear Down Time (seconds)")
+                                    Accessible.name: qsTr("Cruise - Gear Down Time (seconds)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5394,7 +5394,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_climb_gear_up_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Climb - Gear Up Cadence (RPM)")
+                                    Accessible.name: qsTr("Climb - Gear Up Cadence (RPM)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5424,7 +5424,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.automatic_virtual_shifting_climb_gear_up_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Climb - Gear Up Time (seconds)")
+                                    Accessible.name: qsTr("Climb - Gear Up Time (seconds)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5457,7 +5457,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_climb_gear_down_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Climb - Gear Down Cadence (RPM)")
+                                    Accessible.name: qsTr("Climb - Gear Down Cadence (RPM)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5487,7 +5487,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.automatic_virtual_shifting_climb_gear_down_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Climb - Gear Down Time (seconds)")
+                                    Accessible.name: qsTr("Climb - Gear Down Time (seconds)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5531,7 +5531,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_sprint_gear_up_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Sprint - Gear Up Cadence (RPM)")
+                                    Accessible.name: qsTr("Sprint - Gear Up Cadence (RPM)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5561,7 +5561,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.automatic_virtual_shifting_sprint_gear_up_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Sprint - Gear Up Time (seconds)")
+                                    Accessible.name: qsTr("Sprint - Gear Up Time (seconds)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5594,7 +5594,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_sprint_gear_down_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Sprint - Gear Down Cadence (RPM)")
+                                    Accessible.name: qsTr("Sprint - Gear Down Cadence (RPM)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5624,7 +5624,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.automatic_virtual_shifting_sprint_gear_down_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Sprint - Gear Down Time (seconds)")
+                                    Accessible.name: qsTr("Sprint - Gear Down Time (seconds)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5647,7 +5647,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: ftmsBikeTextField
-                            Accessible.name: qsTr("FTMS Bike:")
+                            Accessible.name: qsTr("FTMS Bike:") + " " + displayText
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.ftms_bike
@@ -5772,7 +5772,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.schwinn_resistance_smooth = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Resistance Smoothing")
+                                    Accessible.name: qsTr("Resistance Smoothing") + ": " + text
                                 }
                                 Button {
                                     id: okschwinnResistanceSmoothButton
@@ -5823,7 +5823,7 @@ import AndroidStatusBar 1.0
                                 onAccepted: settings.horizon_gr7_cadence_multiplier = value
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 Accessible.role: Accessible.EditableText
-                                Accessible.name: qsTr("GR7 Cadence Multiplier")
+                                Accessible.name: qsTr("GR7 Cadence Multiplier") + ": " + text
                             }
                             Button {
                                 id: okhorizonGr7CadenceMultiplierButton
@@ -5868,7 +5868,7 @@ import AndroidStatusBar 1.0
                                     }
 
                                     Accessible.role: Accessible.ComboBox
-                                    Accessible.name: qsTr("Watt Profile")
+                                    Accessible.name: qsTr("Watt Profile") + ": " + displayText
                                 }
                                 Button {
                                     id: okEchelonWattTable
@@ -5898,7 +5898,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.echelon_resistance_gain = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Resistance Gain")
+                                    Accessible.name: qsTr("Resistance Gain") + ": " + text
                                 }
                                 Button {
                                     id: okechelonResistanceGainButton
@@ -5931,7 +5931,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.echelon_resistance_offset = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Resistance Offset")
+                                    Accessible.name: qsTr("Resistance Offset") + ": " + text
                                 }
                                 Button {
                                     id: okechelonResistanceOffsetButton
@@ -6310,7 +6310,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.flywheel_filter = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Samples Filter")
+                                    Accessible.name: qsTr("Samples Filter") + ": " + text
                                 }
                                 Button {
                                     id: okflywheelBikeFilterButton
@@ -6378,7 +6378,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.domyos_bike_cadence_filter = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Cadence Filter")
+                                    Accessible.name: qsTr("Cadence Filter") + ": " + text
                                 }
                                 Button {
                                     id: okDomyosBikeCadenceFilter
@@ -6518,7 +6518,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.proform_wheel_ratio = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Wheel Ratio")
+                                    Accessible.name: qsTr("Wheel Ratio") + ": " + text
                                 }
                                 Button {
                                     id: okproformBikeWheelRatioButton
@@ -6538,7 +6538,7 @@ import AndroidStatusBar 1.0
                             }
 
                             UiComboBox {
-                                Accessible.name: qsTr("Specific Model:")
+                                Accessible.name: qsTr("Specific Model:") + " " + displayText
                                 Layout.fillWidth: true
                                 id: bikeModelComboBox
                                 property bool initialized: false
@@ -6728,7 +6728,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.proformtdf1ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("TDF1 IP")
+                                    Accessible.name: qsTr("TDF1 IP") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -6759,7 +6759,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.proformtdf4ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("TDF4 IP")
+                                    Accessible.name: qsTr("TDF4 IP") + ": " + text
                                 }
                                 Button {
                                     id: okproformTDF4IPButton
@@ -6790,7 +6790,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.tdf_10_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("TDF Companion IP")
+                                    Accessible.name: qsTr("TDF Companion IP") + ": " + text
                                 }
                                 Button {
                                     id: okproformTDFCompanionIPButton
@@ -6856,7 +6856,7 @@ import AndroidStatusBar 1.0
                                 onAccepted: { settings.computrainer_serialport = text; window.settings_restart_to_apply = true; }
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 Accessible.role: Accessible.EditableText
-                                Accessible.name: qsTr("Serial Port")
+                                Accessible.name: qsTr("Serial Port") + ": " + text
                             }
                             Button {
                                 id: okcomputrainerSerialPortButton
@@ -6896,7 +6896,7 @@ import AndroidStatusBar 1.0
                                 onAccepted: { settings.kettler_usb_serialport = text; window.settings_restart_to_apply = true; }
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 Accessible.role: Accessible.EditableText
-                                Accessible.name: qsTr("Serial Port")
+                                Accessible.name: qsTr("Serial Port") + ": " + text
                             }
                             Button {
                                 id: okKettlerUsbSerialPortButton
@@ -6927,7 +6927,7 @@ import AndroidStatusBar 1.0
                                     displayText = kettlerUsbBaudrateComboBox.currentValue
                                 }
                                 Accessible.role: Accessible.ComboBox
-                                Accessible.name: qsTr("Baudrate")
+                                Accessible.name: qsTr("Baudrate") + ": " + displayText
                             }
                             Button {
                                 id: okKettlerUsbBaudrateButton
@@ -7053,7 +7053,7 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsTextField {
                                     id: freebeatSerialPortTextField
-                                    Accessible.name: qsTr("Serial Port:")
+                                    Accessible.name: qsTr("Serial Port:") + " " + text
                                     savedText: settings.freebeat_serialport
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -7118,7 +7118,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.m3i_bike_id = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Bike ID")
+                                    Accessible.name: qsTr("Bike ID") + ": " + text
                                 }
                                 Button {
                                     id: okm3iBikeIdButton
@@ -7150,7 +7150,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.m3i_bike_speed_buffsize = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Speed Buffer Size")
+                                    Accessible.name: qsTr("Speed Buffer Size") + ": " + text
                                 }
                                 Button {
                                     id: okm3iBikeSpeedBuffsizeButton
@@ -7267,7 +7267,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) { settings.ant_bike_device_number = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("ANT+ Bike Device Number (0=Auto)")
+                                    Accessible.name: qsTr("ANT+ Bike Device Number (0=Auto)") + ": " + text
                                 }
                                 Button {
                                     id: okAntBikeDeviceNumberButton
@@ -7396,7 +7396,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.ant_speed_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("ANT+ Speed Offset")
+                            Accessible.name: qsTr("ANT+ Speed Offset") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -7440,7 +7440,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.ant_speed_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("ANT+ Speed Gain")
+                            Accessible.name: qsTr("ANT+ Speed Gain") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -7501,7 +7501,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) { settings.ant_heart_device_number = value; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("ANT+ Heart Device Number (0=Auto)")
+                            Accessible.name: qsTr("ANT+ Heart Device Number (0=Auto)") + ": " + text
                         }
                         Button {
                             id: okAntHeartDeviceNumberButton
@@ -7605,7 +7605,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: uiZoomTextField
-                            Accessible.name: labelUiZoom.text
+                            Accessible.name: labelUiZoom.text + " " + text
                             minimum: 10
                             savedText: settings.ui_zoom
                             horizontalAlignment: Text.AlignRight
@@ -7795,7 +7795,7 @@ import AndroidStatusBar 1.0
                                 console.log("floatingwindow_type activated" + floatingWindowTypeComboBox.currentIndex)
                             }
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Floating Window Type")
+                            Accessible.name: qsTr("Floating Window Type") + ": " + displayText
                         }
                         Button {
                             id: okFloatingWindowTypeButton
@@ -7855,7 +7855,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.floating_width = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Floating Window Width")
+                            Accessible.name: qsTr("Floating Window Width") + ": " + text
                         }
                         Button {
                             id: okFloatingWidthButton
@@ -7901,7 +7901,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.floating_height = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Floating Window Height")
+                            Accessible.name: qsTr("Floating Window Height") + ": " + text
                         }
                         Button {
                             id: okFloatingHeightButton
@@ -7947,7 +7947,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.floating_transparency = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Floating Window % Transparency")
+                            Accessible.name: qsTr("Floating Window % Transparency") + ": " + text
                         }
                         Button {
                             id: okFloatingTransparencyButton
@@ -8027,7 +8027,7 @@ import AndroidStatusBar 1.0
                                 console.log("chart_display_mode activated" + chartDisplayModeComboBox.currentIndex)
                             }
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Chart Display Mode")
+                            Accessible.name: qsTr("Chart Display Mode") + ": " + displayText
                         }
                         Button {
                             id: okChartDisplayModeButton
@@ -8193,7 +8193,7 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: displayText = currentValue
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("iOS Live Activity Left Metric")
+                            Accessible.name: qsTr("iOS Live Activity Left Metric") + ": " + displayText
                         }
                         Button {
                             text: qsTr("OK")
@@ -8220,7 +8220,7 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: displayText = currentValue
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("iOS Live Activity Right Metric")
+                            Accessible.name: qsTr("iOS Live Activity Right Metric") + ": " + displayText
                         }
                         Button {
                             text: qsTr("OK")
@@ -8286,7 +8286,7 @@ import AndroidStatusBar 1.0
                                           if(OS_VERSION !== "Android") backgroundColorDialog.visible = true
                                       }
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Background Color")
+                                    Accessible.name: qsTr("Background Color") + ": " + text
                                 }
                                 Button {
                                     id: okBackgroundColor
@@ -8326,7 +8326,7 @@ import AndroidStatusBar 1.0
                                           if(OS_VERSION !== "Android") tilebackgroundColorDialog.visible = true
                                       }
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Tiles Background Color")
+                                    Accessible.name: qsTr("Tiles Background Color") + ": " + text
                                 }
                                 Button {
                                     id: oktileBackgroundColor
@@ -8379,7 +8379,7 @@ import AndroidStatusBar 1.0
                                           if(OS_VERSION !== "Android") tileShadowColorDialog.visible = true
                                       }
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Tiles Shadow Color")
+                                    Accessible.name: qsTr("Tiles Shadow Color") + ": " + text
                                 }
                                 Button {
                                     id: oktileShadowColor
@@ -8418,7 +8418,7 @@ import AndroidStatusBar 1.0
                                           if(OS_VERSION !== "Android") statusbarbackgroundColorDialog.visible = true
                                       }
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Statusbar Background Color")
+                                    Accessible.name: qsTr("Statusbar Background Color") + ": " + text
                                 }
                                 Button {
                                     id: okStatusbarBackgroundColor
@@ -8459,7 +8459,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) { settings.theme_tile_secondline_textsize = value; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("2nd line tile text size")
+                                    Accessible.name: qsTr("2nd line tile text size") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -8624,7 +8624,7 @@ import AndroidStatusBar 1.0
                              }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Difficulty")
+                            Accessible.name: qsTr("Difficulty") + ": " + displayText
                         }
                         Button {
                             id: okPelotonDifficultyButton
@@ -8670,7 +8670,7 @@ import AndroidStatusBar 1.0
                              }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Treadmill Level")
+                            Accessible.name: qsTr("Treadmill Level") + ": " + displayText
                         }
                         Button {
                             text: qsTr("OK")
@@ -8715,7 +8715,7 @@ import AndroidStatusBar 1.0
                              }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Treadmill Walk Level")
+                            Accessible.name: qsTr("Treadmill Walk Level") + ": " + displayText
                         }
                         Button {
                             text: qsTr("OK")
@@ -8756,7 +8756,7 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Walking Min Speed")
+                            Accessible.name: qsTr("Walking Min Speed") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -8797,7 +8797,7 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Running Min Speed")
+                            Accessible.name: qsTr("Running Min Speed") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -8842,7 +8842,7 @@ import AndroidStatusBar 1.0
                              }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Rower Level")
+                            Accessible.name: qsTr("Rower Level") + ": " + displayText
                         }
                         Button {
                             text: qsTr("OK")
@@ -8885,7 +8885,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.pzp_username = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("PZP Username")
+                            Accessible.name: qsTr("PZP Username") + ": " + text
                         }
                         Button {
                             id: okPZPUsernameButton
@@ -8985,7 +8985,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.peloton_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Conversion Gain")
+                            Accessible.name: qsTr("Conversion Gain") + ": " + text
                         }
                         Button {
                             id: okPelotonGainButton
@@ -9031,7 +9031,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.peloton_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Conversion Offset")
+                            Accessible.name: qsTr("Conversion Offset") + ": " + text
                         }
                         Button {
                             id: okPelotonOffsetButton
@@ -9197,7 +9197,7 @@ import AndroidStatusBar 1.0
                              }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Override HR Metric")
+                            Accessible.name: qsTr("Override HR Metric") + ": " + displayText
                         }
                         Button {
                             id: okPelotonHeartRateMetric
@@ -9244,7 +9244,7 @@ import AndroidStatusBar 1.0
                             }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Date on Strava")
+                            Accessible.name: qsTr("Date on Strava") + ": " + displayText
                         }
                         Button {
                             id: okPelotonDateOnStrava
@@ -9290,7 +9290,7 @@ import AndroidStatusBar 1.0
                             }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Date Format")
+                            Accessible.name: qsTr("Date Format") + ": " + displayText
                         }
                         Button {
                             text: qsTr("OK")
@@ -9471,7 +9471,7 @@ import AndroidStatusBar 1.0
                             onAccepted: { settings.zwift_username = text; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Username")
+                            Accessible.name: qsTr("Username") + ": " + text
                         }
                         Button {
                             id: okZwiftUsernameButton
@@ -9681,7 +9681,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) { settings.zwift_api_poll = value; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Poll Time")
+                            Accessible.name: qsTr("Poll Time") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -10049,7 +10049,7 @@ import AndroidStatusBar 1.0
                             onAccepted: { rootItem.garmin_connect_logout(); settings.garmin_email = text; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Garmin Email")
+                            Accessible.name: qsTr("Garmin Email") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -10122,7 +10122,7 @@ import AndroidStatusBar 1.0
                                 }
                             }
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Garmin Server")
+                            Accessible.name: qsTr("Garmin Server") + ": " + displayText
                         }
                     }
 
@@ -10174,7 +10174,7 @@ import AndroidStatusBar 1.0
 
                             TextField {
                                 id: mfaCodeTextField
-                                Accessible.name: qsTr("Enter MFA code")
+                                Accessible.name: qsTr("Enter MFA code") + ": " + text
                                 placeholderText: qsTr("Enter MFA code")
                                 horizontalAlignment: Text.AlignHCenter
                                 Layout.fillWidth: true
@@ -10272,7 +10272,7 @@ import AndroidStatusBar 1.0
 
                     UiComboBox {
                         id: garminDeviceComboBoxDelegate
-                        Accessible.name: qsTr("Garmin device for FIT file")
+                        Accessible.name: qsTr("Garmin device for FIT file") + ": " + displayText
                         model: [
                             "Approach G10",
                             "Approach G80",
@@ -10992,7 +10992,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         TextField {
                             id: garminDeviceSerialTextField
-                            Accessible.name: qsTr("Garmin device UNIT ID")
+                            Accessible.name: qsTr("Garmin device UNIT ID") + ": " + text
                             text: settings.garmin_device_serial
                             Layout.fillWidth: true
                             Layout.preferredWidth: 250
@@ -11195,7 +11195,7 @@ import AndroidStatusBar 1.0
                              }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("PID on Heart Zone")
+                            Accessible.name: qsTr("PID on Heart Zone") + ": " + displayText
                         }
                         Button {
                             id: okTreadmillPidHR
@@ -11218,7 +11218,7 @@ import AndroidStatusBar 1.0
                         }
                         ValueComboBox {
                             id: treadmillPidHRControlTextField
-                            Accessible.name: labelTreadmillPidHRControl.text
+                            Accessible.name: labelTreadmillPidHRControl.text + " " + displayText
                             model: [ "Speed", "Inclination" ]
                             labels: ({ "Speed": qsTr("Speed"), "Inclination": qsTr("Inclination") })
                             savedText: settings.treadmill_pid_heart_control
@@ -11272,7 +11272,7 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("PID on HR min")
+                            Accessible.name: qsTr("PID on HR min") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -11303,7 +11303,7 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("PID on HR max")
+                            Accessible.name: qsTr("PID on HR max") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -11366,7 +11366,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: pidHrRecoveryZoneLimitTextField
-                            Accessible.name: qsTr("PID Recovery Zone Lower Limit (%):")
+                            Accessible.name: qsTr("PID Recovery Zone Lower Limit (%):") + " " + text
                             maximum: 100
                             savedText: settings.trainprogram_pid_hr_recovery_zone_limit
                             horizontalAlignment: Text.AlignRight
@@ -11405,7 +11405,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: pidHrPushyZoneLimitTextField
-                            Accessible.name: qsTr("PID Pushy Zone Limit:")
+                            Accessible.name: qsTr("PID Pushy Zone Limit:") + " " + text
                             savedText: settings.trainprogram_pid_hr_pushy_zone_limit
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -11480,7 +11480,7 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("1 mile pace (total time)")
+                            Accessible.name: qsTr("1 mile pace (total time)") + ": " + text
                         }
                         Button {
                             id: okTrainProgramPace1Mile
@@ -11525,7 +11525,7 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("5 km pace (total time)")
+                            Accessible.name: qsTr("5 km pace (total time)") + ": " + text
                         }
                         Button {
                             id: okTrainProgramPace5km
@@ -11570,7 +11570,7 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("10 km pace (total time)")
+                            Accessible.name: qsTr("10 km pace (total time)") + ": " + text
                         }
                         Button {
                             id: okTrainProgramPace10KM
@@ -11615,7 +11615,7 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Half Marathon pace (total time)")
+                            Accessible.name: qsTr("Half Marathon pace (total time)") + ": " + text
                         }
                         Button {
                             id: okTrainProgramPaceHalfMarathon
@@ -11660,7 +11660,7 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Marathon pace (total time)")
+                            Accessible.name: qsTr("Marathon pace (total time)") + ": " + text
                         }
                         Button {
                             id: okTrainProgramPaceMarathon
@@ -11697,7 +11697,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsFormatField {
                             id: trainProgramWarmupSpeedTextField
-                            Accessible.name: qsTr("Warmup Speed (pace):")
+                            Accessible.name: qsTr("Warmup Speed (pace):") + " " + text
                             format: "time"
                             savedText: paceSecondsToTime(settings.trainprogram_warmup_speed)
                             horizontalAlignment: Text.AlignRight
@@ -11724,7 +11724,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsFormatField {
                             id: trainProgramCooldownSpeedTextField
-                            Accessible.name: qsTr("Cooldown Speed (pace):")
+                            Accessible.name: qsTr("Cooldown Speed (pace):") + " " + text
                             format: "time"
                             savedText: paceSecondsToTime(settings.trainprogram_cooldown_speed)
                             horizontalAlignment: Text.AlignRight
@@ -11751,7 +11751,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsFormatField {
                             id: trainProgramRestSpeedTextField
-                            Accessible.name: qsTr("Rest Speed (pace):")
+                            Accessible.name: qsTr("Rest Speed (pace):") + " " + text
                             format: "time"
                             savedText: paceSecondsToTime(settings.trainprogram_rest_speed)
                             horizontalAlignment: Text.AlignRight
@@ -11788,7 +11788,7 @@ import AndroidStatusBar 1.0
                              }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Default Pace")
+                            Accessible.name: qsTr("Default Pace") + ": " + displayText
                         }
                         Button {
                             id: okTreadmillPaceDefault
@@ -11833,7 +11833,7 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("ERG Mode Watt Step")
+                            Accessible.name: qsTr("ERG Mode Watt Step") + ": " + text
                         }
                         Button {
                             id: okPidHeartZoneErgModeWattStep
@@ -11891,7 +11891,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.trainprogram_total = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Duration (minutes)")
+                            Accessible.name: qsTr("Duration (minutes)") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomDuration
@@ -11923,7 +11923,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.trainprogram_period_seconds = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Period (seconds)")
+                            Accessible.name: qsTr("Period (seconds)") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomPeriod
@@ -11954,7 +11954,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.trainprogram_speed_min = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Speed min.")
+                            Accessible.name: qsTr("Speed min.") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomSpeedMin
@@ -11985,7 +11985,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.trainprogram_speed_max = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Speed max.")
+                            Accessible.name: qsTr("Speed max.") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomSpeedMax
@@ -12017,7 +12017,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.trainprogram_incline_min = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Incline min.")
+                            Accessible.name: qsTr("Incline min.") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomInclineMin
@@ -12048,7 +12048,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.trainprogram_incline_max = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Incline max.")
+                            Accessible.name: qsTr("Incline max.") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomInclineMax
@@ -12118,7 +12118,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.trainprogram_resistance_min = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Resistance min.")
+                            Accessible.name: qsTr("Resistance min.") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomResistanceMin
@@ -12149,7 +12149,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.trainprogram_resistance_max = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Resistance max.")
+                            Accessible.name: qsTr("Resistance max.") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomResistanceMax
@@ -12409,7 +12409,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.treadmill_step_speed = (settings.miles_unit?value * 1.60934:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Speed Step")
+                            Accessible.name: qsTr("Speed Step") + ": " + text
                         }
                         Button {
                             id: okTreadmillSpeedStepButton
@@ -12457,7 +12457,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.treadmill_incline_min = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Min. Inclination")
+                            Accessible.name: qsTr("Min. Inclination") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -12502,7 +12502,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.treadmill_incline_max = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Max. Inclination")
+                            Accessible.name: qsTr("Max. Inclination") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -12545,7 +12545,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.treadmill_speed_max = (settings.miles_unit?value * 1.60934:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Max. Speed")
+                            Accessible.name: qsTr("Max. Speed") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -12588,7 +12588,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.treadmill_speed_min = (settings.miles_unit?value * 1.60934:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Min. Speed")
+                            Accessible.name: qsTr("Min. Speed") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -12632,7 +12632,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.step_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Step Count Gain")
+                            Accessible.name: qsTr("Step Count Gain") + ": " + text
                         }
                         Button {
                             id: okStepGainButton
@@ -12720,7 +12720,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: ftmsTreadmillTextField
-                            Accessible.name: qsTr("FTMS Treadmill:")
+                            Accessible.name: qsTr("FTMS Treadmill:") + " " + displayText
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.ftms_treadmill
@@ -12783,7 +12783,7 @@ import AndroidStatusBar 1.0
                             }
 
                             UiComboBox {
-                                Accessible.name: qsTr("Specific Model:")
+                                Accessible.name: qsTr("Specific Model:") + " " + displayText
                                 Layout.fillWidth: true
                                 id: treadmillModelComboBox
                                 property bool initialized: false
@@ -13128,7 +13128,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.proformtreadmillip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Proform IP")
+                                    Accessible.name: qsTr("Proform IP") + ": " + text
                                 }
                                 Button {
                                     id: okproformtreadmillIPButton
@@ -13159,7 +13159,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.nordictrack_2950_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Nordictrack 2950 IP")
+                                    Accessible.name: qsTr("Nordictrack 2950 IP") + ": " + text
                                 }
                                 Button {
                                     id: oknordictrack2950IPButton
@@ -13398,7 +13398,7 @@ import AndroidStatusBar 1.0
                                 Label { text: qsTr("Life Fitness username/email:"); wrapMode: window.labelWrap; Layout.fillWidth: true }
                                 SettingsTextField {
                                     id: lifeFitnessUsernameTextField
-                                    Accessible.name: qsTr("Life Fitness username/email")
+                                    Accessible.name: qsTr("Life Fitness username/email") + ": " + text
                                     savedText: settings.life_fitness_username
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: { settings.life_fitness_username = text; window.settings_restart_to_apply = true; }
@@ -13640,7 +13640,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.domyos_treadmill_button_5kmh = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Remap 5 km/h button")
+                                    Accessible.name: qsTr("Remap 5 km/h button") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -13669,7 +13669,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.domyos_treadmill_button_10kmh = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Remap 10 km/h button")
+                                    Accessible.name: qsTr("Remap 10 km/h button") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -13698,7 +13698,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.domyos_treadmill_button_16kmh = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Remap 16 km/h button")
+                                    Accessible.name: qsTr("Remap 16 km/h button") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -13727,7 +13727,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.domyos_treadmill_button_22kmh = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Remap 22 km/h button")
+                                    Accessible.name: qsTr("Remap 22 km/h button") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -13758,7 +13758,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) { settings.poll_device_time = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Pool time (ms)")
+                                    Accessible.name: qsTr("Pool time (ms)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -13985,7 +13985,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.fitshow_user_id = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("User ID")
+                                    Accessible.name: qsTr("User ID") + ": " + text
                                 }
                                 Button {
                                     id: okfitshowTreadmillUserIdButton
@@ -14163,7 +14163,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.horizon_treadmill_profile_user1 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("User 1")
+                                    Accessible.name: qsTr("User 1") + ": " + text
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile1Button
@@ -14192,7 +14192,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.horizon_treadmill_profile_user2 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("User 2")
+                                    Accessible.name: qsTr("User 2") + ": " + text
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile2Button
@@ -14221,7 +14221,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.horizon_treadmill_profile_user3 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("User 3")
+                                    Accessible.name: qsTr("User 3") + ": " + text
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile3Button
@@ -14250,7 +14250,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.horizon_treadmill_profile_user4 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("User 4")
+                                    Accessible.name: qsTr("User 4") + ": " + text
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile4Button
@@ -14279,7 +14279,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.horizon_treadmill_profile_user5 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("User 5")
+                                    Accessible.name: qsTr("User 5") + ": " + text
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile5Button
@@ -14783,7 +14783,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.csafe_rower = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Serial Port")
+                                    Accessible.name: qsTr("Serial Port") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -14806,7 +14806,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: ftmsRowerTextField
-                            Accessible.name: qsTr("FTMS Rower:")
+                            Accessible.name: qsTr("FTMS Rower:") + " " + displayText
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.ftms_rower
@@ -14931,7 +14931,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.proform_rower_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("ProForm Rower IP")
+                                    Accessible.name: qsTr("ProForm Rower IP") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -14974,7 +14974,7 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: domyosEllipticalSpeedRatioTextField
-                                    Accessible.name: labelDomyosEllipticalSpeedRatio.text
+                                    Accessible.name: labelDomyosEllipticalSpeedRatio.text + " " + text
                                     savedText: settings.domyos_elliptical_speed_ratio
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -15032,7 +15032,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.csafe_elliptical_port = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Serial Port")
+                                    Accessible.name: qsTr("Serial Port") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -15055,7 +15055,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: ftmsEllipticalTextField
-                            Accessible.name: qsTr("FTMS Elliptical:")
+                            Accessible.name: qsTr("FTMS Elliptical:") + " " + displayText
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.ftms_elliptical
@@ -15201,7 +15201,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.proform_elliptical_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Companion IP")
+                                    Accessible.name: qsTr("Companion IP") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -15311,7 +15311,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: filterDeviceTextField
-                            Accessible.name: qsTr("Manual Device:")
+                            Accessible.name: qsTr("Manual Device:") + " " + displayText
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.filter_device
@@ -15400,7 +15400,7 @@ import AndroidStatusBar 1.0
                             onAccepted: { settings.watt_offset = value; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Watt Offset")
+                            Accessible.name: qsTr("Watt Offset") + ": " + text
                         }
                         Button {
                             id: okwattOffsetButton
@@ -15445,7 +15445,7 @@ import AndroidStatusBar 1.0
                             onAccepted: { settings.watt_gain = value; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Watt Gain")
+                            Accessible.name: qsTr("Watt Gain") + ": " + text
                         }
                         Button {
                             id: okWattGainButton
@@ -15482,7 +15482,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: wattMaxTextField
-                            Accessible.name: qsTr("Max Watt:")
+                            Accessible.name: qsTr("Max Watt:") + " " + text
                             savedText: settings.watt_max
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -15532,7 +15532,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.speed_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Speed Offset")
+                            Accessible.name: qsTr("Speed Offset") + ": " + text
                         }
                         Button {
                             id: okspeedOffsetButton
@@ -15578,7 +15578,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.speed_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Speed Gain")
+                            Accessible.name: qsTr("Speed Gain") + ": " + text
                         }
                         Button {
                             id: okSpeedGainButton
@@ -15624,7 +15624,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.cadence_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Cadence Offset")
+                            Accessible.name: qsTr("Cadence Offset") + ": " + text
                         }
                         Button {
                             id: okcadenceOffsetButton
@@ -15669,7 +15669,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.cadence_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Cadence Gain")
+                            Accessible.name: qsTr("Cadence Gain") + ": " + text
                         }
                         Button {
                             id: okCadenceGainButton
@@ -15723,7 +15723,7 @@ import AndroidStatusBar 1.0
                              }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Strava Upload")
+                            Accessible.name: qsTr("Strava Upload") + ": " + displayText
                         }
                         Button {
                             text: qsTr("OK")
@@ -15752,7 +15752,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.strava_suffix = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Suffix activity")
+                            Accessible.name: qsTr("Suffix activity") + ": " + text
                         }
                         Button {
                             id: okStravaSuffixButton
@@ -15980,7 +15980,7 @@ import AndroidStatusBar 1.0
                                 }
                             }
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Power Averaging Mode")
+                            Accessible.name: qsTr("Power Averaging Mode") + ": " + displayText
                         }
                     }
 
@@ -16075,7 +16075,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.zwift_inclination_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Zwift Inclination Offset")
+                            Accessible.name: qsTr("Zwift Inclination Offset") + ": " + text
                         }
                         Button {
                             id: okTreadmillInclinationOffsetButton
@@ -16120,7 +16120,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.zwift_inclination_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Zwift Inclination Gain")
+                            Accessible.name: qsTr("Zwift Inclination Gain") + ": " + text
                         }
                         Button {
                             id: okTreadmillInclinationGainButton
@@ -16165,7 +16165,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.min_inclination = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Minimum Inclination")
+                            Accessible.name: qsTr("Minimum Inclination") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -16209,7 +16209,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.treadmill_step_incline = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Inclination Step")
+                            Accessible.name: qsTr("Inclination Step") + ": " + text
                         }
                         Button {
                             id: okInclinationStepButton
@@ -16338,7 +16338,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.autolap_distance = (settings.miles_unit?value * 1.60934:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("AutoLap on Distance")
+                            Accessible.name: qsTr("AutoLap on Distance") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -16381,7 +16381,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.inclination_delay_seconds = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Inclination Delay")
+                            Accessible.name: qsTr("Inclination Delay") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -16505,7 +16505,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 ValueComboBox {
                                     id: cadenceSensorNameTextField
-                                    Accessible.name: qsTr("Cadence Sensor:")
+                                    Accessible.name: qsTr("Cadence Sensor:") + " " + displayText
                                     model: rootItem.bluetoothDevices
                                     labels: ({ "Disabled": qsTr("Disabled") })
                                     savedText: settings.cadence_sensor_name
@@ -16565,7 +16565,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.cadence_sensor_speed_ratio = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Wheel Ratio")
+                                    Accessible.name: qsTr("Wheel Ratio") + ": " + text
                                 }
                                 Button {
                                     id: okCadenceSpeedRatio
@@ -16665,7 +16665,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.cscbike_custom_resistance_level_1 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Resistance Level 1")
+                                    Accessible.name: qsTr("Resistance Level 1") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -16694,7 +16694,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.cscbike_custom_watt_1 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Watt 1")
+                                    Accessible.name: qsTr("Watt 1") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -16723,7 +16723,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.cscbike_custom_resistance_level_2 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Resistance Level 2")
+                                    Accessible.name: qsTr("Resistance Level 2") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -16752,7 +16752,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.cscbike_custom_watt_2 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Watt 2")
+                                    Accessible.name: qsTr("Watt 2") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -16969,7 +16969,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 SettingsNumberField {
                                     id: powerSensorSpeedCorrectionThresholdTextField
-                                    Accessible.name: qsTr("Power sensor speed correction threshold (%):")
+                                    Accessible.name: qsTr("Power sensor speed correction threshold (%):") + " " + text
                                     minimum: 0
                                     maximum: 100
                                     savedText: settings.power_sensor_speed_correction_threshold
@@ -17093,7 +17093,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 SettingsNumberField {
                                     id: powerSensorSpeedInclinationCoeffATextField
-                                    Accessible.name: qsTr("Power Sensor Speed/Incline Coefficient A:")
+                                    Accessible.name: qsTr("Power Sensor Speed/Incline Coefficient A:") + " " + text
                                     signed: true
                                     savedText: settings.power_sensor_speed_inclination_coeff_a
                                     horizontalAlignment: Text.AlignRight
@@ -17118,7 +17118,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 SettingsNumberField {
                                     id: powerSensorSpeedInclinationCoeffBTextField
-                                    Accessible.name: qsTr("Power Sensor Speed/Incline Coefficient B:")
+                                    Accessible.name: qsTr("Power Sensor Speed/Incline Coefficient B:") + " " + text
                                     signed: true
                                     savedText: settings.power_sensor_speed_inclination_coeff_b
                                     horizontalAlignment: Text.AlignRight
@@ -17158,7 +17158,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 ValueComboBox {
                                     id: powerSensorNameTextField
-                                    Accessible.name: qsTr("Power Sensor:")
+                                    Accessible.name: qsTr("Power Sensor:") + " " + displayText
                                     model: rootItem.bluetoothDevices
                                     labels: ({ "Disabled": qsTr("Disabled") })
                                     savedText: settings.power_sensor_name
@@ -17227,7 +17227,7 @@ import AndroidStatusBar 1.0
                                         spacing: 10
                                         ValueComboBox {
                                             id: eliteRizerNameTextField
-                                            Accessible.name: labelEliteRizerName.text
+                                            Accessible.name: labelEliteRizerName.text + " " + displayText
                                             model: rootItem.bluetoothDevices
                                             labels: ({ "Disabled": qsTr("Disabled") })
                                             savedText: settings.elite_rizer_name
@@ -17272,7 +17272,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: settings.elite_rizer_gain = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Difficulty/Gain")
+                                            Accessible.name: qsTr("Difficulty/Gain") + ": " + text
                                         }
                                         Button {
                                             id: okEliteRizerGainButton
@@ -17303,7 +17303,7 @@ import AndroidStatusBar 1.0
                                         spacing: 10
                                         ValueComboBox {
                                             id: eliteSterzoSmartNameTextField
-                                            Accessible.name: labelEliteSterzoSmartName.text
+                                            Accessible.name: labelEliteSterzoSmartName.text + " " + displayText
                                             model: rootItem.bluetoothDevices
                                             labels: ({ "Disabled": qsTr("Disabled") })
                                             savedText: settings.elite_sterzo_smart_name
@@ -17353,7 +17353,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 ValueComboBox {
                                     id: ftmsAccessoryNameTextField
-                                    Accessible.name: qsTr("SmartSpin2k device:")
+                                    Accessible.name: qsTr("SmartSpin2k device:") + " " + displayText
                                     model: rootItem.bluetoothDevices
                                     labels: ({ "Disabled": qsTr("Disabled") })
                                     savedText: settings.ftms_accessory_name
@@ -17414,7 +17414,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.ss2k_shift_step = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Shift Step")
+                                    Accessible.name: qsTr("Shift Step") + ": " + text
                                 }
                                 Button {
                                     id: okSS2kShiftStep
@@ -17444,7 +17444,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.ss2k_max_resistance = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Max Resistance")
+                                    Accessible.name: qsTr("Max Resistance") + ": " + text
                                 }
                                 Button {
                                     id: okSS2kMaxResistance
@@ -17474,7 +17474,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.ss2k_min_resistance = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Min Resistance")
+                                    Accessible.name: qsTr("Min Resistance") + ": " + text
                                 }
                                 Button {
                                     id: okSS2kMinResistance
@@ -17513,7 +17513,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_resistance_sample_1 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Resistance Sample 1")
+                                            Accessible.name: qsTr("Resistance Sample 1") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kResistanceSample1
@@ -17542,7 +17542,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_shift_step_sample_1 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Shift Step Sample 1")
+                                            Accessible.name: qsTr("Shift Step Sample 1") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample1
@@ -17572,7 +17572,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_resistance_sample_2 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Resistance Sample 2")
+                                            Accessible.name: qsTr("Resistance Sample 2") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kResistanceSample2
@@ -17601,7 +17601,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_shift_step_sample_2 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Shift Step Sample 2")
+                                            Accessible.name: qsTr("Shift Step Sample 2") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample2
@@ -17631,7 +17631,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_resistance_sample_3 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Resistance Sample 3")
+                                            Accessible.name: qsTr("Resistance Sample 3") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kResistanceSample3
@@ -17660,7 +17660,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_shift_step_sample_3 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Shift Step Sample 3")
+                                            Accessible.name: qsTr("Shift Step Sample 3") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample3
@@ -17690,7 +17690,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_resistance_sample_4 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Resistance Sample 4")
+                                            Accessible.name: qsTr("Resistance Sample 4") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kResistanceSample4
@@ -17719,7 +17719,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_shift_step_sample_4 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Shift Step Sample 4")
+                                            Accessible.name: qsTr("Shift Step Sample 4") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample4
@@ -17780,7 +17780,7 @@ import AndroidStatusBar 1.0
                                     }
 
                                     Accessible.role: Accessible.ComboBox
-                                    Accessible.name: qsTr("Mode")
+                                    Accessible.name: qsTr("Mode") + ": " + displayText
                                 }
                                 Button {
                                     id: okFitmetriaFanFitModeTextField
@@ -17812,7 +17812,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.fitmetria_fanfit_min = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Min. value (0-100)")
+                                    Accessible.name: qsTr("Min. value (0-100)") + ": " + text
                                 }
                                 Button {
                                     id: okFitmetriaFanFitMin
@@ -17844,7 +17844,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.fitmetria_fanfit_max = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Max value (0-100)")
+                                    Accessible.name: qsTr("Max value (0-100)") + ": " + text
                                 }
                                 Button {
                                     id: okFitmetriaFanFitMax
@@ -17900,7 +17900,7 @@ import AndroidStatusBar 1.0
                                     }
 
                                     Accessible.role: Accessible.ComboBox
-                                    Accessible.name: qsTr("Mode")
+                                    Accessible.name: qsTr("Mode") + ": " + displayText
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -17930,7 +17930,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.fitmetria_fanfit_min = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Min. value (0-100)")
+                                    Accessible.name: qsTr("Min. value (0-100)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -17960,7 +17960,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.fitmetria_fanfit_max = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Max value (0-100)")
+                                    Accessible.name: qsTr("Max value (0-100)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -18015,7 +18015,7 @@ import AndroidStatusBar 1.0
                                     }
 
                                     Accessible.role: Accessible.ComboBox
-                                    Accessible.name: qsTr("Mode")
+                                    Accessible.name: qsTr("Mode") + ": " + displayText
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -18045,7 +18045,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.fitmetria_fanfit_min = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Min. value (0-100)")
+                                    Accessible.name: qsTr("Min. value (0-100)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -18075,7 +18075,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.fitmetria_fanfit_max = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Max value (0-100)")
+                                    Accessible.name: qsTr("Max value (0-100)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -18410,7 +18410,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Left Shifter Up (LS1):")
+                                    Accessible.name: qsTr("Left Shifter Up (LS1):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_ls1
                                     onActivated: settings.zwiftplay_gear_ls1 = currentIndex
@@ -18424,7 +18424,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Left Shifter Down (LS2):")
+                                    Accessible.name: qsTr("Left Shifter Down (LS2):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_ls2
                                     onActivated: settings.zwiftplay_gear_ls2 = currentIndex
@@ -18438,7 +18438,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Right Shifter Up (RS1):")
+                                    Accessible.name: qsTr("Right Shifter Up (RS1):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_rs1
                                     onActivated: settings.zwiftplay_gear_rs1 = currentIndex
@@ -18452,7 +18452,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Right Shifter Down (RS2):")
+                                    Accessible.name: qsTr("Right Shifter Down (RS2):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_rs2
                                     onActivated: settings.zwiftplay_gear_rs2 = currentIndex
@@ -18466,7 +18466,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Left Paddle (ZL):")
+                                    Accessible.name: qsTr("Left Paddle (ZL):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_paddle_left
                                     onActivated: settings.zwiftplay_gear_paddle_left = currentIndex
@@ -18480,7 +18480,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Right Paddle (ZR):")
+                                    Accessible.name: qsTr("Right Paddle (ZR):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_paddle_right
                                     onActivated: settings.zwiftplay_gear_paddle_right = currentIndex
@@ -18494,7 +18494,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Power Up (LB):")
+                                    Accessible.name: qsTr("Power Up (LB):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_lb
                                     onActivated: settings.zwiftplay_gear_lb = currentIndex
@@ -18508,7 +18508,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Ride On (RB):")
+                                    Accessible.name: qsTr("Ride On (RB):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_rb
                                     onActivated: settings.zwiftplay_gear_rb = currentIndex
@@ -18534,7 +18534,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) { settings.poll_device_time = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Pool time (ms)")
+                                    Accessible.name: qsTr("Pool time (ms)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -18604,7 +18604,7 @@ import AndroidStatusBar 1.0
                             }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Maps Type")
+                            Accessible.name: qsTr("Maps Type") + ": " + displayText
                         }
                         Button {
                             id: okMapsType
@@ -19242,7 +19242,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.dircon_id = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Wahoo device ID")
+                                            Accessible.name: qsTr("Wahoo device ID") + ": " + text
                                             Accessible.description: qsTr("Virtual Wahoo device ID. Change if you have multiple QZ instances. Default: 0")
                                         }
                                         Button {
@@ -19289,7 +19289,7 @@ import AndroidStatusBar 1.0
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: if (valid) settings.dircon_server_base_port = value
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Wahoo direct connect server port")
+                                            Accessible.name: qsTr("Wahoo direct connect server port") + ": " + text
                                             Accessible.description: qsTr("TCP port for the Wahoo direct connect server. Default: 36866")
                                         }
                                         Button {
@@ -19332,7 +19332,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.mqtt_host = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("MQTT Host")
+                                    Accessible.name: qsTr("MQTT Host") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -19378,7 +19378,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.mqtt_port = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("MQTT Port")
+                                    Accessible.name: qsTr("MQTT Port") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -19421,7 +19421,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.mqtt_username = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Username")
+                                    Accessible.name: qsTr("Username") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -19508,7 +19508,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.mqtt_deviceid = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Device ID")
+                                    Accessible.name: qsTr("Device ID") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -19563,7 +19563,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.osc_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("OSC IP")
+                                    Accessible.name: qsTr("OSC IP") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -19596,7 +19596,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) { settings.osc_port = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("OSC Port")
+                                    Accessible.name: qsTr("OSC Port") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
