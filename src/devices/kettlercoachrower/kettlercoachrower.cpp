@@ -32,11 +32,6 @@ QByteArray freshCoachChallenge() {
     return kettlerclassicprotocol::coachSHandshakeForSalt(salt);
 }
 
-bool isSerialPortService(const QBluetoothServiceInfo &service) {
-    return service.serviceUuid() == QBluetoothUuid(SERIAL_PORT_UUID) ||
-           service.serviceName().startsWith(QStringLiteral("SerialPort"), Qt::CaseInsensitive) ||
-           service.serviceName().startsWith(QStringLiteral("Serial Port"), Qt::CaseInsensitive);
-}
 } // namespace
 
 kettlercoachrower::kettlercoachrower(bool noWriteResistance, bool noHeartService)
@@ -91,9 +86,9 @@ void kettlercoachrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 void kettlercoachrower::serviceDiscovered(const QBluetoothServiceInfo &service) {
-    if (service.device().address() == bluetoothDevice.address() && isSerialPortService(service)) {
-        serialPortService = service;
-        emit debug(QStringLiteral("Coach S serial port service discovered"));
+    if (service.device().address() == bluetoothDevice.address() &&
+        service.serviceUuid() == QBluetoothUuid(SERIAL_PORT_UUID)) {
+        emit debug(QStringLiteral("Coach S SPP service discovered (UUID 0x1101)"));
     }
 }
 
@@ -115,11 +110,13 @@ void kettlercoachrower::createSocket() {
 void kettlercoachrower::serviceFinished() {
     if (socket) return; // finished/canceled can both fire; connect only once
     createSocket();
-    if (serialPortService.isValid()) {
-        socket->connectToService(serialPortService);
-    } else {
-        socket->connectToService(bluetoothDevice.address(), QBluetoothUuid(SERIAL_PORT_UUID));
-    }
+    // Kinomap uses the standard Serial Port Profile UUID (0x1101).
+    // Never connect using a discovered service selected by its name: the
+    // Coach S also exposes a proprietary SerialPort-named service, and QZ
+    // previously picked that UUID despite SPP being advertised.
+    const QBluetoothUuid sppUuid(SERIAL_PORT_UUID);
+    emit debug(QStringLiteral("Coach S connecting explicitly to SPP UUID ") + sppUuid.toString());
+    socket->connectToService(bluetoothDevice.address(), sppUuid);
 }
 
 void kettlercoachrower::rfCommConnected() {
@@ -140,7 +137,13 @@ void kettlercoachrower::rfCommConnected() {
     const QByteArray bytes = kettlerclassicprotocol::encodeFrameWithEscapedPayloadLength(
         activeRequest.function, activeRequest.operation, activeRequest.payload);
     emit debug(QStringLiteral("Coach S >> handshake ") + bytes.toHex(' '));
-    socket->write(bytes);
+    const qint64 queued = socket->write(bytes);
+    emit debug(QStringLiteral("Coach S handshake socket write queued=%1 expected=%2")
+                   .arg(queued).arg(bytes.size()));
+    if (queued != bytes.size()) {
+        disconnectAfterError(QStringLiteral("handshake socket write failed or was partial"));
+        return;
+    }
     requestTimeoutTimer.start(REQUEST_TIMEOUT_MS);
 }
 
