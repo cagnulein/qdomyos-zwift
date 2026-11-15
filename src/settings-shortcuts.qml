@@ -7,7 +7,6 @@ import QtQuick.Controls.Material 2.0
 ScrollView {
     contentWidth: -1
     focus: true
-    anchors.horizontalCenter: parent.horizontalCenter
     anchors.fill: parent
     id: settingsShortcutsPane
     objectName: "settingsShortcutsPane"

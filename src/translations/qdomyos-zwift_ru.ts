@@ -88,6 +88,10 @@
         <source>Other folders</source>
         <translation>Другие папки</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Восстановить файлы</translation>
+    </message>
 </context>
 <context>
     <name>HeartRateSuggestion</name>
@@ -116,6 +120,22 @@
         <translation>Больше не спрашивать</translation>
     </message>
     <message>
+        <source>Strong signal</source>
+        <translation>Сильный сигнал</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Хороший сигнал</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Средний сигнал</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Слабый сигнал</translation>
+    </message>
+    <message>
         <source>Choose a heart rate sensor</source>
         <translation>Выберите пульсометр</translation>
     </message>
@@ -141,6 +161,14 @@
     <message>
         <source>Do you really want to stop the current workout?</source>
         <translation>Остановить текущую тренировку?</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Стоп</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
     </message>
     <message>
         <source>Rest</source>
@@ -296,6 +324,14 @@ Would you like to enable the required services?</source>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Напомнить о включении Bluetooth или служб геолокации в следующий раз?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Вернуть приложению</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Возвращает управление нагрузкой приложению</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -334,6 +370,18 @@ Would you like to enable the required services?</source>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>Приложение должно само подключиться к вашему велотренажёру, беговой дорожке или гребному тренажёру. &lt;b&gt;Если этого не произошло, проверьте&lt;/b&gt;:&lt;br&gt;1) приложение Echelon/Domyos ОБЯЗАТЕЛЬНО должно быть закрыто, пока работает qdomyos-zwift;&lt;br&gt;2) Bluetooth и разрешения для Bluetooth ОБЯЗАТЕЛЬНО должны быть включены&lt;br&gt;3) тренажёр нужно включить ДО запуска этого приложения&lt;br&gt;4) попробуйте перезагрузить ваше устройство&lt;br&gt;&lt;br&gt;Если велотренажёр или дорожка отключается каждые 30 секунд, попробуйте выключить настройку «Включить виртуальное устройство» на левой панели.&lt;br&gt;&lt;br&gt;Если возникнут проблемы, смело пишите мне на roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Хорошей тренировки!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ прямо отказывается от ответственности за&lt;br&gt;случайный или косвенный ущерб и не несёт&lt;br&gt;никакой ответственности за любые потери&lt;br&gt;или вред, понесённые кем-либо в результате&lt;br&gt;использования или неправильного использования приложения.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Ищем ваш тренажёр…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Включите велотренажёр, беговую дорожку или гребной тренажёр – QZ подключится сам.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Не подключается?</translation>
     </message>
 </context>
 <context>
@@ -1222,6 +1270,10 @@ Do you want to update QZ settings?</source>
         <source>Other folders</source>
         <translation>Другие папки</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Восстановить файлы</translation>
+    </message>
 </context>
 <context>
     <name>SettingsNumberField</name>
@@ -1444,12 +1496,24 @@ Do you want to update QZ settings?</source>
         <translation>Другие папки</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Восстановить файлы</translation>
+    </message>
+    <message>
         <source>Restore programs</source>
-        <translation>Восстановить программы</translation>
+        <translation type="vanished">Восстановить программы</translation>
     </message>
     <message>
         <source>← Back</source>
         <translation>← Назад</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>Свернуть</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Ещё</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -1477,6 +1541,17 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Cancel</source>
         <translation>Отмена</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>Восстановление файлов прошлой установки</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>Восстановление файлов прошлой установки: %1 из %2</translation>
     </message>
 </context>
 <context>
@@ -3784,6 +3859,14 @@ This may take a few moments on first startup.</source>
         <translation>скорость изменена на </translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>Восстановлено файлов: %1.</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>Файлы прошлой установки не найдены.</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>Ошибка разбора JSON</translation>
     </message>
@@ -3829,11 +3912,11 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation>Восстановлено программ тренировок: %1.</translation>
+        <translation type="vanished">Восстановлено программ тренировок: %1.</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation>Программы тренировок прошлой установки не найдены.</translation>
+        <translation type="vanished">Программы тренировок прошлой установки не найдены.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -4386,6 +4469,20 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>Сохранено! Ищите в личной папке приложения.</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Восстановить файлы</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Программы тренировок, маршруты GPX, файлы настроек и профили прошлой установки могут оставаться в папке QZ.
+Найти их?
+
+В следующем окне разрешите доступ к папке QZ.</translation>
+    </message>
+    <message>
         <source>Back</source>
         <translation>Назад</translation>
     </message>
@@ -4595,14 +4692,14 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Training Programs</source>
-        <translation>Программы тренировок</translation>
+        <translation type="vanished">Программы тренировок</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation>Программы тренировок прошлой установки могут оставаться в папке QZ.
+        <translation type="vanished">Программы тренировок прошлой установки могут оставаться в папке QZ.
 Найти их?
 
 В следующем окне разрешите доступ к папке QZ.</translation>
@@ -4756,6 +4853,10 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     <message>
         <source>Other folders</source>
         <translation>Другие папки</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Восстановить файлы</translation>
     </message>
 </context>
 <context>
@@ -8507,6 +8608,10 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>В тренировках GPX изменения наклона меньше указанного значения игнорируются. Новая команда отправляется только тогда, когда разница с последним отправленным значением достигает заданного порога. По умолчанию: 0 (отключено).</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Использовать передачи консоли</translation>
     </message>
 </context>
 <context>

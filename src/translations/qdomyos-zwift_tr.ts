@@ -88,6 +88,10 @@
         <source>Other folders</source>
         <translation>Diğer klasörler</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Dosyaları geri yükle</translation>
+    </message>
 </context>
 <context>
     <name>HeartRateSuggestion</name>
@@ -114,6 +118,22 @@
     <message>
         <source>Don&apos;t ask again</source>
         <translation>Bir daha sorma</translation>
+    </message>
+    <message>
+        <source>Strong signal</source>
+        <translation>Güçlü sinyal</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>İyi sinyal</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Orta sinyal</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Zayıf sinyal</translation>
     </message>
     <message>
         <source>Choose a heart rate sensor</source>
@@ -203,6 +223,14 @@ Would you like to do that now?</source>
     <message>
         <source>Rest</source>
         <translation>Dinlenme</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Durdur</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>İptal</translation>
     </message>
     <message>
         <source>Very Light</source>
@@ -296,6 +324,14 @@ Gerekli hizmetleri açmak ister misiniz?</translation>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Bir dahaki sefere Bluetooth&apos;u veya konum hizmetlerini açmanız hatırlatılsın mı?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Uygulamaya geri ver</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Yük kontrolünü uygulamaya geri verir</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -334,6 +370,18 @@ Gerekli hizmetleri açmak ister misiniz?</translation>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>Bu uygulama bisikletinize/koşu bandınıza/kürek makinenize otomatik olarak bağlanmalıdır. &lt;b&gt;Bağlanmazsa şunları kontrol edin&lt;/b&gt;:&lt;br&gt;1) qdomyos-zwift çalışırken Echelon/Domyos uygulamanız MUTLAKA kapalı olmalıdır;&lt;br&gt;2) Bluetooth ve Bluetooth izinleri MUTLAKA açık olmalıdır&lt;br&gt;3) bisikletiniz/koşu bandınız/kürek makineniz bu uygulamayı başlatmadan ÖNCE açılmış olmalıdır&lt;br&gt;4) cihazınızı yeniden başlatmayı deneyin&lt;br&gt;&lt;br&gt;Bisikletinizin/koşu bandınızın bağlantısı her 30 saniyede bir kopuyorsa sol çubuktaki &quot;Sanal cihazı etkinleştir&quot; ayarını kapatmayı deneyin.&lt;br&gt;&lt;br&gt;Sorun yaşarsanız roberto.viola83@gmail.com adresinden bana çekinmeden ulaşabilirsiniz.&lt;br&gt;&lt;br&gt;&lt;b&gt;İyi sürüşler!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ, arızi veya dolaylı zararlara ilişkin&lt;br&gt;sorumluluğu açıkça reddeder ve uygulamanın&lt;br&gt;kullanımı veya kötüye kullanımı sonucunda&lt;br&gt;herhangi bir kişinin uğradığı kayıp&lt;br&gt;veya zarardan hiçbir sorumluluk kabul etmez.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Cihazınız aranıyor…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Bisikletinizi, koşu bandınızı veya kürek makinenizi açın: QZ ona otomatik olarak bağlanır.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Bağlanmıyor mu?</translation>
     </message>
 </context>
 <context>
@@ -1222,6 +1270,10 @@ QZ ayarları güncellensin mi?</translation>
         <source>Other folders</source>
         <translation>Diğer klasörler</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Dosyaları geri yükle</translation>
+    </message>
 </context>
 <context>
     <name>SettingsNumberField</name>
@@ -1444,12 +1496,24 @@ QZ ayarları güncellensin mi?</translation>
         <translation>Diğer klasörler</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Dosyaları geri yükle</translation>
+    </message>
+    <message>
         <source>Restore programs</source>
-        <translation>Programları geri yükle</translation>
+        <translation type="vanished">Programları geri yükle</translation>
     </message>
     <message>
         <source>← Back</source>
         <translation>← Geri</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>Daha az</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Daha fazla</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -1477,6 +1541,17 @@ QZ ayarları güncellensin mi?</translation>
     <message>
         <source>Cancel</source>
         <translation>İptal</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>Önceki kurulumun dosyaları geri yükleniyor</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>Önceki kurulumun dosyaları geri yükleniyor: %1 / %2</translation>
     </message>
 </context>
 <context>
@@ -3678,6 +3753,14 @@ This may take a few moments on first startup.</source>
         <translation>yeni hız </translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>Geri yüklenen dosya: %1.</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>Önceki bir kurulumdan kalan dosya bulunamadı.</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>JSON ayrıştırma hatası</translation>
     </message>
@@ -3707,11 +3790,11 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation>Geri yüklenen antrenman programı: %1.</translation>
+        <translation type="vanished">Geri yüklenen antrenman programı: %1.</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation>Önceki bir kurulumdan kalan antrenman programı bulunamadı.</translation>
+        <translation type="vanished">Önceki bir kurulumdan kalan antrenman programı bulunamadı.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -4280,6 +4363,20 @@ Do you want to start it now?</source>
         <translation>Kaydedildi! Uygulamanın özel klasörüne bakın.</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Dosyaları geri yükle</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Önceki bir kurulumdan kalan antrenman programları, GPX rotaları, ayar dosyaları ve profiller QZ klasöründe olabilir.
+Bunlar aransın mı?
+
+Sonraki pencerede QZ klasörüne erişime izin verin.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Peloton&apos;a zaten bağlısınız. Çıkış yapılsın mı?</translation>
     </message>
@@ -4501,14 +4598,14 @@ Sonraki pencerede QZ klasörüne erişime izin verin.</translation>
     </message>
     <message>
         <source>Training Programs</source>
-        <translation>Antrenman programları</translation>
+        <translation type="vanished">Antrenman programları</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation>Önceki bir kurulumdan kalan antrenman programları QZ klasöründe olabilir.
+        <translation type="vanished">Önceki bir kurulumdan kalan antrenman programları QZ klasöründe olabilir.
 Bunlar aransın mı?
 
 Sonraki pencerede QZ klasörüne erişime izin verin.</translation>
@@ -4748,6 +4845,10 @@ QZ&apos;nin bu değeri değiştirmesine izin verilsin mi?
     <message>
         <source>Profiles</source>
         <translation>Profiller</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Dosyaları geri yükle</translation>
     </message>
     <message>
         <source>Save</source>
@@ -8503,6 +8604,10 @@ Varsayılan: A = -0.96, B = 1.33</translation>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>GPX antrenmanlarında bu değerden küçük eğim değişikliklerini yok sayar ve yalnızca son gönderilen değere göre fark ayarlanan eşiğe ulaştığında yeni eğim komutu gönderir. Varsayılan: 0 (devre dışı).</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Konsol viteslerini kullan</translation>
     </message>
 </context>
 <context>

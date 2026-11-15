@@ -1,6 +1,7 @@
 #ifndef ANDROIDSTATUSBAR_H
 #define ANDROIDSTATUSBAR_H
 
+#include <QColor>
 #include <QObject>
 #include <QQmlEngine>
 
@@ -51,6 +52,12 @@ public:
     // Android before 10 (API 29, no dark theme in the system), iOS before 13, the iOS qmake build
     // (IO_UNDER_QT) and other systems: true (the app is dark by default).
     Q_INVOKABLE bool systemDarkMode() const;
+    // Android 6+ (API 23): modern true – the status and navigation bars without the black background
+    // of the Qt 5.15 theme: transparent from API 31 (the window is under them), the page colour
+    // below; icons dark on a light page (dark false). modern false puts back the bars of the window
+    // as they were before the first modern call (color is then not used).
+    // Nothing elsewhere.
+    Q_INVOKABLE void setSystemBarsColor(const QColor &color, bool dark, bool modern) const;
 
 public slots:
     void onInsetsChanged(int top, int bottom, int left, int right, int waterfallTop, int waterfallBottom,

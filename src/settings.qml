@@ -18,7 +18,6 @@ import AndroidStatusBar 1.0
         // to 7254 while the page stayed 1310, a section opened after it could not be scrolled
         contentHeight: column1.implicitHeight
         focus: true
-        anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent
         anchors.leftMargin: (Qt.platform.os === "android" && AndroidStatusBar.hasWaterfallDisplay) ?
                             AndroidStatusBar.waterfallLeftInset : 0
@@ -2516,6 +2515,7 @@ import AndroidStatusBar 1.0
             property string ui_accent: "violet"
             property string ui_theme_mode: "auto"
             property bool proform_treadmill_cst_505_pftl59420_2026: false
+            property bool proform_use_console_gears: false
 
 
         
@@ -6662,6 +6662,24 @@ import AndroidStatusBar 1.0
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: settings.proform_tdf_jonseed_watt = checked
+                            }
+
+                            IndicatorOnlySwitch {
+                                id: proformUseConsoleGearsDelegate
+                                text: qsTr("Use Console Gears")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.proform_use_console_gears
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: {
+                                    settings.proform_use_console_gears = checked
+                                    window.settings_restart_to_apply = true
+                                }
                             }
 
                             RowLayout {

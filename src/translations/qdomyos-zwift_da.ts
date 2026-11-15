@@ -88,6 +88,10 @@
         <source>Other folders</source>
         <translation>Andre mapper</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Gendan filer</translation>
+    </message>
 </context>
 <context>
     <name>HeartRateSuggestion</name>
@@ -114,6 +118,22 @@
     <message>
         <source>Don&apos;t ask again</source>
         <translation>Spørg ikke igen</translation>
+    </message>
+    <message>
+        <source>Strong signal</source>
+        <translation>Stærkt signal</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Godt signal</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Middel signal</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Svagt signal</translation>
     </message>
     <message>
         <source>Choose a heart rate sensor</source>
@@ -187,6 +207,14 @@ Vil du gøre det nu?</translation>
     <message>
         <source>Rest</source>
         <translation>Hvile</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Stop</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuller</translation>
     </message>
     <message>
         <source>Very Light</source>
@@ -280,6 +308,14 @@ Vil du aktivere de nødvendige tjenester?</translation>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Vil du have en påmindelse om at aktivere Bluetooth eller placeringstjenester næste gang?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Tilbage til appen</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Giver styringen af belastningen tilbage til appen</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -318,6 +354,18 @@ Vil du aktivere de nødvendige tjenester?</translation>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>Denne app bør automatisk oprette forbindelse til din cykel, dit løbebånd eller din romaskine. &lt;b&gt;Hvis det ikke sker, skal du kontrollere følgende&lt;/b&gt;:&lt;br&gt;1) Echelon/Domyos-appen SKAL være lukket, mens qdomyos-zwift kører;&lt;br&gt;2) både Bluetooth og Bluetooth-tilladelser SKAL være aktiveret&lt;br&gt;3) cyklen, løbebåndet eller romaskinen skal være tændt, FØR du starter denne app&lt;br&gt;4) prøv at genstarte enheden&lt;br&gt;&lt;br&gt;Hvis cyklen eller løbebåndet afbryder forbindelsen hvert 30. sekund, kan du prøve at deaktivere indstillingen &quot;Aktivér virtuel enhed&quot; i menuen til venstre.&lt;br&gt;&lt;br&gt;Hvis du har problemer, er du velkommen til at kontakte mig på roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;God tur!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ fraskriver sig udtrykkeligt ansvaret for&lt;br&gt;hændelige skader og følgeskader og påtager sig&lt;br&gt;intet ansvar for tab&lt;br&gt;eller skader, som nogen måtte lide som følge af&lt;br&gt;brug eller misbrug af appen.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Søger efter træningsudstyret…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Tænd for cyklen, løbebåndet eller romaskinen: QZ opretter automatisk forbindelse.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Ingen forbindelse?</translation>
     </message>
 </context>
 <context>
@@ -1192,7 +1240,7 @@ Vil du opdatere QZ-indstillingerne?</translation>
     </message>
     <message>
         <source>Tap a file to select it, then Load.</source>
-        <translation>Tryk på en fil for at vælge den, og tryk derefter på "Indlæs".</translation>
+        <translation>Tryk på en fil for at vælge den, og tryk derefter på &quot;Indlæs&quot;.</translation>
     </message>
     <message>
         <source>Load</source>
@@ -1205,6 +1253,10 @@ Vil du opdatere QZ-indstillingerne?</translation>
     <message>
         <source>Other folders</source>
         <translation>Andre mapper</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Gendan filer</translation>
     </message>
 </context>
 <context>
@@ -1428,12 +1480,24 @@ Vil du opdatere QZ-indstillingerne?</translation>
         <translation>Andre mapper</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Gendan filer</translation>
+    </message>
+    <message>
         <source>Restore programs</source>
-        <translation>Gendan programmer</translation>
+        <translation type="vanished">Gendan programmer</translation>
     </message>
     <message>
         <source>← Back</source>
         <translation>← Tilbage</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>Vis mindre</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Vis mere</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -1461,6 +1525,17 @@ Vil du opdatere QZ-indstillingerne?</translation>
     <message>
         <source>Cancel</source>
         <translation>Annuller</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>Gendanner filer fra den tidligere installation</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>Gendanner filer fra den tidligere installation: %1 af %2</translation>
     </message>
 </context>
 <context>
@@ -3662,6 +3737,14 @@ Det kan tage et øjeblik ved første start.</translation>
         <translation>hastighed ændret til </translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>Gendannede filer: %1.</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>Der blev ikke fundet filer fra en tidligere installation.</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>JSON-parserfejl</translation>
     </message>
@@ -3691,11 +3774,11 @@ Det kan tage et øjeblik ved første start.</translation>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation>Gendannede træningsprogrammer: %1.</translation>
+        <translation type="vanished">Gendannede træningsprogrammer: %1.</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation>Der blev ikke fundet træningsprogrammer fra en tidligere installation.</translation>
+        <translation type="vanished">Der blev ikke fundet træningsprogrammer fra en tidligere installation.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -4264,6 +4347,20 @@ Vil du starte det nu?</translation>
         <translation>Gemt! Se i appens private mappe.</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Gendan filer</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Træningsprogrammer, GPX-ruter, indstillingsfiler og profiler fra en tidligere installation ligger muligvis stadig i QZ-mappen.
+Vil du søge efter dem?
+
+Tillad adgang til QZ-mappen i det næste vindue.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Du er allerede tilsluttet Peloton. Vil du logge ud?</translation>
     </message>
@@ -4485,14 +4582,14 @@ Tillad adgang til QZ-mappen i det næste vindue.</translation>
     </message>
     <message>
         <source>Training Programs</source>
-        <translation>Træningsprogrammer</translation>
+        <translation type="vanished">Træningsprogrammer</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation>Træningsprogrammer fra en tidligere installation ligger muligvis stadig i QZ-mappen.
+        <translation type="vanished">Træningsprogrammer fra en tidligere installation ligger muligvis stadig i QZ-mappen.
 Vil du søge efter dem?
 
 Tillad adgang til QZ-mappen i det næste vindue.</translation>
@@ -4719,7 +4816,7 @@ Må QZ ændre værdien?
     </message>
     <message>
         <source>Tap a profile to select it, then Load. Long press to delete it.</source>
-        <translation>Tryk på en profil for at vælge den, og tryk derefter på "Indlæs". Hold nede for at slette den.</translation>
+        <translation>Tryk på en profil for at vælge den, og tryk derefter på &quot;Indlæs&quot;. Hold nede for at slette den.</translation>
     </message>
     <message>
         <source>Active</source>
@@ -4732,6 +4829,10 @@ Må QZ ændre værdien?
     <message>
         <source>Profiles</source>
         <translation>Profiler</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Gendan filer</translation>
     </message>
     <message>
         <source>Save</source>
@@ -8479,6 +8580,10 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>Ved GPX-træning ignoreres ændringer i hældning under denne værdi, og en ny kommando sendes først, når forskellen fra den sidst sendte værdi når den angivne grænse. Standard: 0 (deaktiveret).</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Brug gear fra konsollen</translation>
     </message>
 </context>
 <context>

@@ -88,6 +88,10 @@
         <source>Other folders</source>
         <translation>其他文件夹</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>恢复文件</translation>
+    </message>
 </context>
 <context>
     <name>HeartRateSuggestion</name>
@@ -116,6 +120,22 @@
         <translation>不再询问</translation>
     </message>
     <message>
+        <source>Strong signal</source>
+        <translation>信号强</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>信号良好</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>信号一般</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>信号弱</translation>
+    </message>
+    <message>
         <source>Choose a heart rate sensor</source>
         <translation>选择心率传感器</translation>
     </message>
@@ -141,6 +161,14 @@
     <message>
         <source>Do you really want to stop the current workout?</source>
         <translation>确定要停止当前训练吗？</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>停止</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
     </message>
     <message>
         <source>Rest</source>
@@ -296,6 +324,14 @@ Would you like to enable the required services?</source>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>下次是否需要提醒您启用蓝牙或定位服务？</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>交还给应用</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>将负载控制权交还给应用</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -334,6 +370,18 @@ Would you like to enable the required services?</source>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>此应用应自动连接到您的自行车/跑步机/划船机。&lt;b&gt;如果没有连接，请检查&lt;/b&gt;：&lt;br&gt;1) 运行 qdomyos-zwift 时，必须关闭您的 Echelon/Domyos App；&lt;br&gt;2) 必须同时开启蓝牙和蓝牙权限&lt;br&gt;3) 应在启动此应用之前打开您的自行车/跑步机/划船机&lt;br&gt;4) 尝试重启您的设备&lt;br&gt;&lt;br&gt;如果您的自行车/跑步机每隔 30 秒断开一次连接，请尝试在左侧栏中禁用“虚拟设备”设置。&lt;br&gt;&lt;br&gt;如遇问题，欢迎通过 roberto.viola83@gmail.com 联系我。&lt;br&gt;&lt;br&gt;&lt;b&gt;祝您骑行愉快！&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ 明确声明不对&lt;br&gt;附带或间接损害承担责任，&lt;br&gt;也不对任何人因使用或误用本应用&lt;br&gt;而遭受的任何损失&lt;br&gt;或损害承担任何责任。&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>正在查找您的设备…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>请打开您的单车、跑步机或划船机：QZ 会自动连接。</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>无法连接？</translation>
     </message>
 </context>
 <context>
@@ -1222,6 +1270,10 @@ Do you want to update QZ settings?</source>
         <source>Other folders</source>
         <translation>其他文件夹</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>恢复文件</translation>
+    </message>
 </context>
 <context>
     <name>SettingsNumberField</name>
@@ -1444,12 +1496,24 @@ Do you want to update QZ settings?</source>
         <translation>其他文件夹</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>恢复文件</translation>
+    </message>
+    <message>
         <source>Restore programs</source>
-        <translation>恢复训练计划</translation>
+        <translation type="vanished">恢复训练计划</translation>
     </message>
     <message>
         <source>← Back</source>
         <translation>← 返回</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>收起</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>展开</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -1477,6 +1541,17 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Cancel</source>
         <translation>取消</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>正在恢复以前安装的文件</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>正在恢复以前安装的文件：%1/%2</translation>
     </message>
 </context>
 <context>
@@ -3673,6 +3748,14 @@ This may take a few moments on first startup.</source>
         <translation>, 最大瓦特 </translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>已恢复文件：%1。</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>未找到以前安装的文件。</translation>
+    </message>
+    <message>
         <source>Share FIT file</source>
         <translation>分享 FIT 文件</translation>
     </message>
@@ -3845,11 +3928,11 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation>已恢复训练计划：%1。</translation>
+        <translation type="vanished">已恢复训练计划：%1。</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation>未找到以前安装的训练计划。</translation>
+        <translation type="vanished">未找到以前安装的训练计划。</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -4390,6 +4473,20 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>已保存！请在应用的私有文件夹中查看。</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>恢复文件</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>以前安装的训练计划、GPX 路线、设置文件和配置文件可能仍在 QZ 文件夹中。
+要查找它们吗？
+
+请在下一个窗口中允许访问 QZ 文件夹。</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>您已连接到 Peloton。是否要登出？</translation>
     </message>
@@ -4611,14 +4708,14 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Training Programs</source>
-        <translation>训练计划</translation>
+        <translation type="vanished">训练计划</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation>以前安装的训练计划可能仍在 QZ 文件夹中。
+        <translation type="vanished">以前安装的训练计划可能仍在 QZ 文件夹中。
 要查找它们吗？
 
 请在下一个窗口中允许访问 QZ 文件夹。</translation>
@@ -4772,6 +4869,10 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     <message>
         <source>Other folders</source>
         <translation>其他文件夹</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>恢复文件</translation>
     </message>
 </context>
 <context>
@@ -8563,6 +8664,10 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>在 GPX 训练中，忽略小于此值的坡度变化。只有与上次发送的数值之差达到设置的阈值时，才发送新的坡度指令。默认：0（禁用）。</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>使用控制台档位</translation>
     </message>
 </context>
 <context>

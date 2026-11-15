@@ -88,6 +88,10 @@
         <source>Other folders</source>
         <translation>Andere mappen</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Bestanden herstellen</translation>
+    </message>
 </context>
 <context>
     <name>HeartRateSuggestion</name>
@@ -114,6 +118,22 @@
     <message>
         <source>Don&apos;t ask again</source>
         <translation>Niet meer vragen</translation>
+    </message>
+    <message>
+        <source>Strong signal</source>
+        <translation>Sterk signaal</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Goed signaal</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Redelijk signaal</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Zwak signaal</translation>
     </message>
     <message>
         <source>Choose a heart rate sensor</source>
@@ -203,6 +223,14 @@ Wil je dat nu doen?</translation>
     <message>
         <source>Rest</source>
         <translation>Rust</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Stop</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuleren</translation>
     </message>
     <message>
         <source>Very Light</source>
@@ -296,6 +324,14 @@ Wil je de vereiste voorzieningen inschakelen?</translation>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Wil je de volgende keer herinnerd worden aan het inschakelen van Bluetooth of locatievoorzieningen?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Terug naar app</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Geeft de besturing van de belasting terug aan de app</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -334,6 +370,18 @@ Wil je de vereiste voorzieningen inschakelen?</translation>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>Deze app zou automatisch verbinding moeten maken met je fiets, loopband of roeitrainer. &lt;b&gt;Lukt dat niet, controleer dan het volgende&lt;/b&gt;:&lt;br&gt;1) je Echelon/Domyos-app MOET gesloten zijn zolang qdomyos-zwift draait;&lt;br&gt;2) Bluetooth en de Bluetooth-machtigingen MOETEN ingeschakeld zijn&lt;br&gt;3) je fiets, loopband of roeitrainer moet aanstaan VOORDAT je deze app start&lt;br&gt;4) probeer je apparaat opnieuw op te starten&lt;br&gt;&lt;br&gt;Verbreekt je fiets of loopband elke 30 seconden de verbinding, schakel dan de instelling ‘virtueel apparaat’ in de linkerbalk uit.&lt;br&gt;&lt;br&gt;Heb je problemen, neem dan gerust contact met me op via roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Veel trainingsplezier!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ wijst uitdrukkelijk elke aansprakelijkheid af voor&lt;br&gt;incidentele schade of gevolgschade en aanvaardt&lt;br&gt;geen verantwoordelijkheid of aansprakelijkheid voor verlies&lt;br&gt;of schade die iemand lijdt als gevolg van&lt;br&gt;het gebruik of misbruik van de app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Je apparaat wordt gezocht…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Zet je fiets, loopband of roeitrainer aan: QZ maakt er automatisch verbinding mee.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Geen verbinding?</translation>
     </message>
 </context>
 <context>
@@ -1222,6 +1270,10 @@ Wil je de QZ-instellingen bijwerken?</translation>
         <source>Other folders</source>
         <translation>Andere mappen</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Bestanden herstellen</translation>
+    </message>
 </context>
 <context>
     <name>SettingsNumberField</name>
@@ -1444,12 +1496,24 @@ Wil je de QZ-instellingen bijwerken?</translation>
         <translation>Andere mappen</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Bestanden herstellen</translation>
+    </message>
+    <message>
         <source>Restore programs</source>
-        <translation>Programma&apos;s herstellen</translation>
+        <translation type="vanished">Programma&apos;s herstellen</translation>
     </message>
     <message>
         <source>← Back</source>
         <translation>← Terug</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>Minder tonen</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Meer tonen</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -1477,6 +1541,17 @@ Wil je de QZ-instellingen bijwerken?</translation>
     <message>
         <source>Cancel</source>
         <translation>Annuleren</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>Bestanden van de eerdere installatie worden hersteld</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>Bestanden van de eerdere installatie worden hersteld: %1 van %2</translation>
     </message>
 </context>
 <context>
@@ -3678,6 +3753,14 @@ Bij de eerste start kan dit even duren.</translation>
         <translation>snelheid gewijzigd naar </translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>Bestanden hersteld: %1.</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>Geen bestanden van een eerdere installatie gevonden.</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>Fout bij het verwerken van JSON</translation>
     </message>
@@ -3707,11 +3790,11 @@ Bij de eerste start kan dit even duren.</translation>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation>Trainingsprogramma&apos;s hersteld: %1.</translation>
+        <translation type="vanished">Trainingsprogramma&apos;s hersteld: %1.</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation>Geen trainingsprogramma&apos;s van een eerdere installatie gevonden.</translation>
+        <translation type="vanished">Geen trainingsprogramma&apos;s van een eerdere installatie gevonden.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -4280,6 +4363,20 @@ Wil je die nu starten?</translation>
         <translation>Opgeslagen! Kijk in de privémap van de app.</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Bestanden herstellen</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Trainingsprogramma&apos;s, GPX-routes, instellingenbestanden en profielen van een eerdere installatie staan mogelijk nog in de QZ-map.
+Wil je ernaar zoeken?
+
+Geef in het volgende venster toegang tot de QZ-map.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Je bent al verbonden met Peloton. Wil je uitloggen?</translation>
     </message>
@@ -4501,14 +4598,14 @@ Geef in het volgende venster toegang tot de QZ-map.</translation>
     </message>
     <message>
         <source>Training Programs</source>
-        <translation>Trainingsprogramma&apos;s</translation>
+        <translation type="vanished">Trainingsprogramma&apos;s</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation>Trainingsprogramma&apos;s van een eerdere installatie staan mogelijk nog in de QZ-map.
+        <translation type="vanished">Trainingsprogramma&apos;s van een eerdere installatie staan mogelijk nog in de QZ-map.
 Wil je ernaar zoeken?
 
 Geef in het volgende venster toegang tot de QZ-map.</translation>
@@ -4748,6 +4845,10 @@ Mag QZ deze waarde wijzigen?
     <message>
         <source>Profiles</source>
         <translation>Profielen</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Bestanden herstellen</translation>
     </message>
     <message>
         <source>Save</source>
@@ -8503,6 +8604,10 @@ Standaard: A = -0.96, B = 1.33</translation>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>Negeert bij GPX-trainingen hellingsveranderingen kleiner dan deze waarde. Een nieuwe opdracht wordt pas verzonden wanneer het verschil met de laatst verzonden waarde de ingestelde drempel bereikt. Standaard: 0 (uitgeschakeld).</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Versnellingen van de console gebruiken</translation>
     </message>
 </context>
 <context>

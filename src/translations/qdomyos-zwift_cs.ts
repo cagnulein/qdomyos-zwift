@@ -88,6 +88,10 @@
         <source>Other folders</source>
         <translation>Další složky</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Obnovit soubory</translation>
+    </message>
 </context>
 <context>
     <name>HeartRateSuggestion</name>
@@ -114,6 +118,22 @@
     <message>
         <source>Don&apos;t ask again</source>
         <translation>Už se neptat</translation>
+    </message>
+    <message>
+        <source>Strong signal</source>
+        <translation>Silný signál</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Dobrý signál</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Střední signál</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Slabý signál</translation>
     </message>
     <message>
         <source>Choose a heart rate sensor</source>
@@ -203,6 +223,14 @@ Restartovat nyní?</translation>
     <message>
         <source>Rest</source>
         <translation>Odpočinek</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Stop</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Zrušit</translation>
     </message>
     <message>
         <source>Very Light</source>
@@ -296,6 +324,14 @@ Chcete zapnout požadované služby?</translation>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Chcete příště připomenout zapnutí Bluetooth nebo služeb určování polohy?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Vrátit aplikaci</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Vrátí řízení zátěže aplikaci</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -334,6 +370,18 @@ Chcete zapnout požadované služby?</translation>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>Aplikace by se měla automaticky připojit k vašemu kolu, běžeckému pásu nebo veslovacímu trenažéru. &lt;b&gt;Pokud se to nestane, zkontrolujte&lt;/b&gt;:&lt;br&gt;1) aplikace Echelon/Domyos MUSÍ být zavřená, dokud běží qdomyos-zwift;&lt;br&gt;2) Bluetooth i oprávnění pro Bluetooth MUSÍ být zapnuté&lt;br&gt;3) trenažér by měl být zapnutý PŘED spuštěním této aplikace&lt;br&gt;4) zkuste restartovat své zařízení&lt;br&gt;&lt;br&gt;Pokud se kolo nebo běžecký pás odpojuje každých 30 sekund, zkuste vypnout nastavení „Zapnout virtuální zařízení“ v levém panelu.&lt;br&gt;&lt;br&gt;V případě problémů mi neváhejte napsat na roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Příjemný trénink!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ výslovně odmítá odpovědnost za&lt;br&gt;nahodilé nebo následné škody a nenese&lt;br&gt;žádnou odpovědnost za jakoukoli ztrátu&lt;br&gt;nebo škodu, kterou kdokoli utrpí v důsledku&lt;br&gt;používání nebo nesprávného používání aplikace.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Hledání trenažéru…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Zapněte kolo, běžecký pás nebo veslovací trenažér: QZ se k němu připojí automaticky.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Nedaří se připojit?</translation>
     </message>
 </context>
 <context>
@@ -1222,6 +1270,10 @@ Aktualizovat nastavení QZ?</translation>
         <source>Other folders</source>
         <translation>Další složky</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Obnovit soubory</translation>
+    </message>
 </context>
 <context>
     <name>SettingsNumberField</name>
@@ -1444,12 +1496,24 @@ Aktualizovat nastavení QZ?</translation>
         <translation>Další složky</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Obnovit soubory</translation>
+    </message>
+    <message>
         <source>Restore programs</source>
-        <translation>Obnovit programy</translation>
+        <translation type="vanished">Obnovit programy</translation>
     </message>
     <message>
         <source>← Back</source>
         <translation>← Zpět</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>Zobrazit méně</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Zobrazit více</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -1477,6 +1541,17 @@ Aktualizovat nastavení QZ?</translation>
     <message>
         <source>Cancel</source>
         <translation>Zrušit</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>Obnovování souborů z předchozí instalace</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>Obnovování souborů z předchozí instalace: %1 z %2</translation>
     </message>
 </context>
 <context>
@@ -3678,6 +3753,14 @@ Při prvním spuštění to může chvíli trvat.</translation>
         <translation>rychlost změněna na </translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>Obnoveno souborů: %1.</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>Soubory z předchozí instalace nebyly nalezeny.</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>Chyba při zpracování JSON</translation>
     </message>
@@ -3707,11 +3790,11 @@ Při prvním spuštění to může chvíli trvat.</translation>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation>Obnoveno tréninkových programů: %1.</translation>
+        <translation type="vanished">Obnoveno tréninkových programů: %1.</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation>Tréninkové programy z předchozí instalace nebyly nalezeny.</translation>
+        <translation type="vanished">Tréninkové programy z předchozí instalace nebyly nalezeny.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -4280,6 +4363,20 @@ Spustit ho nyní?</translation>
         <translation>Uloženo! Podívejte se do soukromé složky aplikace.</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Obnovit soubory</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Tréninkové programy, trasy GPX, soubory nastavení a profily z předchozí instalace mohou být stále ve složce QZ.
+Vyhledat je?
+
+V dalším okně povolte přístup ke složce QZ.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>K Pelotonu jste již připojeni. Odhlásit se?</translation>
     </message>
@@ -4501,14 +4598,14 @@ V dalším okně povolte přístup ke složce QZ.</translation>
     </message>
     <message>
         <source>Training Programs</source>
-        <translation>Tréninkové programy</translation>
+        <translation type="vanished">Tréninkové programy</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation>Tréninkové programy z předchozí instalace mohou být stále ve složce QZ.
+        <translation type="vanished">Tréninkové programy z předchozí instalace mohou být stále ve složce QZ.
 Vyhledat je?
 
 V dalším okně povolte přístup ke složce QZ.</translation>
@@ -4748,6 +4845,10 @@ Povolit QZ tuto hodnotu měnit?
     <message>
         <source>Profiles</source>
         <translation>Profily</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Obnovit soubory</translation>
     </message>
     <message>
         <source>Save</source>
@@ -8503,6 +8604,10 @@ Výchozí: A = -0.96, B = 1.33</translation>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>Při trénincích GPX ignoruje změny sklonu menší než tato hodnota a nový příkaz odešle až tehdy, když rozdíl oproti poslední odeslané hodnotě dosáhne nastaveného prahu. Výchozí hodnota: 0 (vypnuto).</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Použít převody z konzole</translation>
     </message>
 </context>
 <context>

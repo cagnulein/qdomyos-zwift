@@ -14,7 +14,6 @@ ScrollView {
     leftPadding: window.contentSideMargin
     rightPadding: window.contentSideMargin
     focus: true
-    anchors.horizontalCenter: parent.horizontalCenter
     anchors.fill: parent
     //anchors.bottom: footerSettings.top
     //anchors.bottomMargin: footerSettings.height + 10

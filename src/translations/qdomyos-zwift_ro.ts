@@ -68,6 +68,30 @@
         <source>Other folders</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>Dosar părinte</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Deschide</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Nu există fișiere GPX aici</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
 </context>
 <context>
     <name>HeartRateSuggestion</name>
@@ -229,7 +253,7 @@ Would you like to do that now?</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Good</source>
@@ -256,6 +280,14 @@ Would you like to enable the required services?</source>
     <message>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Oprește</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Anulează</translation>
     </message>
 </context>
 <context>
@@ -296,6 +328,18 @@ Would you like to enable the required services?</source>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Se caută echipamentul…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Pornește bicicleta, banda de alergare sau aparatul de vâslit: QZ se conectează automat.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Nu se conectează?</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -317,7 +361,7 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Chart</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafic</translation>
     </message>
     <message>
         <source>Treadmill Status</source>
@@ -505,7 +549,7 @@ Would you like to enable the required services?</source>
     <name>QAndroidPlatformTheme</name>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation>Da</translation>
     </message>
     <message>
         <source>Yes to All</source>
@@ -513,7 +557,7 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation>Nu</translation>
     </message>
     <message>
         <source>No to All</source>
@@ -1107,7 +1151,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Anulare</translation>
+        <translation>Anulează</translation>
     </message>
     <message>
         <source>Discard</source>
@@ -1166,6 +1210,22 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Other folders</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Atinge un fișier pentru a-l selecta, apoi Încarcă.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Încarcă</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Nicio setare salvată</translation>
     </message>
 </context>
 <context>
@@ -1335,7 +1395,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Șterge</translation>
     </message>
     <message>
         <source>Other folders</source>
@@ -1377,7 +1437,7 @@ Do you want to update QZ settings?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Restore programs</source>
+        <source>Restore files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1390,6 +1450,82 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Start Workout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>Dosar părinte</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Nu s-au găsit antrenamente</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Nu există antrenamente aici</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>Afișează mai puțin</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Afișează mai mult</translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Da</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nu</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Anulează</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Extins</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Restrâns</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>ore</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>min</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>sec</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1446,7 +1582,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation>Încarcă</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -1462,7 +1598,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>Înapoi</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -2357,6 +2493,16 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Interval {number}, {field}: {error}</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>Actuator PID pentru ritmul cardiac</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>Implicit</translation>
     </message>
 </context>
 <context>
@@ -3547,6 +3693,14 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3580,14 +3734,6 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>The file could not be copied to the QZ folder.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Training programs restored: %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No training programs of a previous installation were found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4129,6 +4275,17 @@ Do you want to start it now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4255,17 +4412,6 @@ In the next window, allow access to the QZ folder.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Training Programs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Training programs of a previous installation may still be in the QZ folder.
-Do you want to look for them?
-
-In the next window, allow access to the QZ folder.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Restart now?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4354,11 +4500,11 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Not now</source>
-        <translation type="unfinished"></translation>
+        <translation>Nu acum</translation>
     </message>
     <message>
         <source>Don&apos;t ask again</source>
-        <translation type="unfinished"></translation>
+        <translation>Nu mai întreba</translation>
     </message>
     <message>
         <source>Auto Resistance enabled</source>
@@ -4371,6 +4517,118 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Please choose a file</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>Salvat! Caută în aplicația Fișiere.</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>Salvat! Caută în dosarul privat al aplicației.</translation>
+    </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Trepte virtuale Wahoo</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>Pentru a simula treptele virtuale, QZ modifică circumferința roții stocată în trainer. Această valoare poate rămâne în trainer după închiderea QZ și îi poate afecta funcționarea în alte aplicații.
+
+Permiți ca QZ să o modifice?
+
+Dacă alegi Nu, QZ activează Without Wheel Diameter Protocol (Setări &gt; Opțiuni bicicletă &gt; Opțiuni Wahoo), iar treptele virtuale funcționează prin înclinație. Dacă alegi Da, poți anula modificarea ulterior: activează opțiunea respectivă și, cu trainerul conectat, apasă Restore Default Setting to the Trainer.</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Înapoi</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>Meniu principal</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>Fereastră flotantă</translation>
+    </message>
+    <message>
+        <source>Load settings</source>
+        <translation>Încarcă setările</translation>
+    </message>
+    <message>
+        <source>Save settings</source>
+        <translation>Salvează setările</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Hartă</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Video</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>Grafic</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>Blochează panourile</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>Deblochează panourile</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>Dezactivează rezistența automată</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>Activează rezistența automată</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>Deconectează de la Strava</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Conectează la Strava</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Deconectează de la Peloton</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Conectează la Peloton</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Setări Garmin Connect</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Deconectează de la Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Conectează la Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>Antrenament</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>Aplicație</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>Servicii</translation>
     </message>
 </context>
 <context>
@@ -4447,12 +4705,40 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Other folders</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Șterge</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>Profil nou</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Profiluri salvate</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Atinge un profil pentru a-l selecta, apoi Încarcă. Apasă lung pentru a-l șterge.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Activ</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Încarcă</translation>
     </message>
 </context>
 <context>
@@ -5454,7 +5740,7 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Tiles Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opțiuni panouri</translation>
     </message>
     <message>
         <source>General UI Options</source>
@@ -8162,6 +8448,14 @@ Default: A = -0.96, B = 1.33</source>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>În antrenamentele GPX, ignoră modificările de înclinare mai mici decât această valoare și trimite o comandă nouă doar când diferența față de ultima valoare transmisă atinge pragul configurat. Implicit: 0 (dezactivat).</translation>
     </message>
+    <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>Această setare nu a fost găsită în paginile de setări</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Folosește treptele consolei</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>
@@ -8973,6 +9267,10 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>km/h</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Opțiuni panouri</translation>
     </message>
 </context>
 <context>

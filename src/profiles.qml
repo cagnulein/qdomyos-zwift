@@ -17,7 +17,6 @@ ColumnLayout {
     // written on top of it would differ by platform; the classic look keeps it, as before
     Binding on spacing { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
 
-    anchors.top: parent.top
     anchors.fill: parent
 
     signal profile_open_clicked(url name)
@@ -30,6 +29,8 @@ ColumnLayout {
             }
         }
     }
+
+    Component.onCompleted: rootItem.folderPageOpened()
 
     Settings {
         id: settings
@@ -238,16 +239,32 @@ ColumnLayout {
         wrapMode: Text.WordWrap
     }
 
+    // the restore of a previous install: above the list, which moves down for that time
+    UiProgress {
+        id: modernRestoreProgress
+        shown: window.ui.modern
+        Layout.fillWidth: true
+        Layout.leftMargin: profilesPage.modernMargin
+        Layout.rightMargin: profilesPage.modernMargin
+        Layout.topMargin: 12
+        done: rootItem.folderRestoreDone
+        total: rootItem.folderRestoreTotal
+    }
+
     ListView {
         id: modernList
         visible: window.ui.modern
         Layout.fillWidth: true
         Layout.fillHeight: true
         Layout.leftMargin: profilesPage.modernMargin
-        Layout.rightMargin: profilesPage.modernMargin
+        // To the screen edge on the right: the cards keep the page margin (their width), and the
+        // scroll indicator, placed by Qt at the right edge of the list, goes into it as on the
+        // settings page, not over the cards
+        ScrollIndicator.vertical: ScrollIndicator {}
         // 12 from the hint, as on the settings file page; 6 above the pill below (12 seen with
-        // its inset), the gap it had with the page spacing
-        Layout.topMargin: 12
+        // its inset), the gap it had with the page spacing. While the restore progress shows,
+        // the 12 are above it and the gap below it is its own (UiProgress)
+        Layout.topMargin: modernRestoreProgress.visible ? 0 : 12
         Layout.bottomMargin: 6
         clip: true
         spacing: 8
@@ -261,7 +278,7 @@ ColumnLayout {
             readonly property bool selected: ListView.isCurrentItem
             readonly property string profileName: fileName.substring(0, fileName.length-4)
             readonly property bool active: profileName === settings.profile_name
-            width: ListView.view.width
+            width: ListView.view.width - profilesPage.modernMargin
             // Material 3 list item: two lines (name, "Active") at least 72, the icon and the button 16
             // from the edges, the text 16 after the icon; a bigger text grows it, 8 above and below
             height: Math.max(72, Math.max(40, cardText.implicitHeight) + 16)
@@ -353,20 +370,49 @@ ColumnLayout {
         }
     }
 
-    UiButton {
+    // Other folders and, until QZ has a grant on the QZ folder, Restore files in one row
+    // (as on the training programs page); a long label wraps instead of eliding
+    RowLayout {
         visible: window.ui.modern
         Layout.fillWidth: true
         Layout.leftMargin: profilesPage.modernMargin
         Layout.rightMargin: profilesPage.modernMargin
         // 16 to the pill: UiButton has a 6 inset below it
         Layout.bottomMargin: 10
-        text: qsTr("Other folders")
-        onClicked: {
-            if (Qt.platform.os === "android") {
-                rootItem.openAndroidDocumentPicker("profile")
-            } else {
-                fileDialogLoader.active = true
+        // a layout in a layout fills the height by default, and the fillHeight of the pills lifts its
+        // maximum: the row would take the height of the page; the pills fill the height of the taller one
+        Layout.fillHeight: false
+        spacing: 8
+
+        UiButton {
+            Layout.fillWidth: true
+            // one height for both pills when only one label wraps
+            Layout.fillHeight: true
+            wrapsText: true
+            text: qsTr("Other folders")
+            onClicked: {
+                if (Qt.platform.os === "android") {
+                    rootItem.openAndroidDocumentPicker("profile")
+                } else {
+                    fileDialogLoader.active = true
+                }
             }
+        }
+
+        UiButton {
+            Layout.fillWidth: true
+            // one height for both pills when only one label wraps
+            Layout.fillHeight: true
+            wrapsText: true
+            visible: rootItem.qzFolderRestorable && !rootItem.qzFolderGrantSaved
+            // greyed out while a restore runs: a second one is refused
+            // (CustomQtActivity.openRestoreFolderPicker); hidden after it, with the grant
+            enabled: rootItem.folderRestoreTotal === 0
+            // Qt 5.15 does not report a disabled item to TalkBack (fixed in Qt 6 by
+            // qtdeclarative 20fd2902a6): left in, it would be read as a button that works
+            Accessible.ignored: !enabled
+            text: qsTr("Restore files")
+            onClicked: rootItem.offerFolderRestore()
         }
     }
 
@@ -448,11 +494,23 @@ ColumnLayout {
                         folderModel.folder = "file://" + rootItem.getProfileDir();
                     }
                 }
+                // files of a previous install were copied back into the QZ folder; reload the
+                // model next to it
+                Connections {
+                    target: rootItem
+                    function onFolderFilesRestored() {
+                        var currentFolder = folderModel.folder
+                        folderModel.folder = ""
+                        folderModel.folder = currentFolder
+                    }
+                }
                 model: folderModel
                 delegate: Component {
                     Rectangle {
                         property alias textColor: fileTextBox.color
-                        width: parent.width
+                        // not parent.width: while the folder is set again (onFolderFilesRestored)
+                        // the rows go and have no parent for a moment
+                        width: ListView.view.width
                         height: window.textScale !== 1 ? Math.max(40, fileTextBox.implicitHeight) : 40
                         color: Material.backgroundColor
                         z: 1
@@ -508,10 +566,14 @@ ColumnLayout {
                 onCurrentItemChanged: {
                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
                     if (fileUrl) {
+                        // rows not made yet, or no current row for a moment while a restore renames
+                        // files under the open page
                         for(var i=0; i<folderModel.count; i++) {
-                            list.itemAtIndex(i).textColor = Material.color(Material.Grey)
+                            if (list.itemAtIndex(i))
+                                list.itemAtIndex(i).textColor = Material.color(Material.Grey)
                         }
-                        list.currentItem.textColor = Material.color(Material.Yellow)
+                        if (list.currentItem)
+                            list.currentItem.textColor = Material.color(Material.Yellow)
                         console.log(fileUrl + ' selected');
                     }
                 }
@@ -519,23 +581,52 @@ ColumnLayout {
         }
     }
 
-    Button {
-        id: searchButton
+    // Classic look: under the profile list, which takes the height it needs (the modern one has
+    // it above its list)
+    UiProgress {
+        shown: !window.ui.modern
+        Layout.fillWidth: true
+        Layout.leftMargin: 16
+        Layout.rightMargin: 16
+        done: rootItem.folderRestoreDone
+        total: rootItem.folderRestoreTotal
+    }
+
+    RowLayout {
+        // the classic look; the modern one has its own Other folders under its list
         visible: !window.ui.modern
-        height: 50
-        width: parent.width
-        text: qsTr("Other folders")
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
-        onClicked: {
-            console.log("folder is " + rootItem.getWritableAppDir() + 'training')
-            if (Qt.platform.os === "android") {
-                rootItem.openAndroidDocumentPicker("profile")
-            } else {
-                fileDialogLoader.active = true
-            }
-        }
         anchors {
             bottom: parent.bottom
+        }
+
+        Button {
+            id: searchButton
+            height: 50
+            text: qsTr("Other folders")
+            onClicked: {
+                console.log("folder is " + rootItem.getWritableAppDir() + 'training')
+                if (Qt.platform.os === "android") {
+                    rootItem.openAndroidDocumentPicker("profile")
+                } else {
+                    fileDialogLoader.active = true
+                }
+            }
+        }
+
+        // files of a previous install are found only on request; with a saved grant on the
+        // QZ folder the page restores them by itself
+        Button {
+            height: 50
+            visible: rootItem.qzFolderRestorable && !rootItem.qzFolderGrantSaved
+            // greyed out while a restore runs: a second one is refused
+            // (CustomQtActivity.openRestoreFolderPicker); hidden after it, with the grant
+            enabled: rootItem.folderRestoreTotal === 0
+            // Qt 5.15 does not report a disabled item to TalkBack (fixed in Qt 6 by
+            // qtdeclarative 20fd2902a6): left in, it would be read as a button that works
+            Accessible.ignored: !enabled
+            text: qsTr("Restore files")
+            onClicked: rootItem.offerFolderRestore()
         }
     }
 }

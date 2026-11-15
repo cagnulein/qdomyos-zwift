@@ -155,6 +155,7 @@
         <file>UiMessageDialog.qml</file>
         <file>UiNotice.qml</file>
         <file>UiPopup.qml</file>
+        <file>UiProgress.qml</file>
         <file>UiSpinBox.qml</file>
         <file>UiSpinInput.qml</file>
         <file>UiSwitch.qml</file>

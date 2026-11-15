@@ -9,7 +9,6 @@ ScrollView {
     // Two children: the content height is given, not taken from an only child
     contentHeight: window.ui.modern ? modernCredits.implicitHeight + 24 : lblHelp.implicitHeight
     focus: true
-    anchors.horizontalCenter: parent.horizontalCenter
     anchors.fill: parent
 
     readonly property var developers: ["ben75020", "d3m3vilurr", "lifof", "p3g4asus", "Roberto Viola"]
@@ -21,8 +20,6 @@ ScrollView {
         visible: !window.ui.modern
         width: parent.width
         horizontalAlignment: Text.AlignHCenter
-        anchors.top: row1.bottom
-        anchors.topMargin: 30
         text: "<b>" + qsTr("Credits") + "</b><br><br>" + qsTr("A very big thanks to<br>all the developers<br>(alphabetical sorted):") + "<br><br>ben75020<br>d3m3vilurr<br>lifof<br>p3g4asus<br>Roberto Viola"
         wrapMode: Label.WordWrap
     }

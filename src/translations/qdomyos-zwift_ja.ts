@@ -88,6 +88,10 @@
         <source>Other folders</source>
         <translation>その他のフォルダー</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>ファイルを復元</translation>
+    </message>
 </context>
 <context>
     <name>HeartRateSuggestion</name>
@@ -116,6 +120,22 @@
         <translation>今後表示しない</translation>
     </message>
     <message>
+        <source>Strong signal</source>
+        <translation>強い信号</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>良好な信号</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>普通の信号</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>弱い信号</translation>
+    </message>
+    <message>
         <source>Choose a heart rate sensor</source>
         <translation>心拍センサーを選択</translation>
     </message>
@@ -141,6 +161,14 @@
     <message>
         <source>Do you really want to stop the current workout?</source>
         <translation>現在のワークアウトを本当に停止しますか？</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>ストップ</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>キャンセル</translation>
     </message>
     <message>
         <source>Rest</source>
@@ -296,6 +324,14 @@ Would you like to enable the required services?</source>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>次回、Bluetoothまたは位置情報サービスを有効にするよう通知しますか？</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>アプリに戻す</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>負荷の制御をアプリに戻します</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -334,6 +370,18 @@ Would you like to enable the required services?</source>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>このアプリはお使いのバイク/トレッドミル/ローイングマシンに自動的に接続されます。&lt;b&gt;接続されない場合は、次を確認してください&lt;/b&gt;：&lt;br&gt;1) qdomyos-zwiftの実行中は、Echelon/Domyosアプリを必ず閉じてください。&lt;br&gt;2) Bluetoothと、Bluetoothの権限の両方を必ず有効にしてください&lt;br&gt;3) このアプリを起動する前に、バイク/トレッドミル/ローイングマシンの電源を入れてください&lt;br&gt;4) デバイスを再起動してみてください&lt;br&gt;&lt;br&gt;バイク/トレッドミルが30秒ごとに切断される場合は、左側のバーにある「バーチャルデバイスを有効化」設定をオフにしてみてください。&lt;br&gt;&lt;br&gt;問題がある場合は、お気軽に roberto.viola83@gmail.com までご連絡ください。&lt;br&gt;&lt;br&gt;&lt;b&gt;良いライドを！&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZは、本アプリの使用または誤用の結果として&lt;br&gt;生じた付随的損害または結果的損害について&lt;br&gt;一切の責任を明示的に否認し、いかなる人が被った&lt;br&gt;損失または損害についても&lt;br&gt;責任を負いません。&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>機器を探しています…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>バイク、トレッドミル、またはローイングマシンの電源を入れてください。QZが自動的に接続します。</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>接続できませんか？</translation>
     </message>
 </context>
 <context>
@@ -1222,6 +1270,10 @@ QZの設定を更新しますか?</translation>
         <source>Other folders</source>
         <translation>その他のフォルダー</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>ファイルを復元</translation>
+    </message>
 </context>
 <context>
     <name>SettingsNumberField</name>
@@ -1444,12 +1496,24 @@ QZの設定を更新しますか?</translation>
         <translation>その他のフォルダー</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>ファイルを復元</translation>
+    </message>
+    <message>
         <source>Restore programs</source>
-        <translation>プログラムを復元</translation>
+        <translation type="vanished">プログラムを復元</translation>
     </message>
     <message>
         <source>← Back</source>
         <translation>← 戻る</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>折りたたむ</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>もっと見る</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -1477,6 +1541,17 @@ QZの設定を更新しますか?</translation>
     <message>
         <source>Cancel</source>
         <translation>キャンセル</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>以前のインストールのファイルを復元中</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>以前のインストールのファイルを復元中: %1 / %2</translation>
     </message>
 </context>
 <context>
@@ -3754,6 +3829,14 @@ This may take a few moments on first startup.</source>
         <translation>速度は</translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>復元したファイル: %1。</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>以前のインストールのファイルは見つかりませんでした。</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>JSONパーサーエラー</translation>
     </message>
@@ -3841,11 +3924,11 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation>復元したトレーニングプログラム: %1。</translation>
+        <translation type="vanished">復元したトレーニングプログラム: %1。</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation>以前のインストールのトレーニングプログラムは見つかりませんでした。</translation>
+        <translation type="vanished">以前のインストールのトレーニングプログラムは見つかりませんでした。</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -4386,6 +4469,20 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>保存しました！アプリのプライベートフォルダーで確認してください。</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>ファイルを復元</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>以前のインストールのトレーニングプログラム、GPXルート、設定ファイル、プロファイルがQZフォルダーに残っている可能性があります。
+検索しますか？
+
+次の画面でQZフォルダーへのアクセスを許可してください。</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Pelotonにすでに接続されています。ログアウトしますか？</translation>
     </message>
@@ -4607,14 +4704,14 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Training Programs</source>
-        <translation>トレーニングプログラム</translation>
+        <translation type="vanished">トレーニングプログラム</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation>以前のインストールのトレーニングプログラムがQZフォルダーに残っている可能性があります。
+        <translation type="vanished">以前のインストールのトレーニングプログラムがQZフォルダーに残っている可能性があります。
 検索しますか？
 
 次の画面でQZフォルダーへのアクセスを許可してください。</translation>
@@ -4768,6 +4865,10 @@ QZ がこの値を変更することを許可しますか？
     <message>
         <source>Other folders</source>
         <translation>その他のフォルダ</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>ファイルを復元</translation>
     </message>
 </context>
 <context>
@@ -8567,6 +8668,10 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>GPX ワークアウトでは、この値より小さい傾斜の変化を無視します。最後に送信した値との差が設定したしきい値に達した場合のみ、新しい傾斜コマンドを送信します。初期値: 0（無効）。</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>コンソールのギアを使用</translation>
     </message>
 </context>
 <context>

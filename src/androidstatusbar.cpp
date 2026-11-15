@@ -121,6 +121,24 @@ bool AndroidStatusBar::systemDarkMode() const
 #endif
 }
 
+void AndroidStatusBar::setSystemBarsColor(const QColor &color, bool dark, bool modern) const
+{
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity", "setSystemBars",
+                                              "(IZZ)V", static_cast<jint>(color.rgba()),
+                                              static_cast<jboolean>(modern), static_cast<jboolean>(dark));
+    QAndroidJniEnvironment env;
+    if (env->ExceptionCheck()) {
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+    }
+#else
+    Q_UNUSED(color)
+    Q_UNUSED(dark)
+    Q_UNUSED(modern)
+#endif
+}
+
 void AndroidStatusBar::onInsetsChanged(int top, int bottom, int left, int right, int waterfallTop,
                                         int waterfallBottom, int waterfallLeft, int waterfallRight)
 {

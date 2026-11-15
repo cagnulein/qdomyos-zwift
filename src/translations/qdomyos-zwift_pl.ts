@@ -88,6 +88,10 @@
         <source>Other folders</source>
         <translation>Inne foldery</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Przywróć pliki</translation>
+    </message>
 </context>
 <context>
     <name>HeartRateSuggestion</name>
@@ -114,6 +118,22 @@
     <message>
         <source>Don&apos;t ask again</source>
         <translation>Nie pytaj ponownie</translation>
+    </message>
+    <message>
+        <source>Strong signal</source>
+        <translation>Silny sygnał</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Dobry sygnał</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Średni sygnał</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Słaby sygnał</translation>
     </message>
     <message>
         <source>Choose a heart rate sensor</source>
@@ -203,6 +223,14 @@ Uruchomić ją ponownie teraz?</translation>
     <message>
         <source>Rest</source>
         <translation>Odpoczynek</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Stop</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Anuluj</translation>
     </message>
     <message>
         <source>Very Light</source>
@@ -296,6 +324,14 @@ Czy chcesz włączyć wymagane usługi?</translation>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Czy następnym razem przypomnieć o włączeniu Bluetooth lub usług lokalizacyjnych?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Oddaj aplikacji</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Oddaje sterowanie obciążeniem aplikacji</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -334,6 +370,18 @@ Czy chcesz włączyć wymagane usługi?</translation>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>Ta aplikacja powinna automatycznie połączyć się z rowerem, bieżnią lub ergometrem wioślarskim. &lt;b&gt;Jeśli tak się nie stanie, sprawdź&lt;/b&gt;:&lt;br&gt;1) aplikacja Echelon/Domyos MUSI być zamknięta podczas działania qdomyos-zwift;&lt;br&gt;2) Bluetooth i uprawnienia do Bluetooth MUSZĄ być włączone&lt;br&gt;3) urządzenie – rower, bieżnia lub ergometr wioślarski – musi być włączone PRZED uruchomieniem tej aplikacji&lt;br&gt;4) spróbuj ponownie uruchomić urządzenie&lt;br&gt;&lt;br&gt;Jeśli rower lub bieżnia rozłącza się co 30 sekund, spróbuj wyłączyć ustawienie „urządzenie wirtualne” na lewym pasku.&lt;br&gt;&lt;br&gt;W razie problemów napisz do mnie na adres roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Miłej jazdy!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ wyraźnie wyłącza odpowiedzialność za&lt;br&gt;szkody uboczne lub następcze i nie ponosi&lt;br&gt;odpowiedzialności za żadne straty&lt;br&gt;ani szkody poniesione przez jakąkolwiek osobę w wyniku&lt;br&gt;używania lub niewłaściwego używania aplikacji.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Szukanie sprzętu…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Włącz rower, bieżnię lub ergometr wioślarski – QZ połączy się z nim automatycznie.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Brak połączenia?</translation>
     </message>
 </context>
 <context>
@@ -1222,6 +1270,10 @@ Zaktualizować ustawienia QZ?</translation>
         <source>Other folders</source>
         <translation>Inne foldery</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Przywróć pliki</translation>
+    </message>
 </context>
 <context>
     <name>SettingsNumberField</name>
@@ -1444,12 +1496,24 @@ Zaktualizować ustawienia QZ?</translation>
         <translation>Inne foldery</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Przywróć pliki</translation>
+    </message>
+    <message>
         <source>Restore programs</source>
-        <translation>Przywróć programy</translation>
+        <translation type="vanished">Przywróć programy</translation>
     </message>
     <message>
         <source>← Back</source>
         <translation>← Wstecz</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>Pokaż mniej</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Pokaż więcej</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -1477,6 +1541,17 @@ Zaktualizować ustawienia QZ?</translation>
     <message>
         <source>Cancel</source>
         <translation>Anuluj</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>Przywracanie plików z poprzedniej instalacji</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>Przywracanie plików z poprzedniej instalacji: %1 z %2</translation>
     </message>
 </context>
 <context>
@@ -3678,6 +3753,14 @@ Przy pierwszym uruchomieniu może to chwilę potrwać.</translation>
         <translation>prędkość zmieniona na </translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>Przywrócone pliki: %1.</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>Nie znaleziono plików z poprzedniej instalacji.</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>Błąd analizatora JSON</translation>
     </message>
@@ -3707,11 +3790,11 @@ Przy pierwszym uruchomieniu może to chwilę potrwać.</translation>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation>Przywrócone programy treningowe: %1.</translation>
+        <translation type="vanished">Przywrócone programy treningowe: %1.</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation>Nie znaleziono programów treningowych z poprzedniej instalacji.</translation>
+        <translation type="vanished">Nie znaleziono programów treningowych z poprzedniej instalacji.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -4280,6 +4363,20 @@ Rozpocząć go teraz?</translation>
         <translation>Zapisano! Szukaj w prywatnym folderze aplikacji.</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Przywróć pliki</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Programy treningowe, trasy GPX, pliki ustawień i profile z poprzedniej instalacji mogą nadal znajdować się w folderze QZ.
+Poszukać ich?
+
+W następnym oknie zezwól na dostęp do folderu QZ.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Jesteś już połączony z serwisem Peloton. Wylogować się?</translation>
     </message>
@@ -4501,14 +4598,14 @@ W następnym oknie zezwól na dostęp do folderu QZ.</translation>
     </message>
     <message>
         <source>Training Programs</source>
-        <translation>Programy treningowe</translation>
+        <translation type="vanished">Programy treningowe</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation>Programy treningowe z poprzedniej instalacji mogą nadal znajdować się w folderze QZ.
+        <translation type="vanished">Programy treningowe z poprzedniej instalacji mogą nadal znajdować się w folderze QZ.
 Poszukać ich?
 
 W następnym oknie zezwól na dostęp do folderu QZ.</translation>
@@ -4748,6 +4845,10 @@ Zezwolić QZ na zmianę tej wartości?
     <message>
         <source>Profiles</source>
         <translation>Profile</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Przywróć pliki</translation>
     </message>
     <message>
         <source>Save</source>
@@ -8503,6 +8604,10 @@ Domyślnie: A = -0.96, B = 1.33</translation>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>W treningach GPX ignoruje zmiany nachylenia mniejsze niż ta wartość, a nowe polecenie wysyła dopiero wtedy, gdy różnica względem ostatnio wysłanej wartości osiągnie ustawiony próg. Domyślnie: 0 (wyłączony).</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Używaj biegów konsoli</translation>
     </message>
 </context>
 <context>
