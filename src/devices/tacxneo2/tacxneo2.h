@@ -70,6 +70,14 @@ class tacxneo2 : public bike {
     QDateTime lastGoodCadence = QDateTime::currentDateTime();
     // Per-trainer timestamp: never let a single positive FTMS reading suppress CSC indefinitely.
     QDateTime lastValidFtmsCadence;
+    // Cycling Power / CSC cadence is retained for FTMS-zero fallbacks.
+    QDateTime lastValidNativeCadence;
+    double lastNativeCadence = 0;
+    // CSC counters must not share state with the Cycling Power parser.
+    uint16_t oldCscCrankRevs = 0;
+    uint16_t oldCscLastCrankEventTime = 0;
+    bool cscBaselineReceived = false;
+    QDateTime lastGoodCscCadence = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
 
     bool initDone = false;
