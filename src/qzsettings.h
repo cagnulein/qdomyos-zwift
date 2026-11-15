@@ -3497,6 +3497,10 @@ class QZSettings {
     static const QString wahoo_wheel_question_answered;
     static constexpr bool default_wahoo_wheel_question_answered = false;
 
+    // Experimental, opt-in signed unlock for the left Zwift Click V2 pod.
+    static const QString zwift_click_auto_unlock;
+    static constexpr bool default_zwift_click_auto_unlock = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
