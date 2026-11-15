@@ -3195,9 +3195,25 @@ Beim ersten Start kann dies einen Moment dauern.</translation>
         <source>Offset</source>
         <translation>Versatz</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Versatz von Gang %1 verringern</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Versatz von Gang %1 erhöhen</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Verringern: %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Erhöhen: %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Eigene Tabelle Neigung zu Widerstand aktivieren</translation>
@@ -3213,6 +3229,10 @@ Beim ersten Start kann dies einen Moment dauern.</translation>
     <message>
         <source>Resistance</source>
         <translation>Widerstand</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Punkt bei Neigung %1 entfernen</translation>
     </message>
     <message>
         <source>Add Point</source>

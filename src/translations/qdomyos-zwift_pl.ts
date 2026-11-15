@@ -3195,9 +3195,25 @@ Przy pierwszym uruchomieniu może to chwilę potrwać.</translation>
         <source>Offset</source>
         <translation>Przesunięcie</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Zmniejsz przesunięcie biegu %1</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Zwiększ przesunięcie biegu %1</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Zmniejsz: %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Zwiększ: %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Włącz niestandardową tabelę przeliczania nachylenia na opór</translation>
@@ -3213,6 +3229,10 @@ Przy pierwszym uruchomieniu może to chwilę potrwać.</translation>
     <message>
         <source>Resistance</source>
         <translation>Opór</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Usuń punkt o nachyleniu %1</translation>
     </message>
     <message>
         <source>Add Point</source>

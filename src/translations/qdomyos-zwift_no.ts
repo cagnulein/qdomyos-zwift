@@ -3179,9 +3179,25 @@ Dette kan ta litt tid ved første oppstart.</translation>
         <source>Offset</source>
         <translation>Justering</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Reduser justering for gir %1</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Øk justering for gir %1</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Reduser: %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Øk: %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Slå på egen tabell for stigning til motstand</translation>
@@ -3197,6 +3213,10 @@ Dette kan ta litt tid ved første oppstart.</translation>
     <message>
         <source>Resistance</source>
         <translation>Motstand</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Fjern punktet ved stigning %1</translation>
     </message>
     <message>
         <source>Add Point</source>
