@@ -5305,7 +5305,7 @@ void bluetooth::restart() {
     if (trixterXDreambike) {
         delete trixterXDreambike;
         trixterXDreambike = nullptr;
-    
+    }
     if (wahooDirconBike) {
         delete wahooDirconBike;
         wahooDirconBike = nullptr;
