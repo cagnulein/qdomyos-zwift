@@ -38,6 +38,39 @@ TEST(KettlerUSBProtocolTest, AX1FrameHasLeadingProtocolField) {
     EXPECT_DOUBLE_EQ(43.0, frame.power);
 }
 
+// Preserve the original >=8-field parser: some E7 consoles append vendor fields.
+TEST(KettlerUSBProtocolTest, E7WithVendorFieldIsStillLegacy) {
+    KettlerUSB::StatusFrame frame;
+    ASSERT_TRUE(KettlerUSB::decodeStatusFrame(QStringLiteral("0\t89\t316\t43\t065\t115\t09:02\t65\tEXTRA"), frame));
+    EXPECT_EQ(KettlerUSB::Protocol::Legacy8, frame.protocol);
+    EXPECT_DOUBLE_EQ(89.0, frame.cadence);
+    EXPECT_DOUBLE_EQ(31.6, frame.speed);
+    EXPECT_DOUBLE_EQ(65.0, frame.power);
+}
+
+// Preserve the original E7 tolerance for intermittently unavailable
+// distance/energy fields; only actual required telemetry must be numeric.
+TEST(KettlerUSBProtocolTest, E7AllowsMissingDistanceAndEnergy) {
+    KettlerUSB::StatusFrame frame;
+    ASSERT_TRUE(KettlerUSB::decodeStatusFrame(QStringLiteral("0\t89\t316\t--\t065\t--\t09:02\t65"), frame));
+    EXPECT_EQ(KettlerUSB::Protocol::Legacy8, frame.protocol);
+    EXPECT_DOUBLE_EQ(0.0, frame.distance);
+    EXPECT_DOUBLE_EQ(65.0, frame.power);
+}
+
+TEST(KettlerUSBProtocolTest, AX1CanHaveOptionalNonnumericFields) {
+    KettlerUSB::StatusFrame frame;
+    ASSERT_TRUE(KettlerUSB::decodeStatusFrame(QStringLiteral("AX1\t000\t053\t188\t007\t--\t0019\t02:50\t043"), frame));
+    EXPECT_EQ(KettlerUSB::Protocol::Extended9, frame.protocol);
+    EXPECT_DOUBLE_EQ(53.0, frame.cadence);
+    EXPECT_DOUBLE_EQ(43.0, frame.power);
+}
+
+TEST(KettlerUSBProtocolTest, RejectsAmbiguousTimeColumns) {
+    EXPECT_FALSE(KettlerUSB::isStatusResponse(QStringLiteral("0\t89\t316\t43\t065\t115\t09:02\t10:02\t65")));
+    EXPECT_FALSE(KettlerUSB::isStatusResponse(QStringLiteral("0\t89\t316\t43\t065\t115\tbad\tbad\t65")));
+}
+
 TEST(KettlerUSBProtocolTest, RejectsIdentificationAcknowledgementAndMalformedFrames) {
     for (const QString &reply : {QStringLiteral("ACK"),
                                  QStringLiteral("ERROR"),
