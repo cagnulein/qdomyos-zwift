@@ -2647,6 +2647,18 @@ Met de volgende vragen stem je QZ af op je apparatuur en doelen.</translation>
         <translation>Volgende</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Je apparaat, eenheden en profiel, stap voor stap</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Kies een onderwerp en ga meteen naar de instellingen ervan</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Wizard sluiten</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Aangepaste instellingen</translation>
     </message>

@@ -2647,6 +2647,18 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>다음</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>운동 기구, 단위, 프로필을 단계별로 설정</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>주제를 골라 해당 설정으로 바로 이동</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>마법사 닫기</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>맞춤 설정</translation>
     </message>

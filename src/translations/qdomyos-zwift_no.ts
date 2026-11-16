@@ -2631,6 +2631,18 @@ De neste spørsmålene tilpasser QZ til utstyret og målene dine.</translation>
         <translation>Neste</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Treningsapparat, måleenheter og profil, trinn for trinn</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Velg et emne, og gå rett til innstillingene for det</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Lukk veiviseren</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Tilpassede innstillinger</translation>
     </message>

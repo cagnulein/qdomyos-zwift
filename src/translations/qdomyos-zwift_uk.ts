@@ -2683,6 +2683,18 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>Далі</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Тренажер, одиниці виміру та профіль – крок за кроком</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Оберіть тему й одразу перейдіть до її налаштувань</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Закрити майстер</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Індивідуальні налаштування</translation>
     </message>
