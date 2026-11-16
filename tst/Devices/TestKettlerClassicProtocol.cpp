@@ -153,3 +153,37 @@ TEST(KettlerClassicProtocol, CoachSAuthenticationMatchesSixKinomapVectors) {
     EXPECT_TRUE(kettlerclassicprotocol::coachSHandshakeForSalt(QByteArray("a")).isEmpty());
     EXPECT_FALSE(kettlerclassicprotocol::isValidCoachSHandshake(QByteArray(18, char(0))));
 }
+
+TEST(KettlerClassicProtocol, CoachSOptionalPowerAndBrakeIrmpCommands) {
+    // Verified S-FIT logical command layout, encoded using the existing
+    // Kettler Classic STX/ETX/CRC protocol. Coach S device support is probed.
+    EXPECT_EQ(kettlerclassicprotocol::encodeFrame(0x000b, 0x01, QByteArray()),
+              QByteArray::fromHex("02000b010000039ac9"));
+    EXPECT_EQ(kettlerclassicprotocol::encodeFrame(0x001b, 0x01, QByteArray()),
+              QByteArray::fromHex("02001b010000035968"));
+    EXPECT_EQ(kettlerclassicprotocol::encodeFrame(0x001c, 0x01, QByteArray()),
+              QByteArray::fromHex("02001c010000030e49"));
+    EXPECT_EQ(kettlerclassicprotocol::encodeFrame(0x001d, 0x01, QByteArray()),
+              QByteArray::fromHex("02001d0100000312f2"));
+
+    // Subfunction 0x02 is escaped because it matches STX; level 0x10
+    // also needs escaping. Do not use the special Coach S handshake encoder.
+    EXPECT_EQ(kettlerclassicprotocol::encodeFrame(0x001b, 0x02,
+                                                   QByteArray(1, char(0x10))),
+              QByteArray::fromHex("02001b10220001103003c383"));
+    EXPECT_EQ(kettlerclassicprotocol::encodeFrame(0x001b, 0x02,
+                                                   QByteArray(1, char(5))),
+              QByteArray::fromHex("02001b10220001050384af"));
+
+    QByteArray input = QByteArray::fromHex(
+        "02000b1023001022007b03480502001b102300010f03374e");
+    const auto frames = kettlerclassicprotocol::consumeFrames(input);
+    ASSERT_EQ(frames.size(), 2);
+    EXPECT_EQ(frames.at(0).function, 0x000b);
+    EXPECT_EQ(frames.at(0).subFunction, 0x03);
+    EXPECT_EQ(frames.at(0).payload, QByteArray::fromHex("007b")); // 123 watts
+    EXPECT_EQ(frames.at(1).function, 0x001b);
+    EXPECT_EQ(frames.at(1).subFunction, 0x03);
+    EXPECT_EQ(frames.at(1).payload, QByteArray::fromHex("0f")); // level 15
+    EXPECT_TRUE(input.isEmpty());
+}
