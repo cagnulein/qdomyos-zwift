@@ -52,8 +52,9 @@ ColumnLayout {
         width: parent.width
         text: "Close"
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
+        // nothing listens to popupclose(): back the same way as the toolbar arrow
         onClicked: {
-            popupclose();
+            window.navigateBack(false);
         }
         anchors {
             bottom: parent.bottom

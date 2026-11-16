@@ -46,9 +46,9 @@
         { key: 'powerto', labelKey: 'workoutEditor.powerRampTo', label: 'Ramp To', type: 'number', min: 0, max: 2000, group: 'advanced', devices: ['bike', 'rower'], defaultValue: 200 },
         { key: 'forcespeed', labelKey: 'workoutEditor.forceSpeed', label: 'Force Speed', type: 'bool', group: 'basic', devices: ['treadmill'], linkedTo: 'speed' },
         { key: 'pidHRMode', labelKey: 'workoutEditor.pidHrMode', label: 'HR PID actuator', type: 'select', options: [
-            { value: 'default', label: 'Default' },
-            { value: 'speed', label: 'Speed' },
-            { value: 'inclination', label: 'Inclination' }
+            { value: 'default', labelKey: 'workoutEditor.pidHrModeDefault', label: 'Default' },
+            { value: 'speed', labelKey: 'workoutEditor.pidHrModeSpeed', label: 'Speed' },
+            { value: 'inclination', labelKey: 'workoutEditor.pidHrModeInclination', label: 'Inclination' }
         ], group: 'advanced', devices: ['treadmill'], defaultValue: 'default', noToggle: true },
         { key: 'fanspeed', labelKey: 'workoutEditor.fan', label: 'Fan', type: 'number', min: 0, max: 8, group: 'advanced', devices: 'all', defaultValue: 0 },
         { key: 'requested_peloton_resistance', labelKey: 'workoutEditor.pelotonResistance', label: 'Peloton Res.', type: 'number', min: -1, max: 100, group: 'advanced', devices: ['bike'] },
@@ -935,7 +935,7 @@
                         const optValue = typeof opt === 'object' ? opt.value : opt;
                         const optLabel = typeof opt === 'object' ? opt.label : opt;
                         option.value = optValue;
-                        option.textContent = unitLabel(opt);
+                        option.textContent = (typeof opt === 'object' && opt.labelKey) ? t(opt.labelKey, optLabel) : unitLabel(optLabel);
                         const currentVal = String(row[field.key] !== undefined ? row[field.key] : (field.defaultValue !== undefined ? field.defaultValue : ''));
                         if (currentVal === String(optValue)) {
                             option.selected = true;

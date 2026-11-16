@@ -83,6 +83,9 @@ class DirconProcessor : public QObject {
     QMdnsEngine::Hostname *mdnsHostname = 0;
     QHash<QTcpSocket *, DirconProcessorClient *> clientsMap;
     bool rouvy_compatibility = false;
+    // Read once like rouvy_compatibility: the setting applies after a restart, and
+    // sendCharacteristicNotification() runs for every characteristic on every bikeTimer tick.
+    bool wahoo_rgt_dircon = false;
     // Last 0x2AD2 payload CharacteristicNotifier2AD2 produced, replayed to a client the
     // moment it connects. Empty until the notifier has run at least once, which is the
     // signal that no device is attached yet and there is nothing truthful to say.
@@ -109,6 +112,7 @@ class DirconProcessor : public QObject {
                              quint16 serv_port, const QString &serv_sn, const QString &mac, QObject *parent = nullptr);
     bool sendCharacteristicNotification(quint16 uuid, const QByteArray &data);
     bool init();
+    bool hasClients() const { return !clientsMap.isEmpty(); }
   private slots:
     void tcpDataAvailable();
     void tcpDisconnected();
@@ -118,6 +122,7 @@ class DirconProcessor : public QObject {
     void onCharacteristicRead(quint16 uuid);
     void onCharacteristicWrite(quint16 uuid, QByteArray data);
     void onCharacteristicNotificationSwitch(quint16 uuid, char switchval);
+    void clientDisconnected();
 };
 
 #endif // DIRCONPROCESSOR_H

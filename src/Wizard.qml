@@ -53,6 +53,13 @@ Page {
         property bool weight_kg_unit: false
     }
 
+    // The heart rate sensor bar saves its Connect from C++, and this copy does not read QSettings again:
+    // without this, Next on the heart rate step would save the old "Disabled" over it
+    Connections {
+        target: rootItem
+        function onHeartRateSensorChosenFromOffer(name) { settings.heart_rate_belt_name = name }
+    }
+
     background: Rectangle {
         anchors.fill: parent
         width: parent.fill

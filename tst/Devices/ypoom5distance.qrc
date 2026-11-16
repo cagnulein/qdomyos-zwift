@@ -3,5 +3,8 @@
         <file alias="console-run.csv">data/ypoo-m5-console-run.csv</file>
         <file alias="runna-stop.csv">data/ypoo-m5-runna-stop.csv</file>
         <file alias="kinomap-stop.csv">data/ypoo-m5-kinomap-stop.csv</file>
+        <file alias="distance-20261025.csv">data/ypoo-m5-distance-20261025.csv</file>
+        <file alias="distance-20261028.csv">data/ypoo-m5-distance-20261028.csv</file>
+        <file alias="distance-20261030.csv">data/ypoo-m5-distance-20261030.csv</file>
     </qresource>
 </RCC>

@@ -54,4 +54,19 @@ If the iPhone's Music app stops playing when QZ starts, or Siri begins a track b
 3. Also test the opposite order: open QZ first, then start Music or ask Siri to play a track.
 4. If you use **iOS Background Keep Alive**, you can test it both enabled and disabled; it is not necessary to disable background operation permanently just to try this workaround.
 
-QZ's volume-button gear feature intercepts volume-button events and can interact with the iOS audio session. In a confirmed support case, disabling **Volume change gears** restored Music playback with **iOS Background Keep Alive** both on and off. This is a targeted workaround for audio interruption, not a general requirement to disable background mode.
+QZ's volume-button gear feature intercepts volume-button events and can interact with the iOS audio session. In a confirmed support case, disabling **Volume change gears** restored Music playback with **iOS Background Keep Alive** both on and off. In another confirmed iPhone/AirPods test, music continued playing in the QZ foreground **while a CYCPLUS BC2 Bluetooth shifter still changed the Gears tile**. Disabling volume-button shifting does not inherently disable native Bluetooth controller buttons. This is a targeted workaround for audio interruption, not a general requirement to disable background mode.
+
+
+## Does starting or stopping a workout in QZ on Apple Watch also start or stop QZ on the iPhone?
+
+**No.** The QZ Apple Watch app's Start/Stop controls manage the watch's **HealthKit workout** and enable live heart-rate sharing; they do not automatically start or stop the independent workout session in QZ on the iPhone.
+
+For example, when using a rower with QZ on an iPhone, start the iPhone QZ session to record the machine's metrics and separately start the QZ workout on Apple Watch to share heart rate. Confirm that the Heart tile on the iPhone updates. When finished, stop the watch workout and the iPhone session separately.
+
+A rower user confirmed that starting the QZ watch workout restored heart-rate sharing, and the separate Start/Stop behavior was explained in the same support conversation. This describes the current workflow; automatic synchronization of the two workout controls was not available in that setup.
+
+## Can I use QZ on Apple Watch for live heart rate without saving a duplicate workout to Apple Health?
+
+**Yes, on QZ Apple Watch builds that offer the stop confirmation.** Start the QZ workout on Apple Watch to share live heart rate with QZ on the iPhone and the connected training app. When ending the watch workout, choose **Don't Save** rather than **Save to Apple Health** in the watch's stop confirmation. A user confirmed that **Don't Save** prevented the QZ watch workout and its workout heart-rate recording from being saved to Apple Health.
+
+**Limitation:** This does not disable every HealthKit write from QZ or other apps. Cycling speed, cadence, and cycling-performance entries may still appear in Apple Health, including entries written by QZ or Strava. Review the respective apps' Apple Health write permissions if you want to prevent those additional entries. This option is about saving the **watch workout**, not globally disabling HealthKit writes or heart-rate forwarding.

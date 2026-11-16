@@ -54,6 +54,7 @@
 
 - Exact machine model, Bluetooth name, and firmware revision if available.
 - QZ version and screenshots of relevant machine-specific and generic FTMS settings.
+- Screenshot **Advanced Settings > Manual Device** with its exact selected device or connection mode; confirm it matches the actual machine rather than an unrelated Wi-Fi or other protocol option.
 - On Android, whether **Garmin Options > ANT Bike Garmin** is enabled, particularly when a supported FTMS bike is detected but power and cadence remain zero.
 - Identify which QZ metrics update during a short workout.
 
@@ -61,14 +62,35 @@
 
 - Capture a short QZ debug log after restarting QZ.
 - Identify which device handler QZ selected for the machine.
-- Compare only one setting change at a time, restarting between tests.
+- Compare only one setting change at a time, restarting between tests. If Manual Device is set to an unrelated connection mode, select the matching machine, restart QZ, and check live metrics before opening another training app.
 - If ANT Bike Garmin is enabled, run a short QZ-only pedaling test with that option disabled and QZ restarted, keeping the selected bike and other settings unchanged. Report whether live power and cadence appear. See the [bike troubleshooting FAQ](../faq/bike-troubleshooting.md) for the known configuration check.
 
 ### Why it matters
 
 - A successful Bluetooth connection does not guarantee that the correct protocol handler was selected.
+- In a confirmed case, selecting an unrelated Wi-Fi mode under Manual Device prevented bike metrics; choosing the matching bike mode restored the data. Recording the exact selected value is more useful than knowing only that a manual device was configured.
 - Conflicting model-specific and generic settings can route a device to an unsuitable parser.
 - A confirmed Android FTMS bike case recovered its metrics after disabling ANT Bike Garmin; collecting that option value helps distinguish a settings interaction from a missing Bluetooth advertisement.
+
+## BLE device advertises FTMS but QZ connects without usable metrics
+
+### Provide first
+
+- Exact machine model, **advertised Bluetooth name**, QZ platform/build, and which live metrics remain at zero while the machine is actively used.
+- A screenshot of the **nRF Connect scan advertisement** showing the device name and advertised service UUIDs, plus a **separate screenshot after connecting** showing the services actually discovered.
+- State whether another app is connected to the machine and whether QZ's FTMS or model-specific option was selected.
+
+### If still unclear
+
+- Disconnect nRF Connect completely, close other fitness apps, power-cycle the machine, and retest QZ alone while pedaling or running. Record whether the metrics change before opening MyWhoosh, Zwift, or another receiving app.
+- If the scan advertises Fitness Machine service `0x1826` but the connected GATT service list does not contain `0x1826`, capture the full connected-service list and characteristic UUIDs (including proprietary services such as `FFF0`). Do not infer FTMS telemetry support from the advertisement alone.
+- Provide a short QZ debug log covering connection and about ten seconds of active movement. If the discovered services suggest a proprietary protocol, compare the exact Bluetooth name with the current model-specific handler before considering a new parser.
+
+### Why it matters
+
+- BLE **advertising service UUIDs** and the **services discovered after a GATT connection** are different observations. The advertisement can mention FTMS even when the connected session does not expose usable FTMS characteristics.
+- The exact Bluetooth name can determine whether QZ chooses a model-specific handler or a generic FTMS path; a similar commercial model name is not sufficient evidence of protocol compatibility.
+- Separating a working BLE connection from live telemetry, and testing QZ before a receiving app, avoids investigating virtual pairing when the upstream data is missing.
 
 ## Bike reports metrics but remote resistance support is uncertain
 
@@ -187,3 +209,44 @@
 - QZ's manual-device filter compares discovered Bluetooth names against the configured name. A saved selection for an earlier machine can exclude a replacement even when its advertisement is visible.
 - In a confirmed treadmill replacement case, clearing stale app configuration restored the connection; checking the old manual-device selection first would have isolated the cause without resetting unrelated settings.
 - Distinguishing discovery from active workout telemetry prevents troubleshooting the receiving app before QZ has connected to the machine.
+
+
+## Android trainer is detected, but power and cadence stay at zero after a previous pairing
+
+### Provide first
+
+- Trainer model, advertised Bluetooth name, Android version, and installed QZ build.
+- Confirm that QZ finds the trainer, but its Power and Cadence tiles remain at zero **while pedaling**. Include a screenshot of **Advanced Settings > Manual Device** if it is set.
+- State whether the trainer appears as a saved/paired device in **Android system Bluetooth settings**, and whether another phone or fitness app might still be connected.
+
+### If still unclear
+
+- Compare one QZ-only test with other training apps closed and nearby paired devices disconnected. Note whether power and cadence start updating.
+- If Android has a saved trainer pairing, note whether the same QZ-only test changes after forgetting that saved pairing and power-cycling the trainer. See the [bike troubleshooting FAQ](../faq/bike-troubleshooting.md) for the established pairing-reset procedure.
+- If metrics still remain at zero, collect a short QZ debug log from a fresh connection attempt while pedaling; if possible, compare a second phone without changing the trainer firmware.
+
+### Why it matters
+
+- Finding a Bluetooth advertisement and selecting the correct Manual Device do not prove that the phone established a usable telemetry session.
+- A confirmed Android KICKR CORE case recovered live metrics after clearing its old system-level Bluetooth pairing. Recording the saved-pairing state separates that failure from a wrong device handler or a competing app connection.
+
+## Bluetooth Classic rower is discovered but QZ attempts BLE or ignores it
+
+### Provide first
+
+- Exact rower **and console** model, QZ build, Android version, and the **complete Bluetooth name** visible in Android's system Bluetooth list (including any suffix). Do not substitute a similar model name.
+- State whether the rower appears in Android's **Classic Bluetooth paired devices**, in a **BLE scan**, or both. Report whether pairing succeeds in Android settings and whether the manufacturer's app reads live strokes.
+- Screenshot the physical-device selections in **Rower Options** (especially **FTMS Rower**) and any enabled **iConsole/BH Spada** compatibility options. State which options were changed and whether QZ was restarted afterward.
+- Report the precise QZ stage: never discovered, discovered but ignored, connection attempt followed by failure, or connected with no live rowing metrics.
+
+### If still unclear
+
+- With manufacturer apps closed and the rower awake, capture one **QZ-only debug log from before discovery through the connection attempt**. Include whether the discovery event identifies the device as BLE or Classic (for example, `isLeScanResult: false`) and the selected QZ driver if visible. Remove Bluetooth addresses before sharing logs publicly.
+- If QZ attempts an FTMS/BLE connection to a Classic-only device, compare one restart with the **FTMS Rower** selection disabled while leaving the intended Classic-compatible option unchanged. Record whether QZ now ignores the name or connects. Do not toggle multiple compatibility modes simultaneously.
+- If the name is discovered but no connection is attempted, provide the **exact advertised/system name** and the discovery portion of the log for a device-name/handler matching review. Only after the physical rower connects, row for 30–60 seconds and report which QZ metrics change; test virtual rowing apps afterward.
+
+### Why it matters
+
+- Android system Bluetooth pairing and BLE GATT connections are different paths. A Classic/SPP device can be discovered successfully but fail when a BLE/FTMS handler is selected; a BLE connection error alone does not establish a faulty radio or an FTMS protocol defect.
+- A Classic discovery event with no subsequent connection attempt can instead indicate that the device name does not match the selected Classic handler. The complete Bluetooth name and driver selection distinguish these failure stages.
+- The first high-value comparison is **protocol/handler selection**, not third-party pairing or rowing metric parsing. Collecting one controlled discovery log is more informative than repeated full workouts.

@@ -892,6 +892,6 @@ void renphobike::controllerStateChanged(QLowEnergyController::ControllerState st
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << "trying to connect back again...";
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

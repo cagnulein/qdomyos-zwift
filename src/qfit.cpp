@@ -28,6 +28,18 @@
 
 using namespace std;
 
+// MSVC builds use _ITERATOR_DEBUG_LEVEL=0 (qdomyos-zwift.pri) against the debug Qt5Cored.dll, which uses level 2,
+// so a std::wstring must not cross the Qt DLL boundary: QString::toStdWString()/fromStdWString() run inside the DLL
+// and hand over a string with a different layout (crash in the FIT SDK on save, #3053, #3095). These are the bodies
+// of the Qt 5.15 inline functions, built here; toWCharArray()/fromWCharArray() take only plain pointers.
+static std::wstring toFitString(const QString &s) {
+    std::wstring w(s.size(), L'\0');
+    w.resize(s.toWCharArray(&w[0]));
+    return w;
+}
+
+static QString fromFitString(const std::wstring &w) { return QString::fromWCharArray(w.c_str(), int(w.size())); }
+
 qfit::qfit(QObject *parent) : QObject(parent) {}
 
 void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_TYPE type,
@@ -131,8 +143,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     userMesg.SetAge(settings.value(QZSettings::age, QZSettings::default_age).toUInt());
     userMesg.SetGender(settings.value(QZSettings::sex, QZSettings::default_sex).toString().startsWith(QZSettings::default_sex) ? FIT_GENDER_MALE
                                                                                                    : FIT_GENDER_FEMALE);
-    userMesg.SetFriendlyName(
-        settings.value(QZSettings::user_nickname, QZSettings::default_user_nickname).toString().toStdWString());
+    userMesg.SetFriendlyName(toFitString(
+        settings.value(QZSettings::user_nickname, QZSettings::default_user_nickname).toString()));
     userMesg.SetHeight(settings.value(QZSettings::height, QZSettings::default_height).toFloat() / 100.0f);
     userMesg.SetDefaultMaxHeartRate(user_max_hr);
     userMesg.SetRestingHeartRate(user_resting_hr);
@@ -218,8 +230,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             }
         } else {
             min_alt = 0;
-            if (max_alt < session.at(i).elevationGain)
-                max_alt = session.at(i).elevationGain;
+            double net_altitude = session.at(i).elevationGain - session.at(i).negativeElevationGain;
+            if (max_alt < net_altitude)
+                max_alt = net_altitude;
         }
 
         if (session.at(i).speed > 0) {
@@ -784,29 +797,29 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     ftpSessionField.AddValue(settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble());
 
     fit::DeveloperField activityTitleField(activityTitle, devIdMesg);
-    activityTitleField.SetSTRINGValue(workoutName.toStdWString());
+    activityTitleField.SetSTRINGValue(toFitString(workoutName));
 
     // Create our new developer fields
     fit::DeveloperField workoutSourceField(workoutSourceMesg, devIdMesg);
     if (!workoutSource.isEmpty()) {
-        workoutSourceField.SetSTRINGValue(workoutSource.toStdWString());
+        workoutSourceField.SetSTRINGValue(toFitString(workoutSource));
     } else {
         workoutSourceField.SetSTRINGValue(L"QZ"); // Default to QZ if not specified
     }
 
     fit::DeveloperField pelotonWorkoutIdField(pelotonWorkoutIdMesg, devIdMesg);
     if (!pelotonWorkoutId.isEmpty()) {
-        pelotonWorkoutIdField.SetSTRINGValue(pelotonWorkoutId.toStdWString());
+        pelotonWorkoutIdField.SetSTRINGValue(toFitString(pelotonWorkoutId));
     }
 
     fit::DeveloperField pelotonUrlField(pelotonUrlMesg, devIdMesg);
     if (!pelotonUrl.isEmpty()) {
-        pelotonUrlField.SetSTRINGValue(pelotonUrl.toStdWString());
+        pelotonUrlField.SetSTRINGValue(toFitString(pelotonUrl));
     }
 
     fit::DeveloperField trainingProgramFileField(trainingProgramFileMesg, devIdMesg);
     if (!trainingProgramFile.isEmpty()) {
-        trainingProgramFileField.SetSTRINGValue(trainingProgramFile.toStdWString());
+        trainingProgramFileField.SetSTRINGValue(toFitString(trainingProgramFile));
     }
 
     auto addCoreTemperatureSummaryFields = [&](fit::Mesg &mesg,
@@ -920,9 +933,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         fit::WorkoutMesg workout;
         workout.SetSport(sessionMesg.GetSport());
         workout.SetSubSport(sessionMesg.GetSubSport());
-#ifndef _WIN32
-        workout.SetWktName(workoutName.toStdWString());
-#endif
+        workout.SetWktName(toFitString(workoutName));
         workout.SetNumValidSteps(1);
 
         // Add developer fields to workout message
@@ -1093,7 +1104,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             newRecord.SetPositionLat(pow(2, 31) * (sl.coordinate.latitude()) / 180.0);
             newRecord.SetPositionLong(pow(2, 31) * (sl.coordinate.longitude()) / 180.0);
         } else {
-            newRecord.SetAltitude(sl.elevationGain);
+            // With no GPS track, cumulative ascent/descent form the relative altitude profile.
+            newRecord.SetAltitude(sl.elevationGain - sl.negativeElevationGain);
         }
 
         // using just the start point as reference in order to avoid pause time
@@ -1262,24 +1274,24 @@ class Listener : public fit::FileIdMesgListener,
                 std::string fieldName = devField.GetName();
                 if (fieldName == "Activity Title" && workoutName != nullptr) {
                     std::wstring wWorkoutName = devField.GetSTRINGValue(0);
-                    *workoutName = QString::fromStdWString(wWorkoutName);
-                    printf("   Found Activity Title in workout: %s\n", workoutName->toStdString().c_str());
+                    *workoutName = fromFitString(wWorkoutName);
+                    printf("   Found Activity Title in workout: %s\n", qUtf8Printable(*workoutName));
                 } else if (fieldName == "Workout Source" && workoutSource != nullptr) {
                     std::wstring wWorkoutSource = devField.GetSTRINGValue(0);
-                    *workoutSource = QString::fromStdWString(wWorkoutSource);
-                    printf("   Found Workout Source in workout: %s\n", workoutSource->toStdString().c_str());
+                    *workoutSource = fromFitString(wWorkoutSource);
+                    printf("   Found Workout Source in workout: %s\n", qUtf8Printable(*workoutSource));
                 } else if (fieldName == "Peloton Workout ID" && pelotonWorkoutId != nullptr) {
                     std::wstring wPelotonWorkoutId = devField.GetSTRINGValue(0);
-                    *pelotonWorkoutId = QString::fromStdWString(wPelotonWorkoutId);
-                    printf("   Found Peloton Workout ID in workout: %s\n", pelotonWorkoutId->toStdString().c_str());
+                    *pelotonWorkoutId = fromFitString(wPelotonWorkoutId);
+                    printf("   Found Peloton Workout ID in workout: %s\n", qUtf8Printable(*pelotonWorkoutId));
                 } else if (fieldName == "Peloton URL" && pelotonUrl != nullptr) {
                     std::wstring wPelotonUrl = devField.GetSTRINGValue(0);
-                    *pelotonUrl = QString::fromStdWString(wPelotonUrl);
-                    printf("   Found Peloton URL in workout: %s\n", pelotonUrl->toStdString().c_str());
+                    *pelotonUrl = fromFitString(wPelotonUrl);
+                    printf("   Found Peloton URL in workout: %s\n", qUtf8Printable(*pelotonUrl));
                 } else if (fieldName == "Training Program File" && trainingProgramFile != nullptr) {
                     std::wstring wTrainingProgramFile = devField.GetSTRINGValue(0);
-                    *trainingProgramFile = QString::fromStdWString(wTrainingProgramFile);
-                    printf("   Found Training Program File in workout: %s\n", trainingProgramFile->toStdString().c_str());
+                    *trainingProgramFile = fromFitString(wTrainingProgramFile);
+                    printf("   Found Training Program File in workout: %s\n", qUtf8Printable(*trainingProgramFile));
                 }
             }
         }
@@ -1453,10 +1465,20 @@ class Listener : public fit::FileIdMesgListener,
             s.instantaneousStrideLengthCM = record.GetStepLength() / 10;
             s.verticalOscillationMM = record.GetVerticalOscillation();
             s.groundContactMS = record.GetStanceTime();
-            s.coordinate.setAltitude(record.GetAltitude());
-            s.coordinate.setLatitude((record.GetPositionLat() * 180) / pow(2, 31));
-            s.coordinate.setLongitude((record.GetPositionLong() * 180) / pow(2, 31));
-            if (!s.coordinate.isValid()) {
+            // Missing FIT positions must not be interpreted as GPS coordinates.
+            // Multiply by a floating-point factor to avoid 32-bit integer overflow.
+            if (record.IsAltitudeValid()) {
+                s.coordinate.setAltitude(record.GetAltitude());
+            }
+            if (record.IsPositionLatValid() && record.IsPositionLongValid()) {
+                constexpr double degreesPerSemicircle = 180.0 / 2147483648.0;
+                s.coordinate.setLatitude(record.GetPositionLat() * degreesPerSemicircle);
+                s.coordinate.setLongitude(record.GetPositionLong() * degreesPerSemicircle);
+            }
+            s.elevationGain = 0.0;
+            s.negativeElevationGain = 0.0;
+            if (!s.coordinate.isValid() && record.IsAltitudeValid()) {
+                // Preserve the existing relative-altitude representation for indoor FIT files.
                 s.elevationGain = record.GetAltitude();
             }
             s.time = QDateTime::fromSecsSinceEpoch(record.GetTimestamp() + 631065600L);
@@ -1485,24 +1507,24 @@ class Listener : public fit::FileIdMesgListener,
                 std::string fieldName = devField.GetName();
                 if (fieldName == "Activity Title") {
                     std::wstring wWorkoutName = devField.GetSTRINGValue(0);
-                    *workoutName = QString::fromStdWString(wWorkoutName);
-                    printf("   Found Activity Title: %s\n", workoutName->toStdString().c_str());
+                    *workoutName = fromFitString(wWorkoutName);
+                    printf("   Found Activity Title: %s\n", qUtf8Printable(*workoutName));
                 } else if (fieldName == "Workout Source" && workoutSource != nullptr) {
                     std::wstring wWorkoutSource = devField.GetSTRINGValue(0);
-                    *workoutSource = QString::fromStdWString(wWorkoutSource);
-                    printf("   Found Workout Source: %s\n", workoutSource->toStdString().c_str());
+                    *workoutSource = fromFitString(wWorkoutSource);
+                    printf("   Found Workout Source: %s\n", qUtf8Printable(*workoutSource));
                 } else if (fieldName == "Peloton Workout ID" && pelotonWorkoutId != nullptr) {
                     std::wstring wPelotonWorkoutId = devField.GetSTRINGValue(0);
-                    *pelotonWorkoutId = QString::fromStdWString(wPelotonWorkoutId);
-                    printf("   Found Peloton Workout ID: %s\n", pelotonWorkoutId->toStdString().c_str());
+                    *pelotonWorkoutId = fromFitString(wPelotonWorkoutId);
+                    printf("   Found Peloton Workout ID: %s\n", qUtf8Printable(*pelotonWorkoutId));
                 } else if (fieldName == "Peloton URL" && pelotonUrl != nullptr) {
                     std::wstring wPelotonUrl = devField.GetSTRINGValue(0);
-                    *pelotonUrl = QString::fromStdWString(wPelotonUrl);
-                    printf("   Found Peloton URL: %s\n", pelotonUrl->toStdString().c_str());
+                    *pelotonUrl = fromFitString(wPelotonUrl);
+                    printf("   Found Peloton URL: %s\n", qUtf8Printable(*pelotonUrl));
                 } else if (fieldName == "Training Program File" && trainingProgramFile != nullptr) {
                     std::wstring wTrainingProgramFile = devField.GetSTRINGValue(0);
-                    *trainingProgramFile = QString::fromStdWString(wTrainingProgramFile);
-                    printf("   Found Training Program File: %s\n", trainingProgramFile->toStdString().c_str());
+                    *trainingProgramFile = fromFitString(wTrainingProgramFile);
+                    printf("   Found Training Program File: %s\n", qUtf8Printable(*trainingProgramFile));
                 } else if (fieldName == "Instructor Name" || fieldName == "Coach Name") {
                     // Future: handle instructor name if needed
                     printf("   Found Instructor/Coach field: %s\n", fieldName.c_str());
@@ -1535,7 +1557,7 @@ void qfit::open(const QString &filename, QList<SessionLine> *output, FIT_SPORT *
 #endif
 
     if (!file.is_open()) {
-        std::system_error(errno, std::system_category(), "failed to open " + filename.toStdString());
+        std::system_error(errno, std::system_category(), std::string("failed to open ") + filename.toUtf8().constData());
         qDebug() << "opened " << filename << errno;
         printf("Error opening file ExampleActivity.fit\n");
         return;
