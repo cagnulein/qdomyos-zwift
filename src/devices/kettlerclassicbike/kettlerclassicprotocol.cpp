@@ -1,5 +1,7 @@
 #include "kettlerclassicprotocol.h"
 
+#include <QCryptographicHash>
+
 namespace kettlerclassicprotocol {
 namespace {
 constexpr quint8 STX = 0x02;
@@ -43,6 +45,38 @@ int consumeEscapedByte(const QByteArray &buffer, qsizetype &position, quint8 &va
 
 } // namespace
 
+QByteArray coachSHandshakeForSalt(const QByteArray &salt) {
+    if (salt.size() != 2) return {};
+    // Recovered from Kettler S-FIT 1.6; validated against six independent
+    // Coach S Kinomap handshake TX/RX payloads in three HCI captures.
+    const QByteArray secret = QByteArray::fromHex("35d834d59da00bbb43c91743accd5603");
+    return salt + QCryptographicHash::hash(salt + secret, QCryptographicHash::Md5);
+}
+
+bool isValidCoachSHandshake(const QByteArray &payload) {
+    return payload.size() == 18 && coachSHandshakeForSalt(payload.left(2)) == payload;
+}
+
+quint16 coachSCandidateWatts(const QByteArray &telemetryPayload) {
+    if (telemetryPayload.size() != 24 ||
+        static_cast<quint8>(telemetryPayload.at(0)) != 0x00 ||
+        static_cast<quint8>(telemetryPayload.at(1)) != 0x04) {
+        return 0;
+    }
+    return (static_cast<quint16>(static_cast<quint8>(telemetryPayload.at(18))) << 8) |
+           static_cast<quint8>(telemetryPayload.at(19));
+}
+
+quint8 coachSReportedResistance(const QByteArray &telemetryPayload) {
+    if (telemetryPayload.size() != 24 ||
+        static_cast<quint8>(telemetryPayload.at(0)) != 0x00 ||
+        static_cast<quint8>(telemetryPayload.at(1)) != 0x04) {
+        return 0;
+    }
+    const quint8 level = static_cast<quint8>(telemetryPayload.at(23));
+    return level >= 1 && level <= 10 ? level : 0;
+}
+
 quint16 crc16(const QByteArray &data) {
     quint16 crc = 0;
     for (const char byte : data) {
@@ -55,14 +89,24 @@ quint16 crc16(const QByteArray &data) {
     return crc;
 }
 
-QByteArray encodeFrame(quint16 function, quint8 subFunction, const QByteArray &payload) {
+namespace {
+QByteArray encodeFrameImpl(quint16 function, quint8 subFunction, const QByteArray &payload,
+                           bool countEscapedPayloadBytes) {
     QByteArray raw;
     raw.reserve(5 + payload.size());
     raw.append(static_cast<char>((function >> 8) & 0xff));
     raw.append(static_cast<char>(function & 0xff));
     raw.append(static_cast<char>(subFunction));
-    raw.append(static_cast<char>((payload.size() >> 8) & 0xff));
-    raw.append(static_cast<char>(payload.size() & 0xff));
+    // Kinomap Coach S handshake: header length counts the encoded (escaped)
+    // payload size, whereas regular Classic frames count decoded bytes.
+    qsizetype advertisedLength = payload.size();
+    if (countEscapedPayloadBytes) {
+        for (const char byte : payload) {
+            if (isControlByte(static_cast<quint8>(byte))) ++advertisedLength;
+        }
+    }
+    raw.append(static_cast<char>((advertisedLength >> 8) & 0xff));
+    raw.append(static_cast<char>(advertisedLength & 0xff));
     raw.append(payload);
 
     const quint16 checksum = crc16(raw);
@@ -76,6 +120,16 @@ QByteArray encodeFrame(quint16 function, quint8 subFunction, const QByteArray &p
     appendEscaped(encoded, static_cast<quint8>((checksum >> 8) & 0xff));
     appendEscaped(encoded, static_cast<quint8>(checksum & 0xff));
     return encoded;
+}
+} // namespace
+
+QByteArray encodeFrame(quint16 function, quint8 subFunction, const QByteArray &payload) {
+    return encodeFrameImpl(function, subFunction, payload, false);
+}
+
+QByteArray encodeFrameWithEscapedPayloadLength(quint16 function, quint8 subFunction,
+                                               const QByteArray &payload) {
+    return encodeFrameImpl(function, subFunction, payload, true);
 }
 
 QVector<Frame> consumeFrames(QByteArray &buffer) {
