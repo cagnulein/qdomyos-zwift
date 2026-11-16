@@ -16,8 +16,16 @@ constexpr quint16 DEVICE_DETAILS = 0x00d3;
 constexpr quint16 ROWING_TELEMETRY = 0x00e0;
 constexpr quint16 ACTIVITY_STATE = 0x00c0;
 constexpr quint16 HEART_RATE = 0x0008;
+// Optional Kettler S-FIT IRMP commands; Coach S support is hardware-dependent.
+constexpr quint16 POWER_CURRENT = 0x000b;
+constexpr quint16 BRAKE_LEVEL = 0x001b;
+constexpr quint16 BRAKE_LEVEL_MIN = 0x001c;
+constexpr quint16 BRAKE_LEVEL_MAX = 0x001d;
 constexpr quint8 SUB_READ = 0x01;
+constexpr quint8 SUB_WRITE = 0x02;
 constexpr quint8 SUB_ANSWER = 0x03;
+constexpr quint8 SUB_STATUS = 0x04;
+constexpr quint8 SUB_ERROR = 0x05;
 constexpr int POLL_INTERVAL_MS = 500;
 constexpr int REQUEST_TIMEOUT_MS = 2000;
 
@@ -63,6 +71,12 @@ bool kettlercoachrower::connected() {
 
 uint16_t kettlercoachrower::watts() {
     return currentWatts;
+}
+
+resistance_t kettlercoachrower::maxResistance() {
+    return minLevelReceived && maxLevelReceived && maxBrakeLevel >= minBrakeLevel
+               ? static_cast<resistance_t>(maxBrakeLevel)
+               : 30; // S-FIT default only until the Coach S reports actual limits
 }
 
 quint16 kettlercoachrower::be16(const QByteArray &data, int offset) {
@@ -132,6 +146,17 @@ void kettlercoachrower::rfCommConnected() {
     lastDistanceTime = QDateTime();
     lastStrokes = 0;
     lastDistanceMeters = 0;
+    telemetrySeen = false;
+    powerReadEnabled = true;
+    brakeReadEnabled = true;
+    minLevelReceived = false;
+    maxLevelReceived = false;
+    minBrakeLevel = 1;
+    maxBrakeLevel = 30;
+    optionalProbeStage = 0;
+    telemetryPollBatch = 0;
+    requestResistance = -1;
+    currentWatts = 0;
     activeRequest = Request{HANDSHAKE, SUB_READ, freshCoachChallenge()};
     requestInFlight = true;
     const QByteArray bytes = kettlerclassicprotocol::encodeFrameWithEscapedPayloadLength(
@@ -148,7 +173,29 @@ void kettlercoachrower::rfCommConnected() {
 }
 
 void kettlercoachrower::enqueueRead(quint16 function) {
-    requestQueue.enqueue(Request{function, SUB_READ, QByteArray()});
+    requestQueue.enqueue(Request{function, SUB_READ, QByteArray(), true});
+}
+
+void kettlercoachrower::enqueueWrite(quint16 function, const QByteArray &payload) {
+    // S-FIT does not guarantee a correlated ACK for writes. Check the level
+    // with a separate READ and keep telemetry running if no write reply arrives.
+    requestQueue.enqueue(Request{function, SUB_WRITE, payload, false});
+}
+
+void kettlercoachrower::enqueueResistanceRequest(resistance_t requested) {
+    if (noWriteResistance) {
+        emit debug(QStringLiteral("Coach S resistance write disabled by QZ setting"));
+        return;
+    }
+    const bool validLimits = minLevelReceived && maxLevelReceived &&
+                             maxBrakeLevel >= minBrakeLevel;
+    const int minLevel = validLimits ? minBrakeLevel : 1;
+    const int maxLevel = validLimits ? maxBrakeLevel : 30;
+    const quint8 level = static_cast<quint8>(qBound(minLevel, static_cast<int>(requested), maxLevel));
+    emit debug(QStringLiteral("Coach S experimental brake write: requested=%1 level=%2 range=%3..%4")
+                   .arg(requested).arg(level).arg(minLevel).arg(maxLevel));
+    enqueueWrite(BRAKE_LEVEL, QByteArray(1, static_cast<char>(level)));
+    enqueueRead(BRAKE_LEVEL); // read back what the firmware actually reports
 }
 
 void kettlercoachrower::sendNextRequest() {
@@ -160,8 +207,22 @@ void kettlercoachrower::sendNextRequest() {
                                                                   activeRequest.operation,
                                                                   activeRequest.payload);
     emit debug(QStringLiteral("Coach S >> ") + packet.toHex(' '));
-    socket->write(packet);
-    requestTimeoutTimer.start(REQUEST_TIMEOUT_MS);
+    const qint64 queued = socket->write(packet);
+    emit debug(QStringLiteral("Coach S socket write queued=%1 expected=%2")
+                   .arg(queued).arg(packet.size()));
+    if (queued != packet.size()) {
+        emit debug(QStringLiteral("Coach S failed to queue IRMP request function=0x") +
+                   QString::number(activeRequest.function, 16));
+        requestInFlight = false;
+        QTimer::singleShot(0, this, &kettlercoachrower::sendNextRequest);
+        return;
+    }
+    if (activeRequest.expectsResponse) {
+        requestTimeoutTimer.start(REQUEST_TIMEOUT_MS);
+    } else {
+        requestInFlight = false;
+        QTimer::singleShot(0, this, &kettlercoachrower::sendNextRequest);
+    }
 }
 
 void kettlercoachrower::readSocket() {
@@ -181,7 +242,64 @@ void kettlercoachrower::readSocket() {
 }
 
 void kettlercoachrower::processFrame(const kettlerclassicprotocol::Frame &frame) {
-    if (frame.subFunction != SUB_ANSWER) return;
+    // A new Coach S may reject S-FIT optional commands. Never break the
+    // proven 0x00E0 telemetry stream because a probe is unsupported.
+    if (frame.subFunction == SUB_ERROR) {
+        emit debug(QStringLiteral("Coach S IRMP error for function=0x") +
+                   QString::number(frame.function, 16) +
+                   QStringLiteral(" payload=") + frame.payload.toHex(' '));
+        if (requestInFlight && frame.function == activeRequest.function) {
+            requestTimeoutTimer.stop();
+            requestInFlight = false;
+            if (frame.function == POWER_CURRENT) powerReadEnabled = false;
+            if (frame.function == BRAKE_LEVEL && activeRequest.operation == SUB_READ)
+                brakeReadEnabled = false;
+            if (awaitingHandshake) {
+                disconnectAfterError(QStringLiteral("handshake rejected by Coach S"));
+                return;
+            }
+            sendNextRequest();
+        }
+        return;
+    }
+    if (frame.subFunction != SUB_ANSWER && frame.subFunction != SUB_STATUS) return;
+
+    if (frame.subFunction == SUB_ANSWER) {
+        switch (frame.function) {
+        case POWER_CURRENT:
+            if (frame.payload.size() == 2) {
+                currentWatts = be16(frame.payload, 0);
+                m_watt = currentWatts;
+                emit debug(QStringLiteral("Coach S IRMP power current=%1 W").arg(currentWatts));
+            }
+            break;
+        case BRAKE_LEVEL:
+            if (frame.payload.size() == 1) {
+                const quint8 level = static_cast<quint8>(frame.payload.at(0));
+                Resistance = level;
+                emit resistanceRead(level);
+                emit debug(QStringLiteral("Coach S IRMP brake level=%1").arg(level));
+            }
+            break;
+        case BRAKE_LEVEL_MIN:
+            if (frame.payload.size() == 1) {
+                minBrakeLevel = static_cast<quint8>(frame.payload.at(0));
+                minLevelReceived = true;
+                emit debug(QStringLiteral("Coach S IRMP brake min=%1").arg(minBrakeLevel));
+            }
+            break;
+        case BRAKE_LEVEL_MAX:
+            if (frame.payload.size() == 1) {
+                maxBrakeLevel = static_cast<quint8>(frame.payload.at(0));
+                maxLevelReceived = true;
+                emit debug(QStringLiteral("Coach S IRMP brake max=%1").arg(maxBrakeLevel));
+            }
+            break;
+        default:
+            break;
+        }
+    }
+
     if (requestInFlight && frame.function == activeRequest.function) {
         if (awaitingHandshake && !kettlerclassicprotocol::isValidCoachSHandshake(frame.payload)) {
             disconnectAfterError(QStringLiteral("invalid Coach S handshake response digest"));
@@ -192,7 +310,7 @@ void kettlercoachrower::processFrame(const kettlerclassicprotocol::Frame &frame)
         if (awaitingHandshake) {
             awaitingHandshake = false;
             initDone = true;
-            // Exact initial reads observed in the successful Kinomap session.
+            // Keep the exact working Kinomap setup before optional probes.
             enqueueRead(SESSION_STATE);
             enqueueRead(DEVICE_MODE);
             enqueueRead(SESSION_STATE);
@@ -201,13 +319,15 @@ void kettlercoachrower::processFrame(const kettlerclassicprotocol::Frame &frame)
             return;
         }
     }
-    if (frame.function == ROWING_TELEMETRY) {
+    if (frame.function == ROWING_TELEMETRY && frame.subFunction == SUB_ANSWER) {
         processTelemetry(frame.payload);
+        telemetrySeen = true;
         if (!signalledConnection) {
             signalledConnection = true;
             emit connectedAndDiscovered();
         }
-    } else if (frame.function == HEART_RATE && frame.payload.size() == 2) {
+    } else if (frame.function == HEART_RATE && frame.payload.size() == 2 &&
+               frame.subFunction == SUB_ANSWER) {
         const quint16 hr = be16(frame.payload, 0);
         if (hr > 0 && hr < 250) Heart = hr;
     }
@@ -262,11 +382,39 @@ void kettlercoachrower::processTelemetry(const QByteArray &payload) {
 
 void kettlercoachrower::update() {
     if (!socket || socket->state() != QBluetoothSocket::ConnectedState || !initDone) return;
+
+    // Only send a brake write in response to an explicit QZ resistance
+    // request. Never switch brake mode (0x0007) automatically.
+    if (telemetrySeen && requestResistance != -1) {
+        const resistance_t requested = requestResistance;
+        requestResistance = -1;
+        enqueueResistanceRequest(requested);
+    }
+
     if (!requestInFlight && requestQueue.isEmpty()) {
+        // Maintain the working Coach S polling sequence at all times.
         enqueueRead(DEVICE_DETAILS);
         enqueueRead(ROWING_TELEMETRY);
         enqueueRead(ACTIVITY_STATE);
         enqueueRead(HEART_RATE);
+
+        if (telemetrySeen) {
+            // Probe each optional command once, separated by normal polling
+            // batches. If unsupported, 2-second timeouts won't repeat.
+            switch (optionalProbeStage) {
+            case 0: enqueueRead(BRAKE_LEVEL_MIN); break;
+            case 1: enqueueRead(BRAKE_LEVEL_MAX); break;
+            case 2: enqueueRead(POWER_CURRENT); break;
+            case 3: enqueueRead(BRAKE_LEVEL); break;
+            default:
+                if (powerReadEnabled) enqueueRead(POWER_CURRENT);
+                if (brakeReadEnabled && (telemetryPollBatch % 3 == 0))
+                    enqueueRead(BRAKE_LEVEL);
+                break;
+            }
+            if (optionalProbeStage < 4) ++optionalProbeStage;
+            ++telemetryPollBatch;
+        }
     }
     sendNextRequest();
 
@@ -284,7 +432,11 @@ void kettlercoachrower::update() {
 void kettlercoachrower::requestTimeout() {
     if (!requestInFlight) return;
     emit debug(QStringLiteral("Coach S request timeout function 0x") +
-               QString::number(activeRequest.function, 16));
+               QString::number(activeRequest.function, 16) +
+               QStringLiteral(" operation=0x") + QString::number(activeRequest.operation, 16));
+    if (activeRequest.function == POWER_CURRENT) powerReadEnabled = false;
+    if (activeRequest.function == BRAKE_LEVEL && activeRequest.operation == SUB_READ)
+        brakeReadEnabled = false;
     requestInFlight = false;
     if (awaitingHandshake) {
         disconnectAfterError(QStringLiteral("handshake timed out (Coach S MD5 salt challenge)"));
