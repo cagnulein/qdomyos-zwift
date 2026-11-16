@@ -12,6 +12,12 @@
             box-sizing: border-box;
         }
 
+        /* the chart takes the height of the view: a fixed 400px was cut at the bottom (no time axis)
+           in the program preview, lower than that both upright and in landscape */
+        html, body {
+            height: 100%;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #1d2330;
@@ -19,9 +25,15 @@
             padding: 10px;
         }
 
+        /* modern look: the page colour around the chart (given in the address), so the frame merges
+           with the page, and only 8px at the sides */
+        body.modern {
+            padding: 0 8px;
+        }
+
         #chart-container {
             width: 100%;
-            height: 400px;
+            height: 100%;
             background: white;
             border-radius: 8px;
             padding: 10px;
@@ -36,6 +48,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 </head>
 <body>
+    <script>
+        // ?bg=<colour> - the modern look of the app: its page colour instead of the dark frame
+        (function () {
+            const bg = new URLSearchParams(window.location.search).get('bg');
+            if (bg) {
+                document.body.classList.add('modern');
+                document.body.style.background = bg;
+            }
+        })();
+    </script>
     <div id="chart-container">
         <canvas id="workoutChart"></canvas>
     </div>

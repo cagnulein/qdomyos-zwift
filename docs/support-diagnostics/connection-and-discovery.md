@@ -229,3 +229,24 @@
 
 - Finding a Bluetooth advertisement and selecting the correct Manual Device do not prove that the phone established a usable telemetry session.
 - A confirmed Android KICKR CORE case recovered live metrics after clearing its old system-level Bluetooth pairing. Recording the saved-pairing state separates that failure from a wrong device handler or a competing app connection.
+
+## Bluetooth Classic rower is discovered but QZ attempts BLE or ignores it
+
+### Provide first
+
+- Exact rower **and console** model, QZ build, Android version, and the **complete Bluetooth name** visible in Android's system Bluetooth list (including any suffix). Do not substitute a similar model name.
+- State whether the rower appears in Android's **Classic Bluetooth paired devices**, in a **BLE scan**, or both. Report whether pairing succeeds in Android settings and whether the manufacturer's app reads live strokes.
+- Screenshot the physical-device selections in **Rower Options** (especially **FTMS Rower**) and any enabled **iConsole/BH Spada** compatibility options. State which options were changed and whether QZ was restarted afterward.
+- Report the precise QZ stage: never discovered, discovered but ignored, connection attempt followed by failure, or connected with no live rowing metrics.
+
+### If still unclear
+
+- With manufacturer apps closed and the rower awake, capture one **QZ-only debug log from before discovery through the connection attempt**. Include whether the discovery event identifies the device as BLE or Classic (for example, `isLeScanResult: false`) and the selected QZ driver if visible. Remove Bluetooth addresses before sharing logs publicly.
+- If QZ attempts an FTMS/BLE connection to a Classic-only device, compare one restart with the **FTMS Rower** selection disabled while leaving the intended Classic-compatible option unchanged. Record whether QZ now ignores the name or connects. Do not toggle multiple compatibility modes simultaneously.
+- If the name is discovered but no connection is attempted, provide the **exact advertised/system name** and the discovery portion of the log for a device-name/handler matching review. Only after the physical rower connects, row for 30–60 seconds and report which QZ metrics change; test virtual rowing apps afterward.
+
+### Why it matters
+
+- Android system Bluetooth pairing and BLE GATT connections are different paths. A Classic/SPP device can be discovered successfully but fail when a BLE/FTMS handler is selected; a BLE connection error alone does not establish a faulty radio or an FTMS protocol defect.
+- A Classic discovery event with no subsequent connection attempt can instead indicate that the device name does not match the selected Classic handler. The complete Bluetooth name and driver selection distinguish these failure stages.
+- The first high-value comparison is **protocol/handler selection**, not third-party pairing or rowing metric parsing. Collecting one controlled discovery log is more informative than repeated full workouts.

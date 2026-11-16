@@ -263,3 +263,15 @@ Choose **one upload route** for each workout:
 2. **Direct to Intervals.icu:** Keep QZ's direct Intervals.icu upload and disable the Garmin Connect → Intervals.icu activity sync for that workout source.
 
 QZ supports direct Intervals.icu uploads after a workout is stopped, as well as Garmin Connect integration. These are separate destinations; connecting both does not automatically deduplicate activities arriving through an external Garmin-to-Intervals synchronization. Check with a short test activity after changing the connections.
+
+## Garmin detects QZ's virtual treadmill running sensor but pairing times out. What can I try?
+
+On iOS, QZ can advertise a Bluetooth **Running Speed and Cadence (RSC)** sensor for a Garmin watch to record treadmill speed and distance during its own Treadmill activity. This differs from QZ's cycling power sensor.
+
+1. Enable **Virtual Device** and **Virtual Device Bluetooth** in QZ. Under **Garmin Options**, enable **Garmin Bluetooth Sensor**, then fully restart QZ.
+2. Connect the physical treadmill and confirm QZ displays live speed.
+3. If the watch detects QZ but pairing times out, temporarily disable the Garmin watch's **Phone Connection** under **Connectivity > Phone > Status** (or via Controls). **Keep Bluetooth enabled on the iPhone** so QZ can communicate with the treadmill.
+4. Remove any failed QZ sensor pairing on the watch and retry via **Sensors & Accessories > Add New > Search All** (or **Foot Pod**). Start a Treadmill activity and check speed/distance.
+5. Re-enable the watch's Phone Connection afterward to restore syncing.
+
+A Garmin fēnix 8 user confirmed that disabling the watch's Bluetooth phone connection resolved the pairing timeout and the setup worked with QZ controlling a Hammer Fly Run 4.0 treadmill. Do not disable Bluetooth on the iPhone.

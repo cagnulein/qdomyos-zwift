@@ -274,6 +274,7 @@ const QString QZSettings::default_echelon_watttable = QStringLiteral("Echelon");
 const QString QZSettings::proform_wheel_ratio = QStringLiteral("proform_wheel_ratio");
 const QString QZSettings::proform_tour_de_france_clc = QStringLiteral("proform_tour_de_france_clc");
 const QString QZSettings::proform_tdf_jonseed_watt = QStringLiteral("proform_tdf_jonseed_watt");
+const QString QZSettings::proform_use_console_gears = QStringLiteral("proform_use_console_gears");
 const QString QZSettings::proform_studio = QStringLiteral("proform_studio");
 const QString QZSettings::proform_tdf_10 = QStringLiteral("proform_tdf_10");
 const QString QZSettings::horizon_gr7_cadence_multiplier = QStringLiteral("horizon_gr7_cadence_multiplier");
@@ -1368,7 +1369,7 @@ const QString QZSettings::default_ui_theme_mode = QStringLiteral("auto");
 
 const QString QZSettings::wahoo_wheel_question_answered = QStringLiteral("wahoo_wheel_question_answered");
 
-const uint32_t allSettingsCount = 1056;
+const uint32_t allSettingsCount = 1057;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2311,7 +2312,6 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::kingsmith_r2_enable_hw_buttons, QZSettings::default_kingsmith_r2_enable_hw_buttons},
     {QZSettings::toorxtreadmill_discovery_completed, QZSettings::default_toorxtreadmill_discovery_completed},
     {QZSettings::proform_treadmill_sport_3_0, QZSettings::default_proform_treadmill_sport_3_0},
-    {QZSettings::nordictrack_tseries8_treadmill, QZSettings::default_nordictrack_tseries8_treadmill},
     {QZSettings::garmin_oauth1_token, QZSettings::default_garmin_oauth1_token},
     {QZSettings::garmin_oauth1_token_secret, QZSettings::default_garmin_oauth1_token_secret},
     {QZSettings::mywhoosh_link_enabled, QZSettings::default_mywhoosh_link_enabled},
@@ -2451,6 +2451,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::ui_accent, QZSettings::default_ui_accent},
     {QZSettings::ui_theme_mode, QZSettings::default_ui_theme_mode},
     {QZSettings::wahoo_wheel_question_answered, QZSettings::default_wahoo_wheel_question_answered},
+    {QZSettings::proform_use_console_gears, QZSettings::default_proform_use_console_gears},
+    {QZSettings::nordictrack_tseries8_treadmill, QZSettings::default_nordictrack_tseries8_treadmill},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

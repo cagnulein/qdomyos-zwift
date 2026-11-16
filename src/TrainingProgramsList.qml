@@ -23,7 +23,7 @@ ColumnLayout {
             }
         }
         // programs of a previous install were copied back into the training folder
-        function onTrainingProgramsRestored() {
+        function onFolderFilesRestored() {
             var currentFolder = folderModel.folder
             folderModel.folder = ""
             folderModel.folder = currentFolder
@@ -48,7 +48,7 @@ ColumnLayout {
         Qt.callLater(function() {
             openWorkoutPreview(initialWorkoutUrl)
         })
-        rootItem.trainingProgramsPageOpened()
+        rootItem.folderPageOpened()
     }
 
     MessageDialog {
@@ -146,13 +146,25 @@ ColumnLayout {
                         }
             }
 
+            // the restore of a previous install: above the list, which moves down for that time
+            UiProgress {
+                Layout.fillWidth: true
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+                topPadding: 8
+                done: rootItem.folderRestoreDone
+                total: rootItem.folderRestoreTotal
+            }
+
             ListView {
                 Layout.fillWidth: true
                 Layout.minimumWidth: 50
                 Layout.preferredWidth: 100
                 Layout.minimumHeight: 150
                 Layout.fillHeight: true
-                ScrollBar.vertical: ScrollBar {}
+                // Modern look: a thin bar while the list moves, as in the other lists of the modern look; the
+                // Material bar that can be dragged is 13 dp with a 16 dp track
+                ScrollBar.vertical: ScrollBar { interactive: !window.ui.modern }
                 id: list
                 FolderListModel {
                     id: folderModel
@@ -242,7 +254,9 @@ ColumnLayout {
                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
                     if (fileUrl && !folderModel.isFolder(list.currentIndex)) {
                         selectedWorkoutUrl = fileUrl
-                        list.currentItem.textColor = window.ui.modern && !window.ui.dark ? window.ui.accent : Material.color(Material.Yellow)
+                        // no current row for a moment while a restore renames files under the open page
+                        if (list.currentItem)
+                            list.currentItem.textColor = window.ui.modern && !window.ui.dark ? window.ui.accent : Material.color(Material.Yellow)
                         console.log(fileUrl + ' selected');
                         trainprogram_preview(fileUrl)
                         powerSeries.clear();

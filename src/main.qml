@@ -156,6 +156,8 @@ ApplicationWindow {
     signal strava_upload_file_prepare();
 
     property bool lockTiles: false
+    // The support button "?" (SupportHelpButton) is in the bottom right corner of the home page
+    readonly property bool supportHelpShown: supportHelpButton.shown
     property bool settings_restart_to_apply: false
     property bool gymModePopupDismissed: false
 
@@ -309,6 +311,8 @@ ApplicationWindow {
         readonly property color textMain: t.textMain
         readonly property color textMuted: t.textMuted
         readonly property color accent: a[settings.ui_accent] || a["violet"]
+        // the name of the accent: UiButton.inverse takes the one of the opposite theme
+        readonly property string accentName: settings.ui_accent
         readonly property color accentInk: dark ? "#12101A" : "#FFFFFF"
         readonly property color danger: dark ? "#FF8A80" : "#C62828"
         readonly property color ok: dark ? "#7EDC8A" : "#2E7D32"
@@ -368,6 +372,8 @@ ApplicationWindow {
         // Text that the classic look paints in a fixed colour (mostly white) on the page
         // background: the theme text colour in the modern look, the old colour otherwise
         function ink(classic) { return modern ? textMain : classic }
+        // Zone colours of the tiles are made for a dark page: darker ones on a light page
+        function zoneInk(c) { return dark ? c : Qt.darker(c, 1.7) }
     }
 
     // Classic look: undefined resets them to the style (qtquickcontrols2.conf), as without these lines
@@ -381,6 +387,24 @@ ApplicationWindow {
     Connections {
         target: AndroidStatusBar
         function onSystemThemeChanged() { window.ui.refreshSystemTheme() }
+    }
+
+    // Android: the theme Qt 5.15 sets paints the status bar black over the app. The modern look
+    // makes it transparent (the page and the drawer sheet reach the top of the screen) with icons in
+    // the contrast of the page; the classic look keeps the black bar, as before, unless the modern
+    // one was on
+    property bool systemBarsColored: false
+    function applySystemBars() {
+        if (Qt.platform.os !== "android" || (!ui.modern && !systemBarsColored))
+            return
+        AndroidStatusBar.setSystemBarsColor(ui.bg, ui.dark, ui.modern)
+        systemBarsColored = ui.modern
+    }
+    Connections {
+        target: window.ui
+        function onBgChanged() { window.applySystemBars() }
+        function onDarkChanged() { window.applySystemBars() }
+        function onModernChanged() { window.applySystemBars() }
     }
 
     // Text size of the app (not the tiles, they follow ui_zoom). On Android and iOS it follows the
@@ -449,6 +473,8 @@ ApplicationWindow {
             if (Qt.application.state === Qt.ApplicationActive) {
                 window.systemTextScale = AndroidStatusBar.systemFontScale()
                 window.ui.refreshSystemTheme()
+                // the first time at start-up, when the native window is there
+                window.applySystemBars()
             }
         }
     }
@@ -940,8 +966,8 @@ ApplicationWindow {
         function onHistoryRecoveryOfferRequested() {
             popupHistoryRecovery.visible = true
         }
-        function onTrainingRestoreOfferRequested() {
-            popupTrainingRestore.visible = true
+        function onFolderRestoreOfferRequested() {
+            popupFolderRestore.visible = true
         }
         function onChangeOfdevice() {
             window.equipmentConnected = window.ui.modern && rootItem.supportDeviceConnected()
@@ -953,14 +979,14 @@ ApplicationWindow {
     // Bluetooth icon of the home page, and one more binding reading it would stop the blinking
     property bool equipmentConnected: false
 
-    // after a reinstall the training programs of the previous install are hidden in the
-    // training folder: with access to the QZ folder QZ copies them back as its own
+    // after a reinstall the training programs, GPX routes, settings files and profiles of the
+    // previous install are hidden in the QZ folder: with access to it QZ copies them back as its own
     UiMessageDialog {
-        id: popupTrainingRestore
-        text: qsTr("Training Programs")
-        informativeText: qsTr("Training programs of a previous installation may still be in the QZ folder.\nDo you want to look for them?\n\nIn the next window, allow access to the QZ folder.")
+        id: popupFolderRestore
+        text: qsTr("Restore files")
+        informativeText: qsTr("Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.\nDo you want to look for them?\n\nIn the next window, allow access to the QZ folder.")
         buttons: (MessageDialog.Yes | MessageDialog.No)
-        onYesClicked: rootItem.restoreTrainingPrograms()
+        onYesClicked: rootItem.restoreFolderFiles()
         onNoClicked: this.visible = false
         visible: false
     }
@@ -1322,10 +1348,12 @@ ApplicationWindow {
         topInset: -barHidden
         bottomInset: barHidden - contentHeight
         // The buttons fade out as the bar goes and are hidden once it is gone, from TalkBack as
-        // well; the background goes then too
+        // well; the background goes then too. Android, modern look: it stays – the status bar is
+        // transparent there (applySystemBars), and the tiles would slide under its icons
         contentItem.opacity: 1 - barHidden / contentHeight
         contentItem.visible: barHidden < contentHeight
         background.visible: barHidden < contentHeight
+                            || (window.ui.modern && Qt.platform.os === "android")
 
         // The bar takes the touches on it, as a toolbar the height of its content did: drawn
         // past the height of the header, it would let a tap on the title reach the tiles below
@@ -1856,7 +1884,9 @@ ApplicationWindow {
         background.visible: !window.ui.modern
 
         // Modern: a sheet with rounded outer corners, over the whole drawer (paddings too). It
-        // runs past the left edge, so only the right-hand corners show
+        // runs past the left edge, so only the right-hand corners show. 16: the corner of the
+        // Material 3 navigation drawer (shape Corner Large). On Android the top one shows through
+        // the transparent status bar (applySystemBars)
         Rectangle {
             visible: window.ui.modern
             anchors.fill: parent
@@ -1864,7 +1894,7 @@ ApplicationWindow {
             anchors.bottomMargin: -drawer.bottomPadding
             anchors.leftMargin: -drawer.leftPadding - radius
             anchors.rightMargin: -drawer.rightPadding
-            radius: 20
+            radius: 16
             color: window.ui.surface
         }
 
@@ -2126,7 +2156,10 @@ ApplicationWindow {
                             color: window.equipmentConnected ? window.ui.ok : window.ui.textMuted
                         }
                         Label {
-                            width: parent.width - 14
+                            // the dot and its gap; with the bars also their 13 and the gap before them.
+                            // Their own condition, not drawerSignal.visible: that one is false while the
+                            // drawer is closed, and Row places what is not hidden by itself (explicitVisible)
+                            width: parent.width - 14 - (window.equipmentConnected ? 13 + 6 : 0)
                             // "Connecting..." - the untranslated start value of homeform::m_info, kept until the
                             // equipment writes its own status: shown as the search, or as connected next to the green dot
                             text: (typeof rootItem !== "undefined" && rootItem) ? (rootItem.info !== "Connecting..." ? rootItem.info
@@ -2135,6 +2168,23 @@ ApplicationWindow {
                             font.pixelSize: window.ui.fontCaption
                             color: window.ui.textMuted
                             elide: Text.ElideRight
+                        }
+                        // The signal of the connected equipment at the end of the line, as a trailing icon:
+                        // the home page shows it only with its status line, which is hidden while connected.
+                        // The bars of the home status line (signal-1..3, the RSSI of the search)
+                        Image {
+                            id: drawerSignal
+                            visible: window.equipmentConnected
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 13
+                            height: 13
+                            fillMode: Image.PreserveAspectFit
+                            source: visible ? rootItem.signal : ""
+                            smooth: true
+                            Accessible.ignored: true
+                            // The bars are white: on a light page paint them in the text colour
+                            layer.enabled: !window.ui.dark
+                            layer.effect: ColorOverlay { color: window.ui.textMuted }
                         }
                     }
 
@@ -2395,6 +2445,7 @@ ApplicationWindow {
         }
 
         SupportHelpButton {
+            id: supportHelpButton
             activeOnHome: window.rootReady && stackView.depth === 1 && !window.lockTiles
             anchors.right: parent.right
             anchors.bottom: parent.bottom
