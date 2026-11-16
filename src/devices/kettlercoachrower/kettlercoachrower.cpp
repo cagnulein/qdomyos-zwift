@@ -193,10 +193,9 @@ void kettlercoachrower::enqueueResistanceRequest(resistance_t requested) {
     const int maxLevel = maxResistance();
     const int level = qBound(minLevel, static_cast<int>(requested), maxLevel);
     const quint16 watts = kettlerclassicprotocol::coachSTargetWattsForLevel(level);
-    const QByteArray payload{
-        static_cast<char>((watts >> 8) & 0xff),
-        static_cast<char>(watts & 0xff)
-    };
+    QByteArray payload;
+    payload.append(static_cast<char>((watts >> 8) & 0xff));
+    payload.append(static_cast<char>(watts & 0xff));
     // 0x00C2/02 is a user-reported Kinomap target-load command, not yet
     // validated in a matching raw HCI capture. Keep this nonblocking.
     emit debug(QStringLiteral("Coach S experimental C2 target write level=%1 target=%2 W (L9-L10 estimated)")
