@@ -2504,6 +2504,7 @@ import AndroidStatusBar 1.0
             property string ui_theme_mode: "auto"
             property bool proform_treadmill_cst_505_pftl59420_2026: false
             property bool proform_use_console_gears: false
+            property string stryde_serialport: ""
 
         }
 
@@ -6779,6 +6780,31 @@ import AndroidStatusBar 1.0
                         }
                     }
 
+
+                    AccordionElement {
+                        id: strydeBikeAccordion
+                        title: qsTr("Stryde Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            RowLayout {
+                                Label { text: qsTr("Enable serial bike (enter any value):"); wrapMode: window.labelWrap; Layout.fillWidth: true }
+                                SettingsTextField {
+                                    id: strydeSerialPortTextField
+                                    savedText: settings.stryde_serialport
+                                    horizontalAlignment: Text.AlignRight
+                                    onAccepted: { settings.stryde_serialport = text; window.settings_restart_to_apply = true; }
+                                    onActiveFocusChanged: if (focus) cursorPosition = text.length
+                                }
+                                Button {
+                                    text: qsTr("OK")
+                                    enabled: strydeSerialPortTextField.dirty
+                                    onClicked: { settings.stryde_serialport = strydeSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                }
+                            }
+                        }
+                    }
 
                     AccordionElement {
                         id: freebeatBikeAccordion

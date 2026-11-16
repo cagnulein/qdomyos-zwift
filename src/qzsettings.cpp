@@ -689,6 +689,8 @@ const QString QZSettings::default_kettler_usb_serialport = QStringLiteral("");
 const QString QZSettings::kettler_usb_baudrate = QStringLiteral("kettler_usb_baudrate");
 const QString QZSettings::daum_serialport = QStringLiteral("daum_serialport");
 const QString QZSettings::default_daum_serialport = QStringLiteral("");
+const QString QZSettings::stryde_serialport = QStringLiteral("stryde_serialport");
+const QString QZSettings::default_stryde_serialport = QStringLiteral("");
 const QString QZSettings::freebeat_serialport = QStringLiteral("freebeat_serialport");
 const QString QZSettings::default_freebeat_serialport = QStringLiteral("");
 const QString QZSettings::strava_virtual_activity = QStringLiteral("strava_virtual_activity");
@@ -1368,7 +1370,7 @@ const QString QZSettings::default_ui_theme_mode = QStringLiteral("auto");
 
 const QString QZSettings::wahoo_wheel_question_answered = QStringLiteral("wahoo_wheel_question_answered");
 
-const uint32_t allSettingsCount = 1056;
+const uint32_t allSettingsCount = 1057;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2418,6 +2420,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::zwiftplay_gear_paddle_right, QZSettings::default_zwiftplay_gear_paddle_right},
     {QZSettings::zwiftplay_gear_lb, QZSettings::default_zwiftplay_gear_lb},
     {QZSettings::zwiftplay_gear_rb, QZSettings::default_zwiftplay_gear_rb},
+    {QZSettings::stryde_serialport, QZSettings::default_stryde_serialport},
     {QZSettings::freebeat_serialport, QZSettings::default_freebeat_serialport},
     {QZSettings::ios_background_keepalive, QZSettings::default_ios_background_keepalive},
     {QZSettings::renpho_bike_knob_gears, QZSettings::default_renpho_bike_knob_gears},

@@ -185,6 +185,7 @@ characteristics/characteristicwriteprocessore005.cpp \
 devices/computrainerbike/computrainerbike.cpp \
 devices/kettlerusbbike/kettlerusbbike.cpp \
 devices/daumbike/daumbike.cpp \
+devices/strydebike/strydebike.cpp \
 devices/freebeatbike/freebeatbike.cpp \
 devices/fakeelliptical/fakeelliptical.cpp \
 devices/faketreadmill/faketreadmill.cpp \
@@ -515,6 +516,7 @@ characteristics/characteristicwriteprocessore005.h \
 devices/computrainerbike/computrainerbike.h \
 devices/kettlerusbbike/kettlerusbbike.h \
 devices/daumbike/daumbike.h \
+devices/strydebike/strydebike.h \
 devices/freebeatbike/freebeatbike.h \
 devices/freebeatboombike/freebeatboombike.h \
 definitions.h \
