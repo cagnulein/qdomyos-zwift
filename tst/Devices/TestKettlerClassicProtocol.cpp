@@ -213,3 +213,49 @@ TEST(KettlerClassicProtocol, CoachSDecodesCandidatePowerFromRealE0Telemetry) {
     EXPECT_EQ(kettlerclassicprotocol::coachSCandidateWatts(wrongType), 0);
     EXPECT_EQ(kettlerclassicprotocol::coachSCandidateWatts(w170.left(20)), 0);
 }
+
+TEST(KettlerClassicProtocol, CoachSKinomapTargetLevelMapping) {
+    // Coach S has ten levels; 1..8 are user-reported Kinomap target W.
+    // L9/L10 must be confirmed by a new controlled hardware test.
+    const int observedWatts[] = {50, 60, 80, 100, 125, 145, 165, 185};
+    for (int level = 1; level <= 8; ++level) {
+        EXPECT_EQ(kettlerclassicprotocol::coachSTargetWattsForLevel(level),
+                  observedWatts[level - 1]);
+    }
+    EXPECT_EQ(kettlerclassicprotocol::coachSTargetWattsForLevel(9), 205);
+    EXPECT_EQ(kettlerclassicprotocol::coachSTargetWattsForLevel(10), 225);
+    EXPECT_EQ(kettlerclassicprotocol::coachSTargetWattsForLevel(-1), 50);
+    EXPECT_EQ(kettlerclassicprotocol::coachSTargetWattsForLevel(99), 225);
+}
+
+TEST(KettlerClassicProtocol, CoachSEncodesTargetPowerWithEscapingAndCrc) {
+    // 0x00C2/0x02, U16 big-endian target W. For 50 W the 0x02
+    // operation AND 0x02 payload-length byte must be escaped.
+    const QByteArray watts50 = QByteArray::fromHex("0032");
+    const QByteArray frame50 =
+        kettlerclassicprotocol::encodeFrame(0x00c2, 0x02, watts50);
+    EXPECT_EQ(frame50, QByteArray::fromHex("0200c21022001022003203be84"));
+
+    // The same operation at level L8 (185 W), using the verified shared
+    // frame/CRC encoder rather than reusing any quoted unverified CRC.
+    const quint16 w185 = kettlerclassicprotocol::coachSTargetWattsForLevel(8);
+    QByteArray watts185;
+    watts185.append(static_cast<char>(w185 >> 8));
+    watts185.append(static_cast<char>(w185 & 0xff));
+    const QByteArray frame185 =
+        kettlerclassicprotocol::encodeFrame(0x00c2, 0x02, watts185);
+    EXPECT_EQ(frame185, QByteArray::fromHex("0200c2102200102200b903845f"));
+
+    QByteArray decoded = frame50 + frame185 +
+        kettlerclassicprotocol::encodeFrame(0x00c2, 0x03, QByteArray());
+    const auto frames = kettlerclassicprotocol::consumeFrames(decoded);
+    ASSERT_EQ(frames.size(), 3);
+    EXPECT_EQ(frames.at(0).function, 0x00c2);
+    EXPECT_EQ(frames.at(0).subFunction, 0x02);
+    EXPECT_EQ(frames.at(0).payload, watts50);
+    EXPECT_EQ(frames.at(1).payload, watts185);
+    EXPECT_EQ(frames.at(2).function, 0x00c2);
+    EXPECT_EQ(frames.at(2).subFunction, 0x03);
+    EXPECT_TRUE(frames.at(2).payload.isEmpty());
+    EXPECT_TRUE(decoded.isEmpty());
+}
