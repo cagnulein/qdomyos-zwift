@@ -67,6 +67,17 @@ quint16 coachSCandidateWatts(const QByteArray &telemetryPayload) {
            static_cast<quint8>(telemetryPayload.at(19));
 }
 
+quint16 coachSTargetWattsForLevel(int level) {
+    // Reported Kinomap level->target mapping (L1..L8).
+    // Coach S has 10 selectable levels; the last two are provisional
+    // +20 W extrapolations until they can be verified on the hardware.
+    static const quint16 targets[10] = {
+        50, 60, 80, 100, 125, 145, 165, 185, 205, 225
+    };
+    const int index = qBound(1, level, 10) - 1;
+    return targets[index];
+}
+
 quint16 crc16(const QByteArray &data) {
     quint16 crc = 0;
     for (const char byte : data) {
