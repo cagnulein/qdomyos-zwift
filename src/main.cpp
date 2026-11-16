@@ -50,6 +50,7 @@
 #include <QQuickItem>
 #include <QQuickWindow>
 #include <QSemaphore>
+#include <QSet>
 #include <QSharedPointer>
 #include <QThread>
 #include <QTimer>
@@ -1267,6 +1268,14 @@ static QList<QPointer<QObject>> &openingPopupItems() {
     return items;
 }
 
+// The items of popups shown at least once: a popup removed while open (a Loader switched off, a
+// destroy()) sends no hide - QQuickPopup's destructor deletes its item without hiding it
+// (qquickpopup.cpp:820-826) - so its destroyed() gives the focus back as a hide would
+static QSet<QObject *> &watchedPopupItems() {
+    static QSet<QObject *> items;
+    return items;
+}
+
 static void popupsOpened() {
     QList<QPointer<QObject>> &items = openingPopupItems();
     for (int i = items.size() - 1; i >= 0; --i) {
@@ -1308,6 +1317,15 @@ static void androidAccessibilityUpdate(QAccessibleEvent *event) {
         if (event->type() == QAccessible::ObjectShow) {
             QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity",
                                                       "accessibilityPopupShown", "(I)V", key);
+            if (onQtThread && !watchedPopupItems().contains(popupItem)) {
+                watchedPopupItems().insert(popupItem);
+                QObject::connect(popupItem, &QObject::destroyed, [key](QObject *item) {
+                    watchedPopupItems().remove(item);
+                    if (QAccessible::isActive())
+                        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity",
+                                                                  "accessibilityPopupHidden", "(I)V", key);
+                });
+            }
             QObject *popup = onQtThread ? popupItem->parent() : nullptr;
             if (popup && popup->property("modal").toBool()) {
                 const QMetaObject *meta = popup->metaObject();
