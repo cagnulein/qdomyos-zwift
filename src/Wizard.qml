@@ -209,13 +209,30 @@ Page {
         id: wizardBar
         property bool backVisible: true
         property string primaryText: ""
+        // the Flickable of the step's ScrollView (its contentItem)
+        property Flickable flick: null
         signal backClicked()
         signal primaryClicked()
         readonly property real buttonWidth: (width - 2 * wizardPage.modernMargin - 8) / 2
 
         visible: window.ui.modern
         height: wizardPage.modernBarHeight
-        color: window.ui.surfaceHigh
+        // On the page background while the whole content is seen; surfaceHigh while there is
+        // more of it below (as an M3 app bar with content scrolled under it). The height check
+        // first: atYEnd starts false before the first layout of a short step
+        color: flick && flick.contentHeight > flick.height && !flick.atYEnd ? window.ui.surfaceHigh : "transparent"
+        Behavior on color { ColorAnimation { duration: 150 } }
+
+        // Modern look: a step drags only when its content is taller than the view. A ScrollView makes
+        // a plain Flickable (qquickscrollview.cpp v5.15.0:183), and its default AutoFlickDirection
+        // drags whenever the heights differ, a short page too (qquickflickable.cpp v5.15.0:2336)
+        Binding {
+            when: window.ui.modern && wizardBar.flick !== null
+            target: wizardBar.flick
+            property: "flickableDirection"
+            value: Flickable.AutoFlickIfNeeded
+            restoreMode: Binding.RestoreBindingOrValue
+        }
 
         UiButton {
             visible: wizardBar.backVisible
@@ -247,6 +264,7 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
+                id: stepScroll
                 contentWidth: availableWidth
                 topPadding: 16
                 // Modern look: 16 under the content, and the content ends above the button bar
@@ -304,7 +322,7 @@ Page {
                         wrapMode: Text.WordWrap
                         Layout.fillWidth: true
                         width: stackViewLocal.width * 0.8
-                        horizontalAlignment: Text.AlignHCenter
+                        horizontalAlignment: window.ui.modern ? Text.AlignLeft : Text.AlignHCenter
                         color: window.ui.modern ? window.ui.textMuted : "white"
                     }
 
@@ -322,6 +340,7 @@ Page {
             }
 
             WizardBar {
+                flick: stepScroll.contentItem
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
@@ -337,7 +356,17 @@ Page {
 
         Item {
             anchors.fill: parent
+            // no button bar on this step: the drag fix of WizardBar is set here
+            Binding {
+                when: window.ui.modern
+                target: stepScroll.contentItem
+                property: "flickableDirection"
+                value: Flickable.AutoFlickIfNeeded
+                restoreMode: Binding.RestoreBindingOrValue
+            }
+
             ScrollView {
+                id: stepScroll
                 contentWidth: availableWidth
                 topPadding: 16
                 // Modern look: 16 under the content (this step has no button bar)
@@ -413,6 +442,7 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
+                id: stepScroll
                 contentWidth: availableWidth
                 topPadding: 16
                 // Modern look: 16 under the content, and the content ends above the button bar
@@ -479,6 +509,7 @@ Page {
             }
 
             WizardBar {
+                flick: stepScroll.contentItem
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
@@ -493,6 +524,7 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
+                id: stepScroll
                 contentWidth: availableWidth
                 topPadding: 16
                 // Modern look: 16 under the content, and the content ends above the button bar
@@ -584,6 +616,7 @@ Page {
             }
 
             WizardBar {
+                flick: stepScroll.contentItem
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
@@ -598,6 +631,7 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
+                id: stepScroll
                 contentWidth: availableWidth
                 topPadding: 16
                 // Modern look: 16 under the content, and the content ends above the button bar
@@ -676,6 +710,7 @@ Page {
             }
 
             WizardBar {
+                flick: stepScroll.contentItem
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
@@ -691,6 +726,7 @@ Page {
             readonly property bool wizardLastStep: true
             anchors.fill: parent
             ScrollView {
+                id: stepScroll
                 contentWidth: availableWidth
                 topPadding: 16
                 // Modern look: 16 under the content, and the content ends above the button bar
@@ -726,7 +762,7 @@ Page {
                         font.pixelSize: window.ui.modern ? window.ui.fontBody : window.fontPx(20)
                         wrapMode: Text.WordWrap
                         width: stackViewLocal.width * 0.8
-                        horizontalAlignment: Text.AlignHCenter
+                        horizontalAlignment: window.ui.modern ? Text.AlignLeft : Text.AlignHCenter
                         color: window.ui.modern ? window.ui.textMuted : "white"
                         Layout.fillWidth: true
                         Layout.topMargin: window.ui.modern ? 4 : 0
@@ -787,6 +823,7 @@ Page {
             }
 
             WizardBar {
+                flick: stepScroll.contentItem
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
@@ -803,6 +840,7 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
+                id: stepScroll
                 contentWidth: availableWidth
                 topPadding: 16
                 // Modern look: 16 under the content, and the content ends above the button bar
@@ -884,6 +922,7 @@ Page {
             }
 
             WizardBar {
+                flick: stepScroll.contentItem
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
@@ -901,6 +940,7 @@ Page {
             readonly property bool wizardLastStep: true
             anchors.fill: parent
             ScrollView {
+                id: stepScroll
                 contentWidth: availableWidth
                 topPadding: 16
                 // Modern look: 16 under the content, and the content ends above the button bar
@@ -969,6 +1009,7 @@ Page {
             }
 
             WizardBar {
+                flick: stepScroll.contentItem
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
@@ -985,6 +1026,7 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
+                id: stepScroll
                 contentWidth: availableWidth
                 topPadding: 16
                 // Modern look: 16 under the content, and the content ends above the button bar
@@ -1059,6 +1101,7 @@ Page {
             }
 
             WizardBar {
+                flick: stepScroll.contentItem
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
@@ -1073,6 +1116,7 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
+                id: stepScroll
                 contentWidth: availableWidth
                 topPadding: 16
                 // Modern look: 16 under the content, and the content ends above the button bar
@@ -1112,13 +1156,13 @@ Page {
                         wrapMode: Text.WordWrap
                         Layout.fillWidth: true
                         width: stackViewLocal.width * 0.8
-                        horizontalAlignment: Text.AlignHCenter
+                        horizontalAlignment: window.ui.modern ? Text.AlignLeft : Text.AlignHCenter
                         color: window.ui.modern ? window.ui.textMuted : "white"
                     }
 
                     Text {
                         wrapMode: Text.WordWrap
-                        horizontalAlignment: Text.AlignHCenter
+                        horizontalAlignment: window.ui.modern ? Text.AlignLeft : Text.AlignHCenter
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Username")
@@ -1132,7 +1176,9 @@ Page {
                     UiTextField {
                         id: zwiftUsernameTextField
                         text: settings.zwift_username
-                        horizontalAlignment: Text.AlignHCenter
+                        // Modern look: the field takes the column, its text from the left
+                        horizontalAlignment: window.ui.modern ? Text.AlignLeft : Text.AlignHCenter
+                        Layout.fillWidth: window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         Layout.topMargin: window.ui.modern ? 4 : 0
                         Layout.fillHeight: false
@@ -1142,7 +1188,7 @@ Page {
 
                     Text {
                         wrapMode: Text.WordWrap
-                        horizontalAlignment: Text.AlignHCenter
+                        horizontalAlignment: window.ui.modern ? Text.AlignLeft : Text.AlignHCenter
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Password")
@@ -1155,7 +1201,8 @@ Page {
                     UiTextField {
                         id: zwiftPasswordTextField
                         text: settings.zwift_password
-                        horizontalAlignment: Text.AlignHCenter
+                        horizontalAlignment: window.ui.modern ? Text.AlignLeft : Text.AlignHCenter
+                        Layout.fillWidth: window.ui.modern
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignHCenter
                         Layout.topMargin: window.ui.modern ? 4 : 0
@@ -1195,6 +1242,7 @@ Page {
             }
 
             WizardBar {
+                flick: stepScroll.contentItem
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
@@ -1212,6 +1260,7 @@ Page {
             readonly property bool wizardLastStep: true
             anchors.fill: parent
             ScrollView {
+                id: stepScroll
                 contentWidth: availableWidth
                 topPadding: 16
                 // Modern look: 16 under the content, and the content ends above the button bar
@@ -1251,7 +1300,7 @@ Page {
                         wrapMode: Text.WordWrap
                         Layout.fillWidth: true
                         width: stackViewLocal.width * 0.8
-                        horizontalAlignment: Text.AlignHCenter
+                        horizontalAlignment: window.ui.modern ? Text.AlignLeft : Text.AlignHCenter
                         color: window.ui.modern ? window.ui.textMuted : "white"
                     }
 
@@ -1297,7 +1346,7 @@ Page {
                         wrapMode: Text.WordWrap
                         Layout.fillWidth: true
                         width: stackViewLocal.width * 0.8
-                        horizontalAlignment: Text.AlignHCenter
+                        horizontalAlignment: window.ui.modern ? Text.AlignLeft : Text.AlignHCenter
                         color: window.ui.ink("white")
                     }
 
@@ -1329,6 +1378,7 @@ Page {
             }
 
             WizardBar {
+                flick: stepScroll.contentItem
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
@@ -1346,6 +1396,7 @@ Page {
             readonly property bool wizardLastStep: true
             anchors.fill: parent
             ScrollView {
+                id: stepScroll
                 contentWidth: availableWidth
                 topPadding: 16
                 // Modern look: 16 under the content, and the content ends above the button bar
@@ -1383,7 +1434,7 @@ Page {
                         text: qsTr("Virtual shifting enabled! You can change gears using the gears tile in QZ directly, or you can also add a bluetooth remote or a Zwift Play or a Zwift Click to control it!")
                         wrapMode: Text.WordWrap
                         width: stackViewLocal.width * 0.8
-                        horizontalAlignment: Text.AlignHCenter
+                        horizontalAlignment: window.ui.modern ? Text.AlignLeft : Text.AlignHCenter
                         color: window.ui.modern ? window.ui.textMuted : "white"
                         Layout.fillWidth: true
                     }
@@ -1416,6 +1467,7 @@ Page {
             }
 
             WizardBar {
+                flick: stepScroll.contentItem
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
@@ -1433,6 +1485,7 @@ Page {
             readonly property bool wizardLastStep: true
             anchors.fill: parent
             ScrollView {
+                id: stepScroll
                 contentWidth: availableWidth
                 topPadding: 16
                 // Modern look: 16 under the content, and the content ends above the button bar
@@ -1501,6 +1554,7 @@ Page {
             }
 
             WizardBar {
+                flick: stepScroll.contentItem
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
@@ -1518,6 +1572,7 @@ Page {
             readonly property bool wizardDone: true
             anchors.fill: parent
             ScrollView {
+                id: stepScroll
                 contentWidth: availableWidth
                 topPadding: 16
                 // Modern look: 16 under the content, and the content ends above the button bar
@@ -1555,7 +1610,7 @@ Page {
                         text: qsTr("If you have any questions or need further assistance, feel free to write to me at roberto.viola83@gmail.com. You can also restart this wizard from the left side bar menu. To apply some changes, you may need to restart the app.")
                         wrapMode: Text.WordWrap
                         width: stackViewLocal.width * 0.8
-                        horizontalAlignment: Text.AlignHCenter
+                        horizontalAlignment: window.ui.modern ? Text.AlignLeft : Text.AlignHCenter
                         color: window.ui.modern ? window.ui.textMuted : "white"
                         Layout.fillWidth: true
                         MouseArea {
@@ -1581,6 +1636,7 @@ Page {
             }
 
             WizardBar {
+                flick: stepScroll.contentItem
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
@@ -1596,6 +1652,7 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
+                id: stepScroll
                 contentWidth: availableWidth
                 topPadding: 16
                 // Modern look: 16 under the content, and the content ends above the button bar
@@ -1691,6 +1748,7 @@ Page {
             }
 
             WizardBar {
+                flick: stepScroll.contentItem
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
@@ -1707,6 +1765,7 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
+                id: stepScroll
                 contentWidth: availableWidth
                 topPadding: 16
                 // Modern look: 16 under the content, and the content ends above the button bar
@@ -1785,6 +1844,7 @@ Page {
             }
 
             WizardBar {
+                flick: stepScroll.contentItem
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
@@ -1801,6 +1861,7 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
+                id: stepScroll
                 contentWidth: availableWidth
                 topPadding: 16
                 // Modern look: 16 under the content, and the content ends above the button bar
@@ -1949,6 +2010,7 @@ Page {
             }
 
             WizardBar {
+                flick: stepScroll.contentItem
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
@@ -1965,6 +2027,7 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
+                id: stepScroll
                 contentWidth: availableWidth
                 topPadding: 16
                 // Modern look: 16 under the content, and the content ends above the button bar
@@ -2165,6 +2228,7 @@ Page {
             }
 
             WizardBar {
+                flick: stepScroll.contentItem
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
