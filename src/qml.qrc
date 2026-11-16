@@ -153,6 +153,7 @@
         <file>UiIcons.js</file>
         <file>UiInfoPopup.qml</file>
         <file>UiMessageDialog.qml</file>
+        <file>UiMenuBackground.qml</file>
         <file>UiNotice.qml</file>
         <file>UiPopup.qml</file>
         <file>UiProgress.qml</file>
