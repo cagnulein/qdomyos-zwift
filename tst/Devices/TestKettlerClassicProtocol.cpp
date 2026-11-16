@@ -187,3 +187,29 @@ TEST(KettlerClassicProtocol, CoachSOptionalPowerAndBrakeIrmpCommands) {
     EXPECT_EQ(frames.at(1).payload, QByteArray::fromHex("0f")); // level 15
     EXPECT_TRUE(input.isEmpty());
 }
+
+TEST(KettlerClassicProtocol, CoachSDecodesCandidatePowerFromRealE0Telemetry) {
+    // Real 24-byte E0 payloads from Jacek's successful 2026-11-16
+    // Coach S test. Power is provisional until checked against the console.
+    const QByteArray idle = QByteArray::fromHex(
+        "000400000000000000000000000000000000000000000001");
+    const QByteArray w80 = QByteArray::fromHex(
+        "00040000000000000000000009ac023d000000500ab30001");
+    const QByteArray w170 = QByteArray::fromHex(
+        "0004000400000041006f045829e30453002400aa16520001");
+    const QByteArray w210 = QByteArray::fromHex(
+        "000400010000003100890457228a0506000e00d21ab50001");
+    ASSERT_EQ(idle.size(), 24);
+    ASSERT_EQ(w80.size(), 24);
+    ASSERT_EQ(w170.size(), 24);
+    ASSERT_EQ(w210.size(), 24);
+    EXPECT_EQ(kettlerclassicprotocol::coachSCandidateWatts(idle), 0);
+    EXPECT_EQ(kettlerclassicprotocol::coachSCandidateWatts(w80), 80);
+    EXPECT_EQ(kettlerclassicprotocol::coachSCandidateWatts(w170), 170);
+    EXPECT_EQ(kettlerclassicprotocol::coachSCandidateWatts(w210), 210);
+
+    QByteArray wrongType = w170;
+    wrongType[1] = char(0x05);
+    EXPECT_EQ(kettlerclassicprotocol::coachSCandidateWatts(wrongType), 0);
+    EXPECT_EQ(kettlerclassicprotocol::coachSCandidateWatts(w170.left(20)), 0);
+}
