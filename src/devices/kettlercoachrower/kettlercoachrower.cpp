@@ -14,10 +14,10 @@ constexpr quint16 SESSION_STATE = 0x00d0;
 constexpr quint16 DEVICE_MODE = 0x00d1;
 constexpr quint16 DEVICE_DETAILS = 0x00d3;
 constexpr quint16 ROWING_TELEMETRY = 0x00e0;
-constexpr quint16 ACTIVITY_STATE = 0x00c0;
+// Confirmed from Kinomap HCI and Coach S physical-load test: C0/02 sets
+// resistance level (1..10), C0/03 reports the active level.
+constexpr quint16 RESISTANCE_LEVEL = 0x00c0;
 constexpr quint16 HEART_RATE = 0x0008;
-// Kinomap Coach S experimental target-load command (unconfirmed raw HCI).
-constexpr quint16 TARGET_POWER = 0x00c2;
 constexpr quint8 SUB_READ = 0x01;
 constexpr quint8 SUB_WRITE = 0x02;
 constexpr quint8 SUB_ANSWER = 0x03;
@@ -158,6 +158,8 @@ void kettlercoachrower::rfCommConnected() {
     telemetrySeen = false;
     requestResistance = -1;
     currentWatts = 0;
+    pendingResistanceLevel = -1;
+    lastReportedResistanceLevel = -1;
     Resistance = 0;
     RequestedResistance = 0;
     activeRequest = Request{HANDSHAKE, SUB_READ, freshCoachChallenge()};
@@ -189,20 +191,14 @@ void kettlercoachrower::enqueueResistanceRequest(resistance_t requested) {
         emit debug(QStringLiteral("Coach S resistance write disabled by QZ setting"));
         return;
     }
-    const int minLevel = 1;
-    const int maxLevel = maxResistance();
-    const int level = qBound(minLevel, static_cast<int>(requested), maxLevel);
-    const quint16 watts = kettlerclassicprotocol::coachSTargetWattsForLevel(level);
-    QByteArray payload;
-    payload.append(static_cast<char>((watts >> 8) & 0xff));
-    payload.append(static_cast<char>(watts & 0xff));
-    // 0x00C2/02 is a user-reported Kinomap target-load command, not yet
-    // validated in a matching raw HCI capture. Keep this nonblocking.
-    emit debug(QStringLiteral("Coach S experimental C2 target write level=%1 target=%2 W (L9-L10 estimated)")
-                   .arg(level).arg(watts));
-    enqueueWrite(TARGET_POWER, payload);
-    // No extra reads: the unsupported S-FIT 0x001B/01 and 0x001C/1D
-    // delayed proven 0x00E0 telemetry by two seconds each.
+    const int level = qBound(1, static_cast<int>(requested),
+                             static_cast<int>(maxResistance()));
+    pendingResistanceLevel = level;
+    // Confirmed by an HCI capture and by the user's physical-load changes
+    // L4 -> L6 -> L5 -> L3 -> L4. Only send the single level byte.
+    emit debug(QStringLiteral("Coach S resistance C0/02 write requested level=%1").arg(level));
+    enqueueWrite(RESISTANCE_LEVEL, QByteArray(1, static_cast<char>(level)));
+    // Do not reintroduce unsupported S-FIT reads: they stall telemetry.
 }
 
 void kettlercoachrower::sendNextRequest() {
@@ -210,9 +206,16 @@ void kettlercoachrower::sendNextRequest() {
         requestInFlight || requestQueue.isEmpty()) return;
     activeRequest = requestQueue.dequeue();
     requestInFlight = true;
-    const QByteArray packet = kettlerclassicprotocol::encodeFrame(activeRequest.function,
-                                                                  activeRequest.operation,
-                                                                  activeRequest.payload);
+    // Kinomap counts escaped payload bytes in the advertised length of
+    // Coach S C0/02 writes. For L2/L3, encoded payload has two bytes.
+    // Other devices and ordinary reads keep the standard frame encoder.
+    const QByteArray packet =
+        (activeRequest.function == RESISTANCE_LEVEL &&
+         activeRequest.operation == SUB_WRITE)
+            ? kettlerclassicprotocol::encodeFrameWithEscapedPayloadLength(
+                  activeRequest.function, activeRequest.operation, activeRequest.payload)
+            : kettlerclassicprotocol::encodeFrame(
+                  activeRequest.function, activeRequest.operation, activeRequest.payload);
     emit debug(QStringLiteral("Coach S >> ") + packet.toHex(' '));
     const qint64 queued = socket->write(packet);
     emit debug(QStringLiteral("Coach S socket write queued=%1 expected=%2")
@@ -266,11 +269,9 @@ void kettlercoachrower::processFrame(const kettlerclassicprotocol::Frame &frame)
     }
     if (frame.subFunction != SUB_ANSWER && frame.subFunction != SUB_STATUS) return;
 
-    // A C2/03 response may acknowledge receiving a target, but does not
-    // prove that the resistance changed mechanically.
-    if (frame.function == TARGET_POWER && frame.subFunction == SUB_ANSWER) {
-        emit debug(QStringLiteral("Coach S C2 target-write ACK, payload=") +
-                   frame.payload.toHex(' '));
+    if (frame.function == RESISTANCE_LEVEL && frame.subFunction == SUB_ANSWER &&
+        frame.payload.size() == 1) {
+        recordReportedResistance(static_cast<quint8>(frame.payload.at(0)), "C0/03");
     }
 
     if (requestInFlight && frame.function == activeRequest.function) {
@@ -322,6 +323,8 @@ void kettlercoachrower::processTelemetry(const QByteArray &payload) {
     // console comparison is still needed to confirm the engineering unit.
     currentWatts = kettlerclassicprotocol::coachSCandidateWatts(payload);
     m_watt = currentWatts;
+    recordReportedResistance(kettlerclassicprotocol::coachSReportedResistance(payload),
+                             "E0 byte 23");
     if (strokes >= lastStrokes) {
         if (strokes > lastStrokes) {
             if (lastStrokeTime.isValid()) {
@@ -359,6 +362,34 @@ void kettlercoachrower::processTelemetry(const QByteArray &payload) {
                    .arg(QString::fromLatin1(payload.toHex(' '))));
 }
 
+void kettlercoachrower::recordReportedResistance(quint8 level, const char *source) {
+    if (level < 1 || level > maxResistance()) return;
+
+    const bool changed = lastReportedResistanceLevel != level;
+    lastReportedResistanceLevel = level;
+    if (pendingResistanceLevel != -1 && level != pendingResistanceLevel) {
+        // The prior value may still be in flight. Preserve the requested
+        // target for rapid +/- presses until the device reports the new one.
+        if (changed) {
+            emit debug(QStringLiteral("Coach S resistance observed level=%1 via %2; awaiting level=%3")
+                           .arg(level).arg(QString::fromLatin1(source))
+                           .arg(pendingResistanceLevel));
+        }
+        return;
+    }
+
+    const bool confirmed = pendingResistanceLevel == level;
+    if (changed || confirmed) {
+        emit debug(QStringLiteral("Coach S resistance device-reported level=%1 via %2%3")
+                       .arg(level).arg(QString::fromLatin1(source))
+                       .arg(confirmed ? QStringLiteral(" (requested level confirmed)")
+                                      : QString()));
+        emit resistanceRead(static_cast<resistance_t>(level));
+    }
+    pendingResistanceLevel = -1;
+    Resistance = level;
+}
+
 void kettlercoachrower::update() {
     if (!socket || socket->state() != QBluetoothSocket::ConnectedState || !initDone) return;
 
@@ -372,7 +403,7 @@ void kettlercoachrower::update() {
     if (!requestInFlight && requestQueue.isEmpty()) {
         enqueueRead(DEVICE_DETAILS);
         enqueueRead(ROWING_TELEMETRY);
-        enqueueRead(ACTIVITY_STATE);
+        enqueueRead(RESISTANCE_LEVEL);
         enqueueRead(HEART_RATE);
     }
     sendNextRequest();
