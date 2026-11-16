@@ -243,9 +243,12 @@ public class CustomQtActivity extends QtActivity {
     // it is called one, the swipe sends the scroll actions Qt handles, and the new name, which
     // ends with the value, is announced, as Qt 5.15 sends nothing. The rest goes to Qt unchanged.
     // A popup that closes takes TalkBack's focus with it (a double tap on its Cancel): Qt 5.15.0 neither
-    // tells TalkBack the focused node is gone nor gives the focus back (Qt 6 clears it on a hide,
-    // qtbase f6ddb3e921, QTBUG-93386; QQuickPopup does not keep its opener, QTBUG-80709), so TalkBack
-    // shows no frame and the place on the screen is lost. The node TalkBack had focused when a popup
+    // tells TalkBack the focused node is gone nor gives the focus back, so the focus falls to the whole
+    // window and the place on the screen is lost. Later Qt clears the focus of a hidden node (qtbase
+    // f6ddb3e921, QTBUG-93393) and moves TalkBack's focus with the keyboard focus (fd20bc2277,
+    // QTBUG-79611); that would not bring it back here: a double tap presses a button with a key event
+    // sent to it (main.cpp, pressWithSpace()), which gives it no keyboard focus, so the focus would go
+    // wherever the keyboard focus is when the popup closes. The node TalkBack had focused when a popup
     // showed is kept, and once the popup hid, if the focused node went with it, the focus is put back
     // there (when it is still on the screen), as a dialog of Android does. A modal popup that opens
     // takes the focus to its first stop, as TalkBack does with a dialog of Android.

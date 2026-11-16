@@ -1303,11 +1303,13 @@ static void androidAccessibilityUpdate(QAccessibleEvent *event) {
     if (event->object()->inherits("QQuickPopupItem") && event->accessibleInterface()) {
         QObject *popupItem = event->object();
         const jint key = jint(QAccessible::uniqueId(event->accessibleInterface()));
+        // the popup and the list of popups opening are read and changed on the Qt thread only
+        const bool onQtThread = QThread::currentThread() == timer->thread();
         if (event->type() == QAccessible::ObjectShow) {
             QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity",
                                                       "accessibilityPopupShown", "(I)V", key);
-            QObject *popup = popupItem->parent();
-            if (popup && popup->property("modal").toBool() && QThread::currentThread() == timer->thread()) {
+            QObject *popup = onQtThread ? popupItem->parent() : nullptr;
+            if (popup && popup->property("modal").toBool()) {
                 const QMetaObject *meta = popup->metaObject();
                 const int opened = meta->indexOfSignal("opened()");
                 const int start = timer->metaObject()->indexOfSlot("start()");
@@ -1319,7 +1321,8 @@ static void androidAccessibilityUpdate(QAccessibleEvent *event) {
                 }
             }
         } else {
-            openingPopupItems().removeAll(popupItem);
+            if (onQtThread)
+                openingPopupItems().removeAll(popupItem);
             QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity",
                                                       "accessibilityPopupHidden", "(I)V", key);
         }
