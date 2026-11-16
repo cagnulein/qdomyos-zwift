@@ -3195,9 +3195,25 @@ This may take a few moments on first startup.</source>
         <source>Offset</source>
         <translation>Зміщення</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Зменшити зміщення передачі %1</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Збільшити зміщення передачі %1</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Зменшити: %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Збільшити: %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Увімкнути власну таблицю «нахил – опір»</translation>
@@ -3213,6 +3229,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Resistance</source>
         <translation>Опір</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Видалити точку з нахилом %1</translation>
     </message>
     <message>
         <source>Add Point</source>

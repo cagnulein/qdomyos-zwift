@@ -3195,9 +3195,25 @@ Al primo avvio potrebbe richiedere qualche istante.</translation>
         <source>Offset</source>
         <translation>Spostamento</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Riduci lo spostamento del rapporto %1</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Aumenta lo spostamento del rapporto %1</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Riduci: %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Aumenta: %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Attiva tabella personalizzata inclinazione-resistenza</translation>
@@ -3213,6 +3229,10 @@ Al primo avvio potrebbe richiedere qualche istante.</translation>
     <message>
         <source>Resistance</source>
         <translation>Resistenza</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Rimuovi il punto con inclinazione %1</translation>
     </message>
     <message>
         <source>Add Point</source>

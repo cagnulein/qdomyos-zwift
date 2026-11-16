@@ -3179,9 +3179,25 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <source>Offset</source>
         <translation>Eltolás</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>%1. fokozat eltolásának csökkentése</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>%1. fokozat eltolásának növelése</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Csökkentés: %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Növelés: %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Egyéni emelkedés–ellenállás táblázat bekapcsolása</translation>
@@ -3197,6 +3213,10 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
     <message>
         <source>Resistance</source>
         <translation>Ellenállás</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Pont törlése (emelkedés: %1)</translation>
     </message>
     <message>
         <source>Add Point</source>

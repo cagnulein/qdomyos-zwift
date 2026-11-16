@@ -3195,9 +3195,25 @@ This may take a few moments on first startup.</source>
         <source>Offset</source>
         <translation>보정값</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>기어 %1 보정값 줄이기</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>기어 %1 보정값 늘리기</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>%1 줄이기</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>%1 늘리기</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>사용자 지정 경사도-저항 표 사용</translation>
@@ -3213,6 +3229,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Resistance</source>
         <translation>저항</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>경사도 %1 점 삭제</translation>
     </message>
     <message>
         <source>Add Point</source>

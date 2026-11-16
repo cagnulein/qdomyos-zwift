@@ -3195,9 +3195,25 @@ This may take a few moments on first startup.</source>
         <source>Offset</source>
         <translation>偏移</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>减小档位 %1 的偏移</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>增大档位 %1 的偏移</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>减小%1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>增大%1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>启用自定义坡度-阻力表</translation>
@@ -3213,6 +3229,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Resistance</source>
         <translation>阻力</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>删除坡度为 %1 的点</translation>
     </message>
     <message>
         <source>Add Point</source>

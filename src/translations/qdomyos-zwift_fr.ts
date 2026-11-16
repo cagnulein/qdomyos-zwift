@@ -3195,9 +3195,25 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
         <source>Offset</source>
         <translation>Décalage</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Diminuer le décalage de la vitesse %1</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Augmenter le décalage de la vitesse %1</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Diminuer : %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Augmenter : %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Activer la table personnalisée inclinaison/résistance</translation>
@@ -3213,6 +3229,10 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
     <message>
         <source>Resistance</source>
         <translation>Résistance</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Supprimer le point à l’inclinaison %1</translation>
     </message>
     <message>
         <source>Add Point</source>

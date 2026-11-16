@@ -3195,9 +3195,25 @@ Bij de eerste start kan dit even duren.</translation>
         <source>Offset</source>
         <translation>Correctie</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Correctie van versnelling %1 verlagen</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Correctie van versnelling %1 verhogen</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Verlagen: %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Verhogen: %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Eigen tabel voor helling naar weerstand inschakelen</translation>
@@ -3213,6 +3229,10 @@ Bij de eerste start kan dit even duren.</translation>
     <message>
         <source>Resistance</source>
         <translation>Weerstand</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Punt bij hellingsgraad %1 verwijderen</translation>
     </message>
     <message>
         <source>Add Point</source>

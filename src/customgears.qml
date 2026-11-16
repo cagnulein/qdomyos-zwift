@@ -114,8 +114,8 @@ ScrollView {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.topMargin: 10
-        anchors.leftMargin: window.contentSideMargin
-        anchors.rightMargin: window.contentSideMargin
+        anchors.leftMargin: window.ui.modern ? Math.max(16, window.contentSideMargin) : window.contentSideMargin
+        anchors.rightMargin: window.ui.modern ? Math.max(16, window.contentSideMargin) : window.contentSideMargin
         spacing: 10
 
         IndicatorOnlySwitch {
@@ -136,15 +136,16 @@ ScrollView {
             text: qsTr("Each gear uses the offset below instead of the raw gear value. QZ applies it automatically to resistance, inclination, or slope depending on the trainer path. Default is linear.")
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
-            font.pixelSize: window.fontHint
+            font.pixelSize: window.ui.modern ? window.ui.fontCaption : window.fontHint
             bottomPadding: window.hintGap
-            color: Material.accent
+            color: window.ui.modern ? window.ui.textMuted : Material.accent
         }
 
-        Button {
+        UiButton {
+            wrapsText: true
             text: qsTr("Reset to Linear Defaults")
             Layout.fillWidth: true
-            Layout.preferredHeight: window.fontPx(40)
+            Layout.preferredHeight: window.ui.modern ? Math.max(48, contentItem.implicitHeight + 24) : window.fontPx(40)
             onClicked: {
                 gearRows = defaultGearRows()
                 updateGearListModel()
@@ -155,43 +156,61 @@ ScrollView {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 40
-            color: "#f0f0f0"
-            border.width: 1
-            border.color: "#cccccc"
+            color: window.ui.modern ? window.ui.surfaceHigh : "#f0f0f0"
+            border.width: window.ui.modern ? 0 : 1
+            border.color: window.ui.modern ? window.ui.alpha(window.ui.outline, 0.4) : "#cccccc"
+            radius: window.ui.modern ? 12 : 0
 
+            // Two equal columns; the offset field is narrow inside its own (a field over two thirds of
+            // the row put the - and + far apart)
             Row {
                 anchors.fill: parent
 
                 Rectangle {
                     width: parent.width / 2
                     height: parent.height
-                    border.width: 1
-                    border.color: "#cccccc"
+                    border.width: window.ui.modern ? 0 : 1
+                    border.color: window.ui.modern ? window.ui.alpha(window.ui.outline, 0.4) : "#cccccc"
                     color: "transparent"
 
                     Text {
                         // a plain Text does not inherit the window font: the text size while it is not 100 %
                         Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         anchors.centerIn: parent
+                        // Modern look: one line inside its column, smaller if it does not fit
+                        width: window.ui.modern ? parent.width - 8 : implicitWidth
+                        horizontalAlignment: window.ui.modern ? Text.AlignHCenter : Text.AlignLeft
+                        fontSizeMode: window.ui.modern ? Text.HorizontalFit : Text.FixedSize
+                        // A shrunk text keeps the height of the full size: it fills the cell and stays in the middle
+                        height: window.ui.modern ? parent.height : implicitHeight
+                        verticalAlignment: window.ui.modern ? Text.AlignVCenter : Text.AlignTop
+                        minimumPixelSize: 9
                         text: qsTr("Gear")
                         font.bold: true
-                        color: "black"
+                        color: window.ui.ink("black")
                     }
                 }
 
                 Rectangle {
                     width: parent.width / 2
                     height: parent.height
-                    border.width: 1
-                    border.color: "#cccccc"
+                    border.width: window.ui.modern ? 0 : 1
+                    border.color: window.ui.modern ? window.ui.alpha(window.ui.outline, 0.4) : "#cccccc"
                     color: "transparent"
 
                     Text {
                         Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         anchors.centerIn: parent
+                        width: window.ui.modern ? parent.width - 8 : implicitWidth
+                        horizontalAlignment: window.ui.modern ? Text.AlignHCenter : Text.AlignLeft
+                        fontSizeMode: window.ui.modern ? Text.HorizontalFit : Text.FixedSize
+                        // A shrunk text keeps the height of the full size: it fills the cell and stays in the middle
+                        height: window.ui.modern ? parent.height : implicitHeight
+                        verticalAlignment: window.ui.modern ? Text.AlignVCenter : Text.AlignTop
+                        minimumPixelSize: 9
                         text: qsTr("Offset")
                         font.bold: true
-                        color: "black"
+                        color: window.ui.ink("black")
                     }
                 }
             }
@@ -200,8 +219,14 @@ ScrollView {
         ListView {
             id: gearTable
             Layout.fillWidth: true
-            Layout.preferredHeight: 24 * rowHeight
+            // Modern look: all the rows in the page height, the page scrolls them - a list scrolling
+            // inside the scrolled page caught the swipe, and the end of the table stayed out of reach
+            Layout.preferredHeight: window.ui.modern ? contentHeight : 24 * rowHeight
+            Layout.minimumHeight: window.ui.modern ? contentHeight : 0
+            interactive: !window.ui.modern
             clip: true
+            // Modern look: rounded rows apart from each other
+            spacing: window.ui.modern ? 8 : 0
             model: gearListModel
 
             Component.onCompleted: {
@@ -209,13 +234,14 @@ ScrollView {
             }
 
             ScrollBar.vertical: ScrollBar {
-                policy: ScrollBar.AsNeeded
+                policy: window.ui.modern ? ScrollBar.AlwaysOff : ScrollBar.AsNeeded
             }
 
             delegate: Rectangle {
                 width: gearTable.width
-                height: rowHeight
-                color: index % 2 === 0 ? "white" : "#fafafa"
+                height: window.ui.modern ? 52 : rowHeight
+                radius: window.ui.modern ? 12 : 0
+                color: window.ui.modern ? window.ui.surface : (index % 2 === 0 ? "white" : "#fafafa")
 
                 Row {
                     anchors.fill: parent
@@ -223,39 +249,78 @@ ScrollView {
                     Rectangle {
                         width: parent.width / 2
                         height: parent.height
-                        border.width: 1
-                        border.color: "#cccccc"
+                        border.width: window.ui.modern ? 0 : 1
+                        border.color: window.ui.modern ? window.ui.alpha(window.ui.outline, 0.4) : "#cccccc"
                         color: "transparent"
 
                         Text {
                             Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                             anchors.centerIn: parent
                             text: gear
-                            color: "black"
+                            color: window.ui.ink("black")
                         }
                     }
 
                     Rectangle {
+                        id: offsetCell
                         width: parent.width / 2
                         height: parent.height
-                        border.width: 1
-                        border.color: "#cccccc"
+                        border.width: window.ui.modern ? 0 : 1
+                        border.color: window.ui.modern ? window.ui.alpha(window.ui.outline, 0.4) : "#cccccc"
                         color: "transparent"
 
-                        RowLayout {
-                            anchors.centerIn: parent
-                            width: parent.width * 0.92
-                            height: offsetControlHeight
-                            spacing: 4
+                        // A number typed but not confirmed is applied first: the -/+ of the modern
+                        // look are MouseAreas, they do not take the focus from the field
+                        function stepOffset(delta) {
+                            if (window.ui.modern)
+                                offsetTextField.applyOffset()
+                            gearRows[index].offset = clampOffset(parseOffset(gearRows[index].offset) + delta)
+                            offsetTextField.text = gearRows[index].offset
+                            saveGearRows()
+                        }
 
-                            Button {
+                        // Modern look: one rounded field with the -/+ squares inside, as the
+                        // Wahoo table; the pill buttons were too narrow for their signs
+                        Rectangle {
+                            visible: window.ui.modern
+                            anchors.fill: offsetRow
+                            radius: 8
+                            color: window.ui.surfaceHighest
+                        }
+
+                        RowLayout {
+                            id: offsetRow
+                            anchors.centerIn: parent
+                            width: window.ui.modern ? Math.min(parent.width * 0.88, 180) : parent.width * 0.92
+                            height: window.ui.modern ? 36 : offsetControlHeight
+                            spacing: window.ui.modern ? 0 : 4
+
+                            UiButton {
+                                visible: !window.ui.modern
                                 text: "-"
                                 Layout.preferredWidth: window.fontPx(34)
                                 Layout.fillHeight: true
-                                onClicked: {
-                                    gearRows[index].offset = clampOffset(parseOffset(gearRows[index].offset) - 0.5)
-                                    offsetTextField.text = gearRows[index].offset
-                                    saveGearRows()
+                                onClicked: offsetCell.stepOffset(-0.5)
+                            }
+
+                            Rectangle {
+                                visible: window.ui.modern
+                                Layout.preferredWidth: height
+                                Layout.fillHeight: true
+                                radius: 8
+                                color: minusArea.pressed ? window.ui.surfaceHigh : window.ui.surfaceHighest
+                                Rectangle {
+                                    anchors.centerIn: parent
+                                    width: 12; height: 2; radius: 1
+                                    color: window.ui.textMain
+                                }
+                                MouseArea {
+                                    id: minusArea
+                                    anchors.fill: parent
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Decrease the offset of gear %1").arg(gear)
+                                    Accessible.onPressAction: offsetCell.stepOffset(-0.5)
+                                    onClicked: offsetCell.stepOffset(-0.5)
                                 }
                             }
 
@@ -264,17 +329,31 @@ ScrollView {
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
                                 text: offset
-                                color: "black"
-                                selectedTextColor: "white"
-                                selectionColor: Material.accent
+                                color: window.ui.ink("black")
+                                selectedTextColor: window.ui.modern ? window.ui.accentInk : "white"
+                                selectionColor: window.ui.modern ? window.ui.accent : Material.accent
                                 horizontalAlignment: Text.AlignHCenter
                                 // Material pads 8 above and 16 below: with a bigger text the number sat
                                 // well over the middle of the field
                                 topPadding: window.textScale !== 1 ? 0 : 8
                                 bottomPadding: window.textScale !== 1 ? 0 : 16
+                                // Modern look: the number keyboard, as the inclination table fields
+                                inputMethodHints: window.ui.modern ? Qt.ImhFormattedNumbersOnly : Qt.ImhNone
+                                // Modern look: no Material paddings and insets, they differ above
+                                // and below and the number sat high in the low field. Bindings that
+                                // act only then: "undefined" in the classic look reset them to the Qt
+                                // defaults, not to the Material ones the classic field had
+                                Binding on topPadding { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
+                                Binding on bottomPadding { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
+                                Binding on topInset { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
+                                Binding on bottomInset { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
+                                Binding on verticalAlignment { when: window.ui.modern; value: Text.AlignVCenter; restoreMode: Binding.RestoreBindingOrValue }
+                                // The 16 px of the +/- fields (UiSpinBox, the inclination table)
+                                Binding on font.pixelSize { when: window.ui.modern; value: window.ui.fontBody; restoreMode: Binding.RestoreBindingOrValue }
                                 background: Rectangle {
-                                    color: "white"
+                                    color: window.ui.modern ? "transparent" : "white"
                                     border.color: "#cccccc"
+                                    border.width: window.ui.modern ? 0 : 1
                                     radius: 2
                                 }
                                 function applyOffset() {
@@ -287,14 +366,37 @@ ScrollView {
                                 onEditingFinished: applyOffset()
                             }
 
-                            Button {
+                            UiButton {
+                                visible: !window.ui.modern
                                 text: "+"
                                 Layout.preferredWidth: window.fontPx(34)
                                 Layout.fillHeight: true
-                                onClicked: {
-                                    gearRows[index].offset = clampOffset(parseOffset(gearRows[index].offset) + 0.5)
-                                    offsetTextField.text = gearRows[index].offset
-                                    saveGearRows()
+                                onClicked: offsetCell.stepOffset(0.5)
+                            }
+
+                            Rectangle {
+                                visible: window.ui.modern
+                                Layout.preferredWidth: height
+                                Layout.fillHeight: true
+                                radius: 8
+                                color: plusArea.pressed ? window.ui.surfaceHigh : window.ui.surfaceHighest
+                                Rectangle {
+                                    anchors.centerIn: parent
+                                    width: 12; height: 2; radius: 1
+                                    color: window.ui.textMain
+                                }
+                                Rectangle {
+                                    anchors.centerIn: parent
+                                    width: 2; height: 12; radius: 1
+                                    color: window.ui.textMain
+                                }
+                                MouseArea {
+                                    id: plusArea
+                                    anchors.fill: parent
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Increase the offset of gear %1").arg(gear)
+                                    Accessible.onPressAction: offsetCell.stepOffset(0.5)
+                                    onClicked: offsetCell.stepOffset(0.5)
                                 }
                             }
                         }

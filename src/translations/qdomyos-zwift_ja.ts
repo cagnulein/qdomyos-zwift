@@ -3195,9 +3195,25 @@ This may take a few moments on first startup.</source>
         <source>Offset</source>
         <translation>オフセット</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>ギア %1 のオフセットを下げる</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>ギア %1 のオフセットを上げる</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>%1を下げる</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>%1を上げる</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>傾斜-負荷カスタムテーブルを有効にする</translation>
@@ -3213,6 +3229,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Resistance</source>
         <translation>負荷レベル</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>傾斜度 %1 のポイントを削除</translation>
     </message>
     <message>
         <source>Add Point</source>
