@@ -151,7 +151,9 @@ public class Usbserial {
         try {
             port.open(connection);
             port.setParameters(baudRate, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
-            if (configureControlLines) {
+            // AX1 uses an FTDI adapter. Do not alter control-line behavior of
+            // older E7 CP210x USB serial adapters (which already work).
+            if (configureControlLines && driver instanceof FtdiSerialDriver) {
                 port.setDTR(false);
                 port.setRTS(false);
             }
