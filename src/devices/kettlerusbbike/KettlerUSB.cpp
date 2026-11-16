@@ -422,10 +422,15 @@ QString KettlerUSB::readResponse() {
             return response;
 
         const QString chunk = rawRead();
-        if (!chunk.isEmpty())
+        if (!chunk.isEmpty()) {
             rxBuffer.append(chunk.toLatin1());
-        else
+            // Android USB reads can block up to the configured timeout.
+            // A complete line arriving on that read is still a valid reply.
+            if (takeResponse(rxBuffer, response))
+                return response;
+        } else {
             KettlerSleeper::msleep(10);
+        }
     }
 
     // Keep a partial CRLF frame for the next poll; bound stale input.
