@@ -25,6 +25,8 @@ class kettlercoachrower : public rower {
     resistance_t maxResistance() override;
 
   public slots:
+    void changeResistance(resistance_t resistance) override;
+
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
 
   signals:
@@ -68,14 +70,6 @@ class kettlercoachrower : public rower {
     bool signalledDisconnection = false;
     bool virtualCreated = false;
     bool telemetrySeen = false;
-    bool powerReadEnabled = true;
-    bool brakeReadEnabled = true;
-    bool minLevelReceived = false;
-    bool maxLevelReceived = false;
-    quint8 minBrakeLevel = 1;
-    quint8 maxBrakeLevel = 30;
-    quint8 optionalProbeStage = 0;
-    quint32 telemetryPollBatch = 0;
 
     QBluetoothDeviceInfo bluetoothDevice;
     QBluetoothServiceDiscoveryAgent *discoveryAgent = nullptr;
