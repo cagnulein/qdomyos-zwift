@@ -68,6 +68,41 @@
         <source>Other folders</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Sensor detak jantung ditemukan: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Sensor detak jantung ditemukan: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Hubungkan</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Pilih</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Jangan sekarang</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Jangan tanya lagi</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Pilih sensor detak jantung</translation>
+    </message>
 </context>
 <context>
     <name>Home</name>
@@ -96,19 +131,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>QZ requires both Bluetooth and Location Services to be enabled.
-Location Services are necessary on Android to allow the app to find Bluetooth devices.
-The GPS will not be used.
-
-Would you like to enable them?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Reminder Preference</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Would you like to be reminded about enabling Location Services next time?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -226,6 +249,16 @@ Would you like to do that now?</source>
     </message>
     <message>
         <source>Save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.
+
+Would you like to enable the required services?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -997,6 +1030,34 @@ Do you want to update QZ settings?</source>
         <source>Zwift device: UPGRADE THE FIRMWARE!</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (sensor detak jantung): tidak ada data detak jantung. Pastikan sensor menyiarkan detak jantung.</translation>
+    </message>
+    <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Mencari sensor detak jantung...</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Mencari %1 (sensor detak jantung)...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>%1 (sensor detak jantung) tidak ditemukan. Pastikan sensor menyala dan menyiarkan detak jantung.</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Tidak ada sensor detak jantung di sekitar. Pastikan sensor menyala dan menyiarkan detak jantung.</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1050,7 +1111,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Batal</translation>
     </message>
     <message>
         <source>Discard</source>
@@ -1110,6 +1171,10 @@ Do you want to update QZ settings?</source>
         <source>Other folders</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SettingsNumberField</name>
@@ -1136,6 +1201,69 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Maximum: %1</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Hubungi dukungan QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Siapkan email dukungan dengan data diagnostik</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Tidak ada perangkat yang terhubung</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Kecepatan dan daya bernilai nol</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Dukungan QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Selesai</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Sembunyikan keyboard</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Tutup permintaan dukungan</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Beri tahu kami apa yang tidak berfungsi. QZ akan menambahkan informasi perangkat dan aplikasi Anda.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Jelaskan masalahnya...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Jelaskan masalah</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Lampirkan log debug jika tersedia</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Anda dapat meninjau atau mengedit email sebelum mengirimnya. Tidak ada yang dikirim secara otomatis.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Batal</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Buka email</translation>
     </message>
 </context>
 <context>
@@ -1257,6 +1385,10 @@ Do you want to update QZ settings?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1298,7 +1430,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Batal</translation>
     </message>
     <message>
         <source>Confirm</source>
@@ -2792,6 +2924,10 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Previous month</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3419,11 +3555,27 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error retrieving access token, %1 (%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3440,6 +3592,10 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Workouts imported: %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file could not be copied to the QZ folder.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3728,6 +3884,139 @@ This may take a few moments on first startup.</source>
         <source>Average Strokes Length: %1</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Spotify songs:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Support request</source>
+        <translation>Permintaan dukungan</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>Masalah QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Hai Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Saya memerlukan bantuan dengan QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Masalah:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Jelaskan masalahnya]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Perilaku yang diharapkan:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Jelaskan apa yang seharusnya terjadi]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- Diagnostik QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>Versi QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Platform: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Profil: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Perangkat: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Terhubung</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Tidak terhubung</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Koneksi: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Kecepatan: %1 km/jam</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Tidak tersedia</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Daya: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Situasi terdeteksi: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Log debug tidak diminta.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Log debug dinonaktifkan. Aktifkan pencatatan debug dan mulai ulang QZ sebelum mengulangi masalah.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Log debug tidak ditemukan.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Log debug tidak tersedia atau terlalu besar untuk disiapkan.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Log debug terlampir (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Lampiran log debug tidak dapat ditulis.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Log debug tidak dapat dikompres atau lampiran melebihi 10 MB.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Lampirkan log debug yang dibuat secara manual</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Tidak ada perangkat yang terdeteksi</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Tidak dapat membuka aplikasi email</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ sedang berjalan</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -3848,6 +4137,17 @@ Do you want to start it now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3869,6 +4169,10 @@ Do you want to start it now?</source>
     </message>
     <message>
         <source>Search settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4151,6 +4455,10 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4326,15 +4634,7 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Open</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>General Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>UI Zoom:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4346,15 +4646,11 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>App Language:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5603,7 +5899,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Batal</translation>
     </message>
     <message>
         <source>Submit</source>
@@ -7151,7 +7447,11 @@ Default: A = -0.96, B = 1.33</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Hidden on its page right now: change it here</source>
+        <source>On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7649,6 +7949,230 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use System Text Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Workout History Charts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Heart Rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Peloton Resistance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cadence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Power Distribution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Speed and Inclination</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restore default order</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Moovio Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lynx Konect 2.0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cadence Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>iOS Background Keep Alive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Atur bagaimana kemiringan aplikasi virtual dipetakan ke resistansi sepeda.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Gunakan pemetaan khusus saat QZ mengubah kemiringan aplikasi virtual menjadi resistansi.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Satu pasangan kemiringan|resistansi per baris. QZ melakukan interpolasi di antara titik dan membatasi nilai di luar rentang yang ditentukan.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Nama pengguna akun Life Fitness untuk masuk ke layanan. Disimpan secara lokal dan tidak pernah ditulis ke log debug.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Kata sandi akun Life Fitness untuk masuk ke layanan. Disimpan secara lokal dan tidak pernah ditulis ke log debug.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Tindakan Kamera</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Tindakan Emote</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Emulator Wattbike</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Posisi Grafik Daya</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Posisi Grafik Detak Jantung</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Posisi Grafik Resistansi vs Target Resistansi</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Posisi Grafik Resistansi Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Posisi Grafik Kadensi</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Posisi Grafik Distribusi Daya</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Posisi Grafik Kecepatan dan Kemiringan</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Posisi numerik grafik ini di Riwayat Latihan. Ubah urutannya dengan tombol naik dan turun pada Opsi UI Umum.</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Cari Sensor Detak Jantung Saat Mulai</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Selama 5 menit pertama setelah mesin kebugaran terhubung, jika detak jantung belum diterima, QZ mencari sensor setiap menit: sensor sabuk dada yang dipilih langsung dihubungkan saat ditemukan, atau jika belum ada pilihan QZ menawarkan sensor di sekitar. Ketuk ubin detak jantung atau ikon Bluetooth di halaman utama untuk mencari kapan saja.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Opsi Sepeda Daum</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>Port serial untuk ergometer Daum klasik seperti 8008 TRS 3. Di Android dengan adaptor USB-ke-serial, gunakan &apos;usb&apos;. COM1, COM2, dan seterusnya diterima sebagai alias untuk memindai adaptor USB, tetapi bukan nama port Android. Di Windows gunakan COM1 atau COM3; di Linux/macOS gunakan jalur perangkat serial, misalnya /dev/ttyUSB0.</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>Jeda pemeriksaan resistansi:</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>Menggunakan pengaturan Jeda Kemiringan untuk membatasi seberapa sering QZ mengirim pembaruan resistansi dan daya ke Daum. Default: 0 detik.</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>Filter Kemiringan (%):</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>Untuk latihan GPX, abaikan perubahan kemiringan yang lebih kecil dari nilai ini dan kirim perintah baru hanya ketika selisih dari nilai terakhir yang dikirim mencapai ambang yang ditentukan. Default: 0 (dinonaktifkan).</translation>
     </message>
 </context>
 <context>

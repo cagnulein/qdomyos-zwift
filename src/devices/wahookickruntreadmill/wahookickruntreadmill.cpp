@@ -548,7 +548,7 @@ void wahookickruntreadmill::controllerStateChanged(QLowEnergyController::Control
         gattFTMSService = nullptr;
         qDeleteAll(gattServices);
         gattServices.clear();
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 

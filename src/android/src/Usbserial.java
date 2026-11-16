@@ -73,19 +73,20 @@ public class Usbserial {
         open(context, 2400); // Default baud rate for Computrainer
     }
 
-    public static boolean open(Context context, int baudRate) {
-        return open(context, baudRate, "", false);
+    // Keep the original JNI void signatures for Daum, Computrainer and CSAFE.
+    public static void open(Context context, int baudRate) {
+        openInternal(context, baudRate, "", false);
+    }
+
+    public static void open(Context context, int baudRate, String devicePath) {
+        openInternal(context, baudRate, devicePath, false);
     }
 
     public static boolean openKettler(Context context, int baudRate) {
-        return open(context, baudRate, "", true);
+        return openInternal(context, baudRate, "", true);
     }
 
-    public static boolean open(Context context, int baudRate, String devicePath) {
-        return open(context, baudRate, devicePath, false);
-    }
-
-    private static boolean open(Context context, int baudRate, String devicePath, boolean configureControlLines) {
+    private static boolean openInternal(Context context, int baudRate, String devicePath, boolean configureControlLines) {
         close();
 
         if (devicePath != null && (devicePath.startsWith("/dev/") || devicePath.equalsIgnoreCase("auto"))) {

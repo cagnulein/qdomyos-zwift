@@ -92,7 +92,9 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
         } else if (dt == TREADMILL || dt == ELLIPTICAL) {
             // Forward FTMS writes (including Start/Stop) to listeners for treadmill/elliptical devices.
             emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(), data);
-            char a, b;
+            // Target values are little-endian bytes, including high-bit speed
+            // fractions and signed inclination. Do not sign-extend the low byte.
+            uint8_t a, b;
             if ((char)data.at(0) == 0x02) {
                 // Set Target Speed
                 a = data.at(1);

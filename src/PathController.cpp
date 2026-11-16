@@ -4,12 +4,25 @@
 #include "PathController.h"
 
 #include <QtDebug>
+#ifdef Q_OS_ANDROID
+#include <QtAndroid>
+#endif
 
 W_OBJECT_IMPL(PathController)
 
 PathController::PathController(QObject *parent)
 : QObject(parent)
 {
+#ifdef Q_OS_ANDROID
+    // QtPositioning may synchronously request missing Location permission and process
+    // pending BLE events before homeform has connected the deviceConnected signal.
+    if (QtAndroid::checkPermission(QStringLiteral("android.permission.ACCESS_FINE_LOCATION")) !=
+        QtAndroid::PermissionResult::Granted) {
+        qDebug() << "PathController: skip lastKnownPosition without Location permission";
+        return;
+    }
+#endif
+
     QGeoPositionInfoSource *source = QGeoPositionInfoSource::createDefaultSource(this);
     if (source) {
 

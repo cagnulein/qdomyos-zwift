@@ -1,28 +1,25 @@
 import QtQuick 2.7
+import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
-import Qt.labs.settings 1.0
 
 ScrollView {
     contentWidth: -1
+    // The column with its margins, which are not in its implicit height
+    contentHeight: chainringColumn.implicitHeight + 2 * chainringColumn.anchors.margins
     focus: true
-    anchors.horizontalCenter: parent.horizontalCenter
-    anchors.fill: parent
+    // No anchors: the page is pushed on the StackView, which sizes it to fill and warned about
+    // conflicting anchors
     id: gearSettingsWindow
     visible: true
     clip: true
 
     // Properties
-    Settings {
-        id: settings
-        property string gear_configuration: "1|38|44|true\n2|38|38|true\n3|38|32|true\n4|38|28|true\n5|38|24|true\n6|38|21|true\n7|38|19|true\n8|38|17|true\n9|38|15|true\n10|38|13|true\n11|38|11|true\n12|38|10|true"
-        property int gear_crankset_size: 42
-        property int gear_cog_size: 14
-        property string gear_wheel_size: "700 x 18C"
-        property real gear_circumference: 2070
-        property bool wahoo_without_wheel_diameter: false
-    }
+    // The Settings object of settings.qml, given by the page that opens this one: one object
+    // for all the settings pages, so a page no longer writes back an old copy of what another
+    // page changed
+    property var settings
 
     property int selectedCranksetSize: settings.gear_crankset_size
     property int selectedCogSize: settings.gear_cog_size
@@ -86,8 +83,8 @@ ScrollView {
         settings.gear_configuration = gearRowsToString(gearRows)
     }
 
-    onSettingsChanged: {
-        console.log("onSettingsChanged")
+    onGearSettingsChanged: {
+        console.log("onGearSettingsChanged")
         updateSettings()
     }
 
@@ -121,6 +118,21 @@ ScrollView {
             gearRows = temp
             gearConfigurationChanged(gearRows)
         }
+    }
+
+    // The preset with the gears of this table, -1 if none. Only the table is saved, not the pick,
+    // so the list went back to "Select a profile..." every time the page opened and the preset
+    // looked lost. Rows taken out of the table stay in the string as inactive and do not count
+    function gearProfileIndex(gearString) {
+        const table = gearRowsToString(stringToGearRows(gearString).filter(function(row) {
+            return row.active
+        }))
+        for (var i = 0; i < profileModel.count; i++) {
+            if (gearRowsToString(gearProfiles[profileModel.get(i).value].gears) === table) {
+                return i
+            }
+        }
+        return -1
     }
 
     property var gearProfiles: {
@@ -311,15 +323,22 @@ ScrollView {
         var temp = gearRows
         gearRows = []
         gearRows = temp
+        // Without it the table kept the removed gears and the reset was not saved
+        gearConfigurationChanged(gearRows)
     }
 
-    // Signals to notify when values change
-    signal settingsChanged()
+    // Signals to notify when values change (not settingsChanged: that is the change signal of
+    // the settings property)
+    signal gearSettingsChanged()
     signal gearConfigurationChanged(var gearRows)
     signal restoreDefaultWheelDiameter()
 
     ColumnLayout {
-        anchors.fill: parent
+        // Not tied to the bottom: the column height would come from the content height made from
+        // it (binding loop on contentHeight)
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
         anchors.margins: 20
         spacing: 20
         id: chainringColumn
@@ -327,11 +346,24 @@ ScrollView {
         // Wahoo Options
         GroupBox {
             title: qsTr("Wahoo Options")
+            // the title is a stop of its own, as the controls in the group are
+            Accessible.focusable: true
             Layout.fillWidth: true
 
             ColumnLayout {
                 IndicatorOnlySwitch {
                     id: wahooWithoutWheelDiameterDelegate
+                    // a switch a screen reader can turn: Qt 5.15 gives a SwitchDelegate no action of
+                    // its own (and puts back its ListItem role), so it is not even a pressable node,
+                    // and a tap in the middle of the row misses the indicator of IndicatorOnlySwitch.
+                    // On Android CustomQtActivity presses it as a button; the handler is for the rest
+                    Accessible.name: text
+                    Accessible.checkable: true
+                    Accessible.checked: checked
+                    Accessible.onPressAction: {
+                        checked = !checked
+                        clicked()
+                    }
                     text: qsTr("Without Wheel Diameter Protocol")
                     spacing: 0
                     bottomPadding: 0
@@ -346,11 +378,14 @@ ScrollView {
                 }
 
                 Label {
+                    // a stop of its own: otherwise TalkBack reads the whole group in one go
+                    Accessible.focusable: true
                     text: qsTr("Enable this for simplified Wahoo protocol that adds gears directly to grade instead of using wheel diameter changes. Default is false.")
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
                     Layout.maximumWidth: chainringColumn.width - 20
-                    font.pixelSize: Qt.application.font.pixelSize - 2
+                    font.pixelSize: window.fontHint
+                    bottomPadding: window.hintGap
                     color: Material.accent
                 }
             }
@@ -359,10 +394,12 @@ ScrollView {
         // Crankset Size
         GroupBox {
             title: qsTr("Chainring Size")
+            Accessible.focusable: true
             Layout.fillWidth: true
 
             ColumnLayout {
                 Label {
+                    Accessible.focusable: true
                     text: qsTr("Tooth count of your chainring on the bike you are currently riding on your trainer - enter 42 for Zwift Ride")
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
@@ -370,13 +407,14 @@ ScrollView {
                 }
 
                 SpinBox {
+                    Accessible.name: qsTr("Chainring Size") + ": " + value
                     from: 1
                     to: 999
                     value: selectedCranksetSize
                     onValueChanged: {
                         selectedCranksetSize = value
                         console.log("Crankset Size changed");
-                        settingsChanged()
+                        gearSettingsChanged()
                     }
                 }
             }
@@ -385,23 +423,26 @@ ScrollView {
         // Cog Size
         GroupBox {
             title: qsTr("Cog Size")
+            Accessible.focusable: true
             Layout.fillWidth: true
 
             ColumnLayout {
                 Label {
+                    Accessible.focusable: true
                     text: qsTr("Tooth count of your rear cog on your trainer - enter 14 if you have the Zwift Cog")
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
                     Layout.maximumWidth: chainringColumn.width - 20
                 }
                 SpinBox {
+                    Accessible.name: qsTr("Cog Size") + ": " + value
                     from: 1
                     to: 999
                     value: selectedCogSize
                     onValueChanged: {
                         selectedCogSize = value
                         console.log("Cog Size changed");
-                        settingsChanged()
+                        gearSettingsChanged()
                     }
                 }
             }
@@ -410,12 +451,19 @@ ScrollView {
         // Wheel Size
         GroupBox {
             title: qsTr("Virtual Wheel Size")
+            Accessible.focusable: true
             Layout.fillWidth: true
 
             ColumnLayout {
+                // With a bigger text the column took the width of the button label in one line and
+                // the button ran past the screen edge: it takes the width of the box instead
+                width: window.textScale !== 1 ? parent.width : implicitWidth
                 UiComboBox {
                        id: wheelSizeCombo
+                       Accessible.name: qsTr("Virtual Wheel Size") + ": " + displayText
                        width: parent.width
+                       // the box was as wide as at 100 % and cut the wheel size ("700 x 1…")
+                       Layout.fillWidth: window.textScale !== 1
                        currentIndex: initialWheelSizeIndex
                        textRole: "text"
                        model: ListModel {
@@ -511,7 +559,7 @@ ScrollView {
                           selectedWheelSize = model.get(currentIndex).text
                           selectedCircumference = model.get(currentIndex).circumference
                           console.log("wheelSizeCombo changed");
-                          settingsChanged()
+                          gearSettingsChanged()
                       }
                   }
                 }
@@ -520,13 +568,15 @@ ScrollView {
                 Button {
                     text: qsTr("Restore Default Setting to the Trainer")
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 50
+                    // with a bigger text the label wraps in two lines
+                    Layout.preferredHeight: window.textScale !== 1 ? Math.max(50, contentItem.implicitHeight + 16) : 50
                     font.bold: true
                     background: Rectangle {
                         color: "#9C27B0"
                         radius: 4
                     }
                     contentItem: Text {
+                        wrapMode: window.labelWrap
                         text: parent.text
                         font: parent.font
                         color: "white"
@@ -543,12 +593,15 @@ ScrollView {
 
         GroupBox {
         title: qsTr("Preset Gear Profiles")
+        Accessible.focusable: true
         Layout.fillWidth: true
 
             UiComboBox {
                 id: profileCombo
+                Accessible.name: qsTr("Preset Gear Profiles") + ": " + displayText
                 width: parent.width
                 textRole: "text"
+                savedIndex: gearProfileIndex(settings.gear_configuration)
                 displayText: currentIndex < 0 ? qsTr("Select a profile...") : model.get(currentIndex).text
                 model: ListModel {
                  id: profileModel
@@ -563,9 +616,10 @@ ScrollView {
                  }
                 }
 
-                onCurrentIndexChanged: {
-                 if (currentIndex >= 0) {
-                     loadGearProfile(profileModel.get(currentIndex).value)
+                // Only a pick loads a preset, not the list showing the saved one
+                onActivated: {
+                 if (index >= 0) {
+                     loadGearProfile(profileModel.get(index).value)
                  }
                 }
                 }
@@ -575,31 +629,37 @@ ScrollView {
         // Gear Table GroupBox
         GroupBox {
             title: qsTr("Virtual Gear Table")
+            Accessible.focusable: true
             Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.preferredHeight: parent.height
+            // The table is as tall as its rows and the page scrolls as one: the table had the rest
+            // of the page, but the page is as tall as its content, so the rest was nothing and only
+            // the header of the table showed
 
             ColumnLayout {
-                anchors.fill: parent
+                width: parent.width
                 spacing: 10
 
                 // Updated Buttons Row
-                RowLayout {
+                // With a bigger text three buttons in a row cut their labels ("Add…"): one under
+                // another, each the full width
+                GridLayout {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 40
-                    spacing: 10
+                    Layout.preferredHeight: window.textScale > 1 ? -1 : 40
+                    columns: window.textScale > 1 ? 1 : 3
+                    columnSpacing: 10
+                    rowSpacing: 10
 
                     Button {
                         text: qsTr("Add Gear")
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 40
+                        Layout.preferredHeight: window.fontPx(40)
                         onClicked: addNewGear()
                     }
 
                     Button {
                         text: qsTr("Clear Selected Gear and Following")
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 40
+                        Layout.preferredHeight: window.fontPx(40)
                         onClicked: {
                             if (gearTable.currentRow >= 0) {
                                 clearGearsFromIndex(gearTable.currentRow)
@@ -610,7 +670,7 @@ ScrollView {
                     Button {
                         text: qsTr("Reset All Gears")
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 40
+                        Layout.preferredHeight: window.fontPx(40)
                         onClicked: initializeGearRows()
                     }
                 }
@@ -618,7 +678,7 @@ ScrollView {
                 // Table Header (same as before)
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 40
+                    Layout.preferredHeight: window.fontPx(40)
                     color: "#f0f0f0"
                     border.width: 1
                     border.color: "#cccccc"
@@ -634,6 +694,8 @@ ScrollView {
                             color: "transparent"
 
                             Text {
+                                // a plain Text does not inherit the window font: the text size while it is not 100 %
+                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                 anchors.centerIn: parent
                                 text: qsTr("Gear")
                                 font.bold: true
@@ -649,6 +711,7 @@ ScrollView {
                             color: "transparent"
 
                             Text {
+                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                 anchors.centerIn: parent
                                 text: qsTr("Chainring")
                                 font.bold: true
@@ -664,6 +727,7 @@ ScrollView {
                             color: "transparent"
 
                             Text {
+                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                 anchors.centerIn: parent
                                 text: qsTr("Rear Cog")
                                 font.bold: true
@@ -677,7 +741,10 @@ ScrollView {
                 ListView {
                     id: gearTable
                     Layout.fillWidth: true
-                    Layout.fillHeight: true
+                    Layout.preferredHeight: contentHeight
+                    // The page margins are not in the implicit height: never squeeze the rows
+                    Layout.minimumHeight: contentHeight
+                    interactive: false
                     clip: true
                     property int currentRow: -1
                     model: ListModel {
@@ -694,17 +761,41 @@ ScrollView {
                     }
 
                     function updateGearListModel() {
-                        gearListModel.clear()
+                        var activeRows = []
                         for (var i = 0; i < gearRows.length; i++) {
                             if (gearRows[i].active) {
-                                gearListModel.append(gearRows[i])
+                                activeRows.push(gearRows[i])
                             }
+                        }
+                        // one cell edited: update that row only, so the rows (and the cell
+                        // TalkBack is on) are not made anew
+                        if (activeRows.length === gearListModel.count) {
+                            var changed = -1
+                            var changedRows = 0
+                            for (var j = 0; j < activeRows.length; j++) {
+                                var row = gearListModel.get(j)
+                                if (row.gear !== activeRows[j].gear || row.crankset !== activeRows[j].crankset || row.cog !== activeRows[j].cog) {
+                                    changed = j
+                                    changedRows++
+                                }
+                            }
+                            if (changedRows <= 1) {
+                                if (changed >= 0) {
+                                    gearListModel.set(changed, activeRows[changed])
+                                }
+                                return
+                            }
+                        }
+                        gearListModel.clear()
+                        for (var k = 0; k < activeRows.length; k++) {
+                            gearListModel.append(activeRows[k])
                         }
                     }
 
                     delegate: Rectangle {
                         width: gearTable.width
-                        height: 40
+                        // the rows, the fields and their -/+ grow with the text
+                        height: window.fontPx(40)
                         color: gearTable.currentRow === index ? "#e0e0e0" : "white"
 
                         MouseArea {
@@ -715,18 +806,37 @@ ScrollView {
                         Row {
                             anchors.fill: parent
 
-                            // Gear Number (non-editable)
-                            Rectangle {
+                            // Gear Number (non-editable). A tap anywhere on the row chooses it (the
+                            // MouseArea above); for a screen reader the number is the button that
+                            // does, so "Delete Selected and Following" can be used with TalkBack too
+                            AbstractButton {
                                 width: parent.width / 3
                                 height: parent.height
-                                border.width: 1
-                                border.color: "#cccccc"
-                                color: "transparent"
+                                focusPolicy: Qt.NoFocus
+                                Accessible.name: qsTr("Gear") + " " + gear
+                                // checked on the chosen row, so a screen reader says it; a press
+                                // toggles it, so the binding is put back after choosing the row
+                                checkable: true
+                                checked: gearTable.currentRow === index
+                                onClicked: {
+                                    gearTable.currentRow = index
+                                    checked = Qt.binding(function() { return gearTable.currentRow === index })
+                                }
 
-                                Text {
-                                    anchors.centerIn: parent
+                                background: Rectangle {
+                                    border.width: 1
+                                    border.color: "#cccccc"
+                                    color: "transparent"
+                                }
+
+                                contentItem: Text {
+                                    // a plain Text does not inherit the window font: the text size while it is not 100 %
+                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                     text: gear
                                     color: "black"
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                    Accessible.ignored: true
                                 }
                             }
 
@@ -740,9 +850,26 @@ ScrollView {
 
                                 SpinBox {
                                     id: cranksetSpinBox
+                                    // the column headers are shortened in some languages to fit; the
+                                    // name a screen reader speaks uses the full label of the field above
+                                    Accessible.name: qsTr("Gear") + " " + gear + ", " + qsTr("Chainring Size") + ": " + value
+                                    // TalkBack changes the value with increase()/decrease(), which do not emit
+                                    // valueModified, the signal that saves the table
+                                    Accessible.onIncreaseAction: {
+                                        increase()
+                                        valueModified()
+                                    }
+                                    Accessible.onDecreaseAction: {
+                                        decrease()
+                                        valueModified()
+                                    }
                                     anchors.centerIn: parent
-                                    width: parent.width * 0.8
-                                    height: 30
+                                    // with a bigger text the field takes the cell and grows with the row
+                                    width: window.textScale !== 1 ? parent.width - 8 : parent.width * 0.8
+                                    height: window.fontPx(30)
+                                    // Material pads 8 above and 16 below: the number sat 4 px over the middle
+                                    topPadding: window.textScale !== 1 ? 0 : 8
+                                    bottomPadding: window.textScale !== 1 ? 0 : 16
                                     from: 1
                                     to: 999
                                     value: crankset
@@ -766,7 +893,8 @@ ScrollView {
                                     up.indicator: Rectangle {
                                         x: parent.width - width
                                         height: parent.height
-                                        width: height
+                                        // square, but at most a quarter of the field: the number keeps the middle
+                                        width: window.textScale !== 1 ? Math.min(height, parent.width / 4) : height
                                         color: parent.up.pressed ? "#e4e4e4" : "#f6f6f6"
                                         border.color: "#cccccc"
 
@@ -774,14 +902,15 @@ ScrollView {
                                             text: "+"
                                             color: "black"
                                             anchors.centerIn: parent
-                                            font.pixelSize: 12
+                                            font.pixelSize: window.fontPx(12)
                                         }
                                     }
 
                                     down.indicator: Rectangle {
                                         x: 0
                                         height: parent.height
-                                        width: height
+                                        // square, but at most a quarter of the field: the number keeps the middle
+                                        width: window.textScale !== 1 ? Math.min(height, parent.width / 4) : height
                                         color: parent.down.pressed ? "#e4e4e4" : "#f6f6f6"
                                         border.color: "#cccccc"
 
@@ -789,7 +918,7 @@ ScrollView {
                                             text: "-"
                                             color: "black"
                                             anchors.centerIn: parent
-                                            font.pixelSize: 12
+                                            font.pixelSize: window.fontPx(12)
                                         }
                                     }
 
@@ -810,9 +939,20 @@ ScrollView {
 
                                 SpinBox {
                                     id: cogSpinBox
+                                    Accessible.name: qsTr("Gear") + " " + gear + ", " + qsTr("Cog Size") + ": " + value
+                                    Accessible.onIncreaseAction: {
+                                        increase()
+                                        valueModified()
+                                    }
+                                    Accessible.onDecreaseAction: {
+                                        decrease()
+                                        valueModified()
+                                    }
                                     anchors.centerIn: parent
-                                    width: parent.width * 0.8
-                                    height: 30
+                                    width: window.textScale !== 1 ? parent.width - 8 : parent.width * 0.8
+                                    height: window.fontPx(30)
+                                    topPadding: window.textScale !== 1 ? 0 : 8
+                                    bottomPadding: window.textScale !== 1 ? 0 : 16
                                     from: 1
                                     to: 999
                                     value: cog
@@ -836,7 +976,8 @@ ScrollView {
                                     up.indicator: Rectangle {
                                         x: parent.width - width
                                         height: parent.height
-                                        width: height
+                                        // square, but at most a quarter of the field: the number keeps the middle
+                                        width: window.textScale !== 1 ? Math.min(height, parent.width / 4) : height
                                         color: parent.up.pressed ? "#e4e4e4" : "#f6f6f6"
                                         border.color: "#cccccc"
 
@@ -844,14 +985,15 @@ ScrollView {
                                             text: "+"
                                             color: "black"
                                             anchors.centerIn: parent
-                                            font.pixelSize: 12
+                                            font.pixelSize: window.fontPx(12)
                                         }
                                     }
 
                                     down.indicator: Rectangle {
                                         x: 0
                                         height: parent.height
-                                        width: height
+                                        // square, but at most a quarter of the field: the number keeps the middle
+                                        width: window.textScale !== 1 ? Math.min(height, parent.width / 4) : height
                                         color: parent.down.pressed ? "#e4e4e4" : "#f6f6f6"
                                         border.color: "#cccccc"
 
@@ -859,7 +1001,7 @@ ScrollView {
                                             text: "-"
                                             color: "black"
                                             anchors.centerIn: parent
-                                            font.pixelSize: 12
+                                            font.pixelSize: window.fontPx(12)
                                         }
                                     }
 

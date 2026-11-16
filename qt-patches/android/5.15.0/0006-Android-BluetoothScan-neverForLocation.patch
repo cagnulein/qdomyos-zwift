@@ -1,0 +1,258 @@
+diff --git a/src/bluetooth/qbluetoothdevicediscoveryagent_android.cpp b/src/bluetooth/qbluetoothdevicediscoveryagent_android.cpp
+--- a/src/bluetooth/qbluetoothdevicediscoveryagent_android.cpp
++++ b/src/bluetooth/qbluetoothdevicediscoveryagent_android.cpp
+@@ -131,6 +131,35 @@
+         return;
+     }
+ 
++    // Android 12+ checks BLUETOOTH_CONNECT before reading adapter state or address.
++    // Request both Nearby devices permissions before making those calls.
++    if (QtAndroidPrivate::androidSdkVersion() >= 31) {
++        const QString scanPermission(QLatin1String("android.permission.BLUETOOTH_SCAN"));
++        const QString connectPermission(QLatin1String("android.permission.BLUETOOTH_CONNECT"));
++        if (QtAndroidPrivate::checkPermission(scanPermission) == QtAndroidPrivate::PermissionsResult::Denied
++            || QtAndroidPrivate::checkPermission(connectPermission) == QtAndroidPrivate::PermissionsResult::Denied) {
++            qCWarning(QT_BT_ANDROID) << "Requesting BLUETOOTH_SCAN and BLUETOOTH_CONNECT permissions";
++
++            QAndroidJniEnvironment env;
++            const QHash<QString, QtAndroidPrivate::PermissionsResult> results =
++                    QtAndroidPrivate::requestPermissionsSync(
++                        env, QStringList() << scanPermission << connectPermission);
++
++            const bool scanGranted = results.value(scanPermission, QtAndroidPrivate::PermissionsResult::Denied)
++                    == QtAndroidPrivate::PermissionsResult::Granted;
++            const bool connectGranted = results.value(connectPermission, QtAndroidPrivate::PermissionsResult::Denied)
++                    == QtAndroidPrivate::PermissionsResult::Granted;
++            if (!scanGranted || !connectGranted) {
++                qCWarning(QT_BT_ANDROID) << "Search not possible due to missing Nearby devices permission";
++                lastError = QBluetoothDeviceDiscoveryAgent::UnknownError;
++                errorString = QBluetoothDeviceDiscoveryAgent::tr(
++                    "Missing Nearby devices permission. Search is not possible.");
++                emit q->error(lastError);
++                return;
++            }
++        }
++    }
++
+     if (!m_adapterAddress.isNull()
+         && adapter.callObjectMethod<jstring>("getAddress").toString()
+         != m_adapterAddress.toString()) {
+@@ -149,9 +178,22 @@
+         return;
+     }
+ 
+-    // check Android v23+ permissions
+-    // -> any device search requires android.permission.ACCESS_COARSE_LOCATION or android.permission.ACCESS_FINE_LOCATION
+-    if (QtAndroid::androidSdkVersion() >= 23) {
++    // On Android 12+, Location is required only when the merged manifest does not
++    // declare BLUETOOTH_SCAN with neverForLocation. Older Android versions keep the
++    // existing Location permission and system-toggle requirements.
++    const int androidSdkVersion = QtAndroidPrivate::androidSdkVersion();
++    bool locationRequired = true;
++    if (androidSdkVersion >= 31) {
++        const QAndroidJniObject context = QtAndroid::androidContext();
++        locationRequired = QAndroidJniObject::callStaticMethod<jboolean>(
++            "org/qtproject/qt5/android/bluetooth/QtBluetoothUtility",
++            "bluetoothScanRequiresLocation",
++            "(Landroid/content/Context;)Z",
++            context.object<jobject>());
++    }
++
++    // check Android v23+ Location permission when this scan requires Location
++    if (locationRequired && androidSdkVersion >= 23) {
+         const QString coarsePermission(QLatin1String("android.permission.ACCESS_COARSE_LOCATION"));
+         const QString finePermission(QLatin1String("android.permission.ACCESS_FINE_LOCATION"));
+ 
+@@ -185,43 +227,46 @@
+         qCWarning(QT_BT_ANDROID) << "ACCESS_COARSE|FINE_LOCATION permission available";
+     }
+ 
+-    // Double check Location service is turned on
+-    bool locationTurnedOn = true; // backwards compatible behavior to previous Qt versions
+-    const  QAndroidJniObject locString = QAndroidJniObject::getStaticObjectField(
+-                "android/content/Context", "LOCATION_SERVICE", "Ljava/lang/String;");
+-    const QAndroidJniObject locService = QtAndroid::androidContext().callObjectMethod(
+-                "getSystemService",
+-                "(Ljava/lang/String;)Ljava/lang/Object;",
+-                locString.object<jstring>());
+-
+-    if (locService.isValid()) {
+-        if (QtAndroid::androidSdkVersion() >= 28) {
+-            locationTurnedOn = bool(locService.callMethod<jboolean>("isLocationEnabled"));
+-        } else {
+-            // try GPS and network provider
+-            QAndroidJniObject provider = QAndroidJniObject::getStaticObjectField(
+-                        "android/location/LocationManager", "GPS_PROVIDER", "Ljava/lang/String;");
+-            bool gpsTurnedOn = bool(locService.callMethod<jboolean>("isProviderEnabled",
+-                                      "(Ljava/lang/String;)Z", provider.object<jstring>()));
+-
+-            provider = QAndroidJniObject::getStaticObjectField(
+-                       "android/location/LocationManager", "NETWORK_PROVIDER", "Ljava/lang/String;");
+-            bool providerTurnedOn = bool(locService.callMethod<jboolean>("isProviderEnabled",
++    // Double check the Location service only for Android versions and manifests
++    // that require Location for Bluetooth scanning.
++    if (locationRequired) {
++        bool locationTurnedOn = true; // backwards compatible behavior to previous Qt versions
++        const  QAndroidJniObject locString = QAndroidJniObject::getStaticObjectField(
++                    "android/content/Context", "LOCATION_SERVICE", "Ljava/lang/String;");
++        const QAndroidJniObject locService = QtAndroid::androidContext().callObjectMethod(
++                    "getSystemService",
++                    "(Ljava/lang/String;)Ljava/lang/Object;",
++                    locString.object<jstring>());
++
++        if (locService.isValid()) {
++            if (QtAndroid::androidSdkVersion() >= 28) {
++                locationTurnedOn = bool(locService.callMethod<jboolean>("isLocationEnabled"));
++            } else {
++                // try GPS and network provider
++                QAndroidJniObject provider = QAndroidJniObject::getStaticObjectField(
++                            "android/location/LocationManager", "GPS_PROVIDER", "Ljava/lang/String;");
++                bool gpsTurnedOn = bool(locService.callMethod<jboolean>("isProviderEnabled",
+                                           "(Ljava/lang/String;)Z", provider.object<jstring>()));
+ 
+-            locationTurnedOn = gpsTurnedOn || providerTurnedOn;
+-        }
+-    }
+-
+-    if (!locationTurnedOn) {
+-        qCWarning(QT_BT_ANDROID) << "Search not possible due to turned off Location service";
+-        lastError = QBluetoothDeviceDiscoveryAgent::UnknownError;
+-        errorString = QBluetoothDeviceDiscoveryAgent::tr("Location service turned off. Search is not possible.");
+-        emit q->error(lastError);
+-        return;
+-    }
+-
+-    qCDebug(QT_BT_ANDROID) << "Location turned on";
++                provider = QAndroidJniObject::getStaticObjectField(
++                           "android/location/LocationManager", "NETWORK_PROVIDER", "Ljava/lang/String;");
++                bool providerTurnedOn = bool(locService.callMethod<jboolean>("isProviderEnabled",
++                                              "(Ljava/lang/String;)Z", provider.object<jstring>()));
++
++                locationTurnedOn = gpsTurnedOn || providerTurnedOn;
++            }
++        }
++
++        if (!locationTurnedOn) {
++            qCWarning(QT_BT_ANDROID) << "Search not possible due to turned off Location service";
++            lastError = QBluetoothDeviceDiscoveryAgent::UnknownError;
++            errorString = QBluetoothDeviceDiscoveryAgent::tr("Location service turned off. Search is not possible.");
++            emit q->error(lastError);
++            return;
++        }
++
++        qCDebug(QT_BT_ANDROID) << "Location turned on";
++    }
+ 
+     // install Java BroadcastReceiver
+     if (!receiver) {
+diff --git a/src/android/bluetooth/bluetooth.pro b/src/android/bluetooth/bluetooth.pro
+--- a/src/android/bluetooth/bluetooth.pro
++++ b/src/android/bluetooth/bluetooth.pro
+@@ -12,6 +12,7 @@
+     $$PATHPREFIX/QtBluetoothSocketServer.java \
+     $$PATHPREFIX/QtBluetoothInputStreamThread.java \
+     $$PATHPREFIX/QtBluetoothLE.java \
++    $$PATHPREFIX/QtBluetoothUtility.java \
+     $$PATHPREFIX/QtBluetoothLEServer.java
+ 
+ # install
+diff --git a/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothUtility.java b/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothUtility.java
+new file mode 100644
+--- /dev/null
++++ b/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothUtility.java
+@@ -0,0 +1,95 @@
++// Copyright (C) 2024 The Qt Company Ltd.
++// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
++
++package org.qtproject.qt5.android.bluetooth;
++
++import android.os.Build;
++import android.content.Context;
++import android.content.pm.PackageInfo;
++import android.content.res.AssetManager;
++import android.content.res.XmlResourceParser;
++import android.util.Log;
++
++import org.xmlpull.v1.XmlPullParser;
++
++class QtBluetoothUtility {
++
++    private static final String TAG = "QtBluetoothUtility";
++    private static final String BLUETOOTH_SCAN_PERMISSION = "android.permission.BLUETOOTH_SCAN";
++    // PackageInfo.REQUESTED_PERMISSION_NEVER_FOR_LOCATION was added in API 31.
++    private static final int REQUESTED_PERMISSION_NEVER_FOR_LOCATION = 0x10000;
++
++    // The merged manifest is stable for the life of the process, so cache this check.
++    private static boolean isScanRequiresLocationChecked = false;
++    private static boolean scanRequiresLocation = true;
++
++    // API < 31 always requires Location. On API >= 31, Location is required unless
++    // BLUETOOTH_SCAN declares neverForLocation. On unexpected failures, allow scanning
++    // without Location so a parser problem cannot reintroduce a location prompt.
++    public static synchronized boolean bluetoothScanRequiresLocation(final Context qtContext)
++    {
++        Log.d(TAG, "Checking if Location is required for bluetooth scan");
++        if (isScanRequiresLocationChecked) {
++            Log.d(TAG, "Using cached result for scan needing location: " + scanRequiresLocation);
++            return scanRequiresLocation;
++        }
++
++        if (Build.VERSION.SDK_INT < 31) {
++            scanRequiresLocation = true;
++            isScanRequiresLocationChecked = true;
++            return scanRequiresLocation;
++        }
++        if (qtContext == null) {
++            Log.w(TAG, "No context object provided");
++            return false;
++        }
++
++        XmlResourceParser xmlParser = null;
++        try {
++            final AssetManager assetManager =
++                    qtContext.createPackageContext(qtContext.getPackageName(), 0).getAssets();
++            xmlParser = assetManager.openXmlResourceParser(0, "AndroidManifest.xml");
++
++            int eventType = xmlParser.getEventType();
++            while (eventType != XmlPullParser.END_DOCUMENT) {
++                if (eventType == XmlPullParser.START_TAG
++                        && xmlParser.getName().equals("uses-permission")) {
++                    String permissionName = null;
++                    int usesPermissionFlags = 0;
++
++                    for (int i = 0; i < xmlParser.getAttributeCount(); i++) {
++                        String attributeName = xmlParser.getAttributeName(i);
++                        if (attributeName.equals("name")) {
++                            permissionName = xmlParser.getAttributeValue(i);
++                        } else if (attributeName.equals("usesPermissionFlags")) {
++                            String flagValue = xmlParser.getAttributeValue(i);
++                            if (flagValue.startsWith("0x")) {
++                                usesPermissionFlags = Integer.parseInt(flagValue.substring(2), 16);
++                            } else {
++                                usesPermissionFlags = Integer.parseInt(flagValue);
++                            }
++                        }
++                    }
++                    if (BLUETOOTH_SCAN_PERMISSION.equals(permissionName)) {
++                        scanRequiresLocation =
++                                (usesPermissionFlags & REQUESTED_PERMISSION_NEVER_FOR_LOCATION) == 0;
++                        isScanRequiresLocationChecked = true;
++                        Log.d(TAG, "BLUETOOTH_SCAN requires Location: " + scanRequiresLocation);
++                        return scanRequiresLocation;
++                    }
++                }
++                eventType = xmlParser.nextToken();
++            }
++        } catch (Exception ex) {
++            Log.w(TAG, "An error occurred while checking Bluetooth's Location need: " + ex);
++            scanRequiresLocation = false;
++        } finally {
++            if (xmlParser != null)
++                xmlParser.close();
++        }
++
++        Log.d(TAG, "BLUETOOTH_SCAN permission not found");
++        isScanRequiresLocationChecked = true;
++        return scanRequiresLocation;
++    }
++}

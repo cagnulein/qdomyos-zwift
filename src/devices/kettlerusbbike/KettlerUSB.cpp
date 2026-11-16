@@ -73,60 +73,90 @@ void KettlerUSB::getTelemetry(double &power, double &heartrate, double &cadence,
  * ---------------------------------------------------------------------- */
 
 bool KettlerUSB::initSequence() {
-    // The standard Kettler protocol expects one response per command. Keep
-    // the response associated with the command that produced it; otherwise a
-    // burst of init replies is consumed by the first status poll.
+    // Preserve the known working E7 sequence, including its timing and flush.
+    // The AX1 is detected from the status layout, not from the configured baud rate.
     statusCommand = QStringLiteral("ST");
+    activeProtocol = Protocol::Unknown;
+    extendedHandshakeAttempted = false;
 
-    if (sendCommand(QStringLiteral("ID")) < 0)
-        return false;
-    if (readResponse().isEmpty())
-        return false;
-
-    if (sendCommand(statusCommand) < 0)
-        return false;
-    QString response = readResponse();
-    if (parseStatusResponse(response))
-        return true;
-    if (response != QStringLiteral("ERROR")) {
-        qDebug() << "Kettler initialization received no explicit ST protocol error:" << response;
-        return false;
+    const QStringList commands = {"VE", "ID", "VE", "KI", "CA", "RS", "CM", "SP1"};
+    for (const QString &command : commands) {
+        if (sendCommand(command) < 0)
+            return false;
+        KettlerSleeper::msleep(150);
     }
-
-    // Some standard-protocol consoles return ERROR to ST but expose the same
-    // telemetry through DB. This is the fallback used by the reference app.
-    statusCommand = QStringLiteral("DB");
-    if (sendCommand(statusCommand) < 0)
-        return false;
-    response = readResponse();
-    if (!parseStatusResponse(response)) {
-        qDebug() << "Kettler initialization did not return a valid status";
-        return false;
-    }
+    KettlerSleeper::msleep(500);
+    flushSerialBuffer();
     return true;
 }
 
-bool KettlerUSB::isStatusResponse(const QString &response) {
-    if (response == "ACK" || response == "ERROR" || response.length() < 10)
+bool KettlerUSB::tryExtendedHandshake() {
+    // Only used when the legacy startup does not yield any valid status frame.
+    // Do not disturb a working E7 or another legacy console.
+    if (extendedHandshakeAttempted || activeProtocol != Protocol::Unknown)
+        return false;
+    extendedHandshakeAttempted = true;
+    flushSerialBuffer();
+
+    if (sendCommand(QStringLiteral("ID")) < 0)
+        return false;
+    const QString identifier = readResponse();
+    qDebug() << "Kettler fallback ID:" << identifier;
+    if (identifier.isEmpty())
         return false;
 
+    for (const QString &command : {QStringLiteral("ST"), QStringLiteral("DB")}) {
+        if (sendCommand(command) < 0)
+            return false;
+        for (int i = 0; i < 8; ++i) {
+            const QString response = readResponse();
+            if (response.isEmpty() || response == QStringLiteral("ERROR"))
+                break;
+            if (parseStatusResponse(response)) {
+                statusCommand = command;
+                return true;
+            }
+        }
+    }
+    statusCommand = QStringLiteral("ST");
+    return false;
+}
+
+bool KettlerUSB::decodeStatusFrame(const QString &response, StatusFrame &frame) {
+    if (response == QStringLiteral("ACK") || response == QStringLiteral("ERROR"))
+        return false;
     const QStringList fields = response.split('\t', Qt::KeepEmptyParts);
-    // The standard response has a leading protocol field followed by at least
-    // eight status fields. Extra vendor fields may follow the power field.
-    if (fields.size() < 9)
+    if (fields.size() != 8 && fields.size() < 9)
         return false;
 
-    const int numericFields[] = {1, 2, 3, 4, 6, 8};
-    for (const int index : numericFields) {
-        bool ok;
-        fields[index].toDouble(&ok);
+    const bool legacy = fields.size() == 8;
+    const int timeIndex = legacy ? 6 : 7;
+    const int powerIndex = legacy ? 7 : 8;
+    static const QRegularExpression timeExpression(QStringLiteral("^[0-9]{1,3}:[0-9]{2}$"));
+    if (!timeExpression.match(fields[timeIndex]).hasMatch())
+        return false;
+
+    for (int i = 0; i <= powerIndex; ++i) {
+        if (i == timeIndex)
+            continue;
+        bool ok = false;
+        fields[i].toDouble(&ok);
         if (!ok)
             return false;
     }
 
-    return QRegularExpression(QStringLiteral("^[0-9]{1,3}:[0-9]{2}$"))
-        .match(fields[7])
-        .hasMatch();
+    frame.protocol = legacy ? Protocol::Legacy8 : Protocol::Extended9;
+    frame.heartRate = fields[legacy ? 0 : 1].toDouble();
+    frame.cadence = fields[legacy ? 1 : 2].toDouble();
+    frame.speed = fields[legacy ? 2 : 3].toDouble() * 0.1;
+    frame.distance = fields[legacy ? 3 : 4].toDouble() * 100.0;
+    frame.power = fields[powerIndex].toDouble();
+    return true;
+}
+
+bool KettlerUSB::isStatusResponse(const QString &response) {
+    StatusFrame frame;
+    return decodeStatusFrame(response, frame);
 }
 
 bool KettlerUSB::takeResponse(QByteArray &buffer, QString &response) {
@@ -140,32 +170,32 @@ bool KettlerUSB::takeResponse(QByteArray &buffer, QString &response) {
 }
 
 bool KettlerUSB::parseStatusResponse(const QString &response) {
-    // Status response format (tab-separated):
-    // Prefix HR RPM Speed Distance Unused Energy Time CurrentPower [extras]
-    // Example: 190\t000\t053\t188\t007\t043\t0019\t02:50\t043
-
-    // Ignore non-status responses (ACK, ERROR, etc.)
-    if (!isStatusResponse(response)) {
+    StatusFrame frame;
+    if (!decodeStatusFrame(response, frame)) {
         qDebug() << "  Skipping non-status response:" << response;
         return false;
     }
 
-    QStringList fields = response.split('\t', Qt::KeepEmptyParts);
+    if (activeProtocol != frame.protocol) {
+        activeProtocol = frame.protocol;
+        qDebug() << "Kettler detected status protocol:"
+                 << (activeProtocol == Protocol::Legacy8 ? "legacy 8-field (E7)" : "extended 9-field (AX1)");
+    }
+
     pvars.lock();
-    deviceHeartRate = fields[1].toDouble();
-    deviceCadence = fields[2].toDouble();
-    deviceSpeed = fields[3].toDouble() * 0.1; // Speed is in 0.1 km/h
-    deviceDistance = fields[4].toDouble() * 100; // Distance is in 100m units
-    devicePower = fields[8].toDouble(); // CurrentPower
+    deviceHeartRate = frame.heartRate;
+    deviceCadence = frame.cadence;
+    deviceSpeed = frame.speed;
+    deviceDistance = frame.distance;
+    devicePower = frame.power;
     pvars.unlock();
 
-    qDebug() << "Kettler Status: HR=" << deviceHeartRate
-             << " RPM=" << deviceCadence
-             << " Speed=" << deviceSpeed
-             << " Dist=" << deviceDistance
-             << " Power=" << devicePower;
+    qDebug() << "Kettler Status: HR=" << frame.heartRate
+             << " RPM=" << frame.cadence << " Speed=" << frame.speed
+             << " Dist=" << frame.distance << " Power=" << frame.power;
     return true;
 }
+
 
 /* ----------------------------------------------------------------------
  * EXECUTIVE FUNCTIONS
@@ -256,78 +286,74 @@ void KettlerUSB::run() {
         return;
     }
 
-    // Wait 3 seconds before first poll (as per kettlerUSB2BLE)
+    // Maintain the legacy console settle time before the first poll.
     KettlerSleeper::msleep(3000);
+    int missedStatusPolls = 0;
 
     while (1) {
         if (isDeviceOpen) {
-            // Check if we need to write power
             pvars.lock();
             curWritePower = this->writePower;
             curPower = this->targetPower;
             pvars.unlock();
 
             if (curWritePower) {
-                // Send power command
-                QString powerCmd = QString("PW%1").arg((int)curPower);
+                const QString powerCmd = QString("PW%1").arg(static_cast<int>(curPower));
                 if (sendCommand(powerCmd) < 0) {
-                    qDebug() << "Kettler power command write failed";
+                    qDebug() << "Kettler power write failed";
+                    pvars.lock();
+                    deviceStatus = 0;
+                    pvars.unlock();
                     closePort();
                     quit(2);
                     return;
                 }
-
                 pvars.lock();
                 this->writePower = false;
                 pvars.unlock();
 
-                // Read and discard response (usually ACK or a number)
                 KettlerSleeper::msleep(150);
-                QString pwResponse = readResponse();
-                if (pwResponse.isEmpty()) {
-                    qDebug() << "Kettler power command response timed out";
-                    closePort();
-                    quit(2);
-                    return;
-                }
-                qDebug() << "  PW response (discarded):" << pwResponse;
-
-                // Immediately request fresh status
-                if (sendCommand(statusCommand) < 0) {
-                    qDebug() << "Kettler status command write failed";
-                    closePort();
-                    quit(2);
-                    return;
-                }
-                QString response = readResponse();
-                if (response.isEmpty()) {
-                    qDebug() << "Kettler status response timed out";
-                    closePort();
-                    quit(2);
-                    return;
-                }
-                parseStatusResponse(response);
-            } else {
-                // Normal status poll
-                if (sendCommand(statusCommand) < 0) {
-                    qDebug() << "Kettler status command write failed";
-                    closePort();
-                    quit(2);
-                    return;
-                }
-                QString response = readResponse();
-                if (response.isEmpty()) {
-                    qDebug() << "Kettler status response timed out";
-                    closePort();
-                    quit(2);
-                    return;
-                }
-                parseStatusResponse(response);
+                const QString powerReply = readResponse();
+                if (isStatusResponse(powerReply))
+                    parseStatusResponse(powerReply);
+                else
+                    qDebug() << "Kettler PW response:" << powerReply;
             }
 
-            // Reduced polling interval from 2000ms to 500ms for faster response
+            if (sendCommand(statusCommand) < 0) {
+                qDebug() << "Kettler status write failed";
+                pvars.lock();
+                deviceStatus = 0;
+                pvars.unlock();
+                closePort();
+                quit(2);
+                return;
+            }
+
+            bool receivedStatus = false;
+            // E7 may have queued VE/ID/KI/CA/RS/CM/SP1 replies before ST.
+            // Drain those lines rather than treating them as telemetry.
+            for (int i = 0; i < 12; ++i) {
+                const QString response = readResponse();
+                if (response.isEmpty() || response == QStringLiteral("ERROR"))
+                    break;
+                if (parseStatusResponse(response)) {
+                    receivedStatus = true;
+                    break;
+                }
+            }
+
+            if (receivedStatus) {
+                missedStatusPolls = 0;
+            } else if (activeProtocol == Protocol::Unknown && ++missedStatusPolls >= 3) {
+                if (tryExtendedHandshake())
+                    missedStatusPolls = 0;
+            }
+            // A single missing response is not a disconnect on legacy USB.
             KettlerSleeper::msleep(500);
         }
+
+
 
         // Check status
         pvars.lock();
@@ -349,6 +375,7 @@ void KettlerUSB::run() {
                 return;
             }
             isDeviceOpen = true;
+            missedStatusPolls = 0;
             if (!initSequence()) {
                 closePort();
                 quit(2);
@@ -389,7 +416,9 @@ QString KettlerUSB::readResponse() {
             KettlerSleeper::msleep(10);
     }
 
-    rxBuffer.clear();
+    // Keep a partial CRLF frame for the next poll; bound stale input.
+    if (rxBuffer.size() > 1024)
+        rxBuffer.clear();
     return QString();
 }
 

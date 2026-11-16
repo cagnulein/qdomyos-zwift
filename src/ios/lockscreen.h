@@ -57,13 +57,16 @@ class lockscreen {
     int virtualrower_getLastFTMSMessage(unsigned char *message);
 
     // virtualtreadmill
-    void virtualtreadmill_zwift_ios(bool garmin_bluetooth_compatibility, bool bike_cadence_sensor);
+    void virtualtreadmill_zwift_ios(bool garmin_bluetooth_compatibility, bool bike_cadence_sensor, bool disable_hr);
     void virtualtreadmill_setHeartRate(unsigned char heartRate);
     double virtualtreadmill_getCurrentSlope();
     uint64_t virtualtreadmill_lastChangeCurrentSlope();
     double virtualtreadmill_getPowerRequested();
     double virtualtreadmill_getRequestedSpeed();
     uint64_t virtualtreadmill_lastChangeRequestedSpeed();
+    void virtualtreadmill_enableControlPointForwarding(const QByteArray &speedRange, const QByteArray &inclineRange);
+    QByteArray virtualtreadmill_takeControlPointWrite();
+    void virtualtreadmill_clearControlPointWrites();
     bool virtualtreadmill_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                      unsigned short currentCadence, unsigned short currentWatt,
                                      unsigned short currentInclination, unsigned long long currentDistance, double elevationGain,
@@ -127,6 +130,15 @@ class lockscreen {
 
     // web view cache
     static void clearWebViewCache();
+
+    // system text size (Dynamic Type): 1.0 at the default size
+    static double systemFontScale();
+
+    // dark appearance of the system (iOS 13+); true before iOS 13
+    static bool systemDarkMode();
+
+    // the share sheet with a file (a saved workout)
+    static void shareFile(const char* path);
 };
 
 #endif // LOCKSCREEN_H

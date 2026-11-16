@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
+import android.os.Build;
 import android.provider.Settings;
 import org.cagnulen.qdomyoszwift.QLog;
 
@@ -22,6 +23,9 @@ public class LocationHelper {
     }
 
     public static void requestPermissions(Context context) {
+        // Refresh status rather than relying on a stale snapshot from app startup.
+        isLocationEnabled = isLocationEnabled(context);
+        isBluetoothEnabled = isBluetoothEnabled();
         if (!isLocationEnabled || !isBluetoothEnabled) {
             QLog.d(TAG, "Some services are disabled. Prompting user...");
             if (!isLocationEnabled) {
@@ -40,13 +44,29 @@ public class LocationHelper {
     }
 
     private static boolean isLocationEnabled(Context context) {
+        // Android 12+ uses Nearby devices permission for BLE scanning when
+        // BLUETOOTH_SCAN is declared with neverForLocation.
+        if (Build.VERSION.SDK_INT >= 31)
+            return true;
+
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        return locationManager != null && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        if (locationManager == null)
+            return false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+            return locationManager.isLocationEnabled();
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
     private static boolean isBluetoothEnabled() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        return bluetoothAdapter != null && bluetoothAdapter.isEnabled();
+        if (bluetoothAdapter == null)
+            return false;
+        try {
+            return bluetoothAdapter.isEnabled();
+        } catch (SecurityException exception) {
+            QLog.d(TAG, "Cannot read Bluetooth state without BLUETOOTH_CONNECT permission.");
+            return false;
+        }
     }
 
     private static void promptEnableLocation(Context context) {
@@ -60,6 +80,10 @@ public class LocationHelper {
         QLog.d(TAG, "Prompting to enable Bluetooth...");
         Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
+        try {
+            context.startActivity(intent);
+        } catch (SecurityException exception) {
+            QLog.d(TAG, "Cannot request Bluetooth enable without BLUETOOTH_CONNECT permission.");
+        }
     }
 }

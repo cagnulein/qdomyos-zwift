@@ -84,6 +84,17 @@ class KettlerUSB : public QThread {
     void setDevice(QString deviceFilename); // setup the device filename
     void setPower(double power);            // set the target power in Watts
 
+    enum class Protocol { Unknown, Legacy8, Extended9 };
+    struct StatusFrame {
+        Protocol protocol = Protocol::Unknown;
+        double heartRate = 0;
+        double cadence = 0;
+        double speed = 0;
+        double distance = 0;
+        double power = 0;
+    };
+
+    static bool decodeStatusFrame(const QString &response, StatusFrame &frame);
     static bool isStatusResponse(const QString &response);
     static bool takeResponse(QByteArray &buffer, QString &response);
 
@@ -102,7 +113,8 @@ class KettlerUSB : public QThread {
     int sendCommand(const QString &command);
     QString readResponse();
     bool parseStatusResponse(const QString &response);
-    bool initSequence(); // Send initialization commands
+    bool initSequence(); // Preserve E7 startup sequence
+    bool tryExtendedHandshake(); // Recover AX1 when legacy startup does not yield status
 
     // Mutex for controlling accessing private data
     QMutex pvars;
@@ -136,6 +148,8 @@ class KettlerUSB : public QThread {
 
     QByteArray rxBuffer;
     QString statusCommand = QStringLiteral("ST");
+    Protocol activeProtocol = Protocol::Unknown;
+    bool extendedHandshakeAttempted = false;
 };
 
 class KettlerSleeper : public QThread {

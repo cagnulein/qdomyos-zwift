@@ -16,7 +16,7 @@ var LINKED = /^\s*linkedBoolSetting\s*:\s*"([A-Za-z0-9_]+)"/
 var KEY = /\bsettings\.([A-Za-z_][A-Za-z0-9_]*)/g
 // The line that shows the value is the control itself; an assignment comes next (a handler of
 // the control); any other mention (a visible: of some other row, say) is the weakest hint
-var SHOWS = /^\s*(checked|text|currentIndex|value|displayText)\s*:/
+var SHOWS = /^\s*(checked|text|savedText|savedIndex|currentIndex|value|displayText)\s*:/
 var WRITES = /\bsettings\.[A-Za-z0-9_]+\s*=[^=]/
 
 // Braces of a line outside string literals and // comments

@@ -46,12 +46,7 @@ class virtualbike : public virtualdevice {
         else
             return lastDirconFTMSFrameReceived;
     }
-    double currentGear() {
-        if(dirconManager) {
-            return dirconManager->currentGear();
-        }
-        return writeP0003->currentGear();
-    }
+    double currentGear();
 
   private:
     QLowEnergyController *leController = nullptr;

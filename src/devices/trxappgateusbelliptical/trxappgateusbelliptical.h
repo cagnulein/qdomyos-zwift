@@ -42,6 +42,7 @@ class trxappgateusbelliptical : public elliptical {
     static bool toorxResistanceInRange(resistance_t resistance);
     static double toorxCadenceFromPacket(const QByteArray &packet);
     static double toorxSpeedFromPacket(const QByteArray &packet);
+    static double iConsoleWattsFromPacket(const QByteArray &packet);
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
@@ -89,6 +90,7 @@ class trxappgateusbelliptical : public elliptical {
         JTX_FITNESS = 2,
         TAURUS_FX99 = 3,
         TOORX = 4,
+        FAL_SPORTS_0187 = 5, // MAXXUS CX 6.1 (ISSC UART, iConsole 0x35 protocol)
     } TYPE;
     TYPE elliptical_type = ELLIPTICAL_GENERIC;
 

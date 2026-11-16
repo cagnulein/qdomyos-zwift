@@ -12,6 +12,19 @@ In confirmed support cases, waiting about three minutes in Zwift before continui
 
 An active Zwift subscription is not required for this handshake procedure; a Zwift account that can reach the pairing flow is sufficient.
 
+## Why can't Zwift find QZ or Wahoo KICKR 0000 when QZ is in the background on iOS?
+
+On iPhone, **initial discovery** of QZ's virtual trainer can behave differently from keeping an **already-paired** connection alive. If Zwift's pairing screen does not list **QZ** (Bluetooth) or **Wahoo KICKR 0000** (Wahoo Direct Connect / Wi-Fi), try this confirmed workaround:
+
+1. Open QZ on the iPhone and make sure it has connected to the physical trainer. Enable the virtual-device transport you want to use.
+2. **Leave QZ in the foreground** while opening Zwift's pairing screen on the other device.
+3. When QZ / Wahoo KICKR 0000 appears, pair it to Zwift as the appropriate **Power Source** and **Controllable** device (and cadence if offered).
+4. Only after pairing succeeds, put QZ in the background. With **iOS Background Keep Alive** enabled under **Experimental Settings**, check that power, resistance control and any virtual shifting still work during a short test.
+
+**Why:** iOS does not advertise a Bluetooth peripheral's local name when its app is in the background, and background service UUID discovery is restricted. Wahoo Direct Connect uses **Bonjour/mDNS over Wi-Fi**, not BLE advertising, but its discovery responses also depend on QZ being allowed to execute and access the local network. **iOS Background Keep Alive may help keep an established session running; it is not a guarantee that Zwift can discover a new virtual trainer in the background.** In a confirmed support report, existing Zwift pairing worked with QZ backgrounded, but first-time discovery required returning QZ to the foreground, even with Keep Alive enabled.
+
+This concerns the **virtual trainer's discovery**, not the separate Zwift Click v2 controller keepalive/handshake.
+
 ## QZ and Zwift show different virtual gear numbers. How can I keep them aligned?
 
 When QZ is handling a custom virtual gear table and Zwift is also showing its virtual gear UI, enable QZ's **Align Gear** option so QZ can follow the gear number reported by the virtual bike connection instead of letting the two displays drift apart.
@@ -59,6 +72,21 @@ For a KICKR setup where the goal is to reproduce real chainring/cassette ratios,
 **Virtual Wheel Size** is the base circumference used in the calculation. Start by configuring the correct physical reference gear and virtual gear table first; use Virtual Wheel Size only if you intentionally want to scale the overall gearing feel.
 
 This physical reference does not need to change when switching between training apps such as Zwift and ROUVY, as long as the bike remains in the same mechanical gear.
+
+## My Wahoo KICKR gearing feels different in other apps after using QZ. How can I restore it?
+
+With **Without Wheel Diameter Protocol** disabled, QZ writes a calculated wheel circumference to a compatible Wahoo KICKR when connecting and can update it when virtual gears change. The trainer can retain that value after QZ closes, which may change the gearing feel in other apps.
+
+To stop QZ changing the stored circumference and reset it:
+
+1. In **QZ Settings > Bike Options > Wahoo Options**, enable **Without Wheel Diameter Protocol**. QZ then handles virtual shifting through grade-based control rather than wheel-circumference writes.
+2. **Connect the trainer to QZ** and confirm it is connected.
+3. In the Wahoo virtual-gearing settings, tap **Restore Default Setting to the Trainer**. This writes a fixed **2070 mm** circumference to the trainer; it **does not recover your previously stored value**.
+4. Check the gearing again in the other training app.
+
+**Important:** The restore button only sends a command while a compatible Wahoo trainer is connected to QZ. If it is disconnected, the button silently does nothing. If you want to set a particular circumference instead, some riders report adjusting wheel size in the **Wahoo app's trainer settings**.
+
+On newer QZ versions, the first connection can ask whether QZ may change the trainer's wheel circumference. Choosing **No** enables **Without Wheel Diameter Protocol**; choosing **Yes** allows the usual circumference-based virtual gears. Selecting No does *not* itself reset any value left on the trainer from an earlier session.
 
 ## Zwift Ride or Play shifts more than one virtual gear per press. What can I try?
 
@@ -113,3 +141,77 @@ A support user reported much lower virtual speed after reducing Watt Gain, then 
 The **Gears Big Buttons** setting and local gear up/down paths are present in the QZ settings and bike-control code. A support user explicitly confirmed successfully exposing the relevant controls, but this is **code-verified usage guidance**, not a claim that the user's particular trainer's resistance behavior was fully fixed.
 
 If you prefer the **physical Zwift Click / Click V2 controller**, that is a separate Bluetooth pairing flow: enable **Zwift Click** under QZ Accessories, leave **Get Gears from Zwift** disabled when QZ owns shifting, and follow the official Zwift handshake procedure if required for Click V2. The physical **Zwift Cog** itself is a fixed sprocket, not a source of gear-button events.
+
+## Zwift reads QZ power but does not change resistance on climbs. Can resetting its pairing help?
+
+When QZ shows correct bike metrics and Zwift receives power and cadence but does not control resistance, check Zwift's **Controllable** pairing separately from its **Power Source** pairing.
+
+1. Keep QZ connected to the physical bike and pair **QZ's virtual trainer** in Zwift as both Power Source and Controllable.
+2. Remove and re-pair the saved Controllable device in Zwift, then test a short climb.
+3. If Zwift still receives data but sends no gradient commands, reinstalling Zwift on the receiving iPad can be a last-resort reset. Re-pair QZ after reinstalling. You may need to restore local app settings or downloads.
+
+**Confirmed workaround:** In one support case, QZ received normal bike data and Zwift read the metrics, but no new FTMS control commands arrived from Zwift on climbs. Reinstalling Zwift on the iPad restored gradient-based resistance changes. A stale pairing or app state is plausible, but the exact root cause was not proven. This does not address a separate failure of QZ to control the physical bike.
+
+## Can Zwift Click v2 change QZ's target ERG watts without running Zwift?
+
+**Yes, with a QZ build that includes standalone Click v2 target-power control** (confirmed in the Android Play Store **beta** during support testing). This is separate from virtual shifting in a training app.
+
+1. Connect the physical trainer and the **Zwift Click v2** controllers to QZ. If the controllers need unlocking, complete the full-Zwift-app pairing procedure described in the Click v2 FAQ above, then close Zwift.
+2. Leave other training apps disconnected from QZ's virtual device for this standalone test.
+3. In **Settings > Tiles Options**, enable the **Target Power (T.Power)** tile.
+4. On the QZ dashboard, set a target **above 0 W** using that tile to enter local ERG control.
+5. Press **+** or **−** on the Click controllers. In the confirmed beta, each press increased or decreased the ERG target by **5 W**.
+
+A rider initially found that the buttons did not change the target in the installed release; after updating to the Android beta, **both directions worked**. The **5 W step is fixed** in that tested implementation; there was no user setting for a different step size. Do not assume the same behavior when an external app (such as TrainerDay) owns the ERG target.
+
+
+## Why does QZ show only 12 virtual gears when I use Zwift Click with my Wahoo trainer?
+
+If QZ connects to Zwift Click and the buttons change gears but the available range is limited to **12 gears**, try the **Blender** profile under **QZ Settings > Bike Options > Wahoo Options**, then save and restart QZ. Check the displayed gear range and physical resistance response.
+
+If a **single button press skips two gears**, that is a separate issue: enable **Buttons debouncing** in **Settings > Accessories > Zwift controller options** (see the debouncing FAQ above). In a confirmed support conversation, the rider reported the setup was working after receiving these two settings changes. The report did not isolate each setting independently, so verify both the displayed gear range and single-press behavior on your trainer.
+
+## Do I need to install a physical Zwift Cog to use QZ virtual gearing with a Wahoo KICKR?
+
+**No.** QZ's virtual gearing can change the trainer's resistance while your bicycle stays in one fixed **physical gear** on a conventional cassette. A physical Zwift Cog is optional, not a requirement for QZ's virtual gears.
+
+Connect the KICKR to QZ, configure the physical **Chainring Size** and **Cog Size** to match the actual gear you leave the bike in, and configure the virtual gear table or gearing profile you want to use. Shift through QZ's on-screen gear controls or compatible Zwift Click/Play controllers. For apps such as MyWhoosh or ROUVY, let QZ own the controller unless you deliberately use an app-specific direct-controller integration. See the gear-table and controller-pairing FAQs above.
+
+The distinction is between the **physical sprocket/cassette** and the **virtual gear ratio** that QZ applies to the trainer; the latter does not require special physical Zwift hardware.
+
+## Can I make the 24 virtual gears non-linear for Zwift Click in ROUVY?
+
+**Yes.** In QZ, open **Custom Gear Table**, enable **Enable Custom Gear Table**, and edit the **Offset** for each of the 24 gears. The default offsets are linear (gear 1 = 1, gear 2 = 2, and so on), but you can make climbing gears closer together and use larger steps for higher gears. Use **Reset to Linear Defaults** to undo your custom progression.
+
+These are **QZ resistance/inclination/slope offsets**, not literal front-chainring and rear-sprocket ratios; tune them gradually to reproduce the *feel* of your bike. When the custom table is enabled, each gear press moves one table row: **Gears Gain does not scale the spacing** between custom rows. With Zwift Click connected **directly to QZ** while riding in ROUVY, leave **Get Gears from Zwift** disabled; that option is for gear events coming from Zwift. You can save a QZ profile before experimenting so you can restore your previous configuration.
+
+The 24 editable offsets, non-linear mapping, and whole-row gear steps are verified in QZ's `customgears.qml` and `bike.h` code. The support conversation established the configuration guidance but did **not** yet confirm the rider's final custom table.
+
+## Where is the Gears tile in Spanish, and does its default value of 26 mean 26 gears?
+
+In a Spanish-language QZ interface, the **Gears** tile is named **Marchas**. It is **not** the **Resistencia** (Resistance) tile.
+
+1. Open **Settings > Tiles Options** (in Spanish, **Ajustes > Opciones de mosaicos**).
+2. Scroll down past **Watt/Kg** (**Vatios/kg**) to **Gears** (**Marchas**) and enable it.
+3. The number shown in that setting (normally **26**) is the **tile's display-order index**, **not** the number of available virtual or physical gears. You do not need to change it to match a bike with ten gears.
+4. Return to QZ's dashboard, find the **Marchas** tile, pedal gently and use **+ / −** to test whether the bike's physical effort changes. If you cannot see the tile, scroll down on the dashboard.
+
+The tile-order meaning and default value of 26 are verified in QZ's `settings-tiles.qml` and `qzsettings.h`; the Spanish translation **Marchas** is in the app's translation file. A BKOOL Smart Bike rider explicitly confirmed that the on-screen gear controls changed the gears after enabling the correct tile.
+
+## Can I use Zwift Ride handlebars and a Wahoo KICKR CORE 2 in QZ without another Zwift subscription?
+
+**Yes.** QZ supports the Zwift Ride handlebar button protocol through its **Zwift Play** controller path, so it can handle local virtual shifting without a second Zwift account or a separate cycling app.
+
+1. Connect the **KICKR CORE 2** to QZ and check that power and cadence update.
+2. In **QZ Settings > Accessories**, enable **Zwift Play** for the Zwift Ride handlebars.
+3. Disable **Get Gears from Zwift**, because QZ must handle the shifts locally rather than wait for commands from Zwift.
+4. Restart QZ with the handlebar controls awake. Enable the **Gears** dashboard tile under **Tiles Options** if it is hidden.
+5. Press the handlebar shift buttons and confirm that QZ's gear number changes and the trainer's resistance responds.
+
+QZ alone can show and record workout metrics and control the trainer; a virtual-world app is optional. If you later use MyWhoosh or another training app, follow its separate pairing guidance. **This is code-verified setup guidance**, not a claim that the particular rider's final test was already confirmed.
+
+## Zwift automatic incline stopped working while QZ's MyWhoosh option was enabled. What should I check?
+
+If you are currently using **Zwift** rather than MyWhoosh, check QZ's **Experimental Settings** for an enabled **MyWhoosh compatibility** option. Disable that option, save the settings, restart QZ and reconnect Zwift, then test automatic incline on a short route.
+
+A rider explicitly confirmed that **Zwift automatic inclination started working again after disabling the MyWhoosh option**. This is a targeted workaround for a setup where the MyWhoosh option was enabled; it does not imply that every Zwift incline problem is caused by that setting. Re-enable MyWhoosh-specific functionality when you switch back to a MyWhoosh workflow that requires it.

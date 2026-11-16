@@ -125,3 +125,26 @@ You may still use another device for Zwift, Rouvy, or another training applicati
 The **confirmed T9 test covers manual speed and incline commands**, not yet a complete automatically controlled interval workout. Verify short, gentle intervals on the specific console before relying on programmed transitions.
 
 A separate iPhone running QZ is **not required** for this local-console workflow. Remote creation/start of FitPro workouts **from another QZ instance over Wi-Fi** is a different workflow and should not be assumed to work without a separately tested client connection. The gRPC build is likewise a different mode: it needs a newer iFIT 3D interface and iFIT running, whereas FitPro USB does not.
+
+## How do I use QZ with a ProForm Smart Power 10.0C bike with an older iFIT console?
+
+For the **ProForm Smart Power 10.0C (PFEX69420C.1)**, a confirmed setup runs QZ **directly on the bike's Android console**, rather than connecting QZ on a phone using only the bike's IP address.
+
+1. Enter the console's **Privileged Mode** and open its Android browser (see the console installation instructions above).
+2. Download and install the **FitPro USB bike** build, `android-debug-fitpro-bike.apk`, from the [QZ nightly releases](https://github.com/cagnulein/qdomyos-zwift/releases). Do not use the standard phone APK or the gRPC build for this older iFIT interface.
+3. **Completely stop iFIT** before starting QZ so it does not retain control of the bike's USB hardware.
+4. In QZ on the console, set **TDF Companion IP** under **NordicTrack bike options** to `localhost`, and **Max Resistance** under **Bike Options** to **22** (the bike's resistance-level count). Enable **Virtual Bluetooth Device**.
+5. Pedal and verify cadence, power, and resistance in QZ. For Zwift on a **separate** device, pair the QZ virtual trainer (often **Wahoo KICKR 0000**) as the power source and controllable trainer.
+
+A rider explicitly confirmed that the direct-console setup worked. **Automatic terrain-driven resistance from Zwift was not yet confirmed in that case** and should be tested separately; seeing a target resistance in QZ does not prove that the bike applied it. This setup does not run Zwift on the bike's iFIT display.
+
+## Does the ProForm Studio Bike Pro 22 work with QZ running directly on its iFIT console?
+
+**Yes, on the tested ProForm Studio Bike Pro 22 (PFEX92220-INT.0, classic iFIT console running Android 8.1)**, the **FitPro USB bike** build worked directly on the console.
+
+1. Use the **FitPro USB bike** APK, `android-debug-fitpro-bike.apk`, from QZ's nightly builds; do not assume the **gRPC NordicTrack bike** build will work with this older iFIT interface.
+2. **Fully stop iFIT** before opening QZ so the two applications do not compete for direct hardware access.
+3. Pedal and verify that QZ receives **cadence, power and speed**, then try a small resistance adjustment.
+4. If another app should receive the data, configure QZ's virtual device and pair the training app to QZ rather than directly to the console.
+
+**Confirmed test:** cadence, power, speed and resistance control worked during a ten-minute ride with the FitPro USB bike build. The gRPC bike build had failed to control resistance on this console. This is evidence for the specified model and build, not a guarantee for every Studio Bike Pro 22 console revision. See the direct-console installation and FitPro/gRPC differences above.

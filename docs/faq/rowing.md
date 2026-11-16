@@ -71,3 +71,15 @@ Yes, in QZ builds that support **Resistance** in the **Rower Workout Editor**, c
 5. Save and start the workout and verify the rower's physical resistance changes at the interval boundaries.
 
 **Resistance** and **Power (W)** are different targets. Entering only a watt target is not a substitute for setting explicit resistance levels. A BH Fitness AQUO Dual R309U support user confirmed that the rower automatically changed resistance during timed intervals, including on an Android 8.1 tablet. See also `docs/workout-editor.md`.
+
+## My Concept2 PM5 shows power in QZ, but Zwift shows zero watts. Should Virtual Rower be enabled?
+
+**No, not when using QZ as a virtual bike for Zwift.** QZ can read a Concept2 PM5 rower while advertising a virtual bike to Zwift. The **Virtual Rower** option changes the advertised profile to a rowing device, which is useful for some rowing apps but should be **off for this Zwift workflow**.
+
+1. Connect the PM5 to QZ and confirm that watts and stroke rate change on the QZ dashboard while rowing.
+2. In **QZ Settings > Experimental Settings**, disable **Virtual Rower**. Keep the normal **Virtual Device / Virtual Bluetooth Device** enabled.
+3. Fully restart QZ, let it reconnect to the PM5, and start rowing briefly.
+4. On a separate device running Zwift, pair the virtual trainer advertised by QZ (often named **Wahoo KICKR 0000**) as **Power Source**. Do not pair Zwift directly to the physical PM5 when QZ is the bridge.
+5. Check live wattage in Zwift, not just the connected icon.
+
+**Confirmed result:** A PM5 user could see watts in QZ while Zwift showed zero power. Disabling **Virtual Rower** and restarting QZ restored the Zwift connection and power data. For MyWhoosh, EXR, or Kinomap rowing, use the app-specific Virtual Rower/PM5 guidance above instead.

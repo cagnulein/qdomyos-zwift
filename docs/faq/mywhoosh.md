@@ -46,3 +46,14 @@ QZ's current Elite Rizer driver multiplies the requested incline by **Elite Rize
 A support user running both apps on **one iPad** could connect QZ to a KICKR CORE but MyWhoosh only found the physical trainer, not QZ. The **separate-iPhone-and-iPad** setup worked for the same user, including virtual shifting. A separate Android-phone support conversation also established that the same-phone MyWhoosh bridge was not available for that workflow.
 
 This limitation is specific to **MyWhoosh discovering QZ on the same device**; it does not mean QZ and every other training app have identical same-device capabilities.
+
+## MyWhoosh ERG mode changes effort when I shift gears through QZ and a Wahoo KICKR. What should I check?
+
+If **QZ is the bridge to your Wahoo KICKR** and changing QZ's virtual gears unexpectedly changes the effort during a MyWhoosh ERG interval, check for a second, direct connection to the physical KICKR in MyWhoosh.
+
+1. Keep the physical **KICKR connected to QZ** as usual.
+2. In **MyWhoosh's sensor pairing**, remove the **physical KICKR** if it is also selected separately as a **Power Source**.
+3. Pair **QZ's virtual trainer** as the power source and, where MyWhoosh offers the choice, as the controllable trainer. Do not mix QZ control with a separate direct KICKR power connection for this test.
+4. Start a short ERG interval, shift QZ's virtual gears and check whether the ERG target/effort remains stable.
+
+**Confirmed workaround:** A rider found that gear changes interfered with ERG mode while the KICKR was also paired directly as a power sensor in MyWhoosh. After removing that separate power-sensor pairing, the rider explicitly confirmed that gear changes no longer affected ERG mode. This does not establish that duplicate pairing is the cause of every ERG issue.

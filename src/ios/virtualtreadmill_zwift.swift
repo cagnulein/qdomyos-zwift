@@ -8,12 +8,14 @@ let RSCControlPointUuid = CBUUID(string: "0x2a55");
 
 let treadmilldataUuid = CBUUID(string: "0x2ACD");
 
+let forwardedTreadmillFTMSFeatures = Data([0x0d, 0x14, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00])
+
 @objc public class virtualtreadmill_zwift: NSObject {
     private var peripheralManager: BLEPeripheralManagerTreadmillZwift!
 
-    @objc public init(garmin_bluetooth_compatibility: Bool, bike_cadence_sensor: Bool) {
+    @objc public init(garmin_bluetooth_compatibility: Bool, bike_cadence_sensor: Bool, disable_hr: Bool) {
       super.init()
-        peripheralManager = BLEPeripheralManagerTreadmillZwift(garmin_bluetooth_compatibility: garmin_bluetooth_compatibility, bike_cadence_sensor: bike_cadence_sensor)
+        peripheralManager = BLEPeripheralManagerTreadmillZwift(garmin_bluetooth_compatibility: garmin_bluetooth_compatibility, bike_cadence_sensor: bike_cadence_sensor, disable_hr: disable_hr)
     }
     
     @objc public func updateHeartRate(HeartRate: UInt8)
@@ -45,6 +47,21 @@ let treadmilldataUuid = CBUUID(string: "0x2ACD");
     {
         return peripheralManager.lastRequestedSpeed;
     }
+
+    @objc(enableControlPointForwardingWithSpeedRange:inclineRange:)
+    public func enableControlPointForwarding(speedRange: Data, inclineRange: Data) {
+        peripheralManager.supportedSpeedRange = speedRange
+        peripheralManager.supportedInclineRange = inclineRange
+        peripheralManager.forwardControlPointWrites = true
+    }
+
+    @objc public func takeControlPointWrite() -> Data? {
+        return peripheralManager.takeControlPointWrite()
+    }
+
+    @objc public func clearControlPointWrites() {
+        peripheralManager.controlPointWrites.clear()
+    }
     
     @objc public func updateFTMS(normalizeSpeed: UInt16, currentCadence: UInt16, currentResistance: UInt8, currentWatt: UInt16, currentInclination: UInt16, currentDistance: UInt64, elapsedTimeSeconds: UInt16) -> Bool
     {
@@ -59,9 +76,55 @@ let treadmilldataUuid = CBUUID(string: "0x2ACD");
     }
 }
 
+// Used only when a physical treadmill opts into raw FTMS forwarding.
+final class TreadmillControlPointWriteQueue {
+  private var writes: [Data] = []
+  private let lock = NSLock()
+
+  func take() -> Data? {
+    lock.lock()
+    defer { lock.unlock() }
+    return writes.isEmpty ? nil : writes.removeFirst()
+  }
+
+  func clear(keepingStop: Bool = false) {
+    lock.lock()
+    defer { lock.unlock() }
+    if keepingStop {
+        writes = writes.filter { $0.first == 0x08 || $0 == Data([0x02, 0x00, 0x00]) }
+    } else {
+        writes.removeAll()
+    }
+  }
+
+  func enqueue(_ data: Data) -> CBATTError.Code {
+    let minimumLengths: [UInt8: Int] = [0x00: 1, 0x01: 1, 0x02: 3, 0x03: 3, 0x07: 1, 0x08: 2, 0x11: 7]
+    guard let opcode = data.first, let minimumLength = minimumLengths[opcode] else { return .requestNotSupported }
+    guard data.count >= minimumLength else { return .invalidAttributeValueLength }
+    lock.lock()
+    defer { lock.unlock() }
+    // A Stop supersedes commands waiting for the Qt event loop to poll them.
+    if data.first == 0x08 || data == Data([0x02, 0x00, 0x00]) {
+        writes.removeAll()
+    }
+    guard writes.count < 16 else { return .insufficientResources }
+    writes.append(data)
+    return .success
+  }
+}
+
 class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate {
+  var forwardControlPointWrites = false
+  var supportedSpeedRange = Data()
+  var supportedInclineRange = Data()
+  let controlPointWrites = TreadmillControlPointWriteQueue()
+
+  func takeControlPointWrite() -> Data? {
+    return controlPointWrites.take()
+  }
   private var garmin_bluetooth_compatibility: Bool = false
   private var bike_cadence_sensor: Bool = false
+  private var disable_hr: Bool = false
   private var peripheralManager: CBPeripheralManager!
   let SwiftDebug = swiftDebug()
 
@@ -103,10 +166,12 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   private var notificationTimer: Timer! = nil
   //var delegate: BLEPeripheralManagerDelegate?
 
-  init(garmin_bluetooth_compatibility: Bool, bike_cadence_sensor: Bool) {
+  init(garmin_bluetooth_compatibility: Bool, bike_cadence_sensor: Bool, disable_hr: Bool) {
     super.init()
       self.garmin_bluetooth_compatibility = garmin_bluetooth_compatibility
       self.bike_cadence_sensor = bike_cadence_sensor
+      self.disable_hr = disable_hr
+    SwiftDebug.qtDebug("virtualtreadmill_zwift: standalone HR service " + (disable_hr ? "disabled" : "enabled"))
     peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
   }
   
@@ -116,24 +181,28 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
       SwiftDebug.qtDebug("virtualtreadmill_zwift: Peripheral manager is up and running")
       
         if(!garmin_bluetooth_compatibility) {
-            self.heartRateService = CBMutableService(type: heartRateServiceUUID, primary: true)
-            let characteristicProperties: CBCharacteristicProperties = [.notify, .read, .write]
-            let characteristicPermissions: CBAttributePermissions = [.readable]
-            self.heartRateCharacteristic = CBMutableCharacteristic(type:          heartRateCharacteristicUUID,
-                                                                   properties: characteristicProperties,
-                                                                   value: nil,
-                                                                   permissions: characteristicPermissions)
-            
-            heartRateService.characteristics = [heartRateCharacteristic]
-            self.peripheralManager.add(heartRateService)
-            
+            // Without the standalone HR service, FTMS still carries heart rate
+            // in Treadmill Data (0x2ACD), preserving Runna speed/incline control.
+            if !disable_hr {
+                self.heartRateService = CBMutableService(type: heartRateServiceUUID, primary: true)
+                let characteristicProperties: CBCharacteristicProperties = [.notify, .read, .write]
+                let characteristicPermissions: CBAttributePermissions = [.readable]
+                self.heartRateCharacteristic = CBMutableCharacteristic(type: heartRateCharacteristicUUID,
+                                                                       properties: characteristicProperties,
+                                                                       value: nil,
+                                                                       permissions: characteristicPermissions)
+
+                heartRateService.characteristics = [heartRateCharacteristic]
+                self.peripheralManager.add(heartRateService)
+            }
+
             self.FitnessMachineService = CBMutableService(type: FitnessMachineServiceUuid, primary: true)
             
             let FitnessMachineFeatureProperties: CBCharacteristicProperties = [.read]
             let FitnessMachineFeaturePermissions: CBAttributePermissions = [.readable]
             self.FitnessMachineFeatureCharacteristic = CBMutableCharacteristic(type: FitnessMachineFeatureCharacteristicUuid,
                                                                                properties: FitnessMachineFeatureProperties,
-                                                                               value: Data (bytes: [0x83, 0x14, 0x00, 0x00, 0x0c, 0xe0, 0x00, 0x00]),
+                                                                               value: forwardControlPointWrites ? forwardedTreadmillFTMSFeatures : Data (bytes: [0x83, 0x14, 0x00, 0x00, 0x0c, 0xe0, 0x00, 0x00]),
                                                                                permissions: FitnessMachineFeaturePermissions)
             
             let supported_resistance_level_rangeProperties: CBCharacteristicProperties = [.read]
@@ -185,6 +254,13 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
                                                      treadmilldataCharacteristic,
                                                      FitnessMachinestatusCharacteristic,
                                                      TrainingStatusCharacteristic ]
+            if forwardControlPointWrites {
+                let speedRange = CBMutableCharacteristic(type: CBUUID(string: "2AD4"), properties: [.read],
+                                                        value: supportedSpeedRange, permissions: [.readable])
+                let inclineRange = CBMutableCharacteristic(type: CBUUID(string: "2AD5"), properties: [.read],
+                                                          value: supportedInclineRange, permissions: [.readable])
+                FitnessMachineService.characteristics?.append(contentsOf: [speedRange, inclineRange])
+            }
             
             self.peripheralManager.add(FitnessMachineService)
         }
@@ -235,8 +311,13 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     }
     
       if(!garmin_bluetooth_compatibility) {
+          // Keep the pre-existing advertisement by default. The existing
+          // bike_heartrate_service switch removes only 0x180D when enabled.
+          let advertisedServices: [CBUUID] = disable_hr
+              ? [FitnessMachineServiceUuid, RSCServiceUuid]
+              : [heartRateServiceUUID, FitnessMachineServiceUuid, RSCServiceUuid]
           let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
-                                CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, RSCServiceUuid]] as [String : Any]
+                                CBAdvertisementDataServiceUUIDsKey: advertisedServices] as [String : Any]
           peripheralManager.startAdvertising(advertisementData)
       } else {
           let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
@@ -259,6 +340,25 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   }
   
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
+        if forwardControlPointWrites {
+            for request in requests {
+                guard request.characteristic == FitnessMachineControlPointCharacteristic,
+                      let data = request.value, let opcode = data.first else {
+                    peripheral.respond(to: request, withResult: .writeNotPermitted)
+                    continue
+                }
+                let result = controlPointWrites.enqueue(data)
+                guard result == .success else {
+                    peripheral.respond(to: request, withResult: result)
+                    continue
+                }
+                connected = true
+                peripheral.respond(to: request, withResult: .success)
+                peripheral.updateValue(Data([0x80, opcode, 0x01]), for: FitnessMachineControlPointCharacteristic,
+                                       onSubscribedCentrals: nil)
+            }
+            return
+        }
         if requests.first!.characteristic == self.FitnessMachineControlPointCharacteristic {
           if(requests.first!.value?.first == 0x11)
           {
@@ -325,6 +425,9 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   }
   
   func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic) {
+    if forwardControlPointWrites && characteristic == FitnessMachineControlPointCharacteristic {
+        controlPointWrites.clear(keepingStop: true)
+    }
     //self.notificationTimer.invalidate()
      self.connected = false
     SwiftDebug.qtDebug("virtualtreadmill_zwift: Successfully unsubscribed")
@@ -428,14 +531,14 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     let treadmillData = self.calculateTreadmillData()
     let rscMeasurementData = self.calculateRSCMeasurement()
     
-      if(self.serviceToggle == 0 && !garmin_bluetooth_compatibility)
+      if(self.serviceToggle == 0 && !garmin_bluetooth_compatibility && !disable_hr)
     {
         let ok = self.peripheralManager.updateValue(heartRateData, for: self.heartRateCharacteristic, onSubscribedCentrals: nil)
         if(ok) {
             self.serviceToggle = 1;
         }
     }
-    else if(self.serviceToggle == 1 && !garmin_bluetooth_compatibility)
+    else if((self.serviceToggle == 1 || (self.serviceToggle == 0 && disable_hr)) && !garmin_bluetooth_compatibility)
     {
         let ok = self.peripheralManager.updateValue(treadmillData, for: self.treadmilldataCharacteristic, onSubscribedCentrals: nil)
         if(ok) {

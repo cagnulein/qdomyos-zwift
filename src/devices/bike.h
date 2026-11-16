@@ -14,6 +14,8 @@ class bike : public bluetoothdevice {
     bike();
     static double powerZoneValueToFtpPercentage(double zoneValue);
     static int powerZoneValueToWatts(double zoneValue, double ftp);
+    static bool targetPowerOverridesExternalApp(qint64 lastAppFrame, qint64 now, bool appErgMode,
+                                                bool autoResistance);
 
     virtualbike *VirtualBike();
 
@@ -46,6 +48,9 @@ class bike : public bluetoothdevice {
     double gears();
     double gearsModifier();
     double gearsModifier(double gear);
+    // Virtual-shifting bikes add the gear modifier to resistance/power. A
+    // device with a physical gearbox can opt out of that software offset.
+    virtual bool applyGearModifier() const { return true; }
     double gearsZwiftRatio();
     void setSpeedLimit(double speed) { m_speedLimit = speed; }
     double speedLimit() { return m_speedLimit; }
