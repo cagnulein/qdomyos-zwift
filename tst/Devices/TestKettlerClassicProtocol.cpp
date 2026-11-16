@@ -214,48 +214,58 @@ TEST(KettlerClassicProtocol, CoachSDecodesCandidatePowerFromRealE0Telemetry) {
     EXPECT_EQ(kettlerclassicprotocol::coachSCandidateWatts(w170.left(20)), 0);
 }
 
-TEST(KettlerClassicProtocol, CoachSKinomapTargetLevelMapping) {
-    // Coach S has ten levels; 1..8 are user-reported Kinomap target W.
-    // L9/L10 must be confirmed by a new controlled hardware test.
-    const int observedWatts[] = {50, 60, 80, 100, 125, 145, 165, 185};
-    for (int level = 1; level <= 8; ++level) {
-        EXPECT_EQ(kettlerclassicprotocol::coachSTargetWattsForLevel(level),
-                  observedWatts[level - 1]);
+TEST(KettlerClassicProtocol, CoachSResistanceWritesMatchKinomapHciCapture) {
+    // Kinomap's confirmed physical-load sequence was L4 -> L6 -> L5 ->
+    // L3 -> L4. The C0/02 writes have a one-byte resistance-level payload.
+    // Escaped payload size (not logical size) is used in the length field.
+    struct Sample { quint8 level; const char *wire; };
+    const Sample captured[] = {
+        {4, "0200c01022000104032dfd"},
+        {6, "0200c01022000106030eef"},
+        {5, "0200c01022000105033c74"},
+        {3, "0200c01022001022102303732a"},
+        {4, "0200c01022000104032dfd"}
+    };
+    for (const auto &sample : captured) {
+        const QByteArray wire =
+            kettlerclassicprotocol::encodeFrameWithEscapedPayloadLength(
+                0x00c0, 0x02, QByteArray(1, static_cast<char>(sample.level)));
+        EXPECT_EQ(wire, QByteArray::fromHex(sample.wire))
+            << "level=" << static_cast<int>(sample.level);
     }
-    EXPECT_EQ(kettlerclassicprotocol::coachSTargetWattsForLevel(9), 205);
-    EXPECT_EQ(kettlerclassicprotocol::coachSTargetWattsForLevel(10), 225);
-    EXPECT_EQ(kettlerclassicprotocol::coachSTargetWattsForLevel(-1), 50);
-    EXPECT_EQ(kettlerclassicprotocol::coachSTargetWattsForLevel(99), 225);
+
+    // L2's payload is also a control byte; verify escaped-length framing.
+    EXPECT_EQ(kettlerclassicprotocol::encodeFrameWithEscapedPayloadLength(
+                  0x00c0, 0x02, QByteArray(1, char(2))),
+              QByteArray::fromHex("0200c0102200102210220362a3"));
+    // Do not change the shared encoder used for normal Classic requests.
+    EXPECT_EQ(kettlerclassicprotocol::encodeFrame(
+                  0x00c0, 0x02, QByteArray(1, char(3))),
+              QByteArray::fromHex("0200c0102200011023035942"));
+
+    // Valid C0/03 device acknowledgement, returning the resistance level.
+    QByteArray response = kettlerclassicprotocol::encodeFrame(
+        0x00c0, 0x03, QByteArray(1, char(6)));
+    const auto frames = kettlerclassicprotocol::consumeFrames(response);
+    ASSERT_EQ(frames.size(), 1);
+    EXPECT_EQ(frames.at(0).function, 0x00c0);
+    EXPECT_EQ(frames.at(0).subFunction, 0x03);
+    EXPECT_EQ(frames.at(0).payload, QByteArray(1, char(6)));
+    EXPECT_TRUE(response.isEmpty());
 }
 
-TEST(KettlerClassicProtocol, CoachSEncodesTargetPowerWithEscapingAndCrc) {
-    // 0x00C2/0x02, U16 big-endian target W. For 50 W the 0x02
-    // operation AND 0x02 payload-length byte must be escaped.
-    const QByteArray watts50 = QByteArray::fromHex("0032");
-    const QByteArray frame50 =
-        kettlerclassicprotocol::encodeFrame(0x00c2, 0x02, watts50);
-    EXPECT_EQ(frame50, QByteArray::fromHex("0200c21022001022003203be84"));
-
-    // The same operation at level L8 (185 W), using the verified shared
-    // frame/CRC encoder rather than reusing any quoted unverified CRC.
-    const quint16 w185 = kettlerclassicprotocol::coachSTargetWattsForLevel(8);
-    QByteArray watts185;
-    watts185.append(static_cast<char>(w185 >> 8));
-    watts185.append(static_cast<char>(w185 & 0xff));
-    const QByteArray frame185 =
-        kettlerclassicprotocol::encodeFrame(0x00c2, 0x02, watts185);
-    EXPECT_EQ(frame185, QByteArray::fromHex("0200c2102200102200b903845f"));
-
-    QByteArray decoded = frame50 + frame185 +
-        kettlerclassicprotocol::encodeFrame(0x00c2, 0x03, QByteArray());
-    const auto frames = kettlerclassicprotocol::consumeFrames(decoded);
-    ASSERT_EQ(frames.size(), 3);
-    EXPECT_EQ(frames.at(0).function, 0x00c2);
-    EXPECT_EQ(frames.at(0).subFunction, 0x02);
-    EXPECT_EQ(frames.at(0).payload, watts50);
-    EXPECT_EQ(frames.at(1).payload, watts185);
-    EXPECT_EQ(frames.at(2).function, 0x00c2);
-    EXPECT_EQ(frames.at(2).subFunction, 0x03);
-    EXPECT_TRUE(frames.at(2).payload.isEmpty());
-    EXPECT_TRUE(decoded.isEmpty());
+TEST(KettlerClassicProtocol, CoachSE0LastByteReportsResistance) {
+    QByteArray capturedTelemetry = QByteArray::fromHex(
+        "0004000400000041006f045829e30453002400aa16520001");
+    ASSERT_EQ(capturedTelemetry.size(), 24);
+    EXPECT_EQ(kettlerclassicprotocol::coachSReportedResistance(capturedTelemetry), 1);
+    for (quint8 level : {quint8(3), quint8(4), quint8(5), quint8(6), quint8(10)}) {
+        capturedTelemetry[23] = static_cast<char>(level);
+        EXPECT_EQ(kettlerclassicprotocol::coachSReportedResistance(capturedTelemetry), level);
+    }
+    capturedTelemetry[23] = char(0);
+    EXPECT_EQ(kettlerclassicprotocol::coachSReportedResistance(capturedTelemetry), 0);
+    capturedTelemetry[23] = char(11);
+    EXPECT_EQ(kettlerclassicprotocol::coachSReportedResistance(capturedTelemetry), 0);
+    EXPECT_EQ(kettlerclassicprotocol::coachSReportedResistance(capturedTelemetry.left(23)), 0);
 }
