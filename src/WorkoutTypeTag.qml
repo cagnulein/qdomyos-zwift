@@ -9,6 +9,8 @@ Rectangle {
     // new look: a tonal pill in the source colour (notes/modern-ui-style-guide.md)
     readonly property bool modern: window.ui.modern
     readonly property string sourceKey: workoutSource.toUpperCase()
+    // the text colour of the tag: the action buttons of a card of the new look take its pill and ink
+    readonly property color inkColor: tagText.color
     
     // Auto-size based on text
     width: tagText.implicitWidth + 16

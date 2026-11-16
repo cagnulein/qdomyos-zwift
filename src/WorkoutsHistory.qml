@@ -648,6 +648,7 @@ Page {
 
                     // Workout Type Tag - positioned absolutely in top-right
                     WorkoutTypeTag {
+                        id: sourceTag
                         anchors.right: parent.right
                         anchors.top: parent.top
                         anchors.margins: workoutHistoryPage.modern ? 16 : 12
@@ -660,12 +661,11 @@ Page {
                         anchors.right: parent.right
                         anchors.bottom: parent.bottom
                         anchors.margins: 12
-                        // Modern look: 48 x 48 to touch, the pill 36 high inside (the inset of 6 of
-                        // a Material Button above and below, as the UiButton of the header), the
-                        // target 16 from the right edge of the card and 4 from its bottom
-                        anchors.rightMargin: workoutHistoryPage.modern ? 16 : 12
+                        // Modern look: 48 x 48 to touch, inside it a tonal pill 40 x 24 of the
+                        // source colour, as the tag above (insets 4 and 12): the pill is 16 from the
+                        // right edge of the card, under the tag, and 16 from its bottom; pills 8 apart
                         anchors.bottomMargin: workoutHistoryPage.modern ? 4 : 12
-                        spacing: 8
+                        spacing: workoutHistoryPage.modern ? 0 : 8
 
                         // Peloton URL button
                         Button {
@@ -674,18 +674,23 @@ Page {
                             height: workoutHistoryPage.modern ? 48 : 45
                             visible: workoutModel && workoutModel.getWorkoutSource(model.id) === "PELOTON" && 
                                     workoutModel.getPelotonUrl(model.id) !== ""
+                            // the modern pill 40 x 24 (Material Button default: 0 and 6)
+                            topInset: workoutHistoryPage.modern ? 12 : 6
+                            bottomInset: workoutHistoryPage.modern ? 12 : 6
+                            leftInset: workoutHistoryPage.modern ? 4 : 0
+                            rightInset: workoutHistoryPage.modern ? 4 : 0
                             
                             background: Rectangle {
-                                color: workoutHistoryPage.modern ? (parent.pressed ? window.ui.surfaceHigh : window.ui.surfaceHighest)
+                                color: workoutHistoryPage.modern ? (parent.pressed ? window.ui.alpha(sourceTag.inkColor, 0.28) : sourceTag.color)
                                              : (parent.pressed ? "#ff8855" : "#ff6b35")
-                                radius: workoutHistoryPage.modern ? 18 : 6
+                                radius: workoutHistoryPage.modern ? 12 : 6
                                 border.color: "#cc5529"
                                 border.width: workoutHistoryPage.modern ? 0 : 1
                             }
                             
                             contentItem: Item {
                                 Text {
-                                    visible: Qt.platform.os !== "android"
+                                    visible: !workoutHistoryPage.modern && Qt.platform.os !== "android"
                                     text: "🌐"
                                     font.pixelSize: 16
                                     color: "white"
@@ -693,10 +698,21 @@ Page {
                                 }
 
                                 ShapeIcon {
-                                    visible: Qt.platform.os === "android"
+                                    visible: !workoutHistoryPage.modern && Qt.platform.os === "android"
                                     name: "language"
                                     size: 20
-                                    color: workoutHistoryPage.modern ? window.ui.textMain : "white"
+                                    color: "white"
+                                    anchors.centerIn: parent
+                                }
+
+                                // the new look: "open outside" of the icon font on every platform
+                                // (the classic draws an emoji off Android)
+                                UiIcon {
+                                    visible: workoutHistoryPage.modern
+                                    name: "open_in_new"
+                                    width: 16
+                                    height: 16
+                                    color: sourceTag.inkColor
                                     anchors.centerIn: parent
                                 }
                             }
@@ -712,18 +728,23 @@ Page {
                             width: workoutHistoryPage.modern ? 48 : 40
                             height: workoutHistoryPage.modern ? 48 : 45
                             visible: workoutModel && workoutModel.hasTrainingProgram(model.id)
+                            // the modern pill 40 x 24, as the Peloton button
+                            topInset: workoutHistoryPage.modern ? 12 : 6
+                            bottomInset: workoutHistoryPage.modern ? 12 : 6
+                            leftInset: workoutHistoryPage.modern ? 4 : 0
+                            rightInset: workoutHistoryPage.modern ? 4 : 0
                             
                             background: Rectangle {
-                                color: workoutHistoryPage.modern ? (parent.pressed ? window.ui.surfaceHigh : window.ui.surfaceHighest)
+                                color: workoutHistoryPage.modern ? (parent.pressed ? window.ui.alpha(sourceTag.inkColor, 0.28) : sourceTag.color)
                                              : (parent.pressed ? "#1976d2" : "#2196f3")
-                                radius: workoutHistoryPage.modern ? 18 : 6
+                                radius: workoutHistoryPage.modern ? 12 : 6
                                 border.color: "#1565c0"
                                 border.width: workoutHistoryPage.modern ? 0 : 1
                             }
                             
                             contentItem: Item {
                                 Text {
-                                    visible: Qt.platform.os !== "android"
+                                    visible: !workoutHistoryPage.modern && Qt.platform.os !== "android"
                                     text: "📋"
                                     font.pixelSize: 16
                                     color: "white"
@@ -731,10 +752,19 @@ Page {
                                 }
 
                                 ShapeIcon {
-                                    visible: Qt.platform.os === "android"
+                                    visible: !workoutHistoryPage.modern && Qt.platform.os === "android"
                                     name: "list_alt"
                                     size: 20
-                                    color: workoutHistoryPage.modern ? window.ui.textMain : "white"
+                                    color: "white"
+                                    anchors.centerIn: parent
+                                }
+
+                                UiIcon {
+                                    visible: workoutHistoryPage.modern
+                                    name: "list_alt"
+                                    width: 16
+                                    height: 16
+                                    color: sourceTag.inkColor
                                     anchors.centerIn: parent
                                 }
                             }
