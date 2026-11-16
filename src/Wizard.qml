@@ -1353,7 +1353,11 @@ Page {
                         stepSize: 1
                         editable: true
 
-                        property real realValue: (settings.miles_unit && !settings.weight_kg_unit) ? value / 22.0462 : value / 10
+                        property real realValue: weightOf(value)
+
+                        function weightOf(v) {
+                            return (settings.miles_unit && !settings.weight_kg_unit) ? v / 22.0462 : v / 10
+                        }
 
                         textFromValue: function(value, locale) {
                             return Number(value / 10).toLocaleString(locale, 'f', 1)
@@ -1363,8 +1367,11 @@ Page {
                             return Number.fromLocaleString(locale, text) * 10
                         }
 
+                        // From the new value itself: realValue may not be updated yet when this runs,
+                        // the old weight went to the settings and the binding of value took the field
+                        // back, so every second tap of +/- was lost
                         onValueChanged: {
-                            settings.weight = realValue
+                            settings.weight = weightOf(value)
                         }
                     }
 
