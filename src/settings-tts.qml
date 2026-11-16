@@ -9,7 +9,6 @@ ScrollView {
     leftPadding: window.contentSideMargin
     rightPadding: window.contentSideMargin
     focus: true
-    anchors.horizontalCenter: parent.horizontalCenter
     anchors.fill: parent
     //anchors.bottom: footerSettings.top
     //anchors.bottomMargin: footerSettings.height + 10
@@ -70,7 +69,7 @@ ScrollView {
                 onAccepted: if (valid) settings.tts_summary_sec = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                 Accessible.role: Accessible.EditableText
-                Accessible.name: qsTr("Announcement interval in seconds")
+                Accessible.name: qsTr("Announcement interval in seconds") + ": " + text
                 Accessible.description: qsTr("How often workout metrics are read aloud. Default: 120 seconds")
             }
             Button {

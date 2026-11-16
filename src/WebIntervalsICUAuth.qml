@@ -22,7 +22,7 @@ Item {
         url: rootItem.getIntervalsICUAuthUrl
     }
 
-    Popup {
+    UiPopup {
         id: popupIntervalsICUConnectedWeb
         parent: Overlay.overlay
         enabled: rootItem.generalPopupVisible
@@ -31,10 +31,10 @@ Item {
 
         x: Math.round((parent.width - width) / 2)
         y: Math.round((parent.height - height) / 2)
-        // With a bigger text: as wide as the screen allows, as tall as the text; the fixed
-        // size cut the text
-        width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
-        height: window.textScale !== 1 ? Math.max(120, connectedText.height + topPadding + bottomPadding) : 120
+        // With a bigger text and in the modern look: as wide as the screen allows, as tall as
+        // the text; the fixed size cut the text
+        width: window.ui.modern || window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+        height: window.ui.modern || window.textScale !== 1 ? Math.max(120, connectedText.height + topPadding + bottomPadding) : 120
         modal: true
         focus: true
         palette.text: "white"
@@ -51,10 +51,10 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             Label {
                 id: connectedText
-                wrapMode: window.labelWrap
+                wrapMode: window.ui.modern ? Text.WordWrap : window.labelWrap
                 anchors.horizontalCenter: parent.horizontalCenter
-                width: window.textScale !== 1 ? popupIntervalsICUConnectedWeb.availableWidth : 370
-                height: window.textScale !== 1 ? undefined : 120
+                width: window.ui.modern || window.textScale !== 1 ? popupIntervalsICUConnectedWeb.availableWidth : 370
+                height: window.ui.modern || window.textScale !== 1 ? undefined : 120
                 text: qsTr("Your Intervals.icu account is now connected!<br><br>When you will press STOP on QZ a file<br>will be automatically uploaded to Intervals.icu!")
             }
         }

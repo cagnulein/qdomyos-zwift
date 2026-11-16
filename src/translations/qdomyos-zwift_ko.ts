@@ -61,12 +61,83 @@
         <translation>필터</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>상위 폴더</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>열기</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>GPX 파일이 없습니다</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>거리: %1 km, 상승 고도: %2 m</translation>
     </message>
     <message>
         <source>Other folders</source>
         <translation>다른 폴더</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>파일 복원</translation>
+    </message>
+</context>
+<context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>심박 센서 발견: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>심박 센서 %1개 발견</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>연결</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>선택</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>나중에</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>다시 묻지 않음</translation>
+    </message>
+    <message>
+        <source>Strong signal</source>
+        <translation>강한 신호</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>양호한 신호</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>보통 신호</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>약한 신호</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>심박 센서 선택</translation>
     </message>
 </context>
 <context>
@@ -152,6 +223,14 @@ Would you like to do that now?</source>
     <message>
         <source>Rest</source>
         <translation>휴식</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>중지</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
     </message>
     <message>
         <source>Very Light</source>
@@ -245,6 +324,22 @@ Would you like to enable the required services?</source>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>다음에 Bluetooth 또는 위치 서비스를 켜도록 알림을 받으시겠습니까?</translation>
     </message>
+    <message>
+        <source>, current value </source>
+        <translation>, 현재 값 </translation>
+    </message>
+    <message>
+        <source>. Current value </source>
+        <translation>. 현재 값 </translation>
+    </message>
+    <message>
+        <source>Return to app</source>
+        <translation>앱에 돌려주기</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>부하 제어를 앱에 돌려줍니다</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -281,8 +376,56 @@ Would you like to enable the required services?</source>
         <translation>새 랩 기록</translation>
     </message>
     <message>
+        <source>This app should automatically connect to your bike, treadmill, or rower.
+
+If it doesn&apos;t, check that:
+- the Echelon/Domyos app is closed while QZ is running
+- Bluetooth and Bluetooth permissions are enabled
+- your equipment is turned on before starting QZ
+- you have restarted your device
+
+If your bike or treadmill disconnects every 30 seconds, disable the Virtual Device setting in the left bar.
+
+For help, contact roberto.viola83@gmail.com.
+
+Have a nice ride!
+
+QZ disclaims liability for incidental or consequential damages and assumes no responsibility for any loss or damage caused by use or misuse of the app.
+
+Roberto Viola</source>
+        <translation>이 앱은 자전거, 트레드밀 또는 로잉 머신에 자동으로 연결됩니다.
+
+연결되지 않으면 다음을 확인하세요.
+- QZ가 실행되는 동안 Echelon/Domyos 앱이 닫혀 있는지
+- Bluetooth와 Bluetooth 권한이 켜져 있는지
+- QZ를 시작하기 전에 운동 기구의 전원이 켜져 있는지
+- 기기를 다시 시작해 보았는지
+
+자전거나 트레드밀이 30초마다 연결이 끊기면 왼쪽 메뉴에서 [가상 기기 사용] 설정을 끄세요.
+
+도움이 필요하면 roberto.viola83@gmail.com으로 연락하세요.
+
+즐거운 라이드 되세요!
+
+QZ는 부수적 또는 결과적 손해에 대한 책임을 부인하며, 앱의 사용 또는 오용으로 인해 발생한 어떠한 손실이나 손해에 대해서도 책임을 지지 않습니다.
+
+Roberto Viola</translation>
+    </message>
+    <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
-        <translation>이 앱은 자전거/트레드밀/로잉 머신에 자동으로 연결됩니다. &lt;b&gt;연결되지 않으면 다음을 확인하세요&lt;/b&gt;:&lt;br&gt;1) qdomyos-zwift가 실행되는 동안 Echelon/Domyos 앱은 반드시 닫혀 있어야 합니다.&lt;br&gt;2) Bluetooth와 Bluetooth 권한을 반드시 모두 켜야 합니다&lt;br&gt;3) 이 앱을 시작하기 전에 자전거/트레드밀/로잉 머신의 전원을 켜야 합니다&lt;br&gt;4) 기기를 다시 시작해 보세요&lt;br&gt;&lt;br&gt;자전거/트레드밀이 30초마다 연결이 끊기면 왼쪽 메뉴에서 [가상 기기 사용] 설정을 꺼 보세요.&lt;br&gt;&lt;br&gt;문제가 있으면 언제든지 roberto.viola83@gmail.com으로 연락하세요.&lt;br&gt;&lt;br&gt;&lt;b&gt;즐거운 라이드 되세요!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ는 앱의 사용 또는 오용으로 인해&lt;br&gt;발생한 부수적 또는 결과적 손해에 대한&lt;br&gt;책임을 명시적으로 부인하며, 누구에게 발생한&lt;br&gt;어떠한 손실이나 손해에 대해서도&lt;br&gt;책임을 지지 않습니다.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+        <translation type="vanished">이 앱은 자전거/트레드밀/로잉 머신에 자동으로 연결됩니다. &lt;b&gt;연결되지 않으면 다음을 확인하세요&lt;/b&gt;:&lt;br&gt;1) qdomyos-zwift가 실행되는 동안 Echelon/Domyos 앱은 반드시 닫혀 있어야 합니다.&lt;br&gt;2) Bluetooth와 Bluetooth 권한을 반드시 모두 켜야 합니다&lt;br&gt;3) 이 앱을 시작하기 전에 자전거/트레드밀/로잉 머신의 전원을 켜야 합니다&lt;br&gt;4) 기기를 다시 시작해 보세요&lt;br&gt;&lt;br&gt;자전거/트레드밀이 30초마다 연결이 끊기면 왼쪽 메뉴에서 [가상 기기 사용] 설정을 꺼 보세요.&lt;br&gt;&lt;br&gt;문제가 있으면 언제든지 roberto.viola83@gmail.com으로 연락하세요.&lt;br&gt;&lt;br&gt;&lt;b&gt;즐거운 라이드 되세요!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ는 앱의 사용 또는 오용으로 인해&lt;br&gt;발생한 부수적 또는 결과적 손해에 대한&lt;br&gt;책임을 명시적으로 부인하며, 누구에게 발생한&lt;br&gt;어떠한 손실이나 손해에 대해서도&lt;br&gt;책임을 지지 않습니다.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>운동 기구를 찾는 중…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>자전거, 트레드밀 또는 로잉 머신의 전원을 켜세요. QZ가 자동으로 연결합니다.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>연결되지 않나요?</translation>
     </message>
 </context>
 <context>
@@ -515,6 +658,10 @@ Would you like to enable the required services?</source>
         <translation>%1(심박 센서) 연결됨!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>심박 센서 검색 중…</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>%1(심박 센서) 검색 중…</translation>
     </message>
@@ -561,6 +708,10 @@ Would you like to enable the required services?</source>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride 연결됨!</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>근처에서 심박 센서를 찾을 수 없습니다. 켜져 있고 심박수를 전송하는지 확인하세요.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -1148,8 +1299,24 @@ QZ 설정을 업데이트하시겠습니까?</translation>
         <translation>파일을 선택하세요</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>파일을 눌러 선택한 다음 [불러오기]를 누르세요.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>불러오기</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>저장된 설정이 없습니다</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>다른 폴더</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>파일 복원</translation>
     </message>
 </context>
 <context>
@@ -1177,6 +1344,69 @@ QZ 설정을 업데이트하시겠습니까?</translation>
     <message>
         <source>Maximum: %1</source>
         <translation>최대: %1</translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>QZ 지원 문의</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>진단 정보가 포함된 지원 이메일 준비</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>연결된 기기가 없습니다</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>속도와 파워가 0입니다</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ 지원</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>완료</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>키보드 숨기기</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>지원 요청 닫기</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>작동하지 않는 내용을 알려주세요. QZ가 기기와 앱 정보를 추가합니다.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>문제를 설명하세요...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>문제 설명</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>사용 가능한 경우 디버그 로그 첨부</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>이메일을 보내기 전에 검토하거나 수정할 수 있습니다. 자동으로 전송되지 않습니다.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>이메일 열기</translation>
     </message>
 </context>
 <context>
@@ -1294,12 +1524,40 @@ QZ 설정을 업데이트하시겠습니까?</translation>
         <translation>검색(하위 폴더 포함)…</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>상위 폴더</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>운동을 찾을 수 없습니다</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>운동이 없습니다</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>다른 폴더</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>파일 복원</translation>
+    </message>
+    <message>
+        <source>Restore programs</source>
+        <translation type="vanished">프로그램 복원</translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation>← 뒤로</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>접기</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>더보기</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -1308,6 +1566,62 @@ QZ 설정을 업데이트하시겠습니까?</translation>
     <message>
         <source>Start Workout</source>
         <translation>운동 시작</translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>예</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>아니요</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>확인</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>이전 설치의 파일 복원 중</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>이전 설치의 파일 복원 중: %1/%2</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>펼쳐짐</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>접힘</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>시간</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>분</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>초</translation>
     </message>
 </context>
 <context>
@@ -1528,6 +1842,16 @@ QZ 설정을 업데이트하시겠습니까?</translation>
     <message>
         <source>Force Speed</source>
         <translation>속도 지정</translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>심박수 유지(PID) 조절 대상</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>설정에 따름</translation>
     </message>
     <message>
         <source>Fan</source>
@@ -1765,6 +2089,128 @@ QZ 설정을 업데이트하시겠습니까?</translation>
     <message>
         <source>Error repeating selection: {message}</source>
         <translation>선택 항목 반복 중 오류: {message}</translation>
+    </message>
+    <message>
+        <source>Workout name</source>
+        <translation>운동 이름</translation>
+    </message>
+    <message>
+        <source>Workout device type</source>
+        <translation>운동 기기 유형</translation>
+    </message>
+    <message>
+        <source>Create a new workout</source>
+        <translation>새 운동 만들기</translation>
+    </message>
+    <message>
+        <source>Paste XML from the Clipboard to the Workout Editor</source>
+        <translation>클립보드의 XML을 운동 편집기에 붙여넣기</translation>
+    </message>
+    <message>
+        <source>Save workout</source>
+        <translation>운동 저장</translation>
+    </message>
+    <message>
+        <source>Save workout and start it</source>
+        <translation>운동 저장 후 시작</translation>
+    </message>
+    <message>
+        <source>Show advanced interval fields</source>
+        <translation>고급 인터벌 항목 표시</translation>
+    </message>
+    <message>
+        <source>Workout editor controls</source>
+        <translation>운동 편집기 컨트롤</translation>
+    </message>
+    <message>
+        <source>Add interval</source>
+        <translation>인터벌 추가</translation>
+    </message>
+    <message>
+        <source>Repeat selected intervals</source>
+        <translation>선택한 인터벌 반복</translation>
+    </message>
+    <message>
+        <source>Clear all intervals</source>
+        <translation>모든 인터벌 지우기</translation>
+    </message>
+    <message>
+        <source>Workout preview chart</source>
+        <translation>운동 미리 보기 그래프</translation>
+    </message>
+    <message>
+        <source>Chart legend</source>
+        <translation>그래프 범례</translation>
+    </message>
+    <message>
+        <source>Saved workout programs</source>
+        <translation>저장된 운동 프로그램</translation>
+    </message>
+    <message>
+        <source>Load selected workout program</source>
+        <translation>선택한 운동 프로그램 불러오기</translation>
+    </message>
+    <message>
+        <source>Delete selected workout program</source>
+        <translation>선택한 운동 프로그램 삭제</translation>
+    </message>
+    <message>
+        <source>Refresh workout program list</source>
+        <translation>운동 프로그램 목록 새로 고침</translation>
+    </message>
+    <message>
+        <source>Select interval {number}</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation>인터벌 {number} 선택</translation>
+    </message>
+    <message>
+        <source>Move interval {number} up</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation>인터벌 {number} 위로 이동</translation>
+    </message>
+    <message>
+        <source>Move interval {number} down</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation>인터벌 {number} 아래로 이동</translation>
+    </message>
+    <message>
+        <source>Copy interval {number}</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation>인터벌 {number} 복사</translation>
+    </message>
+    <message>
+        <source>Delete interval {number}</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation>인터벌 {number} 삭제</translation>
+    </message>
+    <message>
+        <source>Enable {field} for interval {number}</source>
+        <extracomment>Screen reader name of a field checkbox; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
+        <translation>인터벌 {number}의 {field} 사용</translation>
+    </message>
+    <message>
+        <source>{field} for interval {number}</source>
+        <extracomment>Screen reader name of a field; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
+        <translation>인터벌 {number}의 {field}</translation>
+    </message>
+    <message>
+        <source>Decrease {field} for interval {number}</source>
+        <extracomment>Screen reader name of the - button; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
+        <translation>인터벌 {number}의 {field} 감소</translation>
+    </message>
+    <message>
+        <source>Increase {field} for interval {number}</source>
+        <extracomment>Screen reader name of the + button; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
+        <translation>인터벌 {number}의 {field} 증가</translation>
+    </message>
+    <message>
+        <source>{name} preview chart. {count} intervals. Total duration {duration}.</source>
+        <extracomment>Screen reader description of the chart; {name} is the workout name, {count} the number of intervals, {duration} like 0:45:00</extracomment>
+        <translation>{name} 미리 보기 그래프. 인터벌 {count}개. 총 지속 시간 {duration}.</translation>
+    </message>
+    <message>
+        <source>Dialog input</source>
+        <translation>대화 상자 입력</translation>
     </message>
     <message>
         <source>Training Programs Browser</source>
@@ -2339,6 +2785,10 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>아래 버튼을 눌러 Peloton 계정을 연결하세요</translation>
     </message>
     <message>
+        <source>Opens the Peloton login page</source>
+        <translation>Peloton 로그인 페이지를 엽니다</translation>
+    </message>
+    <message>
         <source>Peloton Difficulty</source>
         <translation>Peloton 난이도</translation>
     </message>
@@ -2351,6 +2801,14 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>난이도</translation>
     </message>
     <message>
+        <source>Peloton difficulty level</source>
+        <translation>Peloton 난이도</translation>
+    </message>
+    <message>
+        <source>Choose whether QZ targets the lower, upper or average of the instructor&apos;s range</source>
+        <translation>강사가 제시한 범위의 하한, 상한, 평균 중 QZ가 무엇을 목표로 할지 선택하세요</translation>
+    </message>
+    <message>
         <source>Finish</source>
         <translation>완료</translation>
     </message>
@@ -2361,6 +2819,14 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <source>What resistance level feels like a flat road on your bike?</source>
         <translation>자전거에서 평지를 달리는 느낌이 드는 저항 레벨은 몇입니까?</translation>
+    </message>
+    <message>
+        <source>Resistance level for flat road</source>
+        <translation>평지 저항 레벨</translation>
+    </message>
+    <message>
+        <source>Resistance level that feels like riding on flat ground. Range 0 to 100.</source>
+        <translation>평지를 달리는 느낌이 드는 저항 레벨입니다. 범위: 0~100.</translation>
     </message>
     <message>
         <source>Next</source>
@@ -2407,8 +2873,16 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>사용자 이름</translation>
     </message>
     <message>
+        <source>Zwift username</source>
+        <translation>Zwift 사용자 이름</translation>
+    </message>
+    <message>
         <source>Password</source>
         <translation>비밀번호</translation>
+    </message>
+    <message>
+        <source>Zwift password</source>
+        <translation>Zwift 비밀번호</translation>
     </message>
     <message>
         <source>Zwift Play and Click</source>
@@ -2421,6 +2895,10 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <source>Zwift Click</source>
         <translation>Zwift Click</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>사용</translation>
     </message>
     <message>
         <source>Zwift Play</source>
@@ -2459,12 +2937,24 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>궁금한 점이 있거나 도움이 필요하면 roberto.viola83@gmail.com으로 언제든 연락하세요. 이 마법사는 왼쪽 사이드바 메뉴에서 다시 시작할 수 있습니다. 일부 변경 사항은 앱을 다시 시작해야 적용될 수 있습니다.</translation>
     </message>
     <message>
+        <source>Email support</source>
+        <translation>이메일 문의</translation>
+    </message>
+    <message>
         <source>Close</source>
         <translation>닫기</translation>
     </message>
     <message>
         <source>Select Your Fitness Device</source>
         <translation>운동 기구 선택</translation>
+    </message>
+    <message>
+        <source>Fitness device</source>
+        <translation>운동 기구</translation>
+    </message>
+    <message>
+        <source>Select your fitness device from the list of nearby Bluetooth devices. Tap Refresh to scan again.</source>
+        <translation>주변 Bluetooth 기기 목록에서 운동 기구를 선택하세요. 다시 검색하려면 [새로 고침]을 누르세요.</translation>
     </message>
     <message>
         <source>Unit System</source>
@@ -2475,16 +2965,44 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>사용할 단위계를 선택하세요</translation>
     </message>
     <message>
+        <source>Unit system</source>
+        <translation>단위계</translation>
+    </message>
+    <message>
+        <source>Metric uses kilometers and kilograms. Imperial uses miles and pounds.</source>
+        <translation>미터법은 킬로미터와 킬로그램을, 야드파운드법은 마일과 파운드를 사용합니다.</translation>
+    </message>
+    <message>
         <source>User Information</source>
         <translation>사용자 정보</translation>
+    </message>
+    <message>
+        <source>Body weight</source>
+        <translation>체중</translation>
+    </message>
+    <message>
+        <source>Your weight in pounds</source>
+        <translation>파운드 단위 체중</translation>
+    </message>
+    <message>
+        <source>Your weight in kilograms</source>
+        <translation>킬로그램 단위 체중</translation>
     </message>
     <message>
         <source>Age</source>
         <translation>나이</translation>
     </message>
     <message>
+        <source>Your age in years. Used for heart rate zone calculations.</source>
+        <translation>만 나이입니다. 심박 존 계산에 사용됩니다.</translation>
+    </message>
+    <message>
         <source>Gender</source>
         <translation>성별</translation>
+    </message>
+    <message>
+        <source>Used for calorie calculations</source>
+        <translation>칼로리 계산에 사용됩니다</translation>
     </message>
     <message>
         <source>Select Your Heart Rate Device</source>
@@ -2493,6 +3011,14 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <source>Choose your heart rate belt or select a smartwatch option:</source>
         <translation>심박 벨트를 선택하거나 스마트워치 옵션을 선택하세요:</translation>
+    </message>
+    <message>
+        <source>Heart rate belt</source>
+        <translation>심박계 벨트</translation>
+    </message>
+    <message>
+        <source>Select your Bluetooth heart rate belt from the list. Tap Refresh to scan again. Choose Disabled if using a smartwatch.</source>
+        <translation>목록에서 Bluetooth 심박계 벨트를 선택하세요. 다시 검색하려면 [새로 고침]을 누르세요. 스마트워치를 사용하면 [사용 안 함]을 선택하세요.</translation>
     </message>
     <message>
         <source>Or select a smartwatch option:</source>
@@ -2592,6 +3118,14 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <source>Workout Editor</source>
         <translation>운동 편집기</translation>
+    </message>
+    <message>
+        <source>Loading workout editor</source>
+        <translation>운동 편집기 불러오는 중</translation>
+    </message>
+    <message>
+        <source>The workout editor is loading</source>
+        <translation>운동 편집기를 불러오는 중입니다</translation>
     </message>
 </context>
 <context>
@@ -2740,6 +3274,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>All files (*)</source>
         <translation>모든 파일 (*)</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>FIT 파일 공유</translation>
     </message>
     <message>
         <source>Upload to Strava</source>
@@ -3234,6 +3772,22 @@ This may take a few moments on first startup.</source>
         <translation>걸음 수</translation>
     </message>
     <message>
+        <source>Speed %1 kilometers per hour</source>
+        <translation>속도 시속 %1킬로미터</translation>
+    </message>
+    <message>
+        <source>Speed %1 miles per hour</source>
+        <translation>속도 시속 %1마일</translation>
+    </message>
+    <message>
+        <source>Inclination %1 percent</source>
+        <translation>경사도 %1퍼센트</translation>
+    </message>
+    <message>
+        <source>Resistance %1</source>
+        <translation>저항 %1</translation>
+    </message>
+    <message>
         <source>Stop</source>
         <translation>중지</translation>
     </message>
@@ -3469,6 +4023,14 @@ This may take a few moments on first startup.</source>
         <translation>속도 변경 </translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>복원된 파일: %1.</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>이전 설치의 파일을 찾지 못했습니다.</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>JSON 구문 분석 오류</translation>
     </message>
@@ -3491,6 +4053,18 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Workouts imported: %1.</source>
         <translation>가져온 운동: %1.</translation>
+    </message>
+    <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>파일을 QZ 폴더에 복사할 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation type="vanished">복원된 훈련 프로그램: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation type="vanished">이전 설치의 훈련 프로그램을 찾지 못했습니다.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -3637,6 +4211,14 @@ This may take a few moments on first startup.</source>
     <message>
         <source>W </source>
         <translation>W </translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>FIT 파일 공유</translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>이 운동의 FIT 파일을 공유할 수 없습니다</translation>
     </message>
     <message>
         <source>meters</source>
@@ -3791,6 +4373,126 @@ This may take a few moments on first startup.</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ 실행 중</translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>지원 요청</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZ 문제 | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>안녕하세요 Roberto님,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>QZ에 대한 도움이 필요합니다.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>문제:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[문제를 설명해 주세요]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>예상 동작:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[어떻게 동작해야 하는지 설명해 주세요]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ 진단 정보 ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZ 버전: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>플랫폼: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>프로필: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>기기: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>연결됨</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>연결되지 않음</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>연결 상태: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>속도: %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>사용할 수 없음</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>파워: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>감지된 상황: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>디버그 로그를 요청하지 않았습니다.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>디버그 로그가 비활성화되어 있습니다. 문제를 재현하기 전에 로그를 켜고 QZ를 다시 시작하세요.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>디버그 로그를 찾을 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>디버그 로그를 사용할 수 없거나 준비하기에 너무 큽니다.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>디버그 로그가 첨부되었습니다 (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>디버그 로그 첨부 파일을 쓸 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>디버그 로그를 압축하지 못했거나 첨부 파일이 10 MB를 초과합니다.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>생성된 디버그 로그를 직접 첨부하세요</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>기기가 감지되지 않았습니다</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>이메일 앱을 열 수 없습니다</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -3923,6 +4625,28 @@ Do you want to start it now?</source>
         <translation>Peloton</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>저장했습니다! 파일 앱을 확인하세요.</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>저장했습니다! 앱의 개인 폴더를 확인하세요.</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>파일 복원</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>이전 설치의 훈련 프로그램, GPX 경로, 설정 파일, 프로필이 QZ 폴더에 남아 있을 수 있습니다.
+찾아보시겠습니까?
+
+다음 창에서 QZ 폴더 접근을 허용하세요.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>이미 Peloton에 연결되어 있습니다. 로그아웃하시겠습니까?</translation>
     </message>
@@ -3935,6 +4659,30 @@ Do you want to start it now?</source>
         <translation>이미 Intervals.icu에 연결되어 있습니다. 로그아웃하시겠습니까?</translation>
     </message>
     <message>
+        <source>Back</source>
+        <translation>뒤로</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>메인 메뉴</translation>
+    </message>
+    <message>
+        <source>Return to the previous screen</source>
+        <translation>이전 화면으로 돌아갑니다</translation>
+    </message>
+    <message>
+        <source>Open the main navigation menu</source>
+        <translation>메인 탐색 메뉴를 엽니다</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>플로팅 창</translation>
+    </message>
+    <message>
+        <source>Open the floating workout display</source>
+        <translation>플로팅 운동 화면을 엽니다</translation>
+    </message>
+    <message>
         <source>You can move the tiles!</source>
         <translation>타일을 옮길 수 있습니다!</translation>
     </message>
@@ -3943,8 +4691,80 @@ Do you want to start it now?</source>
         <translation>타일이 고정되었습니다</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>설정 불러오기</translation>
+    </message>
+    <message>
+        <source>Open the saved settings list</source>
+        <translation>저장된 설정 목록을 엽니다</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>설정 검색</translation>
+    </message>
+    <message>
+        <source>Save settings</source>
+        <translation>설정 저장</translation>
+    </message>
+    <message>
+        <source>Save the current settings profile</source>
+        <translation>현재 설정 프로필을 저장합니다</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>지도</translation>
+    </message>
+    <message>
+        <source>Open the route map</source>
+        <translation>경로 지도를 엽니다</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>동영상</translation>
+    </message>
+    <message>
+        <source>Show or hide the workout video</source>
+        <translation>운동 동영상을 표시하거나 숨깁니다</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>그래프</translation>
+    </message>
+    <message>
+        <source>Show or hide the workout chart</source>
+        <translation>운동 그래프를 표시하거나 숨깁니다</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>FIT 파일 공유</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>타일 고정 해제</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>타일 고정</translation>
+    </message>
+    <message>
+        <source>Prevent workout tiles from being moved</source>
+        <translation>운동 타일을 옮길 수 없게 합니다</translation>
+    </message>
+    <message>
+        <source>Allow workout tiles to be moved</source>
+        <translation>운동 타일을 옮길 수 있게 합니다</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>자동 저항 끄기</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>자동 저항 켜기</translation>
+    </message>
+    <message>
+        <source>Toggle automatic resistance control</source>
+        <translation>자동 저항 조절을 켜거나 끕니다</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4007,6 +4827,74 @@ Do you want to start it now?</source>
         <translation>종료</translation>
     </message>
     <message>
+        <source>Disconnect from Strava</source>
+        <translation>Strava 연결 해제</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Strava 연결</translation>
+    </message>
+    <message>
+        <source>Tap to log out of Strava</source>
+        <translation>Strava에서 로그아웃하려면 누르세요</translation>
+    </message>
+    <message>
+        <source>Tap to connect your Strava account</source>
+        <translation>Strava 계정을 연결하려면 누르세요</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Peloton 연결 해제</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Peloton 연결</translation>
+    </message>
+    <message>
+        <source>Tap to log out of Peloton</source>
+        <translation>Peloton에서 로그아웃하려면 누르세요</translation>
+    </message>
+    <message>
+        <source>Tap to connect your Peloton account</source>
+        <translation>Peloton 계정을 연결하려면 누르세요</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Garmin Connect 설정</translation>
+    </message>
+    <message>
+        <source>Open Garmin Connect integration settings</source>
+        <translation>Garmin Connect 연동 설정을 엽니다</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Intervals.icu 연결 해제</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Intervals.icu 연결</translation>
+    </message>
+    <message>
+        <source>Tap to log out of Intervals.icu</source>
+        <translation>Intervals.icu에서 로그아웃하려면 누르세요</translation>
+    </message>
+    <message>
+        <source>Tap to connect your Intervals.icu account</source>
+        <translation>Intervals.icu 계정을 연결하려면 누르세요</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>운동</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>앱</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>서비스</translation>
+    </message>
+    <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
         <translation>QDomyos-Zwift - 운동 기구 브리지</translation>
     </message>
@@ -4046,6 +4934,20 @@ Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
         <translation>이전 설치의 운동이 QZ 폴더에 남아 있을 수 있습니다.
+찾아보시겠습니까?
+
+다음 창에서 QZ 폴더 접근을 허용하세요.</translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation type="vanished">훈련 프로그램</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation type="vanished">이전 설치의 훈련 프로그램이 QZ 폴더에 남아 있을 수 있습니다.
 찾아보시겠습니까?
 
 다음 창에서 QZ 폴더 접근을 허용하세요.</translation>
@@ -4172,6 +5074,22 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <source>Please choose a file</source>
         <translation>파일을 선택하세요</translation>
     </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Wahoo 가상 기어</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>가상 기어를 구현하기 위해 QZ는 트레이너에 저장된 휠 둘레를 변경합니다. 이 값은 QZ를 닫은 후에도 트레이너에 남아 있을 수 있으며, 다른 앱에서 트레이너 동작에 영향을 줄 수 있습니다.
+
+QZ가 이 값을 변경하도록 허용하시겠습니까?
+
+[아니요]: QZ가 [휠 지름 없는 프로토콜]을 켜고([설정] &gt; [자전거 옵션] &gt; [Wahoo 옵션]), 가상 기어는 경사를 통해 작동합니다. [예]를 선택하면 나중에 같은 곳에서 되돌릴 수 있습니다. 이 옵션을 켜고 트레이너가 연결된 상태에서 [트레이너 기본 설정 복원]을 누르세요.</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -4211,6 +5129,10 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>이 프로필을 삭제하시겠습니까?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>삭제</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>프로필 저장됨</translation>
     </message>
@@ -4243,8 +5165,32 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>프로필 이름</translation>
     </message>
     <message>
+        <source>New profile</source>
+        <translation>새 프로필</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>저장된 프로필</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>프로필을 눌러 선택한 다음 [불러오기]를 누르세요. 길게 누르면 삭제됩니다.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>사용 중</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>불러오기</translation>
+    </message>
+    <message>
         <source>Profiles</source>
         <translation>프로필</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>파일 복원</translation>
     </message>
     <message>
         <source>Save</source>
@@ -4423,7 +5369,7 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Open</source>
-        <translation>열기</translation>
+        <translation type="vanished">열기</translation>
     </message>
     <message>
         <source>General Options</source>
@@ -4450,12 +5396,84 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>앱 언어:</translation>
     </message>
     <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>설정 페이지에서 이 설정을 찾을 수 없습니다</translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>가상 앱의 경사도를 자전거 저항으로 변환하는 방식을 설정합니다.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>QZ가 가상 앱의 경사도를 저항으로 변환할 때 사용자 지정 대응표를 사용합니다.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>한 줄에 경사도|저항 한 쌍. QZ는 점 사이를 보간하고, 설정 범위 밖에서는 끝점 값을 사용합니다.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>서비스 로그인에 사용하는 Life Fitness 계정 사용자 이름입니다. 기기에만 저장되며 디버그 로그에는 절대 기록되지 않습니다.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>서비스 로그인에 사용하는 Life Fitness 계정 비밀번호입니다. 기기에만 저장되며 디버그 로그에는 절대 기록되지 않습니다.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>현재 카메라 앵글</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>현재 이모트</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbike 에뮬레이터</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>파워 그래프 위치</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>심박수 그래프 위치</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>저항 및 목표 저항 그래프 위치</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Peloton 저항 그래프 위치</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>케이던스 그래프 위치</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>파워 분포 그래프 위치</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>속도 및 경사도 그래프 위치</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>운동 기록에서 이 그래프의 순서입니다. 순서는 일반 UI 옵션의 위로/아래로 버튼으로 바꿉니다.</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>기기 언어를 따르려면 [자동(시스템)]을 선택하고, 아니면 QZ에서 쓸 언어를 직접 선택하세요.</translation>
     </message>
     <message>
         <source>Player Weight</source>
         <translation>체중</translation>
+    </message>
+    <message>
+        <source>Save Player Weight</source>
+        <translation>체중 저장</translation>
     </message>
     <message>
         <source>Enter your weight in kilograms so QZ can more accurately calculate calories burned. NOTE: If you choose to use miles as the unit for distance traveled, you will be asked to enter your weight in pounds (lbs) unless you enable &apos;Use kg for weight&apos;.</source>
@@ -4470,12 +5488,24 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>잘못된 형식입니다! 피트&apos;인치 형식을 사용하세요(예: 6&apos;2&quot;)</translation>
     </message>
     <message>
+        <source>Save Player Height</source>
+        <translation>키 저장</translation>
+    </message>
+    <message>
         <source>Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet&apos;inches&quot; format (e.g., 5&apos;10&quot;) for imperial units.</source>
         <translation>BMR과 활동 칼로리를 더 정확하게 계산하려면 키를 입력하세요. 미터법은 센티미터로, 야드파운드법은 피트&apos;인치&quot; 형식(예: 5&apos;10&quot;)으로 입력하세요.</translation>
     </message>
     <message>
         <source>Player Age:</source>
         <translation>나이:</translation>
+    </message>
+    <message>
+        <source>Player Age</source>
+        <translation>나이</translation>
+    </message>
+    <message>
+        <source>Save Player Age</source>
+        <translation>나이 저장</translation>
     </message>
     <message>
         <source>Enter your age so that calories burned can be more accurately calculated.</source>
@@ -4486,12 +5516,28 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>성별:</translation>
     </message>
     <message>
+        <source>Gender</source>
+        <translation>성별</translation>
+    </message>
+    <message>
+        <source>Save Gender</source>
+        <translation>성별 저장</translation>
+    </message>
+    <message>
         <source>Select your gender so that calories burned can be more accurately calculated.</source>
         <translation>소모 칼로리를 더 정확하게 계산할 수 있도록 성별을 선택하세요.</translation>
     </message>
     <message>
         <source>FTP value:</source>
         <translation>FTP 값:</translation>
+    </message>
+    <message>
+        <source>FTP value</source>
+        <translation>FTP 값</translation>
+    </message>
+    <message>
+        <source>Save FTP value</source>
+        <translation>FTP 값 저장</translation>
     </message>
     <message>
         <source>If you train to specific output (or watts) levels, for example in Peloton Power Zone classes,and have taken an FTP test (Functional Threshold Power), enter your FTP here. This number is used to calculate your Power Zones (Zones 1 to 7 for Peloton and 1 to 6 for Zwift).</source>
@@ -4502,6 +5548,14 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>달리기 임계 파워(CP) 값:</translation>
     </message>
     <message>
+        <source>Critical Power Run value</source>
+        <translation>달리기 임계 파워(CP) 값</translation>
+    </message>
+    <message>
+        <source>Save Critical Power Run value</source>
+        <translation>달리기 임계 파워(CP) 값 저장</translation>
+    </message>
+    <message>
         <source>If you train to specific output (or watts) levels, for example with Stryd,and have taken an CP test (Critical Power Test), enter your CP here. This number is used to calculate your RSS.</source>
         <translation>Stryd 등으로 특정 파워(와트) 수준에 맞춰 훈련하고 CP 테스트(Critical Power Test)를 받은 적이 있다면 여기에 CP를 입력하세요. 이 값으로 RSS를 계산합니다.</translation>
     </message>
@@ -4510,12 +5564,28 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>닉네임:</translation>
     </message>
     <message>
+        <source>Nickname</source>
+        <translation>닉네임</translation>
+    </message>
+    <message>
+        <source>Save Nickname</source>
+        <translation>닉네임 저장</translation>
+    </message>
+    <message>
         <source>No need to enter data here. It is for a possible future QZ feature.</source>
         <translation>입력할 필요가 없습니다. 향후 QZ 기능을 위한 칸입니다.</translation>
     </message>
     <message>
         <source>Email:</source>
         <translation>이메일:</translation>
+    </message>
+    <message>
+        <source>Email</source>
+        <translation>이메일</translation>
+    </message>
+    <message>
+        <source>Save Email</source>
+        <translation>이메일 저장</translation>
     </message>
     <message>
         <source>Enter your email address to receive an automated email with stats and charts when you hit STOP at the end of each workout. Make sure there are no spaces before or after the email address; this is the most common reason the automated email is not sent. Privacy Note: Email addresses are not collected by the developer and are only saved locally on your device.</source>
@@ -4610,6 +5680,14 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>기기 목록 새로 고침</translation>
     </message>
     <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>시작할 때 심박 센서 찾기</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>운동 기구가 연결된 후 처음 5분 동안 심박수가 들어오지 않으면 QZ가 1분마다 심박 센서를 찾습니다. 선택한 심박 벨트는 찾는 즉시 연결하고, 선택한 것이 없으면 근처에서 찾은 센서를 제안합니다. 홈 화면의 심박수 타일이나 Bluetooth 아이콘을 탭하면 언제든지 찾습니다.</translation>
+    </message>
+    <message>
         <source>Heart Rate Zone Options</source>
         <translation>심박 존 옵션</translation>
     </message>
@@ -4618,16 +5696,48 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>존 1 %:</translation>
     </message>
     <message>
+        <source>Zone 1 %</source>
+        <translation>존 1 %</translation>
+    </message>
+    <message>
+        <source>Save Zone 1 %</source>
+        <translation>존 1 % 저장</translation>
+    </message>
+    <message>
         <source>Zone 2 %:</source>
         <translation>존 2 %:</translation>
+    </message>
+    <message>
+        <source>Zone 2 %</source>
+        <translation>존 2 %</translation>
+    </message>
+    <message>
+        <source>Save Zone 2 %</source>
+        <translation>존 2 % 저장</translation>
     </message>
     <message>
         <source>Zone 3 %:</source>
         <translation>존 3 %:</translation>
     </message>
     <message>
+        <source>Zone 3 %</source>
+        <translation>존 3 %</translation>
+    </message>
+    <message>
+        <source>Save Zone 3 %</source>
+        <translation>존 3 % 저장</translation>
+    </message>
+    <message>
         <source>Zone 4 %:</source>
         <translation>존 4 %:</translation>
+    </message>
+    <message>
+        <source>Zone 4 %</source>
+        <translation>존 4 %</translation>
+    </message>
+    <message>
+        <source>Save Zone 4 %</source>
+        <translation>존 4 % 저장</translation>
     </message>
     <message>
         <source>Zone 5 will be calculated automatically based on Zone 4 end percentage and max HR.</source>
@@ -4650,12 +5760,20 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>최대 심박수</translation>
     </message>
     <message>
+        <source>Save Max Heart Rate</source>
+        <translation>최대 심박수 저장</translation>
+    </message>
+    <message>
         <source>QZ uses a standard age-based calculation for maximum heart rate and then sets the heart rate zones based on that max heart rate. If you know your actual max heart rate (the highest your heart rate is known to reach), turn this option on and enter your actual max heart rate. Then click OK.</source>
         <translation>QZ는 나이를 기준으로 하는 표준 공식으로 최대 심박수를 계산하고, 이 값을 기준으로 심박 존을 설정합니다. 실제 최대 심박수(심박수가 올라가는 가장 높은 값)를 알고 있다면 이 옵션을 켜고 실제 최대 심박수를 입력한 다음 [확인]을 누르세요.</translation>
     </message>
     <message>
         <source>Resting Heart Rate</source>
         <translation>안정 시 심박수</translation>
+    </message>
+    <message>
+        <source>Save Resting Heart Rate</source>
+        <translation>안정 시 심박수 저장</translation>
     </message>
     <message>
         <source>Enter your resting heart rate (the lowest your heart rate reaches when fully rested). This is used for accurate training load calculations. Default is 60 bpm.</source>
@@ -4670,16 +5788,48 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>측정 1 파워:</translation>
     </message>
     <message>
+        <source>Session 1 Watt</source>
+        <translation>측정 1 파워</translation>
+    </message>
+    <message>
+        <source>Save Session 1 Watt</source>
+        <translation>측정 1 파워 저장</translation>
+    </message>
+    <message>
         <source>Session 1 HR:</source>
         <translation>측정 1 심박수:</translation>
+    </message>
+    <message>
+        <source>Session 1 HR</source>
+        <translation>측정 1 심박수</translation>
+    </message>
+    <message>
+        <source>Save Session 1 HR</source>
+        <translation>측정 1 심박수 저장</translation>
     </message>
     <message>
         <source>Session 2 Watt:</source>
         <translation>측정 2 파워:</translation>
     </message>
     <message>
+        <source>Session 2 Watt</source>
+        <translation>측정 2 파워</translation>
+    </message>
+    <message>
+        <source>Save Session 2 Watt</source>
+        <translation>측정 2 파워 저장</translation>
+    </message>
+    <message>
         <source>Session 2 HR:</source>
         <translation>측정 2 심박수:</translation>
+    </message>
+    <message>
+        <source>Session 2 HR</source>
+        <translation>측정 2 심박수</translation>
+    </message>
+    <message>
+        <source>Save Session 2 HR</source>
+        <translation>측정 2 심박수 저장</translation>
     </message>
     <message>
         <source>Expand the bars to the right to display the options under this setting. These settings are used to calculate power (watts) for bikes that do not have power meters. Instead QZ estimates power from your cadence and heart rate. You can calibrate how QZ calculates your power from heart rate as follows: If you know that at a stable pace you produce 100W of power at a heart rate of 150 BPM and 150W at 170 BPM, you can add these values under Sessions 1 and 2 Watt and HR and QZ will calculate your power based on that trend line.</source>
@@ -4714,12 +5864,24 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>기어 값:</translation>
     </message>
     <message>
+        <source>Gear Value</source>
+        <translation>기어 값</translation>
+    </message>
+    <message>
+        <source>Save Gear Value</source>
+        <translation>기어 값 저장</translation>
+    </message>
+    <message>
         <source>Specify a particular gear value to be restored at startup. This will override the &apos;Restore Gears on Startup&apos; setting.</source>
         <translation>시작할 때 복원할 기어 값을 지정합니다. 이 설정은 [시작 시 기어 복원] 설정보다 우선합니다.</translation>
     </message>
     <message>
         <source>Rolling Resistance Factor</source>
         <translation>구름 저항 계수</translation>
+    </message>
+    <message>
+        <source>Save Rolling Resistance Factor</source>
+        <translation>구름 저항 계수 저장</translation>
     </message>
     <message>
         <source>0.005 = Clinchers
@@ -4730,6 +5892,14 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
 0.012 = MTB</translation>
     </message>
     <message>
+        <source>Bike Weight</source>
+        <translation>자전거 무게</translation>
+    </message>
+    <message>
+        <source>Save Bike Weight</source>
+        <translation>자전거 무게 저장</translation>
+    </message>
+    <message>
         <source>Enables QZ to include the weight of your bike when calculating speed. For example, if you are competing against yourself on VZfit, adding bike weight will &apos;level the playing field&apos; against your virtual self. If you have set QZ to calculate distance in miles, enter the bike weight in pounds (lbs) unless you enable &apos;Use kg for weight&apos;. Default unit is kilograms (kgs).</source>
         <translation>QZ가 속도를 계산할 때 자전거 무게를 포함합니다. 예를 들어 VZfit에서 자신과 경쟁할 때 자전거 무게를 더하면 가상의 자신과 &apos;같은 조건&apos;이 됩니다. QZ에서 거리를 마일로 계산하도록 설정했다면 [체중에 kg 사용]을 켜지 않는 한 자전거 무게를 파운드(lbs)로 입력하세요. 기본 단위는 킬로그램(kg)입니다.</translation>
     </message>
@@ -4738,8 +5908,16 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>구름 저항 배율</translation>
     </message>
     <message>
+        <source>Save Rolling Res. Gain</source>
+        <translation>구름 저항 배율 저장</translation>
+    </message>
+    <message>
         <source>Wind Res. Gain</source>
         <translation>공기 저항 배율</translation>
+    </message>
+    <message>
+        <source>Save Wind Res. Gain</source>
+        <translation>공기 저항 배율 저장</translation>
     </message>
     <message>
         <source>Zwift Workout/Erg Mode</source>
@@ -4754,12 +5932,28 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>Zwift 저항 보정값:</translation>
     </message>
     <message>
+        <source>Zwift Resistance Offset</source>
+        <translation>Zwift 저항 보정값</translation>
+    </message>
+    <message>
+        <source>Save Zwift Resistance Offset</source>
+        <translation>Zwift 저항 보정값 저장</translation>
+    </message>
+    <message>
         <source>This setting sets your “flat road” in Zwift. All communicated resistance changes will be based on this setting. The value entered is personal preference and will be dependent on your level of fitness. The suggested value for Echelon bikes is between 18 and 20. Default is 4.</source>
         <translation>Zwift의 &apos;평지&apos;를 정하는 설정입니다. 전달되는 모든 저항 변화는 이 값을 기준으로 합니다. 값은 취향에 따라, 그리고 체력 수준에 따라 정하세요. Echelon 자전거의 권장값은 18~20입니다. 기본값: 4.</translation>
     </message>
     <message>
         <source>Zwift Power Offset (W):</source>
         <translation>Zwift 파워 보정값 (W):</translation>
+    </message>
+    <message>
+        <source>Zwift Power Offset (W)</source>
+        <translation>Zwift 파워 보정값 (W)</translation>
+    </message>
+    <message>
+        <source>Save Zwift Power Offset (W)</source>
+        <translation>Zwift 파워 보정값 (W) 저장</translation>
     </message>
     <message>
         <source>Add an offset in watts to the requested power from apps like Zwift. Positive values increase power, negative values decrease it. Default is 0.</source>
@@ -4770,12 +5964,28 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>Zwift 저항 배율:</translation>
     </message>
     <message>
+        <source>Zwift Resistance Gain</source>
+        <translation>Zwift 저항 배율</translation>
+    </message>
+    <message>
+        <source>Save Zwift Resistance Gain</source>
+        <translation>Zwift 저항 배율 저장</translation>
+    </message>
+    <message>
         <source>(for bikes and treadmills when using “treadmill as a bike” setting). This setting scales the resistance from your bike or the speed from your treadmill before sending it to Zwift. Default is 1.</source>
         <translation>(자전거, 그리고 [트레드밀을 자전거로] 설정을 쓰는 트레드밀용). 자전거의 저항이나 트레드밀의 속도를 Zwift로 보내기 전에 배율을 적용합니다. 기본값: 1.</translation>
     </message>
     <message>
         <source>Zwift ERG Watt Up Filter:</source>
         <translation>Zwift ERG 파워 상승 필터:</translation>
+    </message>
+    <message>
+        <source>Zwift ERG Watt Up Filter</source>
+        <translation>Zwift ERG 파워 상승 필터</translation>
+    </message>
+    <message>
+        <source>Save Zwift ERG Watt Up Filter</source>
+        <translation>Zwift ERG 파워 상승 필터 저장</translation>
     </message>
     <message>
         <source>In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 watts or more than 110 watts. Default is 10.</source>
@@ -4786,12 +5996,28 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>Zwift ERG 파워 하강 필터:</translation>
     </message>
     <message>
+        <source>Zwift ERG Watt Down Filter</source>
+        <translation>Zwift ERG 파워 하강 필터</translation>
+    </message>
+    <message>
+        <source>Save Zwift ERG Watt Down Filter</source>
+        <translation>Zwift ERG 파워 하강 필터 저장</translation>
+    </message>
+    <message>
         <source>See above. Default is 10.</source>
         <translation>위 내용을 참고하세요. 기본값: 10.</translation>
     </message>
     <message>
         <source>Min. Resistance:</source>
         <translation>최소 저항:</translation>
+    </message>
+    <message>
+        <source>Min. Resistance</source>
+        <translation>최소 저항</translation>
+    </message>
+    <message>
+        <source>Save Min. Resistance</source>
+        <translation>최소 저항 저장</translation>
     </message>
     <message>
         <source>Use this setting to set a minimum target resistance. For example, if you do not want to ride at a resistance below 25, enter a value of 25 and QZ will not set a target resistance below 25. Default is 0.</source>
@@ -4802,6 +6028,14 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>최대 저항:</translation>
     </message>
     <message>
+        <source>Max. Resistance</source>
+        <translation>최대 저항</translation>
+    </message>
+    <message>
+        <source>Save Max. Resistance</source>
+        <translation>최대 저항 저장</translation>
+    </message>
+    <message>
         <source>Similar to the above, but sets a maximum target resistance. Default is 999.</source>
         <translation>위와 같지만 최대 목표 저항을 설정합니다. 기본값: 999.</translation>
     </message>
@@ -4810,12 +6044,28 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>시작 시 저항:</translation>
     </message>
     <message>
+        <source>Resistance at Startup</source>
+        <translation>시작 시 저항</translation>
+    </message>
+    <message>
+        <source>Save Resistance at Startup</source>
+        <translation>시작 시 저항 저장</translation>
+    </message>
+    <message>
         <source>(only for bikes with electronically-controlled resistance): Enter the resistance level you want QZ to set at startup. Default is 1.</source>
         <translation>(저항을 전자식으로 제어하는 자전거만): QZ가 시작할 때 설정할 저항 레벨을 입력하세요. 기본값: 1.</translation>
     </message>
     <message>
         <source>Gears Gain:</source>
         <translation>기어 배율:</translation>
+    </message>
+    <message>
+        <source>Gears Gain</source>
+        <translation>기어 배율</translation>
+    </message>
+    <message>
+        <source>Save Gears Gain</source>
+        <translation>기어 배율 저장</translation>
     </message>
     <message>
         <source>Applies a multiplier to the gears. Default is 1.</source>
@@ -4828,6 +6078,14 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Gears Offset:</source>
         <translation>기어 보정값:</translation>
+    </message>
+    <message>
+        <source>Gears Offset</source>
+        <translation>기어 보정값</translation>
+    </message>
+    <message>
+        <source>Save Gears Offset</source>
+        <translation>기어 보정값 저장</translation>
     </message>
     <message>
         <source>Applies an offset to the gears. Default is 0.</source>
@@ -4850,6 +6108,10 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>프로필:</translation>
     </message>
     <message>
+        <source>Profile</source>
+        <translation>프로필</translation>
+    </message>
+    <message>
         <source>Cruise Profile Settings</source>
         <translation>크루즈 프로필 설정</translation>
     </message>
@@ -4858,16 +6120,48 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>크루즈 – 기어 올림 케이던스 (RPM):</translation>
     </message>
     <message>
+        <source>Cruise - Gear Up Cadence (RPM)</source>
+        <translation>크루즈 – 기어 올림 케이던스 (RPM)</translation>
+    </message>
+    <message>
+        <source>Save Cruise - Gear Up Cadence (RPM)</source>
+        <translation>크루즈 – 기어 올림 케이던스 (RPM) 저장</translation>
+    </message>
+    <message>
         <source>Cruise - Gear Up Time (seconds):</source>
         <translation>크루즈 – 기어 올림 시간 (초):</translation>
+    </message>
+    <message>
+        <source>Cruise - Gear Up Time (seconds)</source>
+        <translation>크루즈 – 기어 올림 시간 (초)</translation>
+    </message>
+    <message>
+        <source>Save Cruise - Gear Up Time (seconds)</source>
+        <translation>크루즈 – 기어 올림 시간 (초) 저장</translation>
     </message>
     <message>
         <source>Cruise - Gear Down Cadence (RPM):</source>
         <translation>크루즈 – 기어 내림 케이던스 (RPM):</translation>
     </message>
     <message>
+        <source>Cruise - Gear Down Cadence (RPM)</source>
+        <translation>크루즈 – 기어 내림 케이던스 (RPM)</translation>
+    </message>
+    <message>
+        <source>Save Cruise - Gear Down Cadence (RPM)</source>
+        <translation>크루즈 – 기어 내림 케이던스 (RPM) 저장</translation>
+    </message>
+    <message>
         <source>Cruise - Gear Down Time (seconds):</source>
         <translation>크루즈 – 기어 내림 시간 (초):</translation>
+    </message>
+    <message>
+        <source>Cruise - Gear Down Time (seconds)</source>
+        <translation>크루즈 – 기어 내림 시간 (초)</translation>
+    </message>
+    <message>
+        <source>Save Cruise - Gear Down Time (seconds)</source>
+        <translation>크루즈 – 기어 내림 시간 (초) 저장</translation>
     </message>
     <message>
         <source>Climb Profile Settings</source>
@@ -4878,16 +6172,48 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>클라임 – 기어 올림 케이던스 (RPM):</translation>
     </message>
     <message>
+        <source>Climb - Gear Up Cadence (RPM)</source>
+        <translation>클라임 – 기어 올림 케이던스 (RPM)</translation>
+    </message>
+    <message>
+        <source>Save Climb - Gear Up Cadence (RPM)</source>
+        <translation>클라임 – 기어 올림 케이던스 (RPM) 저장</translation>
+    </message>
+    <message>
         <source>Climb - Gear Up Time (seconds):</source>
         <translation>클라임 – 기어 올림 시간 (초):</translation>
+    </message>
+    <message>
+        <source>Climb - Gear Up Time (seconds)</source>
+        <translation>클라임 – 기어 올림 시간 (초)</translation>
+    </message>
+    <message>
+        <source>Save Climb - Gear Up Time (seconds)</source>
+        <translation>클라임 – 기어 올림 시간 (초) 저장</translation>
     </message>
     <message>
         <source>Climb - Gear Down Cadence (RPM):</source>
         <translation>클라임 – 기어 내림 케이던스 (RPM):</translation>
     </message>
     <message>
+        <source>Climb - Gear Down Cadence (RPM)</source>
+        <translation>클라임 – 기어 내림 케이던스 (RPM)</translation>
+    </message>
+    <message>
+        <source>Save Climb - Gear Down Cadence (RPM)</source>
+        <translation>클라임 – 기어 내림 케이던스 (RPM) 저장</translation>
+    </message>
+    <message>
         <source>Climb - Gear Down Time (seconds):</source>
         <translation>클라임 – 기어 내림 시간 (초):</translation>
+    </message>
+    <message>
+        <source>Climb - Gear Down Time (seconds)</source>
+        <translation>클라임 – 기어 내림 시간 (초)</translation>
+    </message>
+    <message>
+        <source>Save Climb - Gear Down Time (seconds)</source>
+        <translation>클라임 – 기어 내림 시간 (초) 저장</translation>
     </message>
     <message>
         <source>Sprint Profile Settings</source>
@@ -4898,16 +6224,48 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>스프린트 – 기어 올림 케이던스 (RPM):</translation>
     </message>
     <message>
+        <source>Sprint - Gear Up Cadence (RPM)</source>
+        <translation>스프린트 – 기어 올림 케이던스 (RPM)</translation>
+    </message>
+    <message>
+        <source>Save Sprint - Gear Up Cadence (RPM)</source>
+        <translation>스프린트 – 기어 올림 케이던스 (RPM) 저장</translation>
+    </message>
+    <message>
         <source>Sprint - Gear Up Time (seconds):</source>
         <translation>스프린트 – 기어 올림 시간 (초):</translation>
+    </message>
+    <message>
+        <source>Sprint - Gear Up Time (seconds)</source>
+        <translation>스프린트 – 기어 올림 시간 (초)</translation>
+    </message>
+    <message>
+        <source>Save Sprint - Gear Up Time (seconds)</source>
+        <translation>스프린트 – 기어 올림 시간 (초) 저장</translation>
     </message>
     <message>
         <source>Sprint - Gear Down Cadence (RPM):</source>
         <translation>스프린트 – 기어 내림 케이던스 (RPM):</translation>
     </message>
     <message>
+        <source>Sprint - Gear Down Cadence (RPM)</source>
+        <translation>스프린트 – 기어 내림 케이던스 (RPM)</translation>
+    </message>
+    <message>
+        <source>Save Sprint - Gear Down Cadence (RPM)</source>
+        <translation>스프린트 – 기어 내림 케이던스 (RPM) 저장</translation>
+    </message>
+    <message>
         <source>Sprint - Gear Down Time (seconds):</source>
         <translation>스프린트 – 기어 내림 시간 (초):</translation>
+    </message>
+    <message>
+        <source>Sprint - Gear Down Time (seconds)</source>
+        <translation>스프린트 – 기어 내림 시간 (초)</translation>
+    </message>
+    <message>
+        <source>Save Sprint - Gear Down Time (seconds)</source>
+        <translation>스프린트 – 기어 내림 시간 (초) 저장</translation>
     </message>
     <message>
         <source>FTMS Bike:</source>
@@ -4946,6 +6304,14 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>저항 스무딩:</translation>
     </message>
     <message>
+        <source>Resistance Smoothing</source>
+        <translation>저항 스무딩</translation>
+    </message>
+    <message>
+        <source>Save Resistance Smoothing</source>
+        <translation>저항 스무딩 저장</translation>
+    </message>
+    <message>
         <source>Since this bike doesn&apos;t send resistance over Bluetooth, QZ is calculating it using cadence and wattage. The result could be a little &apos;jumpy&apos; and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.</source>
         <translation>이 자전거는 Bluetooth로 저항을 보내지 않으므로 QZ가 케이던스와 파워로 저항을 계산합니다. 계산 결과가 다소 들쭉날쭉할 수 있으므로 이 설정으로 저항 타일 값을 걸러낼 수 있습니다. 단위는 저항 단계 그대로이며, 5를 입력하면 저항이 5단계 바뀔 때만 화면의 저항 값이 바뀝니다.</translation>
     </message>
@@ -4958,6 +6324,14 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>GR7 케이던스 배율:</translation>
     </message>
     <message>
+        <source>GR7 Cadence Multiplier</source>
+        <translation>GR7 케이던스 배율</translation>
+    </message>
+    <message>
+        <source>Save GR7 Cadence Multiplier</source>
+        <translation>GR7 케이던스 배율 저장</translation>
+    </message>
+    <message>
         <source>Echelon Bike Options</source>
         <translation>Echelon 자전거 옵션</translation>
     </message>
@@ -4966,12 +6340,36 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>파워 프로필:</translation>
     </message>
     <message>
+        <source>Watt Profile</source>
+        <translation>파워 프로필</translation>
+    </message>
+    <message>
+        <source>Save Watt Profile</source>
+        <translation>파워 프로필 저장</translation>
+    </message>
+    <message>
         <source>Resistance Gain:</source>
         <translation>저항 배율:</translation>
     </message>
     <message>
+        <source>Resistance Gain</source>
+        <translation>저항 배율</translation>
+    </message>
+    <message>
+        <source>Save Resistance Gain</source>
+        <translation>저항 배율 저장</translation>
+    </message>
+    <message>
         <source>Resistance Offset:</source>
         <translation>저항 보정값:</translation>
+    </message>
+    <message>
+        <source>Resistance Offset</source>
+        <translation>저항 보정값</translation>
+    </message>
+    <message>
+        <source>Save Resistance Offset</source>
+        <translation>저항 보정값 저장</translation>
     </message>
     <message>
         <source>Change gears using knob (Experimental)</source>
@@ -5074,12 +6472,28 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>0 값 필터:</translation>
     </message>
     <message>
+        <source>Samples Filter</source>
+        <translation>0 값 필터</translation>
+    </message>
+    <message>
+        <source>Save Samples Filter</source>
+        <translation>0 값 필터 저장</translation>
+    </message>
+    <message>
         <source>Domyos Bike Options</source>
         <translation>Domyos 자전거 옵션</translation>
     </message>
     <message>
         <source>Cadence Filter:</source>
         <translation>케이던스 필터:</translation>
+    </message>
+    <message>
+        <source>Cadence Filter</source>
+        <translation>케이던스 필터</translation>
+    </message>
+    <message>
+        <source>Save Cadence Filter</source>
+        <translation>케이던스 필터 저장</translation>
     </message>
     <message>
         <source>Ignore FTMS</source>
@@ -5123,6 +6537,14 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>휠 비율:</translation>
     </message>
     <message>
+        <source>Wheel Ratio</source>
+        <translation>휠 비율</translation>
+    </message>
+    <message>
+        <source>Save Wheel Ratio</source>
+        <translation>휠 비율 저장</translation>
+    </message>
+    <message>
         <source>Specific Model:</source>
         <translation>모델:</translation>
     </message>
@@ -5135,12 +6557,36 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>TDF1 IP 주소:</translation>
     </message>
     <message>
+        <source>TDF1 IP</source>
+        <translation>TDF1 IP 주소</translation>
+    </message>
+    <message>
+        <source>Save TDF1 IP</source>
+        <translation>TDF1 IP 주소 저장</translation>
+    </message>
+    <message>
         <source>TDF4 IP:</source>
         <translation>TDF4 IP 주소:</translation>
     </message>
     <message>
+        <source>TDF4 IP</source>
+        <translation>TDF4 IP 주소</translation>
+    </message>
+    <message>
+        <source>Save TDF4 IP</source>
+        <translation>TDF4 IP 주소 저장</translation>
+    </message>
+    <message>
         <source>TDF Companion IP:</source>
         <translation>TDF Companion IP 주소:</translation>
+    </message>
+    <message>
+        <source>TDF Companion IP</source>
+        <translation>TDF Companion IP 주소</translation>
+    </message>
+    <message>
+        <source>Save TDF Companion IP</source>
+        <translation>TDF Companion IP 주소 저장</translation>
     </message>
     <message>
         <source>ADB Remote</source>
@@ -5159,8 +6605,24 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>직렬 포트:</translation>
     </message>
     <message>
+        <source>Serial Port</source>
+        <translation>직렬 포트</translation>
+    </message>
+    <message>
+        <source>Save Serial Port</source>
+        <translation>직렬 포트 저장</translation>
+    </message>
+    <message>
         <source>Kettler USB Bike Options</source>
         <translation>Kettler USB 자전거 옵션</translation>
+    </message>
+    <message>
+        <source>Baudrate</source>
+        <translation>통신 속도(보드레이트)</translation>
+    </message>
+    <message>
+        <source>Save Baudrate</source>
+        <translation>통신 속도(보드레이트) 저장</translation>
     </message>
     <message>
         <source>M3i Bike Options</source>
@@ -5175,8 +6637,24 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>자전거 ID:</translation>
     </message>
     <message>
+        <source>Bike ID</source>
+        <translation>자전거 ID</translation>
+    </message>
+    <message>
+        <source>Save Bike ID</source>
+        <translation>자전거 ID 저장</translation>
+    </message>
+    <message>
         <source>Speed Buffer Size:</source>
         <translation>속도 버퍼 크기:</translation>
+    </message>
+    <message>
+        <source>Speed Buffer Size</source>
+        <translation>속도 버퍼 크기</translation>
+    </message>
+    <message>
+        <source>Save Speed Buffer Size</source>
+        <translation>속도 버퍼 크기 저장</translation>
     </message>
     <message>
         <source>Use KCal from the Bike</source>
@@ -5207,6 +6685,14 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>ANT+ 자전거 기기 번호 (0=자동):</translation>
     </message>
     <message>
+        <source>ANT+ Bike Device Number (0=Auto)</source>
+        <translation>ANT+ 자전거 기기 번호 (0=자동)</translation>
+    </message>
+    <message>
+        <source>Save ANT+ Bike Device Number (0=Auto)</source>
+        <translation>ANT+ 자전거 기기 번호 (0=자동) 저장</translation>
+    </message>
+    <message>
         <source>Toputure Bikes</source>
         <translation>Toputure 자전거</translation>
     </message>
@@ -5235,12 +6721,24 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>ANT+ 속도 보정값</translation>
     </message>
     <message>
+        <source>Save ANT+ Speed Offset</source>
+        <translation>ANT+ 속도 보정값 저장</translation>
+    </message>
+    <message>
         <source>You can increase/decrease your speed sent over ANT+. The number you enter as an Offset adds that amount to your speed.</source>
         <translation>ANT+로 보내는 속도를 높이거나 낮출 수 있습니다. 보정값으로 입력한 숫자만큼 속도에 더해집니다.</translation>
     </message>
     <message>
         <source>ANT+ Speed Gain:</source>
         <translation>ANT+ 속도 배율:</translation>
+    </message>
+    <message>
+        <source>ANT+ Speed Gain</source>
+        <translation>ANT+ 속도 배율</translation>
+    </message>
+    <message>
+        <source>Save ANT+ Speed Gain</source>
+        <translation>ANT+ 속도 배율 저장</translation>
     </message>
     <message>
         <source>You can increase/decrease your speed output sent over ANT+. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.</source>
@@ -5253,6 +6751,14 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>ANT+ Heart Device Number (0=Auto):</source>
         <translation>ANT+ 심박계 기기 번호 (0=자동):</translation>
+    </message>
+    <message>
+        <source>ANT+ Heart Device Number (0=Auto)</source>
+        <translation>ANT+ 심박계 기기 번호 (0=자동)</translation>
+    </message>
+    <message>
+        <source>Save ANT+ Heart Device Number (0=Auto)</source>
+        <translation>ANT+ 심박계 기기 번호 (0=자동) 저장</translation>
     </message>
     <message>
         <source>This setting enables receiving the heart rate from an external HRM over ANT+ instead of from QZ.</source>
@@ -5273,6 +6779,10 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>General UI Options</source>
         <translation>일반 UI 옵션</translation>
+    </message>
+    <message>
+        <source>Save Tile Size</source>
+        <translation>타일 크기 저장</translation>
     </message>
     <message>
         <source>Use System Text Size</source>
@@ -5299,6 +6809,14 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>플로팅 창 유형:</translation>
     </message>
     <message>
+        <source>Floating Window Type</source>
+        <translation>플로팅 창 유형</translation>
+    </message>
+    <message>
+        <source>Save Floating Window Type</source>
+        <translation>플로팅 창 유형 저장</translation>
+    </message>
+    <message>
         <source>Choose the floating window layout type. Classic uses the standard floating.htm file, while Horizontal uses the hfloating.htm file for horizontal layout.</source>
         <translation>플로팅 창 레이아웃 유형을 선택하세요. [클래식]은 표준 floating.htm 파일을, [가로]는 가로 레이아웃용 hfloating.htm 파일을 사용합니다.</translation>
     </message>
@@ -5311,6 +6829,14 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>플로팅 창 너비:</translation>
     </message>
     <message>
+        <source>Floating Window Width</source>
+        <translation>플로팅 창 너비</translation>
+    </message>
+    <message>
+        <source>Save Floating Window Width</source>
+        <translation>플로팅 창 너비 저장</translation>
+    </message>
+    <message>
         <source>Android Only: width of the floating window.</source>
         <translation>Android 전용: 플로팅 창의 너비입니다.</translation>
     </message>
@@ -5319,12 +6845,28 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>플로팅 창 높이:</translation>
     </message>
     <message>
+        <source>Floating Window Height</source>
+        <translation>플로팅 창 높이</translation>
+    </message>
+    <message>
+        <source>Save Floating Window Height</source>
+        <translation>플로팅 창 높이 저장</translation>
+    </message>
+    <message>
         <source>Android Only: height of the floating window.</source>
         <translation>Android 전용: 플로팅 창의 높이입니다.</translation>
     </message>
     <message>
         <source>Floating Window % Transparency:</source>
         <translation>플로팅 창 투명도(%):</translation>
+    </message>
+    <message>
+        <source>Floating Window % Transparency</source>
+        <translation>플로팅 창 투명도(%)</translation>
+    </message>
+    <message>
+        <source>Save Floating Window % Transparency</source>
+        <translation>플로팅 창 투명도(%) 저장</translation>
     </message>
     <message>
         <source>Android Only: transparency percentage of the floating window.</source>
@@ -5347,6 +6889,14 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>그래프 표시 모드:</translation>
     </message>
     <message>
+        <source>Chart Display Mode</source>
+        <translation>그래프 표시 모드</translation>
+    </message>
+    <message>
+        <source>Save Chart Display Mode</source>
+        <translation>그래프 표시 모드 저장</translation>
+    </message>
+    <message>
         <source>Choose which charts to display in the footer: both heart rate and power charts, only heart rate chart, or only power chart.</source>
         <translation>화면 하단에 표시할 그래프를 선택하세요: 심박수와 파워 그래프 모두, 심박수 그래프만, 파워 그래프만.</translation>
     </message>
@@ -5355,8 +6905,24 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>iOS 실시간 현황 왼쪽 지표:</translation>
     </message>
     <message>
+        <source>iOS Live Activity Left Metric</source>
+        <translation>iOS 실시간 현황 왼쪽 지표</translation>
+    </message>
+    <message>
+        <source>Save iOS Live Activity Left Metric</source>
+        <translation>iOS 실시간 현황 왼쪽 지표 저장</translation>
+    </message>
+    <message>
         <source>iOS Live Activity Right Metric:</source>
         <translation>iOS 실시간 현황 오른쪽 지표:</translation>
+    </message>
+    <message>
+        <source>iOS Live Activity Right Metric</source>
+        <translation>iOS 실시간 현황 오른쪽 지표</translation>
+    </message>
+    <message>
+        <source>Save iOS Live Activity Right Metric</source>
+        <translation>iOS 실시간 현황 오른쪽 지표 저장</translation>
     </message>
     <message>
         <source>iOS only: choose which two metrics are shown in the compact Dynamic Island bar for Live Activities. Default is Heart Rate on the left and Watt on the right.</source>
@@ -5375,12 +6941,28 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>배경색:</translation>
     </message>
     <message>
+        <source>Background Color</source>
+        <translation>배경색</translation>
+    </message>
+    <message>
+        <source>Save Background Color</source>
+        <translation>배경색 저장</translation>
+    </message>
+    <message>
         <source>Please choose a color</source>
         <translation>색을 선택하세요</translation>
     </message>
     <message>
         <source>Tiles Background Color:</source>
         <translation>타일 배경색:</translation>
+    </message>
+    <message>
+        <source>Tiles Background Color</source>
+        <translation>타일 배경색</translation>
+    </message>
+    <message>
+        <source>Save Tiles Background Color</source>
+        <translation>타일 배경색 저장</translation>
     </message>
     <message>
         <source>Tiles Shadow</source>
@@ -5391,20 +6973,60 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>타일 그림자 색:</translation>
     </message>
     <message>
+        <source>Tiles Shadow Color</source>
+        <translation>타일 그림자 색</translation>
+    </message>
+    <message>
+        <source>Save Tiles Shadow Color</source>
+        <translation>타일 그림자 색 저장</translation>
+    </message>
+    <message>
         <source>Statusbar Background Color:</source>
         <translation>상태 표시줄 배경색:</translation>
+    </message>
+    <message>
+        <source>Statusbar Background Color</source>
+        <translation>상태 표시줄 배경색</translation>
+    </message>
+    <message>
+        <source>Save Statusbar Background Color</source>
+        <translation>상태 표시줄 배경색 저장</translation>
     </message>
     <message>
         <source>2nd line tile text size:</source>
         <translation>타일 둘째 줄 글자 크기:</translation>
     </message>
     <message>
+        <source>2nd line tile text size</source>
+        <translation>타일 둘째 줄 글자 크기</translation>
+    </message>
+    <message>
+        <source>Save 2nd line tile text size</source>
+        <translation>타일 둘째 줄 글자 크기 저장</translation>
+    </message>
+    <message>
         <source>Peloton Options</source>
         <translation>Peloton 옵션</translation>
     </message>
     <message>
+        <source>Connect to Peloton</source>
+        <translation>Peloton 연결</translation>
+    </message>
+    <message>
+        <source>Opens the Peloton login page</source>
+        <translation>Peloton 로그인 페이지를 엽니다</translation>
+    </message>
+    <message>
         <source>Difficulty:</source>
         <translation>난이도:</translation>
+    </message>
+    <message>
+        <source>Difficulty</source>
+        <translation>난이도</translation>
+    </message>
+    <message>
+        <source>Save Difficulty</source>
+        <translation>난이도 저장</translation>
     </message>
     <message>
         <source>Typically, Peloton coaches call out a range for target incline, resistance and/or speed. Use this setting to choose the difficulty of the target QZ communicates. Difficulty level can be set to lower, upper or average. Click OK.</source>
@@ -5415,12 +7037,28 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>트레드밀 레벨:</translation>
     </message>
     <message>
+        <source>Treadmill Level</source>
+        <translation>트레드밀 레벨</translation>
+    </message>
+    <message>
+        <source>Save Treadmill Level</source>
+        <translation>트레드밀 레벨 저장</translation>
+    </message>
+    <message>
         <source>Difficulty level for Peloton treadmill classes. 1 is easy 10 is hard.</source>
         <translation>Peloton 트레드밀 클래스의 난이도 레벨입니다. 1은 쉬움, 10은 어려움입니다.</translation>
     </message>
     <message>
         <source>Treadmill Walk Level:</source>
         <translation>트레드밀 걷기 레벨:</translation>
+    </message>
+    <message>
+        <source>Treadmill Walk Level</source>
+        <translation>트레드밀 걷기 레벨</translation>
+    </message>
+    <message>
+        <source>Save Treadmill Walk Level</source>
+        <translation>트레드밀 걷기 레벨 저장</translation>
     </message>
     <message>
         <source>Difficulty level for Peloton treadmill walking classes. 1 is easy 10 is hard.</source>
@@ -5431,12 +7069,28 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>걷기 최소 속도:</translation>
     </message>
     <message>
+        <source>Walking Min Speed</source>
+        <translation>걷기 최소 속도</translation>
+    </message>
+    <message>
+        <source>Save Walking Min Speed</source>
+        <translation>걷기 최소 속도 저장</translation>
+    </message>
+    <message>
         <source>Minimum speed for Peloton walking sessions. Set to 0 to disable. Applied to all speed targets in walking workouts.</source>
         <translation>Peloton 걷기 세션의 최소 속도입니다. 0으로 설정하면 사용하지 않습니다. 걷기 운동의 모든 목표 속도에 적용됩니다.</translation>
     </message>
     <message>
         <source>Running Min Speed:</source>
         <translation>달리기 최소 속도:</translation>
+    </message>
+    <message>
+        <source>Running Min Speed</source>
+        <translation>달리기 최소 속도</translation>
+    </message>
+    <message>
+        <source>Save Running Min Speed</source>
+        <translation>달리기 최소 속도 저장</translation>
     </message>
     <message>
         <source>Minimum speed for Peloton running sessions. Set to 0 to disable. Applied to all speed targets in running workouts.</source>
@@ -5447,12 +7101,28 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>로잉 머신 레벨:</translation>
     </message>
     <message>
+        <source>Rower Level</source>
+        <translation>로잉 머신 레벨</translation>
+    </message>
+    <message>
+        <source>Save Rower Level</source>
+        <translation>로잉 머신 레벨 저장</translation>
+    </message>
+    <message>
         <source>Difficulty level for Peloton rower classes. 1 is easy 10 is hard.</source>
         <translation>Peloton 로잉 클래스의 난이도 레벨입니다. 1은 쉬움, 10은 어려움입니다.</translation>
     </message>
     <message>
         <source>PZP Username:</source>
         <translation>PZP 사용자 이름:</translation>
+    </message>
+    <message>
+        <source>PZP Username</source>
+        <translation>PZP 사용자 이름</translation>
+    </message>
+    <message>
+        <source>Save PZP Username</source>
+        <translation>PZP 사용자 이름 저장</translation>
     </message>
     <message>
         <source>As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave (or change back to) the default of “username” (without quotation marks, all lowercase and all one word) until further notice.</source>
@@ -5463,6 +7133,14 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>PZP 비밀번호:</translation>
     </message>
     <message>
+        <source>PZP Password</source>
+        <translation>PZP 비밀번호</translation>
+    </message>
+    <message>
+        <source>Save PZP Password</source>
+        <translation>PZP 비밀번호 저장</translation>
+    </message>
+    <message>
         <source>As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave this setting blank until further notice.</source>
         <translation>2022년 4월 1일부터 Power Zone Pack(PZP) 웹사이트 변경으로 이 기능이 작동하지 않습니다. 추후 공지가 있을 때까지 이 설정을 비워 두세요.</translation>
     </message>
@@ -5471,12 +7149,28 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>변환 배율:</translation>
     </message>
     <message>
+        <source>Conversion Gain</source>
+        <translation>변환 배율</translation>
+    </message>
+    <message>
+        <source>Save Conversion Gain</source>
+        <translation>변환 배율 저장</translation>
+    </message>
+    <message>
         <source>Conversion gain is a multiplier. Use this setting to align the Peloton resistance calculated by QZ with the relative effort required by your bike. In most cases the default values will be correct.</source>
         <translation>변환 배율은 곱하는 값입니다. 이 설정으로 QZ가 계산한 Peloton 저항을 자전거에서 실제로 필요한 운동 강도에 맞추세요. 대부분은 기본값이 맞습니다.</translation>
     </message>
     <message>
         <source>Conversion Offset:</source>
         <translation>변환 보정값:</translation>
+    </message>
+    <message>
+        <source>Conversion Offset</source>
+        <translation>변환 보정값</translation>
+    </message>
+    <message>
+        <source>Save Conversion Offset</source>
+        <translation>변환 보정값 저장</translation>
     </message>
     <message>
         <source>Increases the resistance that QZ displays in the Peloton Resistance tile. If QZ’s calculated conversion from your bike’s resistance scale to Peloton’s seems too low, the number you enter here will be added to the calculated resistance without increasing your effort or actual resistance. (Example: If QZ displays Peloton resistance of 30 and you enter 5, QZ will display 35.)</source>
@@ -5511,6 +7205,14 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>심박수 대신 보낼 지표:</translation>
     </message>
     <message>
+        <source>Override HR Metric</source>
+        <translation>심박수 대신 보낼 지표</translation>
+    </message>
+    <message>
+        <source>Save Override HR Metric</source>
+        <translation>심박수 대신 보낼 지표 저장</translation>
+    </message>
+    <message>
         <source>By default, QZ communicates heart rate to Peloton. Use this setting to change the metric that appears on the Peloton screen.</source>
         <translation>QZ는 기본적으로 Peloton에 심박수를 보냅니다. 이 설정으로 Peloton 화면에 표시될 지표를 바꿀 수 있습니다.</translation>
     </message>
@@ -5519,12 +7221,28 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>Strava의 날짜:</translation>
     </message>
     <message>
+        <source>Date on Strava</source>
+        <translation>Strava의 날짜</translation>
+    </message>
+    <message>
+        <source>Save Date on Strava</source>
+        <translation>Strava의 날짜 저장</translation>
+    </message>
+    <message>
         <source>Allows you to choose whether you would like the Peloton class air date to display before or after the class title on Strava.</source>
         <translation>Strava에서 Peloton 클래스의 방송 날짜를 클래스 제목 앞에 표시할지 뒤에 표시할지 선택합니다.</translation>
     </message>
     <message>
         <source>Date Format:</source>
         <translation>날짜 형식:</translation>
+    </message>
+    <message>
+        <source>Date Format</source>
+        <translation>날짜 형식</translation>
+    </message>
+    <message>
+        <source>Save Date Format</source>
+        <translation>날짜 형식 저장</translation>
     </message>
     <message>
         <source>Activity Link in Strava</source>
@@ -5567,12 +7285,28 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>사용자 이름:</translation>
     </message>
     <message>
+        <source>Username</source>
+        <translation>사용자 이름</translation>
+    </message>
+    <message>
+        <source>Save Username</source>
+        <translation>사용자 이름 저장</translation>
+    </message>
+    <message>
         <source>Enter the email address you use to login to Zwift. Ensure there are no spaces before or after your email. Click OK.</source>
         <translation>Zwift 로그인에 사용하는 이메일 주소를 입력하세요. 이메일 앞뒤에 공백이 없는지 확인하고 [확인]을 누르세요.</translation>
     </message>
     <message>
         <source>Password:</source>
         <translation>비밀번호:</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>비밀번호</translation>
+    </message>
+    <message>
+        <source>Save Password</source>
+        <translation>비밀번호 저장</translation>
     </message>
     <message>
         <source>Enter the password you use to login to Zwift. Click OK.</source>
@@ -5605,6 +7339,14 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Poll Time:</source>
         <translation>업데이트 간격:</translation>
+    </message>
+    <message>
+        <source>Poll Time</source>
+        <translation>업데이트 간격</translation>
+    </message>
+    <message>
+        <source>Save Poll Time</source>
+        <translation>업데이트 간격 저장</translation>
     </message>
     <message>
         <source>Define the number of delay seconds between each inclination change from Zwift. This value can&apos;t be less than 5. Default: 5</source>
@@ -5693,6 +7435,26 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Garmin Email:</source>
         <translation>Garmin 이메일:</translation>
+    </message>
+    <message>
+        <source>Garmin Email</source>
+        <translation>Garmin 이메일</translation>
+    </message>
+    <message>
+        <source>Save Garmin Email</source>
+        <translation>Garmin 이메일 저장</translation>
+    </message>
+    <message>
+        <source>Garmin Password</source>
+        <translation>Garmin 비밀번호</translation>
+    </message>
+    <message>
+        <source>Save Garmin Password</source>
+        <translation>Garmin 비밀번호 저장</translation>
+    </message>
+    <message>
+        <source>Garmin Server</source>
+        <translation>Garmin 서버</translation>
     </message>
     <message>
         <source>Test Garmin Login</source>
@@ -6066,6 +7828,218 @@ Please enter it below:</source>
         <translation>경사도</translation>
     </message>
     <message>
+        <source>PID on Heart Zone</source>
+        <translation>심박수 유지(PID) 존</translation>
+    </message>
+    <message>
+        <source>Save PID on Heart Zone</source>
+        <translation>심박수 유지(PID) 존 저장</translation>
+    </message>
+    <message>
+        <source>Save PID HR actuator</source>
+        <translation>심박수 유지(PID) 조절 대상 저장</translation>
+    </message>
+    <message>
+        <source>PID on HR min</source>
+        <translation>심박수 유지(PID) 최소</translation>
+    </message>
+    <message>
+        <source>Save PID on HR min</source>
+        <translation>심박수 유지(PID) 최소 저장</translation>
+    </message>
+    <message>
+        <source>PID on HR max</source>
+        <translation>심박수 유지(PID) 최대</translation>
+    </message>
+    <message>
+        <source>Save PID on HR max</source>
+        <translation>심박수 유지(PID) 최대 저장</translation>
+    </message>
+    <message>
+        <source>1 mile pace (total time)</source>
+        <translation>1마일 페이스(총 시간)</translation>
+    </message>
+    <message>
+        <source>Save 1 mile pace (total time)</source>
+        <translation>1마일 페이스(총 시간) 저장</translation>
+    </message>
+    <message>
+        <source>5 km pace (total time)</source>
+        <translation>5 km 페이스(총 시간)</translation>
+    </message>
+    <message>
+        <source>Save 5 km pace (total time)</source>
+        <translation>5 km 페이스(총 시간) 저장</translation>
+    </message>
+    <message>
+        <source>10 km pace (total time)</source>
+        <translation>10 km 페이스(총 시간)</translation>
+    </message>
+    <message>
+        <source>Save 10 km pace (total time)</source>
+        <translation>10 km 페이스(총 시간) 저장</translation>
+    </message>
+    <message>
+        <source>Half Marathon pace (total time)</source>
+        <translation>하프 마라톤 페이스(총 시간)</translation>
+    </message>
+    <message>
+        <source>Save Half Marathon pace (total time)</source>
+        <translation>하프 마라톤 페이스(총 시간) 저장</translation>
+    </message>
+    <message>
+        <source>Marathon pace (total time)</source>
+        <translation>마라톤 페이스(총 시간)</translation>
+    </message>
+    <message>
+        <source>Save Marathon pace (total time)</source>
+        <translation>마라톤 페이스(총 시간) 저장</translation>
+    </message>
+    <message>
+        <source>Default Pace</source>
+        <translation>기본 페이스</translation>
+    </message>
+    <message>
+        <source>Save Default Pace</source>
+        <translation>기본 페이스 저장</translation>
+    </message>
+    <message>
+        <source>ERG Mode Watt Step</source>
+        <translation>ERG 모드 파워 단계</translation>
+    </message>
+    <message>
+        <source>Save ERG Mode Watt Step</source>
+        <translation>ERG 모드 파워 단계 저장</translation>
+    </message>
+    <message>
+        <source>Duration (minutes)</source>
+        <translation>지속 시간(분)</translation>
+    </message>
+    <message>
+        <source>Save Duration (minutes)</source>
+        <translation>지속 시간(분) 저장</translation>
+    </message>
+    <message>
+        <source>Period (seconds)</source>
+        <translation>주기(초)</translation>
+    </message>
+    <message>
+        <source>Save Period (seconds)</source>
+        <translation>주기(초) 저장</translation>
+    </message>
+    <message>
+        <source>Speed min.</source>
+        <translation>최소 속도</translation>
+    </message>
+    <message>
+        <source>Save Speed min.</source>
+        <translation>최소 속도 저장</translation>
+    </message>
+    <message>
+        <source>Speed max.</source>
+        <translation>최대 속도</translation>
+    </message>
+    <message>
+        <source>Save Speed max.</source>
+        <translation>최대 속도 저장</translation>
+    </message>
+    <message>
+        <source>Incline min.</source>
+        <translation>최소 경사도</translation>
+    </message>
+    <message>
+        <source>Save Incline min.</source>
+        <translation>최소 경사도 저장</translation>
+    </message>
+    <message>
+        <source>Incline max.</source>
+        <translation>최대 경사도</translation>
+    </message>
+    <message>
+        <source>Save Incline max.</source>
+        <translation>최대 경사도 저장</translation>
+    </message>
+    <message>
+        <source>Resistance min.</source>
+        <translation>최소 저항</translation>
+    </message>
+    <message>
+        <source>Save Resistance min.</source>
+        <translation>최소 저항 저장</translation>
+    </message>
+    <message>
+        <source>Resistance max.</source>
+        <translation>최대 저항</translation>
+    </message>
+    <message>
+        <source>Save Resistance max.</source>
+        <translation>최대 저항 저장</translation>
+    </message>
+    <message>
+        <source>Speed Step</source>
+        <translation>속도 단계</translation>
+    </message>
+    <message>
+        <source>Save Speed Step</source>
+        <translation>속도 단계 저장</translation>
+    </message>
+    <message>
+        <source>Min. Inclination</source>
+        <translation>최소 경사도</translation>
+    </message>
+    <message>
+        <source>Save Min. Inclination</source>
+        <translation>최소 경사도 저장</translation>
+    </message>
+    <message>
+        <source>Max. Inclination</source>
+        <translation>최대 경사도</translation>
+    </message>
+    <message>
+        <source>Save Max. Inclination</source>
+        <translation>최대 경사도 저장</translation>
+    </message>
+    <message>
+        <source>Max. Speed</source>
+        <translation>최대 속도</translation>
+    </message>
+    <message>
+        <source>Save Max. Speed</source>
+        <translation>최대 속도 저장</translation>
+    </message>
+    <message>
+        <source>Min. Speed</source>
+        <translation>최소 속도</translation>
+    </message>
+    <message>
+        <source>Save Min. Speed</source>
+        <translation>최소 속도 저장</translation>
+    </message>
+    <message>
+        <source>Step Count Gain</source>
+        <translation>걸음 수 배율</translation>
+    </message>
+    <message>
+        <source>Save Step Count Gain</source>
+        <translation>걸음 수 배율 저장</translation>
+    </message>
+    <message>
+        <source>Proform IP</source>
+        <translation>Proform IP 주소</translation>
+    </message>
+    <message>
+        <source>Save Proform IP</source>
+        <translation>Proform IP 주소 저장</translation>
+    </message>
+    <message>
+        <source>Nordictrack 2950 IP</source>
+        <translation>Nordictrack 2950 IP 주소</translation>
+    </message>
+    <message>
+        <source>Save Nordictrack 2950 IP</source>
+        <translation>Nordictrack 2950 IP 주소 저장</translation>
+    </message>
+    <message>
         <source>Echelon Options</source>
         <translation>Echelon 옵션</translation>
     </message>
@@ -6080,6 +8054,22 @@ Please enter it below:</source>
     <message>
         <source>Enable handling of physical Start/Pause/Stop buttons on the treadmill hardware</source>
         <translation>트레드밀 본체의 시작/일시 중지/중지 버튼 입력 처리</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email</source>
+        <translation>Life Fitness 사용자 이름/이메일</translation>
+    </message>
+    <message>
+        <source>Save Life Fitness username/email</source>
+        <translation>Life Fitness 사용자 이름/이메일 저장</translation>
+    </message>
+    <message>
+        <source>Life Fitness password</source>
+        <translation>Life Fitness 비밀번호</translation>
+    </message>
+    <message>
+        <source>Save Life Fitness password</source>
+        <translation>Life Fitness 비밀번호 저장</translation>
     </message>
     <message>
         <source>RunnerT Options</source>
@@ -6118,20 +8108,60 @@ Please enter it below:</source>
         <translation>5 km/h 버튼 재지정:</translation>
     </message>
     <message>
+        <source>Remap 5 km/h button</source>
+        <translation>5 km/h 버튼 재지정</translation>
+    </message>
+    <message>
+        <source>Save Remap 5 km/h button</source>
+        <translation>5 km/h 버튼 재지정 저장</translation>
+    </message>
+    <message>
         <source>Remap 10 km/h button:</source>
         <translation>10 km/h 버튼 재지정:</translation>
+    </message>
+    <message>
+        <source>Remap 10 km/h button</source>
+        <translation>10 km/h 버튼 재지정</translation>
+    </message>
+    <message>
+        <source>Save Remap 10 km/h button</source>
+        <translation>10 km/h 버튼 재지정 저장</translation>
     </message>
     <message>
         <source>Remap 16 km/h button:</source>
         <translation>16 km/h 버튼 재지정:</translation>
     </message>
     <message>
+        <source>Remap 16 km/h button</source>
+        <translation>16 km/h 버튼 재지정</translation>
+    </message>
+    <message>
+        <source>Save Remap 16 km/h button</source>
+        <translation>16 km/h 버튼 재지정 저장</translation>
+    </message>
+    <message>
         <source>Remap 22 km/h button:</source>
         <translation>22 km/h 버튼 재지정:</translation>
     </message>
     <message>
+        <source>Remap 22 km/h button</source>
+        <translation>22 km/h 버튼 재지정</translation>
+    </message>
+    <message>
+        <source>Save Remap 22 km/h button</source>
+        <translation>22 km/h 버튼 재지정 저장</translation>
+    </message>
+    <message>
         <source>Pool time (ms):</source>
         <translation>업데이트 간격(ms):</translation>
+    </message>
+    <message>
+        <source>Pool time (ms)</source>
+        <translation>업데이트 간격(ms)</translation>
+    </message>
+    <message>
+        <source>Save Pool time (ms)</source>
+        <translation>업데이트 간격(ms) 저장</translation>
     </message>
     <message>
         <source>Default: 200. Change this only if you have random issues with speed or inclination (try to put 300)</source>
@@ -6168,6 +8198,14 @@ Please enter it below:</source>
     <message>
         <source>User ID:</source>
         <translation>사용자 ID:</translation>
+    </message>
+    <message>
+        <source>User ID</source>
+        <translation>사용자 ID</translation>
+    </message>
+    <message>
+        <source>Save User ID</source>
+        <translation>사용자 ID 저장</translation>
     </message>
     <message>
         <source>ESLinker Treadmill Options</source>
@@ -6210,20 +8248,60 @@ Please enter it below:</source>
         <translation>사용자 1:</translation>
     </message>
     <message>
+        <source>User 1</source>
+        <translation>사용자 1</translation>
+    </message>
+    <message>
+        <source>Save User 1</source>
+        <translation>사용자 1 저장</translation>
+    </message>
+    <message>
         <source>User 2:</source>
         <translation>사용자 2:</translation>
+    </message>
+    <message>
+        <source>User 2</source>
+        <translation>사용자 2</translation>
+    </message>
+    <message>
+        <source>Save User 2</source>
+        <translation>사용자 2 저장</translation>
     </message>
     <message>
         <source>User 3:</source>
         <translation>사용자 3:</translation>
     </message>
     <message>
+        <source>User 3</source>
+        <translation>사용자 3</translation>
+    </message>
+    <message>
+        <source>Save User 3</source>
+        <translation>사용자 3 저장</translation>
+    </message>
+    <message>
         <source>User 4:</source>
         <translation>사용자 4:</translation>
     </message>
     <message>
+        <source>User 4</source>
+        <translation>사용자 4</translation>
+    </message>
+    <message>
+        <source>Save User 4</source>
+        <translation>사용자 4 저장</translation>
+    </message>
+    <message>
         <source>User 5:</source>
         <translation>사용자 5:</translation>
+    </message>
+    <message>
+        <source>User 5</source>
+        <translation>사용자 5</translation>
+    </message>
+    <message>
+        <source>Save User 5</source>
+        <translation>사용자 5 저장</translation>
     </message>
     <message>
         <source>Bodytone Treadmill Options</source>
@@ -6322,6 +8400,14 @@ Please enter it below:</source>
         <translation>ProForm 로잉 머신 IP 주소:</translation>
     </message>
     <message>
+        <source>ProForm Rower IP</source>
+        <translation>ProForm 로잉 머신 IP 주소</translation>
+    </message>
+    <message>
+        <source>Save ProForm Rower IP</source>
+        <translation>ProForm 로잉 머신 IP 주소 저장</translation>
+    </message>
+    <message>
         <source>Elliptical Options</source>
         <translation>일립티컬 옵션</translation>
     </message>
@@ -6332,6 +8418,10 @@ Please enter it below:</source>
     <message>
         <source>Speed Ratio:</source>
         <translation>속도 비율:</translation>
+    </message>
+    <message>
+        <source>Save Domyos Elliptical Speed Ratio</source>
+        <translation>Domyos 일립티컬 속도 비율 저장</translation>
     </message>
     <message>
         <source>Inclination Supported</source>
@@ -6356,6 +8446,14 @@ Please enter it below:</source>
     <message>
         <source>Companion IP:</source>
         <translation>Companion IP 주소:</translation>
+    </message>
+    <message>
+        <source>Companion IP</source>
+        <translation>Companion IP 주소</translation>
+    </message>
+    <message>
+        <source>Save Companion IP</source>
+        <translation>Companion IP 주소 저장</translation>
     </message>
     <message>
         <source>Sole Elliptical Options</source>
@@ -6398,12 +8496,28 @@ Please enter it below:</source>
         <translation>파워 보정값:</translation>
     </message>
     <message>
+        <source>Watt Offset</source>
+        <translation>파워 보정값</translation>
+    </message>
+    <message>
+        <source>Save Watt Offset</source>
+        <translation>파워 보정값 저장</translation>
+    </message>
+    <message>
         <source>You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. The number you enter as an Offset adds that amount to your watts.</source>
         <translation>Zwift 같은 앱에서 아바타가 더 빠르게/느리게 움직이도록 출력 파워를 늘리거나 줄여 기구를 보정할 수 있습니다. 보정값으로 입력한 숫자만큼 파워에 더해집니다.</translation>
     </message>
     <message>
         <source>Watt Gain:</source>
         <translation>파워 배율:</translation>
+    </message>
+    <message>
+        <source>Watt Gain</source>
+        <translation>파워 배율</translation>
+    </message>
+    <message>
+        <source>Save Watt Gain</source>
+        <translation>파워 배율 저장</translation>
     </message>
     <message>
         <source>You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. For example, to use a rower to cycle in Zwift, you could double your watt output to better match your cycling speed by entering 2. The number you enter is a multiplier applied to your actual watts.</source>
@@ -6414,12 +8528,24 @@ Please enter it below:</source>
         <translation>속도 보정값</translation>
     </message>
     <message>
+        <source>Save Speed Offset</source>
+        <translation>속도 보정값 저장</translation>
+    </message>
+    <message>
         <source>You can increase/decrease your speed for moving your avatar faster/slower in Zwift if your equipment outputs speed but not watts. The number you enter as an Offset adds that amount to your speed.</source>
         <translation>기구가 파워 없이 속도만 보낸다면 Zwift에서 아바타가 더 빠르게/느리게 움직이도록 속도를 늘리거나 줄일 수 있습니다. 보정값으로 입력한 숫자만큼 속도에 더해집니다.</translation>
     </message>
     <message>
         <source>Speed Gain:</source>
         <translation>속도 배율:</translation>
+    </message>
+    <message>
+        <source>Speed Gain</source>
+        <translation>속도 배율</translation>
+    </message>
+    <message>
+        <source>Save Speed Gain</source>
+        <translation>속도 배율 저장</translation>
     </message>
     <message>
         <source>You can increase/decrease your speed output for moving your avatar faster/slower in Zwift or other apps as a way of calibrating your equipment if your equipment outputs speed but not watts. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.</source>
@@ -6430,12 +8556,20 @@ Please enter it below:</source>
         <translation>케이던스 보정값</translation>
     </message>
     <message>
+        <source>Save Cadence Offset</source>
+        <translation>케이던스 보정값 저장</translation>
+    </message>
+    <message>
         <source>You can increase/decrease your cadence output. The number you enter as an Offset adds that amount to your cadence.</source>
         <translation>출력 케이던스를 늘리거나 줄일 수 있습니다. 보정값으로 입력한 숫자만큼 케이던스에 더해집니다.</translation>
     </message>
     <message>
         <source>Cadence Gain:</source>
         <translation>케이던스 배율:</translation>
+    </message>
+    <message>
+        <source>Save Cadence Gain</source>
+        <translation>케이던스 배율 저장</translation>
     </message>
     <message>
         <source>You can increase/decrease your cadence output as a way of calibrating your equipment if your equipment outputs cadence but not watts. The number you enter is a multiplier applied to your actual cadence.</source>
@@ -6450,8 +8584,24 @@ Please enter it below:</source>
         <translation>Strava 업로드:</translation>
     </message>
     <message>
+        <source>Strava Upload</source>
+        <translation>Strava 업로드</translation>
+    </message>
+    <message>
+        <source>Save Strava Upload</source>
+        <translation>Strava 업로드 저장</translation>
+    </message>
+    <message>
         <source>Suffix activity:</source>
         <translation>활동 이름 접미사:</translation>
+    </message>
+    <message>
+        <source>Suffix activity</source>
+        <translation>활동 이름 접미사</translation>
+    </message>
+    <message>
+        <source>Save Suffix activity</source>
+        <translation>활동 이름 접미사 저장</translation>
     </message>
     <message>
         <source>Default is “QZ.” Please leave this set to default so that other Strava users will see the QZ; a tiny bit of advertising that helps promote the app and support its development. If you choose to remove it, please consider contributing to the developer’s Patreon or Buy Me a Coffee accounts or just subscribe to the Swag bag in the left side bar to allow me to continue developing and supporting the app.</source>
@@ -6510,6 +8660,10 @@ Please enter it below:</source>
         <translation>파워 평균화 모드:</translation>
     </message>
     <message>
+        <source>Power Averaging Mode</source>
+        <translation>파워 평균화 모드</translation>
+    </message>
+    <message>
         <source>If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. Uses harmonic averaging which smooths power spikes better than arithmetic averaging. If any reading is 0, power immediately becomes 0. Default is Off.
 
 IMPORTANT NOTES:
@@ -6546,12 +8700,28 @@ IMPORTANT NOTES:
         <translation>Zwift 경사도 보정값:</translation>
     </message>
     <message>
+        <source>Zwift Inclination Offset</source>
+        <translation>Zwift 경사도 보정값</translation>
+    </message>
+    <message>
+        <source>Save Zwift Inclination Offset</source>
+        <translation>Zwift 경사도 보정값 저장</translation>
+    </message>
+    <message>
         <source>Inclination Offset and Gain are used to adjust the incline set by Zwift instead of, or in addition to, using the QZ Zwift Gain setting. For example, when Zwift changes the incline to 1%, you can have your treadmill change to 2%. The number you enter as an offset adds to the inclination sent from Zwift or any other 3rd party app. Default is 0.</source>
         <translation>경사도 보정값과 배율은 QZ의 Zwift 배율 설정 대신 또는 그와 함께 Zwift가 설정한 경사도를 조정하는 데 사용합니다. 예를 들어 Zwift가 경사도를 1%로 바꿀 때 트레드밀은 2%로 바뀌게 할 수 있습니다. 보정값으로 입력한 숫자는 Zwift 또는 다른 타사 앱이 보낸 경사도에 더해집니다. 기본값: 0.</translation>
     </message>
     <message>
         <source>Zwift Inclination Gain:</source>
         <translation>Zwift 경사도 배율:</translation>
+    </message>
+    <message>
+        <source>Zwift Inclination Gain</source>
+        <translation>Zwift 경사도 배율</translation>
+    </message>
+    <message>
+        <source>Save Zwift Inclination Gain</source>
+        <translation>Zwift 경사도 배율 저장</translation>
     </message>
     <message>
         <source>The number you enter as a Gain is a multiplier applied to the inclination sent from Zwift or any other 3rd party app. Default is 1.</source>
@@ -6562,12 +8732,28 @@ IMPORTANT NOTES:
         <translation>최소 경사도:</translation>
     </message>
     <message>
+        <source>Minimum Inclination</source>
+        <translation>최소 경사도</translation>
+    </message>
+    <message>
+        <source>Save Minimum Inclination</source>
+        <translation>최소 경사도 저장</translation>
+    </message>
+    <message>
         <source>If you don&apos;t want to go below a certain inclination value for bikes and treadmill set the min. value here. Default: -999.</source>
         <translation>자전거와 트레드밀에서 특정 경사도 아래로 내려가지 않게 하려면 여기에 최솟값을 설정하세요. 기본값: -999.</translation>
     </message>
     <message>
         <source>Inclination Step:</source>
         <translation>경사도 단계:</translation>
+    </message>
+    <message>
+        <source>Inclination Step</source>
+        <translation>경사도 단계</translation>
+    </message>
+    <message>
+        <source>Save Inclination Step</source>
+        <translation>경사도 단계 저장</translation>
     </message>
     <message>
         <source>(Incline Tile) This controls the amount of the increase or decrease in the inclination when you press the plus or minus button in the Incline Tile for both treadmills and bikes. Default is 0.5.</source>
@@ -6602,8 +8788,24 @@ IMPORTANT NOTES:
         <translation>거리별 자동 랩:</translation>
     </message>
     <message>
+        <source>AutoLap on Distance</source>
+        <translation>거리별 자동 랩</translation>
+    </message>
+    <message>
+        <source>Save AutoLap on Distance</source>
+        <translation>거리별 자동 랩 저장</translation>
+    </message>
+    <message>
         <source>Inclination Delay:</source>
         <translation>경사도 지연:</translation>
+    </message>
+    <message>
+        <source>Inclination Delay</source>
+        <translation>경사도 지연</translation>
+    </message>
+    <message>
+        <source>Save Inclination Delay</source>
+        <translation>경사도 지연 저장</translation>
     </message>
     <message>
         <source>This slow down the inclination changes adding a delay between each change. This is not applied to all the model of treadmill/bike. Default is 0.</source>
@@ -6662,16 +8864,48 @@ IMPORTANT NOTES:
         <translation>저항 레벨 1:</translation>
     </message>
     <message>
+        <source>Resistance Level 1</source>
+        <translation>저항 레벨 1</translation>
+    </message>
+    <message>
+        <source>Save Resistance Level 1</source>
+        <translation>저항 레벨 1 저장</translation>
+    </message>
+    <message>
         <source>Watt 1:</source>
         <translation>파워 1:</translation>
+    </message>
+    <message>
+        <source>Watt 1</source>
+        <translation>파워 1</translation>
+    </message>
+    <message>
+        <source>Save Watt 1</source>
+        <translation>파워 1 저장</translation>
     </message>
     <message>
         <source>Resistance Level 2:</source>
         <translation>저항 레벨 2:</translation>
     </message>
     <message>
+        <source>Resistance Level 2</source>
+        <translation>저항 레벨 2</translation>
+    </message>
+    <message>
+        <source>Save Resistance Level 2</source>
+        <translation>저항 레벨 2 저장</translation>
+    </message>
+    <message>
         <source>Watt 2:</source>
         <translation>파워 2:</translation>
+    </message>
+    <message>
+        <source>Watt 2</source>
+        <translation>파워 2</translation>
+    </message>
+    <message>
+        <source>Save Watt 2</source>
+        <translation>파워 2 저장</translation>
     </message>
     <message>
         <source>QZ will build a linear equation from the two resistance/watt points and clamp the effective resistance using the existing Min. Resistance and Max. Resistance settings.</source>
@@ -6798,6 +9032,14 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
         <translation>난이도/배율:</translation>
     </message>
     <message>
+        <source>Difficulty/Gain</source>
+        <translation>난이도/배율</translation>
+    </message>
+    <message>
+        <source>Save Difficulty/Gain</source>
+        <translation>난이도/배율 저장</translation>
+    </message>
+    <message>
         <source>Elite Sterzo Smart Options</source>
         <translation>Elite Sterzo Smart 옵션</translation>
     </message>
@@ -6818,12 +9060,24 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
         <translation>변속 단계</translation>
     </message>
     <message>
+        <source>Save Shift Step</source>
+        <translation>변속 단계 저장</translation>
+    </message>
+    <message>
         <source>Max Resistance</source>
         <translation>최대 저항</translation>
     </message>
     <message>
+        <source>Save Max Resistance</source>
+        <translation>최대 저항 저장</translation>
+    </message>
+    <message>
         <source>Min Resistance</source>
         <translation>최소 저항</translation>
+    </message>
+    <message>
+        <source>Save Min Resistance</source>
+        <translation>최소 저항 저장</translation>
     </message>
     <message>
         <source>Advanced SmartSpin2k Calibration</source>
@@ -6834,32 +9088,64 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
         <translation>저항 측정값 1</translation>
     </message>
     <message>
+        <source>Save Resistance Sample 1</source>
+        <translation>저항 측정값 1 저장</translation>
+    </message>
+    <message>
         <source>Shift Step Sample 1</source>
         <translation>변속 단계 측정값 1</translation>
+    </message>
+    <message>
+        <source>Save Shift Step Sample 1</source>
+        <translation>변속 단계 측정값 1 저장</translation>
     </message>
     <message>
         <source>Resistance Sample 2</source>
         <translation>저항 측정값 2</translation>
     </message>
     <message>
+        <source>Save Resistance Sample 2</source>
+        <translation>저항 측정값 2 저장</translation>
+    </message>
+    <message>
         <source>Shift Step Sample 2</source>
         <translation>변속 단계 측정값 2</translation>
+    </message>
+    <message>
+        <source>Save Shift Step Sample 2</source>
+        <translation>변속 단계 측정값 2 저장</translation>
     </message>
     <message>
         <source>Resistance Sample 3</source>
         <translation>저항 측정값 3</translation>
     </message>
     <message>
+        <source>Save Resistance Sample 3</source>
+        <translation>저항 측정값 3 저장</translation>
+    </message>
+    <message>
         <source>Shift Step Sample 3</source>
         <translation>변속 단계 측정값 3</translation>
+    </message>
+    <message>
+        <source>Save Shift Step Sample 3</source>
+        <translation>변속 단계 측정값 3 저장</translation>
     </message>
     <message>
         <source>Resistance Sample 4</source>
         <translation>저항 측정값 4</translation>
     </message>
     <message>
+        <source>Save Resistance Sample 4</source>
+        <translation>저항 측정값 4 저장</translation>
+    </message>
+    <message>
         <source>Shift Step Sample 4</source>
         <translation>변속 단계 측정값 4</translation>
+    </message>
+    <message>
+        <source>Save Shift Step Sample 4</source>
+        <translation>변속 단계 측정값 4 저장</translation>
     </message>
     <message>
         <source>Fitmetria Fitfan™ Options</source>
@@ -6874,12 +9160,36 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
         <translation>모드:</translation>
     </message>
     <message>
+        <source>Mode</source>
+        <translation>모드</translation>
+    </message>
+    <message>
+        <source>Save Mode</source>
+        <translation>모드 저장</translation>
+    </message>
+    <message>
         <source>Min. value (0-100):</source>
         <translation>최솟값 (0-100):</translation>
     </message>
     <message>
+        <source>Min. value (0-100)</source>
+        <translation>최솟값 (0-100)</translation>
+    </message>
+    <message>
+        <source>Save Min. value (0-100)</source>
+        <translation>최솟값 (0-100) 저장</translation>
+    </message>
+    <message>
         <source>Max value (0-100):</source>
         <translation>최댓값 (0-100):</translation>
+    </message>
+    <message>
+        <source>Max value (0-100)</source>
+        <translation>최댓값 (0-100)</translation>
+    </message>
+    <message>
+        <source>Save Max value (0-100)</source>
+        <translation>최댓값 (0-100) 저장</translation>
     </message>
     <message>
         <source>Wahoo Kickr HeadWind Options</source>
@@ -6976,6 +9286,14 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
     <message>
         <source>Maps Type:</source>
         <translation>지도 유형:</translation>
+    </message>
+    <message>
+        <source>Maps Type</source>
+        <translation>지도 유형</translation>
+    </message>
+    <message>
+        <source>Save Maps Type</source>
+        <translation>지도 유형 저장</translation>
     </message>
     <message>
         <source>Loop Start-End-Start</source>
@@ -7106,12 +9424,36 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
         <translation>ID:</translation>
     </message>
     <message>
+        <source>Wahoo device ID</source>
+        <translation>Wahoo 기기 ID</translation>
+    </message>
+    <message>
+        <source>Virtual Wahoo device ID. Change if you have multiple QZ instances. Default: 0</source>
+        <translation>가상 Wahoo 기기의 ID입니다. QZ를 여러 개 실행할 때 바꾸세요. 기본값: 0</translation>
+    </message>
+    <message>
+        <source>Save Wahoo device ID</source>
+        <translation>Wahoo 기기 ID 저장</translation>
+    </message>
+    <message>
         <source>If you have multiple QZ instances, you can change the id of the virtual wahoo device. Default: 0</source>
         <translation>QZ를 여러 개 실행하는 경우 가상 Wahoo 기기의 ID를 바꿀 수 있습니다. 기본값: 0</translation>
     </message>
     <message>
         <source>Server Port:</source>
         <translation>서버 포트:</translation>
+    </message>
+    <message>
+        <source>Wahoo direct connect server port</source>
+        <translation>Wahoo 직접 연결 서버 포트</translation>
+    </message>
+    <message>
+        <source>TCP port for the Wahoo direct connect server. Default: 36866</source>
+        <translation>Wahoo 직접 연결 서버의 TCP 포트입니다. 기본값: 36866</translation>
+    </message>
+    <message>
+        <source>Save server port</source>
+        <translation>서버 포트 저장</translation>
     </message>
     <message>
         <source>MQTT Settings</source>
@@ -7122,12 +9464,28 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
         <translation>MQTT 호스트:</translation>
     </message>
     <message>
+        <source>MQTT Host</source>
+        <translation>MQTT 호스트</translation>
+    </message>
+    <message>
+        <source>Save MQTT Host</source>
+        <translation>MQTT 호스트 저장</translation>
+    </message>
+    <message>
         <source>Enter the MQTT broker hostname or IP address</source>
         <translation>MQTT 브로커의 호스트 이름 또는 IP 주소를 입력하세요</translation>
     </message>
     <message>
         <source>MQTT Port:</source>
         <translation>MQTT 포트:</translation>
+    </message>
+    <message>
+        <source>MQTT Port</source>
+        <translation>MQTT 포트</translation>
+    </message>
+    <message>
+        <source>Save MQTT Port</source>
+        <translation>MQTT 포트 저장</translation>
     </message>
     <message>
         <source>Enter the MQTT broker port (default: 1883)</source>
@@ -7146,6 +9504,14 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
         <translation>기기 ID:</translation>
     </message>
     <message>
+        <source>Device ID</source>
+        <translation>기기 ID</translation>
+    </message>
+    <message>
+        <source>Save Device ID</source>
+        <translation>기기 ID 저장</translation>
+    </message>
+    <message>
         <source>Enter a unique device identifier for MQTT client</source>
         <translation>MQTT 클라이언트의 고유한 기기 식별자를 입력하세요</translation>
     </message>
@@ -7158,8 +9524,24 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
         <translation>OSC IP 주소:</translation>
     </message>
     <message>
+        <source>OSC IP</source>
+        <translation>OSC IP 주소</translation>
+    </message>
+    <message>
+        <source>Save OSC IP</source>
+        <translation>OSC IP 주소 저장</translation>
+    </message>
+    <message>
         <source>OSC Port:</source>
         <translation>OSC 포트:</translation>
+    </message>
+    <message>
+        <source>OSC Port</source>
+        <translation>OSC 포트</translation>
+    </message>
+    <message>
+        <source>Save OSC Port</source>
+        <translation>OSC 포트 저장</translation>
     </message>
     <message>
         <source>Race Mode</source>
@@ -7291,7 +9673,15 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
     </message>
     <message>
         <source>Hidden on its page right now: change it here</source>
-        <translation>현재 원래 페이지에서 숨겨져 있습니다: 여기에서 변경하세요</translation>
+        <translation type="vanished">현재 원래 페이지에서 숨겨져 있습니다: 여기에서 변경하세요</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>켬</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>현재 설정에서는 원래 페이지에서 숨겨져 있습니다</translation>
     </message>
     <message>
         <source>Turn on “%1” to change this setting</source>
@@ -7893,6 +10283,34 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation>iOS 전용. 화면이 꺼져 있거나 QZ가 백그라운드에 있을 때도 QZ가 계속 실행되도록 해 Bluetooth 연결과 세션 타이머가 멈추지 않게 합니다. 음악과 함께 재생되는 무음 오디오 트랙을 사용하므로 듣고 있는 음악이 끊기지 않습니다. 화면을 잠근 상태나 QZ를 백그라운드에 둔 상태로 운동해야 한다면 켜세요. 기본값: 꺼짐.</translation>
     </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Daum 자전거 옵션</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>8008 TRS 3 같은 기존 Daum 에르고미터에 사용하는 직렬 포트입니다. Android에서 USB-직렬 어댑터를 사용할 경우 &apos;usb&apos;를 입력하세요. COM1, COM2 등은 Android에서 USB 어댑터 검색을 위한 별칭으로 허용되지만 Android 포트 이름은 아닙니다. Windows에서는 COM1 또는 COM3을, Linux/macOS에서는 /dev/ttyUSB0 같은 직렬 장치 경로를 사용하세요.</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>저항 조회 지연:</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>경사 지연 설정을 사용해 QZ가 Daum에 저항 및 파워 업데이트를 보내는 빈도를 제한합니다. 기본값: 0초.</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>경사 필터 (%):</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>GPX 운동에서 이 값보다 작은 경사 변화는 무시하고, 마지막으로 전송한 값과의 차이가 설정된 임계값에 도달했을 때만 새 경사 명령을 보냅니다. 기본값: 0(비활성화).</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>콘솔 기어 사용</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>
@@ -8326,6 +10744,10 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
     <message>
         <source>It shows 2 big gear buttons on the UI</source>
         <translation>화면에 큰 기어 버튼 2개를 표시합니다</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>타일 옵션</translation>
     </message>
     <message>
         <source>Remaining Time/Row</source>
@@ -8900,12 +11322,24 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
         <translation>요약 안내 간격(초):</translation>
     </message>
     <message>
+        <source>Announcement interval in seconds</source>
+        <translation>안내 간격(초)</translation>
+    </message>
+    <message>
+        <source>How often workout metrics are read aloud. Default: 120 seconds</source>
+        <translation>운동 지표를 소리 내어 읽어 주는 간격입니다. 기본값: 120초</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>확인</translation>
     </message>
     <message>
         <source>Setting saved!</source>
         <translation>설정을 저장했습니다!</translation>
+    </message>
+    <message>
+        <source>Save announcement interval</source>
+        <translation>안내 간격 저장</translation>
     </message>
     <message>
         <source>TTS Description Enabled</source>

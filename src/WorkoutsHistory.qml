@@ -74,18 +74,9 @@ Page {
         }
     }
 
-    function hasAnyUploadServiceConfigured(workoutId) {
-        return (rootItem &&
-                (rootItem.isStravaLoggedIn() ||
-                 rootItem.isGarminUploadConfigured() ||
-                 rootItem.isIntervalsICUUploadConfigured())) ||
-               (Qt.platform.os === "ios" &&
-                workoutModel &&
-                workoutModel.canWriteAppleHealth(workoutId))
-    }
-
+    // Opens with any services or none: Share is always there
     function openUploadMenu(delegateItem, workoutId, workoutTitle) {
-        if (!workoutModel || !hasAnyUploadServiceConfigured(workoutId)) {
+        if (!workoutModel) {
             return
         }
 
@@ -636,7 +627,8 @@ Page {
                     workoutHistoryPage.fitfile_preview_clicked(fileUrl)
 
                     // Push the ChartJsTest view
-                    stackView.push("PreviewChart.qml")
+                    // the file goes along for the Share button of the toolbar
+                    stackView.push("PreviewChart.qml", { fitFilePath: details.filePath })
                 }
 
                 onPressAndHold: {
@@ -716,8 +708,18 @@ Page {
         MenuItem {
             Accessible.onPressAction: triggered()
             Accessible.name: text
+            text: qsTr("Share FIT file")
+            onTriggered: rootItem.shareWorkoutFile(uploadMenu.filePath)
+        }
+
+        // The menu opens without any service as well: a hidden item has no height, or the list
+        // of the menu keeps an empty row for it
+        MenuItem {
+            Accessible.onPressAction: triggered()
+            Accessible.name: text
             text: qsTr("Upload to Strava")
             visible: rootItem && rootItem.isStravaLoggedIn()
+            height: visible ? implicitHeight : 0
             onTriggered: rootItem.uploadHistoricalWorkoutToStrava(uploadMenu.filePath)
         }
 
@@ -726,6 +728,7 @@ Page {
             Accessible.name: text
             text: qsTr("Upload to Garmin")
             visible: rootItem && rootItem.isGarminUploadConfigured()
+            height: visible ? implicitHeight : 0
             onTriggered: rootItem.uploadHistoricalWorkoutToGarmin(uploadMenu.filePath)
         }
 
@@ -734,6 +737,7 @@ Page {
             Accessible.name: text
             text: qsTr("Upload to Intervals.icu")
             visible: rootItem && rootItem.isIntervalsICUUploadConfigured()
+            height: visible ? implicitHeight : 0
             onTriggered: rootItem.uploadHistoricalWorkoutToIntervalsICU(uploadMenu.filePath)
         }
 
@@ -744,6 +748,7 @@ Page {
             visible: Qt.platform.os === "ios" &&
                      workoutModel &&
                      workoutModel.canWriteAppleHealth(uploadMenu.workoutId)
+            height: visible ? implicitHeight : 0
             onTriggered: workoutModel.uploadWorkoutToAppleHealth(uploadMenu.workoutId)
         }
     }

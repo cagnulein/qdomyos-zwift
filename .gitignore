@@ -9,6 +9,8 @@ src/*.o
 
 src/moc_*
 src/qrc_*
+src/qmlcache_*
+src/settings_qmlcache_loader.cpp
 
 src/qdomyos-zwift
 

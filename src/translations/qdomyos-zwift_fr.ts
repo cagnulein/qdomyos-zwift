@@ -61,12 +61,83 @@
         <translation>Filtre</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Dossier parent</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Ouvrir</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Aucun fichier GPX ici</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Distance %1 km Dénivelé positif : %2 mètres</translation>
     </message>
     <message>
         <source>Other folders</source>
         <translation>Autres dossiers</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Restaurer les fichiers</translation>
+    </message>
+</context>
+<context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Capteur cardiaque trouvé : %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Capteurs cardiaques trouvés : %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Connecter</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Choisir</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Pas maintenant</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Ne plus demander</translation>
+    </message>
+    <message>
+        <source>Strong signal</source>
+        <translation>Signal fort</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Bon signal</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Signal moyen</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Signal faible</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Choisissez un capteur cardiaque</translation>
     </message>
 </context>
 <context>
@@ -90,6 +161,14 @@
     <message>
         <source>Do you really want to stop the current workout?</source>
         <translation>Voulez-vous vraiment arrêter l&apos;entraînement en cours ?</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Arrêter</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuler</translation>
     </message>
     <message>
         <source>Rest</source>
@@ -222,8 +301,16 @@ Voulez-vous le faire maintenant ?</translation>
         <translation>Diminuer </translation>
     </message>
     <message>
+        <source>, current value </source>
+        <translation>, valeur actuelle </translation>
+    </message>
+    <message>
         <source>Decrease the value of </source>
         <translation>Diminuer la valeur de </translation>
+    </message>
+    <message>
+        <source>. Current value </source>
+        <translation>. Valeur actuelle </translation>
     </message>
     <message>
         <source>Increase </source>
@@ -244,6 +331,14 @@ Souhaitez-vous activer les services nécessaires ?</translation>
     <message>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Souhaitez-vous recevoir un rappel pour activer le Bluetooth ou les services de localisation la prochaine fois ?</translation>
+    </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Rendre à l&apos;application</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Rend le contrôle de la charge à l&apos;application</translation>
     </message>
 </context>
 <context>
@@ -281,8 +376,56 @@ Souhaitez-vous activer les services nécessaires ?</translation>
         <translation>Enregistrer un nouveau tour</translation>
     </message>
     <message>
+        <source>This app should automatically connect to your bike, treadmill, or rower.
+
+If it doesn&apos;t, check that:
+- the Echelon/Domyos app is closed while QZ is running
+- Bluetooth and Bluetooth permissions are enabled
+- your equipment is turned on before starting QZ
+- you have restarted your device
+
+If your bike or treadmill disconnects every 30 seconds, disable the Virtual Device setting in the left bar.
+
+For help, contact roberto.viola83@gmail.com.
+
+Have a nice ride!
+
+QZ disclaims liability for incidental or consequential damages and assumes no responsibility for any loss or damage caused by use or misuse of the app.
+
+Roberto Viola</source>
+        <translation>Cette application devrait se connecter automatiquement à votre vélo, tapis de course ou rameur.
+
+Si ce n&apos;est pas le cas, vérifiez que :
+- l&apos;application Echelon/Domyos est fermée pendant que QZ fonctionne
+- le Bluetooth et les autorisations Bluetooth sont activés
+- votre appareil est allumé avant de lancer QZ
+- vous avez redémarré votre appareil
+
+Si votre vélo ou tapis de course se déconnecte toutes les 30 secondes, désactivez le paramètre Appareil virtuel dans la barre latérale gauche.
+
+Pour obtenir de l&apos;aide, écrivez à roberto.viola83@gmail.com.
+
+Bonne séance !
+
+QZ décline toute responsabilité pour les dommages accessoires ou indirects et n&apos;assume aucune responsabilité pour toute perte ou tout dommage causé par l&apos;utilisation ou la mauvaise utilisation de l&apos;application.
+
+Roberto Viola</translation>
+    </message>
+    <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
-        <translation>Cette application devrait se connecter automatiquement à votre vélo/tapis de course/rameur. &lt;b&gt;Si ce n&apos;est pas le cas, veuillez vérifier&lt;/b&gt; :&lt;br&gt;1) votre application Echelon/Domyos DOIT être fermée pendant que qdomyos-zwift est en cours d&apos;exécution ;&lt;br&gt;2) le Bluetooth et les autorisations Bluetooth DOIVENT être activés&lt;br&gt;3) votre vélo/tapis de course/rameur doit être allumé AVANT de démarrer cette application&lt;br&gt;4) essayez de redémarrer votre appareil&lt;br&gt;&lt;br&gt;Si votre vélo/tapis de course se déconnecte toutes les 30 secondes, essayez de désactiver le paramètre « appareil virtuel » dans la barre de gauche.&lt;br&gt;&lt;br&gt;En cas de problème, n&apos;hésitez pas à me contacter à roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Bonne séance !&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ décline expressément toute responsabilité pour&lt;br&gt;les dommages accessoires ou indirects et n&apos;assume&lt;br&gt;aucune responsabilité pour toute perte&lt;br&gt;ou tout dommage subi par toute personne du fait de&lt;br&gt;l&apos;utilisation ou de la mauvaise utilisation de l&apos;application.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+        <translation type="vanished">Cette application devrait se connecter automatiquement à votre vélo/tapis de course/rameur. &lt;b&gt;Si ce n&apos;est pas le cas, veuillez vérifier&lt;/b&gt; :&lt;br&gt;1) votre application Echelon/Domyos DOIT être fermée pendant que qdomyos-zwift est en cours d&apos;exécution ;&lt;br&gt;2) le Bluetooth et les autorisations Bluetooth DOIVENT être activés&lt;br&gt;3) votre vélo/tapis de course/rameur doit être allumé AVANT de démarrer cette application&lt;br&gt;4) essayez de redémarrer votre appareil&lt;br&gt;&lt;br&gt;Si votre vélo/tapis de course se déconnecte toutes les 30 secondes, essayez de désactiver le paramètre « appareil virtuel » dans la barre de gauche.&lt;br&gt;&lt;br&gt;En cas de problème, n&apos;hésitez pas à me contacter à roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Bonne séance !&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ décline expressément toute responsabilité pour&lt;br&gt;les dommages accessoires ou indirects et n&apos;assume&lt;br&gt;aucune responsabilité pour toute perte&lt;br&gt;ou tout dommage subi par toute personne du fait de&lt;br&gt;l&apos;utilisation ou de la mauvaise utilisation de l&apos;application.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Recherche de votre appareil…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Allumez votre vélo, tapis de course ou rameur : QZ s’y connecte automatiquement.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Pas de connexion ?</translation>
     </message>
 </context>
 <context>
@@ -515,6 +658,10 @@ Souhaitez-vous activer les services nécessaires ?</translation>
         <translation>%1 (capteur cardiaque) connecté !</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Recherche de capteurs cardiaques...</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>Recherche de %1 (capteur cardiaque)...</translation>
     </message>
@@ -561,6 +708,10 @@ Souhaitez-vous activer les services nécessaires ?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride connecté !</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Aucun capteur cardiaque trouvé à proximité. Vérifiez qu’il est allumé et qu’il diffuse la fréquence cardiaque.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -1148,8 +1299,24 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
         <translation>Dossier des paramètres</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Touchez un fichier pour le sélectionner, puis Charger.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Charger</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Aucun paramètre enregistré</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Autres dossiers</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Restaurer les fichiers</translation>
     </message>
 </context>
 <context>
@@ -1177,6 +1344,69 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
     <message>
         <source>Maximum: %1</source>
         <translation>Maximum : %1</translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Contacter l’assistance QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Préparer un e-mail d’assistance avec les données de diagnostic</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Aucun appareil connecté</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>La vitesse et la puissance sont à zéro</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Assistance QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Terminé</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Masquer le clavier</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Fermer la demande d’assistance</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Indiquez ce qui ne fonctionne pas. QZ ajoutera les informations de votre appareil et de l’application.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Décrivez le problème...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Décrire le problème</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Joindre le journal de débogage s’il est disponible</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Vous pouvez vérifier ou modifier l’e-mail avant de l’envoyer. Rien n’est envoyé automatiquement.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuler</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Ouvrir l’e-mail</translation>
     </message>
 </context>
 <context>
@@ -1294,12 +1524,40 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
         <translation>Rechercher (récursif)...</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Dossier parent</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Aucun entraînement trouvé</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Aucun entraînement ici</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Autres dossiers</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Restaurer les fichiers</translation>
+    </message>
+    <message>
+        <source>Restore programs</source>
+        <translation type="vanished">Restaurer les programmes</translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation>← Retour</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>Afficher moins</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Afficher plus</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -1308,6 +1566,62 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
     <message>
         <source>Start Workout</source>
         <translation>Démarrer l&apos;entraînement</translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Oui</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Non</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuler</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>Restauration des fichiers de l&apos;installation précédente</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>Restauration des fichiers de l&apos;installation précédente : %1 sur %2</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Déplié</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Replié</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>heures</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>minutes</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>secondes</translation>
     </message>
 </context>
 <context>
@@ -1536,6 +1850,16 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
     <message>
         <source>Force Speed</source>
         <translation>Vitesse de force</translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>Maintien de la FC – agir sur</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>Comme réglé</translation>
     </message>
     <message>
         <source>Fan</source>
@@ -1817,6 +2141,128 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
     <message>
         <source>{count} intervals</source>
         <translation>{count} intervalles</translation>
+    </message>
+    <message>
+        <source>Workout name</source>
+        <translation>Nom de l&apos;entraînement</translation>
+    </message>
+    <message>
+        <source>Workout device type</source>
+        <translation>Type d&apos;appareil de l&apos;entraînement</translation>
+    </message>
+    <message>
+        <source>Create a new workout</source>
+        <translation>Créer un nouvel entraînement</translation>
+    </message>
+    <message>
+        <source>Paste XML from the Clipboard to the Workout Editor</source>
+        <translation>Coller le XML du presse-papiers dans l&apos;éditeur d&apos;entraînement</translation>
+    </message>
+    <message>
+        <source>Save workout</source>
+        <translation>Enregistrer l&apos;entraînement</translation>
+    </message>
+    <message>
+        <source>Save workout and start it</source>
+        <translation>Enregistrer l&apos;entraînement et le démarrer</translation>
+    </message>
+    <message>
+        <source>Show advanced interval fields</source>
+        <translation>Afficher les champs avancés des intervalles</translation>
+    </message>
+    <message>
+        <source>Workout editor controls</source>
+        <translation>Commandes de l&apos;éditeur d&apos;entraînement</translation>
+    </message>
+    <message>
+        <source>Add interval</source>
+        <translation>Ajouter un intervalle</translation>
+    </message>
+    <message>
+        <source>Repeat selected intervals</source>
+        <translation>Répéter les intervalles sélectionnés</translation>
+    </message>
+    <message>
+        <source>Clear all intervals</source>
+        <translation>Effacer tous les intervalles</translation>
+    </message>
+    <message>
+        <source>Workout preview chart</source>
+        <translation>Graphique d&apos;aperçu de l&apos;entraînement</translation>
+    </message>
+    <message>
+        <source>Chart legend</source>
+        <translation>Légende du graphique</translation>
+    </message>
+    <message>
+        <source>Saved workout programs</source>
+        <translation>Programmes d&apos;entraînement enregistrés</translation>
+    </message>
+    <message>
+        <source>Load selected workout program</source>
+        <translation>Charger le programme d&apos;entraînement sélectionné</translation>
+    </message>
+    <message>
+        <source>Delete selected workout program</source>
+        <translation>Supprimer le programme d&apos;entraînement sélectionné</translation>
+    </message>
+    <message>
+        <source>Refresh workout program list</source>
+        <translation>Actualiser la liste des programmes d&apos;entraînement</translation>
+    </message>
+    <message>
+        <source>Select interval {number}</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation>Sélectionner l&apos;intervalle {number}</translation>
+    </message>
+    <message>
+        <source>Move interval {number} up</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation>Monter l&apos;intervalle {number}</translation>
+    </message>
+    <message>
+        <source>Move interval {number} down</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation>Descendre l&apos;intervalle {number}</translation>
+    </message>
+    <message>
+        <source>Copy interval {number}</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation>Copier l&apos;intervalle {number}</translation>
+    </message>
+    <message>
+        <source>Delete interval {number}</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation>Supprimer l&apos;intervalle {number}</translation>
+    </message>
+    <message>
+        <source>Enable {field} for interval {number}</source>
+        <extracomment>Screen reader name of a field checkbox; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
+        <translation>Activer {field} pour l&apos;intervalle {number}</translation>
+    </message>
+    <message>
+        <source>{field} for interval {number}</source>
+        <extracomment>Screen reader name of a field; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
+        <translation>{field} pour l&apos;intervalle {number}</translation>
+    </message>
+    <message>
+        <source>Decrease {field} for interval {number}</source>
+        <extracomment>Screen reader name of the - button; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
+        <translation>Diminuer {field} pour l&apos;intervalle {number}</translation>
+    </message>
+    <message>
+        <source>Increase {field} for interval {number}</source>
+        <extracomment>Screen reader name of the + button; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
+        <translation>Augmenter {field} pour l&apos;intervalle {number}</translation>
+    </message>
+    <message>
+        <source>{name} preview chart. {count} intervals. Total duration {duration}.</source>
+        <extracomment>Screen reader description of the chart; {name} is the workout name, {count} the number of intervals, {duration} like 0:45:00</extracomment>
+        <translation>Graphique d&apos;aperçu de {name}. {count} intervalles. Durée totale {duration}.</translation>
+    </message>
+    <message>
+        <source>Dialog input</source>
+        <translation>Champ de saisie de la boîte de dialogue</translation>
     </message>
     <message>
         <source>Training Programs Browser</source>
@@ -2363,6 +2809,10 @@ Les questions suivantes personnaliseront QZ pour votre équipement et vos object
         <translation>Cliquez sur le bouton ci-dessous pour connecter votre compte Peloton</translation>
     </message>
     <message>
+        <source>Opens the Peloton login page</source>
+        <translation>Ouvre la page de connexion Peloton</translation>
+    </message>
+    <message>
         <source>Peloton Difficulty</source>
         <translation>Difficulté Peloton</translation>
     </message>
@@ -2387,6 +2837,14 @@ Les questions suivantes personnaliseront QZ pour votre équipement et vos object
         <translation>moyenne</translation>
     </message>
     <message>
+        <source>Peloton difficulty level</source>
+        <translation>Niveau de difficulté Peloton</translation>
+    </message>
+    <message>
+        <source>Choose whether QZ targets the lower, upper or average of the instructor&apos;s range</source>
+        <translation>Choisissez si QZ vise la limite basse, la limite haute ou la moyenne de la plage indiquée par l&apos;instructeur</translation>
+    </message>
+    <message>
         <source>Finish</source>
         <translation>Terminer</translation>
     </message>
@@ -2397,6 +2855,14 @@ Les questions suivantes personnaliseront QZ pour votre équipement et vos object
     <message>
         <source>What resistance level feels like a flat road on your bike?</source>
         <translation>Quel niveau de résistance ressemble à une route plate sur votre vélo ?</translation>
+    </message>
+    <message>
+        <source>Resistance level for flat road</source>
+        <translation>Niveau de résistance sur route plate</translation>
+    </message>
+    <message>
+        <source>Resistance level that feels like riding on flat ground. Range 0 to 100.</source>
+        <translation>Niveau de résistance qui donne la sensation de rouler sur terrain plat. Plage de 0 à 100.</translation>
     </message>
     <message>
         <source>Next</source>
@@ -2443,8 +2909,16 @@ Les questions suivantes personnaliseront QZ pour votre équipement et vos object
         <translation>Nom d&apos;utilisateur</translation>
     </message>
     <message>
+        <source>Zwift username</source>
+        <translation>Nom d&apos;utilisateur Zwift</translation>
+    </message>
+    <message>
         <source>Password</source>
         <translation>Mot de passe</translation>
+    </message>
+    <message>
+        <source>Zwift password</source>
+        <translation>Mot de passe Zwift</translation>
     </message>
     <message>
         <source>Zwift Play and Click</source>
@@ -2457,6 +2931,10 @@ Les questions suivantes personnaliseront QZ pour votre équipement et vos object
     <message>
         <source>Zwift Click</source>
         <translation>Zwift Clic</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Activé</translation>
     </message>
     <message>
         <source>Zwift Play</source>
@@ -2495,6 +2973,10 @@ Les questions suivantes personnaliseront QZ pour votre équipement et vos object
         <translation>Si vous avez des questions ou avez besoin d&apos;aide supplémentaire, n&apos;hésitez pas à m&apos;écrire à roberto.viola83@gmail.com. Vous pouvez également redémarrer cet assistant depuis le menu latéral de gauche. Pour appliquer certains changements, vous devrez peut-être redémarrer l&apos;application.</translation>
     </message>
     <message>
+        <source>Email support</source>
+        <translation>Écrire au support</translation>
+    </message>
+    <message>
         <source>Close</source>
         <translation>Fermer</translation>
     </message>
@@ -2505,6 +2987,14 @@ Les questions suivantes personnaliseront QZ pour votre équipement et vos object
     <message>
         <source>Disabled</source>
         <translation>Désactivé</translation>
+    </message>
+    <message>
+        <source>Fitness device</source>
+        <translation>Appareil de fitness</translation>
+    </message>
+    <message>
+        <source>Select your fitness device from the list of nearby Bluetooth devices. Tap Refresh to scan again.</source>
+        <translation>Sélectionnez votre appareil de fitness dans la liste des appareils Bluetooth à proximité. Touchez Actualiser pour relancer la recherche.</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -2527,6 +3017,14 @@ Les questions suivantes personnaliseront QZ pour votre équipement et vos object
         <translation>Impérial</translation>
     </message>
     <message>
+        <source>Unit system</source>
+        <translation>Système d&apos;unités</translation>
+    </message>
+    <message>
+        <source>Metric uses kilometers and kilograms. Imperial uses miles and pounds.</source>
+        <translation>Le système métrique utilise les kilomètres et les kilogrammes. Le système impérial utilise les miles et les livres.</translation>
+    </message>
+    <message>
         <source>User Information</source>
         <translation>Informations utilisateur</translation>
     </message>
@@ -2543,8 +3041,24 @@ Les questions suivantes personnaliseront QZ pour votre équipement et vos object
         <translation>kg</translation>
     </message>
     <message>
+        <source>Body weight</source>
+        <translation>Poids corporel</translation>
+    </message>
+    <message>
+        <source>Your weight in pounds</source>
+        <translation>Votre poids en livres</translation>
+    </message>
+    <message>
+        <source>Your weight in kilograms</source>
+        <translation>Votre poids en kilogrammes</translation>
+    </message>
+    <message>
         <source>Age</source>
         <translation>Âge</translation>
+    </message>
+    <message>
+        <source>Your age in years. Used for heart rate zone calculations.</source>
+        <translation>Votre âge en années. Utilisé pour calculer les zones de fréquence cardiaque.</translation>
     </message>
     <message>
         <source>Gender</source>
@@ -2559,12 +3073,24 @@ Les questions suivantes personnaliseront QZ pour votre équipement et vos object
         <translation>Femme</translation>
     </message>
     <message>
+        <source>Used for calorie calculations</source>
+        <translation>Utilisé pour le calcul des calories</translation>
+    </message>
+    <message>
         <source>Select Your Heart Rate Device</source>
         <translation>Sélectionnez votre appareil de fréquence cardiaque</translation>
     </message>
     <message>
         <source>Choose your heart rate belt or select a smartwatch option:</source>
         <translation>Choisissez votre ceinture cardiofréquencemètre ou sélectionnez une option de montre connectée :</translation>
+    </message>
+    <message>
+        <source>Heart rate belt</source>
+        <translation>Ceinture cardiofréquencemètre</translation>
+    </message>
+    <message>
+        <source>Select your Bluetooth heart rate belt from the list. Tap Refresh to scan again. Choose Disabled if using a smartwatch.</source>
+        <translation>Sélectionnez votre ceinture cardiofréquencemètre Bluetooth dans la liste. Touchez Actualiser pour relancer la recherche. Choisissez Désactivé si vous utilisez une montre connectée.</translation>
     </message>
     <message>
         <source>Or select a smartwatch option:</source>
@@ -2592,6 +3118,14 @@ Les questions suivantes personnaliseront QZ pour votre équipement et vos object
     <message>
         <source>Workout Editor</source>
         <translation>Éditeur d&apos;entraînement</translation>
+    </message>
+    <message>
+        <source>Loading workout editor</source>
+        <translation>Chargement de l&apos;éditeur d&apos;entraînement</translation>
+    </message>
+    <message>
+        <source>The workout editor is loading</source>
+        <translation>L&apos;éditeur d&apos;entraînement est en cours de chargement</translation>
     </message>
 </context>
 <context>
@@ -2748,6 +3282,10 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
     <message>
         <source>All files (*)</source>
         <translation>Tous les fichiers (*)</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>Partager le fichier FIT</translation>
     </message>
     <message>
         <source>Upload to Strava</source>
@@ -3266,6 +3804,22 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
         <translation>Allure cible (m/500m)</translation>
     </message>
     <message>
+        <source>Speed %1 kilometers per hour</source>
+        <translation>Vitesse %1 kilomètres par heure</translation>
+    </message>
+    <message>
+        <source>Speed %1 miles per hour</source>
+        <translation>Vitesse %1 miles par heure</translation>
+    </message>
+    <message>
+        <source>Inclination %1 percent</source>
+        <translation>Inclinaison %1 pour cent</translation>
+    </message>
+    <message>
+        <source>Resistance %1</source>
+        <translation>Résistance %1</translation>
+    </message>
+    <message>
         <source>Stop</source>
         <translation>Arrêter</translation>
     </message>
@@ -3541,12 +4095,28 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
         <translation>vitesse réglée sur</translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>Fichiers restaurés : %1.</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>Aucun fichier d&apos;une installation précédente n&apos;a été trouvé.</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>Erreur d&apos;analyse JSON</translation>
     </message>
     <message>
         <source>Error retrieving access token, %1 (%2)</source>
         <translation>Erreur lors de la récupération du jeton d&apos;accès, %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>Partager le fichier FIT</translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>Impossible de partager le fichier FIT de cet entraînement</translation>
     </message>
     <message>
         <source>License Approved!</source>
@@ -3613,6 +4183,18 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
     <message>
         <source>Workouts imported: %1.</source>
         <translation>Entraînements importés : %1.</translation>
+    </message>
+    <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>Impossible de copier le fichier dans le dossier QZ.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation type="vanished">Programmes d&apos;entraînement restaurés : %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation type="vanished">Aucun programme d&apos;entraînement d&apos;une installation précédente n&apos;a été trouvé.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -3798,6 +4380,126 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
         <source>QZ is running</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ est en cours d&apos;exécution</translation>
+    </message>
+    <message>
+        <source>Support request</source>
+        <translation>Demande d’assistance</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>Problème QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Bonjour Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>J’ai besoin d’aide avec QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Problème :</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Décrivez le problème]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Comportement attendu :</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Décrivez ce qui devrait se passer]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- Diagnostic QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>Version de QZ : %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Plateforme : %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Profil : %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Appareil : %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Connecté</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Non connecté</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Connexion : %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Vitesse : %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Indisponible</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Puissance : %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Situation détectée : %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Journal de débogage non demandé.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Le journal de débogage est désactivé. Activez-le et redémarrez QZ avant de reproduire le problème.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Aucun journal de débogage trouvé.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Journal de débogage indisponible ou trop volumineux pour être préparé.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Journal de débogage joint (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Impossible d’écrire la pièce jointe du journal de débogage.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Impossible de compresser le journal ou la pièce jointe dépasse 10 Mo.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Veuillez joindre manuellement le journal de débogage généré</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Aucun appareil détecté</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Impossible d’ouvrir une application de messagerie</translation>
     </message>
 </context>
 <context>
@@ -4025,6 +4727,28 @@ Voulez-vous passer à l&apos;appareil Bluetooth virtuel classique pour cette ses
         <translation>Peloton</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>Enregistré ! Regardez dans l’app Fichiers.</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>Enregistré ! Regardez dans le dossier privé de l’app.</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Restaurer les fichiers</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Les programmes d&apos;entraînement, les parcours GPX, les fichiers de paramètres et les profils d&apos;une installation précédente peuvent encore se trouver dans le dossier QZ.
+Voulez-vous les rechercher ?
+
+Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Vous êtes déjà connecté à Peloton. Voulez-vous vous déconnecter ?</translation>
     </message>
@@ -4035,6 +4759,30 @@ Voulez-vous passer à l&apos;appareil Bluetooth virtuel classique pour cette ses
     <message>
         <source>You are already connected to Intervals.icu. Do you want to log out?</source>
         <translation>Vous êtes déjà connecté à Intervals.icu. Voulez-vous vous déconnecter ?</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Retour</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>Menu principal</translation>
+    </message>
+    <message>
+        <source>Return to the previous screen</source>
+        <translation>Revenir à l&apos;écran précédent</translation>
+    </message>
+    <message>
+        <source>Open the main navigation menu</source>
+        <translation>Ouvrir le menu de navigation principal</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>Fenêtre flottante</translation>
+    </message>
+    <message>
+        <source>Open the floating workout display</source>
+        <translation>Ouvrir l&apos;affichage flottant de l&apos;entraînement</translation>
     </message>
     <message>
         <source>Auto Resistance enabled</source>
@@ -4053,8 +4801,80 @@ Voulez-vous passer à l&apos;appareil Bluetooth virtuel classique pour cette ses
         <translation>Les tuiles sont verrouillées maintenant</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>Charger les paramètres</translation>
+    </message>
+    <message>
+        <source>Open the saved settings list</source>
+        <translation>Ouvrir la liste des paramètres enregistrés</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>Rechercher les paramètres</translation>
+    </message>
+    <message>
+        <source>Save settings</source>
+        <translation>Enregistrer les paramètres</translation>
+    </message>
+    <message>
+        <source>Save the current settings profile</source>
+        <translation>Enregistrer le profil de paramètres actuel</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Carte</translation>
+    </message>
+    <message>
+        <source>Open the route map</source>
+        <translation>Ouvrir la carte du parcours</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Vidéo</translation>
+    </message>
+    <message>
+        <source>Show or hide the workout video</source>
+        <translation>Afficher ou masquer la vidéo de l&apos;entraînement</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>Graphique</translation>
+    </message>
+    <message>
+        <source>Show or hide the workout chart</source>
+        <translation>Afficher ou masquer le graphique de l&apos;entraînement</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>Partager le fichier FIT</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>Déverrouiller les tuiles</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>Verrouiller les tuiles</translation>
+    </message>
+    <message>
+        <source>Prevent workout tiles from being moved</source>
+        <translation>Empêcher le déplacement des tuiles d&apos;entraînement</translation>
+    </message>
+    <message>
+        <source>Allow workout tiles to be moved</source>
+        <translation>Autoriser le déplacement des tuiles d&apos;entraînement</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>Désactiver la résistance auto</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>Activer la résistance auto</translation>
+    </message>
+    <message>
+        <source>Toggle automatic resistance control</source>
+        <translation>Activer ou désactiver le contrôle automatique de la résistance</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4117,8 +4937,76 @@ Voulez-vous passer à l&apos;appareil Bluetooth virtuel classique pour cette ses
         <translation>Quitter</translation>
     </message>
     <message>
+        <source>Tap to log out of Strava</source>
+        <translation>Touchez pour vous déconnecter de Strava</translation>
+    </message>
+    <message>
+        <source>Tap to connect your Strava account</source>
+        <translation>Touchez pour connecter votre compte Strava</translation>
+    </message>
+    <message>
+        <source>Tap to log out of Peloton</source>
+        <translation>Touchez pour vous déconnecter de Peloton</translation>
+    </message>
+    <message>
+        <source>Tap to connect your Peloton account</source>
+        <translation>Touchez pour connecter votre compte Peloton</translation>
+    </message>
+    <message>
+        <source>Open Garmin Connect integration settings</source>
+        <translation>Ouvrir les paramètres d&apos;intégration Garmin Connect</translation>
+    </message>
+    <message>
+        <source>Tap to log out of Intervals.icu</source>
+        <translation>Touchez pour vous déconnecter d&apos;Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Tap to connect your Intervals.icu account</source>
+        <translation>Touchez pour connecter votre compte Intervals.icu</translation>
+    </message>
+    <message>
         <source>Please choose a file</source>
         <translation>Veuillez choisir un fichier</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>Se déconnecter de Strava</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Se connecter avec Strava</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Se déconnecter de Peloton</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Se connecter avec Peloton</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Paramètres Garmin Connect</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Se déconnecter d’Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Se connecter avec Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>Entraînement</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>Application</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>Services</translation>
     </message>
     <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
@@ -4153,6 +5041,20 @@ Voulez-vous les rechercher ?
 Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
     </message>
     <message>
+        <source>Training Programs</source>
+        <translation type="vanished">Programmes d&apos;entraînement</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation type="vanished">Les programmes d&apos;entraînement d&apos;une installation précédente peuvent encore se trouver dans le dossier QZ.
+Voulez-vous les rechercher ?
+
+Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
+    </message>
+    <message>
         <source>Connection lost in the background</source>
         <translation>Connexion perdue en arrière-plan</translation>
     </message>
@@ -4179,6 +5081,22 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
     <message>
         <source>Don&apos;t ask again</source>
         <translation>Ne plus demander</translation>
+    </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Vitesses virtuelles Wahoo</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>Pour simuler des vitesses virtuelles, QZ modifie la circonférence de roue enregistrée dans le home trainer. Cette valeur peut rester dans le home trainer après la fermeture de QZ et affecter son fonctionnement dans d&apos;autres applications.
+
+Autoriser QZ à modifier cette valeur ?
+
+« Non » : QZ active « Sans protocole de diamètre de roue » (Paramètres &gt; Options de vélo &gt; Options Wahoo) et les vitesses virtuelles passent par la pente. Avec « Oui », vous pourrez l&apos;annuler plus tard au même endroit : activez cette option puis, avec le home trainer connecté, appuyez sur « Restaurer les réglages par défaut du home trainer ».</translation>
     </message>
 </context>
 <context>
@@ -4219,6 +5137,10 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Voulez-vous supprimer ce profil ?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Supprimer</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Profil enregistré</translation>
     </message>
@@ -4251,8 +5173,28 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Nom du profil</translation>
     </message>
     <message>
+        <source>New profile</source>
+        <translation>Nouveau profil</translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation>Enregistrer</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Profils enregistrés</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Touchez un profil pour le sélectionner, puis Charger. Appui long pour le supprimer.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Actif</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Charger</translation>
     </message>
     <message>
         <source>Profiles</source>
@@ -4261,6 +5203,10 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
     <message>
         <source>Other folders</source>
         <translation>Autres dossiers</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Restaurer les fichiers</translation>
     </message>
 </context>
 <context>
@@ -4290,8 +5236,16 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Poids du joueur</translation>
     </message>
     <message>
+        <source>Save Player Weight</source>
+        <translation>Enregistrer le poids du joueur</translation>
+    </message>
+    <message>
         <source>Player Height</source>
         <translation>Taille du joueur</translation>
+    </message>
+    <message>
+        <source>Save Player Height</source>
+        <translation>Enregistrer la taille du joueur</translation>
     </message>
     <message>
         <source>Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet&apos;inches&quot; format (e.g., 5&apos;10&quot;) for imperial units.</source>
@@ -4300,6 +5254,14 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
     <message>
         <source>Player Age:</source>
         <translation>Âge du joueur :</translation>
+    </message>
+    <message>
+        <source>Player Age</source>
+        <translation>Âge du joueur</translation>
+    </message>
+    <message>
+        <source>Save Player Age</source>
+        <translation>Enregistrer l&apos;âge du joueur</translation>
     </message>
     <message>
         <source>Enter your age so that calories burned can be more accurately calculated.</source>
@@ -4318,12 +5280,28 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Femme</translation>
     </message>
     <message>
+        <source>Gender</source>
+        <translation>Sexe</translation>
+    </message>
+    <message>
+        <source>Save Gender</source>
+        <translation>Enregistrer le sexe</translation>
+    </message>
+    <message>
         <source>Select your gender so that calories burned can be more accurately calculated.</source>
         <translation>Sélectionnez votre genre pour que les calories brûlées puissent être calculées plus précisément.</translation>
     </message>
     <message>
         <source>FTP value:</source>
         <translation>Valeur FTP :</translation>
+    </message>
+    <message>
+        <source>FTP value</source>
+        <translation>Valeur FTP</translation>
+    </message>
+    <message>
+        <source>Save FTP value</source>
+        <translation>Enregistrer la valeur FTP</translation>
     </message>
     <message>
         <source>If you train to specific output (or watts) levels, for example in Peloton Power Zone classes,and have taken an FTP test (Functional Threshold Power), enter your FTP here. This number is used to calculate your Power Zones (Zones 1 to 7 for Peloton and 1 to 6 for Zwift).</source>
@@ -4334,6 +5312,14 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Valeur de puissance critique :</translation>
     </message>
     <message>
+        <source>Critical Power Run value</source>
+        <translation>Valeur de puissance critique</translation>
+    </message>
+    <message>
+        <source>Save Critical Power Run value</source>
+        <translation>Enregistrer la valeur de puissance critique</translation>
+    </message>
+    <message>
         <source>If you train to specific output (or watts) levels, for example with Stryd,and have taken an CP test (Critical Power Test), enter your CP here. This number is used to calculate your RSS.</source>
         <translation>Si vous vous entraînez à des niveaux de puissance (ou de watts) spécifiques, par exemple avec Stryd, et que vous avez passé un test CP (Critical Power Test), entrez votre CP ici. Ce nombre est utilisé pour calculer votre RSS.</translation>
     </message>
@@ -4342,8 +5328,24 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Surnom :</translation>
     </message>
     <message>
+        <source>Nickname</source>
+        <translation>Surnom</translation>
+    </message>
+    <message>
+        <source>Save Nickname</source>
+        <translation>Enregistrer le surnom</translation>
+    </message>
+    <message>
         <source>No need to enter data here. It is for a possible future QZ feature.</source>
         <translation>Pas besoin de saisir de données ici. C&apos;est pour une future fonctionnalité possible de QZ.</translation>
+    </message>
+    <message>
+        <source>Email</source>
+        <translation>Email</translation>
+    </message>
+    <message>
+        <source>Save Email</source>
+        <translation>Enregistrer l&apos;email</translation>
     </message>
     <message>
         <source>Enter your email address to receive an automated email with stats and charts when you hit STOP at the end of each workout. Make sure there are no spaces before or after the email address; this is the most common reason the automated email is not sent. Privacy Note: Email addresses are not collected by the developer and are only saved locally on your device.</source>
@@ -4430,8 +5432,48 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Utilisateurs d&apos;Apple Watch : laissez-le désactivé ! Ouvrez simplement l&apos;application sur votre montre</translation>
     </message>
     <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Rechercher un capteur cardiaque au démarrage</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Pendant les 5 premières minutes après la connexion de l&apos;appareil, tant qu&apos;aucune fréquence cardiaque n&apos;arrive, QZ cherche un capteur cardiaque une fois par minute : il connecte la ceinture choisie dès qu&apos;il la trouve ou, si aucune n&apos;est choisie, propose un capteur trouvé à proximité. Toucher la tuile de fréquence cardiaque ou l&apos;icône Bluetooth de la page d&apos;accueil lance la recherche à tout moment.</translation>
+    </message>
+    <message>
         <source>Heart Rate Zone Options</source>
         <translation>Options de zone de fréquence cardiaque</translation>
+    </message>
+    <message>
+        <source>Zone 1 %</source>
+        <translation>Zone 1 %</translation>
+    </message>
+    <message>
+        <source>Save Zone 1 %</source>
+        <translation>Enregistrer la zone 1 %</translation>
+    </message>
+    <message>
+        <source>Zone 2 %</source>
+        <translation>Zone 2 %</translation>
+    </message>
+    <message>
+        <source>Save Zone 2 %</source>
+        <translation>Enregistrer la zone 2 %</translation>
+    </message>
+    <message>
+        <source>Zone 3 %</source>
+        <translation>Zone 3 %</translation>
+    </message>
+    <message>
+        <source>Save Zone 3 %</source>
+        <translation>Enregistrer la zone 3 %</translation>
+    </message>
+    <message>
+        <source>Zone 4 %</source>
+        <translation>Zone 4 %</translation>
+    </message>
+    <message>
+        <source>Save Zone 4 %</source>
+        <translation>Enregistrer la zone 4 %</translation>
     </message>
     <message>
         <source>Zone 5 will be calculated automatically based on Zone 4 end percentage and max HR.</source>
@@ -4454,8 +5496,16 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Fréquence cardiaque maximale</translation>
     </message>
     <message>
+        <source>Save Max Heart Rate</source>
+        <translation>Enregistrer la fréquence cardiaque maximale</translation>
+    </message>
+    <message>
         <source>QZ uses a standard age-based calculation for maximum heart rate and then sets the heart rate zones based on that max heart rate. If you know your actual max heart rate (the highest your heart rate is known to reach), turn this option on and enter your actual max heart rate. Then click OK.</source>
         <translation>QZ utilise un calcul standard basé sur l&apos;âge pour la fréquence cardiaque maximale et définit ensuite les zones de fréquence cardiaque en fonction de cette FCM maximale. Si vous connaissez votre FCM réelle (le niveau le plus élevé que votre fréquence cardiaque est connue pour atteindre), activez cette option et entrez votre FCM réelle. Cliquez ensuite sur OK.</translation>
+    </message>
+    <message>
+        <source>Save Resting Heart Rate</source>
+        <translation>Enregistrer la fréquence cardiaque au repos</translation>
     </message>
     <message>
         <source>Power from Heart Rate Options</source>
@@ -4466,16 +5516,48 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Session 1 Watt :</translation>
     </message>
     <message>
+        <source>Session 1 Watt</source>
+        <translation>Session 1 Watt</translation>
+    </message>
+    <message>
+        <source>Save Session 1 Watt</source>
+        <translation>Enregistrer la puissance de la session 1</translation>
+    </message>
+    <message>
         <source>Session 1 HR:</source>
         <translation>Session 1 FC :</translation>
+    </message>
+    <message>
+        <source>Session 1 HR</source>
+        <translation>Session 1 FC</translation>
+    </message>
+    <message>
+        <source>Save Session 1 HR</source>
+        <translation>Enregistrer la FC de la session 1</translation>
     </message>
     <message>
         <source>Session 2 Watt:</source>
         <translation>Session 2 Watts :</translation>
     </message>
     <message>
+        <source>Session 2 Watt</source>
+        <translation>Session 2 Watts</translation>
+    </message>
+    <message>
+        <source>Save Session 2 Watt</source>
+        <translation>Enregistrer la puissance de la session 2</translation>
+    </message>
+    <message>
         <source>Session 2 HR:</source>
         <translation>Session 2 FC :</translation>
+    </message>
+    <message>
+        <source>Session 2 HR</source>
+        <translation>Session 2 FC</translation>
+    </message>
+    <message>
+        <source>Save Session 2 HR</source>
+        <translation>Enregistrer la FC de la session 2</translation>
     </message>
     <message>
         <source>Expand the bars to the right to display the options under this setting. These settings are used to calculate power (watts) for bikes that do not have power meters. Instead QZ estimates power from your cadence and heart rate. You can calibrate how QZ calculates your power from heart rate as follows: If you know that at a stable pace you produce 100W of power at a heart rate of 150 BPM and 150W at 170 BPM, you can add these values under Sessions 1 and 2 Watt and HR and QZ will calculate your power based on that trend line.</source>
@@ -4510,6 +5592,14 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Vitesse :</translation>
     </message>
     <message>
+        <source>Gear Value</source>
+        <translation>Vitesse</translation>
+    </message>
+    <message>
+        <source>Save Gear Value</source>
+        <translation>Enregistrer la vitesse engagée</translation>
+    </message>
+    <message>
         <source>Specify a particular gear value to be restored at startup. This will override the &apos;Restore Gears on Startup&apos; setting.</source>
         <translation>Spécifiez une vitesse précise à restaurer au démarrage. Cela remplacera le paramètre « Restaurer les vitesses au démarrage ».</translation>
     </message>
@@ -4518,16 +5608,32 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Facteur de résistance au roulement</translation>
     </message>
     <message>
+        <source>Save Rolling Resistance Factor</source>
+        <translation>Enregistrer le facteur de résistance au roulement</translation>
+    </message>
+    <message>
         <source>Bike Weight</source>
-        <translation type="vanished">Poids du vélo</translation>
+        <translation>Poids du vélo</translation>
+    </message>
+    <message>
+        <source>Save Bike Weight</source>
+        <translation>Enregistrer le poids du vélo</translation>
     </message>
     <message>
         <source>Rolling Res. Gain</source>
         <translation>Gain de résistance de roulement</translation>
     </message>
     <message>
+        <source>Save Rolling Res. Gain</source>
+        <translation>Enregistrer le gain de résistance de roulement</translation>
+    </message>
+    <message>
         <source>Wind Res. Gain</source>
         <translation>Gain de résistance de l&apos;air</translation>
+    </message>
+    <message>
+        <source>Save Wind Res. Gain</source>
+        <translation>Enregistrer le gain de résistance de l&apos;air</translation>
     </message>
     <message>
         <source>Zwift Workout/Erg Mode</source>
@@ -4690,12 +5796,28 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Décalage de résistance Zwift :</translation>
     </message>
     <message>
+        <source>Zwift Resistance Offset</source>
+        <translation>Décalage de résistance Zwift</translation>
+    </message>
+    <message>
+        <source>Save Zwift Resistance Offset</source>
+        <translation>Enregistrer le décalage de résistance Zwift</translation>
+    </message>
+    <message>
         <source>This setting sets your “flat road” in Zwift. All communicated resistance changes will be based on this setting. The value entered is personal preference and will be dependent on your level of fitness. The suggested value for Echelon bikes is between 18 and 20. Default is 4.</source>
         <translation>Ce paramètre définit votre « route plate » dans Zwift. Tous les changements de résistance communiqués seront basés sur ce paramètre. La valeur saisie est une préférence personnelle et dépendra de votre niveau de forme physique. La valeur suggérée pour les vélos Echelon est comprise entre 18 et 20. La valeur par défaut est 4.</translation>
     </message>
     <message>
         <source>Zwift Power Offset (W):</source>
         <translation>Décalage de puissance Zwift (W) :</translation>
+    </message>
+    <message>
+        <source>Zwift Power Offset (W)</source>
+        <translation>Décalage de puissance Zwift (W)</translation>
+    </message>
+    <message>
+        <source>Save Zwift Power Offset (W)</source>
+        <translation>Enregistrer le décalage de puissance Zwift (W)</translation>
     </message>
     <message>
         <source>Add an offset in watts to the requested power from apps like Zwift. Positive values increase power, negative values decrease it. Default is 0.</source>
@@ -4706,12 +5828,28 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Gain de résistance Zwift :</translation>
     </message>
     <message>
+        <source>Zwift Resistance Gain</source>
+        <translation>Gain de résistance Zwift</translation>
+    </message>
+    <message>
+        <source>Save Zwift Resistance Gain</source>
+        <translation>Enregistrer le gain de résistance Zwift</translation>
+    </message>
+    <message>
         <source>(for bikes and treadmills when using “treadmill as a bike” setting). This setting scales the resistance from your bike or the speed from your treadmill before sending it to Zwift. Default is 1.</source>
         <translation>(pour les vélos et tapis de course lorsque vous utilisez le réglage « tapis de course comme vélo »). Ce réglage ajuste la résistance de votre vélo ou la vitesse de votre tapis de course avant de l&apos;envoyer à Zwift. Par défaut, c&apos;est 1.</translation>
     </message>
     <message>
         <source>Zwift ERG Watt Up Filter:</source>
         <translation>Filtre haut de puissance ERG Zwift :</translation>
+    </message>
+    <message>
+        <source>Zwift ERG Watt Up Filter</source>
+        <translation>Filtre haut de puissance ERG Zwift</translation>
+    </message>
+    <message>
+        <source>Save Zwift ERG Watt Up Filter</source>
+        <translation>Enregistrer le filtre haut de puissance ERG Zwift</translation>
     </message>
     <message>
         <source>In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 watts or more than 110 watts. Default is 10.</source>
@@ -4722,12 +5860,28 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Filtre bas de puissance ERG Zwift :</translation>
     </message>
     <message>
+        <source>Zwift ERG Watt Down Filter</source>
+        <translation>Filtre bas de puissance ERG Zwift</translation>
+    </message>
+    <message>
+        <source>Save Zwift ERG Watt Down Filter</source>
+        <translation>Enregistrer le filtre bas de puissance ERG Zwift</translation>
+    </message>
+    <message>
         <source>See above. Default is 10.</source>
         <translation>Voir ci-dessus. Par défaut : 10.</translation>
     </message>
     <message>
         <source>Min. Resistance:</source>
         <translation>Résistance min. :</translation>
+    </message>
+    <message>
+        <source>Min. Resistance</source>
+        <translation>Résistance min.</translation>
+    </message>
+    <message>
+        <source>Save Min. Resistance</source>
+        <translation>Enregistrer la résistance min.</translation>
     </message>
     <message>
         <source>Use this setting to set a minimum target resistance. For example, if you do not want to ride at a resistance below 25, enter a value of 25 and QZ will not set a target resistance below 25. Default is 0.</source>
@@ -4738,6 +5892,14 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Résistance max :</translation>
     </message>
     <message>
+        <source>Max. Resistance</source>
+        <translation>Résistance max</translation>
+    </message>
+    <message>
+        <source>Save Max. Resistance</source>
+        <translation>Enregistrer la résistance max.</translation>
+    </message>
+    <message>
         <source>Similar to the above, but sets a maximum target resistance. Default is 999.</source>
         <translation>Semblable à ce qui précède, mais définit une résistance cible maximale. Par défaut, 999.</translation>
     </message>
@@ -4746,12 +5908,28 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Résistance au démarrage :</translation>
     </message>
     <message>
+        <source>Resistance at Startup</source>
+        <translation>Résistance au démarrage</translation>
+    </message>
+    <message>
+        <source>Save Resistance at Startup</source>
+        <translation>Enregistrer la résistance au démarrage</translation>
+    </message>
+    <message>
         <source>(only for bikes with electronically-controlled resistance): Enter the resistance level you want QZ to set at startup. Default is 1.</source>
         <translation>(uniquement pour les vélos à résistance électroniquement contrôlée) : Entrez le niveau de résistance que vous souhaitez que QZ définisse au démarrage. Par défaut, c&apos;est 1.</translation>
     </message>
     <message>
         <source>Gears Gain:</source>
         <translation>Gains de vitesses :</translation>
+    </message>
+    <message>
+        <source>Gears Gain</source>
+        <translation>Gains de vitesses</translation>
+    </message>
+    <message>
+        <source>Save Gears Gain</source>
+        <translation>Enregistrer les gains de vitesses</translation>
     </message>
     <message>
         <source>Applies a multiplier to the gears. Default is 1.</source>
@@ -4764,6 +5942,14 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
     <message>
         <source>Gears Offset:</source>
         <translation>Décalage des vitesses :</translation>
+    </message>
+    <message>
+        <source>Gears Offset</source>
+        <translation>Décalage des vitesses</translation>
+    </message>
+    <message>
+        <source>Save Gears Offset</source>
+        <translation>Enregistrer le décalage des vitesses</translation>
     </message>
     <message>
         <source>Applies an offset to the gears. Default is 0.</source>
@@ -4798,6 +5984,10 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Sprint</translation>
     </message>
     <message>
+        <source>Profile</source>
+        <translation>Profil</translation>
+    </message>
+    <message>
         <source>Cruise Profile Settings</source>
         <translation>Paramètres du profil de croisière</translation>
     </message>
@@ -4806,16 +5996,48 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Croisière - cadence pour monter une vitesse (RPM) :</translation>
     </message>
     <message>
+        <source>Cruise - Gear Up Cadence (RPM)</source>
+        <translation>Croisière - cadence pour monter une vitesse (RPM)</translation>
+    </message>
+    <message>
+        <source>Save Cruise - Gear Up Cadence (RPM)</source>
+        <translation>Enregistrer la cadence pour monter une vitesse en croisière (RPM)</translation>
+    </message>
+    <message>
         <source>Cruise - Gear Up Time (seconds):</source>
         <translation>Croisière - délai avant de monter une vitesse (secondes) :</translation>
+    </message>
+    <message>
+        <source>Cruise - Gear Up Time (seconds)</source>
+        <translation>Croisière - délai avant de monter une vitesse (secondes)</translation>
+    </message>
+    <message>
+        <source>Save Cruise - Gear Up Time (seconds)</source>
+        <translation>Enregistrer le délai avant de monter une vitesse en croisière (secondes)</translation>
     </message>
     <message>
         <source>Cruise - Gear Down Cadence (RPM):</source>
         <translation>Croisière - cadence pour descendre une vitesse (RPM) :</translation>
     </message>
     <message>
+        <source>Cruise - Gear Down Cadence (RPM)</source>
+        <translation>Croisière - cadence pour descendre une vitesse (RPM)</translation>
+    </message>
+    <message>
+        <source>Save Cruise - Gear Down Cadence (RPM)</source>
+        <translation>Enregistrer la cadence pour descendre une vitesse en croisière (RPM)</translation>
+    </message>
+    <message>
         <source>Cruise - Gear Down Time (seconds):</source>
         <translation>Croisière - délai avant de descendre une vitesse (secondes) :</translation>
+    </message>
+    <message>
+        <source>Cruise - Gear Down Time (seconds)</source>
+        <translation>Croisière - délai avant de descendre une vitesse (secondes)</translation>
+    </message>
+    <message>
+        <source>Save Cruise - Gear Down Time (seconds)</source>
+        <translation>Enregistrer le délai avant de descendre une vitesse en croisière (secondes)</translation>
     </message>
     <message>
         <source>Climb Profile Settings</source>
@@ -4826,16 +6048,48 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Montée - cadence pour monter une vitesse (RPM) :</translation>
     </message>
     <message>
+        <source>Climb - Gear Up Cadence (RPM)</source>
+        <translation>Montée - cadence pour monter une vitesse (RPM)</translation>
+    </message>
+    <message>
+        <source>Save Climb - Gear Up Cadence (RPM)</source>
+        <translation>Enregistrer la cadence pour monter une vitesse en montée (RPM)</translation>
+    </message>
+    <message>
         <source>Climb - Gear Up Time (seconds):</source>
         <translation>Montée - délai avant de monter une vitesse (secondes) :</translation>
+    </message>
+    <message>
+        <source>Climb - Gear Up Time (seconds)</source>
+        <translation>Montée - délai avant de monter une vitesse (secondes)</translation>
+    </message>
+    <message>
+        <source>Save Climb - Gear Up Time (seconds)</source>
+        <translation>Enregistrer le délai avant de monter une vitesse en montée (secondes)</translation>
     </message>
     <message>
         <source>Climb - Gear Down Cadence (RPM):</source>
         <translation>Montée - cadence pour descendre une vitesse (RPM) :</translation>
     </message>
     <message>
+        <source>Climb - Gear Down Cadence (RPM)</source>
+        <translation>Montée - cadence pour descendre une vitesse (RPM)</translation>
+    </message>
+    <message>
+        <source>Save Climb - Gear Down Cadence (RPM)</source>
+        <translation>Enregistrer la cadence pour descendre une vitesse en montée (RPM)</translation>
+    </message>
+    <message>
         <source>Climb - Gear Down Time (seconds):</source>
         <translation>Montée - délai avant de descendre une vitesse (secondes) :</translation>
+    </message>
+    <message>
+        <source>Climb - Gear Down Time (seconds)</source>
+        <translation>Montée - délai avant de descendre une vitesse (secondes)</translation>
+    </message>
+    <message>
+        <source>Save Climb - Gear Down Time (seconds)</source>
+        <translation>Enregistrer le délai avant de descendre une vitesse en montée (secondes)</translation>
     </message>
     <message>
         <source>Sprint Profile Settings</source>
@@ -4846,16 +6100,48 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Sprint - cadence pour monter une vitesse (RPM) :</translation>
     </message>
     <message>
+        <source>Sprint - Gear Up Cadence (RPM)</source>
+        <translation>Sprint - cadence pour monter une vitesse (RPM)</translation>
+    </message>
+    <message>
+        <source>Save Sprint - Gear Up Cadence (RPM)</source>
+        <translation>Enregistrer la cadence pour monter une vitesse en sprint (RPM)</translation>
+    </message>
+    <message>
         <source>Sprint - Gear Up Time (seconds):</source>
         <translation>Sprint - délai avant de monter une vitesse (secondes) :</translation>
+    </message>
+    <message>
+        <source>Sprint - Gear Up Time (seconds)</source>
+        <translation>Sprint - délai avant de monter une vitesse (secondes)</translation>
+    </message>
+    <message>
+        <source>Save Sprint - Gear Up Time (seconds)</source>
+        <translation>Enregistrer le délai avant de monter une vitesse en sprint (secondes)</translation>
     </message>
     <message>
         <source>Sprint - Gear Down Cadence (RPM):</source>
         <translation>Sprint - cadence pour descendre une vitesse (RPM) :</translation>
     </message>
     <message>
+        <source>Sprint - Gear Down Cadence (RPM)</source>
+        <translation>Sprint - cadence pour descendre une vitesse (RPM)</translation>
+    </message>
+    <message>
+        <source>Save Sprint - Gear Down Cadence (RPM)</source>
+        <translation>Enregistrer la cadence pour descendre une vitesse en sprint (RPM)</translation>
+    </message>
+    <message>
         <source>Sprint - Gear Down Time (seconds):</source>
         <translation>Sprint - délai avant de descendre une vitesse (secondes) :</translation>
+    </message>
+    <message>
+        <source>Sprint - Gear Down Time (seconds)</source>
+        <translation>Sprint - délai avant de descendre une vitesse (secondes)</translation>
+    </message>
+    <message>
+        <source>Save Sprint - Gear Down Time (seconds)</source>
+        <translation>Enregistrer le délai avant de descendre une vitesse en sprint (secondes)</translation>
     </message>
     <message>
         <source>FTMS Bike:</source>
@@ -4890,6 +6176,14 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Lissage de résistance :</translation>
     </message>
     <message>
+        <source>Resistance Smoothing</source>
+        <translation>Lissage de résistance</translation>
+    </message>
+    <message>
+        <source>Save Resistance Smoothing</source>
+        <translation>Enregistrer le lissage de résistance</translation>
+    </message>
+    <message>
         <source>Since this bike doesn&apos;t send resistance over Bluetooth, QZ is calculating it using cadence and wattage. The result could be a little &apos;jumpy&apos; and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.</source>
         <translation>Étant donné que ce vélo n&apos;envoie pas la résistance via Bluetooth, QZ la calcule en utilisant la cadence et la puissance. Le résultat peut être un peu « saccadé », et donc, avec ce paramètre, vous pouvez filtrer la valeur de la tuile de résistance. L&apos;unité est un niveau de résistance pur, donc régler sur 5 signifie que vous ne verrez un changement de résistance que lorsque la résistance change de 5 niveaux.</translation>
     </message>
@@ -4902,6 +6196,14 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>GR7 Multiplicateur de cadence :</translation>
     </message>
     <message>
+        <source>GR7 Cadence Multiplier</source>
+        <translation>GR7 Multiplicateur de cadence</translation>
+    </message>
+    <message>
+        <source>Save GR7 Cadence Multiplier</source>
+        <translation>Enregistrer le multiplicateur de cadence GR7</translation>
+    </message>
+    <message>
         <source>Echelon Bike Options</source>
         <translation>Options de vélo Echelon</translation>
     </message>
@@ -4910,12 +6212,36 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Profil de puissance :</translation>
     </message>
     <message>
+        <source>Watt Profile</source>
+        <translation>Profil de puissance</translation>
+    </message>
+    <message>
+        <source>Save Watt Profile</source>
+        <translation>Enregistrer le profil de puissance</translation>
+    </message>
+    <message>
         <source>Resistance Gain:</source>
         <translation>Gain de résistance :</translation>
     </message>
     <message>
+        <source>Resistance Gain</source>
+        <translation>Gain de résistance</translation>
+    </message>
+    <message>
+        <source>Save Resistance Gain</source>
+        <translation>Enregistrer le gain de résistance</translation>
+    </message>
+    <message>
         <source>Resistance Offset:</source>
         <translation>Décalage de résistance :</translation>
+    </message>
+    <message>
+        <source>Resistance Offset</source>
+        <translation>Décalage de résistance</translation>
+    </message>
+    <message>
+        <source>Save Resistance Offset</source>
+        <translation>Enregistrer le décalage de résistance</translation>
     </message>
     <message>
         <source>Change gears using knob (Experimental)</source>
@@ -5006,12 +6332,28 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Filtre des échantillons :</translation>
     </message>
     <message>
+        <source>Samples Filter</source>
+        <translation>Filtre des échantillons</translation>
+    </message>
+    <message>
+        <source>Save Samples Filter</source>
+        <translation>Enregistrer le filtre des échantillons</translation>
+    </message>
+    <message>
         <source>Domyos Bike Options</source>
         <translation>Options de vélo Domyos</translation>
     </message>
     <message>
         <source>Cadence Filter:</source>
         <translation>Filtre de cadence :</translation>
+    </message>
+    <message>
+        <source>Cadence Filter</source>
+        <translation>Filtre de cadence</translation>
+    </message>
+    <message>
+        <source>Save Cadence Filter</source>
+        <translation>Enregistrer le filtre de cadence</translation>
     </message>
     <message>
         <source>Ignore FTMS</source>
@@ -5051,6 +6393,14 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Ratio de roue :</translation>
     </message>
     <message>
+        <source>Wheel Ratio</source>
+        <translation>Ratio de roue</translation>
+    </message>
+    <message>
+        <source>Save Wheel Ratio</source>
+        <translation>Enregistrer le ratio de roue</translation>
+    </message>
+    <message>
         <source>Specific Model:</source>
         <translation>Modèle spécifique :</translation>
     </message>
@@ -5059,8 +6409,32 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>TDF CBC Jonseed watt tableau</translation>
     </message>
     <message>
+        <source>TDF1 IP</source>
+        <translation>IP TDF1</translation>
+    </message>
+    <message>
+        <source>Save TDF1 IP</source>
+        <translation>Enregistrer l&apos;IP TDF1</translation>
+    </message>
+    <message>
+        <source>TDF4 IP</source>
+        <translation>IP TDF4</translation>
+    </message>
+    <message>
+        <source>Save TDF4 IP</source>
+        <translation>Enregistrer l&apos;IP TDF4</translation>
+    </message>
+    <message>
         <source>TDF Companion IP:</source>
         <translation>Adresse IP de TDF Companion :</translation>
+    </message>
+    <message>
+        <source>TDF Companion IP</source>
+        <translation>Adresse IP de TDF Companion</translation>
+    </message>
+    <message>
+        <source>Save TDF Companion IP</source>
+        <translation>Enregistrer l&apos;adresse IP de TDF Companion</translation>
     </message>
     <message>
         <source>Use Resistance instead of Inc.</source>
@@ -5075,12 +6449,28 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Port série :</translation>
     </message>
     <message>
+        <source>Serial Port</source>
+        <translation>Port série</translation>
+    </message>
+    <message>
+        <source>Save Serial Port</source>
+        <translation>Enregistrer le port série</translation>
+    </message>
+    <message>
         <source>Kettler USB Bike Options</source>
         <translation>Options de vélo Kettler USB</translation>
     </message>
     <message>
         <source>Baudrate:</source>
         <translation>Débit en bauds :</translation>
+    </message>
+    <message>
+        <source>Baudrate</source>
+        <translation>Débit en bauds</translation>
+    </message>
+    <message>
+        <source>Save Baudrate</source>
+        <translation>Enregistrer le débit en bauds</translation>
     </message>
     <message>
         <source>Freebeat Bike Options</source>
@@ -5099,8 +6489,24 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>ID du vélo :</translation>
     </message>
     <message>
+        <source>Bike ID</source>
+        <translation>ID du vélo</translation>
+    </message>
+    <message>
+        <source>Save Bike ID</source>
+        <translation>Enregistrer l&apos;ID du vélo</translation>
+    </message>
+    <message>
         <source>Speed Buffer Size:</source>
         <translation>Taille du lissage de la vitesse :</translation>
+    </message>
+    <message>
+        <source>Speed Buffer Size</source>
+        <translation>Taille du lissage de la vitesse</translation>
+    </message>
+    <message>
+        <source>Save Speed Buffer Size</source>
+        <translation>Enregistrer la taille du lissage de la vitesse</translation>
     </message>
     <message>
         <source>Use KCal from the Bike</source>
@@ -5127,6 +6533,14 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Numéro de périphérique de vélo ANT+ (0=Auto) :</translation>
     </message>
     <message>
+        <source>ANT+ Bike Device Number (0=Auto)</source>
+        <translation>Numéro de périphérique de vélo ANT+ (0=Auto)</translation>
+    </message>
+    <message>
+        <source>Save ANT+ Bike Device Number (0=Auto)</source>
+        <translation>Enregistrer le numéro de périphérique de vélo ANT+ (0=Auto)</translation>
+    </message>
+    <message>
         <source>Ant+ Options (only for some Android)</source>
         <translation>Options ANT+ (uniquement pour certains Android)</translation>
     </message>
@@ -5143,12 +6557,24 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Décalage de vitesse ANT+</translation>
     </message>
     <message>
+        <source>Save ANT+ Speed Offset</source>
+        <translation>Enregistrer le décalage de vitesse ANT+</translation>
+    </message>
+    <message>
         <source>You can increase/decrease your speed sent over ANT+. The number you enter as an Offset adds that amount to your speed.</source>
         <translation>Vous pouvez augmenter/diminuer votre vitesse envoyée via ANT+. Le nombre que vous entrez comme Décalage ajoute ce montant à votre vitesse.</translation>
     </message>
     <message>
         <source>ANT+ Speed Gain:</source>
         <translation>ANT+ Gain de vitesse :</translation>
+    </message>
+    <message>
+        <source>ANT+ Speed Gain</source>
+        <translation>ANT+ Gain de vitesse</translation>
+    </message>
+    <message>
+        <source>Save ANT+ Speed Gain</source>
+        <translation>Enregistrer le gain de vitesse ANT+</translation>
     </message>
     <message>
         <source>You can increase/decrease your speed output sent over ANT+. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.</source>
@@ -5161,6 +6587,14 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
     <message>
         <source>ANT+ Heart Device Number (0=Auto):</source>
         <translation>ANT+ Numéro de dispositif cardiaque (0=Auto) :</translation>
+    </message>
+    <message>
+        <source>ANT+ Heart Device Number (0=Auto)</source>
+        <translation>ANT+ Numéro de dispositif cardiaque (0=Auto)</translation>
+    </message>
+    <message>
+        <source>Save ANT+ Heart Device Number (0=Auto)</source>
+        <translation>Enregistrer le numéro de dispositif cardiaque ANT+ (0=Auto)</translation>
     </message>
     <message>
         <source>This setting enables receiving the heart rate from an external HRM over ANT+ instead of from QZ.</source>
@@ -5181,6 +6615,10 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
     <message>
         <source>General UI Options</source>
         <translation>Options générales de l&apos;interface</translation>
+    </message>
+    <message>
+        <source>Save Tile Size</source>
+        <translation>Enregistrer la taille des tuiles</translation>
     </message>
     <message>
         <source>Use System Text Size</source>
@@ -5215,6 +6653,14 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Horizontal</translation>
     </message>
     <message>
+        <source>Floating Window Type</source>
+        <translation>Type de fenêtre flottante</translation>
+    </message>
+    <message>
+        <source>Save Floating Window Type</source>
+        <translation>Enregistrer le type de fenêtre flottante</translation>
+    </message>
+    <message>
         <source>Choose the floating window layout type. Classic uses the standard floating.htm file, while Horizontal uses the hfloating.htm file for horizontal layout.</source>
         <translation>Choisissez le type de mise en page de fenêtre flottante. Classic utilise le fichier standard floating.htm, tandis que Horizontal utilise le fichier hfloating.htm pour la mise en page horizontale.</translation>
     </message>
@@ -5227,6 +6673,14 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Largeur de la fenêtre flottante :</translation>
     </message>
     <message>
+        <source>Floating Window Width</source>
+        <translation>Largeur de la fenêtre flottante</translation>
+    </message>
+    <message>
+        <source>Save Floating Window Width</source>
+        <translation>Enregistrer la largeur de la fenêtre flottante</translation>
+    </message>
+    <message>
         <source>Android Only: width of the floating window.</source>
         <translation>Android uniquement : largeur de la fenêtre flottante.</translation>
     </message>
@@ -5235,12 +6689,28 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Hauteur de la fenêtre flottante :</translation>
     </message>
     <message>
+        <source>Floating Window Height</source>
+        <translation>Hauteur de la fenêtre flottante</translation>
+    </message>
+    <message>
+        <source>Save Floating Window Height</source>
+        <translation>Enregistrer la hauteur de la fenêtre flottante</translation>
+    </message>
+    <message>
         <source>Android Only: height of the floating window.</source>
         <translation>Android uniquement : hauteur de la fenêtre flottante.</translation>
     </message>
     <message>
         <source>Floating Window % Transparency:</source>
         <translation>Transparence de la fenêtre flottante (%) :</translation>
+    </message>
+    <message>
+        <source>Floating Window % Transparency</source>
+        <translation>Transparence de la fenêtre flottante</translation>
+    </message>
+    <message>
+        <source>Save Floating Window % Transparency</source>
+        <translation>Enregistrer la transparence de la fenêtre flottante</translation>
     </message>
     <message>
         <source>Android Only: transparency percentage of the floating window.</source>
@@ -5271,8 +6741,32 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Puissance uniquement</translation>
     </message>
     <message>
+        <source>Chart Display Mode</source>
+        <translation>Mode d&apos;affichage du graphique</translation>
+    </message>
+    <message>
+        <source>Save Chart Display Mode</source>
+        <translation>Enregistrer le mode d&apos;affichage du graphique</translation>
+    </message>
+    <message>
         <source>Choose which charts to display in the footer: both heart rate and power charts, only heart rate chart, or only power chart.</source>
         <translation>Choisissez les graphiques à afficher dans le pied de page : fréquence cardiaque et puissance, uniquement la fréquence cardiaque, ou uniquement la puissance.</translation>
+    </message>
+    <message>
+        <source>iOS Live Activity Left Metric</source>
+        <translation>Indicateur gauche de l&apos;activité en direct iOS</translation>
+    </message>
+    <message>
+        <source>Save iOS Live Activity Left Metric</source>
+        <translation>Enregistrer l&apos;indicateur gauche de l&apos;activité en direct iOS</translation>
+    </message>
+    <message>
+        <source>iOS Live Activity Right Metric</source>
+        <translation>Indicateur droit de l&apos;activité en direct iOS</translation>
+    </message>
+    <message>
+        <source>Save iOS Live Activity Right Metric</source>
+        <translation>Enregistrer l&apos;indicateur droit de l&apos;activité en direct iOS</translation>
     </message>
     <message>
         <source>UI Themes</source>
@@ -5287,24 +6781,72 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Couleur d&apos;arrière-plan :</translation>
     </message>
     <message>
+        <source>Background Color</source>
+        <translation>Couleur d&apos;arrière-plan</translation>
+    </message>
+    <message>
+        <source>Save Background Color</source>
+        <translation>Enregistrer la couleur d&apos;arrière-plan</translation>
+    </message>
+    <message>
         <source>Tiles Background Color:</source>
         <translation>Couleur d&apos;arrière-plan des tuiles :</translation>
+    </message>
+    <message>
+        <source>Tiles Background Color</source>
+        <translation>Couleur d&apos;arrière-plan des tuiles</translation>
+    </message>
+    <message>
+        <source>Save Tiles Background Color</source>
+        <translation>Enregistrer la couleur d&apos;arrière-plan des tuiles</translation>
     </message>
     <message>
         <source>Tiles Shadow Color:</source>
         <translation>Couleur de l&apos;ombre des tuiles :</translation>
     </message>
     <message>
+        <source>Tiles Shadow Color</source>
+        <translation>Couleur de l&apos;ombre des tuiles</translation>
+    </message>
+    <message>
+        <source>Save Tiles Shadow Color</source>
+        <translation>Enregistrer la couleur de l&apos;ombre des tuiles</translation>
+    </message>
+    <message>
         <source>Statusbar Background Color:</source>
         <translation>Couleur d&apos;arrière-plan de la barre d&apos;état :</translation>
+    </message>
+    <message>
+        <source>Statusbar Background Color</source>
+        <translation>Couleur d&apos;arrière-plan de la barre d&apos;état</translation>
+    </message>
+    <message>
+        <source>Save Statusbar Background Color</source>
+        <translation>Enregistrer la couleur d&apos;arrière-plan de la barre d&apos;état</translation>
     </message>
     <message>
         <source>2nd line tile text size:</source>
         <translation>Taille du texte de la deuxième ligne :</translation>
     </message>
     <message>
+        <source>2nd line tile text size</source>
+        <translation>Taille du texte de la deuxième ligne</translation>
+    </message>
+    <message>
+        <source>Save 2nd line tile text size</source>
+        <translation>Enregistrer la taille du texte de la deuxième ligne</translation>
+    </message>
+    <message>
         <source>Peloton Options</source>
         <translation>Options Peloton</translation>
+    </message>
+    <message>
+        <source>Connect to Peloton</source>
+        <translation>Connecter à Peloton</translation>
+    </message>
+    <message>
+        <source>Opens the Peloton login page</source>
+        <translation>Ouvre la page de connexion Peloton</translation>
     </message>
     <message>
         <source>Difficulty:</source>
@@ -5323,12 +6865,28 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>moyenne</translation>
     </message>
     <message>
+        <source>Difficulty</source>
+        <translation>Difficulté</translation>
+    </message>
+    <message>
+        <source>Save Difficulty</source>
+        <translation>Enregistrer la difficulté</translation>
+    </message>
+    <message>
         <source>Typically, Peloton coaches call out a range for target incline, resistance and/or speed. Use this setting to choose the difficulty of the target QZ communicates. Difficulty level can be set to lower, upper or average. Click OK.</source>
         <translation>Habituellement, les coachs Peloton annoncent une plage pour l&apos;inclinaison, la résistance et/ou la vitesse cibles. Utilisez ce paramètre pour choisir la difficulté de la cible communiquée par QZ. Le niveau de difficulté peut être réglé sur faible, élevé ou moyen. Cliquez sur OK.</translation>
     </message>
     <message>
         <source>Treadmill Level:</source>
         <translation>Niveau du tapis de course :</translation>
+    </message>
+    <message>
+        <source>Treadmill Level</source>
+        <translation>Niveau du tapis de course</translation>
+    </message>
+    <message>
+        <source>Save Treadmill Level</source>
+        <translation>Enregistrer le niveau du tapis de course</translation>
     </message>
     <message>
         <source>Difficulty level for Peloton treadmill classes. 1 is easy 10 is hard.</source>
@@ -5339,12 +6897,44 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Niveau de marche du tapis de course :</translation>
     </message>
     <message>
+        <source>Treadmill Walk Level</source>
+        <translation>Niveau de marche du tapis de course</translation>
+    </message>
+    <message>
+        <source>Save Treadmill Walk Level</source>
+        <translation>Enregistrer le niveau de marche du tapis de course</translation>
+    </message>
+    <message>
         <source>Difficulty level for Peloton treadmill walking classes. 1 is easy 10 is hard.</source>
         <translation>Niveau de difficulté pour les cours de marche sur tapis roulant Peloton. 1 est facile, 10 est difficile.</translation>
     </message>
     <message>
+        <source>Walking Min Speed</source>
+        <translation>Vitesse minimale de marche</translation>
+    </message>
+    <message>
+        <source>Save Walking Min Speed</source>
+        <translation>Enregistrer la vitesse minimale de marche</translation>
+    </message>
+    <message>
+        <source>Running Min Speed</source>
+        <translation>Vitesse minimale de course</translation>
+    </message>
+    <message>
+        <source>Save Running Min Speed</source>
+        <translation>Enregistrer la vitesse minimale de course</translation>
+    </message>
+    <message>
         <source>Rower Level:</source>
         <translation>Niveau de rameur :</translation>
+    </message>
+    <message>
+        <source>Rower Level</source>
+        <translation>Niveau de rameur</translation>
+    </message>
+    <message>
+        <source>Save Rower Level</source>
+        <translation>Enregistrer le niveau de rameur</translation>
     </message>
     <message>
         <source>Difficulty level for Peloton rower classes. 1 is easy 10 is hard.</source>
@@ -5355,12 +6945,28 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Nom d&apos;utilisateur PZP :</translation>
     </message>
     <message>
+        <source>PZP Username</source>
+        <translation>Nom d&apos;utilisateur PZP</translation>
+    </message>
+    <message>
+        <source>Save PZP Username</source>
+        <translation>Enregistrer le nom d&apos;utilisateur PZP</translation>
+    </message>
+    <message>
         <source>As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave (or change back to) the default of “username” (without quotation marks, all lowercase and all one word) until further notice.</source>
         <translation>Au 1er avril 2022, cette fonctionnalité est défectueuse en raison d&apos;un changement sur le site web de Power Zone Pack (PZP). Laissez (ou revenez au) paramètre par défaut &quot;username&quot; (sans guillemets, tout en minuscules et en un seul mot) jusqu&apos;à nouvel ordre.</translation>
     </message>
     <message>
         <source>PZP Password:</source>
         <translation>Mot de passe PZP :</translation>
+    </message>
+    <message>
+        <source>PZP Password</source>
+        <translation>Mot de passe PZP</translation>
+    </message>
+    <message>
+        <source>Save PZP Password</source>
+        <translation>Enregistrer le mot de passe PZP</translation>
     </message>
     <message>
         <source>As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave this setting blank until further notice.</source>
@@ -5371,12 +6977,28 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Gain de conversion :</translation>
     </message>
     <message>
+        <source>Conversion Gain</source>
+        <translation>Gain de conversion</translation>
+    </message>
+    <message>
+        <source>Save Conversion Gain</source>
+        <translation>Enregistrer le gain de conversion</translation>
+    </message>
+    <message>
         <source>Conversion gain is a multiplier. Use this setting to align the Peloton resistance calculated by QZ with the relative effort required by your bike. In most cases the default values will be correct.</source>
         <translation>Le gain de conversion est un multiplicateur. Utilisez ce paramètre pour aligner la résistance Peloton calculée par QZ avec l&apos;effort relatif requis par votre vélo. Dans la plupart des cas, les valeurs par défaut seront correctes.</translation>
     </message>
     <message>
         <source>Conversion Offset:</source>
         <translation>Décalage de conversion :</translation>
+    </message>
+    <message>
+        <source>Conversion Offset</source>
+        <translation>Décalage de conversion</translation>
+    </message>
+    <message>
+        <source>Save Conversion Offset</source>
+        <translation>Enregistrer le décalage de conversion</translation>
     </message>
     <message>
         <source>Increases the resistance that QZ displays in the Peloton Resistance tile. If QZ’s calculated conversion from your bike’s resistance scale to Peloton’s seems too low, the number you enter here will be added to the calculated resistance without increasing your effort or actual resistance. (Example: If QZ displays Peloton resistance of 30 and you enter 5, QZ will display 35.)</source>
@@ -5552,7 +7174,7 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation>Ouvrir</translation>
+        <translation type="vanished">Ouvrir</translation>
     </message>
     <message>
         <source>App Language:</source>
@@ -5775,6 +7397,14 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Choisir la donnée affichée à la place de la FC :</translation>
     </message>
     <message>
+        <source>Override HR Metric</source>
+        <translation>Choisir la donnée affichée à la place de la FC</translation>
+    </message>
+    <message>
+        <source>Save Override HR Metric</source>
+        <translation>Enregistrer la donnée affichée à la place de la FC</translation>
+    </message>
+    <message>
         <source>By default, QZ communicates heart rate to Peloton. Use this setting to change the metric that appears on the Peloton screen.</source>
         <translation>Par défaut, QZ communique la fréquence cardiaque à Peloton. Utilisez ce paramètre pour changer la métrique qui apparaît sur l&apos;écran Peloton.</translation>
     </message>
@@ -5791,12 +7421,28 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Après le titre</translation>
     </message>
     <message>
+        <source>Date on Strava</source>
+        <translation>Date sur Strava</translation>
+    </message>
+    <message>
+        <source>Save Date on Strava</source>
+        <translation>Enregistrer la date sur Strava</translation>
+    </message>
+    <message>
         <source>Allows you to choose whether you would like the Peloton class air date to display before or after the class title on Strava.</source>
         <translation>Vous permet de choisir si la date de diffusion du cours Peloton doit s&apos;afficher avant ou après le titre du cours sur Strava.</translation>
     </message>
     <message>
         <source>Date Format:</source>
         <translation>Format de date :</translation>
+    </message>
+    <message>
+        <source>Date Format</source>
+        <translation>Format de date</translation>
+    </message>
+    <message>
+        <source>Save Date Format</source>
+        <translation>Enregistrer le format de date</translation>
     </message>
     <message>
         <source>Activity Link in Strava</source>
@@ -5839,12 +7485,28 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Nom d&apos;utilisateur :</translation>
     </message>
     <message>
+        <source>Username</source>
+        <translation>Nom d&apos;utilisateur</translation>
+    </message>
+    <message>
+        <source>Save Username</source>
+        <translation>Enregistrer le nom d&apos;utilisateur</translation>
+    </message>
+    <message>
         <source>Enter the email address you use to login to Zwift. Ensure there are no spaces before or after your email. Click OK.</source>
         <translation>Veuillez entrer l&apos;adresse e-mail que vous utilisez pour vous connecter à Zwift. Assurez-vous qu&apos;il n&apos;y a pas d&apos;espaces avant ou après votre e-mail. Cliquez sur OK.</translation>
     </message>
     <message>
         <source>Password:</source>
         <translation>Mot de passe :</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Mot de passe</translation>
+    </message>
+    <message>
+        <source>Save Password</source>
+        <translation>Enregistrer le mot de passe</translation>
     </message>
     <message>
         <source>Enter the password you use to login to Zwift. Click OK.</source>
@@ -5877,6 +7539,14 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
     <message>
         <source>Poll Time:</source>
         <translation>Intervalle de mise à jour des données :</translation>
+    </message>
+    <message>
+        <source>Poll Time</source>
+        <translation>Intervalle de mise à jour des données</translation>
+    </message>
+    <message>
+        <source>Save Poll Time</source>
+        <translation>Enregistrer l&apos;intervalle de mise à jour des données</translation>
     </message>
     <message>
         <source>Define the number of delay seconds between each inclination change from Zwift. This value can&apos;t be less than 5. Default: 5</source>
@@ -5975,8 +7645,24 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Courriel Garmin :</translation>
     </message>
     <message>
+        <source>Garmin Email</source>
+        <translation>Courriel Garmin</translation>
+    </message>
+    <message>
+        <source>Save Garmin Email</source>
+        <translation>Enregistrer le courriel Garmin</translation>
+    </message>
+    <message>
         <source>Garmin Password:</source>
         <translation>Mot de passe Garmin :</translation>
+    </message>
+    <message>
+        <source>Garmin Password</source>
+        <translation>Mot de passe Garmin</translation>
+    </message>
+    <message>
+        <source>Save Garmin Password</source>
+        <translation>Enregistrer le mot de passe Garmin</translation>
     </message>
     <message>
         <source>Garmin Server:</source>
@@ -5989,6 +7675,10 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
     <message>
         <source>China (garmin.cn)</source>
         <translation>Chine (garmin.cn)</translation>
+    </message>
+    <message>
+        <source>Garmin Server</source>
+        <translation>Serveur Garmin</translation>
     </message>
     <message>
         <source>Test Garmin Login</source>
@@ -6101,8 +7791,24 @@ Veuillez le saisir ci-dessous :</translation>
         <translation>Maintien de la FC – min :</translation>
     </message>
     <message>
+        <source>PID on HR min</source>
+        <translation>Maintien de la FC – min</translation>
+    </message>
+    <message>
+        <source>Save PID on HR min</source>
+        <translation>Enregistrer le maintien de la FC – min</translation>
+    </message>
+    <message>
         <source>PID on HR max:</source>
         <translation>Maintien de la FC – max :</translation>
+    </message>
+    <message>
+        <source>PID on HR max</source>
+        <translation>Maintien de la FC – max</translation>
+    </message>
+    <message>
+        <source>Save PID on HR max</source>
+        <translation>Enregistrer le maintien de la FC – max</translation>
     </message>
     <message>
         <source>Alternatively to &apos;PID on Heart Zone&apos; setting you can use this couple of settings in order to specify a HR range.</source>
@@ -6145,12 +7851,28 @@ Veuillez le saisir ci-dessous :</translation>
         <translation>Rythme de 1 mile (temps total) :</translation>
     </message>
     <message>
+        <source>1 mile pace (total time)</source>
+        <translation>Rythme de 1 mile (temps total)</translation>
+    </message>
+    <message>
+        <source>Save 1 mile pace (total time)</source>
+        <translation>Enregistrer le rythme sur 1 mile (temps total)</translation>
+    </message>
+    <message>
         <source>Enter your 1 mile time goal, click OK. This setting will be used when you’re following a training program with the speed control. These settings should also match the Zwift app settings. More info: https://github.com/cagnulein/qdomyos-zwift/issues/609.</source>
         <translation>Entrez votre objectif de temps de 1 mile, cliquez sur OK. Ce paramètre sera utilisé lorsque vous suivez un programme d&apos;entraînement avec le contrôle de vitesse. Ces paramètres doivent également correspondre aux paramètres de l&apos;application Zwift. Plus d&apos;infos : https://github.com/cagnulein/qdomyos-zwift/issues/609.</translation>
     </message>
     <message>
         <source>5 km pace (total time):</source>
         <translation>Allure sur 5 km (temps total) :</translation>
+    </message>
+    <message>
+        <source>5 km pace (total time)</source>
+        <translation>Allure sur 5 km (temps total)</translation>
+    </message>
+    <message>
+        <source>Save 5 km pace (total time)</source>
+        <translation>Enregistrer l&apos;allure sur 5 km (temps total)</translation>
     </message>
     <message>
         <source>See 1 Mile Pace above; same except 5 km instead of 1 mile.</source>
@@ -6161,6 +7883,14 @@ Veuillez le saisir ci-dessous :</translation>
         <translation>Allure de 10 km (temps total) :</translation>
     </message>
     <message>
+        <source>10 km pace (total time)</source>
+        <translation>Allure de 10 km (temps total)</translation>
+    </message>
+    <message>
+        <source>Save 10 km pace (total time)</source>
+        <translation>Enregistrer l&apos;allure sur 10 km (temps total)</translation>
+    </message>
+    <message>
         <source>See 1 Mile Pace above; same except 10 km instead of 1 mile.</source>
         <translation>Voir le rythme de 1 Mile ci-dessus; même chose pour 10 km au lieu de 1 mile.</translation>
     </message>
@@ -6169,12 +7899,28 @@ Veuillez le saisir ci-dessous :</translation>
         <translation>Allure du semi-marathon (temps total) :</translation>
     </message>
     <message>
+        <source>Half Marathon pace (total time)</source>
+        <translation>Allure du semi-marathon (temps total)</translation>
+    </message>
+    <message>
+        <source>Save Half Marathon pace (total time)</source>
+        <translation>Enregistrer l&apos;allure du semi-marathon (temps total)</translation>
+    </message>
+    <message>
         <source>See 1 Mile Pace above; same except half marathon distance instead of 1 mile.</source>
         <translation>Voir le rythme de 1 Mile ci-dessus; même chose pour la distance semi-marathon au lieu de 1 mile.</translation>
     </message>
     <message>
         <source>Marathon pace (total time):</source>
         <translation>Allure marathon (temps total) :</translation>
+    </message>
+    <message>
+        <source>Marathon pace (total time)</source>
+        <translation>Allure marathon (temps total)</translation>
+    </message>
+    <message>
+        <source>Save Marathon pace (total time)</source>
+        <translation>Enregistrer l&apos;allure marathon (temps total)</translation>
     </message>
     <message>
         <source>See 1 Mile Pace above; same except marathon distance instead of 1 mile.</source>
@@ -6217,12 +7963,28 @@ Veuillez le saisir ci-dessous :</translation>
         <translation>10 km</translation>
     </message>
     <message>
+        <source>Default Pace</source>
+        <translation>Allure par défaut</translation>
+    </message>
+    <message>
+        <source>Save Default Pace</source>
+        <translation>Enregistrer l&apos;allure par défaut</translation>
+    </message>
+    <message>
         <source>Select the default Pace to be used when the ZWO file does not indicate a precise pace.</source>
         <translation>Sélectionnez le rythme par défaut à utiliser lorsque le fichier ZWO n&apos;indique pas de rythme précis.</translation>
     </message>
     <message>
         <source>ERG Mode Watt Step:</source>
         <translation>Pas de puissance en mode ERG (W) :</translation>
+    </message>
+    <message>
+        <source>ERG Mode Watt Step</source>
+        <translation>Pas de puissance en mode ERG</translation>
+    </message>
+    <message>
+        <source>Save ERG Mode Watt Step</source>
+        <translation>Enregistrer le pas de puissance en mode ERG</translation>
     </message>
     <message>
         <source>Set the wattage step increment for ERG mode heart rate zone training. Default: 5 watts.</source>
@@ -6237,32 +7999,96 @@ Veuillez le saisir ci-dessous :</translation>
         <translation>Durée (minutes) :</translation>
     </message>
     <message>
+        <source>Duration (minutes)</source>
+        <translation>Durée (minutes)</translation>
+    </message>
+    <message>
+        <source>Save Duration (minutes)</source>
+        <translation>Enregistrer la durée (minutes)</translation>
+    </message>
+    <message>
         <source>Period (seconds):</source>
         <translation>Période (secondes) :</translation>
+    </message>
+    <message>
+        <source>Period (seconds)</source>
+        <translation>Période (secondes)</translation>
+    </message>
+    <message>
+        <source>Save Period (seconds)</source>
+        <translation>Enregistrer la période (secondes)</translation>
     </message>
     <message>
         <source>Speed min.:</source>
         <translation>Vitesse min. :</translation>
     </message>
     <message>
+        <source>Speed min.</source>
+        <translation>Vitesse min.</translation>
+    </message>
+    <message>
+        <source>Save Speed min.</source>
+        <translation>Enregistrer la vitesse min.</translation>
+    </message>
+    <message>
         <source>Speed max.:</source>
         <translation>Vitesse max. :</translation>
+    </message>
+    <message>
+        <source>Speed max.</source>
+        <translation>Vitesse max.</translation>
+    </message>
+    <message>
+        <source>Save Speed max.</source>
+        <translation>Enregistrer la vitesse max.</translation>
     </message>
     <message>
         <source>Incline min.:</source>
         <translation>Inclinaison min. :</translation>
     </message>
     <message>
+        <source>Incline min.</source>
+        <translation>Inclinaison min.</translation>
+    </message>
+    <message>
+        <source>Save Incline min.</source>
+        <translation>Enregistrer l&apos;inclinaison min.</translation>
+    </message>
+    <message>
         <source>Incline max.:</source>
         <translation>Inclinaison max. :</translation>
+    </message>
+    <message>
+        <source>Incline max.</source>
+        <translation>Inclinaison max.</translation>
+    </message>
+    <message>
+        <source>Save Incline max.</source>
+        <translation>Enregistrer l&apos;inclinaison max.</translation>
     </message>
     <message>
         <source>Resistance min.:</source>
         <translation>Résistance min. :</translation>
     </message>
     <message>
+        <source>Resistance min.</source>
+        <translation>Résistance min.</translation>
+    </message>
+    <message>
+        <source>Save Resistance min.</source>
+        <translation>Enregistrer la résistance min.</translation>
+    </message>
+    <message>
         <source>Resistance max.:</source>
         <translation>Résistance max. :</translation>
+    </message>
+    <message>
+        <source>Resistance max.</source>
+        <translation>Résistance max.</translation>
+    </message>
+    <message>
+        <source>Save Resistance max.</source>
+        <translation>Enregistrer la résistance max.</translation>
     </message>
     <message>
         <source>Turn on and enter your choices for workout time (in minutes and seconds) and the maximum and minimum speed, incline (treadmill), and resistance (bike) and QZ will randomly change your speed and resistance or incline accordingly for the period of time you have selected.</source>
@@ -6329,12 +8155,28 @@ Veuillez le saisir ci-dessous :</translation>
         <translation>Pas de vitesse :</translation>
     </message>
     <message>
+        <source>Speed Step</source>
+        <translation>Pas de vitesse</translation>
+    </message>
+    <message>
+        <source>Save Speed Step</source>
+        <translation>Enregistrer le pas de vitesse</translation>
+    </message>
+    <message>
         <source>(Speed Tile) This controls the amount of the increase or decrease in the speed (in kph/mph) when you press the plus or minus button in the Speed Tile. Default is 0.5 kph.</source>
         <translation>(Tuile de vitesse) Ceci contrôle le montant d&apos;augmentation ou de diminution de la vitesse (en km/h ou mph) lorsque vous appuyez sur le bouton plus ou moins dans la Tuile de vitesse. Par défaut, 0,5 km/h.</translation>
     </message>
     <message>
         <source>Min. Inclination:</source>
         <translation>Inclinaison min. :</translation>
+    </message>
+    <message>
+        <source>Min. Inclination</source>
+        <translation>Inclinaison min.</translation>
+    </message>
+    <message>
+        <source>Save Min. Inclination</source>
+        <translation>Enregistrer l&apos;inclinaison min.</translation>
     </message>
     <message>
         <source>This overrides the minimum inclination value of your treadmill (in order to reduce the inclination movement). Default is -100</source>
@@ -6345,12 +8187,28 @@ Veuillez le saisir ci-dessous :</translation>
         <translation>Inclinaison max :</translation>
     </message>
     <message>
+        <source>Max. Inclination</source>
+        <translation>Inclinaison max</translation>
+    </message>
+    <message>
+        <source>Save Max. Inclination</source>
+        <translation>Enregistrer l&apos;inclinaison max.</translation>
+    </message>
+    <message>
         <source>This overrides the maximum inclination value of your treadmill (in order to reduce the inclination movement). Default is -100</source>
         <translation>Définit la valeur d&apos;inclinaison maximale de votre tapis de course (pour réduire le mouvement d&apos;inclinaison). La valeur par défaut est -100</translation>
     </message>
     <message>
         <source>Max. Speed:</source>
         <translation>Vitesse max :</translation>
+    </message>
+    <message>
+        <source>Max. Speed</source>
+        <translation>Vitesse max</translation>
+    </message>
+    <message>
+        <source>Save Max. Speed</source>
+        <translation>Enregistrer la vitesse max.</translation>
     </message>
     <message>
         <source>This overrides the maximum speed value of your treadmill (in order to limit the max speed). Default is 100 km/h (62.1 mph)</source>
@@ -6361,12 +8219,28 @@ Veuillez le saisir ci-dessous :</translation>
         <translation>Vitesse min :</translation>
     </message>
     <message>
+        <source>Min. Speed</source>
+        <translation>Vitesse min</translation>
+    </message>
+    <message>
+        <source>Save Min. Speed</source>
+        <translation>Enregistrer la vitesse min.</translation>
+    </message>
+    <message>
         <source>This overrides the minimum speed value of your treadmill (in order to limit the min speed). Default is 0 km/h (0 mph)</source>
         <translation>Définit la valeur de vitesse minimale de votre tapis de course (pour limiter la vitesse min). Par défaut, 0 km/h (0 mph)</translation>
     </message>
     <message>
         <source>Step Count Gain:</source>
         <translation>Gain de pas :</translation>
+    </message>
+    <message>
+        <source>Step Count Gain</source>
+        <translation>Gain de pas</translation>
+    </message>
+    <message>
+        <source>Save Step Count Gain</source>
+        <translation>Enregistrer le gain de pas</translation>
     </message>
     <message>
         <source>Multiplier applied to the step count calculated from cadence for calibration. Increase above 1.0 to count more steps, decrease below 1.0 to count fewer steps. Default is 1.0.</source>
@@ -6410,8 +8284,24 @@ Veuillez le saisir ci-dessous :</translation>
         <translation>IP Proform :</translation>
     </message>
     <message>
+        <source>Proform IP</source>
+        <translation>IP Proform</translation>
+    </message>
+    <message>
+        <source>Save Proform IP</source>
+        <translation>Enregistrer l&apos;IP Proform</translation>
+    </message>
+    <message>
         <source>Nordictrack 2950 IP:</source>
         <translation>IP Nordictrack 2950 :</translation>
+    </message>
+    <message>
+        <source>Nordictrack 2950 IP</source>
+        <translation>IP Nordictrack 2950</translation>
+    </message>
+    <message>
+        <source>Save Nordictrack 2950 IP</source>
+        <translation>Enregistrer l&apos;IP Nordictrack 2950</translation>
     </message>
     <message>
         <source>Pafers Options</source>
@@ -6428,6 +8318,74 @@ Veuillez le saisir ci-dessous :</translation>
     <message>
         <source>Inclination</source>
         <translation>Inclinaison</translation>
+    </message>
+    <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>Ce paramètre est introuvable dans les pages de paramètres</translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Définit comment l&apos;inclinaison de l&apos;application virtuelle est convertie en résistance du vélo.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Utilise une correspondance personnalisée quand QZ convertit l&apos;inclinaison de l&apos;application virtuelle en résistance.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Une paire inclinaison|résistance par ligne. QZ interpole entre les points et, en dehors de la plage configurée, utilise l&apos;extrémité.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Nom d&apos;utilisateur du compte Life Fitness pour la connexion au service. Enregistré uniquement sur l&apos;appareil et jamais écrit dans les journaux de débogage.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Mot de passe du compte Life Fitness pour la connexion au service. Enregistré uniquement sur l&apos;appareil et jamais écrit dans les journaux de débogage.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Angle de caméra actuel</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Émoticône actuelle</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Émulateur Wattbike</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Position du graphique de puissance</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Position du graphique de fréquence cardiaque</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Position du graphique résistance vs résistance cible</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Position du graphique de résistance Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Position du graphique de cadence</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Position du graphique de répartition de la puissance</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Position du graphique vitesse et inclinaison</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Position de ce graphique dans l&apos;historique des entraînements. L&apos;ordre se modifie avec les boutons Monter et Descendre dans Options générales de l&apos;interface.</translation>
     </message>
     <message>
         <source>Tile size:</source>
@@ -7042,8 +9000,248 @@ NOTES IMPORTANTES :
         <translation>KM</translation>
     </message>
     <message>
+        <source>PID on Heart Zone</source>
+        <translation>Maintien de la fréquence cardiaque en zone</translation>
+    </message>
+    <message>
+        <source>Save PID on Heart Zone</source>
+        <translation>Enregistrer le maintien de la fréquence cardiaque en zone</translation>
+    </message>
+    <message>
+        <source>Save PID HR actuator</source>
+        <translation>Enregistrer l&apos;organe d&apos;action du maintien de la FC</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email</source>
+        <translation>Nom d&apos;utilisateur/e-mail Life Fitness</translation>
+    </message>
+    <message>
+        <source>Save Life Fitness username/email</source>
+        <translation>Enregistrer le nom d&apos;utilisateur/e-mail Life Fitness</translation>
+    </message>
+    <message>
+        <source>Life Fitness password</source>
+        <translation>Mot de passe Life Fitness</translation>
+    </message>
+    <message>
+        <source>Save Life Fitness password</source>
+        <translation>Enregistrer le mot de passe Life Fitness</translation>
+    </message>
+    <message>
+        <source>Remap 5 km/h button</source>
+        <translation>Remapper le bouton 5 km/h</translation>
+    </message>
+    <message>
+        <source>Save Remap 5 km/h button</source>
+        <translation>Enregistrer le remappage du bouton 5 km/h</translation>
+    </message>
+    <message>
+        <source>Remap 10 km/h button</source>
+        <translation>Remapper le bouton 10 km/h</translation>
+    </message>
+    <message>
+        <source>Save Remap 10 km/h button</source>
+        <translation>Enregistrer le remappage du bouton 10 km/h</translation>
+    </message>
+    <message>
+        <source>Remap 16 km/h button</source>
+        <translation>Remapper le bouton 16 km/h</translation>
+    </message>
+    <message>
+        <source>Save Remap 16 km/h button</source>
+        <translation>Enregistrer le remappage du bouton 16 km/h</translation>
+    </message>
+    <message>
+        <source>Remap 22 km/h button</source>
+        <translation>Remapper le bouton 22 km/h</translation>
+    </message>
+    <message>
+        <source>Save Remap 22 km/h button</source>
+        <translation>Enregistrer le remappage du bouton 22 km/h</translation>
+    </message>
+    <message>
+        <source>Pool time (ms)</source>
+        <translation>Intervalle de mise à jour (ms)</translation>
+    </message>
+    <message>
+        <source>Save Pool time (ms)</source>
+        <translation>Enregistrer l&apos;intervalle de mise à jour (ms)</translation>
+    </message>
+    <message>
+        <source>User ID</source>
+        <translation>ID utilisateur</translation>
+    </message>
+    <message>
+        <source>Save User ID</source>
+        <translation>Enregistrer l&apos;ID utilisateur</translation>
+    </message>
+    <message>
+        <source>User 1</source>
+        <translation>Utilisateur 1</translation>
+    </message>
+    <message>
+        <source>Save User 1</source>
+        <translation>Enregistrer l&apos;utilisateur 1</translation>
+    </message>
+    <message>
+        <source>User 2</source>
+        <translation>Utilisateur 2</translation>
+    </message>
+    <message>
+        <source>Save User 2</source>
+        <translation>Enregistrer l&apos;utilisateur 2</translation>
+    </message>
+    <message>
+        <source>User 3</source>
+        <translation>Utilisateur 3</translation>
+    </message>
+    <message>
+        <source>Save User 3</source>
+        <translation>Enregistrer l&apos;utilisateur 3</translation>
+    </message>
+    <message>
+        <source>User 4</source>
+        <translation>Utilisateur 4</translation>
+    </message>
+    <message>
+        <source>Save User 4</source>
+        <translation>Enregistrer l&apos;utilisateur 4</translation>
+    </message>
+    <message>
+        <source>User 5</source>
+        <translation>Utilisateur 5</translation>
+    </message>
+    <message>
+        <source>Save User 5</source>
+        <translation>Enregistrer l&apos;utilisateur 5</translation>
+    </message>
+    <message>
+        <source>ProForm Rower IP</source>
+        <translation>IP du rameur ProForm</translation>
+    </message>
+    <message>
+        <source>Save ProForm Rower IP</source>
+        <translation>Enregistrer l&apos;IP du rameur ProForm</translation>
+    </message>
+    <message>
+        <source>Save Domyos Elliptical Speed Ratio</source>
+        <translation>Enregistrer le rapport de vitesse de l&apos;elliptique Domyos</translation>
+    </message>
+    <message>
+        <source>Companion IP</source>
+        <translation>Adresse IP du compagnon</translation>
+    </message>
+    <message>
+        <source>Save Companion IP</source>
+        <translation>Enregistrer l&apos;adresse IP du compagnon</translation>
+    </message>
+    <message>
+        <source>Watt Offset</source>
+        <translation>Décalage de puissance</translation>
+    </message>
+    <message>
+        <source>Save Watt Offset</source>
+        <translation>Enregistrer le décalage de puissance</translation>
+    </message>
+    <message>
+        <source>Watt Gain</source>
+        <translation>Gain de puissance</translation>
+    </message>
+    <message>
+        <source>Save Watt Gain</source>
+        <translation>Enregistrer le gain de puissance</translation>
+    </message>
+    <message>
+        <source>Save Speed Offset</source>
+        <translation>Enregistrer le décalage de vitesse</translation>
+    </message>
+    <message>
+        <source>Speed Gain</source>
+        <translation>Gain de vitesse</translation>
+    </message>
+    <message>
+        <source>Save Speed Gain</source>
+        <translation>Enregistrer le gain de vitesse</translation>
+    </message>
+    <message>
+        <source>Save Cadence Offset</source>
+        <translation>Enregistrer le décalage de cadence</translation>
+    </message>
+    <message>
+        <source>Save Cadence Gain</source>
+        <translation>Enregistrer le gain de cadence</translation>
+    </message>
+    <message>
+        <source>Strava Upload</source>
+        <translation>Envoi vers Strava</translation>
+    </message>
+    <message>
+        <source>Save Strava Upload</source>
+        <translation>Enregistrer l&apos;envoi vers Strava</translation>
+    </message>
+    <message>
+        <source>Suffix activity</source>
+        <translation>Suffixe de l&apos;activité</translation>
+    </message>
+    <message>
+        <source>Save Suffix activity</source>
+        <translation>Enregistrer le suffixe de l&apos;activité</translation>
+    </message>
+    <message>
+        <source>Power Averaging Mode</source>
+        <translation>Mode de moyenne de puissance</translation>
+    </message>
+    <message>
+        <source>Zwift Inclination Offset</source>
+        <translation>Décalage d&apos;inclinaison Zwift</translation>
+    </message>
+    <message>
+        <source>Save Zwift Inclination Offset</source>
+        <translation>Enregistrer le décalage d&apos;inclinaison Zwift</translation>
+    </message>
+    <message>
+        <source>Zwift Inclination Gain</source>
+        <translation>Gain d&apos;inclinaison Zwift</translation>
+    </message>
+    <message>
+        <source>Save Zwift Inclination Gain</source>
+        <translation>Enregistrer le gain d&apos;inclinaison Zwift</translation>
+    </message>
+    <message>
+        <source>Minimum Inclination</source>
+        <translation>Inclinaison minimale</translation>
+    </message>
+    <message>
+        <source>Save Minimum Inclination</source>
+        <translation>Enregistrer l&apos;inclinaison minimale</translation>
+    </message>
+    <message>
+        <source>Inclination Step</source>
+        <translation>Pas d&apos;inclinaison</translation>
+    </message>
+    <message>
+        <source>Save Inclination Step</source>
+        <translation>Enregistrer le pas d&apos;inclinaison</translation>
+    </message>
+    <message>
+        <source>AutoLap on Distance</source>
+        <translation>Tour automatique par distance</translation>
+    </message>
+    <message>
+        <source>Save AutoLap on Distance</source>
+        <translation>Enregistrer le tour automatique par distance</translation>
+    </message>
+    <message>
         <source>Inclination Delay:</source>
         <translation>Délai d&apos;inclinaison :</translation>
+    </message>
+    <message>
+        <source>Inclination Delay</source>
+        <translation>Délai d&apos;inclinaison</translation>
+    </message>
+    <message>
+        <source>Save Inclination Delay</source>
+        <translation>Enregistrer le délai d&apos;inclinaison</translation>
     </message>
     <message>
         <source>This slow down the inclination changes adding a delay between each change. This is not applied to all the model of treadmill/bike. Default is 0.</source>
@@ -7102,16 +9300,48 @@ NOTES IMPORTANTES :
         <translation>Niveau de résistance 1:</translation>
     </message>
     <message>
+        <source>Resistance Level 1</source>
+        <translation>Niveau de résistance 1</translation>
+    </message>
+    <message>
+        <source>Save Resistance Level 1</source>
+        <translation>Enregistrer le niveau de résistance 1</translation>
+    </message>
+    <message>
         <source>Watt 1:</source>
         <translation>Watt 1 :</translation>
+    </message>
+    <message>
+        <source>Watt 1</source>
+        <translation>Watt 1</translation>
+    </message>
+    <message>
+        <source>Save Watt 1</source>
+        <translation>Enregistrer la puissance 1</translation>
     </message>
     <message>
         <source>Resistance Level 2:</source>
         <translation>Niveau de résistance 2:</translation>
     </message>
     <message>
+        <source>Resistance Level 2</source>
+        <translation>Niveau de résistance 2</translation>
+    </message>
+    <message>
+        <source>Save Resistance Level 2</source>
+        <translation>Enregistrer le niveau de résistance 2</translation>
+    </message>
+    <message>
         <source>Watt 2:</source>
         <translation>Watt 2 :</translation>
+    </message>
+    <message>
+        <source>Watt 2</source>
+        <translation>Watt 2</translation>
+    </message>
+    <message>
+        <source>Save Watt 2</source>
+        <translation>Enregistrer la puissance 2</translation>
     </message>
     <message>
         <source>QZ will build a linear equation from the two resistance/watt points and clamp the effective resistance using the existing Min. Resistance and Max. Resistance settings.</source>
@@ -7254,6 +9484,14 @@ Par défaut : A = -0.96, B = 1.33</translation>
         <translation>Difficulté/Dénivelé :</translation>
     </message>
     <message>
+        <source>Difficulty/Gain</source>
+        <translation>Difficulté/Dénivelé</translation>
+    </message>
+    <message>
+        <source>Save Difficulty/Gain</source>
+        <translation>Enregistrer la difficulté/dénivelé</translation>
+    </message>
+    <message>
         <source>Elite Sterzo Smart Options</source>
         <translation>Options Elite Sterzo Smart</translation>
     </message>
@@ -7274,12 +9512,24 @@ Par défaut : A = -0.96, B = 1.33</translation>
         <translation>Pas de changement de vitesse</translation>
     </message>
     <message>
+        <source>Save Shift Step</source>
+        <translation>Enregistrer le pas de changement de vitesse</translation>
+    </message>
+    <message>
         <source>Max Resistance</source>
         <translation>Résistance maximale</translation>
     </message>
     <message>
+        <source>Save Max Resistance</source>
+        <translation>Enregistrer la résistance maximale</translation>
+    </message>
+    <message>
         <source>Min Resistance</source>
         <translation>Résistance minimale</translation>
+    </message>
+    <message>
+        <source>Save Min Resistance</source>
+        <translation>Enregistrer la résistance minimale</translation>
     </message>
     <message>
         <source>Advanced SmartSpin2k Calibration</source>
@@ -7290,32 +9540,64 @@ Par défaut : A = -0.96, B = 1.33</translation>
         <translation>Échantillon de résistance 1</translation>
     </message>
     <message>
+        <source>Save Resistance Sample 1</source>
+        <translation>Enregistrer l&apos;échantillon de résistance 1</translation>
+    </message>
+    <message>
         <source>Shift Step Sample 1</source>
         <translation>Échantillon de pas de changement de vitesse1</translation>
+    </message>
+    <message>
+        <source>Save Shift Step Sample 1</source>
+        <translation>Enregistrer l&apos;échantillon de pas de changement de vitesse 1</translation>
     </message>
     <message>
         <source>Resistance Sample 2</source>
         <translation>Échantillon de résistance 2</translation>
     </message>
     <message>
+        <source>Save Resistance Sample 2</source>
+        <translation>Enregistrer l&apos;échantillon de résistance 2</translation>
+    </message>
+    <message>
         <source>Shift Step Sample 2</source>
         <translation>Échantillon de pas de changement de vitesse2</translation>
+    </message>
+    <message>
+        <source>Save Shift Step Sample 2</source>
+        <translation>Enregistrer l&apos;échantillon de pas de changement de vitesse 2</translation>
     </message>
     <message>
         <source>Resistance Sample 3</source>
         <translation>Échantillon de résistance 3</translation>
     </message>
     <message>
+        <source>Save Resistance Sample 3</source>
+        <translation>Enregistrer l&apos;échantillon de résistance 3</translation>
+    </message>
+    <message>
         <source>Shift Step Sample 3</source>
         <translation>Échantillon de pas de changement de vitesse3</translation>
+    </message>
+    <message>
+        <source>Save Shift Step Sample 3</source>
+        <translation>Enregistrer l&apos;échantillon de pas de changement de vitesse 3</translation>
     </message>
     <message>
         <source>Resistance Sample 4</source>
         <translation>Échantillon de résistance 4</translation>
     </message>
     <message>
+        <source>Save Resistance Sample 4</source>
+        <translation>Enregistrer l&apos;échantillon de résistance 4</translation>
+    </message>
+    <message>
         <source>Shift Step Sample 4</source>
         <translation>Échantillon de pas de changement de vitesse4</translation>
+    </message>
+    <message>
+        <source>Save Shift Step Sample 4</source>
+        <translation>Enregistrer l&apos;échantillon de pas de changement de vitesse 4</translation>
     </message>
     <message>
         <source>Fitmetria Fitfan™ Options</source>
@@ -7490,6 +9772,14 @@ Par défaut : A = -0.96, B = 1.33</translation>
         <translation>Type de carte :</translation>
     </message>
     <message>
+        <source>Maps Type</source>
+        <translation>Type de carte</translation>
+    </message>
+    <message>
+        <source>Save Maps Type</source>
+        <translation>Enregistrer le type de carte</translation>
+    </message>
+    <message>
         <source>Loop Start-End-Start</source>
         <translation>Boucle Début-Fin-Début</translation>
     </message>
@@ -7626,12 +9916,36 @@ Par défaut : A = -0.96, B = 1.33</translation>
         <translation>Identifiant :</translation>
     </message>
     <message>
+        <source>Wahoo device ID</source>
+        <translation>ID de l&apos;appareil Wahoo</translation>
+    </message>
+    <message>
+        <source>Virtual Wahoo device ID. Change if you have multiple QZ instances. Default: 0</source>
+        <translation>ID de l&apos;appareil Wahoo virtuel. Modifiez-le si vous avez plusieurs instances de QZ. Par défaut : 0</translation>
+    </message>
+    <message>
+        <source>Save Wahoo device ID</source>
+        <translation>Enregistrer l&apos;ID de l&apos;appareil Wahoo</translation>
+    </message>
+    <message>
         <source>If you have multiple QZ instances, you can change the id of the virtual wahoo device. Default: 0</source>
         <translation>Si vous avez plusieurs instances QZ, vous pouvez changer l&apos;ID du périphérique wahoo virtuel. Par défaut : 0</translation>
     </message>
     <message>
         <source>Server Port:</source>
         <translation>Port du serveur :</translation>
+    </message>
+    <message>
+        <source>Wahoo direct connect server port</source>
+        <translation>Port du serveur Wahoo Direct Connect</translation>
+    </message>
+    <message>
+        <source>TCP port for the Wahoo direct connect server. Default: 36866</source>
+        <translation>Port TCP du serveur Wahoo Direct Connect. Par défaut : 36866</translation>
+    </message>
+    <message>
+        <source>Save server port</source>
+        <translation>Enregistrer le port du serveur</translation>
     </message>
     <message>
         <source>MQTT Settings</source>
@@ -7642,12 +9956,28 @@ Par défaut : A = -0.96, B = 1.33</translation>
         <translation>Hôte MQTT :</translation>
     </message>
     <message>
+        <source>MQTT Host</source>
+        <translation>Hôte MQTT</translation>
+    </message>
+    <message>
+        <source>Save MQTT Host</source>
+        <translation>Enregistrer l&apos;hôte MQTT</translation>
+    </message>
+    <message>
         <source>Enter the MQTT broker hostname or IP address</source>
         <translation>Entrez l&apos;hôte ou l&apos;adresse IP du broker MQTT</translation>
     </message>
     <message>
         <source>MQTT Port:</source>
         <translation>Port MQTT :</translation>
+    </message>
+    <message>
+        <source>MQTT Port</source>
+        <translation>Port MQTT</translation>
+    </message>
+    <message>
+        <source>Save MQTT Port</source>
+        <translation>Enregistrer le port MQTT</translation>
     </message>
     <message>
         <source>Enter the MQTT broker port (default: 1883)</source>
@@ -7666,6 +9996,14 @@ Par défaut : A = -0.96, B = 1.33</translation>
         <translation>ID de l&apos;appareil :</translation>
     </message>
     <message>
+        <source>Device ID</source>
+        <translation>ID de l&apos;appareil</translation>
+    </message>
+    <message>
+        <source>Save Device ID</source>
+        <translation>Enregistrer l&apos;ID de l&apos;appareil</translation>
+    </message>
+    <message>
         <source>Enter a unique device identifier for MQTT client</source>
         <translation>Entrez un identifiant d&apos;appareil unique pour le client MQTT</translation>
     </message>
@@ -7678,8 +10016,24 @@ Par défaut : A = -0.96, B = 1.33</translation>
         <translation>IP OSC :</translation>
     </message>
     <message>
+        <source>OSC IP</source>
+        <translation>IP OSC</translation>
+    </message>
+    <message>
+        <source>Save OSC IP</source>
+        <translation>Enregistrer l&apos;IP OSC</translation>
+    </message>
+    <message>
         <source>OSC Port:</source>
         <translation>Port OSC :</translation>
+    </message>
+    <message>
+        <source>OSC Port</source>
+        <translation>Port OSC</translation>
+    </message>
+    <message>
+        <source>Save OSC Port</source>
+        <translation>Enregistrer le port OSC</translation>
     </message>
     <message>
         <source>Race Mode</source>
@@ -7819,7 +10173,15 @@ Par défaut : A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Hidden on its page right now: change it here</source>
-        <translation>Masqué sur sa page pour l’instant : modifiez-le ici</translation>
+        <translation type="vanished">Masqué sur sa page pour l’instant : modifiez-le ici</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>Activé</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>Masqué sur sa page avec les réglages actuels</translation>
     </message>
     <message>
         <source>Turn on “%1” to change this setting</source>
@@ -7918,6 +10280,30 @@ Par défaut : A = -0.96, B = 1.33</translation>
         <translation>Gain de cadence</translation>
     </message>
     <message>
+        <source>Mode</source>
+        <translation>Mode</translation>
+    </message>
+    <message>
+        <source>Save Mode</source>
+        <translation>Enregistrer le mode</translation>
+    </message>
+    <message>
+        <source>Min. value (0-100)</source>
+        <translation>Valeur min. (0-100)</translation>
+    </message>
+    <message>
+        <source>Save Min. value (0-100)</source>
+        <translation>Enregistrer la valeur min. (0-100)</translation>
+    </message>
+    <message>
+        <source>Max value (0-100)</source>
+        <translation>Valeur maximale (0-100)</translation>
+    </message>
+    <message>
+        <source>Save Max value (0-100)</source>
+        <translation>Enregistrer la valeur maximale (0-100)</translation>
+    </message>
+    <message>
         <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
         <translation>Multiplicateur appliqué uniquement à la cadence de rame envoyée par le rameur virtuel. Par défaut : 1.0 ; utilisez 0.25 pour convertir les tr/min du BikeERG en cadence de rame demandée par l&apos;EXR.</translation>
     </message>
@@ -7932,6 +10318,34 @@ Par défaut : A = -0.96, B = 1.33</translation>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation>iOS uniquement. Maintient QZ actif lorsque l&apos;écran est éteint ou que QZ est en arrière-plan, afin que les connexions Bluetooth et les minuteurs de session ne se figent pas. Une piste audio silencieuse est mélangée à votre musique : rien de ce que vous écoutez n&apos;est interrompu. Activez-le si vous devez vous entraîner avec l&apos;écran verrouillé ou avec QZ en arrière-plan. Par défaut, désactivé.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Options du vélo Daum</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>Port série utilisé par les ergomètres Daum classiques, comme le 8008 TRS 3. Sur Android avec un adaptateur USB-série, utilisez &apos;usb&apos;. COM1, COM2, etc. sont acceptés comme alias pour rechercher l&apos;adaptateur USB, mais ne sont pas des noms de ports Android. Sur Windows, utilisez COM1 ou COM3 ; sur Linux/macOS, le chemin du périphérique série, par exemple /dev/ttyUSB0.</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>Délai d&apos;interrogation de la résistance :</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>Utilise le réglage Délai d&apos;inclinaison pour limiter la fréquence d&apos;envoi des mises à jour de résistance et de puissance à Daum. Par défaut : 0 seconde.</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>Filtre d&apos;inclinaison (%) :</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>Pour les entraînements GPX, ignore les variations d&apos;inclinaison inférieures à cette valeur et n&apos;envoie une nouvelle commande que lorsque l&apos;écart par rapport à la dernière valeur envoyée atteint le seuil défini. Par défaut : 0 (désactivé).</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Utiliser les vitesses de la console</translation>
     </message>
 </context>
 <context>
@@ -8202,6 +10616,10 @@ Par défaut : A = -0.96, B = 1.33</translation>
     <message>
         <source>Displays the watts generated by your current effort. Watt is also referred to as output (for example, in Peloton). If your equipment does not communicate watts, QZ will calculate watts using resistance and cadence.</source>
         <translation>Affiche les watts générés par votre effort actuel. Le watt est également appelé puissance (par exemple, sur Peloton). Si votre équipement ne communique pas les watts, QZ calculera les watts en utilisant la résistance et la cadence.</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Options des tuiles</translation>
     </message>
     <message>
         <source>Weight loss</source>
@@ -8952,12 +11370,24 @@ Par défaut : A = -0.96, B = 1.33</translation>
         <translation>Intervalle du résumé (s) :</translation>
     </message>
     <message>
+        <source>Announcement interval in seconds</source>
+        <translation>Intervalle des annonces en secondes</translation>
+    </message>
+    <message>
+        <source>How often workout metrics are read aloud. Default: 120 seconds</source>
+        <translation>Fréquence à laquelle les données de l&apos;entraînement sont lues à voix haute. Par défaut : 120 secondes</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
         <source>Setting saved!</source>
         <translation>Paramètres enregistrés !</translation>
+    </message>
+    <message>
+        <source>Save announcement interval</source>
+        <translation>Enregistrer l&apos;intervalle des annonces</translation>
     </message>
     <message>
         <source>TTS Description Enabled</source>

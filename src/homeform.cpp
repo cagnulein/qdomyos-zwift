@@ -54,6 +54,10 @@
 #include <QRandomGenerator>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QSysInfo>
+#ifdef Q_OS_ANDROID
+#include <QtAndroid>
+#endif
 #include <QThread>
 #include <QTime>
 #include <QTimer>
@@ -62,8 +66,15 @@
 #include <QUrlQuery>
 #include <QRegularExpression>
 #include <QXmlStreamReader>
+#include <QDataStream>
 #include <algorithm>
 #include <chrono>
+
+#ifdef Q_OS_IOS
+// Implemented by ios/support_email.mm; always built for Qt iOS including IO_UNDER_QT.
+extern "C" void qzComposeSupportEmail(const char *recipient, const char *subject,
+                                       const char *body, const char *attachmentPath);
+#endif
 
 homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
@@ -231,6 +242,7 @@ constexpr int AndroidDocumentPickerGpxRequestCode = 4103;
 constexpr int AndroidDocumentPickerSettingsRequestCode = 4104;
 constexpr int AndroidDocumentPickerFitRequestCode = 4105;
 constexpr int AndroidDocumentPickerFitFolderRequestCode = 4106;
+constexpr int AndroidDocumentPickerRestoreFolderRequestCode = 4107;
 constexpr jint AndroidActivityResultOk = -1;
 #endif
 double interpolatedHeartZone(double percentHeartRate, double zone1, double zone2, double zone3, double zone4) {
@@ -891,6 +903,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                 .arg(name));
     });
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::deviceConnected);
+    connect(bluetoothManager, &bluetooth::heartRateSensorFound, this, &homeform::heartRateSensorFound);
     connect(bluetoothManager, &bluetooth::ftmsAccessoryConnected, this, &homeform::ftmsAccessoryConnected);
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::trainProgramSignals);
     connect(this, &homeform::workoutNameChanged, this->userTemplateManager,
@@ -1375,6 +1388,18 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnOAuthCallback(JNIEnv *en
     }
 }
 
+// a restore of the QZ folder is copying file done of total: the list pages show how far it is
+JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnFolderRestoreProgress(JNIEnv *env, jclass clazz, jint done,
+                                                                              jint total) {
+    Q_UNUSED(env)
+    Q_UNUSED(clazz)
+    if (homeform::singleton()) {
+        QMetaObject::invokeMethod(homeform::singleton(), "setFolderRestoreProgress", Qt::QueuedConnection,
+                                  Q_ARG(int, done), Q_ARG(int, total));
+    }
+}
+
 // a workout import was picked: the copy is about to start, show it is running
 JNIEXPORT void JNICALL
 Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnFitImportStarted(JNIEnv *env, jclass clazz) {
@@ -1409,12 +1434,8 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnDocumentPicked(JNIEnv *e
         }
     }
 
-    // a folder import without any workout still has to tell the user so
-    if (localPath.isEmpty() && requestCode != AndroidDocumentPickerFitFolderRequestCode &&
-        requestCode != AndroidDocumentPickerFitRequestCode) {
-        return;
-    }
-
+    // an empty path goes through as well: a folder import without any workout and a picked file
+    // that could not be copied both have to tell the user so
     QMetaObject::invokeMethod(homeform::singleton(), "handleAndroidDocumentPicked", Qt::QueuedConnection,
                               Q_ARG(int, static_cast<int>(requestCode)), Q_ARG(QString, localPath));
 }
@@ -2001,9 +2022,249 @@ void homeform::selectGymModeDevice(const QString &deviceName) {
     bluetoothManager->selectGymModeDevice(deviceName);
 }
 
+// A heart rate sensor nearby while none is chosen: offered in a bar over the pages, the strongest first
+// (an rssi of 0 or more is no signal given: last). A sensor found again only updates its signal.
+// onTap: found by the search a tap on the heart rate tile or the Bluetooth icon started
+void homeform::heartRateSensorFound(const QString &name, const QString &address, int rssi, bool onTap) {
+    QSettings settings;
+    if (!bluetooth::heartRateSensorOffered(
+            onTap,
+            settings.value(QZSettings::heart_rate_belt_suggest, QZSettings::default_heart_rate_belt_suggest).toBool(),
+            !settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name)
+                 .toString()
+                 .startsWith(QStringLiteral("Disabled")),
+            bluetoothManager->device() && bluetoothManager->device()->currentHeart().value() > 0,
+            heartRateSensorsDismissed.contains(address)))
+        return;
+    // the user asked: from now on the bar is the answer to that tap
+    if (onTap)
+        m_heartRateSensorOfferOnTap = true;
+
+    QVariantMap sensor;
+    sensor[QStringLiteral("name")] = name;
+    sensor[QStringLiteral("address")] = address;
+    sensor[QStringLiteral("rssi")] = rssi;
+    int i = 0;
+    while (i < m_heartRateSensorSuggestions.size() &&
+           m_heartRateSensorSuggestions.at(i).toMap().value(QStringLiteral("address")).toString() != address)
+        i++;
+    if (i < m_heartRateSensorSuggestions.size())
+        m_heartRateSensorSuggestions.removeAt(i);
+    else
+        qDebug() << "heart rate sensor offered:" << name << address << "rssi" << rssi;
+    auto strength = [](int rssi) { return rssi < 0 ? rssi : -1000; };
+    i = 0;
+    while (i < m_heartRateSensorSuggestions.size() &&
+           strength(m_heartRateSensorSuggestions.at(i).toMap().value(QStringLiteral("rssi")).toInt()) >=
+               strength(rssi))
+        i++;
+    m_heartRateSensorSuggestions.insert(i, sensor);
+    emit heartRateSensorSuggestionsChanged();
+}
+
+void homeform::heartRateSensorSuggestionConnect(const QString &name, const QString &address) {
+    qDebug() << "heart rate sensor offer: Connect" << name << address;
+    m_heartRateSensorSuggestions.clear();
+    m_heartRateSensorOfferOnTap = false;
+    emit heartRateSensorSuggestionsChanged();
+    QSettings settings;
+    settings.setValue(QZSettings::heart_rate_belt_name, name);
+    emit heartRateSensorChosenFromOffer(name);
+    if (bluetoothManager)
+        bluetoothManager->reconnectHeartRateBelt(name, address);
+}
+
+void homeform::heartRateSensorSuggestionDismiss(bool dontAskAgain) {
+    qDebug() << "heart rate sensor offer:" << (dontAskAgain ? "Don't ask again" : "Not now");
+    for (const QVariant &sensor : qAsConst(m_heartRateSensorSuggestions))
+        heartRateSensorsDismissed.insert(sensor.toMap().value(QStringLiteral("address")).toString());
+    m_heartRateSensorSuggestions.clear();
+    m_heartRateSensorOfferOnTap = false;
+    emit heartRateSensorSuggestionsChanged();
+    if (dontAskAgain) {
+        QSettings settings;
+        settings.setValue(QZSettings::heart_rate_belt_suggest, false);
+        emit heartRateSensorOfferTurnedOff();
+    }
+}
+
+bool homeform::firstSetupLog = false;
+
+// A new user who can't get the machine working has no debug log to send with the support email: a QZ that has
+// never connected a device turns the log on by itself, until the first workout with data (fit_save_clicked())
+// or for 7 days. Decided once, at the first start of a QZ with this code: who has connected before keeps the
+// log as set. Returns whether the first-setup period is still running (main.cpp turns the log on for it only
+// when the log is off otherwise)
+bool homeform::startFirstSetupLog() {
+    QSettings settings;
+    if (!settings.contains(QZSettings::log_debug_first_setup)) {
+        const bool start = neverConnected();
+        settings.setValue(QZSettings::log_debug_first_setup, start);
+        if (start) {
+            settings.setValue(QZSettings::log_debug_first_setup_since, QDate::currentDate().toString(Qt::ISODate));
+        }
+    }
+    if (!settings.value(QZSettings::log_debug_first_setup, QZSettings::default_log_debug_first_setup).toBool()) {
+        return false;
+    }
+    const QDate since = QDate::fromString(
+        settings.value(QZSettings::log_debug_first_setup_since, QZSettings::default_log_debug_first_setup_since)
+            .toString(),
+        Qt::ISODate);
+    const qint64 days = since.isValid() ? since.daysTo(QDate::currentDate()) : -1;
+    if (days < 0 || days >= 7) {
+        settings.setValue(QZSettings::log_debug_first_setup, false);
+        return false;
+    }
+    return true;
+}
+
 bool homeform::hasConnectedDevice() const {
     return bluetoothManager && bluetoothManager->device();
 }
+
+bool homeform::supportDeviceConnected() const {
+    return bluetoothManager && bluetoothManager->device() && bluetoothManager->device()->connected();
+}
+
+bool homeform::supportMetricsActive() const {
+    if (!supportDeviceConnected())
+        return false;
+    auto *device = bluetoothManager->device();
+    // No single metric is universal: treadmills report speed, power meters report watts.
+    return device->currentSpeed().value() > 0.01 || device->wattsMetric().value() > 0.5;
+}
+
+bool homeform::composeSupportEmail(const QString &description, const QString &reason, bool includeLog) {
+    auto *device = bluetoothManager ? bluetoothManager->device() : nullptr;
+    QString deviceName = device ? device->bluetoothDevice.name() : tr("No device detected");
+    deviceName.replace(QRegularExpression(QStringLiteral("[\\r\\n]+")), QStringLiteral(" "));
+    const QString issue = reason.isEmpty() ? tr("Support request") : reason;
+#if defined(Q_OS_IOS)
+    const QString platform = QStringLiteral("iOS");
+#elif defined(Q_OS_ANDROID)
+    const QString platform = QStringLiteral("Android");
+#else
+    const QString platform = QSysInfo::prettyProductName();
+#endif
+
+    const QString subject = tr("QZ issue | %1 | %2 | %3")
+                                .arg(deviceName.left(60), platform, issue.left(60));
+    QStringList bodyLines = {
+        tr("Hi Roberto,"),
+        QString(),
+        tr("I need help with QZ."),
+        QString(),
+        tr("Problem:"),
+        description.trimmed().isEmpty()
+            ? tr("[Please describe the issue]")
+            : description.trimmed().left(4000),
+        QString(),
+        tr("Expected behavior:"),
+        tr("[Please describe what should happen]"),
+        QString(),
+        tr("--- QZ diagnostics ---"),
+        tr("QZ version: %1").arg(QApplication::applicationVersion()),
+        tr("Platform: %1 (%2)").arg(platform, QSysInfo::prettyProductName()),
+        tr("Profile: %1").arg(QSettings().value(QZSettings::profile_name, QZSettings::default_profile_name).toString()),
+        tr("Device: %1").arg(deviceName),
+        tr("Connection: %1").arg(supportDeviceConnected() ? tr("Connected") : tr("Not connected")),
+        tr("Speed: %1 km/h").arg(device ? QString::number(device->currentSpeed().value(), 'f', 2) : tr("Not available")),
+        tr("Power: %1 W").arg(device ? QString::number(device->wattsMetric().value(), 'f', 0) : tr("Not available")),
+        tr("Detected situation: %1").arg(issue)
+    };
+    QString body = bodyLines.join(QLatin1Char('\n')) + QLatin1Char('\n');
+
+    // Never send anything automatically: the user reviews the native compose screen.
+    // Reuse the same gzip format as the existing workout-summary email, but keep a
+    // separate temporary copy in the platform cache for safe Android URI sharing.
+    QString attachmentPath;
+    if (!includeLog) {
+        body += tr("Debug log not requested.") + QLatin1Char('\n');
+    } else if (!firstSetupLog && !QSettings().value(QZSettings::log_debug, QZSettings::default_log_debug).toBool()) {
+        body += tr("Debug log disabled. Enable debug logging and restart QZ before reproducing.") + QLatin1Char('\n');
+    } else {
+        const QStringList candidates = QDir(getWritableAppDir()).entryList(
+            QStringList() << QStringLiteral("debug-*.log"), QDir::Files, QDir::Time);
+        if (candidates.isEmpty()) {
+            body += tr("Debug log not found.") + QLatin1Char('\n');
+        } else {
+            QFile log(getWritableAppDir() + candidates.first());
+            constexpr qint64 maxRawBytes = 64LL * 1024 * 1024;
+            constexpr qint64 maxCompressedBytes = 10LL * 1024 * 1024;
+            if (log.size() > maxRawBytes || !log.open(QIODevice::ReadOnly)) {
+                body += tr("Debug log unavailable or too large to prepare.") + QLatin1Char('\n');
+            } else {
+                bool ok = false;
+                const QByteArray compressed = gzipCompress(log.readAll(), &ok);
+                const QString cache = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+                if (ok && !compressed.isEmpty() && compressed.size() <= maxCompressedBytes &&
+                    QDir().mkpath(cache)) {
+                    // Prune old temporary reports, but keep recent ones while a mail
+                    // app may still be holding the shared content URI.
+                    QDir cacheDir(cache);
+                    const auto oldReports = cacheDir.entryInfoList(
+                        QStringList() << QStringLiteral("qz-support-*.log.gz"), QDir::Files);
+                    for (const QFileInfo &oldReport : oldReports) {
+                        if (oldReport.lastModified().secsTo(QDateTime::currentDateTime()) > 24 * 60 * 60)
+                            QFile::remove(oldReport.absoluteFilePath());
+                    }
+                    const QString destination = QDir(cache).filePath(
+                        QStringLiteral("qz-support-%1.log.gz").arg(QUuid::createUuid().toString(QUuid::WithoutBraces)));
+                    QFile attachment(destination);
+                    if (attachment.open(QIODevice::WriteOnly) &&
+                        attachment.write(compressed) == compressed.size()) {
+                        attachment.close();
+                        attachmentPath = destination;
+                        body += tr("Debug log attached (gzip).") + QLatin1Char('\n');
+                    } else {
+                        attachment.close();
+                        QFile::remove(destination);
+                        body += tr("Could not write debug log attachment.") + QLatin1Char('\n');
+                    }
+                } else {
+                    body += tr("Could not compress debug log or attachment exceeds 10 MB.") + QLatin1Char('\n');
+                }
+            }
+        }
+    }
+
+    const QString recipient = QStringLiteral("roberto.viola83@gmail.com");
+#if defined(Q_OS_IOS)
+    const QByteArray toUtf8 = recipient.toUtf8();
+    const QByteArray subjectUtf8 = subject.toUtf8();
+    const QByteArray bodyUtf8 = body.toUtf8();
+    const QByteArray attachmentUtf8 = attachmentPath.toUtf8();
+    qzComposeSupportEmail(toUtf8.constData(), subjectUtf8.constData(),
+                          bodyUtf8.constData(), attachmentUtf8.constData());
+    return true;
+#elif defined(Q_OS_ANDROID)
+    const QAndroidJniObject to = QAndroidJniObject::fromString(recipient);
+    const QAndroidJniObject title = QAndroidJniObject::fromString(subject);
+    const QAndroidJniObject text = QAndroidJniObject::fromString(body);
+    const QAndroidJniObject file = QAndroidJniObject::fromString(attachmentPath);
+    const bool opened = QAndroidJniObject::callStaticMethod<jboolean>(
+        "org/cagnulen/qdomyoszwift/SupportEmail", "compose",
+        "(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z",
+        QtAndroid::androidActivity().object<jobject>(), to.object<jstring>(),
+        title.object<jstring>(), text.object<jstring>(), file.object<jstring>());
+    if (!opened)
+        setToastRequested(tr("Unable to open an email application"));
+    return opened;
+#else
+    // Desktop fallback: mailto cannot attach files. Keep the body and report that
+    // the user must manually attach the prepared log.
+    if (!attachmentPath.isEmpty())
+        body += QLatin1Char('\n') + tr("Please attach the generated debug log manually") + QStringLiteral(": ") + attachmentPath;
+    QUrl url(QStringLiteral("mailto:") + recipient);
+    QUrlQuery query;
+    query.addQueryItem(QStringLiteral("subject"), subject);
+    query.addQueryItem(QStringLiteral("body"), body);
+    url.setQuery(query);
+    return QDesktopServices::openUrl(url);
+#endif
+}
+
 
 homeform::~homeform() {
     // Cleanup FIT backup thread
@@ -2330,8 +2591,65 @@ void homeform::ftmsAccessoryConnected(smartspin2k *d) {
     connect(d, &smartspin2k::gearDown, this, &homeform::externalControllerGearDown);
 }
 
+// Share of the strings a translation needs to be offered in the app language list
+static const int minTranslatedPercent = 50;
+
+// How many strings a compiled translation holds, which QTranslator does not tell. A .qm file is a
+// 16-byte header and then sections (a tag, a length); the Hashes one has 8 bytes for each string.
+static int translatedStrings(const QString &path) {
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly)) {
+        return 0;
+    }
+    const quint8 hashesSection = 0x42;
+    QDataStream data(&file);
+    data.skipRawData(16);
+    while (!data.atEnd()) {
+        quint8 tag = 0;
+        quint32 length = 0;
+        data >> tag >> length;
+        if (tag == hashesSection) {
+            return length / 8;
+        }
+        data.skipRawData(length);
+    }
+    return 0;
+}
+
+static QStringList findTranslatedLanguages() {
+    const QDir translations(QStringLiteral(":/translations/translations"));
+    const QString prefix = QStringLiteral("qdomyos-zwift_");
+    QMap<QString, int> strings;
+    int most = 0;
+    for (const QString &file : translations.entryList({prefix + QStringLiteral("*.qm")})) {
+        const int count = translatedStrings(translations.filePath(file));
+        strings.insert(QFileInfo(file).completeBaseName().mid(prefix.length()), count);
+        most = qMax(most, count);
+    }
+
+    // The total is not in the files: the fullest translation counts as all the strings
+    QStringList languages;
+    for (auto it = strings.constBegin(); it != strings.constEnd(); ++it) {
+        // As in loadAppTranslation: a regional language with no strings shows its base one (pt_BR -> pt)
+        const int count = it.value() > 0 ? it.value() : strings.value(it.key().section(QLatin1Char('_'), 0, 0));
+        if (count > 0 && count * 100 >= most * minTranslatedPercent) {
+            languages.append(it.key());
+        }
+    }
+    qDebug() << "Translated app languages:" << languages;
+    return languages;
+}
+
+// The languages of the app language list, taken from the translations of this build: a translation
+// that gets far enough shows up by itself. Settings asks each time it opens, the files are read once.
+QStringList homeform::translatedLanguages() {
+    static const QStringList languages = findTranslatedLanguages();
+    return languages;
+}
+
 // Loads the translation for the app language setting: "auto" (or empty) follows the system locale,
-// "en" is the built-in source language and needs no translator. Called at start and on a change.
+// "en" is the built-in source language and needs no translator. A saved language with no translation
+// acts as "auto", which is also what the list shows for it. Called at start and on a change.
 void homeform::loadAppTranslation(const QString &language) {
     static QTranslator *translator = nullptr;
     if (translator) {
@@ -2377,6 +2695,10 @@ void homeform::loadAppTranslation(const QString &language) {
         const QString languageCode = locale.section(QLatin1Char('_'), 0, 0);
         if (!loaded && (languageCode == QStringLiteral("nb") || languageCode == QStringLiteral("nn"))) {
             loaded = tryLoadTranslation(QStringLiteral("no"), QStringLiteral("language"));
+        }
+        if (!loaded && locale != QLocale::system().name()) {
+            loadAppTranslation(QStringLiteral("auto"));
+            return;
         }
         if (!loaded) {
             qDebug() << "No translation available for locale:" << locale << "- using default (English)";
@@ -5773,6 +6095,7 @@ void homeform::Plus(const QString &name) {
                 if (trainProgram) {
                     trainProgram->adjustPowerOffsetForTrainingProgram(powerJog);
                 }
+                updateTargetPowerOverride((bike *)bluetoothManager->device());
             } else if (bluetoothManager->device()->deviceType() == TREADMILL) {
                 m_overridePower = true;
                 ((treadmill *)bluetoothManager->device())
@@ -6089,6 +6412,7 @@ void homeform::Minus(const QString &name) {
                 if (trainProgram) {
                     trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
                 }
+                updateTargetPowerOverride((bike *)bluetoothManager->device());
             } else if (bluetoothManager->device()->deviceType() == TREADMILL) {
                 const int32_t currentPower = qRound(((treadmill *)bluetoothManager->device())->lastRequestedPower().value());
                 const int32_t nextPower = currentPower > 0 ? qMax(1, currentPower - qRound(powerJog)) : 0;
@@ -6153,12 +6477,47 @@ void homeform::Minus(const QString &name) {
 
 void homeform::Start() { Start_inner(true); }
 
+void homeform::setTargetPowerReleaseVisible(bool value) {
+    if (m_targetPowerReleaseVisible == value) {
+        return;
+    }
+    m_targetPowerReleaseVisible = value;
+    emit targetPowerReleaseVisibleChanged(value);
+}
+
+bool homeform::updateTargetPowerOverride(bike *device) {
+    // the condition of the T.Power(W) loop in update(); also called right after +/- on the tile, so the app's
+    // resistance is held from the first press and not only from the next update() tick
+    const bool loop = (!trainProgram || !trainProgram->isStarted()) && !device->ergModeSupportedAvailableBySoftware() &&
+                      device->lastRequestedPower().value() > 0 && m_overridePower;
+    device->setTargetPowerOverrideActive(loop);
+    setTargetPowerReleaseVisible(device->targetPowerReleaseAvailable());
+    return loop;
+}
+
+void homeform::clearTargetPowerOverride() {
+    m_overridePower = false;
+    m_overridePowerWarned = false;
+    if (bluetoothManager && bluetoothManager->device() && bluetoothManager->device()->deviceType() == BIKE) {
+        ((bike *)bluetoothManager->device())->setTargetPowerOverrideActive(false);
+    }
+    setTargetPowerReleaseVisible(false);
+}
+
+void homeform::releaseTargetPower() {
+    qDebug() << QStringLiteral("Return to app pressed");
+    // unlike Start/Pause/Stop, the app's last command is applied now, not at its next frame
+    clearTargetPowerOverride();
+    if (bluetoothManager && bluetoothManager->device() && bluetoothManager->device()->deviceType() == BIKE) {
+        ((bike *)bluetoothManager->device())->releaseTargetPowerToApp();
+    }
+}
+
 void homeform::Start_inner(bool send_event_to_device) {
     QSettings settings;
     qDebug() << QStringLiteral("Start pressed - paused") << paused << QStringLiteral("stopped") << stopped;
 
-    m_overridePower = false;
-    m_overridePowerWarned = false;
+    clearTargetPowerOverride();
 
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool() || isVoiceOverRunning())
         m_speech.say("Start pressed");
@@ -6296,8 +6655,7 @@ void homeform::Stop() {
 
     m_startRequested = false;
     // like Start/Pause, Stop gives the load back to the external app or the bike
-    m_overridePower = false;
-    m_overridePowerWarned = false;
+    clearTargetPowerOverride();
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -6487,6 +6845,34 @@ QString homeform::signal() {
     return QStringLiteral("icons/icons/signal-1.png");
 }
 
+// A Wahoo trainer gets its wheel circumference written at connection: at the first connection the
+// driver holds its init until the user says whether QZ may do it. bluetooth.cpp marks as answered those
+// whose last device already was that trainer (they connected it before the question existed). The flag
+// lives only in QSettings, not in a QML Settings: writing a property of a Qt.labs.settings copy saves
+// all the properties of that copy, which would bring back the values it read at startup
+bool homeform::wahooWheelQuestionPending() {
+    QSettings settings;
+    if (settings.value(QZSettings::wahoo_wheel_question_answered, QZSettings::default_wahoo_wheel_question_answered)
+            .toBool())
+        return false;
+    if (!m_wahooWheelQuestionShown) {
+        m_wahooWheelQuestionShown = true;
+        emit wahooWheelQuestionRequested();
+    }
+    return true;
+}
+
+void homeform::wahooWheelAnswer(bool writeWheelCircumference) {
+    QSettings settings;
+    if (!writeWheelCircumference)
+        settings.setValue(QZSettings::wahoo_without_wheel_diameter, true);
+    settings.setValue(QZSettings::wahoo_wheel_question_answered, true);
+    qDebug() << QStringLiteral("Wahoo wheel circumference question answered, write:") << writeWheelCircumference;
+    emit wahooWheelAnswered(settings.value(QZSettings::wahoo_without_wheel_diameter,
+                                           QZSettings::default_wahoo_without_wheel_diameter)
+                                .toBool());
+}
+
 void homeform::handleRestoreDefaultWheelDiameter() {
     if (bluetoothManager && bluetoothManager->device() &&
         bluetoothManager->device()->deviceType() == BIKE) {
@@ -6532,6 +6918,29 @@ void homeform::update() {
         emit startTextChanged(startText());
         emit startColorChanged(startColor());
         emit stopColorChanged(stopColor());
+    }
+
+    // nothing to offer any more: the heart rate came from elsewhere (a watch app, the machine), or meanwhile a sensor
+    // was chosen (Connect on the bar would replace that choice) or, for a bar of the background search, the search
+    // turned off in Heart Rate Options; a bar the user asked for with a tap stays with it off
+    if (!m_heartRateSensorSuggestions.isEmpty()) {
+        QString withdrawn;
+        if (bluetoothManager->device() && bluetoothManager->device()->currentHeart().value() > 0)
+            withdrawn = QStringLiteral("the heart rate comes");
+        else if (!settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name)
+                      .toString()
+                      .startsWith(QStringLiteral("Disabled")))
+            withdrawn = QStringLiteral("a sensor is chosen");
+        else if (!m_heartRateSensorOfferOnTap &&
+                 !settings.value(QZSettings::heart_rate_belt_suggest, QZSettings::default_heart_rate_belt_suggest)
+                      .toBool())
+            withdrawn = QStringLiteral("the background search is turned off");
+        if (!withdrawn.isEmpty()) {
+            qDebug() << "heart rate sensor offer: withdrawn," << withdrawn;
+            m_heartRateSensorSuggestions.clear();
+            m_heartRateSensorOfferOnTap = false;
+            emit heartRateSensorSuggestionsChanged();
+        }
     }
 
     if (bluetoothManager->device()) {
@@ -7346,9 +7755,7 @@ void homeform::update() {
             this->steeringAngle->setValue(
                 QString::number(((bike *)bluetoothManager->device())->currentSteeringAngle().value(), 'f', 1));
 
-            if ((!trainProgram || (trainProgram && !trainProgram->isStarted())) &&
-                !((bike *)bluetoothManager->device())->ergModeSupportedAvailableBySoftware() &&
-                ((bike *)bluetoothManager->device())->lastRequestedPower().value() > 0 && m_overridePower) {
+            if (updateTargetPowerOverride((bike *)bluetoothManager->device())) {
                 qDebug() << QStringLiteral("using target power tile for ERG workout manually");
                 ((bike *)bluetoothManager->device())
                     ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value());
@@ -9306,8 +9713,33 @@ void homeform::handleAndroidDocumentPicked(int requestCode, const QString &local
         importFitFilesToHistory(localPath.split(QLatin1Char('\n'), Qt::SkipEmptyParts));
         return;
     }
+    if (requestCode == AndroidDocumentPickerRestoreFolderRequestCode) {
+        // the pass is over: the progress the Java side passed before this result goes away
+        setFolderRestoreProgress(0, 0);
+        const int restored = restoredFileCount(localPath);
+        qDebug() << "files of a previous install restored:" << restored;
+        const bool quiet = m_folderRestoreQuiet;
+        m_folderRestoreQuiet = false;
+        // the picker may have saved a grant on the QZ folder: the restore buttons go
+        updateQzFolderGrantSaved();
+        if (restored > 0) {
+            setToastRequested(tr("Files of a previous installation restored: %1.").arg(restored));
+        } else if (!quiet) {
+            // nothing or only deletion markers (.deleted_) restored: the user asked, so say so
+            setToastRequested(tr("No files of a previous installation were found."));
+        } else if (quiet && qzFolderHasLockedFiles()) {
+            // the saved grant restored nothing (folder moved or renamed): the user picks it again
+            emit folderRestoreOfferRequested();
+        }
+        // nothing changed in the folders: the lists keep their place
+        if (!localPath.isEmpty()) {
+            emit folderFilesRestored();
+        }
+        return;
+    }
     if (localPath.isEmpty()) {
         qWarning() << "Android document picker returned empty local path for request code" << requestCode;
+        setToastRequested(tr("The file could not be copied to the QZ folder."));
         return;
     }
 
@@ -9421,6 +9853,152 @@ QString homeform::historyDatabasePath() {
     }
     qDebug() << "history database:" << chosen << "new:" << m_historyDatabaseIsNew;
     return chosen;
+}
+
+// After a reinstall (Android 14+) the files a previous install left in the QZ folder still
+// answer to their names but cannot be opened, and the folder lists leave them out. The bundled
+// programs and GPX routes, always copied at the first start, show it: one of them (or a
+// deletion marker of one) that exists and does not open belongs to a previous install.
+// Settings files and profiles have no bundled ones; the same restore pass takes them along.
+bool homeform::qzFolderHasLockedFiles() {
+#ifdef Q_OS_ANDROID
+    const QString trainingDir = getWritableAppDir() + QStringLiteral("training/");
+    QStringList paths;
+    QDirIterator itZwo(QStringLiteral(":/zwo/"));
+    while (itZwo.hasNext()) {
+        itZwo.next();
+        paths << trainingDir + itZwo.fileName() << trainingDir + QStringLiteral(".deleted_") + itZwo.fileName();
+    }
+    const QString gpxDir = getWritableAppDir() + QStringLiteral("gpx/");
+    QDirIterator itGpx(QStringLiteral(":/gpx/"));
+    while (itGpx.hasNext()) {
+        itGpx.next();
+        paths << gpxDir + itGpx.fileName() << gpxDir + QStringLiteral(".deleted_") + itGpx.fileName();
+    }
+    for (const QString &path : paths) {
+        QFile file(path);
+        if (file.exists() && !file.open(QIODevice::ReadOnly)) {
+            qDebug() << "QZ folder: file of a previous install" << path;
+            return true;
+        }
+    }
+#endif
+    return false;
+}
+
+bool homeform::startFolderRestore(bool allowPicker) {
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject javaDestinationDir = QAndroidJniObject::fromString(getWritableAppDir());
+    const jboolean started = QtAndroid::androidActivity().callMethod<jboolean>(
+        "openRestoreFolderPicker", "(ILjava/lang/String;Z)Z", AndroidDocumentPickerRestoreFolderRequestCode,
+        javaDestinationDir.object<jstring>(), static_cast<jboolean>(allowPicker));
+    if (clearAndroidJniException("CustomQtActivity.openRestoreFolderPicker")) {
+        return false;
+    }
+    return started;
+#else
+    Q_UNUSED(allowPicker)
+    return false;
+#endif
+}
+
+void homeform::updateQzFolderGrantSaved() {
+#ifdef Q_OS_ANDROID
+    const jboolean saved = QtAndroid::androidActivity().callMethod<jboolean>("hasQzFolderGrant", "()Z");
+    if (clearAndroidJniException("CustomQtActivity.hasQzFolderGrant")) {
+        return;
+    }
+    // the same choice of folder as getWritableAppDir(); before Android 11 the files of a
+    // previous install stay readable, and the folder in Android/data goes away with the app
+    QSettings settings;
+    const bool documentsFolder =
+        settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool() ||
+        QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14);
+    const bool restorable = documentsFolder && QtAndroid::androidSdkVersion() >= 30;
+    if (m_qzFolderGrantSaved != static_cast<bool>(saved) || m_qzFolderRestorable != restorable) {
+        m_qzFolderGrantSaved = saved;
+        m_qzFolderRestorable = restorable;
+        emit qzFolderGrantSavedChanged();
+    }
+#endif
+}
+
+// restored files among the paths, one per line, that the Java side passes; deletion markers
+// of programs (.deleted_<name>) are restored too, but are not files the user sees
+int homeform::restoredFileCount(const QString &paths) {
+    int restored = 0;
+    for (const QString &path : paths.split(QLatin1Char('\n'), Qt::SkipEmptyParts)) {
+        if (!QFileInfo(path).fileName().startsWith(QLatin1Char('.'))) {
+            restored++;
+        }
+    }
+    return restored;
+}
+
+// A copy that an earlier restore left under its temporary name (the old file already removed)
+// takes its real name; this needs no folder grant, so it runs on every visit of a list.
+void homeform::recoverFolderRestoreCopies() {
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject javaDirectory = QAndroidJniObject::fromString(getWritableAppDir());
+    const QAndroidJniObject recovered = QtAndroid::androidActivity().callObjectMethod(
+        "recoverFolderRestoreCopies", "(Ljava/lang/String;)Ljava/lang/String;", javaDirectory.object<jstring>());
+    if (clearAndroidJniException("CustomQtActivity.recoverFolderRestoreCopies") || !recovered.isValid()) {
+        return;
+    }
+    const QString paths = recovered.toString();
+    if (paths.isEmpty()) {
+        return;
+    }
+    const int restored = restoredFileCount(paths);
+    qDebug() << "files of a previous install recovered from temporary copies:" << restored;
+    if (restored > 0) {
+        setToastRequested(tr("Files of a previous installation restored: %1.").arg(restored));
+    }
+    emit folderFilesRestored();
+#endif
+}
+
+void homeform::folderPageOpened() {
+    // the grant may have come or gone with the workout history recovery: it takes the same grant,
+    // and gives it back when an import through it finds no workout in the QZ folder
+    const bool hadGrant = m_qzFolderGrantSaved;
+    updateQzFolderGrantSaved();
+    recoverFolderRestoreCopies();
+    if (!m_qzFolderRestorable) {
+        return;
+    }
+    // a grant given elsewhere since the last visit hides the restore button, so the folders
+    // are checked once more, quietly; a grant from this restore is already known here
+    const bool grantNew = m_qzFolderGrantSaved && !hadGrant;
+    if (m_folderRestoreTried && !grantNew) {
+        return;
+    }
+    m_folderRestoreTried = true;
+    const bool lockedFiles = qzFolderHasLockedFiles();
+    // with a saved grant the folders are checked even when no bundled file shows a previous
+    // install: files of the user alone cannot be told from the file API
+    m_folderRestoreQuiet = true;
+    if (startFolderRestore(false)) {
+        return;
+    }
+    m_folderRestoreQuiet = false;
+    if (lockedFiles) {
+        emit folderRestoreOfferRequested();
+    }
+}
+
+void homeform::offerFolderRestore() {
+    // the quiet restore of this visit is still running: it reports what it restored itself
+    if (m_folderRestoreQuiet) {
+        qDebug() << "QZ folder: a restore is running, no question";
+        return;
+    }
+    emit folderRestoreOfferRequested();
+}
+
+void homeform::restoreFolderFiles() {
+    m_folderRestoreQuiet = false;
+    startFolderRestore(true);
 }
 
 bool homeform::startFitFolderImport(bool allowPicker) {
@@ -9991,6 +10569,22 @@ void homeform::fit_save_clicked() {
 #endif
 
         QSettings settings;
+
+        // The first workout with a minute of data ends the first-setup log (startFirstSetupLog()), from the next
+        // start: the log is set up once per run. Session gets a line per second
+        if (settings.value(QZSettings::log_debug_first_setup, QZSettings::default_log_debug_first_setup).toBool()) {
+            int secondsWithData = 0;
+            for (const SessionLine &line : Session) {
+                if (line.speed > 0 || line.watt > 0 || line.cadence > 0) {
+                    secondsWithData++;
+                }
+            }
+            if (secondsWithData >= 60) {
+                qDebug() << "first-setup debug log: workout with data saved, off from the next start";
+                settings.setValue(QZSettings::log_debug_first_setup, false);
+            }
+        }
+
         if (!settings.value(QZSettings::strava_accesstoken, QZSettings::default_strava_accesstoken)
                  .toString()
                  .isEmpty()) {
@@ -10162,6 +10756,12 @@ QStringList homeform::bluetoothDevices() {
     QStringList r;
     r.append(QStringLiteral("Disabled"));
     r.append(QStringLiteral("Wifi"));
+
+    // Include network-discovered DIRCON equipment alongside Bluetooth devices.
+    if (bluetoothManager) {
+        for (const DirconDeviceInfo &dev : bluetoothManager->dirconDevices())
+            r.append(dev.displayName);
+    }
 
     // Collect named devices and sort by RSSI descending (strongest signal first)
     QList<QBluetoothDeviceInfo> sorted;
@@ -11035,6 +11635,42 @@ bool homeform::isIntervalsICUUploadConfigured() {
     return settings.value(QZSettings::intervalsicu_upload_enabled, QZSettings::default_intervalsicu_upload_enabled).toBool() &&
            !settings.value(QZSettings::intervalsicu_accesstoken, QZSettings::default_intervalsicu_accesstoken).toString().isEmpty() &&
            !settings.value(QZSettings::intervalsicu_athlete_id, QZSettings::default_intervalsicu_athlete_id).toString().isEmpty();
+}
+
+void homeform::shareWorkoutFile(const QString &filePath) {
+    qDebug() << "shareWorkoutFile" << filePath;
+    const QString failed = tr("The FIT file of this workout could not be shared");
+#if defined(Q_OS_ANDROID)
+    // FitShare checks the file and says a failure with a toast of Android: the workout page is a
+    // WebView, which covers the toast of QML there
+    QAndroidJniObject jPath = QAndroidJniObject::fromString(filePath);
+    QAndroidJniObject jTitle = QAndroidJniObject::fromString(tr("Share FIT file"));
+    QAndroidJniObject jFailed = QAndroidJniObject::fromString(failed);
+    QAndroidJniObject::callStaticMethod<void>(
+        "org/cagnulen/qdomyoszwift/FitShare", "share",
+        "(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
+        QtAndroid::androidContext().object(), jPath.object<jstring>(), jTitle.object<jstring>(),
+        jFailed.object<jstring>());
+    QAndroidJniEnvironment env;
+    if (env->ExceptionCheck()) {
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+    }
+#else
+    if (filePath.isEmpty() || !QFile::exists(filePath)) {
+        qDebug() << "shareWorkoutFile: no such file";
+        setToastRequested(failed);
+        return;
+    }
+#if defined(Q_OS_IOS)
+#ifndef IO_UNDER_QT
+    lockscreen::shareFile(filePath.toUtf8().constData());
+#endif
+#else
+    // no share sheet on a computer: the folder of the file, to send it from there
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(filePath).absolutePath()));
+#endif
+#endif
 }
 
 void homeform::uploadHistoricalWorkoutToStrava(const QString &filePath) {

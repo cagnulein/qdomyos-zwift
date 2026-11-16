@@ -75,6 +75,9 @@ class horizontreadmill : public treadmill {
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     bool firstDistanceCalculated = false;
     double lastDirectDistance = -1;
+    // Time (ms) of the last non-zero cadence from the treadmill (FTMS or RSC). RSC and FTMS arrive in separate packets,
+    // so the cadence estimated from speed must not overwrite it while it is recent.
+    qint64 lastDeviceCadenceMs = 0;
     QDateTime lastDirectDistanceChanged;
     uint8_t firstStateChanged = 0;
     double lastSpeed = 0.0;

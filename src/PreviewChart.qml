@@ -8,6 +8,8 @@ import QtWebView 1.1
 ColumnLayout {
     signal popupclose()
     id: column1
+    // the workout file shown, set by the workout history: the toolbar shows Share for it
+    property string fitFilePath: ""
     spacing: 10
     anchors.fill: parent
     Settings {

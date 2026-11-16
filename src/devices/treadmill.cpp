@@ -389,6 +389,7 @@ void treadmill::cadenceSensor(uint8_t cadence) {
     if (Cadence.value() > 0 || cadence > 0) {
         evaluateStepCount();
     }
+    lastCadenceSensorMs = QDateTime::currentMSecsSinceEpoch();
     Cadence.setValue(cadence);
 }
 void treadmill::powerSensor(uint16_t power) {

@@ -99,6 +99,9 @@ class treadmill : public bluetoothdevice {
     double m_lastRawSpeedRequested = -1;
     double m_lastRawInclinationRequested = -100;
     bool instantaneousStrideLengthCMAvailableFromDevice = false;
+    // Time (ms) of the last cadence from an external sensor (cadenceSensor()), 0 included: while the sensor
+    // sends, the cadence estimated from speed must not overwrite it; once it goes silent the estimate comes back.
+    qint64 lastCadenceSensorMs = 0;
     treadmillErgTable _ergTable;
     
     // Power following logic

@@ -127,7 +127,7 @@ import AndroidStatusBar 1.0
 
         // A section title without its emoji ("Maps 🗺️") for a message
         function plainTitle(text) {
-            return String(text).replace(/\s*(?:[\uD83C-\uD83E][\uDC00-\uDFFF]|[⌀-⏿☀-➿])️?/g, "").trim()
+            return window.ui.plainTitle(text)
         }
 
         // A text field keeps the focus (and the keyboard) until another control takes it
@@ -139,6 +139,19 @@ import AndroidStatusBar 1.0
             }
         }
 
+        // A drag of the page puts the on-screen keyboard away: it covers the lower search results. A
+        // tap on the field brings it back. A drag starts even when the results are shorter than the
+        // page (it overshoots), while a mouse wheel or a contentY set by the code starts none. Only
+        // while the keyboard is up: a trackpad scroll on a Mac is a drag too, and there the field
+        // keeps its focus.
+        Connections {
+            target: settingsPane.contentItem
+            function onDragStarted() {
+                if (Qt.inputMethod.visible)
+                    settingsPane.dropTextFocus()
+            }
+        }
+
         function currentSearch(viaPush) {
             return { query: settingsSearchTextField.text, changedOnly: changedOnly,
                      results: filteredSettings, scroll: contentItem.contentY, viaPush: viaPush }
@@ -146,6 +159,8 @@ import AndroidStatusBar 1.0
 
         // A page among the results ("Wahoo Options"): back from it lands on the results
         function openPageResult(entry) {
+            // A setting tapped before the index came must not open over this page later
+            pendingJump = null
             searchReturn = currentSearch(true)
             // Or the search field takes the focus back with the keyboard on the way back
             dropTextFocus()
@@ -170,10 +185,12 @@ import AndroidStatusBar 1.0
                     if (persistent[v].virtualParent === entry.key)
                         where = settingsIndex[persistent[v].key] || null
             }
-            // A setting that is on no page: the result is the only place to change it, the tap
-            // leaves the results as they are
-            if (!where)
+            // A setting the index does not place on any page (a page or the whole index could not
+            // be read): the results stay, the tap says why
+            if (!where) {
+                toast.show(qsTr("This setting was not found on the settings pages"))
                 return
+            }
             var page = settingsPane
             var context = "settings"
             searchReturn = currentSearch(false)
@@ -229,7 +246,7 @@ import AndroidStatusBar 1.0
             })
             // A setting its page hides with the current values ("Use kg for weight" shows only
             // with miles on) - the whole section was lit instead. Back to the results, the
-            // sections opened on the way closed again: the result has the control itself
+            // sections opened on the way closed again
             if (!target && findItem(container, named)) {
                 for (var k = 0; k < opened.length; k++)
                     opened[k].isOpen = false
@@ -237,7 +254,7 @@ import AndroidStatusBar 1.0
                     stackView.pop()
                 else
                     restoreSearch()
-                toast.show(qsTr("Hidden on its page right now: change it here"))
+                toast.show(qsTr("Hidden on its page with the current settings"))
                 return
             }
             // The fields of a switched-off section are not on the page yet
@@ -287,6 +304,9 @@ import AndroidStatusBar 1.0
             if (searchReturn && searchReturn.viaPush)
                 restoreSearch()
         }
+        // Another page coming on top: a result tapped before the index came must not open over
+        // it. At the start of the transition - deactivated comes only at its end
+        StackView.onDeactivating: pendingJump = null
         StackView.onDeactivated: {
             if (searchReturn && !searchReturn.viaPush)
                 searchReturn = null
@@ -411,8 +431,10 @@ import AndroidStatusBar 1.0
         }
 
         function hideSettingsSearch() {
-            // The search closed is done with: back no longer brings its results up
+            // The search closed is done with: back no longer brings its results up, a result
+            // tapped before the index came no longer opens
             searchReturn = null
+            pendingJump = null
             settingsSearchDebounceTimer.stop()
             changedOnly = false
             settingsSearchTextField.text = ""
@@ -522,12 +544,13 @@ import AndroidStatusBar 1.0
                     return
 
                 settingsCatalogLoading = false
+                var catalog = null
                 if (xhr.status === 200 || xhr.status === 0) {
                     try {
-                        settingsCatalog = JSON.parse(xhr.responseText)
-                        settingsCatalogLoaded = true
-                        settingsCatalogError = ""
-                        buildSearchableSettings()
+                        catalog = JSON.parse(xhr.responseText)
+                        // "null" parses too: no catalog all the same
+                        if (!catalog)
+                            throw "empty catalog"
                     } catch (e) {
                         settingsCatalogError = "Unable to parse settings catalog"
                         console.log(settingsCatalogError + ": " + e)
@@ -535,6 +558,18 @@ import AndroidStatusBar 1.0
                 } else {
                     settingsCatalogError = "Unable to load settings catalog"
                     console.log(settingsCatalogError + ": " + xhr.status)
+                }
+                if (catalog) {
+                    settingsCatalog = catalog
+                    settingsCatalogLoaded = true
+                    settingsCatalogError = ""
+                    // Apart from the parsing: a failure here is not a broken catalog
+                    try {
+                        buildSearchableSettings()
+                    } catch (e) {
+                        settingsCatalogError = "Unable to build the settings list"
+                        console.log(settingsCatalogError + ": " + e)
+                    }
                 }
             }
             xhr.send()
@@ -594,7 +629,28 @@ import AndroidStatusBar 1.0
         readonly property var translationContexts: [
             "settings", "settings-tiles", "settings-tts",
             "settings-shortcuts", "settings-treadmill-inclination-override",
-            "homeform"
+            "custominclinationresistance", "homeform"
+        ]
+
+        // Catalog texts that no settings page shows: listed here only so that lupdate takes them
+        // into the settings context and the search can show them translated
+        readonly property var catalogOnlyTexts: [
+            QT_TR_NOOP("Configure how virtual-app inclination maps to bike resistance."),
+            QT_TR_NOOP("Use a custom mapping when QZ converts virtual-app inclination into resistance."),
+            QT_TR_NOOP("One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range."),
+            QT_TR_NOOP("Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs."),
+            QT_TR_NOOP("Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs."),
+            QT_TR_NOOP("Camera Action"),
+            QT_TR_NOOP("Emote Action"),
+            QT_TR_NOOP("Wattbike Emulator"),
+            QT_TR_NOOP("Power Chart Position"),
+            QT_TR_NOOP("Heart Rate Chart Position"),
+            QT_TR_NOOP("Resistance vs Target Resistance Chart Position"),
+            QT_TR_NOOP("Peloton Resistance Chart Position"),
+            QT_TR_NOOP("Cadence Chart Position"),
+            QT_TR_NOOP("Power Distribution Chart Position"),
+            QT_TR_NOOP("Speed and Inclination Chart Position"),
+            QT_TR_NOOP("Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.")
         ]
 
         // Try to find a translation for a catalog entry name by probing common QML contexts.
@@ -699,6 +755,8 @@ import AndroidStatusBar 1.0
             for (var i = 0; i < searchableSettings.length; i++) {
                 if (changedOnly && !isChanged(searchableSettings[i]))
                     continue
+                if (!changedOnly && searchHiddenSettings[searchableSettings[i].key])
+                    continue
                 var haystack = searchableText(searchableSettings[i])
                 var matched = true
                 for (var tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++) {
@@ -721,8 +779,10 @@ import AndroidStatusBar 1.0
 
         function setChangedOnly(on) {
             changedOnly = on
-            // A new list of one's own: back no longer returns to the previous one
+            // A new list of one's own: back no longer returns to the previous one, a result of
+            // the previous one tapped before the index came no longer opens
             searchReturn = null
+            pendingJump = null
             settingsSearchDebounceTimer.stop()
             settingsSearchActive = on || settingsSearchTextField.text.trim().length > 0
             settingsSearchPending = settingsSearchActive
@@ -730,6 +790,15 @@ import AndroidStatusBar 1.0
             loadSettingsCatalog()
             updateFilteredSettings()
         }
+
+        // Settings the catalog lists but no page shows: the results only show a value, so they
+        // could not be changed from there either: the camera and emote of MyWhoosh Link (QZ
+        // cycles them with a controller button itself). Left out of the search by text only;
+        // QZ writes them, isPrivateSetting keeps them out of "Changed". Garmin ANT+ and Peloton
+        // Bike OCR are no longer offered (their switches are commented out on the pages): they
+        // are visible: false in the catalog, so neither the search nor "Changed" lists them
+        readonly property var searchHiddenSettings: ({ "mywhoosh_link_camera_value": true,
+                                                       "mywhoosh_link_emote_value": true })
 
         // Not listed among the changed settings:
         // - the accounts and passwords: the same keys QZSettings::isSensitiveSettingKey keeps
@@ -751,8 +820,8 @@ import AndroidStatusBar 1.0
             return appWrittenKeys.indexOf(entry.key) >= 0
         }
 
-        // From the store, not from this page's Settings: another settings page (tiles, voice)
-        // writes through a Settings object of its own, which this one does not hear about. The
+        // From the store: what "Changed" compares with the default, and the value of a key that
+        // is not a property of this page's Settings (settingValue reads the property first). The
         // store may give a boolean back as the string "true"
         function storedValue(key, type, fallback) {
             var value = settings.value(key, fallback)
@@ -791,85 +860,156 @@ import AndroidStatusBar 1.0
                    differsFromDefault(entry.key, entry.type, entry.defaultValue)
         }
 
-        // From the store as well: a value changed on the voice or tiles page, opened over this
-        // one, is not in this page's copy until the settings are opened again. The copy stays the
-        // fallback of a key not written yet, and keeps the bindings of the cards on its property
+        // From this page's Settings: the pages opened over it (voice, tiles...) write into the same
+        // object, and the card is bound to its property. Not from the store: Settings writes a
+        // change there only a moment later, a card read again at once got the old value and kept
+        // it. The store only for a key that is not a property here
         function settingValue(entry) {
             var copy = settings[entry.key]
-            var value = storedValue(entry.key, entry.type, copy === undefined ? entry.defaultValue : copy)
+            var value = copy === undefined ? storedValue(entry.key, entry.type, entry.defaultValue) : copy
             if ((entry.type === "integer" || entry.type === "number") && value !== null && value !== "")
                 return Number(value)
             return value === undefined ? entry.defaultValue : value
         }
 
-        function setSettingValue(entry, value) {
-            if (entry.type === "boolean") {
-                value = !!value
-            } else if (entry.type === "integer") {
-                // An empty field stores 0, as the int property turned NaN into before
-                value = parseInt(value) || 0
-            } else if (entry.type === "number") {
-                value = parseFloat(value)
+        // The value of a result as text, read only. It is changed on its own page, where its
+        // rules are (the range, the settings it depends on, the restart question); an editor
+        // here would have to repeat them all. Empty when the value cannot be told for sure - a
+        // Bluetooth device, a stored value that is not one of the list, a secret, a text of
+        // several lines, a type not known here: then the result shows no value rather than a
+        // wrong one
+        function searchValueText(entry) {
+            try {
+                if (entry.catalogKind === "virtual") {
+                    var picked = entry.options ? entry.options[virtualSelectedIndex(entry)] : null
+                    return picked && picked.label ? translatedText(picked.label) : ""
+                }
+                if (entry.catalogKind !== "setting")
+                    return ""
+                if (isPrivateSetting(entry) || isBluetoothDeviceSetting(entry))
+                    return ""
+                var value = settingValue(entry)
+                if (value === undefined || value === null)
+                    return ""
+                if (entry.type === "boolean")
+                    return value ? qsTr("On") : qsTr("Off")
+                // As its page: a saved language with no translation is loaded as Auto
+                if (entry.key === "app_language") {
+                    for (var k = 0; k < appLanguageOptions.length; k++) {
+                        if (appLanguageOptions[k].value === String(value))
+                            return appLanguageOptions[k].label
+                    }
+                    return appLanguageOptions[0].label
+                }
+                // A list of the catalog, as its page shows it: the translated label of the value
+                // by its place ("Horizontal" for 1), or the value itself translated ("Male"). A
+                // list made at run time (rootItem.metrics) is not read: it has no change signal,
+                // a card bound to it warned in the log
+                var values = entry.options && entry.options.values ? entry.options.values : []
+                if (values.length > 0) {
+                    var labels = entry.options.labels || []
+                    for (var i = 0; i < values.length; i++) {
+                        if (String(values[i]) !== String(value))
+                            continue
+                        var shown = labels[i] !== undefined ? labels[i] : values[i]
+                        return typeof shown === "string" ? translatedText(shown) : String(shown)
+                    }
+                    return ""
+                }
+                if (entry.type === "integer" || entry.type === "number") {
+                    // A real written as a float by the C++ side reads back as 0.33000001
+                    if (!isFinite(value))
+                        return ""
+                    var inUnits = searchUnitValueText(entry, value)
+                    if (inUnits.length > 0)
+                        return inUnits
+                    return String(value % 1 === 0 ? value : parseFloat(value.toPrecision(7)))
+                }
+                if (entry.type === "string") {
+                    // A text of several lines (a table of rows): its first line alone would
+                    // read as the whole value
+                    var text = String(value)
+                    return text.indexOf("\n") >= 0 ? "" : text
+                }
+            } catch (e) {
+                console.log("settings search: no value for " + entry.key + ": " + e)
             }
-            // Straight into the store, and before the copy: the card reads the store back
-            // (settingValue) as soon as the copy changes, and the page's Settings writes it only
-            // a moment later. Stored after the copy, the card got the old value and the switch
-            // flipped back
-            settings.setValue(entry.key, value)
-            settings[entry.key] = value
-
-            // The text size applies at once, like on its own page
-            if (entry.key === "ui_text_scale" || entry.key === "ui_text_scale_system") {
-                window.setTextScaleOption(entry.key, settings[entry.key])
-                toast.show(qsTr("Setting saved!"))
-                return
-            }
-
-            // The page is made again: nothing of it may run after (applyAppLanguage)
-            if (entry.key === "app_language") {
-                applyAppLanguage(value)
-                return
-            }
-            window.settings_restart_to_apply = true
-            toast.show(qsTr("Setting saved!"))
+            return ""
         }
 
-        function optionValues(entry) {
-            if (!entry.options)
-                return []
+        // Numbers whose page shows them in other units than they are kept in. A result shows them
+        // as the page does, with its formula:
+        // - the pace of a distance, kept in seconds per km: the time of the whole distance,
+        //   "00:25:00" for 5 km at 300
+        // - the warmup, cooldown and rest paces, in seconds per km: as hh:mm:ss, "00:07:00" at 420
+        // - with "Use Miles unit in UI": the weights in pounds (unless "Weight in kg"), the height
+        //   in feet'inches, the speeds in mph, the autolap distance in miles
+        readonly property var searchPaceDistances: ({ "pacef_1mile": 1.60934, "pacef_5km": 5, "pacef_10km": 10,
+                                                      "pacef_halfmarathon": 21, "pacef_marathon": 42 })
+        readonly property var searchPaceKeys: ["trainprogram_warmup_speed", "trainprogram_cooldown_speed",
+                                               "trainprogram_rest_speed"]
+        readonly property var searchSpeedKeys: ["treadmill_speed_max", "treadmill_speed_min", "treadmill_step_speed",
+                                                "peloton_treadmill_walking_min_speed",
+                                                "peloton_treadmill_running_min_speed", "autolap_distance"]
 
-            if (entry.options.values)
-                return entry.options.values
-
-            if (entry.options.expression && entry.options.expression.indexOf("rootItem.") === 0) {
-                var propertyName = entry.options.expression.substring("rootItem.".length)
-                if (typeof rootItem !== "undefined" && rootItem && rootItem[propertyName] !== undefined)
-                    return rootItem[propertyName]
-            }
-
-            return []
+        function searchInPounds() {
+            return settings.miles_unit && !settings.weight_kg_unit
         }
 
-        // What the list shows for each value, as on the setting's page: the translated label of
-        // the catalog ("Gear Up" for 1), or the value itself translated ("Male"). The value
-        // written is still the one of optionValues at the same place. A list made at run time
-        // (Bluetooth devices) shows its values as they are
-        function optionTexts(entry) {
-            var values = optionValues(entry)
-            if (!entry.options || !entry.options.values)
-                return values
-
-            var labels = entry.options.labels || []
-            var texts = []
-            for (var i = 0; i < values.length; i++) {
-                var text = labels[i] !== undefined ? labels[i] : values[i]
-                if (typeof text === "string")
-                    text = translatedText(text)
-                texts.push(String(text))
-            }
-            return texts
+        // The speed values of the tiles page (tile_preset_speed_1_value ... _5_value)
+        function isTileSpeedPreset(key) {
+            return key.indexOf("tile_preset_speed_") === 0 && key.endsWith("_value")
         }
 
+        // The unit of a value shown converted, "" for any other setting. A pace needs none: its
+        // name says it
+        function searchUnit(entry) {
+            if (entry.catalogKind !== "setting")
+                return ""
+            if (entry.key === "weight" || entry.key === "bike_weight")
+                return searchInPounds() ? qsTr("lbs") : qsTr("kg")
+            if (entry.key === "height")
+                return settings.miles_unit ? qsTr("ft/in") : qsTr("cm")
+            if (entry.key === "autolap_distance")
+                return settings.miles_unit ? qsTr("Mi") : qsTr("KM")
+            if (searchSpeedKeys.indexOf(entry.key) >= 0 || isTileSpeedPreset(entry.key))
+                return settings.miles_unit ? qsTr("mph") : qsTr("km/h")
+            return ""
+        }
+
+        // The name of a result with the unit of its value, as the page writes it next to the
+        // field: "Bike Weight (lbs)". A page label made of a translated template ("Bike Weight
+        // (%1)") is taken as it is: Japanese and Chinese put the unit in full-width brackets
+        function searchTitle(entry) {
+            var name = entry._translatedName || entry.name || entry.key
+            var unit = searchUnit(entry)
+            if (unit.length === 0)
+                return name
+            var template = (entry.name || entry.key) + " (%1)"
+            var translated = translatedText(template)
+            return translated !== template ? translated.arg(unit) : name + " (" + unit + ")"
+        }
+
+        // A number as its page shows it, "" when the page shows it as it is kept
+        function searchUnitValueText(entry, value) {
+            if (searchPaceDistances[entry.key] !== undefined)
+                return paceSecondsToTime(value * searchPaceDistances[entry.key])
+            if (searchPaceKeys.indexOf(entry.key) >= 0)
+                return paceSecondsToTime(value)
+            if (entry.key === "weight" || entry.key === "bike_weight")
+                return String(Number((searchInPounds() ? value * 2.20462 : value).toFixed(2)))
+            if (entry.key === "height")
+                return settings.miles_unit ? Math.floor(value / 30.48) + "'" + Math.round((value % 30.48) / 2.54) + '"' : ""
+            if (searchSpeedKeys.indexOf(entry.key) >= 0)
+                return (settings.miles_unit ? value * 0.621371 : value).toFixed(1)
+            // The tiles page drops a trailing ".0"
+            if (isTileSpeedPreset(entry.key))
+                return String(Number((settings.miles_unit ? value * 0.621371 : value).toFixed(1)))
+            return ""
+        }
+
+        // A text of a settings page translated in the context it is shown in, the text itself
+        // when there is no translation
         function translatedText(text) {
             var contexts = translationContexts
             for (var i = 0; i < contexts.length; i++) {
@@ -885,25 +1025,6 @@ import AndroidStatusBar 1.0
                    entry.options.expression.indexOf("bluetoothDevices") >= 0
         }
 
-        function optionIndex(entry) {
-            var values = optionValues(entry)
-            var value = settingValue(entry)
-            var bluetoothDeviceSetting = isBluetoothDeviceSetting(entry)
-            for (var i = 0; i < values.length; i++) {
-                var candidate = bluetoothDeviceSetting ? stripRssi(values[i]) : values[i]
-                if (candidate === value)
-                    return i
-            }
-            return bluetoothDeviceSetting ? -1 : 0
-        }
-
-        function virtualOptionLabels(entry) {
-            var labels = []
-            for (var i = 0; entry.options && i < entry.options.length; i++)
-                labels.push(entry.options[i].label)
-            return labels
-        }
-
         function virtualSelectedIndex(entry) {
             if (!entry.options)
                 return 0
@@ -913,22 +1034,6 @@ import AndroidStatusBar 1.0
                     return i
             }
             return 0
-        }
-
-        function setVirtualSelection(entry, index) {
-            if (!entry.options)
-                return
-
-            for (var i = 0; i < entry.options.length; i++) {
-                if (entry.options[i].sets)
-                    settings[entry.options[i].sets] = false
-            }
-
-            if (entry.options[index] && entry.options[index].sets)
-                settings[entry.options[index].sets] = true
-
-            window.settings_restart_to_apply = true
-            toast.show(qsTr("Setting saved!"))
         }
 
         // always add a property at the end of the file to avoid corruption of the settings when loading old versions
@@ -2390,6 +2495,15 @@ import AndroidStatusBar 1.0
             property bool proform_treadmill_sport_55: false
             property string daum_serialport: ""
             property real trainprogram_inclination_filter: 0.0
+            property bool heart_rate_belt_suggest: false
+
+            property bool proform_treadmill_sport_6_0: false
+            property bool ui_modern: false
+            property string ui_theme: "graphite"
+            property string ui_accent: "violet"
+            property string ui_theme_mode: "auto"
+            property bool proform_treadmill_cst_505_pftl59420_2026: false
+            property bool proform_use_console_gears: false
 
         }
 
@@ -2405,6 +2519,20 @@ import AndroidStatusBar 1.0
             function onTheme_tile_shadow_colorChanged() { window.tileSettingChanged("theme_tile_shadow_color", settings.theme_tile_shadow_color) }
             function onTheme_tile_secondline_textsizeChanged() { window.tileSettingChanged("theme_tile_secondline_textsize", settings.theme_tile_secondline_textsize) }
             function onTrainprogram_sound_on_segmentChanged() { window.tileSettingChanged("trainprogram_sound_on_segment", settings.trainprogram_sound_on_segment) }
+        }
+
+        // The heart rate sensor bar (HeartRateSuggestion.qml) saves its answer from C++, and this copy does not
+        // read QSettings again: take the new value, so Heart Rate Options shows it while this page is open
+        Connections {
+            target: rootItem
+            function onHeartRateSensorChosenFromOffer(name) { settings.heart_rate_belt_name = name }
+            function onHeartRateSensorOfferTurnedOff() { settings.heart_rate_belt_suggest = false }
+        }
+
+        // The same for the Wahoo wheel circumference question (main.qml): No turns on the option from C++
+        Connections {
+            target: rootItem
+            function onWahooWheelAnswered(withoutWheelDiameter) { settings.wahoo_without_wheel_diameter = withoutWheelDiameter }
         }
 
 
@@ -2442,7 +2570,7 @@ import AndroidStatusBar 1.0
             return (parseInt(pieces[0]) * 3600) + (parseInt(pieces[1]) * 60) + parseInt(pieces[2])
         }
 
-        property var appLanguageOptions: [
+        property var appLanguageNames: [
             { label: qsTr("Auto (System)"), value: "auto" },
             { label: qsTr("English"), value: "en" },
             { label: qsTr("Italian"), value: "it" },
@@ -2476,6 +2604,13 @@ import AndroidStatusBar 1.0
             { label: qsTr("Hebrew"), value: "he" },
             { label: qsTr("Catalan"), value: "ca" }
         ]
+        // A language without enough of a translation in this build is not offered
+        property var appLanguageOptions: {
+            var translated = rootItem.translatedLanguages
+            return appLanguageNames.filter(function(option) {
+                return option.value === "auto" || option.value === "en" || translated.indexOf(option.value) >= 0
+            })
+        }
         Timer {
             id: settingsSearchDebounceTimer
             interval: 1500
@@ -2501,13 +2636,17 @@ import AndroidStatusBar 1.0
 
                 TextField {
                     id: settingsSearchTextField
-                    Accessible.name: qsTr("Search settings")
+                    Accessible.name: qsTr("Search settings") + ": " + text
                     Layout.fillWidth: true
                     placeholderText: qsTr("Search settings")
                     selectByMouse: true
                     inputMethodHints: Qt.ImhNoPredictiveText
-                    // A new search of one's own: back no longer returns to the previous one
-                    onTextEdited: settingsPane.searchReturn = null
+                    // A new search of one's own: back no longer returns to the previous one, and
+                    // the result tapped before the index came is not wanted any more
+                    onTextEdited: {
+                        settingsPane.searchReturn = null
+                        settingsPane.pendingJump = null
+                    }
                     onTextChanged: {
                         if (settingsPane.restoringSearch)
                             return
@@ -2559,6 +2698,8 @@ import AndroidStatusBar 1.0
                 Label {
                     // a label that sets only a weight keeps, in Qt 5, the size it inherited when created
                     Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                    // The catalog error above says it all: no "Searching..." or "No settings found"
+                    visible: settingsCatalogError.length === 0
                     text: settingsCatalogLoading ? qsTr("Loading settings...") :
                           settingsSearchPending ? qsTr("Searching...") :
                           changedOnly && filteredSettings.length > 0 ?
@@ -2596,12 +2737,30 @@ import AndroidStatusBar 1.0
                             radius: 2
                         }
 
-                        // A tap on the card (not on its controls) opens the setting itself
+                        // The value as text: a binding on the setting, so it follows a change
+                        // made on its page
+                        readonly property string valueText: settingsPane.searchValueText(entry)
+                        readonly property bool valueOn: entry.type === "boolean" && valueText.length > 0 &&
+                                                        !!settingsPane.settingValue(entry)
+
+                        function open() {
+                            if (entry.catalogKind === "page")
+                                settingsPane.openPageResult(entry)
+                            else
+                                settingsPane.jumpToSetting(entry)
+                        }
+
+                        // A tap on the card opens the setting itself, the one way to change it.
+                        // For the screen reader a button; the value goes into the name: Qt 5.15
+                        // on Android reads the description only without a name
                         MouseArea {
                             id: resultArea
                             anchors.fill: parent
-                            onClicked: entry.catalogKind === "page" ? settingsPane.openPageResult(entry)
-                                                                    : settingsPane.jumpToSetting(entry)
+                            onClicked: searchResultFrame.open()
+                            Accessible.role: Accessible.Button
+                            Accessible.name: settingsPane.plainTitle(settingsPane.searchTitle(entry)) +
+                                             (searchResultFrame.valueText.length > 0 ? ": " + searchResultFrame.valueText : "")
+                            Accessible.onPressAction: searchResultFrame.open()
                         }
 
                         ColumnLayout {
@@ -2624,7 +2783,7 @@ import AndroidStatusBar 1.0
 
                                     Label {
                                         Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
-                                        text: entry._translatedName || entry.name || entry.key
+                                        text: settingsPane.searchTitle(entry)
                                         font.bold: true
                                         wrapMode: Text.WordWrap
                                         Layout.fillWidth: true
@@ -2642,17 +2801,29 @@ import AndroidStatusBar 1.0
                                     }
                                 }
 
-                                Switch {
-                                    Accessible.name: entry._translatedName || entry.name || entry.key
-                                    visible: entry.catalogKind === "setting" && entry.type === "boolean"
-                                    checked: visible ? settingsPane.settingValue(entry) : false
-                                    onClicked: settingsPane.setSettingValue(entry, checked)
+                                // "On" in the accent; as wide as 42 % of the card at most, cut at
+                                // the end; nothing when the value is not known
+                                Label {
+                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                    visible: searchResultFrame.valueText.length > 0
+                                    text: searchResultFrame.valueText
+                                    color: searchResultFrame.valueOn ? Material.accent : Material.color(Material.Grey)
+                                    horizontalAlignment: Text.AlignRight
+                                    elide: Text.ElideRight
+                                    maximumLineCount: 1
+                                    textFormat: Text.PlainText
+                                    Accessible.ignored: true
+                                    Layout.alignment: Qt.AlignVCenter
+                                    Layout.maximumWidth: Math.max(0, searchResultFrame.width * 0.42)
                                 }
 
-                                Button {
-                                    visible: entry.catalogKind === "page"
-                                    text: qsTr("Open")
-                                    onClicked: settingsPane.openPageResult(entry)
+                                Label {
+                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                    text: "›"
+                                    font.bold: true
+                                    color: Material.color(Material.Grey)
+                                    Accessible.ignored: true
+                                    Layout.alignment: Qt.AlignVCenter
                                 }
                             }
 
@@ -2670,107 +2841,6 @@ import AndroidStatusBar 1.0
                                 wrapMode: Text.WordWrap
                                 Layout.fillWidth: true
                                 Layout.minimumWidth: 0
-                            }
-
-                            RowLayout {
-                                visible: entry.catalogKind === "setting" && entry.type !== "boolean" && settingsPane.optionValues(entry).length === 0
-                                Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                                Layout.preferredHeight: visible ? implicitHeight : 0
-                                Layout.maximumHeight: visible ? implicitHeight : 0
-                                spacing: 8
-
-                                TextField {
-                                    id: searchSettingTextField
-                                    Accessible.name: entry._translatedName || entry.name || entry.key
-                                    Layout.fillWidth: true
-                                    Layout.minimumWidth: 0
-                                    text: visible ? settingsPane.settingValue(entry) : ""
-                                    horizontalAlignment: Text.AlignRight
-                                    inputMethodHints: entry.type === "string" ? Qt.ImhNoPredictiveText : Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settingsPane.setSettingValue(entry, text)
-                                    onActiveFocusChanged: if (this.focus) this.cursorPosition = this.text.length
-                                }
-
-                                Button {
-                                    text: qsTr("OK")
-                                    onClicked: settingsPane.setSettingValue(entry, searchSettingTextField.text)
-                                }
-                            }
-
-                            UiComboBox {
-                                id: searchSettingComboBox
-                                Accessible.name: entry._translatedName || entry.name || entry.key
-                                visible: entry.catalogKind === "setting" && settingsPane.optionValues(entry).length > 0
-                                Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                                Layout.preferredHeight: visible ? implicitHeight : 0
-                                Layout.maximumHeight: visible ? implicitHeight : 0
-                                model: visible ? settingsPane.optionTexts(entry) : []
-                                currentIndex: visible ? settingsPane.optionIndex(entry) : 0
-                                displayText: visible && settingsPane.isBluetoothDeviceSetting(entry)
-                                             ? settingsPane.settingValue(entry)
-                                             : currentText
-                                contentItem: Label {
-                                    leftPadding: 12
-                                    rightPadding: 36
-                                    text: searchSettingComboBox.displayText
-                                    font: searchSettingComboBox.font
-                                    color: searchSettingComboBox.palette.text
-                                    verticalAlignment: Text.AlignVCenter
-                                    elide: Text.ElideRight
-                                }
-                                delegate: ItemDelegate {
-                                    width: ListView.view.width
-                                    text: modelData
-                                    contentItem: Label {
-                                        text: modelData
-                                        font: searchSettingComboBox.font
-                                        color: searchSettingComboBox.palette.text
-                                        verticalAlignment: Text.AlignVCenter
-                                        elide: Text.ElideRight
-                                    }
-                                }
-                                onActivated: {
-                                    // The model holds the texts shown: the value is at the same place
-                                    var selectedValue = settingsPane.optionValues(entry)[index]
-                                    if (settingsPane.isBluetoothDeviceSetting(entry))
-                                        selectedValue = settingsPane.stripRssi(selectedValue)
-                                    settingsPane.setSettingValue(entry, selectedValue)
-                                }
-                            }
-
-                            UiComboBox {
-                                id: searchVirtualComboBox
-                                Accessible.name: entry._translatedName || entry.name || entry.key
-                                visible: entry.catalogKind === "virtual"
-                                Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                                Layout.preferredHeight: visible ? implicitHeight : 0
-                                Layout.maximumHeight: visible ? implicitHeight : 0
-                                model: visible ? settingsPane.virtualOptionLabels(entry) : []
-                                currentIndex: visible ? settingsPane.virtualSelectedIndex(entry) : 0
-                                contentItem: Label {
-                                    leftPadding: 12
-                                    rightPadding: 36
-                                    text: searchVirtualComboBox.displayText
-                                    font: searchVirtualComboBox.font
-                                    color: searchVirtualComboBox.palette.text
-                                    verticalAlignment: Text.AlignVCenter
-                                    elide: Text.ElideRight
-                                }
-                                delegate: ItemDelegate {
-                                    width: ListView.view.width
-                                    text: modelData
-                                    contentItem: Label {
-                                        text: modelData
-                                        font: searchVirtualComboBox.font
-                                        color: searchVirtualComboBox.palette.text
-                                        verticalAlignment: Text.AlignVCenter
-                                        elide: Text.ElideRight
-                                    }
-                                }
-                                onActivated: settingsPane.setVirtualSelection(entry, currentIndex)
                             }
                         }
                     }
@@ -2804,7 +2874,7 @@ import AndroidStatusBar 1.0
                         }
                         UiComboBox {
                             id: appLanguageCombo
-                            Accessible.name: qsTr("App Language:")
+                            Accessible.name: qsTr("App Language:") + " " + displayText
                             model: appLanguageOptions
                             textRole: "label"
                             Layout.fillHeight: false
@@ -2870,7 +2940,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.weight = ((settings.miles_unit && !settings.weight_kg_unit)?value / 2.20462:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Player Weight")
+                            Accessible.name: qsTr("Player Weight") + ": " + text
                         }
                         Button {
                             id: okWeightButton
@@ -2924,7 +2994,7 @@ import AndroidStatusBar 1.0
                             }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Player Height")
+                            Accessible.name: qsTr("Player Height") + ": " + text
                         }
                         Button {
                             id: okHeightButton
@@ -2984,7 +3054,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.age = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Player Age")
+                            Accessible.name: qsTr("Player Age") + ": " + text
                         }
                         Button {
                             id: okAgeButton
@@ -3031,7 +3101,7 @@ import AndroidStatusBar 1.0
                              }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Gender")
+                            Accessible.name: qsTr("Gender") + ": " + displayText
                         }
                         Button {
                             id: okSex
@@ -3079,7 +3149,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.ftp = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("FTP value")
+                            Accessible.name: qsTr("FTP value") + ": " + text
                         }
                         Button {
                             id: okFTPButton
@@ -3125,7 +3195,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.ftp_run = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Critical Power Run value")
+                            Accessible.name: qsTr("Critical Power Run value") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -3168,7 +3238,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.user_nickname = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Nickname")
+                            Accessible.name: qsTr("Nickname") + ": " + text
                         }
                         Button {
                             id: okNicknameButton
@@ -3214,7 +3284,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.user_email = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Email")
+                            Accessible.name: qsTr("Email") + ": " + text
                         }
                         Button {
                             id: okEmailButton
@@ -3537,7 +3607,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: heartBeltNameTextField
-                            Accessible.name: qsTr("Heart Belt Name:")
+                            Accessible.name: qsTr("Heart Belt Name:") + " " + displayText
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.heart_rate_belt_name
@@ -3579,6 +3649,40 @@ import AndroidStatusBar 1.0
                         onClicked: refresh_bluetooth_devices_clicked();
                     }
 
+                    IndicatorOnlySwitch {
+                        id: switchHeartRateBeltSuggestDelegate
+                        text: qsTr("Search for a Heart Rate Sensor at Start")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.heart_rate_belt_suggest
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.heart_rate_belt_suggest = checked
+                    }
+                    // a tap on the switch replaces its binding: "Don't ask again" on the bar after that still shows here
+                    Connections {
+                        target: settings
+                        function onHeart_rate_belt_suggestChanged() { switchHeartRateBeltSuggestDelegate.checked = settings.heart_rate_belt_suggest }
+                    }
+
+                    Label {
+                        text: qsTr("During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     AccordionElement {
                         id: heartRateZoneAccordion
                         title: qsTr("Heart Rate Zone Options")
@@ -3606,7 +3710,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.heart_rate_zone1 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Zone 1 %")
+                                    Accessible.name: qsTr("Zone 1 %") + ": " + text
                                 }
                                 Button {
                                     id: okHeartRateZone1Button
@@ -3638,7 +3742,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.heart_rate_zone2 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Zone 2 %")
+                                    Accessible.name: qsTr("Zone 2 %") + ": " + text
                                 }
                                 Button {
                                     id: okHeartRateZone2Button
@@ -3670,7 +3774,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.heart_rate_zone3 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Zone 3 %")
+                                    Accessible.name: qsTr("Zone 3 %") + ": " + text
                                 }
                                 Button {
                                     id: okHeartRateZone3Button
@@ -3702,7 +3806,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.heart_rate_zone4 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Zone 4 %")
+                                    Accessible.name: qsTr("Zone 4 %") + ": " + text
                                 }
                                 Button {
                                     id: okHeartRateZone4Button
@@ -3786,7 +3890,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: if (valid) settings.heart_max_override_value = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Max Heart Rate")
+                                            Accessible.name: qsTr("Max Heart Rate") + ": " + text
                                         }
                                         Button {
                                             id: okHeartRateMaxOverrideValue
@@ -3834,7 +3938,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: if (valid) settings.heart_rate_resting = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Resting Heart Rate")
+                                            Accessible.name: qsTr("Resting Heart Rate") + ": " + text
                                         }
                                         Button {
                                             id: okHeartRateRestingValue
@@ -3891,7 +3995,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: if (valid) settings.power_hr_pwr1 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Session 1 Watt")
+                                            Accessible.name: qsTr("Session 1 Watt") + ": " + text
                                         }
                                         Button {
                                             id: okPowerFromHeartPWR1
@@ -3924,7 +4028,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: if (valid) settings.power_hr_hr1 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Session 1 HR")
+                                            Accessible.name: qsTr("Session 1 HR") + ": " + text
                                         }
                                         Button {
                                             id: okPowerFromHeartHR1
@@ -3957,7 +4061,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: if (valid) settings.power_hr_pwr2 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Session 2 Watt")
+                                            Accessible.name: qsTr("Session 2 Watt") + ": " + text
                                         }
                                         Button {
                                             id: okPowerFromHeartPWR2
@@ -3990,7 +4094,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: if (valid) settings.power_hr_hr2 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Session 2 HR")
+                                            Accessible.name: qsTr("Session 2 HR") + ": " + text
                                         }
                                         Button {
                                             id: okPowerFromHeartHR2
@@ -4135,7 +4239,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.gears_current_value_f = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Gear Value")
+                            Accessible.name: qsTr("Gear Value") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -4181,7 +4285,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.rolling_resistance = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Rolling Resistance Factor")
+                            Accessible.name: qsTr("Rolling Resistance Factor") + ": " + text
                         }
                         Button {
                             id: okRollingResistanceButton
@@ -4220,7 +4324,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.bike_weight = ((settings.miles_unit && !settings.weight_kg_unit)?value / 2.20462:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Bike Weight")
+                            Accessible.name: qsTr("Bike Weight") + ": " + text
                         }
                         Button {
                             id: okBikeWeightButton
@@ -4265,7 +4369,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.crrGain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Rolling Res. Gain")
+                            Accessible.name: qsTr("Rolling Res. Gain") + ": " + text
                         }
                         Button {
                             id: okCRRGainButton
@@ -4295,7 +4399,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.cwGain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Wind Res. Gain")
+                            Accessible.name: qsTr("Wind Res. Gain") + ": " + text
                         }
                         Button {
                             id: okCWGainButton
@@ -4404,7 +4508,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Left Up:")
+                                    Accessible.name: qsTr("Left Up:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_up
                                     onActivated: { settings.mywhoosh_link_left_up = currentIndex; window.settings_restart_to_apply = true; }
@@ -4418,7 +4522,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Left Down:")
+                                    Accessible.name: qsTr("Left Down:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_down
                                     onActivated: { settings.mywhoosh_link_left_down = currentIndex; window.settings_restart_to_apply = true; }
@@ -4432,7 +4536,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Left Left:")
+                                    Accessible.name: qsTr("Left Left:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_left
                                     onActivated: { settings.mywhoosh_link_left_left = currentIndex; window.settings_restart_to_apply = true; }
@@ -4446,7 +4550,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Left Right:")
+                                    Accessible.name: qsTr("Left Right:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_right
                                     onActivated: { settings.mywhoosh_link_left_right = currentIndex; window.settings_restart_to_apply = true; }
@@ -4460,7 +4564,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Left Shoulder:")
+                                    Accessible.name: qsTr("Left Shoulder:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_shoulder
                                     onActivated: { settings.mywhoosh_link_left_shoulder = currentIndex; window.settings_restart_to_apply = true; }
@@ -4474,7 +4578,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Left Power:")
+                                    Accessible.name: qsTr("Left Power:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_power
                                     onActivated: { settings.mywhoosh_link_left_power = currentIndex; window.settings_restart_to_apply = true; }
@@ -4497,7 +4601,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Right Y:")
+                                    Accessible.name: qsTr("Right Y:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_y
                                     onActivated: { settings.mywhoosh_link_right_y = currentIndex; window.settings_restart_to_apply = true; }
@@ -4511,7 +4615,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Right A:")
+                                    Accessible.name: qsTr("Right A:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_a
                                     onActivated: { settings.mywhoosh_link_right_a = currentIndex; window.settings_restart_to_apply = true; }
@@ -4525,7 +4629,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Right B:")
+                                    Accessible.name: qsTr("Right B:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_b
                                     onActivated: { settings.mywhoosh_link_right_b = currentIndex; window.settings_restart_to_apply = true; }
@@ -4539,7 +4643,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Right Z:")
+                                    Accessible.name: qsTr("Right Z:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_z
                                     onActivated: { settings.mywhoosh_link_right_z = currentIndex; window.settings_restart_to_apply = true; }
@@ -4553,7 +4657,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Right Shoulder:")
+                                    Accessible.name: qsTr("Right Shoulder:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_shoulder
                                     onActivated: { settings.mywhoosh_link_right_shoulder = currentIndex; window.settings_restart_to_apply = true; }
@@ -4567,7 +4671,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Right Power:")
+                                    Accessible.name: qsTr("Right Power:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_power
                                     onActivated: { settings.mywhoosh_link_right_power = currentIndex; window.settings_restart_to_apply = true; }
@@ -4610,7 +4714,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.bike_resistance_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Zwift Resistance Offset")
+                            Accessible.name: qsTr("Zwift Resistance Offset") + ": " + text
                         }
                         Button {
                             id: okBikeResistanceOffsetButton
@@ -4657,7 +4761,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.bike_power_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Zwift Power Offset (W)")
+                            Accessible.name: qsTr("Zwift Power Offset (W)") + ": " + text
                         }
                         Button {
                             id: okBikePowerOffsetButton
@@ -4702,7 +4806,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.bike_resistance_gain_f = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Zwift Resistance Gain")
+                            Accessible.name: qsTr("Zwift Resistance Gain") + ": " + text
                         }
                         Button {
                             id: okBikeResistanceGainButton
@@ -4747,7 +4851,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.zwift_erg_filter = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Zwift ERG Watt Up Filter")
+                            Accessible.name: qsTr("Zwift ERG Watt Up Filter") + ": " + text
                         }
                         Button {
                             id: okzwiftErgFilterButton
@@ -4792,7 +4896,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.zwift_erg_filter_down = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Zwift ERG Watt Down Filter")
+                            Accessible.name: qsTr("Zwift ERG Watt Down Filter") + ": " + text
                         }
                         Button {
                             id: okzwiftErgDownFilterButton
@@ -4837,7 +4941,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.zwift_erg_resistance_down = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Min. Resistance")
+                            Accessible.name: qsTr("Min. Resistance") + ": " + text
                         }
                         Button {
                             id: okzwiftErgResistanceDownButton
@@ -4882,7 +4986,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.zwift_erg_resistance_up = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Max. Resistance")
+                            Accessible.name: qsTr("Max. Resistance") + ": " + text
                         }
                         Button {
                             id: okzwiftErgResistanceUpButton
@@ -4928,7 +5032,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.bike_resistance_start = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Resistance at Startup")
+                            Accessible.name: qsTr("Resistance at Startup") + ": " + text
                         }
                         Button {
                             id: okBikeResistanceStartButton
@@ -4972,7 +5076,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.gears_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Gears Gain")
+                            Accessible.name: qsTr("Gears Gain") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -5034,7 +5138,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.gears_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Gears Offset")
+                            Accessible.name: qsTr("Gears Offset") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -5117,7 +5221,7 @@ import AndroidStatusBar 1.0
                                         settings.automatic_virtual_shifting_profile = currentIndex
                                     }
                                     Accessible.role: Accessible.ComboBox
-                                    Accessible.name: qsTr("Profile")
+                                    Accessible.name: qsTr("Profile") + ": " + displayText
                                 }
                             }
 
@@ -5153,7 +5257,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_gear_up_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Cruise - Gear Up Cadence (RPM)")
+                                    Accessible.name: qsTr("Cruise - Gear Up Cadence (RPM)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5183,7 +5287,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.automatic_virtual_shifting_gear_up_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Cruise - Gear Up Time (seconds)")
+                                    Accessible.name: qsTr("Cruise - Gear Up Time (seconds)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5216,7 +5320,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_gear_down_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Cruise - Gear Down Cadence (RPM)")
+                                    Accessible.name: qsTr("Cruise - Gear Down Cadence (RPM)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5246,7 +5350,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.automatic_virtual_shifting_gear_down_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Cruise - Gear Down Time (seconds)")
+                                    Accessible.name: qsTr("Cruise - Gear Down Time (seconds)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5290,7 +5394,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_climb_gear_up_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Climb - Gear Up Cadence (RPM)")
+                                    Accessible.name: qsTr("Climb - Gear Up Cadence (RPM)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5320,7 +5424,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.automatic_virtual_shifting_climb_gear_up_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Climb - Gear Up Time (seconds)")
+                                    Accessible.name: qsTr("Climb - Gear Up Time (seconds)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5353,7 +5457,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_climb_gear_down_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Climb - Gear Down Cadence (RPM)")
+                                    Accessible.name: qsTr("Climb - Gear Down Cadence (RPM)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5383,7 +5487,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.automatic_virtual_shifting_climb_gear_down_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Climb - Gear Down Time (seconds)")
+                                    Accessible.name: qsTr("Climb - Gear Down Time (seconds)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5427,7 +5531,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_sprint_gear_up_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Sprint - Gear Up Cadence (RPM)")
+                                    Accessible.name: qsTr("Sprint - Gear Up Cadence (RPM)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5457,7 +5561,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.automatic_virtual_shifting_sprint_gear_up_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Sprint - Gear Up Time (seconds)")
+                                    Accessible.name: qsTr("Sprint - Gear Up Time (seconds)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5490,7 +5594,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_sprint_gear_down_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Sprint - Gear Down Cadence (RPM)")
+                                    Accessible.name: qsTr("Sprint - Gear Down Cadence (RPM)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5520,7 +5624,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.automatic_virtual_shifting_sprint_gear_down_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Sprint - Gear Down Time (seconds)")
+                                    Accessible.name: qsTr("Sprint - Gear Down Time (seconds)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -5543,7 +5647,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: ftmsBikeTextField
-                            Accessible.name: qsTr("FTMS Bike:")
+                            Accessible.name: qsTr("FTMS Bike:") + " " + displayText
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.ftms_bike
@@ -5668,7 +5772,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.schwinn_resistance_smooth = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Resistance Smoothing")
+                                    Accessible.name: qsTr("Resistance Smoothing") + ": " + text
                                 }
                                 Button {
                                     id: okschwinnResistanceSmoothButton
@@ -5719,7 +5823,7 @@ import AndroidStatusBar 1.0
                                 onAccepted: settings.horizon_gr7_cadence_multiplier = value
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 Accessible.role: Accessible.EditableText
-                                Accessible.name: qsTr("GR7 Cadence Multiplier")
+                                Accessible.name: qsTr("GR7 Cadence Multiplier") + ": " + text
                             }
                             Button {
                                 id: okhorizonGr7CadenceMultiplierButton
@@ -5764,7 +5868,7 @@ import AndroidStatusBar 1.0
                                     }
 
                                     Accessible.role: Accessible.ComboBox
-                                    Accessible.name: qsTr("Watt Profile")
+                                    Accessible.name: qsTr("Watt Profile") + ": " + displayText
                                 }
                                 Button {
                                     id: okEchelonWattTable
@@ -5794,7 +5898,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.echelon_resistance_gain = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Resistance Gain")
+                                    Accessible.name: qsTr("Resistance Gain") + ": " + text
                                 }
                                 Button {
                                     id: okechelonResistanceGainButton
@@ -5827,7 +5931,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.echelon_resistance_offset = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Resistance Offset")
+                                    Accessible.name: qsTr("Resistance Offset") + ": " + text
                                 }
                                 Button {
                                     id: okechelonResistanceOffsetButton
@@ -6206,7 +6310,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.flywheel_filter = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Samples Filter")
+                                    Accessible.name: qsTr("Samples Filter") + ": " + text
                                 }
                                 Button {
                                     id: okflywheelBikeFilterButton
@@ -6274,7 +6378,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.domyos_bike_cadence_filter = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Cadence Filter")
+                                    Accessible.name: qsTr("Cadence Filter") + ": " + text
                                 }
                                 Button {
                                     id: okDomyosBikeCadenceFilter
@@ -6414,7 +6518,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.proform_wheel_ratio = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Wheel Ratio")
+                                    Accessible.name: qsTr("Wheel Ratio") + ": " + text
                                 }
                                 Button {
                                     id: okproformBikeWheelRatioButton
@@ -6434,7 +6538,7 @@ import AndroidStatusBar 1.0
                             }
 
                             UiComboBox {
-                                Accessible.name: qsTr("Specific Model:")
+                                Accessible.name: qsTr("Specific Model:") + " " + displayText
                                 Layout.fillWidth: true
                                 id: bikeModelComboBox
                                 property bool initialized: false
@@ -6588,6 +6692,24 @@ import AndroidStatusBar 1.0
                                 onClicked: settings.proform_tdf_jonseed_watt = checked
                             }
 
+                            IndicatorOnlySwitch {
+                                id: proformUseConsoleGearsDelegate
+                                text: qsTr("Use Console Gears")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.proform_use_console_gears
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: {
+                                    settings.proform_use_console_gears = checked
+                                    window.settings_restart_to_apply = true
+                                }
+                            }
+
                             RowLayout {
                                 spacing: 10
                                 Label {
@@ -6606,7 +6728,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.proformtdf1ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("TDF1 IP")
+                                    Accessible.name: qsTr("TDF1 IP") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -6637,7 +6759,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.proformtdf4ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("TDF4 IP")
+                                    Accessible.name: qsTr("TDF4 IP") + ": " + text
                                 }
                                 Button {
                                     id: okproformTDF4IPButton
@@ -6668,7 +6790,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.tdf_10_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("TDF Companion IP")
+                                    Accessible.name: qsTr("TDF Companion IP") + ": " + text
                                 }
                                 Button {
                                     id: okproformTDFCompanionIPButton
@@ -6734,7 +6856,7 @@ import AndroidStatusBar 1.0
                                 onAccepted: { settings.computrainer_serialport = text; window.settings_restart_to_apply = true; }
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 Accessible.role: Accessible.EditableText
-                                Accessible.name: qsTr("Serial Port")
+                                Accessible.name: qsTr("Serial Port") + ": " + text
                             }
                             Button {
                                 id: okcomputrainerSerialPortButton
@@ -6774,7 +6896,7 @@ import AndroidStatusBar 1.0
                                 onAccepted: { settings.kettler_usb_serialport = text; window.settings_restart_to_apply = true; }
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 Accessible.role: Accessible.EditableText
-                                Accessible.name: qsTr("Serial Port")
+                                Accessible.name: qsTr("Serial Port") + ": " + text
                             }
                             Button {
                                 id: okKettlerUsbSerialPortButton
@@ -6805,7 +6927,7 @@ import AndroidStatusBar 1.0
                                     displayText = kettlerUsbBaudrateComboBox.currentValue
                                 }
                                 Accessible.role: Accessible.ComboBox
-                                Accessible.name: qsTr("Baudrate")
+                                Accessible.name: qsTr("Baudrate") + ": " + displayText
                             }
                             Button {
                                 id: okKettlerUsbBaudrateButton
@@ -6931,7 +7053,7 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsTextField {
                                     id: freebeatSerialPortTextField
-                                    Accessible.name: qsTr("Serial Port:")
+                                    Accessible.name: qsTr("Serial Port:") + " " + text
                                     savedText: settings.freebeat_serialport
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -6996,7 +7118,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.m3i_bike_id = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Bike ID")
+                                    Accessible.name: qsTr("Bike ID") + ": " + text
                                 }
                                 Button {
                                     id: okm3iBikeIdButton
@@ -7028,7 +7150,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.m3i_bike_speed_buffsize = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Speed Buffer Size")
+                                    Accessible.name: qsTr("Speed Buffer Size") + ": " + text
                                 }
                                 Button {
                                     id: okm3iBikeSpeedBuffsizeButton
@@ -7145,7 +7267,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) { settings.ant_bike_device_number = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("ANT+ Bike Device Number (0=Auto)")
+                                    Accessible.name: qsTr("ANT+ Bike Device Number (0=Auto)") + ": " + text
                                 }
                                 Button {
                                     id: okAntBikeDeviceNumberButton
@@ -7274,7 +7396,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.ant_speed_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("ANT+ Speed Offset")
+                            Accessible.name: qsTr("ANT+ Speed Offset") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -7318,7 +7440,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.ant_speed_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("ANT+ Speed Gain")
+                            Accessible.name: qsTr("ANT+ Speed Gain") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -7379,7 +7501,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) { settings.ant_heart_device_number = value; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("ANT+ Heart Device Number (0=Auto)")
+                            Accessible.name: qsTr("ANT+ Heart Device Number (0=Auto)") + ": " + text
                         }
                         Button {
                             id: okAntHeartDeviceNumberButton
@@ -7473,130 +7595,6 @@ import AndroidStatusBar 1.0
                 accordionContent: ColumnLayout {
                     spacing: 0
 
-                    // Workout History (not the live charts): customize the order of saved workout graphs.
-                    AccordionElement {
-                        id: historyChartsAccordion
-                        title: qsTr("Workout History Charts")
-                        indicatRectColor: Material.color(Material.Grey)
-                        textColor: Material.color(Material.Grey)
-                        color: Material.backgroundColor
-                        accordionContent: ColumnLayout {
-                            id: historyChartOrderEditor
-                            spacing: 8
-                            Layout.fillWidth: true
-
-                            readonly property var defaultChartIds: [
-                                "power", "heart", "resistance", "pelotonResistance",
-                                "cadence", "powerDistribution", "speedInclination"
-                            ]
-                            property var chartOrder: []
-
-                            function currentOrder() {
-                                var positions = [
-                                    settings.history_chart_power_order,
-                                    settings.history_chart_heart_order,
-                                    settings.history_chart_resistance_order,
-                                    settings.history_chart_peloton_resistance_order,
-                                    settings.history_chart_cadence_order,
-                                    settings.history_chart_power_distribution_order,
-                                    settings.history_chart_speed_inclination_order
-                                ]
-                                var order = defaultChartIds.slice()
-                                order.sort(function(a, b) {
-                                    var ai = defaultChartIds.indexOf(a)
-                                    var bi = defaultChartIds.indexOf(b)
-                                    return positions[ai] - positions[bi] || ai - bi
-                                })
-                                return order
-                            }
-
-                            function saveOrder() {
-                                settings.history_chart_power_order = chartOrder.indexOf("power")
-                                settings.history_chart_heart_order = chartOrder.indexOf("heart")
-                                settings.history_chart_resistance_order = chartOrder.indexOf("resistance")
-                                settings.history_chart_peloton_resistance_order = chartOrder.indexOf("pelotonResistance")
-                                settings.history_chart_cadence_order = chartOrder.indexOf("cadence")
-                                settings.history_chart_power_distribution_order = chartOrder.indexOf("powerDistribution")
-                                settings.history_chart_speed_inclination_order = chartOrder.indexOf("speedInclination")
-                            }
-
-                            function chartLabel(chartId) {
-                                switch (chartId) {
-                                case "power": return qsTr("Power")
-                                case "heart": return qsTr("Heart Rate")
-                                case "resistance": return qsTr("Resistance vs Target Resistance")
-                                case "pelotonResistance": return qsTr("Peloton Resistance")
-                                case "cadence": return qsTr("Cadence")
-                                case "powerDistribution": return qsTr("Power Distribution")
-                                case "speedInclination": return qsTr("Speed and Inclination")
-                                default: return chartId
-                                }
-                            }
-
-                            function moveChart(index, delta) {
-                                var destination = index + delta
-                                if (destination < 0 || destination >= chartOrder.length)
-                                    return
-                                var updated = chartOrder.slice()
-                                var item = updated[index]
-                                updated[index] = updated[destination]
-                                updated[destination] = item
-                                chartOrder = updated
-                                saveOrder()
-                            }
-
-                            Component.onCompleted: chartOrder = currentOrder()
-
-                            Label {
-                                text: qsTr("Move the charts up or down to choose their order in Workout History. Changes are saved automatically.")
-                                wrapMode: Text.WordWrap
-                                Layout.fillWidth: true
-                                color: Material.color(Material.Lime)
-                            }
-
-                            Repeater {
-                                model: historyChartOrderEditor.chartOrder.length
-                                delegate: RowLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 8
-
-                                    Label {
-                                        text: historyChartOrderEditor.chartLabel(historyChartOrderEditor.chartOrder[index])
-                                        Layout.fillWidth: true
-                                        elide: Text.ElideRight
-                                        wrapMode: Text.NoWrap
-                                    }
-                                    Button {
-                                        text: "↑"
-                                        enabled: index > 0
-                                        Accessible.name: qsTr("Move up") + ": " +
-                                                         historyChartOrderEditor.chartLabel(historyChartOrderEditor.chartOrder[index])
-                                        onClicked: historyChartOrderEditor.moveChart(index, -1)
-                                    }
-                                    Button {
-                                        text: "↓"
-                                        enabled: index < historyChartOrderEditor.chartOrder.length - 1
-                                        Accessible.name: qsTr("Move down") + ": " +
-                                                         historyChartOrderEditor.chartLabel(historyChartOrderEditor.chartOrder[index])
-                                        onClicked: historyChartOrderEditor.moveChart(index, 1)
-                                    }
-                                }
-                            }
-
-                            Button {
-                                text: qsTr("Restore default order")
-                                Layout.alignment: Qt.AlignRight
-                                enabled: historyChartOrderEditor.chartOrder.join(",") !==
-                                         historyChartOrderEditor.defaultChartIds.join(",")
-                                onClicked: {
-                                    var defaults = historyChartOrderEditor.defaultChartIds.slice()
-                                    historyChartOrderEditor.chartOrder = defaults
-                                    historyChartOrderEditor.saveOrder()
-                                }
-                            }
-                        }
-                    }
-
                     RowLayout {
                         spacing: 10
                         Label {
@@ -7607,7 +7605,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: uiZoomTextField
-                            Accessible.name: labelUiZoom.text
+                            Accessible.name: labelUiZoom.text + " " + text
                             minimum: 10
                             savedText: settings.ui_zoom
                             horizontalAlignment: Text.AlignRight
@@ -7797,7 +7795,7 @@ import AndroidStatusBar 1.0
                                 console.log("floatingwindow_type activated" + floatingWindowTypeComboBox.currentIndex)
                             }
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Floating Window Type")
+                            Accessible.name: qsTr("Floating Window Type") + ": " + displayText
                         }
                         Button {
                             id: okFloatingWindowTypeButton
@@ -7857,7 +7855,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.floating_width = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Floating Window Width")
+                            Accessible.name: qsTr("Floating Window Width") + ": " + text
                         }
                         Button {
                             id: okFloatingWidthButton
@@ -7903,7 +7901,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.floating_height = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Floating Window Height")
+                            Accessible.name: qsTr("Floating Window Height") + ": " + text
                         }
                         Button {
                             id: okFloatingHeightButton
@@ -7949,7 +7947,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.floating_transparency = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Floating Window % Transparency")
+                            Accessible.name: qsTr("Floating Window % Transparency") + ": " + text
                         }
                         Button {
                             id: okFloatingTransparencyButton
@@ -8029,7 +8027,7 @@ import AndroidStatusBar 1.0
                                 console.log("chart_display_mode activated" + chartDisplayModeComboBox.currentIndex)
                             }
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Chart Display Mode")
+                            Accessible.name: qsTr("Chart Display Mode") + ": " + displayText
                         }
                         Button {
                             id: okChartDisplayModeButton
@@ -8056,6 +8054,130 @@ import AndroidStatusBar 1.0
                         color: Material.color(Material.Lime)
                     }
 
+                    // Workout History (not the live charts): customize the order of saved workout graphs.
+                    AccordionElement {
+                        id: historyChartsAccordion
+                        title: qsTr("Workout History Charts")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Grey)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            id: historyChartOrderEditor
+                            spacing: 8
+                            Layout.fillWidth: true
+
+                            readonly property var defaultChartIds: [
+                                "power", "heart", "resistance", "pelotonResistance",
+                                "cadence", "powerDistribution", "speedInclination"
+                            ]
+                            property var chartOrder: []
+
+                            function currentOrder() {
+                                var positions = [
+                                    settings.history_chart_power_order,
+                                    settings.history_chart_heart_order,
+                                    settings.history_chart_resistance_order,
+                                    settings.history_chart_peloton_resistance_order,
+                                    settings.history_chart_cadence_order,
+                                    settings.history_chart_power_distribution_order,
+                                    settings.history_chart_speed_inclination_order
+                                ]
+                                var order = defaultChartIds.slice()
+                                order.sort(function(a, b) {
+                                    var ai = defaultChartIds.indexOf(a)
+                                    var bi = defaultChartIds.indexOf(b)
+                                    return positions[ai] - positions[bi] || ai - bi
+                                })
+                                return order
+                            }
+
+                            function saveOrder() {
+                                settings.history_chart_power_order = chartOrder.indexOf("power")
+                                settings.history_chart_heart_order = chartOrder.indexOf("heart")
+                                settings.history_chart_resistance_order = chartOrder.indexOf("resistance")
+                                settings.history_chart_peloton_resistance_order = chartOrder.indexOf("pelotonResistance")
+                                settings.history_chart_cadence_order = chartOrder.indexOf("cadence")
+                                settings.history_chart_power_distribution_order = chartOrder.indexOf("powerDistribution")
+                                settings.history_chart_speed_inclination_order = chartOrder.indexOf("speedInclination")
+                            }
+
+                            function chartLabel(chartId) {
+                                switch (chartId) {
+                                case "power": return qsTr("Power")
+                                case "heart": return qsTr("Heart Rate")
+                                case "resistance": return qsTr("Resistance vs Target Resistance")
+                                case "pelotonResistance": return qsTr("Peloton Resistance")
+                                case "cadence": return qsTr("Cadence")
+                                case "powerDistribution": return qsTr("Power Distribution")
+                                case "speedInclination": return qsTr("Speed and Inclination")
+                                default: return chartId
+                                }
+                            }
+
+                            function moveChart(index, delta) {
+                                var destination = index + delta
+                                if (destination < 0 || destination >= chartOrder.length)
+                                    return
+                                var updated = chartOrder.slice()
+                                var item = updated[index]
+                                updated[index] = updated[destination]
+                                updated[destination] = item
+                                chartOrder = updated
+                                saveOrder()
+                            }
+
+                            Component.onCompleted: chartOrder = currentOrder()
+
+                            Label {
+                                text: qsTr("Move the charts up or down to choose their order in Workout History. Changes are saved automatically.")
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            Repeater {
+                                model: historyChartOrderEditor.chartOrder.length
+                                delegate: RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 8
+
+                                    Label {
+                                        text: historyChartOrderEditor.chartLabel(historyChartOrderEditor.chartOrder[index])
+                                        Layout.fillWidth: true
+                                        elide: Text.ElideRight
+                                        wrapMode: Text.NoWrap
+                                    }
+                                    Button {
+                                        text: "↑"
+                                        enabled: index > 0
+                                        Accessible.name: qsTr("Move up") + ": " +
+                                                         historyChartOrderEditor.chartLabel(historyChartOrderEditor.chartOrder[index])
+                                        onClicked: historyChartOrderEditor.moveChart(index, -1)
+                                    }
+                                    Button {
+                                        text: "↓"
+                                        enabled: index < historyChartOrderEditor.chartOrder.length - 1
+                                        Accessible.name: qsTr("Move down") + ": " +
+                                                         historyChartOrderEditor.chartLabel(historyChartOrderEditor.chartOrder[index])
+                                        onClicked: historyChartOrderEditor.moveChart(index, 1)
+                                    }
+                                }
+                            }
+
+                            Button {
+                                text: qsTr("Restore default order")
+                                Layout.alignment: Qt.AlignRight
+                                enabled: historyChartOrderEditor.chartOrder.join(",") !==
+                                         historyChartOrderEditor.defaultChartIds.join(",")
+                                onClicked: {
+                                    var defaults = historyChartOrderEditor.defaultChartIds.slice()
+                                    historyChartOrderEditor.chartOrder = defaults
+                                    historyChartOrderEditor.saveOrder()
+                                }
+                            }
+                        }
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -8071,7 +8193,7 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: displayText = currentValue
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("iOS Live Activity Left Metric")
+                            Accessible.name: qsTr("iOS Live Activity Left Metric") + ": " + displayText
                         }
                         Button {
                             text: qsTr("OK")
@@ -8098,7 +8220,7 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: displayText = currentValue
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("iOS Live Activity Right Metric")
+                            Accessible.name: qsTr("iOS Live Activity Right Metric") + ": " + displayText
                         }
                         Button {
                             text: qsTr("OK")
@@ -8164,7 +8286,7 @@ import AndroidStatusBar 1.0
                                           if(OS_VERSION !== "Android") backgroundColorDialog.visible = true
                                       }
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Background Color")
+                                    Accessible.name: qsTr("Background Color") + ": " + text
                                 }
                                 Button {
                                     id: okBackgroundColor
@@ -8204,7 +8326,7 @@ import AndroidStatusBar 1.0
                                           if(OS_VERSION !== "Android") tilebackgroundColorDialog.visible = true
                                       }
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Tiles Background Color")
+                                    Accessible.name: qsTr("Tiles Background Color") + ": " + text
                                 }
                                 Button {
                                     id: oktileBackgroundColor
@@ -8257,7 +8379,7 @@ import AndroidStatusBar 1.0
                                           if(OS_VERSION !== "Android") tileShadowColorDialog.visible = true
                                       }
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Tiles Shadow Color")
+                                    Accessible.name: qsTr("Tiles Shadow Color") + ": " + text
                                 }
                                 Button {
                                     id: oktileShadowColor
@@ -8296,7 +8418,7 @@ import AndroidStatusBar 1.0
                                           if(OS_VERSION !== "Android") statusbarbackgroundColorDialog.visible = true
                                       }
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Statusbar Background Color")
+                                    Accessible.name: qsTr("Statusbar Background Color") + ": " + text
                                 }
                                 Button {
                                     id: okStatusbarBackgroundColor
@@ -8337,7 +8459,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) { settings.theme_tile_secondline_textsize = value; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("2nd line tile text size")
+                                    Accessible.name: qsTr("2nd line tile text size") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -8502,7 +8624,7 @@ import AndroidStatusBar 1.0
                              }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Difficulty")
+                            Accessible.name: qsTr("Difficulty") + ": " + displayText
                         }
                         Button {
                             id: okPelotonDifficultyButton
@@ -8548,7 +8670,7 @@ import AndroidStatusBar 1.0
                              }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Treadmill Level")
+                            Accessible.name: qsTr("Treadmill Level") + ": " + displayText
                         }
                         Button {
                             text: qsTr("OK")
@@ -8593,7 +8715,7 @@ import AndroidStatusBar 1.0
                              }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Treadmill Walk Level")
+                            Accessible.name: qsTr("Treadmill Walk Level") + ": " + displayText
                         }
                         Button {
                             text: qsTr("OK")
@@ -8634,7 +8756,7 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Walking Min Speed")
+                            Accessible.name: qsTr("Walking Min Speed") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -8675,7 +8797,7 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Running Min Speed")
+                            Accessible.name: qsTr("Running Min Speed") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -8720,7 +8842,7 @@ import AndroidStatusBar 1.0
                              }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Rower Level")
+                            Accessible.name: qsTr("Rower Level") + ": " + displayText
                         }
                         Button {
                             text: qsTr("OK")
@@ -8763,7 +8885,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.pzp_username = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("PZP Username")
+                            Accessible.name: qsTr("PZP Username") + ": " + text
                         }
                         Button {
                             id: okPZPUsernameButton
@@ -8863,7 +8985,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.peloton_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Conversion Gain")
+                            Accessible.name: qsTr("Conversion Gain") + ": " + text
                         }
                         Button {
                             id: okPelotonGainButton
@@ -8909,7 +9031,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.peloton_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Conversion Offset")
+                            Accessible.name: qsTr("Conversion Offset") + ": " + text
                         }
                         Button {
                             id: okPelotonOffsetButton
@@ -9075,7 +9197,7 @@ import AndroidStatusBar 1.0
                              }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Override HR Metric")
+                            Accessible.name: qsTr("Override HR Metric") + ": " + displayText
                         }
                         Button {
                             id: okPelotonHeartRateMetric
@@ -9122,7 +9244,7 @@ import AndroidStatusBar 1.0
                             }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Date on Strava")
+                            Accessible.name: qsTr("Date on Strava") + ": " + displayText
                         }
                         Button {
                             id: okPelotonDateOnStrava
@@ -9168,7 +9290,7 @@ import AndroidStatusBar 1.0
                             }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Date Format")
+                            Accessible.name: qsTr("Date Format") + ": " + displayText
                         }
                         Button {
                             text: qsTr("OK")
@@ -9349,7 +9471,7 @@ import AndroidStatusBar 1.0
                             onAccepted: { settings.zwift_username = text; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Username")
+                            Accessible.name: qsTr("Username") + ": " + text
                         }
                         Button {
                             id: okZwiftUsernameButton
@@ -9559,7 +9681,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) { settings.zwift_api_poll = value; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Poll Time")
+                            Accessible.name: qsTr("Poll Time") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -9927,7 +10049,7 @@ import AndroidStatusBar 1.0
                             onAccepted: { rootItem.garmin_connect_logout(); settings.garmin_email = text; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Garmin Email")
+                            Accessible.name: qsTr("Garmin Email") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -10000,7 +10122,7 @@ import AndroidStatusBar 1.0
                                 }
                             }
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Garmin Server")
+                            Accessible.name: qsTr("Garmin Server") + ": " + displayText
                         }
                     }
 
@@ -10052,7 +10174,7 @@ import AndroidStatusBar 1.0
 
                             TextField {
                                 id: mfaCodeTextField
-                                Accessible.name: qsTr("Enter MFA code")
+                                Accessible.name: qsTr("Enter MFA code") + ": " + text
                                 placeholderText: qsTr("Enter MFA code")
                                 horizontalAlignment: Text.AlignHCenter
                                 Layout.fillWidth: true
@@ -10150,7 +10272,7 @@ import AndroidStatusBar 1.0
 
                     UiComboBox {
                         id: garminDeviceComboBoxDelegate
-                        Accessible.name: qsTr("Garmin device for FIT file")
+                        Accessible.name: qsTr("Garmin device for FIT file") + ": " + displayText
                         model: [
                             "Approach G10",
                             "Approach G80",
@@ -10186,10 +10308,12 @@ import AndroidStatusBar 1.0
                             "Descent Mk2s",
                             "Descent Mk3",
                             "Descent Mk3i",
+                            "Descent X10",
                             "Edge 1030",
                             "Edge 1030 Plus",
                             "Edge 1040",
                             "Edge 1050",
+                            "Edge 1060",
                             "Edge 130",
                             "Edge 130 Plus",
                             "Edge 520 Plus",
@@ -10204,6 +10328,8 @@ import AndroidStatusBar 1.0
                             "Edge Explore 1000",
                             "Edge Explore 820",
                             "Edge Explore2",
+                            "Edge Explore3",
+                            "Edge Explore3 Plus",
                             "Edge Mtb",
                             "Edge Remote",
                             "Edge Touring",
@@ -10343,6 +10469,7 @@ import AndroidStatusBar 1.0
                             "Marq Gen2 Aviator",
                             "Marq Gen2 Commander",
                             "Marq Golfer",
+                            "Marq3",
                             "Swim",
                             "Swim2",
                             "Tactix7",
@@ -10415,200 +10542,205 @@ import AndroidStatusBar 1.0
                             if (settings.fit_file_garmin_device_training_effect_device === 3542) return 31;  // DESCENT_MK2S
                             if (settings.fit_file_garmin_device_training_effect_device === 4222) return 32;  // DESCENT_MK3
                             if (settings.fit_file_garmin_device_training_effect_device === 4223) return 33;  // DESCENT_MK3I
-                            if (settings.fit_file_garmin_device_training_effect_device === 2713) return 34;  // EDGE_1030
-                            if (settings.fit_file_garmin_device_training_effect_device === 3570) return 35;  // EDGE_1030_PLUS
-                            if (settings.fit_file_garmin_device_training_effect_device === 3843) return 36;  // EDGE_1040
-                            if (settings.fit_file_garmin_device_training_effect_device === 4440) return 37;  // EDGE_1050
-                            if (settings.fit_file_garmin_device_training_effect_device === 2909) return 38;  // EDGE_130
-                            if (settings.fit_file_garmin_device_training_effect_device === 3558) return 39;  // EDGE_130_PLUS
-                            if (settings.fit_file_garmin_device_training_effect_device === 3112) return 40;  // EDGE_520_PLUS
-                            if (settings.fit_file_garmin_device_training_effect_device === 3121) return 41;  // EDGE_530
-                            if (settings.fit_file_garmin_device_training_effect_device === 4061) return 42;  // EDGE_540
-                            if (settings.fit_file_garmin_device_training_effect_device === 4633) return 43;  // EDGE_550
-                            if (settings.fit_file_garmin_device_training_effect_device === 2530) return 44;  // EDGE_820
-                            if (settings.fit_file_garmin_device_training_effect_device === 3122) return 45;  // EDGE_830
-                            if (settings.fit_file_garmin_device_training_effect_device === 4062) return 46;  // EDGE_840
-                            if (settings.fit_file_garmin_device_training_effect_device === 4634) return 47;  // EDGE_850
-                            if (settings.fit_file_garmin_device_training_effect_device === 3011) return 48;  // EDGE_EXPLORE
-                            if (settings.fit_file_garmin_device_training_effect_device === 2204) return 49;  // EDGE_EXPLORE_1000
-                            if (settings.fit_file_garmin_device_training_effect_device === 2531) return 50;  // EDGE_EXPLORE_820
-                            if (settings.fit_file_garmin_device_training_effect_device === 4169) return 51;  // EDGE_EXPLORE2
-                            if (settings.fit_file_garmin_device_training_effect_device === 4655) return 52;  // EDGE_MTB
-                            if (settings.fit_file_garmin_device_training_effect_device === 10014) return 53;  // EDGE_REMOTE
-                            if (settings.fit_file_garmin_device_training_effect_device === 1736) return 54;  // EDGE_TOURING
-                            if (settings.fit_file_garmin_device_training_effect_device === 1836) return 55;  // EDGE1000
-                            if (settings.fit_file_garmin_device_training_effect_device === 2238) return 56;  // EDGE20
-                            if (settings.fit_file_garmin_device_training_effect_device === 1325) return 57;  // EDGE200
-                            if (settings.fit_file_garmin_device_training_effect_device === 2147) return 58;  // EDGE25
-                            if (settings.fit_file_garmin_device_training_effect_device === 1036) return 59;  // EDGE500
-                            if (settings.fit_file_garmin_device_training_effect_device === 1561) return 60;  // EDGE510
-                            if (settings.fit_file_garmin_device_training_effect_device === 2067) return 61;  // EDGE520
-                            if (settings.fit_file_garmin_device_training_effect_device === 1169) return 62;  // EDGE800
-                            if (settings.fit_file_garmin_device_training_effect_device === 1567) return 63;  // EDGE810
-                            if (settings.fit_file_garmin_device_training_effect_device === 3638) return 64;  // ENDURO
-                            if (settings.fit_file_garmin_device_training_effect_device === 4341) return 65;  // ENDURO2
-                            if (settings.fit_file_garmin_device_training_effect_device === 4575) return 66;  // ENDURO3
-                            if (settings.fit_file_garmin_device_training_effect_device === 5169) return 67;  // ENDURO4
-                            if (settings.fit_file_garmin_device_training_effect_device === 1988) return 68;  // EPIX
-                            if (settings.fit_file_garmin_device_training_effect_device === 3943) return 69;  // EPIX_GEN2
-                            if (settings.fit_file_garmin_device_training_effect_device === 3944) return 70;  // EPIX_GEN2_APAC
-                            if (settings.fit_file_garmin_device_training_effect_device === 4312) return 71;  // EPIX_GEN2_PRO_42
-                            if (settings.fit_file_garmin_device_training_effect_device === 4313) return 72;  // EPIX_GEN2_PRO_47
-                            if (settings.fit_file_garmin_device_training_effect_device === 4314) return 73;  // EPIX_GEN2_PRO_51
-                            if (settings.fit_file_garmin_device_training_effect_device === 2332) return 74;  // EPIX_JAPAN
-                            if (settings.fit_file_garmin_device_training_effect_device === 2457) return 75;  // EPIX_KOREA
-                            if (settings.fit_file_garmin_device_training_effect_device === 1551) return 76;  // FENIX
-                            if (settings.fit_file_garmin_device_training_effect_device === 4666) return 77;  // FENIX_E
-                            if (settings.fit_file_garmin_device_training_effect_device === 1967) return 78;  // FENIX2
-                            if (settings.fit_file_garmin_device_training_effect_device === 2050) return 79;  // FENIX3
-                            if (settings.fit_file_garmin_device_training_effect_device === 2432) return 80;  // FENIX3_CHRONOS
-                            if (settings.fit_file_garmin_device_training_effect_device === 2413) return 81;  // FENIX3_HR
-                            if (settings.fit_file_garmin_device_training_effect_device === 2697) return 82;  // FENIX5
-                            if (settings.fit_file_garmin_device_training_effect_device === 3110) return 83;  // FENIX5_PLUS
-                            if (settings.fit_file_garmin_device_training_effect_device === 2544) return 84;  // FENIX5S
-                            if (settings.fit_file_garmin_device_training_effect_device === 2900) return 85;  // FENIX5S_PLUS
-                            if (settings.fit_file_garmin_device_training_effect_device === 2604) return 86;  // FENIX5X
-                            if (settings.fit_file_garmin_device_training_effect_device === 3111) return 87;  // FENIX5X_PLUS
-                            if (settings.fit_file_garmin_device_training_effect_device === 3290) return 88;  // FENIX6
-                            if (settings.fit_file_garmin_device_training_effect_device === 3289) return 89;  // FENIX6_SPORT
-                            if (settings.fit_file_garmin_device_training_effect_device === 3288) return 90;  // FENIX6S
-                            if (settings.fit_file_garmin_device_training_effect_device === 3287) return 91;  // FENIX6S_SPORT
-                            if (settings.fit_file_garmin_device_training_effect_device === 3291) return 92;  // FENIX6X
-                            if (settings.fit_file_garmin_device_training_effect_device === 3906) return 93;  // FENIX7
-                            if (settings.fit_file_garmin_device_training_effect_device === 4375) return 94;  // FENIX7_PRO_SOLAR
-                            if (settings.fit_file_garmin_device_training_effect_device === 4595) return 95;  // FENIX7_PRO_SOLAR_NO_WIFI
-                            if (settings.fit_file_garmin_device_training_effect_device === 3905) return 96;  // FENIX7S
-                            if (settings.fit_file_garmin_device_training_effect_device === 4374) return 97;  // FENIX7S_PRO_SOLAR
-                            if (settings.fit_file_garmin_device_training_effect_device === 3907) return 98;  // FENIX7X
-                            if (settings.fit_file_garmin_device_training_effect_device === 4376) return 99;  // FENIX7X_PRO_SOLAR
-                            if (settings.fit_file_garmin_device_training_effect_device === 4536) return 100;  // FENIX8
-                            if (settings.fit_file_garmin_device_training_effect_device === 4631) return 101;  // FENIX8_PRO
-                            if (settings.fit_file_garmin_device_training_effect_device === 4534) return 102;  // FENIX8_SMALL
-                            if (settings.fit_file_garmin_device_training_effect_device === 4532) return 103;  // FENIX8_SOLAR
-                            if (settings.fit_file_garmin_device_training_effect_device === 4533) return 104;  // FENIX8_SOLAR_LARGE
-                            if (settings.fit_file_garmin_device_training_effect_device === 5134) return 105;  // FENIX9
-                            if (settings.fit_file_garmin_device_training_effect_device === 5133) return 106;  // FENIX9_43MM
-                            if (settings.fit_file_garmin_device_training_effect_device === 4952) return 107;  // FENIX9_PRO_43MM
-                            if (settings.fit_file_garmin_device_training_effect_device === 4953) return 108;  // FENIX9_PRO_47MM
-                            if (settings.fit_file_garmin_device_training_effect_device === 4954) return 109;  // FENIX9_PRO_51MM
-                            if (settings.fit_file_garmin_device_training_effect_device === 4955) return 110;  // FENIX9_PRO_SOLAR_47MM
-                            if (settings.fit_file_garmin_device_training_effect_device === 4956) return 111;  // FENIX9_PRO_SOLAR_51MM
-                            if (settings.fit_file_garmin_device_training_effect_device === 1482) return 112;  // FR10
-                            if (settings.fit_file_garmin_device_training_effect_device === 1124) return 113;  // FR110
-                            if (settings.fit_file_garmin_device_training_effect_device === 1903) return 114;  // FR15
-                            if (settings.fit_file_garmin_device_training_effect_device === 4432) return 115;  // FR165
-                            if (settings.fit_file_garmin_device_training_effect_device === 4433) return 116;  // FR165_MUSIC
-                            if (settings.fit_file_garmin_device_training_effect_device === 4815) return 117;  // FR170
-                            if (settings.fit_file_garmin_device_training_effect_device === 4814) return 118;  // FR170_MUSIC
-                            if (settings.fit_file_garmin_device_training_effect_device === 1632) return 119;  // FR220
-                            if (settings.fit_file_garmin_device_training_effect_device === 2153) return 120;  // FR225
-                            if (settings.fit_file_garmin_device_training_effect_device === 2157) return 121;  // FR230
-                            if (settings.fit_file_garmin_device_training_effect_device === 2431) return 122;  // FR235
-                            if (settings.fit_file_garmin_device_training_effect_device === 3076) return 123;  // FR245
-                            if (settings.fit_file_garmin_device_training_effect_device === 3077) return 124;  // FR245_MUSIC
-                            if (settings.fit_file_garmin_device_training_effect_device === 2148) return 125;  // FR25
-                            if (settings.fit_file_garmin_device_training_effect_device === 3992) return 126;  // FR255
-                            if (settings.fit_file_garmin_device_training_effect_device === 3990) return 127;  // FR255_MUSIC
-                            if (settings.fit_file_garmin_device_training_effect_device === 3993) return 128;  // FR255_SMALL
-                            if (settings.fit_file_garmin_device_training_effect_device === 3991) return 129;  // FR255_SMALL_MUSIC
-                            if (settings.fit_file_garmin_device_training_effect_device === 4257) return 130;  // FR265_LARGE
-                            if (settings.fit_file_garmin_device_training_effect_device === 4258) return 131;  // FR265_SMALL
-                            if (settings.fit_file_garmin_device_training_effect_device === 2891) return 132;  // FR30
-                            if (settings.fit_file_garmin_device_training_effect_device === 1018) return 133;  // FR310XT
-                            if (settings.fit_file_garmin_device_training_effect_device === 1446) return 134;  // FR310XT_4T
-                            if (settings.fit_file_garmin_device_training_effect_device === 2503) return 135;  // FR35
-                            if (settings.fit_file_garmin_device_training_effect_device === 717) return 136;  // FR405
-                            if (settings.fit_file_garmin_device_training_effect_device === 3282) return 137;  // FR45
-                            if (settings.fit_file_garmin_device_training_effect_device === 782) return 138;  // FR50
-                            if (settings.fit_file_garmin_device_training_effect_device === 3869) return 139;  // FR55
-                            if (settings.fit_file_garmin_device_training_effect_device === 4570) return 140;  // FR570_LARGE
-                            if (settings.fit_file_garmin_device_training_effect_device === 4574) return 141;  // FR570_SMALL
-                            if (settings.fit_file_garmin_device_training_effect_device === 988) return 142;  // FR60
-                            if (settings.fit_file_garmin_device_training_effect_device === 1345) return 143;  // FR610
-                            if (settings.fit_file_garmin_device_training_effect_device === 1623) return 144;  // FR620
-                            if (settings.fit_file_garmin_device_training_effect_device === 2156) return 145;  // FR630
-                            if (settings.fit_file_garmin_device_training_effect_device === 2886) return 146;  // FR645
-                            if (settings.fit_file_garmin_device_training_effect_device === 2888) return 147;  // FR645M
-                            if (settings.fit_file_garmin_device_training_effect_device === 1436) return 148;  // FR70
-                            if (settings.fit_file_garmin_device_training_effect_device === 4916) return 149;  // FR70_2026
-                            if (settings.fit_file_garmin_device_training_effect_device === 2158) return 150;  // FR735XT
-                            if (settings.fit_file_garmin_device_training_effect_device === 3589) return 151;  // FR745
-                            if (settings.fit_file_garmin_device_training_effect_device === 1328) return 152;  // FR910XT
-                            if (settings.fit_file_garmin_device_training_effect_device === 1765) return 153;  // FR920XT
-                            if (settings.fit_file_garmin_device_training_effect_device === 2691) return 154;  // FR935
-                            if (settings.fit_file_garmin_device_training_effect_device === 3113) return 155;  // FR945
-                            if (settings.fit_file_garmin_device_training_effect_device === 3652) return 156;  // FR945_LTE
-                            if (settings.fit_file_garmin_device_training_effect_device === 4024) return 157;  // FR955
-                            if (settings.fit_file_garmin_device_training_effect_device === 4315) return 158;  // FR965
-                            if (settings.fit_file_garmin_device_training_effect_device === 4565) return 159;  // FR970
-                            if (settings.fit_file_garmin_device_training_effect_device === 3888) return 160;  // INSTINCT_2
-                            if (settings.fit_file_garmin_device_training_effect_device === 3889) return 161;  // INSTINCT_2S
-                            if (settings.fit_file_garmin_device_training_effect_device === 4394) return 162;  // INSTINCT_2X
-                            if (settings.fit_file_garmin_device_training_effect_device === 4155) return 163;  // INSTINCT_CROSSOVER
-                            if (settings.fit_file_garmin_device_training_effect_device === 4678) return 164;  // INSTINCT_CROSSOVER_AMOLED
-                            if (settings.fit_file_garmin_device_training_effect_device === 3126) return 165;  // INSTINCT_ESPORTS
-                            if (settings.fit_file_garmin_device_training_effect_device === 3466) return 166;  // INSTINCT_SOLAR
-                            if (settings.fit_file_garmin_device_training_effect_device === 4586) return 167;  // INSTINCT3_AMOLED_45MM
-                            if (settings.fit_file_garmin_device_training_effect_device === 4587) return 168;  // INSTINCT3_AMOLED_50MM
-                            if (settings.fit_file_garmin_device_training_effect_device === 4585) return 169;  // INSTINCT3_SOLAR_45MM
-                            if (settings.fit_file_garmin_device_training_effect_device === 4759) return 170;  // INSTINCT3_SOLAR_50MM
-                            if (settings.fit_file_garmin_device_training_effect_device === 4583) return 171;  // INSTINCTE_40MM
-                            if (settings.fit_file_garmin_device_training_effect_device === 4584) return 172;  // INSTINCTE_45MM
-                            if (settings.fit_file_garmin_device_training_effect_device === 3500) return 173;  // LEGACY_CAPTAIN_MARVEL
-                            if (settings.fit_file_garmin_device_training_effect_device === 3499) return 174;  // LEGACY_DARTH_VADER
-                            if (settings.fit_file_garmin_device_training_effect_device === 3501) return 175;  // LEGACY_FIRST_AVENGER
-                            if (settings.fit_file_garmin_device_training_effect_device === 3498) return 176;  // LEGACY_REY
-                            if (settings.fit_file_garmin_device_training_effect_device === 3615) return 177;  // LILY
-                            if (settings.fit_file_garmin_device_training_effect_device === 4477) return 178;  // LILY_ATHLETE
-                            if (settings.fit_file_garmin_device_training_effect_device === 4380) return 179;  // LILY2
-                            if (settings.fit_file_garmin_device_training_effect_device === 3624) return 180;  // MARQ_ADVENTURER
-                            if (settings.fit_file_garmin_device_training_effect_device === 3251) return 181;  // MARQ_ATHLETE
-                            if (settings.fit_file_garmin_device_training_effect_device === 3247) return 182;  // MARQ_AVIATOR
-                            if (settings.fit_file_garmin_device_training_effect_device === 3248) return 183;  // MARQ_CAPTAIN
-                            if (settings.fit_file_garmin_device_training_effect_device === 3249) return 184;  // MARQ_COMMANDER
-                            if (settings.fit_file_garmin_device_training_effect_device === 3246) return 185;  // MARQ_DRIVER
-                            if (settings.fit_file_garmin_device_training_effect_device === 3250) return 186;  // MARQ_EXPEDITION
-                            if (settings.fit_file_garmin_device_training_effect_device === 4105) return 187;  // MARQ_GEN2
-                            if (settings.fit_file_garmin_device_training_effect_device === 4124) return 188;  // MARQ_GEN2_AVIATOR
-                            if (settings.fit_file_garmin_device_training_effect_device === 4472) return 189;  // MARQ_GEN2_COMMANDER
-                            if (settings.fit_file_garmin_device_training_effect_device === 3739) return 190;  // MARQ_GOLFER
-                            if (settings.fit_file_garmin_device_training_effect_device === 1499) return 191;  // SWIM
-                            if (settings.fit_file_garmin_device_training_effect_device === 3405) return 192;  // SWIM2
-                            if (settings.fit_file_garmin_device_training_effect_device === 4135) return 193;  // TACTIX7
-                            if (settings.fit_file_garmin_device_training_effect_device === 4775) return 194;  // TACTIX8_AMOLED
-                            if (settings.fit_file_garmin_device_training_effect_device === 4776) return 195;  // TACTIX8_SOLAR
-                            if (settings.fit_file_garmin_device_training_effect_device === 88888) return 196;  // Tacx
-                            if (settings.fit_file_garmin_device_training_effect_device === 3226) return 197;  // VENU
-                            if (settings.fit_file_garmin_device_training_effect_device === 3600) return 198;  // VENUSQ
-                            if (settings.fit_file_garmin_device_training_effect_device === 3596) return 199;  // VENUSQ_MUSIC
-                            if (settings.fit_file_garmin_device_training_effect_device === 3599) return 200;  // VENUSQ_MUSIC_V2
-                            if (settings.fit_file_garmin_device_training_effect_device === 4115) return 201;  // VENUSQ2
-                            if (settings.fit_file_garmin_device_training_effect_device === 4116) return 202;  // VENUSQ2MUSIC
-                            if (settings.fit_file_garmin_device_training_effect_device === 4603) return 203;  // VENU_X1
-                            if (settings.fit_file_garmin_device_training_effect_device === 3703) return 204;  // VENU2
-                            if (settings.fit_file_garmin_device_training_effect_device === 3851) return 205;  // VENU2_PLUS
-                            if (settings.fit_file_garmin_device_training_effect_device === 3704) return 206;  // VENU2S
-                            if (settings.fit_file_garmin_device_training_effect_device === 4260) return 207;  // VENU3
-                            if (settings.fit_file_garmin_device_training_effect_device === 4261) return 208;  // VENU3S
-                            if (settings.fit_file_garmin_device_training_effect_device === 4643) return 209;  // VENU4
-                            if (settings.fit_file_garmin_device_training_effect_device === 4644) return 210;  // VENU4S
-                            if (settings.fit_file_garmin_device_training_effect_device === 1907) return 211;  // VIVO_ACTIVE
-                            if (settings.fit_file_garmin_device_training_effect_device === 2337) return 212;  // VIVO_ACTIVE_HR
-                            if (settings.fit_file_garmin_device_training_effect_device === 2368) return 213;  // VIVO_MOVE
-                            if (settings.fit_file_garmin_device_training_effect_device === 2772) return 214;  // VIVO_MOVE_HR
-                            if (settings.fit_file_garmin_device_training_effect_device === 3982) return 215;  // VIVO_MOVE_SPORT
-                            if (settings.fit_file_garmin_device_training_effect_device === 3378) return 216;  // VIVO_MOVE3
-                            if (settings.fit_file_garmin_device_training_effect_device === 3308) return 217;  // VIVO_MOVE3_PREMIUM
-                            if (settings.fit_file_garmin_device_training_effect_device === 2700) return 218;  // VIVOACTIVE3
-                            if (settings.fit_file_garmin_device_training_effect_device === 3066) return 219;  // VIVOACTIVE3M_L
-                            if (settings.fit_file_garmin_device_training_effect_device === 2988) return 220;  // VIVOACTIVE3M_W
-                            if (settings.fit_file_garmin_device_training_effect_device === 3225) return 221;  // VIVOACTIVE4_LARGE
-                            if (settings.fit_file_garmin_device_training_effect_device === 3224) return 222;  // VIVOACTIVE4_SMALL
-                            if (settings.fit_file_garmin_device_training_effect_device === 4426) return 223;  // VIVOACTIVE5
-                            if (settings.fit_file_garmin_device_training_effect_device === 4625) return 224;  // VIVOACTIVE6
-                            if (settings.fit_file_garmin_device_training_effect_device === 3983) return 225;  // VIVOMOVE_TREND
-                            if (settings.fit_file_garmin_device_training_effect_device === 99999) return 226;  // Zwift
-                            return 45;  // Default to Edge 830
+                            if (settings.fit_file_garmin_device_training_effect_device === 5026) return 34;  // DESCENT_X10
+                            if (settings.fit_file_garmin_device_training_effect_device === 2713) return 35;  // EDGE_1030
+                            if (settings.fit_file_garmin_device_training_effect_device === 3570) return 36;  // EDGE_1030_PLUS
+                            if (settings.fit_file_garmin_device_training_effect_device === 3843) return 37;  // EDGE_1040
+                            if (settings.fit_file_garmin_device_training_effect_device === 4440) return 38;  // EDGE_1050
+                            if (settings.fit_file_garmin_device_training_effect_device === 4962) return 39;  // EDGE_1060
+                            if (settings.fit_file_garmin_device_training_effect_device === 2909) return 40;  // EDGE_130
+                            if (settings.fit_file_garmin_device_training_effect_device === 3558) return 41;  // EDGE_130_PLUS
+                            if (settings.fit_file_garmin_device_training_effect_device === 3112) return 42;  // EDGE_520_PLUS
+                            if (settings.fit_file_garmin_device_training_effect_device === 3121) return 43;  // EDGE_530
+                            if (settings.fit_file_garmin_device_training_effect_device === 4061) return 44;  // EDGE_540
+                            if (settings.fit_file_garmin_device_training_effect_device === 4633) return 45;  // EDGE_550
+                            if (settings.fit_file_garmin_device_training_effect_device === 2530) return 46;  // EDGE_820
+                            if (settings.fit_file_garmin_device_training_effect_device === 3122) return 47;  // EDGE_830
+                            if (settings.fit_file_garmin_device_training_effect_device === 4062) return 48;  // EDGE_840
+                            if (settings.fit_file_garmin_device_training_effect_device === 4634) return 49;  // EDGE_850
+                            if (settings.fit_file_garmin_device_training_effect_device === 3011) return 50;  // EDGE_EXPLORE
+                            if (settings.fit_file_garmin_device_training_effect_device === 2204) return 51;  // EDGE_EXPLORE_1000
+                            if (settings.fit_file_garmin_device_training_effect_device === 2531) return 52;  // EDGE_EXPLORE_820
+                            if (settings.fit_file_garmin_device_training_effect_device === 4169) return 53;  // EDGE_EXPLORE2
+                            if (settings.fit_file_garmin_device_training_effect_device === 4970) return 54;  // EDGE_EXPLORE3
+                            if (settings.fit_file_garmin_device_training_effect_device === 4972) return 55;  // EDGE_EXPLORE3_PLUS
+                            if (settings.fit_file_garmin_device_training_effect_device === 4655) return 56;  // EDGE_MTB
+                            if (settings.fit_file_garmin_device_training_effect_device === 10014) return 57;  // EDGE_REMOTE
+                            if (settings.fit_file_garmin_device_training_effect_device === 1736) return 58;  // EDGE_TOURING
+                            if (settings.fit_file_garmin_device_training_effect_device === 1836) return 59;  // EDGE1000
+                            if (settings.fit_file_garmin_device_training_effect_device === 2238) return 60;  // EDGE20
+                            if (settings.fit_file_garmin_device_training_effect_device === 1325) return 61;  // EDGE200
+                            if (settings.fit_file_garmin_device_training_effect_device === 2147) return 62;  // EDGE25
+                            if (settings.fit_file_garmin_device_training_effect_device === 1036) return 63;  // EDGE500
+                            if (settings.fit_file_garmin_device_training_effect_device === 1561) return 64;  // EDGE510
+                            if (settings.fit_file_garmin_device_training_effect_device === 2067) return 65;  // EDGE520
+                            if (settings.fit_file_garmin_device_training_effect_device === 1169) return 66;  // EDGE800
+                            if (settings.fit_file_garmin_device_training_effect_device === 1567) return 67;  // EDGE810
+                            if (settings.fit_file_garmin_device_training_effect_device === 3638) return 68;  // ENDURO
+                            if (settings.fit_file_garmin_device_training_effect_device === 4341) return 69;  // ENDURO2
+                            if (settings.fit_file_garmin_device_training_effect_device === 4575) return 70;  // ENDURO3
+                            if (settings.fit_file_garmin_device_training_effect_device === 5169) return 71;  // ENDURO4
+                            if (settings.fit_file_garmin_device_training_effect_device === 1988) return 72;  // EPIX
+                            if (settings.fit_file_garmin_device_training_effect_device === 3943) return 73;  // EPIX_GEN2
+                            if (settings.fit_file_garmin_device_training_effect_device === 3944) return 74;  // EPIX_GEN2_APAC
+                            if (settings.fit_file_garmin_device_training_effect_device === 4312) return 75;  // EPIX_GEN2_PRO_42
+                            if (settings.fit_file_garmin_device_training_effect_device === 4313) return 76;  // EPIX_GEN2_PRO_47
+                            if (settings.fit_file_garmin_device_training_effect_device === 4314) return 77;  // EPIX_GEN2_PRO_51
+                            if (settings.fit_file_garmin_device_training_effect_device === 2332) return 78;  // EPIX_JAPAN
+                            if (settings.fit_file_garmin_device_training_effect_device === 2457) return 79;  // EPIX_KOREA
+                            if (settings.fit_file_garmin_device_training_effect_device === 1551) return 80;  // FENIX
+                            if (settings.fit_file_garmin_device_training_effect_device === 4666) return 81;  // FENIX_E
+                            if (settings.fit_file_garmin_device_training_effect_device === 1967) return 82;  // FENIX2
+                            if (settings.fit_file_garmin_device_training_effect_device === 2050) return 83;  // FENIX3
+                            if (settings.fit_file_garmin_device_training_effect_device === 2432) return 84;  // FENIX3_CHRONOS
+                            if (settings.fit_file_garmin_device_training_effect_device === 2413) return 85;  // FENIX3_HR
+                            if (settings.fit_file_garmin_device_training_effect_device === 2697) return 86;  // FENIX5
+                            if (settings.fit_file_garmin_device_training_effect_device === 3110) return 87;  // FENIX5_PLUS
+                            if (settings.fit_file_garmin_device_training_effect_device === 2544) return 88;  // FENIX5S
+                            if (settings.fit_file_garmin_device_training_effect_device === 2900) return 89;  // FENIX5S_PLUS
+                            if (settings.fit_file_garmin_device_training_effect_device === 2604) return 90;  // FENIX5X
+                            if (settings.fit_file_garmin_device_training_effect_device === 3111) return 91;  // FENIX5X_PLUS
+                            if (settings.fit_file_garmin_device_training_effect_device === 3290) return 92;  // FENIX6
+                            if (settings.fit_file_garmin_device_training_effect_device === 3289) return 93;  // FENIX6_SPORT
+                            if (settings.fit_file_garmin_device_training_effect_device === 3288) return 94;  // FENIX6S
+                            if (settings.fit_file_garmin_device_training_effect_device === 3287) return 95;  // FENIX6S_SPORT
+                            if (settings.fit_file_garmin_device_training_effect_device === 3291) return 96;  // FENIX6X
+                            if (settings.fit_file_garmin_device_training_effect_device === 3906) return 97;  // FENIX7
+                            if (settings.fit_file_garmin_device_training_effect_device === 4375) return 98;  // FENIX7_PRO_SOLAR
+                            if (settings.fit_file_garmin_device_training_effect_device === 4595) return 99;  // FENIX7_PRO_SOLAR_NO_WIFI
+                            if (settings.fit_file_garmin_device_training_effect_device === 3905) return 100;  // FENIX7S
+                            if (settings.fit_file_garmin_device_training_effect_device === 4374) return 101;  // FENIX7S_PRO_SOLAR
+                            if (settings.fit_file_garmin_device_training_effect_device === 3907) return 102;  // FENIX7X
+                            if (settings.fit_file_garmin_device_training_effect_device === 4376) return 103;  // FENIX7X_PRO_SOLAR
+                            if (settings.fit_file_garmin_device_training_effect_device === 4536) return 104;  // FENIX8
+                            if (settings.fit_file_garmin_device_training_effect_device === 4631) return 105;  // FENIX8_PRO
+                            if (settings.fit_file_garmin_device_training_effect_device === 4534) return 106;  // FENIX8_SMALL
+                            if (settings.fit_file_garmin_device_training_effect_device === 4532) return 107;  // FENIX8_SOLAR
+                            if (settings.fit_file_garmin_device_training_effect_device === 4533) return 108;  // FENIX8_SOLAR_LARGE
+                            if (settings.fit_file_garmin_device_training_effect_device === 5134) return 109;  // FENIX9
+                            if (settings.fit_file_garmin_device_training_effect_device === 5133) return 110;  // FENIX9_43MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4952) return 111;  // FENIX9_PRO_43MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4953) return 112;  // FENIX9_PRO_47MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4954) return 113;  // FENIX9_PRO_51MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4955) return 114;  // FENIX9_PRO_SOLAR_47MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4956) return 115;  // FENIX9_PRO_SOLAR_51MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 1482) return 116;  // FR10
+                            if (settings.fit_file_garmin_device_training_effect_device === 1124) return 117;  // FR110
+                            if (settings.fit_file_garmin_device_training_effect_device === 1903) return 118;  // FR15
+                            if (settings.fit_file_garmin_device_training_effect_device === 4432) return 119;  // FR165
+                            if (settings.fit_file_garmin_device_training_effect_device === 4433) return 120;  // FR165_MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 4815) return 121;  // FR170
+                            if (settings.fit_file_garmin_device_training_effect_device === 4814) return 122;  // FR170_MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 1632) return 123;  // FR220
+                            if (settings.fit_file_garmin_device_training_effect_device === 2153) return 124;  // FR225
+                            if (settings.fit_file_garmin_device_training_effect_device === 2157) return 125;  // FR230
+                            if (settings.fit_file_garmin_device_training_effect_device === 2431) return 126;  // FR235
+                            if (settings.fit_file_garmin_device_training_effect_device === 3076) return 127;  // FR245
+                            if (settings.fit_file_garmin_device_training_effect_device === 3077) return 128;  // FR245_MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 2148) return 129;  // FR25
+                            if (settings.fit_file_garmin_device_training_effect_device === 3992) return 130;  // FR255
+                            if (settings.fit_file_garmin_device_training_effect_device === 3990) return 131;  // FR255_MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 3993) return 132;  // FR255_SMALL
+                            if (settings.fit_file_garmin_device_training_effect_device === 3991) return 133;  // FR255_SMALL_MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 4257) return 134;  // FR265_LARGE
+                            if (settings.fit_file_garmin_device_training_effect_device === 4258) return 135;  // FR265_SMALL
+                            if (settings.fit_file_garmin_device_training_effect_device === 2891) return 136;  // FR30
+                            if (settings.fit_file_garmin_device_training_effect_device === 1018) return 137;  // FR310XT
+                            if (settings.fit_file_garmin_device_training_effect_device === 1446) return 138;  // FR310XT_4T
+                            if (settings.fit_file_garmin_device_training_effect_device === 2503) return 139;  // FR35
+                            if (settings.fit_file_garmin_device_training_effect_device === 717) return 140;  // FR405
+                            if (settings.fit_file_garmin_device_training_effect_device === 3282) return 141;  // FR45
+                            if (settings.fit_file_garmin_device_training_effect_device === 782) return 142;  // FR50
+                            if (settings.fit_file_garmin_device_training_effect_device === 3869) return 143;  // FR55
+                            if (settings.fit_file_garmin_device_training_effect_device === 4570) return 144;  // FR570_LARGE
+                            if (settings.fit_file_garmin_device_training_effect_device === 4574) return 145;  // FR570_SMALL
+                            if (settings.fit_file_garmin_device_training_effect_device === 988) return 146;  // FR60
+                            if (settings.fit_file_garmin_device_training_effect_device === 1345) return 147;  // FR610
+                            if (settings.fit_file_garmin_device_training_effect_device === 1623) return 148;  // FR620
+                            if (settings.fit_file_garmin_device_training_effect_device === 2156) return 149;  // FR630
+                            if (settings.fit_file_garmin_device_training_effect_device === 2886) return 150;  // FR645
+                            if (settings.fit_file_garmin_device_training_effect_device === 2888) return 151;  // FR645M
+                            if (settings.fit_file_garmin_device_training_effect_device === 1436) return 152;  // FR70
+                            if (settings.fit_file_garmin_device_training_effect_device === 4916) return 153;  // FR70_2026
+                            if (settings.fit_file_garmin_device_training_effect_device === 2158) return 154;  // FR735XT
+                            if (settings.fit_file_garmin_device_training_effect_device === 3589) return 155;  // FR745
+                            if (settings.fit_file_garmin_device_training_effect_device === 1328) return 156;  // FR910XT
+                            if (settings.fit_file_garmin_device_training_effect_device === 1765) return 157;  // FR920XT
+                            if (settings.fit_file_garmin_device_training_effect_device === 2691) return 158;  // FR935
+                            if (settings.fit_file_garmin_device_training_effect_device === 3113) return 159;  // FR945
+                            if (settings.fit_file_garmin_device_training_effect_device === 3652) return 160;  // FR945_LTE
+                            if (settings.fit_file_garmin_device_training_effect_device === 4024) return 161;  // FR955
+                            if (settings.fit_file_garmin_device_training_effect_device === 4315) return 162;  // FR965
+                            if (settings.fit_file_garmin_device_training_effect_device === 4565) return 163;  // FR970
+                            if (settings.fit_file_garmin_device_training_effect_device === 3888) return 164;  // INSTINCT_2
+                            if (settings.fit_file_garmin_device_training_effect_device === 3889) return 165;  // INSTINCT_2S
+                            if (settings.fit_file_garmin_device_training_effect_device === 4394) return 166;  // INSTINCT_2X
+                            if (settings.fit_file_garmin_device_training_effect_device === 4155) return 167;  // INSTINCT_CROSSOVER
+                            if (settings.fit_file_garmin_device_training_effect_device === 4678) return 168;  // INSTINCT_CROSSOVER_AMOLED
+                            if (settings.fit_file_garmin_device_training_effect_device === 3126) return 169;  // INSTINCT_ESPORTS
+                            if (settings.fit_file_garmin_device_training_effect_device === 3466) return 170;  // INSTINCT_SOLAR
+                            if (settings.fit_file_garmin_device_training_effect_device === 4586) return 171;  // INSTINCT3_AMOLED_45MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4587) return 172;  // INSTINCT3_AMOLED_50MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4585) return 173;  // INSTINCT3_SOLAR_45MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4759) return 174;  // INSTINCT3_SOLAR_50MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4583) return 175;  // INSTINCTE_40MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4584) return 176;  // INSTINCTE_45MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 3500) return 177;  // LEGACY_CAPTAIN_MARVEL
+                            if (settings.fit_file_garmin_device_training_effect_device === 3499) return 178;  // LEGACY_DARTH_VADER
+                            if (settings.fit_file_garmin_device_training_effect_device === 3501) return 179;  // LEGACY_FIRST_AVENGER
+                            if (settings.fit_file_garmin_device_training_effect_device === 3498) return 180;  // LEGACY_REY
+                            if (settings.fit_file_garmin_device_training_effect_device === 3615) return 181;  // LILY
+                            if (settings.fit_file_garmin_device_training_effect_device === 4477) return 182;  // LILY_ATHLETE
+                            if (settings.fit_file_garmin_device_training_effect_device === 4380) return 183;  // LILY2
+                            if (settings.fit_file_garmin_device_training_effect_device === 3624) return 184;  // MARQ_ADVENTURER
+                            if (settings.fit_file_garmin_device_training_effect_device === 3251) return 185;  // MARQ_ATHLETE
+                            if (settings.fit_file_garmin_device_training_effect_device === 3247) return 186;  // MARQ_AVIATOR
+                            if (settings.fit_file_garmin_device_training_effect_device === 3248) return 187;  // MARQ_CAPTAIN
+                            if (settings.fit_file_garmin_device_training_effect_device === 3249) return 188;  // MARQ_COMMANDER
+                            if (settings.fit_file_garmin_device_training_effect_device === 3246) return 189;  // MARQ_DRIVER
+                            if (settings.fit_file_garmin_device_training_effect_device === 3250) return 190;  // MARQ_EXPEDITION
+                            if (settings.fit_file_garmin_device_training_effect_device === 4105) return 191;  // MARQ_GEN2
+                            if (settings.fit_file_garmin_device_training_effect_device === 4124) return 192;  // MARQ_GEN2_AVIATOR
+                            if (settings.fit_file_garmin_device_training_effect_device === 4472) return 193;  // MARQ_GEN2_COMMANDER
+                            if (settings.fit_file_garmin_device_training_effect_device === 3739) return 194;  // MARQ_GOLFER
+                            if (settings.fit_file_garmin_device_training_effect_device === 5000) return 195;  // MARQ3
+                            if (settings.fit_file_garmin_device_training_effect_device === 1499) return 196;  // SWIM
+                            if (settings.fit_file_garmin_device_training_effect_device === 3405) return 197;  // SWIM2
+                            if (settings.fit_file_garmin_device_training_effect_device === 4135) return 198;  // TACTIX7
+                            if (settings.fit_file_garmin_device_training_effect_device === 4775) return 199;  // TACTIX8_AMOLED
+                            if (settings.fit_file_garmin_device_training_effect_device === 4776) return 200;  // TACTIX8_SOLAR
+                            if (settings.fit_file_garmin_device_training_effect_device === 88888) return 201;  // Tacx
+                            if (settings.fit_file_garmin_device_training_effect_device === 3226) return 202;  // VENU
+                            if (settings.fit_file_garmin_device_training_effect_device === 3600) return 203;  // VENUSQ
+                            if (settings.fit_file_garmin_device_training_effect_device === 3596) return 204;  // VENUSQ_MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 3599) return 205;  // VENUSQ_MUSIC_V2
+                            if (settings.fit_file_garmin_device_training_effect_device === 4115) return 206;  // VENUSQ2
+                            if (settings.fit_file_garmin_device_training_effect_device === 4116) return 207;  // VENUSQ2MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 4603) return 208;  // VENU_X1
+                            if (settings.fit_file_garmin_device_training_effect_device === 3703) return 209;  // VENU2
+                            if (settings.fit_file_garmin_device_training_effect_device === 3851) return 210;  // VENU2_PLUS
+                            if (settings.fit_file_garmin_device_training_effect_device === 3704) return 211;  // VENU2S
+                            if (settings.fit_file_garmin_device_training_effect_device === 4260) return 212;  // VENU3
+                            if (settings.fit_file_garmin_device_training_effect_device === 4261) return 213;  // VENU3S
+                            if (settings.fit_file_garmin_device_training_effect_device === 4643) return 214;  // VENU4
+                            if (settings.fit_file_garmin_device_training_effect_device === 4644) return 215;  // VENU4S
+                            if (settings.fit_file_garmin_device_training_effect_device === 1907) return 216;  // VIVO_ACTIVE
+                            if (settings.fit_file_garmin_device_training_effect_device === 2337) return 217;  // VIVO_ACTIVE_HR
+                            if (settings.fit_file_garmin_device_training_effect_device === 2368) return 218;  // VIVO_MOVE
+                            if (settings.fit_file_garmin_device_training_effect_device === 2772) return 219;  // VIVO_MOVE_HR
+                            if (settings.fit_file_garmin_device_training_effect_device === 3982) return 220;  // VIVO_MOVE_SPORT
+                            if (settings.fit_file_garmin_device_training_effect_device === 3378) return 221;  // VIVO_MOVE3
+                            if (settings.fit_file_garmin_device_training_effect_device === 3308) return 222;  // VIVO_MOVE3_PREMIUM
+                            if (settings.fit_file_garmin_device_training_effect_device === 2700) return 223;  // VIVOACTIVE3
+                            if (settings.fit_file_garmin_device_training_effect_device === 3066) return 224;  // VIVOACTIVE3M_L
+                            if (settings.fit_file_garmin_device_training_effect_device === 2988) return 225;  // VIVOACTIVE3M_W
+                            if (settings.fit_file_garmin_device_training_effect_device === 3225) return 226;  // VIVOACTIVE4_LARGE
+                            if (settings.fit_file_garmin_device_training_effect_device === 3224) return 227;  // VIVOACTIVE4_SMALL
+                            if (settings.fit_file_garmin_device_training_effect_device === 4426) return 228;  // VIVOACTIVE5
+                            if (settings.fit_file_garmin_device_training_effect_device === 4625) return 229;  // VIVOACTIVE6
+                            if (settings.fit_file_garmin_device_training_effect_device === 3983) return 230;  // VIVOMOVE_TREND
+                            if (settings.fit_file_garmin_device_training_effect_device === 99999) return 231;  // Zwift
+                            return 47;  // Default to Edge 830
                         }
                         onActivated: {
                             switch(currentIndex) {
@@ -10646,199 +10778,204 @@ import AndroidStatusBar 1.0
                                 case 31: settings.fit_file_garmin_device_training_effect_device = 3542; break;  // DESCENT_MK2S
                                 case 32: settings.fit_file_garmin_device_training_effect_device = 4222; break;  // DESCENT_MK3
                                 case 33: settings.fit_file_garmin_device_training_effect_device = 4223; break;  // DESCENT_MK3I
-                                case 34: settings.fit_file_garmin_device_training_effect_device = 2713; break;  // EDGE_1030
-                                case 35: settings.fit_file_garmin_device_training_effect_device = 3570; break;  // EDGE_1030_PLUS
-                                case 36: settings.fit_file_garmin_device_training_effect_device = 3843; break;  // EDGE_1040
-                                case 37: settings.fit_file_garmin_device_training_effect_device = 4440; break;  // EDGE_1050
-                                case 38: settings.fit_file_garmin_device_training_effect_device = 2909; break;  // EDGE_130
-                                case 39: settings.fit_file_garmin_device_training_effect_device = 3558; break;  // EDGE_130_PLUS
-                                case 40: settings.fit_file_garmin_device_training_effect_device = 3112; break;  // EDGE_520_PLUS
-                                case 41: settings.fit_file_garmin_device_training_effect_device = 3121; break;  // EDGE_530
-                                case 42: settings.fit_file_garmin_device_training_effect_device = 4061; break;  // EDGE_540
-                                case 43: settings.fit_file_garmin_device_training_effect_device = 4633; break;  // EDGE_550
-                                case 44: settings.fit_file_garmin_device_training_effect_device = 2530; break;  // EDGE_820
-                                case 45: settings.fit_file_garmin_device_training_effect_device = 3122; break;  // EDGE_830
-                                case 46: settings.fit_file_garmin_device_training_effect_device = 4062; break;  // EDGE_840
-                                case 47: settings.fit_file_garmin_device_training_effect_device = 4634; break;  // EDGE_850
-                                case 48: settings.fit_file_garmin_device_training_effect_device = 3011; break;  // EDGE_EXPLORE
-                                case 49: settings.fit_file_garmin_device_training_effect_device = 2204; break;  // EDGE_EXPLORE_1000
-                                case 50: settings.fit_file_garmin_device_training_effect_device = 2531; break;  // EDGE_EXPLORE_820
-                                case 51: settings.fit_file_garmin_device_training_effect_device = 4169; break;  // EDGE_EXPLORE2
-                                case 52: settings.fit_file_garmin_device_training_effect_device = 4655; break;  // EDGE_MTB
-                                case 53: settings.fit_file_garmin_device_training_effect_device = 10014; break;  // EDGE_REMOTE
-                                case 54: settings.fit_file_garmin_device_training_effect_device = 1736; break;  // EDGE_TOURING
-                                case 55: settings.fit_file_garmin_device_training_effect_device = 1836; break;  // EDGE1000
-                                case 56: settings.fit_file_garmin_device_training_effect_device = 2238; break;  // EDGE20
-                                case 57: settings.fit_file_garmin_device_training_effect_device = 1325; break;  // EDGE200
-                                case 58: settings.fit_file_garmin_device_training_effect_device = 2147; break;  // EDGE25
-                                case 59: settings.fit_file_garmin_device_training_effect_device = 1036; break;  // EDGE500
-                                case 60: settings.fit_file_garmin_device_training_effect_device = 1561; break;  // EDGE510
-                                case 61: settings.fit_file_garmin_device_training_effect_device = 2067; break;  // EDGE520
-                                case 62: settings.fit_file_garmin_device_training_effect_device = 1169; break;  // EDGE800
-                                case 63: settings.fit_file_garmin_device_training_effect_device = 1567; break;  // EDGE810
-                                case 64: settings.fit_file_garmin_device_training_effect_device = 3638; break;  // ENDURO
-                                case 65: settings.fit_file_garmin_device_training_effect_device = 4341; break;  // ENDURO2
-                                case 66: settings.fit_file_garmin_device_training_effect_device = 4575; break;  // ENDURO3
-                                case 67: settings.fit_file_garmin_device_training_effect_device = 5169; break;  // ENDURO4
-                                case 68: settings.fit_file_garmin_device_training_effect_device = 1988; break;  // EPIX
-                                case 69: settings.fit_file_garmin_device_training_effect_device = 3943; break;  // EPIX_GEN2
-                                case 70: settings.fit_file_garmin_device_training_effect_device = 3944; break;  // EPIX_GEN2_APAC
-                                case 71: settings.fit_file_garmin_device_training_effect_device = 4312; break;  // EPIX_GEN2_PRO_42
-                                case 72: settings.fit_file_garmin_device_training_effect_device = 4313; break;  // EPIX_GEN2_PRO_47
-                                case 73: settings.fit_file_garmin_device_training_effect_device = 4314; break;  // EPIX_GEN2_PRO_51
-                                case 74: settings.fit_file_garmin_device_training_effect_device = 2332; break;  // EPIX_JAPAN
-                                case 75: settings.fit_file_garmin_device_training_effect_device = 2457; break;  // EPIX_KOREA
-                                case 76: settings.fit_file_garmin_device_training_effect_device = 1551; break;  // FENIX
-                                case 77: settings.fit_file_garmin_device_training_effect_device = 4666; break;  // FENIX_E
-                                case 78: settings.fit_file_garmin_device_training_effect_device = 1967; break;  // FENIX2
-                                case 79: settings.fit_file_garmin_device_training_effect_device = 2050; break;  // FENIX3
-                                case 80: settings.fit_file_garmin_device_training_effect_device = 2432; break;  // FENIX3_CHRONOS
-                                case 81: settings.fit_file_garmin_device_training_effect_device = 2413; break;  // FENIX3_HR
-                                case 82: settings.fit_file_garmin_device_training_effect_device = 2697; break;  // FENIX5
-                                case 83: settings.fit_file_garmin_device_training_effect_device = 3110; break;  // FENIX5_PLUS
-                                case 84: settings.fit_file_garmin_device_training_effect_device = 2544; break;  // FENIX5S
-                                case 85: settings.fit_file_garmin_device_training_effect_device = 2900; break;  // FENIX5S_PLUS
-                                case 86: settings.fit_file_garmin_device_training_effect_device = 2604; break;  // FENIX5X
-                                case 87: settings.fit_file_garmin_device_training_effect_device = 3111; break;  // FENIX5X_PLUS
-                                case 88: settings.fit_file_garmin_device_training_effect_device = 3290; break;  // FENIX6
-                                case 89: settings.fit_file_garmin_device_training_effect_device = 3289; break;  // FENIX6_SPORT
-                                case 90: settings.fit_file_garmin_device_training_effect_device = 3288; break;  // FENIX6S
-                                case 91: settings.fit_file_garmin_device_training_effect_device = 3287; break;  // FENIX6S_SPORT
-                                case 92: settings.fit_file_garmin_device_training_effect_device = 3291; break;  // FENIX6X
-                                case 93: settings.fit_file_garmin_device_training_effect_device = 3906; break;  // FENIX7
-                                case 94: settings.fit_file_garmin_device_training_effect_device = 4375; break;  // FENIX7_PRO_SOLAR
-                                case 95: settings.fit_file_garmin_device_training_effect_device = 4595; break;  // FENIX7_PRO_SOLAR_NO_WIFI
-                                case 96: settings.fit_file_garmin_device_training_effect_device = 3905; break;  // FENIX7S
-                                case 97: settings.fit_file_garmin_device_training_effect_device = 4374; break;  // FENIX7S_PRO_SOLAR
-                                case 98: settings.fit_file_garmin_device_training_effect_device = 3907; break;  // FENIX7X
-                                case 99: settings.fit_file_garmin_device_training_effect_device = 4376; break;  // FENIX7X_PRO_SOLAR
-                                case 100: settings.fit_file_garmin_device_training_effect_device = 4536; break;  // FENIX8
-                                case 101: settings.fit_file_garmin_device_training_effect_device = 4631; break;  // FENIX8_PRO
-                                case 102: settings.fit_file_garmin_device_training_effect_device = 4534; break;  // FENIX8_SMALL
-                                case 103: settings.fit_file_garmin_device_training_effect_device = 4532; break;  // FENIX8_SOLAR
-                                case 104: settings.fit_file_garmin_device_training_effect_device = 4533; break;  // FENIX8_SOLAR_LARGE
-                                case 105: settings.fit_file_garmin_device_training_effect_device = 5134; break;  // FENIX9
-                                case 106: settings.fit_file_garmin_device_training_effect_device = 5133; break;  // FENIX9_43MM
-                                case 107: settings.fit_file_garmin_device_training_effect_device = 4952; break;  // FENIX9_PRO_43MM
-                                case 108: settings.fit_file_garmin_device_training_effect_device = 4953; break;  // FENIX9_PRO_47MM
-                                case 109: settings.fit_file_garmin_device_training_effect_device = 4954; break;  // FENIX9_PRO_51MM
-                                case 110: settings.fit_file_garmin_device_training_effect_device = 4955; break;  // FENIX9_PRO_SOLAR_47MM
-                                case 111: settings.fit_file_garmin_device_training_effect_device = 4956; break;  // FENIX9_PRO_SOLAR_51MM
-                                case 112: settings.fit_file_garmin_device_training_effect_device = 1482; break;  // FR10
-                                case 113: settings.fit_file_garmin_device_training_effect_device = 1124; break;  // FR110
-                                case 114: settings.fit_file_garmin_device_training_effect_device = 1903; break;  // FR15
-                                case 115: settings.fit_file_garmin_device_training_effect_device = 4432; break;  // FR165
-                                case 116: settings.fit_file_garmin_device_training_effect_device = 4433; break;  // FR165_MUSIC
-                                case 117: settings.fit_file_garmin_device_training_effect_device = 4815; break;  // FR170
-                                case 118: settings.fit_file_garmin_device_training_effect_device = 4814; break;  // FR170_MUSIC
-                                case 119: settings.fit_file_garmin_device_training_effect_device = 1632; break;  // FR220
-                                case 120: settings.fit_file_garmin_device_training_effect_device = 2153; break;  // FR225
-                                case 121: settings.fit_file_garmin_device_training_effect_device = 2157; break;  // FR230
-                                case 122: settings.fit_file_garmin_device_training_effect_device = 2431; break;  // FR235
-                                case 123: settings.fit_file_garmin_device_training_effect_device = 3076; break;  // FR245
-                                case 124: settings.fit_file_garmin_device_training_effect_device = 3077; break;  // FR245_MUSIC
-                                case 125: settings.fit_file_garmin_device_training_effect_device = 2148; break;  // FR25
-                                case 126: settings.fit_file_garmin_device_training_effect_device = 3992; break;  // FR255
-                                case 127: settings.fit_file_garmin_device_training_effect_device = 3990; break;  // FR255_MUSIC
-                                case 128: settings.fit_file_garmin_device_training_effect_device = 3993; break;  // FR255_SMALL
-                                case 129: settings.fit_file_garmin_device_training_effect_device = 3991; break;  // FR255_SMALL_MUSIC
-                                case 130: settings.fit_file_garmin_device_training_effect_device = 4257; break;  // FR265_LARGE
-                                case 131: settings.fit_file_garmin_device_training_effect_device = 4258; break;  // FR265_SMALL
-                                case 132: settings.fit_file_garmin_device_training_effect_device = 2891; break;  // FR30
-                                case 133: settings.fit_file_garmin_device_training_effect_device = 1018; break;  // FR310XT
-                                case 134: settings.fit_file_garmin_device_training_effect_device = 1446; break;  // FR310XT_4T
-                                case 135: settings.fit_file_garmin_device_training_effect_device = 2503; break;  // FR35
-                                case 136: settings.fit_file_garmin_device_training_effect_device = 717; break;  // FR405
-                                case 137: settings.fit_file_garmin_device_training_effect_device = 3282; break;  // FR45
-                                case 138: settings.fit_file_garmin_device_training_effect_device = 782; break;  // FR50
-                                case 139: settings.fit_file_garmin_device_training_effect_device = 3869; break;  // FR55
-                                case 140: settings.fit_file_garmin_device_training_effect_device = 4570; break;  // FR570_LARGE
-                                case 141: settings.fit_file_garmin_device_training_effect_device = 4574; break;  // FR570_SMALL
-                                case 142: settings.fit_file_garmin_device_training_effect_device = 988; break;  // FR60
-                                case 143: settings.fit_file_garmin_device_training_effect_device = 1345; break;  // FR610
-                                case 144: settings.fit_file_garmin_device_training_effect_device = 1623; break;  // FR620
-                                case 145: settings.fit_file_garmin_device_training_effect_device = 2156; break;  // FR630
-                                case 146: settings.fit_file_garmin_device_training_effect_device = 2886; break;  // FR645
-                                case 147: settings.fit_file_garmin_device_training_effect_device = 2888; break;  // FR645M
-                                case 148: settings.fit_file_garmin_device_training_effect_device = 1436; break;  // FR70
-                                case 149: settings.fit_file_garmin_device_training_effect_device = 4916; break;  // FR70_2026
-                                case 150: settings.fit_file_garmin_device_training_effect_device = 2158; break;  // FR735XT
-                                case 151: settings.fit_file_garmin_device_training_effect_device = 3589; break;  // FR745
-                                case 152: settings.fit_file_garmin_device_training_effect_device = 1328; break;  // FR910XT
-                                case 153: settings.fit_file_garmin_device_training_effect_device = 1765; break;  // FR920XT
-                                case 154: settings.fit_file_garmin_device_training_effect_device = 2691; break;  // FR935
-                                case 155: settings.fit_file_garmin_device_training_effect_device = 3113; break;  // FR945
-                                case 156: settings.fit_file_garmin_device_training_effect_device = 3652; break;  // FR945_LTE
-                                case 157: settings.fit_file_garmin_device_training_effect_device = 4024; break;  // FR955
-                                case 158: settings.fit_file_garmin_device_training_effect_device = 4315; break;  // FR965
-                                case 159: settings.fit_file_garmin_device_training_effect_device = 4565; break;  // FR970
-                                case 160: settings.fit_file_garmin_device_training_effect_device = 3888; break;  // INSTINCT_2
-                                case 161: settings.fit_file_garmin_device_training_effect_device = 3889; break;  // INSTINCT_2S
-                                case 162: settings.fit_file_garmin_device_training_effect_device = 4394; break;  // INSTINCT_2X
-                                case 163: settings.fit_file_garmin_device_training_effect_device = 4155; break;  // INSTINCT_CROSSOVER
-                                case 164: settings.fit_file_garmin_device_training_effect_device = 4678; break;  // INSTINCT_CROSSOVER_AMOLED
-                                case 165: settings.fit_file_garmin_device_training_effect_device = 3126; break;  // INSTINCT_ESPORTS
-                                case 166: settings.fit_file_garmin_device_training_effect_device = 3466; break;  // INSTINCT_SOLAR
-                                case 167: settings.fit_file_garmin_device_training_effect_device = 4586; break;  // INSTINCT3_AMOLED_45MM
-                                case 168: settings.fit_file_garmin_device_training_effect_device = 4587; break;  // INSTINCT3_AMOLED_50MM
-                                case 169: settings.fit_file_garmin_device_training_effect_device = 4585; break;  // INSTINCT3_SOLAR_45MM
-                                case 170: settings.fit_file_garmin_device_training_effect_device = 4759; break;  // INSTINCT3_SOLAR_50MM
-                                case 171: settings.fit_file_garmin_device_training_effect_device = 4583; break;  // INSTINCTE_40MM
-                                case 172: settings.fit_file_garmin_device_training_effect_device = 4584; break;  // INSTINCTE_45MM
-                                case 173: settings.fit_file_garmin_device_training_effect_device = 3500; break;  // LEGACY_CAPTAIN_MARVEL
-                                case 174: settings.fit_file_garmin_device_training_effect_device = 3499; break;  // LEGACY_DARTH_VADER
-                                case 175: settings.fit_file_garmin_device_training_effect_device = 3501; break;  // LEGACY_FIRST_AVENGER
-                                case 176: settings.fit_file_garmin_device_training_effect_device = 3498; break;  // LEGACY_REY
-                                case 177: settings.fit_file_garmin_device_training_effect_device = 3615; break;  // LILY
-                                case 178: settings.fit_file_garmin_device_training_effect_device = 4477; break;  // LILY_ATHLETE
-                                case 179: settings.fit_file_garmin_device_training_effect_device = 4380; break;  // LILY2
-                                case 180: settings.fit_file_garmin_device_training_effect_device = 3624; break;  // MARQ_ADVENTURER
-                                case 181: settings.fit_file_garmin_device_training_effect_device = 3251; break;  // MARQ_ATHLETE
-                                case 182: settings.fit_file_garmin_device_training_effect_device = 3247; break;  // MARQ_AVIATOR
-                                case 183: settings.fit_file_garmin_device_training_effect_device = 3248; break;  // MARQ_CAPTAIN
-                                case 184: settings.fit_file_garmin_device_training_effect_device = 3249; break;  // MARQ_COMMANDER
-                                case 185: settings.fit_file_garmin_device_training_effect_device = 3246; break;  // MARQ_DRIVER
-                                case 186: settings.fit_file_garmin_device_training_effect_device = 3250; break;  // MARQ_EXPEDITION
-                                case 187: settings.fit_file_garmin_device_training_effect_device = 4105; break;  // MARQ_GEN2
-                                case 188: settings.fit_file_garmin_device_training_effect_device = 4124; break;  // MARQ_GEN2_AVIATOR
-                                case 189: settings.fit_file_garmin_device_training_effect_device = 4472; break;  // MARQ_GEN2_COMMANDER
-                                case 190: settings.fit_file_garmin_device_training_effect_device = 3739; break;  // MARQ_GOLFER
-                                case 191: settings.fit_file_garmin_device_training_effect_device = 1499; break;  // SWIM
-                                case 192: settings.fit_file_garmin_device_training_effect_device = 3405; break;  // SWIM2
-                                case 193: settings.fit_file_garmin_device_training_effect_device = 4135; break;  // TACTIX7
-                                case 194: settings.fit_file_garmin_device_training_effect_device = 4775; break;  // TACTIX8_AMOLED
-                                case 195: settings.fit_file_garmin_device_training_effect_device = 4776; break;  // TACTIX8_SOLAR
-                                case 196: settings.fit_file_garmin_device_training_effect_device = 88888; break;  // Tacx
-                                case 197: settings.fit_file_garmin_device_training_effect_device = 3226; break;  // VENU
-                                case 198: settings.fit_file_garmin_device_training_effect_device = 3600; break;  // VENUSQ
-                                case 199: settings.fit_file_garmin_device_training_effect_device = 3596; break;  // VENUSQ_MUSIC
-                                case 200: settings.fit_file_garmin_device_training_effect_device = 3599; break;  // VENUSQ_MUSIC_V2
-                                case 201: settings.fit_file_garmin_device_training_effect_device = 4115; break;  // VENUSQ2
-                                case 202: settings.fit_file_garmin_device_training_effect_device = 4116; break;  // VENUSQ2MUSIC
-                                case 203: settings.fit_file_garmin_device_training_effect_device = 4603; break;  // VENU_X1
-                                case 204: settings.fit_file_garmin_device_training_effect_device = 3703; break;  // VENU2
-                                case 205: settings.fit_file_garmin_device_training_effect_device = 3851; break;  // VENU2_PLUS
-                                case 206: settings.fit_file_garmin_device_training_effect_device = 3704; break;  // VENU2S
-                                case 207: settings.fit_file_garmin_device_training_effect_device = 4260; break;  // VENU3
-                                case 208: settings.fit_file_garmin_device_training_effect_device = 4261; break;  // VENU3S
-                                case 209: settings.fit_file_garmin_device_training_effect_device = 4643; break;  // VENU4
-                                case 210: settings.fit_file_garmin_device_training_effect_device = 4644; break;  // VENU4S
-                                case 211: settings.fit_file_garmin_device_training_effect_device = 1907; break;  // VIVO_ACTIVE
-                                case 212: settings.fit_file_garmin_device_training_effect_device = 2337; break;  // VIVO_ACTIVE_HR
-                                case 213: settings.fit_file_garmin_device_training_effect_device = 2368; break;  // VIVO_MOVE
-                                case 214: settings.fit_file_garmin_device_training_effect_device = 2772; break;  // VIVO_MOVE_HR
-                                case 215: settings.fit_file_garmin_device_training_effect_device = 3982; break;  // VIVO_MOVE_SPORT
-                                case 216: settings.fit_file_garmin_device_training_effect_device = 3378; break;  // VIVO_MOVE3
-                                case 217: settings.fit_file_garmin_device_training_effect_device = 3308; break;  // VIVO_MOVE3_PREMIUM
-                                case 218: settings.fit_file_garmin_device_training_effect_device = 2700; break;  // VIVOACTIVE3
-                                case 219: settings.fit_file_garmin_device_training_effect_device = 3066; break;  // VIVOACTIVE3M_L
-                                case 220: settings.fit_file_garmin_device_training_effect_device = 2988; break;  // VIVOACTIVE3M_W
-                                case 221: settings.fit_file_garmin_device_training_effect_device = 3225; break;  // VIVOACTIVE4_LARGE
-                                case 222: settings.fit_file_garmin_device_training_effect_device = 3224; break;  // VIVOACTIVE4_SMALL
-                                case 223: settings.fit_file_garmin_device_training_effect_device = 4426; break;  // VIVOACTIVE5
-                                case 224: settings.fit_file_garmin_device_training_effect_device = 4625; break;  // VIVOACTIVE6
-                                case 225: settings.fit_file_garmin_device_training_effect_device = 3983; break;  // VIVOMOVE_TREND
-                                case 226: settings.fit_file_garmin_device_training_effect_device = 99999; break;  // Zwift
+                                case 34: settings.fit_file_garmin_device_training_effect_device = 5026; break;  // DESCENT_X10
+                                case 35: settings.fit_file_garmin_device_training_effect_device = 2713; break;  // EDGE_1030
+                                case 36: settings.fit_file_garmin_device_training_effect_device = 3570; break;  // EDGE_1030_PLUS
+                                case 37: settings.fit_file_garmin_device_training_effect_device = 3843; break;  // EDGE_1040
+                                case 38: settings.fit_file_garmin_device_training_effect_device = 4440; break;  // EDGE_1050
+                                case 39: settings.fit_file_garmin_device_training_effect_device = 4962; break;  // EDGE_1060
+                                case 40: settings.fit_file_garmin_device_training_effect_device = 2909; break;  // EDGE_130
+                                case 41: settings.fit_file_garmin_device_training_effect_device = 3558; break;  // EDGE_130_PLUS
+                                case 42: settings.fit_file_garmin_device_training_effect_device = 3112; break;  // EDGE_520_PLUS
+                                case 43: settings.fit_file_garmin_device_training_effect_device = 3121; break;  // EDGE_530
+                                case 44: settings.fit_file_garmin_device_training_effect_device = 4061; break;  // EDGE_540
+                                case 45: settings.fit_file_garmin_device_training_effect_device = 4633; break;  // EDGE_550
+                                case 46: settings.fit_file_garmin_device_training_effect_device = 2530; break;  // EDGE_820
+                                case 47: settings.fit_file_garmin_device_training_effect_device = 3122; break;  // EDGE_830
+                                case 48: settings.fit_file_garmin_device_training_effect_device = 4062; break;  // EDGE_840
+                                case 49: settings.fit_file_garmin_device_training_effect_device = 4634; break;  // EDGE_850
+                                case 50: settings.fit_file_garmin_device_training_effect_device = 3011; break;  // EDGE_EXPLORE
+                                case 51: settings.fit_file_garmin_device_training_effect_device = 2204; break;  // EDGE_EXPLORE_1000
+                                case 52: settings.fit_file_garmin_device_training_effect_device = 2531; break;  // EDGE_EXPLORE_820
+                                case 53: settings.fit_file_garmin_device_training_effect_device = 4169; break;  // EDGE_EXPLORE2
+                                case 54: settings.fit_file_garmin_device_training_effect_device = 4970; break;  // EDGE_EXPLORE3
+                                case 55: settings.fit_file_garmin_device_training_effect_device = 4972; break;  // EDGE_EXPLORE3_PLUS
+                                case 56: settings.fit_file_garmin_device_training_effect_device = 4655; break;  // EDGE_MTB
+                                case 57: settings.fit_file_garmin_device_training_effect_device = 10014; break;  // EDGE_REMOTE
+                                case 58: settings.fit_file_garmin_device_training_effect_device = 1736; break;  // EDGE_TOURING
+                                case 59: settings.fit_file_garmin_device_training_effect_device = 1836; break;  // EDGE1000
+                                case 60: settings.fit_file_garmin_device_training_effect_device = 2238; break;  // EDGE20
+                                case 61: settings.fit_file_garmin_device_training_effect_device = 1325; break;  // EDGE200
+                                case 62: settings.fit_file_garmin_device_training_effect_device = 2147; break;  // EDGE25
+                                case 63: settings.fit_file_garmin_device_training_effect_device = 1036; break;  // EDGE500
+                                case 64: settings.fit_file_garmin_device_training_effect_device = 1561; break;  // EDGE510
+                                case 65: settings.fit_file_garmin_device_training_effect_device = 2067; break;  // EDGE520
+                                case 66: settings.fit_file_garmin_device_training_effect_device = 1169; break;  // EDGE800
+                                case 67: settings.fit_file_garmin_device_training_effect_device = 1567; break;  // EDGE810
+                                case 68: settings.fit_file_garmin_device_training_effect_device = 3638; break;  // ENDURO
+                                case 69: settings.fit_file_garmin_device_training_effect_device = 4341; break;  // ENDURO2
+                                case 70: settings.fit_file_garmin_device_training_effect_device = 4575; break;  // ENDURO3
+                                case 71: settings.fit_file_garmin_device_training_effect_device = 5169; break;  // ENDURO4
+                                case 72: settings.fit_file_garmin_device_training_effect_device = 1988; break;  // EPIX
+                                case 73: settings.fit_file_garmin_device_training_effect_device = 3943; break;  // EPIX_GEN2
+                                case 74: settings.fit_file_garmin_device_training_effect_device = 3944; break;  // EPIX_GEN2_APAC
+                                case 75: settings.fit_file_garmin_device_training_effect_device = 4312; break;  // EPIX_GEN2_PRO_42
+                                case 76: settings.fit_file_garmin_device_training_effect_device = 4313; break;  // EPIX_GEN2_PRO_47
+                                case 77: settings.fit_file_garmin_device_training_effect_device = 4314; break;  // EPIX_GEN2_PRO_51
+                                case 78: settings.fit_file_garmin_device_training_effect_device = 2332; break;  // EPIX_JAPAN
+                                case 79: settings.fit_file_garmin_device_training_effect_device = 2457; break;  // EPIX_KOREA
+                                case 80: settings.fit_file_garmin_device_training_effect_device = 1551; break;  // FENIX
+                                case 81: settings.fit_file_garmin_device_training_effect_device = 4666; break;  // FENIX_E
+                                case 82: settings.fit_file_garmin_device_training_effect_device = 1967; break;  // FENIX2
+                                case 83: settings.fit_file_garmin_device_training_effect_device = 2050; break;  // FENIX3
+                                case 84: settings.fit_file_garmin_device_training_effect_device = 2432; break;  // FENIX3_CHRONOS
+                                case 85: settings.fit_file_garmin_device_training_effect_device = 2413; break;  // FENIX3_HR
+                                case 86: settings.fit_file_garmin_device_training_effect_device = 2697; break;  // FENIX5
+                                case 87: settings.fit_file_garmin_device_training_effect_device = 3110; break;  // FENIX5_PLUS
+                                case 88: settings.fit_file_garmin_device_training_effect_device = 2544; break;  // FENIX5S
+                                case 89: settings.fit_file_garmin_device_training_effect_device = 2900; break;  // FENIX5S_PLUS
+                                case 90: settings.fit_file_garmin_device_training_effect_device = 2604; break;  // FENIX5X
+                                case 91: settings.fit_file_garmin_device_training_effect_device = 3111; break;  // FENIX5X_PLUS
+                                case 92: settings.fit_file_garmin_device_training_effect_device = 3290; break;  // FENIX6
+                                case 93: settings.fit_file_garmin_device_training_effect_device = 3289; break;  // FENIX6_SPORT
+                                case 94: settings.fit_file_garmin_device_training_effect_device = 3288; break;  // FENIX6S
+                                case 95: settings.fit_file_garmin_device_training_effect_device = 3287; break;  // FENIX6S_SPORT
+                                case 96: settings.fit_file_garmin_device_training_effect_device = 3291; break;  // FENIX6X
+                                case 97: settings.fit_file_garmin_device_training_effect_device = 3906; break;  // FENIX7
+                                case 98: settings.fit_file_garmin_device_training_effect_device = 4375; break;  // FENIX7_PRO_SOLAR
+                                case 99: settings.fit_file_garmin_device_training_effect_device = 4595; break;  // FENIX7_PRO_SOLAR_NO_WIFI
+                                case 100: settings.fit_file_garmin_device_training_effect_device = 3905; break;  // FENIX7S
+                                case 101: settings.fit_file_garmin_device_training_effect_device = 4374; break;  // FENIX7S_PRO_SOLAR
+                                case 102: settings.fit_file_garmin_device_training_effect_device = 3907; break;  // FENIX7X
+                                case 103: settings.fit_file_garmin_device_training_effect_device = 4376; break;  // FENIX7X_PRO_SOLAR
+                                case 104: settings.fit_file_garmin_device_training_effect_device = 4536; break;  // FENIX8
+                                case 105: settings.fit_file_garmin_device_training_effect_device = 4631; break;  // FENIX8_PRO
+                                case 106: settings.fit_file_garmin_device_training_effect_device = 4534; break;  // FENIX8_SMALL
+                                case 107: settings.fit_file_garmin_device_training_effect_device = 4532; break;  // FENIX8_SOLAR
+                                case 108: settings.fit_file_garmin_device_training_effect_device = 4533; break;  // FENIX8_SOLAR_LARGE
+                                case 109: settings.fit_file_garmin_device_training_effect_device = 5134; break;  // FENIX9
+                                case 110: settings.fit_file_garmin_device_training_effect_device = 5133; break;  // FENIX9_43MM
+                                case 111: settings.fit_file_garmin_device_training_effect_device = 4952; break;  // FENIX9_PRO_43MM
+                                case 112: settings.fit_file_garmin_device_training_effect_device = 4953; break;  // FENIX9_PRO_47MM
+                                case 113: settings.fit_file_garmin_device_training_effect_device = 4954; break;  // FENIX9_PRO_51MM
+                                case 114: settings.fit_file_garmin_device_training_effect_device = 4955; break;  // FENIX9_PRO_SOLAR_47MM
+                                case 115: settings.fit_file_garmin_device_training_effect_device = 4956; break;  // FENIX9_PRO_SOLAR_51MM
+                                case 116: settings.fit_file_garmin_device_training_effect_device = 1482; break;  // FR10
+                                case 117: settings.fit_file_garmin_device_training_effect_device = 1124; break;  // FR110
+                                case 118: settings.fit_file_garmin_device_training_effect_device = 1903; break;  // FR15
+                                case 119: settings.fit_file_garmin_device_training_effect_device = 4432; break;  // FR165
+                                case 120: settings.fit_file_garmin_device_training_effect_device = 4433; break;  // FR165_MUSIC
+                                case 121: settings.fit_file_garmin_device_training_effect_device = 4815; break;  // FR170
+                                case 122: settings.fit_file_garmin_device_training_effect_device = 4814; break;  // FR170_MUSIC
+                                case 123: settings.fit_file_garmin_device_training_effect_device = 1632; break;  // FR220
+                                case 124: settings.fit_file_garmin_device_training_effect_device = 2153; break;  // FR225
+                                case 125: settings.fit_file_garmin_device_training_effect_device = 2157; break;  // FR230
+                                case 126: settings.fit_file_garmin_device_training_effect_device = 2431; break;  // FR235
+                                case 127: settings.fit_file_garmin_device_training_effect_device = 3076; break;  // FR245
+                                case 128: settings.fit_file_garmin_device_training_effect_device = 3077; break;  // FR245_MUSIC
+                                case 129: settings.fit_file_garmin_device_training_effect_device = 2148; break;  // FR25
+                                case 130: settings.fit_file_garmin_device_training_effect_device = 3992; break;  // FR255
+                                case 131: settings.fit_file_garmin_device_training_effect_device = 3990; break;  // FR255_MUSIC
+                                case 132: settings.fit_file_garmin_device_training_effect_device = 3993; break;  // FR255_SMALL
+                                case 133: settings.fit_file_garmin_device_training_effect_device = 3991; break;  // FR255_SMALL_MUSIC
+                                case 134: settings.fit_file_garmin_device_training_effect_device = 4257; break;  // FR265_LARGE
+                                case 135: settings.fit_file_garmin_device_training_effect_device = 4258; break;  // FR265_SMALL
+                                case 136: settings.fit_file_garmin_device_training_effect_device = 2891; break;  // FR30
+                                case 137: settings.fit_file_garmin_device_training_effect_device = 1018; break;  // FR310XT
+                                case 138: settings.fit_file_garmin_device_training_effect_device = 1446; break;  // FR310XT_4T
+                                case 139: settings.fit_file_garmin_device_training_effect_device = 2503; break;  // FR35
+                                case 140: settings.fit_file_garmin_device_training_effect_device = 717; break;  // FR405
+                                case 141: settings.fit_file_garmin_device_training_effect_device = 3282; break;  // FR45
+                                case 142: settings.fit_file_garmin_device_training_effect_device = 782; break;  // FR50
+                                case 143: settings.fit_file_garmin_device_training_effect_device = 3869; break;  // FR55
+                                case 144: settings.fit_file_garmin_device_training_effect_device = 4570; break;  // FR570_LARGE
+                                case 145: settings.fit_file_garmin_device_training_effect_device = 4574; break;  // FR570_SMALL
+                                case 146: settings.fit_file_garmin_device_training_effect_device = 988; break;  // FR60
+                                case 147: settings.fit_file_garmin_device_training_effect_device = 1345; break;  // FR610
+                                case 148: settings.fit_file_garmin_device_training_effect_device = 1623; break;  // FR620
+                                case 149: settings.fit_file_garmin_device_training_effect_device = 2156; break;  // FR630
+                                case 150: settings.fit_file_garmin_device_training_effect_device = 2886; break;  // FR645
+                                case 151: settings.fit_file_garmin_device_training_effect_device = 2888; break;  // FR645M
+                                case 152: settings.fit_file_garmin_device_training_effect_device = 1436; break;  // FR70
+                                case 153: settings.fit_file_garmin_device_training_effect_device = 4916; break;  // FR70_2026
+                                case 154: settings.fit_file_garmin_device_training_effect_device = 2158; break;  // FR735XT
+                                case 155: settings.fit_file_garmin_device_training_effect_device = 3589; break;  // FR745
+                                case 156: settings.fit_file_garmin_device_training_effect_device = 1328; break;  // FR910XT
+                                case 157: settings.fit_file_garmin_device_training_effect_device = 1765; break;  // FR920XT
+                                case 158: settings.fit_file_garmin_device_training_effect_device = 2691; break;  // FR935
+                                case 159: settings.fit_file_garmin_device_training_effect_device = 3113; break;  // FR945
+                                case 160: settings.fit_file_garmin_device_training_effect_device = 3652; break;  // FR945_LTE
+                                case 161: settings.fit_file_garmin_device_training_effect_device = 4024; break;  // FR955
+                                case 162: settings.fit_file_garmin_device_training_effect_device = 4315; break;  // FR965
+                                case 163: settings.fit_file_garmin_device_training_effect_device = 4565; break;  // FR970
+                                case 164: settings.fit_file_garmin_device_training_effect_device = 3888; break;  // INSTINCT_2
+                                case 165: settings.fit_file_garmin_device_training_effect_device = 3889; break;  // INSTINCT_2S
+                                case 166: settings.fit_file_garmin_device_training_effect_device = 4394; break;  // INSTINCT_2X
+                                case 167: settings.fit_file_garmin_device_training_effect_device = 4155; break;  // INSTINCT_CROSSOVER
+                                case 168: settings.fit_file_garmin_device_training_effect_device = 4678; break;  // INSTINCT_CROSSOVER_AMOLED
+                                case 169: settings.fit_file_garmin_device_training_effect_device = 3126; break;  // INSTINCT_ESPORTS
+                                case 170: settings.fit_file_garmin_device_training_effect_device = 3466; break;  // INSTINCT_SOLAR
+                                case 171: settings.fit_file_garmin_device_training_effect_device = 4586; break;  // INSTINCT3_AMOLED_45MM
+                                case 172: settings.fit_file_garmin_device_training_effect_device = 4587; break;  // INSTINCT3_AMOLED_50MM
+                                case 173: settings.fit_file_garmin_device_training_effect_device = 4585; break;  // INSTINCT3_SOLAR_45MM
+                                case 174: settings.fit_file_garmin_device_training_effect_device = 4759; break;  // INSTINCT3_SOLAR_50MM
+                                case 175: settings.fit_file_garmin_device_training_effect_device = 4583; break;  // INSTINCTE_40MM
+                                case 176: settings.fit_file_garmin_device_training_effect_device = 4584; break;  // INSTINCTE_45MM
+                                case 177: settings.fit_file_garmin_device_training_effect_device = 3500; break;  // LEGACY_CAPTAIN_MARVEL
+                                case 178: settings.fit_file_garmin_device_training_effect_device = 3499; break;  // LEGACY_DARTH_VADER
+                                case 179: settings.fit_file_garmin_device_training_effect_device = 3501; break;  // LEGACY_FIRST_AVENGER
+                                case 180: settings.fit_file_garmin_device_training_effect_device = 3498; break;  // LEGACY_REY
+                                case 181: settings.fit_file_garmin_device_training_effect_device = 3615; break;  // LILY
+                                case 182: settings.fit_file_garmin_device_training_effect_device = 4477; break;  // LILY_ATHLETE
+                                case 183: settings.fit_file_garmin_device_training_effect_device = 4380; break;  // LILY2
+                                case 184: settings.fit_file_garmin_device_training_effect_device = 3624; break;  // MARQ_ADVENTURER
+                                case 185: settings.fit_file_garmin_device_training_effect_device = 3251; break;  // MARQ_ATHLETE
+                                case 186: settings.fit_file_garmin_device_training_effect_device = 3247; break;  // MARQ_AVIATOR
+                                case 187: settings.fit_file_garmin_device_training_effect_device = 3248; break;  // MARQ_CAPTAIN
+                                case 188: settings.fit_file_garmin_device_training_effect_device = 3249; break;  // MARQ_COMMANDER
+                                case 189: settings.fit_file_garmin_device_training_effect_device = 3246; break;  // MARQ_DRIVER
+                                case 190: settings.fit_file_garmin_device_training_effect_device = 3250; break;  // MARQ_EXPEDITION
+                                case 191: settings.fit_file_garmin_device_training_effect_device = 4105; break;  // MARQ_GEN2
+                                case 192: settings.fit_file_garmin_device_training_effect_device = 4124; break;  // MARQ_GEN2_AVIATOR
+                                case 193: settings.fit_file_garmin_device_training_effect_device = 4472; break;  // MARQ_GEN2_COMMANDER
+                                case 194: settings.fit_file_garmin_device_training_effect_device = 3739; break;  // MARQ_GOLFER
+                                case 195: settings.fit_file_garmin_device_training_effect_device = 5000; break;  // MARQ3
+                                case 196: settings.fit_file_garmin_device_training_effect_device = 1499; break;  // SWIM
+                                case 197: settings.fit_file_garmin_device_training_effect_device = 3405; break;  // SWIM2
+                                case 198: settings.fit_file_garmin_device_training_effect_device = 4135; break;  // TACTIX7
+                                case 199: settings.fit_file_garmin_device_training_effect_device = 4775; break;  // TACTIX8_AMOLED
+                                case 200: settings.fit_file_garmin_device_training_effect_device = 4776; break;  // TACTIX8_SOLAR
+                                case 201: settings.fit_file_garmin_device_training_effect_device = 88888; break;  // Tacx
+                                case 202: settings.fit_file_garmin_device_training_effect_device = 3226; break;  // VENU
+                                case 203: settings.fit_file_garmin_device_training_effect_device = 3600; break;  // VENUSQ
+                                case 204: settings.fit_file_garmin_device_training_effect_device = 3596; break;  // VENUSQ_MUSIC
+                                case 205: settings.fit_file_garmin_device_training_effect_device = 3599; break;  // VENUSQ_MUSIC_V2
+                                case 206: settings.fit_file_garmin_device_training_effect_device = 4115; break;  // VENUSQ2
+                                case 207: settings.fit_file_garmin_device_training_effect_device = 4116; break;  // VENUSQ2MUSIC
+                                case 208: settings.fit_file_garmin_device_training_effect_device = 4603; break;  // VENU_X1
+                                case 209: settings.fit_file_garmin_device_training_effect_device = 3703; break;  // VENU2
+                                case 210: settings.fit_file_garmin_device_training_effect_device = 3851; break;  // VENU2_PLUS
+                                case 211: settings.fit_file_garmin_device_training_effect_device = 3704; break;  // VENU2S
+                                case 212: settings.fit_file_garmin_device_training_effect_device = 4260; break;  // VENU3
+                                case 213: settings.fit_file_garmin_device_training_effect_device = 4261; break;  // VENU3S
+                                case 214: settings.fit_file_garmin_device_training_effect_device = 4643; break;  // VENU4
+                                case 215: settings.fit_file_garmin_device_training_effect_device = 4644; break;  // VENU4S
+                                case 216: settings.fit_file_garmin_device_training_effect_device = 1907; break;  // VIVO_ACTIVE
+                                case 217: settings.fit_file_garmin_device_training_effect_device = 2337; break;  // VIVO_ACTIVE_HR
+                                case 218: settings.fit_file_garmin_device_training_effect_device = 2368; break;  // VIVO_MOVE
+                                case 219: settings.fit_file_garmin_device_training_effect_device = 2772; break;  // VIVO_MOVE_HR
+                                case 220: settings.fit_file_garmin_device_training_effect_device = 3982; break;  // VIVO_MOVE_SPORT
+                                case 221: settings.fit_file_garmin_device_training_effect_device = 3378; break;  // VIVO_MOVE3
+                                case 222: settings.fit_file_garmin_device_training_effect_device = 3308; break;  // VIVO_MOVE3_PREMIUM
+                                case 223: settings.fit_file_garmin_device_training_effect_device = 2700; break;  // VIVOACTIVE3
+                                case 224: settings.fit_file_garmin_device_training_effect_device = 3066; break;  // VIVOACTIVE3M_L
+                                case 225: settings.fit_file_garmin_device_training_effect_device = 2988; break;  // VIVOACTIVE3M_W
+                                case 226: settings.fit_file_garmin_device_training_effect_device = 3225; break;  // VIVOACTIVE4_LARGE
+                                case 227: settings.fit_file_garmin_device_training_effect_device = 3224; break;  // VIVOACTIVE4_SMALL
+                                case 228: settings.fit_file_garmin_device_training_effect_device = 4426; break;  // VIVOACTIVE5
+                                case 229: settings.fit_file_garmin_device_training_effect_device = 4625; break;  // VIVOACTIVE6
+                                case 230: settings.fit_file_garmin_device_training_effect_device = 3983; break;  // VIVOMOVE_TREND
+                                case 231: settings.fit_file_garmin_device_training_effect_device = 99999; break;  // Zwift
                             }
                         }
                         Layout.fillWidth: true
@@ -10855,7 +10992,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         TextField {
                             id: garminDeviceSerialTextField
-                            Accessible.name: qsTr("Garmin device UNIT ID")
+                            Accessible.name: qsTr("Garmin device UNIT ID") + ": " + text
                             text: settings.garmin_device_serial
                             Layout.fillWidth: true
                             Layout.preferredWidth: 250
@@ -11058,7 +11195,7 @@ import AndroidStatusBar 1.0
                              }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("PID on Heart Zone")
+                            Accessible.name: qsTr("PID on Heart Zone") + ": " + displayText
                         }
                         Button {
                             id: okTreadmillPidHR
@@ -11081,7 +11218,7 @@ import AndroidStatusBar 1.0
                         }
                         ValueComboBox {
                             id: treadmillPidHRControlTextField
-                            Accessible.name: labelTreadmillPidHRControl.text
+                            Accessible.name: labelTreadmillPidHRControl.text + " " + displayText
                             model: [ "Speed", "Inclination" ]
                             labels: ({ "Speed": qsTr("Speed"), "Inclination": qsTr("Inclination") })
                             savedText: settings.treadmill_pid_heart_control
@@ -11135,7 +11272,7 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("PID on HR min")
+                            Accessible.name: qsTr("PID on HR min") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -11166,7 +11303,7 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("PID on HR max")
+                            Accessible.name: qsTr("PID on HR max") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -11229,7 +11366,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: pidHrRecoveryZoneLimitTextField
-                            Accessible.name: qsTr("PID Recovery Zone Lower Limit (%):")
+                            Accessible.name: qsTr("PID Recovery Zone Lower Limit (%):") + " " + text
                             maximum: 100
                             savedText: settings.trainprogram_pid_hr_recovery_zone_limit
                             horizontalAlignment: Text.AlignRight
@@ -11268,7 +11405,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: pidHrPushyZoneLimitTextField
-                            Accessible.name: qsTr("PID Pushy Zone Limit:")
+                            Accessible.name: qsTr("PID Pushy Zone Limit:") + " " + text
                             savedText: settings.trainprogram_pid_hr_pushy_zone_limit
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -11343,7 +11480,7 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("1 mile pace (total time)")
+                            Accessible.name: qsTr("1 mile pace (total time)") + ": " + text
                         }
                         Button {
                             id: okTrainProgramPace1Mile
@@ -11388,7 +11525,7 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("5 km pace (total time)")
+                            Accessible.name: qsTr("5 km pace (total time)") + ": " + text
                         }
                         Button {
                             id: okTrainProgramPace5km
@@ -11433,7 +11570,7 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("10 km pace (total time)")
+                            Accessible.name: qsTr("10 km pace (total time)") + ": " + text
                         }
                         Button {
                             id: okTrainProgramPace10KM
@@ -11478,7 +11615,7 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Half Marathon pace (total time)")
+                            Accessible.name: qsTr("Half Marathon pace (total time)") + ": " + text
                         }
                         Button {
                             id: okTrainProgramPaceHalfMarathon
@@ -11523,7 +11660,7 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Marathon pace (total time)")
+                            Accessible.name: qsTr("Marathon pace (total time)") + ": " + text
                         }
                         Button {
                             id: okTrainProgramPaceMarathon
@@ -11560,7 +11697,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsFormatField {
                             id: trainProgramWarmupSpeedTextField
-                            Accessible.name: qsTr("Warmup Speed (pace):")
+                            Accessible.name: qsTr("Warmup Speed (pace):") + " " + text
                             format: "time"
                             savedText: paceSecondsToTime(settings.trainprogram_warmup_speed)
                             horizontalAlignment: Text.AlignRight
@@ -11587,7 +11724,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsFormatField {
                             id: trainProgramCooldownSpeedTextField
-                            Accessible.name: qsTr("Cooldown Speed (pace):")
+                            Accessible.name: qsTr("Cooldown Speed (pace):") + " " + text
                             format: "time"
                             savedText: paceSecondsToTime(settings.trainprogram_cooldown_speed)
                             horizontalAlignment: Text.AlignRight
@@ -11614,7 +11751,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsFormatField {
                             id: trainProgramRestSpeedTextField
-                            Accessible.name: qsTr("Rest Speed (pace):")
+                            Accessible.name: qsTr("Rest Speed (pace):") + " " + text
                             format: "time"
                             savedText: paceSecondsToTime(settings.trainprogram_rest_speed)
                             horizontalAlignment: Text.AlignRight
@@ -11651,7 +11788,7 @@ import AndroidStatusBar 1.0
                              }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Default Pace")
+                            Accessible.name: qsTr("Default Pace") + ": " + displayText
                         }
                         Button {
                             id: okTreadmillPaceDefault
@@ -11696,7 +11833,7 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("ERG Mode Watt Step")
+                            Accessible.name: qsTr("ERG Mode Watt Step") + ": " + text
                         }
                         Button {
                             id: okPidHeartZoneErgModeWattStep
@@ -11754,7 +11891,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.trainprogram_total = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Duration (minutes)")
+                            Accessible.name: qsTr("Duration (minutes)") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomDuration
@@ -11786,7 +11923,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.trainprogram_period_seconds = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Period (seconds)")
+                            Accessible.name: qsTr("Period (seconds)") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomPeriod
@@ -11817,7 +11954,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.trainprogram_speed_min = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Speed min.")
+                            Accessible.name: qsTr("Speed min.") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomSpeedMin
@@ -11848,7 +11985,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.trainprogram_speed_max = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Speed max.")
+                            Accessible.name: qsTr("Speed max.") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomSpeedMax
@@ -11880,7 +12017,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.trainprogram_incline_min = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Incline min.")
+                            Accessible.name: qsTr("Incline min.") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomInclineMin
@@ -11911,7 +12048,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.trainprogram_incline_max = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Incline max.")
+                            Accessible.name: qsTr("Incline max.") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomInclineMax
@@ -11981,7 +12118,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.trainprogram_resistance_min = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Resistance min.")
+                            Accessible.name: qsTr("Resistance min.") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomResistanceMin
@@ -12012,7 +12149,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.trainprogram_resistance_max = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Resistance max.")
+                            Accessible.name: qsTr("Resistance max.") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomResistanceMax
@@ -12272,7 +12409,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.treadmill_step_speed = (settings.miles_unit?value * 1.60934:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Speed Step")
+                            Accessible.name: qsTr("Speed Step") + ": " + text
                         }
                         Button {
                             id: okTreadmillSpeedStepButton
@@ -12320,7 +12457,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.treadmill_incline_min = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Min. Inclination")
+                            Accessible.name: qsTr("Min. Inclination") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -12365,7 +12502,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.treadmill_incline_max = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Max. Inclination")
+                            Accessible.name: qsTr("Max. Inclination") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -12408,7 +12545,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.treadmill_speed_max = (settings.miles_unit?value * 1.60934:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Max. Speed")
+                            Accessible.name: qsTr("Max. Speed") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -12451,7 +12588,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.treadmill_speed_min = (settings.miles_unit?value * 1.60934:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Min. Speed")
+                            Accessible.name: qsTr("Min. Speed") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -12495,7 +12632,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.step_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Step Count Gain")
+                            Accessible.name: qsTr("Step Count Gain") + ": " + text
                         }
                         Button {
                             id: okStepGainButton
@@ -12583,7 +12720,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: ftmsTreadmillTextField
-                            Accessible.name: qsTr("FTMS Treadmill:")
+                            Accessible.name: qsTr("FTMS Treadmill:") + " " + displayText
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.ftms_treadmill
@@ -12646,7 +12783,7 @@ import AndroidStatusBar 1.0
                             }
 
                             UiComboBox {
-                                Accessible.name: qsTr("Specific Model:")
+                                Accessible.name: qsTr("Specific Model:") + " " + displayText
                                 Layout.fillWidth: true
                                 id: treadmillModelComboBox
                                 property bool initialized: false
@@ -12721,6 +12858,8 @@ import AndroidStatusBar 1.0
                                     "ProForm 305 CST PETL59817.0",
                                     "Freemotion T10.9B (HCI snoop)",
                                     "Proform Sport 5.5",
+                                    "Proform Sport 6.0",
+                                     "ProForm 505 CST PFTL59420 (iFIT 2026)",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -12805,7 +12944,9 @@ import AndroidStatusBar 1.0
                                                     settings.proform_trainer_8_0_pftl59721_0 ? 65 :
                                                     settings.proform_treadmill_305_cst ? 66 :
                                                     settings.freemotion_t10_9b_hci ? 67 :
-                                                    settings.proform_treadmill_sport_55 ? 68 : 0;
+                                                    settings.proform_treadmill_sport_55 ? 68 :
+                                                    settings.proform_treadmill_sport_6_0 ? 69 :
+                                                     settings.proform_treadmill_cst_505_pftl59420_2026 ? 70 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -12888,6 +13029,8 @@ import AndroidStatusBar 1.0
                                     settings.proform_treadmill_305_cst = false;
                                     settings.freemotion_t10_9b_hci = false;
                                     settings.proform_treadmill_sport_55 = false;
+                                    settings.proform_treadmill_sport_6_0 = false;
+                                     settings.proform_treadmill_cst_505_pftl59420_2026 = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -12959,6 +13102,8 @@ import AndroidStatusBar 1.0
                                         case 66: settings.proform_treadmill_305_cst = true; break;
                                         case 67: settings.freemotion_t10_9b_hci = true; break;
                                         case 68: settings.proform_treadmill_sport_55 = true; break;
+                                        case 69: settings.proform_treadmill_sport_6_0 = true; break;
+                                         case 70: settings.proform_treadmill_cst_505_pftl59420_2026 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -12983,7 +13128,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.proformtreadmillip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Proform IP")
+                                    Accessible.name: qsTr("Proform IP") + ": " + text
                                 }
                                 Button {
                                     id: okproformtreadmillIPButton
@@ -13014,7 +13159,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.nordictrack_2950_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Nordictrack 2950 IP")
+                                    Accessible.name: qsTr("Nordictrack 2950 IP") + ": " + text
                                 }
                                 Button {
                                     id: oknordictrack2950IPButton
@@ -13253,7 +13398,7 @@ import AndroidStatusBar 1.0
                                 Label { text: qsTr("Life Fitness username/email:"); wrapMode: window.labelWrap; Layout.fillWidth: true }
                                 SettingsTextField {
                                     id: lifeFitnessUsernameTextField
-                                    Accessible.name: qsTr("Life Fitness username/email")
+                                    Accessible.name: qsTr("Life Fitness username/email") + ": " + text
                                     savedText: settings.life_fitness_username
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: { settings.life_fitness_username = text; window.settings_restart_to_apply = true; }
@@ -13495,7 +13640,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.domyos_treadmill_button_5kmh = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Remap 5 km/h button")
+                                    Accessible.name: qsTr("Remap 5 km/h button") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -13524,7 +13669,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.domyos_treadmill_button_10kmh = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Remap 10 km/h button")
+                                    Accessible.name: qsTr("Remap 10 km/h button") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -13553,7 +13698,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.domyos_treadmill_button_16kmh = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Remap 16 km/h button")
+                                    Accessible.name: qsTr("Remap 16 km/h button") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -13582,7 +13727,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.domyos_treadmill_button_22kmh = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Remap 22 km/h button")
+                                    Accessible.name: qsTr("Remap 22 km/h button") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -13613,7 +13758,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) { settings.poll_device_time = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Pool time (ms)")
+                                    Accessible.name: qsTr("Pool time (ms)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -13840,7 +13985,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.fitshow_user_id = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("User ID")
+                                    Accessible.name: qsTr("User ID") + ": " + text
                                 }
                                 Button {
                                     id: okfitshowTreadmillUserIdButton
@@ -14018,7 +14163,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.horizon_treadmill_profile_user1 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("User 1")
+                                    Accessible.name: qsTr("User 1") + ": " + text
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile1Button
@@ -14047,7 +14192,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.horizon_treadmill_profile_user2 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("User 2")
+                                    Accessible.name: qsTr("User 2") + ": " + text
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile2Button
@@ -14076,7 +14221,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.horizon_treadmill_profile_user3 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("User 3")
+                                    Accessible.name: qsTr("User 3") + ": " + text
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile3Button
@@ -14105,7 +14250,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.horizon_treadmill_profile_user4 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("User 4")
+                                    Accessible.name: qsTr("User 4") + ": " + text
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile4Button
@@ -14134,7 +14279,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.horizon_treadmill_profile_user5 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("User 5")
+                                    Accessible.name: qsTr("User 5") + ": " + text
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile5Button
@@ -14638,7 +14783,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.csafe_rower = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Serial Port")
+                                    Accessible.name: qsTr("Serial Port") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -14661,7 +14806,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: ftmsRowerTextField
-                            Accessible.name: qsTr("FTMS Rower:")
+                            Accessible.name: qsTr("FTMS Rower:") + " " + displayText
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.ftms_rower
@@ -14786,7 +14931,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.proform_rower_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("ProForm Rower IP")
+                                    Accessible.name: qsTr("ProForm Rower IP") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -14829,7 +14974,7 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: domyosEllipticalSpeedRatioTextField
-                                    Accessible.name: labelDomyosEllipticalSpeedRatio.text
+                                    Accessible.name: labelDomyosEllipticalSpeedRatio.text + " " + text
                                     savedText: settings.domyos_elliptical_speed_ratio
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -14887,7 +15032,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.csafe_elliptical_port = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Serial Port")
+                                    Accessible.name: qsTr("Serial Port") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -14910,7 +15055,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: ftmsEllipticalTextField
-                            Accessible.name: qsTr("FTMS Elliptical:")
+                            Accessible.name: qsTr("FTMS Elliptical:") + " " + displayText
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.ftms_elliptical
@@ -15056,7 +15201,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.proform_elliptical_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Companion IP")
+                                    Accessible.name: qsTr("Companion IP") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -15166,7 +15311,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: filterDeviceTextField
-                            Accessible.name: qsTr("Manual Device:")
+                            Accessible.name: qsTr("Manual Device:") + " " + displayText
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.filter_device
@@ -15255,7 +15400,7 @@ import AndroidStatusBar 1.0
                             onAccepted: { settings.watt_offset = value; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Watt Offset")
+                            Accessible.name: qsTr("Watt Offset") + ": " + text
                         }
                         Button {
                             id: okwattOffsetButton
@@ -15300,7 +15445,7 @@ import AndroidStatusBar 1.0
                             onAccepted: { settings.watt_gain = value; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Watt Gain")
+                            Accessible.name: qsTr("Watt Gain") + ": " + text
                         }
                         Button {
                             id: okWattGainButton
@@ -15337,7 +15482,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: wattMaxTextField
-                            Accessible.name: qsTr("Max Watt:")
+                            Accessible.name: qsTr("Max Watt:") + " " + text
                             savedText: settings.watt_max
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -15387,7 +15532,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.speed_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Speed Offset")
+                            Accessible.name: qsTr("Speed Offset") + ": " + text
                         }
                         Button {
                             id: okspeedOffsetButton
@@ -15433,7 +15578,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.speed_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Speed Gain")
+                            Accessible.name: qsTr("Speed Gain") + ": " + text
                         }
                         Button {
                             id: okSpeedGainButton
@@ -15479,7 +15624,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.cadence_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Cadence Offset")
+                            Accessible.name: qsTr("Cadence Offset") + ": " + text
                         }
                         Button {
                             id: okcadenceOffsetButton
@@ -15524,7 +15669,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.cadence_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Cadence Gain")
+                            Accessible.name: qsTr("Cadence Gain") + ": " + text
                         }
                         Button {
                             id: okCadenceGainButton
@@ -15578,7 +15723,7 @@ import AndroidStatusBar 1.0
                              }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Strava Upload")
+                            Accessible.name: qsTr("Strava Upload") + ": " + displayText
                         }
                         Button {
                             text: qsTr("OK")
@@ -15607,7 +15752,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.strava_suffix = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Suffix activity")
+                            Accessible.name: qsTr("Suffix activity") + ": " + text
                         }
                         Button {
                             id: okStravaSuffixButton
@@ -15835,7 +15980,7 @@ import AndroidStatusBar 1.0
                                 }
                             }
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Power Averaging Mode")
+                            Accessible.name: qsTr("Power Averaging Mode") + ": " + displayText
                         }
                     }
 
@@ -15930,7 +16075,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.zwift_inclination_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Zwift Inclination Offset")
+                            Accessible.name: qsTr("Zwift Inclination Offset") + ": " + text
                         }
                         Button {
                             id: okTreadmillInclinationOffsetButton
@@ -15975,7 +16120,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.zwift_inclination_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Zwift Inclination Gain")
+                            Accessible.name: qsTr("Zwift Inclination Gain") + ": " + text
                         }
                         Button {
                             id: okTreadmillInclinationGainButton
@@ -16020,7 +16165,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.min_inclination = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Minimum Inclination")
+                            Accessible.name: qsTr("Minimum Inclination") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -16064,7 +16209,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.treadmill_step_incline = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Inclination Step")
+                            Accessible.name: qsTr("Inclination Step") + ": " + text
                         }
                         Button {
                             id: okInclinationStepButton
@@ -16193,7 +16338,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.autolap_distance = (settings.miles_unit?value * 1.60934:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("AutoLap on Distance")
+                            Accessible.name: qsTr("AutoLap on Distance") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -16236,7 +16381,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.inclination_delay_seconds = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             Accessible.role: Accessible.EditableText
-                            Accessible.name: qsTr("Inclination Delay")
+                            Accessible.name: qsTr("Inclination Delay") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -16360,7 +16505,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 ValueComboBox {
                                     id: cadenceSensorNameTextField
-                                    Accessible.name: qsTr("Cadence Sensor:")
+                                    Accessible.name: qsTr("Cadence Sensor:") + " " + displayText
                                     model: rootItem.bluetoothDevices
                                     labels: ({ "Disabled": qsTr("Disabled") })
                                     savedText: settings.cadence_sensor_name
@@ -16420,7 +16565,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.cadence_sensor_speed_ratio = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Wheel Ratio")
+                                    Accessible.name: qsTr("Wheel Ratio") + ": " + text
                                 }
                                 Button {
                                     id: okCadenceSpeedRatio
@@ -16520,7 +16665,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.cscbike_custom_resistance_level_1 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Resistance Level 1")
+                                    Accessible.name: qsTr("Resistance Level 1") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -16549,7 +16694,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.cscbike_custom_watt_1 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Watt 1")
+                                    Accessible.name: qsTr("Watt 1") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -16578,7 +16723,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.cscbike_custom_resistance_level_2 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Resistance Level 2")
+                                    Accessible.name: qsTr("Resistance Level 2") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -16607,7 +16752,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.cscbike_custom_watt_2 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Watt 2")
+                                    Accessible.name: qsTr("Watt 2") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -16824,7 +16969,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 SettingsNumberField {
                                     id: powerSensorSpeedCorrectionThresholdTextField
-                                    Accessible.name: qsTr("Power sensor speed correction threshold (%):")
+                                    Accessible.name: qsTr("Power sensor speed correction threshold (%):") + " " + text
                                     minimum: 0
                                     maximum: 100
                                     savedText: settings.power_sensor_speed_correction_threshold
@@ -16948,7 +17093,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 SettingsNumberField {
                                     id: powerSensorSpeedInclinationCoeffATextField
-                                    Accessible.name: qsTr("Power Sensor Speed/Incline Coefficient A:")
+                                    Accessible.name: qsTr("Power Sensor Speed/Incline Coefficient A:") + " " + text
                                     signed: true
                                     savedText: settings.power_sensor_speed_inclination_coeff_a
                                     horizontalAlignment: Text.AlignRight
@@ -16973,7 +17118,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 SettingsNumberField {
                                     id: powerSensorSpeedInclinationCoeffBTextField
-                                    Accessible.name: qsTr("Power Sensor Speed/Incline Coefficient B:")
+                                    Accessible.name: qsTr("Power Sensor Speed/Incline Coefficient B:") + " " + text
                                     signed: true
                                     savedText: settings.power_sensor_speed_inclination_coeff_b
                                     horizontalAlignment: Text.AlignRight
@@ -17013,7 +17158,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 ValueComboBox {
                                     id: powerSensorNameTextField
-                                    Accessible.name: qsTr("Power Sensor:")
+                                    Accessible.name: qsTr("Power Sensor:") + " " + displayText
                                     model: rootItem.bluetoothDevices
                                     labels: ({ "Disabled": qsTr("Disabled") })
                                     savedText: settings.power_sensor_name
@@ -17082,7 +17227,7 @@ import AndroidStatusBar 1.0
                                         spacing: 10
                                         ValueComboBox {
                                             id: eliteRizerNameTextField
-                                            Accessible.name: labelEliteRizerName.text
+                                            Accessible.name: labelEliteRizerName.text + " " + displayText
                                             model: rootItem.bluetoothDevices
                                             labels: ({ "Disabled": qsTr("Disabled") })
                                             savedText: settings.elite_rizer_name
@@ -17127,7 +17272,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: settings.elite_rizer_gain = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Difficulty/Gain")
+                                            Accessible.name: qsTr("Difficulty/Gain") + ": " + text
                                         }
                                         Button {
                                             id: okEliteRizerGainButton
@@ -17158,7 +17303,7 @@ import AndroidStatusBar 1.0
                                         spacing: 10
                                         ValueComboBox {
                                             id: eliteSterzoSmartNameTextField
-                                            Accessible.name: labelEliteSterzoSmartName.text
+                                            Accessible.name: labelEliteSterzoSmartName.text + " " + displayText
                                             model: rootItem.bluetoothDevices
                                             labels: ({ "Disabled": qsTr("Disabled") })
                                             savedText: settings.elite_sterzo_smart_name
@@ -17208,7 +17353,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 ValueComboBox {
                                     id: ftmsAccessoryNameTextField
-                                    Accessible.name: qsTr("SmartSpin2k device:")
+                                    Accessible.name: qsTr("SmartSpin2k device:") + " " + displayText
                                     model: rootItem.bluetoothDevices
                                     labels: ({ "Disabled": qsTr("Disabled") })
                                     savedText: settings.ftms_accessory_name
@@ -17269,7 +17414,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.ss2k_shift_step = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Shift Step")
+                                    Accessible.name: qsTr("Shift Step") + ": " + text
                                 }
                                 Button {
                                     id: okSS2kShiftStep
@@ -17299,7 +17444,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.ss2k_max_resistance = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Max Resistance")
+                                    Accessible.name: qsTr("Max Resistance") + ": " + text
                                 }
                                 Button {
                                     id: okSS2kMaxResistance
@@ -17329,7 +17474,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.ss2k_min_resistance = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Min Resistance")
+                                    Accessible.name: qsTr("Min Resistance") + ": " + text
                                 }
                                 Button {
                                     id: okSS2kMinResistance
@@ -17368,7 +17513,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_resistance_sample_1 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Resistance Sample 1")
+                                            Accessible.name: qsTr("Resistance Sample 1") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kResistanceSample1
@@ -17397,7 +17542,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_shift_step_sample_1 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Shift Step Sample 1")
+                                            Accessible.name: qsTr("Shift Step Sample 1") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample1
@@ -17427,7 +17572,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_resistance_sample_2 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Resistance Sample 2")
+                                            Accessible.name: qsTr("Resistance Sample 2") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kResistanceSample2
@@ -17456,7 +17601,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_shift_step_sample_2 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Shift Step Sample 2")
+                                            Accessible.name: qsTr("Shift Step Sample 2") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample2
@@ -17486,7 +17631,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_resistance_sample_3 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Resistance Sample 3")
+                                            Accessible.name: qsTr("Resistance Sample 3") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kResistanceSample3
@@ -17515,7 +17660,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_shift_step_sample_3 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Shift Step Sample 3")
+                                            Accessible.name: qsTr("Shift Step Sample 3") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample3
@@ -17545,7 +17690,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_resistance_sample_4 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Resistance Sample 4")
+                                            Accessible.name: qsTr("Resistance Sample 4") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kResistanceSample4
@@ -17574,7 +17719,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_shift_step_sample_4 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Shift Step Sample 4")
+                                            Accessible.name: qsTr("Shift Step Sample 4") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample4
@@ -17635,7 +17780,7 @@ import AndroidStatusBar 1.0
                                     }
 
                                     Accessible.role: Accessible.ComboBox
-                                    Accessible.name: qsTr("Mode")
+                                    Accessible.name: qsTr("Mode") + ": " + displayText
                                 }
                                 Button {
                                     id: okFitmetriaFanFitModeTextField
@@ -17667,7 +17812,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.fitmetria_fanfit_min = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Min. value (0-100)")
+                                    Accessible.name: qsTr("Min. value (0-100)") + ": " + text
                                 }
                                 Button {
                                     id: okFitmetriaFanFitMin
@@ -17699,7 +17844,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.fitmetria_fanfit_max = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Max value (0-100)")
+                                    Accessible.name: qsTr("Max value (0-100)") + ": " + text
                                 }
                                 Button {
                                     id: okFitmetriaFanFitMax
@@ -17755,7 +17900,7 @@ import AndroidStatusBar 1.0
                                     }
 
                                     Accessible.role: Accessible.ComboBox
-                                    Accessible.name: qsTr("Mode")
+                                    Accessible.name: qsTr("Mode") + ": " + displayText
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -17785,7 +17930,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.fitmetria_fanfit_min = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Min. value (0-100)")
+                                    Accessible.name: qsTr("Min. value (0-100)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -17815,7 +17960,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.fitmetria_fanfit_max = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Max value (0-100)")
+                                    Accessible.name: qsTr("Max value (0-100)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -17870,7 +18015,7 @@ import AndroidStatusBar 1.0
                                     }
 
                                     Accessible.role: Accessible.ComboBox
-                                    Accessible.name: qsTr("Mode")
+                                    Accessible.name: qsTr("Mode") + ": " + displayText
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -17900,7 +18045,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.fitmetria_fanfit_min = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Min. value (0-100)")
+                                    Accessible.name: qsTr("Min. value (0-100)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -17930,7 +18075,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.fitmetria_fanfit_max = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Max value (0-100)")
+                                    Accessible.name: qsTr("Max value (0-100)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -18265,7 +18410,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Left Shifter Up (LS1):")
+                                    Accessible.name: qsTr("Left Shifter Up (LS1):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_ls1
                                     onActivated: settings.zwiftplay_gear_ls1 = currentIndex
@@ -18279,7 +18424,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Left Shifter Down (LS2):")
+                                    Accessible.name: qsTr("Left Shifter Down (LS2):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_ls2
                                     onActivated: settings.zwiftplay_gear_ls2 = currentIndex
@@ -18293,7 +18438,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Right Shifter Up (RS1):")
+                                    Accessible.name: qsTr("Right Shifter Up (RS1):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_rs1
                                     onActivated: settings.zwiftplay_gear_rs1 = currentIndex
@@ -18307,7 +18452,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Right Shifter Down (RS2):")
+                                    Accessible.name: qsTr("Right Shifter Down (RS2):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_rs2
                                     onActivated: settings.zwiftplay_gear_rs2 = currentIndex
@@ -18321,7 +18466,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Left Paddle (ZL):")
+                                    Accessible.name: qsTr("Left Paddle (ZL):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_paddle_left
                                     onActivated: settings.zwiftplay_gear_paddle_left = currentIndex
@@ -18335,7 +18480,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Right Paddle (ZR):")
+                                    Accessible.name: qsTr("Right Paddle (ZR):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_paddle_right
                                     onActivated: settings.zwiftplay_gear_paddle_right = currentIndex
@@ -18349,7 +18494,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Power Up (LB):")
+                                    Accessible.name: qsTr("Power Up (LB):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_lb
                                     onActivated: settings.zwiftplay_gear_lb = currentIndex
@@ -18363,7 +18508,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
-                                    Accessible.name: qsTr("Ride On (RB):")
+                                    Accessible.name: qsTr("Ride On (RB):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_rb
                                     onActivated: settings.zwiftplay_gear_rb = currentIndex
@@ -18389,7 +18534,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) { settings.poll_device_time = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Pool time (ms)")
+                                    Accessible.name: qsTr("Pool time (ms)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -18459,7 +18604,7 @@ import AndroidStatusBar 1.0
                             }
 
                             Accessible.role: Accessible.ComboBox
-                            Accessible.name: qsTr("Maps Type")
+                            Accessible.name: qsTr("Maps Type") + ": " + displayText
                         }
                         Button {
                             id: okMapsType
@@ -19097,7 +19242,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.dircon_id = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Wahoo device ID")
+                                            Accessible.name: qsTr("Wahoo device ID") + ": " + text
                                             Accessible.description: qsTr("Virtual Wahoo device ID. Change if you have multiple QZ instances. Default: 0")
                                         }
                                         Button {
@@ -19144,7 +19289,7 @@ import AndroidStatusBar 1.0
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: if (valid) settings.dircon_server_base_port = value
                                             Accessible.role: Accessible.EditableText
-                                            Accessible.name: qsTr("Wahoo direct connect server port")
+                                            Accessible.name: qsTr("Wahoo direct connect server port") + ": " + text
                                             Accessible.description: qsTr("TCP port for the Wahoo direct connect server. Default: 36866")
                                         }
                                         Button {
@@ -19187,7 +19332,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.mqtt_host = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("MQTT Host")
+                                    Accessible.name: qsTr("MQTT Host") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -19233,7 +19378,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.mqtt_port = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("MQTT Port")
+                                    Accessible.name: qsTr("MQTT Port") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -19276,7 +19421,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.mqtt_username = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Username")
+                                    Accessible.name: qsTr("Username") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -19363,7 +19508,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.mqtt_deviceid = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("Device ID")
+                                    Accessible.name: qsTr("Device ID") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -19418,7 +19563,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.osc_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("OSC IP")
+                                    Accessible.name: qsTr("OSC IP") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -19451,7 +19596,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) { settings.osc_port = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     Accessible.role: Accessible.EditableText
-                                    Accessible.name: qsTr("OSC Port")
+                                    Accessible.name: qsTr("OSC Port") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
@@ -19528,10 +19673,14 @@ import AndroidStatusBar 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Grey)
                         color: Material.backgroundColor
+                        // The Loader of AccordionElement creates the content each time the section opens,
+                        // so the template entries are made from there: the content is a component, its
+                        // id is not reachable from the accordion's own Component.onCompleted
                         accordionContent: ColumnLayout {
                             id: templateSettingsContent
+                            Component.onCompleted: templateSettingsAccordion.createTemplates(templateSettingsContent)
                         }
-                        Component.onCompleted: function() {
+                        function createTemplates(parentItem) {
                             let template_ids = settings.value("template_user_ids", []);
                             console.log("template_ids current val "+template_ids);
                             if (template_ids) {
@@ -19548,12 +19697,13 @@ import AndroidStatusBar 1.0
                                         if (component) {
                                             let key_enabled = "template_" + template_id + "_enabled";
                                             console.log("Creating component object for id "+template_id);
-                                            let template_object = component.createObject(null,
+                                            // parentItem owns it, so it is not garbage collected and goes with the section
+                                            let template_object = component.createObject(parentItem,
                                                                                          {
                                                                                              settings: settings,
                                                                                              templateId: template_id
                                                                                          });
-                                            let accordionCheck = accordionCheckComponent.createObject(templateSettingsContent,
+                                            let accordionCheck = accordionCheckComponent.createObject(parentItem,
                                                                                                       {
                                                                                                           title: template_id +" (" + template_type +")",
                                                                                                           settings: settings,
