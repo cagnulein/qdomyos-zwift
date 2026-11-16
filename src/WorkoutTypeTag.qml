@@ -46,17 +46,18 @@ Rectangle {
         id: tagText
         anchors.centerIn: parent
         text: workoutSource.toUpperCase()
-        // new look: the source colour darkened (light theme) or as is (dark), contrast >= 4.5:1 on the pill
+        // new look: the source colour darkened (light theme) or as is (dark): contrast >= 4.6:1 on the pill
+        // over the card (surface) of every theme, the lightest - #F3F4F6 of oled light
         color: {
             if (!root.modern)
                 return "white"
             var d = window.ui.dark
             switch (root.sourceKey) {
-                case "PELOTON": return d ? "#FF6B35" : "#AD4924"
-                case "ZWIFT": return d ? "#FF6900" : "#B34A00"
-                case "ERG": return d ? "#8BC34A" : "#53752C"
-                case "QZ": return d ? "#2E9CF4" : "#186CAF"
-                default: return d ? "#939393" : "#696969"
+                case "PELOTON": return d ? "#FF6B35" : "#A74623"
+                case "ZWIFT": return d ? "#FF6900" : "#A64500"
+                case "ERG": return d ? "#8BC34A" : "#50712B"
+                case "QZ": return d ? "#339EF4" : "#1766A6"
+                default: return d ? "#9C9C9C" : "#616161"
             }
         }
         font.pixelSize: root.modern ? window.ui.fontCaption : window.fontPx(10)

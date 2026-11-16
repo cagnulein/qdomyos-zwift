@@ -16,16 +16,6 @@ Page {
     // this page; the classic look keeps them
     readonly property bool modern: window.ui.modern
 
-    function sportIconName(sport) {
-        switch(parseInt(sport)) {
-            case 1: return "directions_run"
-            case 11: return "directions_walk"
-            case 2: return "pedal_bike"
-            case 15: return "rowing"
-            default: return "fitness_center"
-        }
-    }
-
 
     Settings {
         id: settings
@@ -288,7 +278,8 @@ Page {
                     leftPadding: 0
                     rightPadding: 0
                     onClicked: modernImportMenu.openUnder(modernImportButton)
-                    Accessible.name: qsTr("Import FIT File...")
+                    // the button opens the menu of both imports: the name of the classic button, not of an item
+                    Accessible.name: qsTr("Import workouts")
                     // The icon of loading settings from a file in the toolbar: both take a file
                     // from the phone
                     UiIcon {
@@ -791,7 +782,7 @@ Page {
                                     anchors.centerIn: parent
                                     width: 22
                                     height: 22
-                                    name: workoutHistoryPage.sportIconName(sport)
+                                    name: workoutHistoryPage.getSportIconName(sport)
                                     color: window.ui.accent
                                 }
                             }
