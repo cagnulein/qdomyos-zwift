@@ -46,6 +46,7 @@
 #include <QAndroidJniEnvironment>
 #include <QAndroidJniObject>
 #include <QKeyEvent>
+#include <QPointer>
 #include <QQuickItem>
 #include <QQuickWindow>
 #include <QSemaphore>
@@ -1195,6 +1196,8 @@ static void registerOverQt() {
 // The timer is made in main() on the Qt thread; Qt 5.15 runs some accessibility actions on the
 // Android UI thread (unless androidAccessibility::registerOverQt() moved them to the Qt thread),
 // so a show or hide that comes from there starts it through a queued call.
+static void popupsOpened();
+
 static QTimer *accessibilityRefreshTimer() {
     static QTimer *timer = nullptr;
     if (!timer) {
@@ -1202,9 +1205,11 @@ static QTimer *accessibilityRefreshTimer() {
         timer->setSingleShot(true);
         timer->setInterval(0);
         QObject::connect(timer, &QTimer::timeout, [] {
-            if (QAccessible::isActive())
-                QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity",
-                                                          "accessibilityTreeChanged", "()V");
+            if (!QAccessible::isActive())
+                return;
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity",
+                                                      "accessibilityTreeChanged", "()V");
+            popupsOpened();
         });
     }
     return timer;
@@ -1220,12 +1225,105 @@ static bool accessibleIgnored(QObject *object) {
     return false;
 }
 
+// Where TalkBack's focus goes when a modal popup opened: its first object, in TalkBack's order, that
+// TalkBack stops on (focusable, or pressed by a double tap) or that is a text of its own (a title, a
+// question: a text inside a stop is read with it, and the walk does not go into a stop), so a dialog
+// is read from its title, as a dialog of Android is. A popup with nothing to press or focus (a notice)
+// keeps no focus: hasStop false.
+struct PopupFocus {
+    jint first = -1;
+    bool hasStop = false;
+};
+
+static void findPopupFocus(QAccessibleInterface *iface, PopupFocus &found, int depth = 0) {
+    if (!iface || !iface->isValid() || depth > 32)
+        return;
+    const int count = iface->childCount();
+    for (int i = 0; i < count && !found.hasStop; ++i) {
+        QAccessibleInterface *child = iface->child(i);
+        if (!child || !child->isValid())
+            continue;
+        const QQuickItem *item = qobject_cast<QQuickItem *>(child->object());
+        if (item && !item->isVisible())
+            continue;
+        if (child->state().focusable || clickKind(child) != ClickKind::None) {
+            found.hasStop = true;
+            if (found.first == -1)
+                found.first = jint(QAccessible::uniqueId(child));
+        } else if (child->role() == QAccessible::StaticText) {
+            if (found.first == -1 && !child->text(QAccessible::Name).isEmpty())
+                found.first = jint(QAccessible::uniqueId(child));
+        } else {
+            findPopupFocus(child, found, depth + 1);
+        }
+    }
+}
+
+// The items of modal popups shown and not opened yet: QQuickPopup emits opened() once its enter
+// transition finished (qquickpopup.cpp:470-477) - the side menu slid in, the rows of a list made - and
+// that starts the refresh timer, which then moves the focus into them (popupsOpened())
+static QList<QPointer<QObject>> &openingPopupItems() {
+    static QList<QPointer<QObject>> items;
+    return items;
+}
+
+static void popupsOpened() {
+    QList<QPointer<QObject>> &items = openingPopupItems();
+    for (int i = items.size() - 1; i >= 0; --i) {
+        QObject *popupItem = items.at(i);
+        QObject *popup = popupItem ? popupItem->parent() : nullptr;
+        if (popup && !popup->property("opened").toBool())
+            continue;
+        items.removeAt(i);
+        QAccessibleInterface *iface = popupItem ? QAccessible::queryAccessibleInterface(popupItem) : nullptr;
+        if (!iface || !iface->isValid())
+            continue;
+        PopupFocus found;
+        findPopupFocus(iface, found);
+        if (found.hasStop && found.first != -1)
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity",
+                                                      "accessibilityPopupOpened", "(II)V",
+                                                      jint(QAccessible::uniqueId(iface)), found.first);
+    }
+}
+
 static void androidAccessibilityUpdate(QAccessibleEvent *event) {
     if (event->type() != QAccessible::ObjectShow && event->type() != QAccessible::ObjectHide)
         return;
     if (!event->object() || accessibleIgnored(event->object()))
         return;
     QTimer *timer = accessibilityRefreshTimer();
+    // A popup (its item: QQuickPopup shows and hides it, qquickpopup.cpp:441, 484): CustomQtActivity
+    // keeps TalkBack's focus when it shows and gives it back when it hides, and a modal one (a side
+    // menu, a dialog) takes the focus once it opened, as TalkBack does with a dialog of Android: else
+    // the focus stays on the button that opened it, under the popup. A popup that is not modal (a
+    // notice) leaves the focus where it is. The key is the item's accessible id, the same for the show
+    // and the hide; the item's QObject parent is its popup (qquickpopupitem.cpp:164). Its opened() is
+    // connected to the refresh timer by name: QQuickPopup's header is private to Qt.
+    if (event->object()->inherits("QQuickPopupItem") && event->accessibleInterface()) {
+        QObject *popupItem = event->object();
+        const jint key = jint(QAccessible::uniqueId(event->accessibleInterface()));
+        if (event->type() == QAccessible::ObjectShow) {
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity",
+                                                      "accessibilityPopupShown", "(I)V", key);
+            QObject *popup = popupItem->parent();
+            if (popup && popup->property("modal").toBool() && QThread::currentThread() == timer->thread()) {
+                const QMetaObject *meta = popup->metaObject();
+                const int opened = meta->indexOfSignal("opened()");
+                const int start = timer->metaObject()->indexOfSlot("start()");
+                if (opened >= 0 && start >= 0) {
+                    if (!openingPopupItems().contains(popupItem))
+                        openingPopupItems().append(popupItem);
+                    QObject::connect(popup, meta->method(opened), timer, timer->metaObject()->method(start),
+                                     Qt::UniqueConnection);
+                }
+            }
+        } else {
+            openingPopupItems().removeAll(popupItem);
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity",
+                                                      "accessibilityPopupHidden", "(I)V", key);
+        }
+    }
     if (QThread::currentThread() == timer->thread())
         timer->start();
     else
