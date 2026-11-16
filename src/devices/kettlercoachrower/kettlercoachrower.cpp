@@ -319,7 +319,7 @@ void kettlercoachrower::processTelemetry(const QByteArray &payload) {
     // 2026-11-16 Coach S hardware log: +18..19 follows rowing effort
     // (80..210) and returns to zero on rest. Candidate instantaneous watts;
     // console comparison is still needed to confirm the engineering unit.
-    currentWatts = be16(payload, 18);
+    currentWatts = kettlerclassicprotocol::coachSCandidateWatts(payload);
     m_watt = currentWatts;
     if (strokes >= lastStrokes) {
         if (strokes > lastStrokes) {
