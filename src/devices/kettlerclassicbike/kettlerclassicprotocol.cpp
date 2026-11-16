@@ -57,6 +57,16 @@ bool isValidCoachSHandshake(const QByteArray &payload) {
     return payload.size() == 18 && coachSHandshakeForSalt(payload.left(2)) == payload;
 }
 
+quint16 coachSCandidateWatts(const QByteArray &telemetryPayload) {
+    if (telemetryPayload.size() != 24 ||
+        static_cast<quint8>(telemetryPayload.at(0)) != 0x00 ||
+        static_cast<quint8>(telemetryPayload.at(1)) != 0x04) {
+        return 0;
+    }
+    return (static_cast<quint16>(static_cast<quint8>(telemetryPayload.at(18))) << 8) |
+           static_cast<quint8>(telemetryPayload.at(19));
+}
+
 quint16 crc16(const QByteArray &data) {
     quint16 crc = 0;
     for (const char byte : data) {
