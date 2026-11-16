@@ -3066,6 +3066,22 @@ This may take a few moments on first startup.</source>
         <translation>连续 %1 天</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>日历</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>这一天没有训练</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>还没有训练</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>已完成的训练会显示在这里：打开任意一项即可查看图表。</translation>
+    </message>
+    <message>
         <source>Personal best: %1 days</source>
         <translation>个人最佳：%1 天</translation>
     </message>

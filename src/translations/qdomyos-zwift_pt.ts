@@ -3066,6 +3066,22 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <translation>Sequência de %1 dia</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Calendário</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Sem treinos neste dia</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Ainda sem treinos</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Os treinos concluídos aparecem aqui: abra um para ver os gráficos.</translation>
+    </message>
+    <message>
         <source>Personal best: %1 days</source>
         <translation>Recorde pessoal: %1 dias</translation>
     </message>

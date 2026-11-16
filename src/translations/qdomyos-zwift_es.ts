@@ -3066,6 +3066,22 @@ Esto puede tardar un poco en el primer inicio.</translation>
         <translation>Racha de %1 día</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Calendario</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>No hay entrenamientos este día</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Aún no hay entrenamientos</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Los entrenamientos terminados aparecen aquí: abre uno para ver sus gráficos.</translation>
+    </message>
+    <message>
         <source>Personal best: %1 days</source>
         <translation>Mejor marca: %1 días</translation>
     </message>

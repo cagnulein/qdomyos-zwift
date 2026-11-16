@@ -3046,6 +3046,22 @@ This may take a few moments on first startup.</source>
         <translation>Серія: %1 дн.</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Календар</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Цього дня тренувань немає</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Тренувань поки немає</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Тут з’являться завершені тренування: відкрийте будь-яке, щоб переглянути графіки.</translation>
+    </message>
+    <message>
         <source>Personal best: %1 days</source>
         <translation>Рекорд: %1 дн.</translation>
     </message>

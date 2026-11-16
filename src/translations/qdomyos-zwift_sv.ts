@@ -3086,6 +3086,10 @@ Det kan ta en stund vid första starten.</translation>
         <translation>Filtrera efter datum</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Kalender</translation>
+    </message>
+    <message>
         <source>Import workouts</source>
         <translation>Importera träningspass</translation>
     </message>
@@ -3104,6 +3108,18 @@ Det kan ta en stund vid första starten.</translation>
     <message>
         <source>Copying workout files: %1 of %2</source>
         <translation>Kopierar träningsfiler: %1 av %2</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Inga träningspass den här dagen</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Inga träningspass ännu</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Avslutade träningspass visas här: öppna ett om du vill se diagrammen.</translation>
     </message>
     <message>
         <source>Open on Peloton</source>

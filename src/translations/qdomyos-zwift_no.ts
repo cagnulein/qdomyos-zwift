@@ -3086,6 +3086,10 @@ Dette kan ta litt tid ved første oppstart.</translation>
         <translation>Filtrer etter dato</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Kalender</translation>
+    </message>
+    <message>
         <source>Import workouts</source>
         <translation>Importer treningsøkter</translation>
     </message>
@@ -3104,6 +3108,18 @@ Dette kan ta litt tid ved første oppstart.</translation>
     <message>
         <source>Copying workout files: %1 of %2</source>
         <translation>Kopierer treningsfiler: %1 av %2</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Ingen treningsøkter denne dagen</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Ingen treningsøkter ennå</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Fullførte treningsøkter vises her. Åpne en av dem for å se diagrammene.</translation>
     </message>
     <message>
         <source>Open on Peloton</source>
