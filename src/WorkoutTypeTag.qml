@@ -6,14 +6,28 @@ Rectangle {
     
     property string workoutSource: "QZ"
     property alias text: tagText.text
+    // new look: a tonal pill in the source colour (notes/modern-ui-style-guide.md)
+    readonly property bool modern: window.ui.modern
+    readonly property string sourceKey: workoutSource.toUpperCase()
     
     // Auto-size based on text
     width: tagText.implicitWidth + 16
-    height: window.textScale !== 1 ? Math.max(24, tagText.implicitHeight + 8) : 24
+    height: modern || window.textScale !== 1 ? Math.max(24, tagText.implicitHeight + 8) : 24
     radius: height / 2
     
     // Color scheme based on workout source
     color: {
+        if (modern) {
+            // the source colour at 16 % (#29 = 0.16 * 255)
+            switch (sourceKey) {
+                case "PELOTON": return "#29ff6b35"
+                case "ZWIFT": return "#29ff6900"
+                case "ERG": return "#298bc34a"
+                case "QZ": return "#292196f3"
+                case "MANUAL": return "#29757575"
+                default: return "#299e9e9e"
+            }
+        }
         switch(workoutSource.toUpperCase()) {
             case "PELOTON": return "#ff6b35"
             case "ZWIFT": return "#ff6900" 
@@ -26,16 +40,28 @@ Rectangle {
     
     // Subtle border for better definition
     border.color: Qt.darker(color, 1.2)
-    border.width: 1
+    border.width: modern ? 0 : 1
     
     Text {
         id: tagText
         anchors.centerIn: parent
         text: workoutSource.toUpperCase()
-        color: "white"
-        font.pixelSize: window.fontPx(10)
-        font.bold: true
-        font.family: "Arial"
+        // new look: the source colour darkened (light theme) or as is (dark), contrast >= 4.5:1 on the pill
+        color: {
+            if (!root.modern)
+                return "white"
+            var d = window.ui.dark
+            switch (root.sourceKey) {
+                case "PELOTON": return d ? "#FF6B35" : "#AD4924"
+                case "ZWIFT": return d ? "#FF6900" : "#B34A00"
+                case "ERG": return d ? "#8BC34A" : "#53752C"
+                case "QZ": return d ? "#2E9CF4" : "#186CAF"
+                default: return d ? "#939393" : "#696969"
+            }
+        }
+        font.pixelSize: root.modern ? window.ui.fontCaption : window.fontPx(10)
+        font.weight: root.modern ? Font.DemiBold : Font.Bold
+        font.family: root.modern ? Qt.application.font.family : "Arial"
     }
     
     // Subtle shadow effect
@@ -46,6 +72,7 @@ Rectangle {
         radius: parent.radius
         color: "#20000000"
         z: -1
+        visible: !root.modern
     }
     
     // Hover effect for interactivity feedback

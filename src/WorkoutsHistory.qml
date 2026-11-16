@@ -163,7 +163,8 @@ Page {
                     // elided text, and measuring by it would loop
                     width: Math.min(implicitWidth, parent.width)
                     implicitWidth: 24 + 2 * 18 + 2 * filterChipRow.spacing + filterChipText.implicitWidth
-                    height: 32
+                    // 32 as an M3 chip, taller with a bigger text
+                    height: Math.max(32, filterChipText.implicitHeight + 12)
                     onClicked: workoutModel.clearDateFilter()
                     background: Rectangle {
                         radius: 16
@@ -200,7 +201,8 @@ Page {
                                     var f = d.getFullYear() === new Date().getFullYear() ? "ddd, d MMM" : "ddd, d MMM yyyy"
                                     return d.toLocaleDateString(Qt.locale(), f)
                                 }
-                                font.pixelSize: window.ui.fontCaption
+                                // chips: fontLabel (notes/modern-ui-style-guide.md)
+                                font.pixelSize: window.ui.fontLabel
                                 font.weight: Font.DemiBold
                                 color: window.ui.accent
                                 elide: Text.ElideRight
@@ -223,7 +225,7 @@ Page {
                     // The height of the filter chip in the same place: switching between them
                     // keeps the header still
                     width: streakChipRow.implicitWidth + 24
-                    height: 32
+                    height: Math.max(32, streakChipRow.implicitHeight + 12)
                     radius: 16
                     color: window.ui.alpha(window.ui.accent, 0.16)
 
@@ -241,7 +243,7 @@ Page {
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
                             text: (modernHeader.streak !== 1 ? qsTr("%1 days streak") : qsTr("%1 day streak")).arg(modernHeader.streak)
-                            font.pixelSize: window.ui.fontCaption
+                            font.pixelSize: window.ui.fontLabel
                             font.weight: Font.DemiBold
                             color: window.ui.accent
                         }
@@ -501,7 +503,7 @@ Page {
             Layout.topMargin: importProgress.visible ? -parent.spacing : 0
             Layout.bottomMargin: streakBanner.visible ? streakBanner.height + 10 : 10
             model: workoutModel
-            // Modern look: the gap between cards is only the card's own margins (2 x 6 = 12 px)
+            // Modern look: the gap between cards is only the card's own margins (2 x 4 = 8)
             spacing: workoutHistoryPage.modern ? 0 : 8
             clip: true
             // Modern look: a thin bar while the list moves, as in the other lists of the modern look; the
@@ -571,9 +573,11 @@ Page {
                 // inside it, which cannot be pressed, and the workout cannot be opened
                 Accessible.name: title + ", " + date + ", " + duration
                 width: parent.width
-                // Modern look: three lines (the calories join the stats), the card is 92 px high.
+                // Modern look: three lines (the calories join the stats), a list item of three lines:
+                // the card at least 88 high, growing with a bigger text (the lines + 8 above and
+                // below), and the gap of 8 between the cards.
                 // Classic with a bigger text: the card grows with its lines (margins 8 + 12 on each side)
-                height: workoutHistoryPage.modern ? 104
+                height: workoutHistoryPage.modern ? Math.max(88, workoutInfo.implicitHeight + 16) + 8
                     : window.textScale !== 1 ? Math.max(135, workoutInfo.implicitHeight + 40) : 135
 
                 Component.onCompleted: {
@@ -639,9 +643,10 @@ Page {
                 Rectangle {
                     id: rowCard
                     anchors.fill: parent
-                    anchors.margins: workoutHistoryPage.modern ? 6 : 8
-                    anchors.leftMargin: window.contentSideMargin
-                    anchors.rightMargin: window.contentSideMargin
+                    anchors.margins: workoutHistoryPage.modern ? 4 : 8
+                    // Modern look: the page margin of the header, so the column has one edge
+                    anchors.leftMargin: workoutHistoryPage.modern ? Math.max(16, window.contentSideMargin) : window.contentSideMargin
+                    anchors.rightMargin: workoutHistoryPage.modern ? Math.max(16, window.contentSideMargin) : window.contentSideMargin
                     radius: workoutHistoryPage.modern ? 16 : 10
                     // Modern look: the workout of the open long press card is tinted with the accent
                     color: !workoutHistoryPage.modern ? "white"
@@ -654,7 +659,7 @@ Page {
                     WorkoutTypeTag {
                         anchors.right: parent.right
                         anchors.top: parent.top
-                        anchors.margins: 12
+                        anchors.margins: workoutHistoryPage.modern ? 16 : 12
                         workoutSource: workoutModel ? workoutModel.getWorkoutSource(model.id) : "QZ"
                     }
 
@@ -664,13 +669,18 @@ Page {
                         anchors.right: parent.right
                         anchors.bottom: parent.bottom
                         anchors.margins: 12
+                        // Modern look: 48 x 48 to touch, the pill 36 high inside (the inset of 6 of
+                        // a Material Button above and below, as the UiButton of the header), the
+                        // target 16 from the right edge of the card and 4 from its bottom
+                        anchors.rightMargin: workoutHistoryPage.modern ? 16 : 12
+                        anchors.bottomMargin: workoutHistoryPage.modern ? 4 : 12
                         spacing: 8
-                        
+
                         // Peloton URL button
                         Button {
                             Accessible.name: qsTr("Open on Peloton")
-                            width: workoutHistoryPage.modern ? 36 : 40
-                            height: workoutHistoryPage.modern ? 36 : 45
+                            width: workoutHistoryPage.modern ? 48 : 40
+                            height: workoutHistoryPage.modern ? 48 : 45
                             visible: workoutModel && workoutModel.getWorkoutSource(model.id) === "PELOTON" && 
                                     workoutModel.getPelotonUrl(model.id) !== ""
                             
@@ -708,8 +718,8 @@ Page {
                         // Training Program button
                         Button {
                             Accessible.name: qsTr("Load training program")
-                            width: workoutHistoryPage.modern ? 36 : 40
-                            height: workoutHistoryPage.modern ? 36 : 45
+                            width: workoutHistoryPage.modern ? 48 : 40
+                            height: workoutHistoryPage.modern ? 48 : 45
                             visible: workoutModel && workoutModel.hasTrainingProgram(model.id)
                             
                             background: Rectangle {
@@ -760,6 +770,12 @@ Page {
                     RowLayout {
                         anchors.fill: parent
                         anchors.margins: 12
+                        // Modern look: the icon 16 from the card edge, the lines centred in a card
+                        // that leaves them 8 above and below at least
+                        anchors.leftMargin: workoutHistoryPage.modern ? 16 : 12
+                        anchors.rightMargin: workoutHistoryPage.modern ? 16 : 12
+                        anchors.topMargin: workoutHistoryPage.modern ? 8 : 12
+                        anchors.bottomMargin: workoutHistoryPage.modern ? 8 : 12
                         spacing: 16
 
                         // Sport icon
@@ -767,14 +783,14 @@ Page {
                             Layout.alignment: Qt.AlignVCenter
                             Rectangle {
                                 visible: workoutHistoryPage.modern
-                                width: 44
-                                height: 44
-                                radius: 22
+                                width: 40
+                                height: 40
+                                radius: 20
                                 color: window.ui.surfaceHighest
                                 UiIcon {
                                     anchors.centerIn: parent
-                                    width: 24
-                                    height: 24
+                                    width: 22
+                                    height: 22
                                     name: workoutHistoryPage.sportIconName(sport)
                                     color: window.ui.accent
                                 }
@@ -804,15 +820,17 @@ Page {
                             Rectangle {
                                 Layout.fillWidth: true
                                 Layout.rightMargin: window.fontPx(80) // Reserve space for tag
-                                Layout.preferredHeight: window.textScale !== 1 ? Math.max(24, titleText.implicitHeight) : 24
+                                Layout.preferredHeight: workoutHistoryPage.modern ? titleText.implicitHeight
+                                    : window.textScale !== 1 ? Math.max(24, titleText.implicitHeight) : 24
                                 clip: true
                                 color: "transparent"
                                 
                                 Text {
                                     id: titleText
                                     text: title
-                                    font.bold: true
-                                    font.pixelSize: window.fontPx(18)
+                                    // Modern look: the first line of a list item (fontBody, DemiBold)
+                                    font.weight: workoutHistoryPage.modern ? Font.DemiBold : Font.Bold
+                                    font.pixelSize: workoutHistoryPage.modern ? window.ui.fontBody : window.fontPx(18)
                                     color: window.ui.ink("black")
                                     anchors.verticalCenter: parent.verticalCenter
                                     
@@ -862,7 +880,8 @@ Page {
 
                             Text {
                                 // a plain Text does not inherit the window font: the text size while it is not 100 %
-                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                // (modern look: the second line of a list item, fontCaption, scaled already)
+                                Binding on font.pixelSize { when: workoutHistoryPage.modern || window.scaledFontPx > 0; value: workoutHistoryPage.modern ? window.ui.fontCaption : window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                 text: date
                                 color: workoutHistoryPage.modern ? window.ui.textMuted : "#666666"
                             }
@@ -870,7 +889,7 @@ Page {
                             // Modern look: one stats line, the calories included; it stops short
                             // of the action buttons in the bottom-right corner when they are shown
                             Text {
-                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                font.pixelSize: window.ui.fontCaption
                                 visible: workoutHistoryPage.modern
                                 Layout.fillWidth: true
                                 Layout.rightMargin: actionRow.width > 0 ? actionRow.width + 8 : 0
@@ -881,7 +900,7 @@ Page {
                                     return duration + " · " + displayDistance.toFixed(2) + " " + (useMiles ? qsTr("mi") : qsTr("km"))
                                            + " · " + Math.round(calories) + " " + qsTr("kcal")
                                 }
-                                color: window.ui.textMain
+                                color: window.ui.textMuted
                             }
 
                             // Stats row; with a bigger text one under the other, clear of the action
@@ -1211,8 +1230,9 @@ Page {
                     Accessible.name: modelData.label
                     Accessible.onPressAction: modernUploadMenu.run(modelData.action)
                     background: Rectangle {
-                        radius: 10
-                        color: modernUploadItem.down ? window.ui.surfaceHigh : "transparent"
+                        // a menu item pressed: radius 12, the state layer of the text colour (10 %)
+                        radius: 12
+                        color: modernUploadItem.down ? window.ui.alpha(window.ui.textMain, 0.10) : "transparent"
                     }
                     contentItem: Item {
                         // the share icon is not in the icon font: drawn as the one of the toolbar,
