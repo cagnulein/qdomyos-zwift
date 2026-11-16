@@ -11061,7 +11061,7 @@ static int stravaTreadmillTagRetryDelayMs(int attempt, const QNetworkReply *repl
     bool valid = false;
     const int retryAfterSeconds = reply->rawHeader("Retry-After").toInt(&valid);
     if (valid && retryAfterSeconds > 0)
-        return qMax(backoff, qMin(60000, retryAfterSeconds * 1000));
+        return qMax(backoff, qMin(60, retryAfterSeconds) * 1000);
     return backoff;
 }
 
@@ -11100,7 +11100,7 @@ void homeform::stravaPollUploadForTreadmillTag(const QString &uploadId, int atte
 
         qDebug() << "Strava experimental treadmill tag: GET upload response"
                  << uploadId << "attempt" << (attempt + 1) << "HTTP" << httpCode
-                 << "network error" << networkError << "body" << payload.left(500);
+                 << "network error" << networkError;
 
         if (!requestOk) {
             // A newly created upload can briefly return 404 before it propagates.
@@ -11196,7 +11196,7 @@ void homeform::stravaClearTreadmillTag(const QString &activityId, int attempt) {
 
         qDebug() << "Strava experimental treadmill tag: PUT response"
                  << activityId << "attempt" << (attempt + 1) << "HTTP" << httpCode
-                 << "network error" << networkError << "body" << payload.left(500);
+                 << "network error" << networkError;
 
         bool confirmedClear = false;
         if (requestOk) {
