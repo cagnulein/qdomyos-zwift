@@ -125,22 +125,31 @@ bool KettlerUSB::tryExtendedHandshake() {
 bool KettlerUSB::decodeStatusFrame(const QString &response, StatusFrame &frame) {
     if (response == QStringLiteral("ACK") || response == QStringLiteral("ERROR"))
         return false;
+
     const QStringList fields = response.split('\t', Qt::KeepEmptyParts);
-    if (fields.size() != 8 && fields.size() < 9)
+    if (fields.size() < 8)
         return false;
 
-    const bool legacy = fields.size() == 8;
-    const int timeIndex = legacy ? 6 : 7;
-    const int powerIndex = legacy ? 7 : 8;
+    // The legacy protocol puts time at index 6 (and can append vendor
+    // fields). AX1 moves time to index 7 and current power to index 8.
+    // Detect by the time column, not just the number of columns.
     static const QRegularExpression timeExpression(QStringLiteral("^[0-9]{1,3}:[0-9]{2}$"));
-    if (!timeExpression.match(fields[timeIndex]).hasMatch())
+    const bool legacy = timeExpression.match(fields[6]).hasMatch();
+    const bool extended = fields.size() >= 9 && timeExpression.match(fields[7]).hasMatch();
+    if (legacy == extended)
         return false;
 
-    for (int i = 0; i <= powerIndex; ++i) {
-        if (i == timeIndex)
-            continue;
+    const int powerIndex = legacy ? 7 : 8;
+    // Match the pre-AX1 legacy parser's tolerances: E7 consoles may emit
+    // non-numeric distance (3) or energy (5) while the other fields are valid.
+    // For AX1, validate only the fields required by its existing parser.
+    const int legacyRequired[] = {0, 1, 2, 4, 7};
+    const int extendedRequired[] = {1, 2, 3, 4, 6, 8};
+    const int *required = legacy ? legacyRequired : extendedRequired;
+    const int count = legacy ? 5 : 6;
+    for (int i = 0; i < count; ++i) {
         bool ok = false;
-        fields[i].toDouble(&ok);
+        fields[required[i]].toDouble(&ok);
         if (!ok)
             return false;
     }
