@@ -307,7 +307,7 @@ ScrollView {
                 horizontalAlignment: Text.AlignHCenter
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
-                wrapMode: window.ui.modern ? Text.WordWrap : window.labelWrap
+                wrapMode: Text.WordWrap
             }
             Label {
                 text: qsTr("Resistance")
@@ -315,7 +315,7 @@ ScrollView {
                 horizontalAlignment: Text.AlignHCenter
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
-                wrapMode: window.ui.modern ? Text.WordWrap : window.labelWrap
+                wrapMode: Text.WordWrap
             }
             Item { Layout.preferredWidth: 48 }
         }

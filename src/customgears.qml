@@ -270,7 +270,7 @@ ScrollView {
                         color: "transparent"
 
                         // A number typed but not confirmed is applied first: the -/+ of the modern
-                        // look are MouseAreas, they do not take the focus from the field (T-561)
+                        // look are MouseAreas, they do not take the focus from the field
                         function stepOffset(delta) {
                             if (window.ui.modern)
                                 offsetTextField.applyOffset()
