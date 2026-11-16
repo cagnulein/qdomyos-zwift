@@ -127,6 +127,36 @@ double ftmsbike::applyFsIb50GearGain(resistance_t gearDelta, double gearsGain) {
     return static_cast<double>(gearDelta) * gearsGain;
 }
 
+bool ftmsbike::bhBi9200PhysicalGearDelta(const QString &deviceName, bool enabled,
+                                         resistance_t previousResistance, resistance_t currentResistance,
+                                         qint64 millisecondsSinceControlCommand, resistance_t *delta) {
+    if (!delta)
+        return false;
+    *delta = 0;
+
+    // The matching is intentionally exact: other BH/H9110 and generic FTMS bikes
+    // must retain their existing behavior, even when gears_from_bike is enabled.
+    if (!enabled || deviceName.compare(QStringLiteral("H9110 BI9200"), Qt::CaseInsensitive) != 0)
+        return false;
+
+    // Initial/invalid levels and multi-level jumps are not reliable button events.
+    // The recorded BI9200 handlebar presses are all individual +/-1 changes.
+    if (previousResistance < 1 || currentResistance < 1 ||
+        previousResistance > 32 || currentResistance > 32 ||
+        qAbs(currentResistance - previousResistance) != 1)
+        return false;
+
+    // Zwift's slope, resistance and ERG commands also change the same FTMS value.
+    // Do not treat their immediate telemetry echoes as gear button presses.
+    constexpr qint64 controlEchoGuardMs = 3000;
+    if (millisecondsSinceControlCommand >= 0 &&
+        millisecondsSinceControlCommand < controlEchoGuardMs)
+        return false;
+
+    *delta = currentResistance - previousResistance;
+    return true;
+}
+
 void ftmsbike::writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                    bool wait_for_response) {
     QSettings settings;
@@ -158,10 +188,23 @@ bool ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
         return false;
     }
 
-    return enqueueWrite(gattFTMSService, gattWriteCharControlPointId, data, data_len, info, disable_log,
-                        wait_for_response,
-                        gattWriteCharControlPointId.properties() & QLowEnergyCharacteristic::WriteNoResponse &&
-                            !DOMYOS);
+    const bool queued = enqueueWrite(gattFTMSService, gattWriteCharControlPointId, data, data_len, info,
+                                     disable_log, wait_for_response,
+                                     gattWriteCharControlPointId.properties() & QLowEnergyCharacteristic::WriteNoResponse &&
+                                         !DOMYOS);
+
+    // Keep FTMS control-plane changes separate from physical handlebar shifts,
+    // only for the BI9200 and only when the existing opt-in setting is enabled.
+    if (queued && data_len > 0 &&
+        bluetoothDevice.name().compare(QStringLiteral("H9110 BI9200"), Qt::CaseInsensitive) == 0 &&
+        settings.value(QZSettings::gears_from_bike, QZSettings::default_gears_from_bike).toBool() &&
+        (data[0] == FTMS_SET_TARGET_RESISTANCE_LEVEL ||
+         data[0] == FTMS_SET_TARGET_INCLINATION ||
+         data[0] == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS ||
+         data[0] == FTMS_SET_TARGET_POWER)) {
+        lastBhBi9200ControlCommand = QDateTime::currentDateTime();
+    }
+    return queued;
 }
 
 bool ftmsbike::enqueueWrite(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic, uint8_t *data,
@@ -1690,6 +1733,30 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if (!ensureBytesAvailable(2, QStringLiteral("resistance")))
                 return;
 
+            // Only H9110 BI9200: its physical +/- controls are exposed as native
+            // FTMS resistance levels (0x2ACE), rather than separate button events.
+            // The recorded frames are 81 00 00 01 00 ... 81 00 00 06 00 and back.
+            if (bluetoothDevice.name().compare(QStringLiteral("H9110 BI9200"), Qt::CaseInsensitive) == 0) {
+                const resistance_t nativeLevel = static_cast<resistance_t>(
+                    static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(index))) |
+                    (static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(index + 1))) << 8));
+                const bool enabled = settings.value(QZSettings::gears_from_bike,
+                                                    QZSettings::default_gears_from_bike).toBool();
+                const qint64 sinceControlMs = lastBhBi9200ControlCommand.isValid()
+                    ? lastBhBi9200ControlCommand.msecsTo(now) : -1;
+                resistance_t gearDelta = 0;
+                if (bhBi9200PhysicalGearDelta(bluetoothDevice.name(), enabled, lastBhBi9200Resistance,
+                                              nativeLevel, sinceControlMs, &gearDelta)) {
+                    qDebug() << QStringLiteral("BH BI9200 physical shift")
+                             << lastBhBi9200Resistance << nativeLevel << "delta" << gearDelta;
+                    lastRawRequestedResistanceValue = -1;
+                    setGears(gears() + gearDelta);
+                }
+                // Always consume the sample, including command echoes, to avoid
+                // incorrectly counting a delayed echo on the next notification.
+                lastBhBi9200Resistance = enabled ? nativeLevel : -1;
+            }
+
             if(!TITAN_7000 && !FS_YK && !FS_IB50 && !isManualResistanceBike()) {
                 Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                        (uint16_t)((uint8_t)newValue.at(index))));
@@ -2324,6 +2391,8 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         bluetoothDevice = device;
         lastFsIb50Resistance = -1;
         lastFsIb50InclinationCommand = QDateTime();
+        lastBhBi9200Resistance = -1;
+        lastBhBi9200ControlCommand = QDateTime();
         if (bluetoothDevice.name().toUpper().startsWith("SUITO")) {
             qDebug() << QStringLiteral("SUITO found");
             max_resistance = 16;
