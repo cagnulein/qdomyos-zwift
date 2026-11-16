@@ -22,6 +22,9 @@ QByteArray encodeFrameWithEscapedPayloadLength(quint16 function, quint8 subFunct
 // The Coach S response uses an independently generated salt.
 QByteArray coachSHandshakeForSalt(const QByteArray &salt);
 bool isValidCoachSHandshake(const QByteArray &payload);
+// Experimental Coach S power candidate: E0 payload bytes 18-19, U16 BE.
+// Hardware logs show zero at rest; not yet compared with console watts.
+quint16 coachSCandidateWatts(const QByteArray &telemetryPayload);
 QVector<Frame> consumeFrames(QByteArray &buffer);
 
 } // namespace kettlerclassicprotocol
