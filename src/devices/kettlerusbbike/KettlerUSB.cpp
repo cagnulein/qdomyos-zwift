@@ -273,6 +273,9 @@ void KettlerUSB::run() {
 
     // Open the device
     if (openPort()) {
+        pvars.lock();
+        deviceStatus = 0;
+        pvars.unlock();
         quit(2);
         return;
     } else {
@@ -281,6 +284,9 @@ void KettlerUSB::run() {
 
     // Send initialization sequence
     if (!initSequence()) {
+        pvars.lock();
+        deviceStatus = 0;
+        pvars.unlock();
         closePort();
         quit(2);
         return;
