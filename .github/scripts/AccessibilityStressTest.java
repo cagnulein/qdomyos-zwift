@@ -121,7 +121,7 @@ public class AccessibilityStressTest {
                 long emptySince = 0;
                 boolean shown = false;
                 // The step of the last tap, how many taps in a row before it were on the same step (two
-                // can be normal: "◄" from the settings to home, then "◄" to the menu) and the time of
+                // can be normal: "Back" from the settings to home, then "Main menu") and the time of
                 // the first of them. Once on API 33 Android gave every finger tap for 33 s to the input
                 // sink of the activity (InputDispatcher: "Not sending touch gesture to ...
                 // ActivityRecordInputSink ... because it is not responsive") and not to the window of
@@ -162,8 +162,12 @@ public class AccessibilityStressTest {
                     AccessibilityNodeInfo next = find(nodes, "Tiles Options", true);
                     if (next == null)
                         next = find(nodes, "Settings", false);
+                    // the toolbar button of the classic UI ("◄"): its name is "Main menu" on the
+                    // home page and "Back" on a page above it
                     if (next == null)
-                        next = find(nodes, "◄", true);
+                        next = find(nodes, "Main menu", true);
+                    if (next == null)
+                        next = find(nodes, "Back", true);
                     if (next == null) {
                         Thread.sleep(300);
                         continue;
