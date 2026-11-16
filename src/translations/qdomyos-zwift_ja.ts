@@ -2974,7 +2974,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>ワークアウトファイルを処理しています...
+        <translation type="vanished">ワークアウトファイルを処理しています...
 初回起動時はしばらく時間がかかる場合があります。</translation>
     </message>
     <message>
@@ -3107,7 +3107,7 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>ワークアウトをインポート中...</translation>
+        <translation type="vanished">ワークアウトをインポート中...</translation>
     </message>
     <message>
         <source>Filter by date</source>
@@ -3124,6 +3124,22 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Open on Peloton</source>
         <translation>Pelotonで開く</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>ワークアウトを履歴に追加中</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>ワークアウトファイルをコピー中</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>ワークアウトを履歴に追加中: %1 / %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>ワークアウトファイルをコピー中: %1 / %2</translation>
     </message>
     <message>
         <source>Previous month</source>
@@ -3195,9 +3211,25 @@ This may take a few moments on first startup.</source>
         <source>Offset</source>
         <translation>オフセット</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>ギア %1 のオフセットを下げる</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>ギア %1 のオフセットを上げる</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>%1を下げる</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>%1を上げる</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>傾斜-負荷カスタムテーブルを有効にする</translation>
@@ -3213,6 +3245,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Resistance</source>
         <translation>負荷レベル</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>傾斜度 %1 のポイントを削除</translation>
     </message>
     <message>
         <source>Add Point</source>
@@ -7724,6 +7760,14 @@ IMPORTANT NOTES:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>スマートトレーナーの場合、傾斜ではなく負荷を使用してください。これにより、ギアを変更した際にWahoo Climbや類似の機能が傾斜を変更するのを防ぐことができます。デフォルト: 無効</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>負荷互換性</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>QZで負荷を変更すると、バイクがレベル1または最大値にしか設定されない場合に有効にします。FTMSの負荷値を10倍にして送信します。初期設定：無効。</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>

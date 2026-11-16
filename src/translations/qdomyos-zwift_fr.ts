@@ -2974,7 +2974,7 @@ Les questions suivantes personnaliseront QZ pour votre équipement et vos object
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Traitement des fichiers d&apos;entraînement...
+        <translation type="vanished">Traitement des fichiers d&apos;entraînement...
 Cela peut prendre quelques instants au premier démarrage.</translation>
     </message>
     <message>
@@ -3107,7 +3107,7 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Importation des entraînements...</translation>
+        <translation type="vanished">Importation des entraînements...</translation>
     </message>
     <message>
         <source>Filter by date</source>
@@ -3124,6 +3124,22 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
     <message>
         <source>Open on Peloton</source>
         <translation>Ouvrir dans Peloton</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>Ajout des entraînements à l&apos;historique</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Copie des fichiers d&apos;entraînement</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Ajout des entraînements à l&apos;historique : %1 sur %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Copie des fichiers d&apos;entraînement : %1 sur %2</translation>
     </message>
     <message>
         <source>Previous month</source>
@@ -3195,9 +3211,25 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
         <source>Offset</source>
         <translation>Décalage</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Diminuer le décalage de la vitesse %1</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Augmenter le décalage de la vitesse %1</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Diminuer : %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Augmenter : %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Activer la table personnalisée inclinaison/résistance</translation>
@@ -3213,6 +3245,10 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
     <message>
         <source>Resistance</source>
         <translation>Résistance</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Supprimer le point à l’inclinaison %1</translation>
     </message>
     <message>
         <source>Add Point</source>
@@ -7704,6 +7740,14 @@ NOTES IMPORTANTES :
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>Pour les home trainers connectés, utilisez la résistance au lieu de l&apos;inclinaison. Cela devrait aider si vous ne voulez pas que le Wahoo Climb ou un appareil similaire change l&apos;inclinaison lorsque vous changez de vitesse. Par défaut : désactivé</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>Compatibilité de la résistance</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Activez cette option si le réglage de la résistance dans QZ place le vélo uniquement au niveau 1 ou au maximum. Envoie la résistance FTMS multipliée par 10. Par défaut : désactivé.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>

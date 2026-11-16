@@ -296,6 +296,7 @@ devices/horizontreadmill/horizontreadmill.cpp \
 devices/ypootreadmill/ypootreadmill.cpp \
 devices/iconceptbike/iconceptbike.cpp \
 devices/kettlerclassicbike/kettlerclassicbike.cpp \
+devices/kettlercoachrower/kettlercoachrower.cpp \
 devices/kettlerclassicbike/kettlerclassicprotocol.cpp \
 devices/inspirebike/inspirebike.cpp \
 keepawakehelper.cpp \
@@ -617,6 +618,7 @@ homefitnessbuddy.h \
 devices/horizongr7bike/horizongr7bike.h \
 devices/iconceptbike/iconceptbike.h \
 devices/kettlerclassicbike/kettlerclassicbike.h \
+devices/kettlercoachrower/kettlercoachrower.h \
 devices/kettlerclassicbike/kettlerclassicprotocol.h \
 devices/keepbike/keepbike.h \
 devices/kingsmithr1protreadmill/kingsmithr1protreadmill.h \

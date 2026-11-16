@@ -496,7 +496,11 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         
         if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28 || USDC_D700 || FS_YK || TUNTURI_E50_168 || VIFHTR ||
            INCONDI_S150I || FS_SB_RCR || HS_5000L || DRUMFIT ||
-           uses16BitResistanceForDevice(bluetoothDevice.name())) {
+           uses16BitResistanceForDevice(bluetoothDevice.name()) ||
+           (settings.value(QZSettings::force_resistance_instead_inclination,
+                           QZSettings::default_force_resistance_instead_inclination).toBool() &&
+            settings.value(QZSettings::resistance_compatibility,
+                           QZSettings::default_resistance_compatibility).toBool())) {
             if (uses16BitResistanceForDevice(bluetoothDevice.name()))
                 matrixLastResistanceCommand = requestResistance;
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};

@@ -32,7 +32,9 @@ import android.view.WindowInsetsController;
 import android.view.DisplayCutout;
 import android.graphics.Insets;
 import org.qtproject.qt5.android.bindings.QtActivity;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -59,6 +61,9 @@ public class CustomQtActivity extends QtActivity {
     private static native void nativeOnDocumentPicked(int requestCode, int resultCode, String localPath);
     // a workout import starts copying: the history page shows that it is running
     private static native void nativeOnFitImportStarted();
+    // a workout import copied done of total files out of the picked folder; 0, 0 when the copy is
+    // over: the history page shows how far it is
+    private static native void nativeOnFitImportProgress(int done, int total);
     // a restore of the QZ folder copied done of total files: the list pages show how far it is
     private static native void nativeOnFolderRestoreProgress(int done, int total);
     // TalkBack put its focus on this accessible object: scroll it into view
@@ -237,10 +242,28 @@ public class CustomQtActivity extends QtActivity {
     // is a View to TalkBack, which lets only a seek bar change its value with a swipe up or down;
     // it is called one, the swipe sends the scroll actions Qt handles, and the new name, which
     // ends with the value, is announced, as Qt 5.15 sends nothing. The rest goes to Qt unchanged.
+    // A popup that closes takes TalkBack's focus with it (a double tap on its Cancel): Qt 5.15.0 neither
+    // tells TalkBack the focused node is gone nor gives the focus back, so the focus falls to the whole
+    // window and the place on the screen is lost. Later Qt clears the focus of a hidden node (qtbase
+    // f6ddb3e921, QTBUG-93393) and moves TalkBack's focus with the keyboard focus (fd20bc2277,
+    // QTBUG-79611); that would not bring it back here: a double tap presses a button with a key event
+    // sent to it (main.cpp, pressWithSpace()), which gives it no keyboard focus, so the focus would go
+    // wherever the keyboard focus is when the popup closes. The node TalkBack had focused when a popup
+    // showed is kept, and once the popup hid, if the focused node went with it, the focus is put back
+    // there (when it is still on the screen), as a dialog of Android does. A modal popup that opens
+    // takes the focus to its first stop, as TalkBack does with a dialog of Android.
     private static final class ScrollToFocusProvider extends AccessibilityNodeProvider {
         private static final long VALUE_ANNOUNCE_DELAY_MS = 150;
+        // Qt never gives an object this id (-1: QAccessibleCache::acquireId skips it,
+        // qaccessiblecache.cpp:89-95)
+        private static final int NO_FOCUS = View.NO_ID;
         private final AccessibilityNodeProvider qt;
         private final View host;
+        // the node with TalkBack's focus, as TalkBack asked for it through this provider
+        private int focusedId = NO_FOCUS;
+        // the focused node when each open popup showed, by the key of the popup (main.cpp,
+        // androidAccessibilityUpdate)
+        private final HashMap<Integer, Integer> popupOpeners = new HashMap<>();
 
         ScrollToFocusProvider(AccessibilityNodeProvider qt, View host) {
             this.qt = qt;
@@ -282,6 +305,11 @@ public class CustomQtActivity extends QtActivity {
                 return pressed;
             }
             boolean handled = qt.performAction(virtualViewId, action, arguments);
+            if (action == AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS) {
+                focusedId = virtualViewId;
+            } else if (action == AccessibilityNodeInfo.ACTION_CLEAR_ACCESSIBILITY_FOCUS && focusedId == virtualViewId) {
+                focusedId = NO_FOCUS;
+            }
             if (action == AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS && virtualViewId != View.NO_ID) {
                 try {
                     nativeScrollToAccessibleObject(virtualViewId);
@@ -310,7 +338,35 @@ public class CustomQtActivity extends QtActivity {
             return qt.createAccessibilityNodeInfo(virtualViewId);
         }
 
+        // A focus move of a popup (into it, back to its opener) waits for the clicked events of the presses
+        // before it (afterClick), so TalkBack says what was pressed first, then where the focus went;
+        // with none waiting it is made at once
+        private int clicksWaiting = 0;
+        private final ArrayList<Runnable> afterClicks = new ArrayList<>();
+
+        private void afterTheClicks(Runnable move) {
+            if (clicksWaiting > 0) {
+                afterClicks.add(move);
+            } else {
+                move.run();
+            }
+        }
+
+        private void clickSent() {
+            if (clicksWaiting > 0) {
+                clicksWaiting--;
+            }
+            if (clicksWaiting == 0) {
+                ArrayList<Runnable> moves = new ArrayList<>(afterClicks);
+                afterClicks.clear();
+                for (Runnable move : moves) {
+                    move.run();
+                }
+            }
+        }
+
         private void afterClick(final int virtualViewId) {
+            clicksWaiting++;
             host.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -331,8 +387,55 @@ public class CustomQtActivity extends QtActivity {
                         node.recycle();
                     }
                     accessibilityTreeChanged();
+                    clickSent();
                 }
             }, VALUE_ANNOUNCE_DELAY_MS);
+        }
+
+        void popupShown(int popup) {
+            popupOpeners.put(popup, focusedId);
+        }
+
+        // A modal popup opened (main.cpp, popupsOpened): the focus to first, its title or its first stop
+        void popupOpened(int popup, final int first) {
+            afterTheClicks(new Runnable() {
+                @Override
+                public void run() {
+                    if (onScreen(first)) {
+                        performAction(first, AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS, null);
+                    }
+                }
+            });
+        }
+
+        void popupHidden(int popup) {
+            final Integer opener = popupOpeners.remove(popup);
+            if (opener == null || opener == NO_FOCUS) {
+                return;
+            }
+            afterTheClicks(new Runnable() {
+                @Override
+                public void run() {
+                    // the focus is on a node still on the screen (outside the popup, or moved there by
+                    // the user meanwhile): left where it is
+                    if (focusedId != NO_FOCUS && onScreen(focusedId)) {
+                        return;
+                    }
+                    if (onScreen(opener)) {
+                        performAction(opener, AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS, null);
+                    }
+                }
+            });
+        }
+
+        private boolean onScreen(int virtualViewId) {
+            AccessibilityNodeInfo node = delayedNode(virtualViewId);
+            if (node == null) {
+                return false;
+            }
+            boolean shown = node.isVisibleToUser();
+            node.recycle();
+            return shown;
         }
 
         private void announceValue(final int virtualViewId) {
@@ -369,6 +472,62 @@ public class CustomQtActivity extends QtActivity {
             @Override
             public void run() {
                 activity.sendAccessibilityTreeChanged();
+            }
+        });
+    }
+
+    // Called by Qt from its own thread when a popup shows, a modal one opened (its enter transition
+    // finished) and a popup hides (ScrollToFocusProvider: TalkBack's focus moved into a modal popup and
+    // given back to its opener); popup - a key of the popup, the same for its show, its opening and its
+    // hide; first - the node the focus goes to
+    public static void accessibilityPopupShown(final int popup) {
+        onAccessibilityProvider(new ProviderCall() {
+            @Override
+            public void run(ScrollToFocusProvider provider) {
+                provider.popupShown(popup);
+            }
+        });
+    }
+
+    public static void accessibilityPopupOpened(final int popup, final int first) {
+        onAccessibilityProvider(new ProviderCall() {
+            @Override
+            public void run(ScrollToFocusProvider provider) {
+                provider.popupOpened(popup, first);
+            }
+        });
+    }
+
+    public static void accessibilityPopupHidden(final int popup) {
+        onAccessibilityProvider(new ProviderCall() {
+            @Override
+            public void run(ScrollToFocusProvider provider) {
+                provider.popupHidden(popup);
+            }
+        });
+    }
+
+    private interface ProviderCall {
+        void run(ScrollToFocusProvider provider);
+    }
+
+    // The call on the Android UI thread, with the provider that wraps Qt's (none while accessibility is off)
+    private static void onAccessibilityProvider(final ProviderCall call) {
+        final CustomQtActivity activity = accessibilityActivity;
+        if (activity == null) {
+            return;
+        }
+        activity.accessibilityHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (!activity.accessibilityEnabled()) {
+                    return;
+                }
+                View view = activity.qtAccessibilityView();
+                AccessibilityNodeProvider provider = view != null ? view.getAccessibilityNodeProvider() : null;
+                if (provider instanceof ScrollToFocusProvider) {
+                    call.run((ScrollToFocusProvider) provider);
+                }
             }
         });
     }
@@ -894,15 +1053,25 @@ public class CustomQtActivity extends QtActivity {
             @Override
             public void run() {
                 StringBuilder localPaths = new StringBuilder();
+                // the file under way and the files to copy, counted before the first copy
+                int[] progress = new int[] {0, 0};
                 try {
                     String rootId = android.provider.DocumentsContract.getTreeDocumentId(treeUri);
-                    importFitFilesFromTree(treeUri, rootId, destinationDir, localPaths, true);
+                    progress[1] = countFitFilesInTree(treeUri, rootId, true);
+                    if (progress[1] > 0) {
+                        nativeOnFitImportProgress(0, progress[1]);
+                    }
+                    importFitFilesFromTree(treeUri, rootId, destinationDir, localPaths, true, progress);
                     // only in the QZ folder itself, never in another folder the user picked
                     if (removeOldDatabase && localPaths.length() > 0 && QZ_DOCUMENTS_TREE_ID.equals(rootId)) {
                         deleteOldHistoryDatabase(treeUri, rootId, keepDatabase);
                     }
                 } catch (Exception e) {
                     Log.d(TAG, "handleFitFolderResult failed " + e);
+                }
+                // the copy is over; queued before the result, so the history page goes on with adding
+                if (progress[1] > 0) {
+                    nativeOnFitImportProgress(0, 0);
                 }
                 Log.d(TAG, "handleFitFolderResult requestCode=" + requestCode + " savedGrant=" + fromSavedGrant
                     + " files=" + (localPaths.length() == 0 ? 0 : localPaths.toString().split("\n").length));
@@ -1378,8 +1547,48 @@ public class CustomQtActivity extends QtActivity {
         }
     }
 
+    // the workout files importFitFilesFromTree() copies: the same walk and the same filter, no copy
+    private int countFitFilesInTree(Uri treeUri, String parentId, boolean descendIntoFit) {
+        Uri childrenUri = android.provider.DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentId);
+        String[] projection = new String[] {
+            android.provider.DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+            android.provider.DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+            android.provider.DocumentsContract.Document.COLUMN_MIME_TYPE};
+        int count = 0;
+        android.database.Cursor cursor = null;
+        try {
+            cursor = getContentResolver().query(childrenUri, projection, null, null, null);
+            while (cursor != null && cursor.moveToNext()) {
+                String documentId = cursor.getString(0);
+                String name = cursor.getString(1);
+                if (name == null || documentId == null) {
+                    continue;
+                }
+                if (android.provider.DocumentsContract.Document.MIME_TYPE_DIR.equals(cursor.getString(2))) {
+                    if (descendIntoFit && name.equalsIgnoreCase("fit")) {
+                        count += countFitFilesInTree(treeUri, documentId, false);
+                    }
+                    continue;
+                }
+                String lowerName = name.toLowerCase(java.util.Locale.ROOT);
+                if (lowerName.endsWith(".fit") && !lowerName.contains("backup")) {
+                    count++;
+                }
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "countFitFilesInTree failed " + e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return count;
+    }
+
+    // progress: the file under way and the files to copy (countFitFilesInTree()); each workout file
+    // moves it on by one and is passed to the native side
     private void importFitFilesFromTree(Uri treeUri, String parentId, String destinationDir,
-                                        StringBuilder localPaths, boolean descendIntoFit) {
+                                        StringBuilder localPaths, boolean descendIntoFit, int[] progress) {
         Uri childrenUri = android.provider.DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentId);
         String[] projection = new String[] {
             android.provider.DocumentsContract.Document.COLUMN_DOCUMENT_ID,
@@ -1399,7 +1608,7 @@ public class CustomQtActivity extends QtActivity {
                 }
                 if (android.provider.DocumentsContract.Document.MIME_TYPE_DIR.equals(mimeType)) {
                     if (descendIntoFit && name.equalsIgnoreCase("fit")) {
-                        importFitFilesFromTree(treeUri, documentId, destinationDir, localPaths, false);
+                        importFitFilesFromTree(treeUri, documentId, destinationDir, localPaths, false, progress);
                     }
                     continue;
                 }
@@ -1408,6 +1617,11 @@ public class CustomQtActivity extends QtActivity {
                 // as well; importing them would show the workout twice
                 if (!lowerName.endsWith(".fit") || lowerName.contains("backup")) {
                     continue;
+                }
+                // never past the count: a file may have come into the folder since it was counted
+                if (progress[1] > 0) {
+                    progress[0] = Math.min(progress[0] + 1, progress[1]);
+                    nativeOnFitImportProgress(progress[0], progress[1]);
                 }
                 Uri documentUri = android.provider.DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId);
                 String localPath = ContentHelper.importContentToAppDirKeepExisting(this, documentUri, name, size,

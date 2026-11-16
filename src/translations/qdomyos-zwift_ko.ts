@@ -2973,12 +2973,12 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>운동을 가져오는 중…</translation>
+        <translation type="vanished">운동을 가져오는 중…</translation>
     </message>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>운동 파일을 처리하는 중…
+        <translation type="vanished">운동 파일을 처리하는 중…
 처음 실행할 때는 시간이 조금 걸릴 수 있습니다.</translation>
     </message>
     <message>
@@ -3106,6 +3106,22 @@ This may take a few moments on first startup.</source>
         <translation>운동 가져오기</translation>
     </message>
     <message>
+        <source>Adding workouts to the history</source>
+        <translation>운동을 기록에 추가하는 중</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>운동 파일 복사 중</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>운동을 기록에 추가하는 중: %1/%2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>운동 파일 복사 중: %1/%2</translation>
+    </message>
+    <message>
         <source>Open on Peloton</source>
         <translation>Peloton에서 열기</translation>
     </message>
@@ -3195,9 +3211,25 @@ This may take a few moments on first startup.</source>
         <source>Offset</source>
         <translation>보정값</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>기어 %1 보정값 줄이기</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>기어 %1 보정값 늘리기</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>%1 줄이기</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>%1 늘리기</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>사용자 지정 경사도-저항 표 사용</translation>
@@ -3213,6 +3245,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Resistance</source>
         <translation>저항</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>경사도 %1 점 삭제</translation>
     </message>
     <message>
         <source>Add Point</source>
@@ -7276,6 +7312,14 @@ IMPORTANT NOTES:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>스마트 트레이너에서 경사도 대신 저항을 사용합니다. 기어를 바꿀 때 Wahoo Climb 같은 장치의 경사도가 바뀌지 않게 하는 데 도움이 됩니다. 기본값: 꺼짐</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>저항 호환성</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>QZ에서 저항을 변경할 때 자전거가 레벨 1 또는 최댓값으로만 설정된다면 활성화하세요. FTMS 저항 값을 10배로 전송합니다. 기본값: 비활성화.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>

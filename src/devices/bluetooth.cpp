@@ -2507,12 +2507,26 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             }
 #ifndef Q_OS_IOS
             else if (bh_spada_2 &&
-                     b.name().toUpper().startsWith("RACER S") &&
-                     !kettlerClassicBike && filter) {
-                // MyHomeFIT's Kettler Classic connector uses BR/EDR SPP.
-                // Route RACER S-prefixed names to this driver when BH SPADA
-                // Compatibility is enabled; otherwise preserve the existing
-                // BLE Stages path below.
+                     (upperDeviceName == QStringLiteral("COACH S") ||
+                      upperDeviceName.startsWith(QStringLiteral("COACH S "))) &&
+                     !kettlerCoachRower && filter) {
+                // Coach S uses Classic SPP but its rowing command set differs
+                // from the Kettler Classic bike. Do not route it as a bike.
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                kettlerCoachRower = new kettlercoachrower(noWriteResistance, noHeartService);
+                emit deviceConnected(b);
+                connect(kettlerCoachRower, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(kettlerCoachRower, &kettlercoachrower::debug, this, &bluetooth::debug);
+                connect(kettlerCoachRower, &kettlercoachrower::disconnected, this, &bluetooth::restart,
+                        Qt::QueuedConnection);
+                kettlerCoachRower->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(kettlerCoachRower);
+            } else if (bh_spada_2 &&
+                       upperDeviceName.startsWith(QStringLiteral("RACER S")) &&
+                       !kettlerClassicBike && filter) {
+                // Preserve the unchanged Classic bike route for Racer S.
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 kettlerClassicBike = new kettlerclassicbike(noWriteResistance, noHeartService, testResistance,
@@ -4863,6 +4877,10 @@ void bluetooth::restart() {
         delete kettlerClassicBike;
         kettlerClassicBike = nullptr;
     }
+    if (kettlerCoachRower) {
+        delete kettlerCoachRower;
+        kettlerCoachRower = nullptr;
+    }
     if (toorx) {
 
         delete toorx;
@@ -5390,6 +5408,8 @@ bluetoothdevice *bluetooth::device() {
         return stagesBike;
     } else if (kettlerClassicBike) {
         return kettlerClassicBike;
+    } else if (kettlerCoachRower) {
+        return kettlerCoachRower;
     } else if (toorx) {
         return toorx;
     } else if (iconsole) {
