@@ -1002,10 +1002,15 @@ static NodeData nodeData(jint objectId) {
     // item (an entry of the side menu, a tile): TalkBack reads it with that item, and focusable it would
     // be a second stop with the same words. As in Qt, Accessible.focusable: false does not take a text out
     // (QAccessibleQuickItem::state() of Qt 6 sets focusable for a text role over it); a text that is to
-    // be passed over takes Accessible.ignored: true. An empty text (a value before the first data) is no stop,
-    // nor a text a touch would not find, under a pressable object of its own (coveredByActionable()).
-    data.focusable = state.focusable || (iface->role() == QAccessible::StaticText && !data.description.isEmpty() &&
-                                         !insideActionable(iface) && !coveredByActionable(iface, data.description));
+    // be passed over takes Accessible.ignored: true. As in Qt 6, a disabled text is no stop (there state()
+    // clears focusable when !item()->isEnabled(); state() of 5.15.0 does not look at enabled, so it is read
+    // here). An empty text (a value before the first data) is no stop, nor a text a touch would not find,
+    // under a pressable object of its own (coveredByActionable()).
+    const QVariant enabled = iface->object() ? iface->object()->property("enabled") : QVariant();
+    data.focusable = state.focusable ||
+                     (iface->role() == QAccessible::StaticText && !data.description.isEmpty() &&
+                      (!enabled.isValid() || enabled.toBool()) && !insideActionable(iface) &&
+                      !coveredByActionable(iface, data.description));
     data.focused = state.focused;
     data.visible = !state.invisible;
     return data;
