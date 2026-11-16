@@ -11021,6 +11021,10 @@ void homeform::writeFileCompleted() {
     // NOTE: clazy-unused-non-trivial-variable
 
     qDebug() << "reply:" << response;
+    qDebug() << "Strava experimental treadmill tag: upload completed, eligible"
+             << (reply && reply->property("clearStravaTreadmillTag").toBool())
+             << "HTTP" << (reply ? reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() : 0)
+             << "network error" << (reply ? reply->error() : QNetworkReply::UnknownNetworkError);
 
     // The FIT upload is asynchronous: the upload ID is not the activity ID.
     // Only the explicit experimental opt-in on a newly recorded virtual treadmill run uses this follow-up.
