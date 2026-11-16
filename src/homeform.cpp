@@ -11033,10 +11033,12 @@ void homeform::writeFileCompleted() {
             QString uploadId = upload.value(QStringLiteral("id_str")).toString();
             if (uploadId.isEmpty() && upload.value(QStringLiteral("id")).isDouble())
                 uploadId = QString::number(static_cast<qint64>(upload.value(QStringLiteral("id")).toDouble()));
-            if (!uploadId.isEmpty())
-                QTimer::singleShot(2000, this, [this, uploadId]() {
+            if (!uploadId.isEmpty()) {
+                qDebug() << "Strava experimental treadmill tag: starting upload status polling" << uploadId;
+                QTimer::singleShot(0, this, [this, uploadId]() {
                     stravaPollUploadForTreadmillTag(uploadId);
                 });
+            }
             else
                 qWarning() << "Strava experimental treadmill tag: missing upload id";
         }
@@ -11046,42 +11048,93 @@ void homeform::writeFileCompleted() {
 }
 
 
+// This workaround is optional. Never repeat the FIT upload: only the follow-up
+// GET (upload status) and idempotent PUT (trainer=false) can be retried.
+static bool stravaTreadmillTagTransientFailure(int httpCode, QNetworkReply::NetworkError error) {
+    return httpCode == 408 || httpCode == 425 || httpCode == 429 ||
+           httpCode >= 500 || (httpCode == 0 && error != QNetworkReply::NoError);
+}
+
+static int stravaTreadmillTagRetryDelayMs(int attempt, const QNetworkReply *reply) {
+    // 2, 4, 8, 16, 30 seconds. Respect numeric Retry-After (e.g. HTTP 429).
+    const int backoff = qMin(30000, 2000 * (1 << qMin(attempt, 4)));
+    bool valid = false;
+    const int retryAfterSeconds = reply->rawHeader("Retry-After").toInt(&valid);
+    if (valid && retryAfterSeconds > 0)
+        return qMax(backoff, qMin(60000, retryAfterSeconds * 1000));
+    return backoff;
+}
+
 void homeform::stravaPollUploadForTreadmillTag(const QString &uploadId, int attempt) {
-    // Strava recommends polling no more than once per second. Stop after a bounded number of attempts.
-    if (attempt >= 10) {
-        qWarning() << "Strava experimental treadmill tag: upload processing timed out" << uploadId;
+    // A valid 'still processing' response also needs polling. Limit the total requests.
+    const int maxAttempts = 15;
+    if (attempt >= maxAttempts) {
+        qWarning() << "Strava experimental treadmill tag: upload status retries exhausted" << uploadId;
+        setToastRequested(tr("Strava: unable to update Treadmill tag (experimental)"));
         return;
     }
     QSettings settings;
     const QByteArray token = settings.value(QZSettings::strava_accesstoken).toString().toUtf8();
-    if (token.isEmpty())
+    if (token.isEmpty()) {
+        qWarning() << "Strava experimental treadmill tag: missing access token for upload status";
         return;
+    }
 
+    qDebug() << "Strava experimental treadmill tag: GET upload attempt" << (attempt + 1) << uploadId;
     auto *apiManager = new QNetworkAccessManager(this);
     QNetworkRequest request(QUrl(QStringLiteral("https://www.strava.com/api/v3/uploads/") + uploadId));
     request.setRawHeader("Authorization", QByteArray("Bearer ") + token);
     QNetworkReply *statusReply = apiManager->get(request);
+    QTimer::singleShot(15000, statusReply, [statusReply]() {
+        if (statusReply->isRunning())
+            statusReply->abort();
+    });
     connect(statusReply, &QNetworkReply::finished, this, [this, apiManager, statusReply, uploadId, attempt]() {
         const QByteArray payload = statusReply->readAll();
         const int httpCode = statusReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-        const bool requestOk = statusReply->error() == QNetworkReply::NoError && httpCode == 200;
+        const QNetworkReply::NetworkError networkError = statusReply->error();
+        const int retryDelay = stravaTreadmillTagRetryDelayMs(attempt, statusReply);
+        const bool requestOk = networkError == QNetworkReply::NoError && httpCode == 200;
         statusReply->deleteLater();
         apiManager->deleteLater();
+
+        qDebug() << "Strava experimental treadmill tag: GET upload response"
+                 << uploadId << "attempt" << (attempt + 1) << "HTTP" << httpCode
+                 << "network error" << networkError << "body" << payload.left(500);
+
         if (!requestOk) {
-            qWarning() << "Strava experimental treadmill tag: upload status error" << httpCode;
+            // A newly created upload can briefly return 404 before it propagates.
+            const bool retry = stravaTreadmillTagTransientFailure(httpCode, networkError) ||
+                               (httpCode == 404 && attempt < 2);
+            if (retry && attempt + 1 < maxAttempts) {
+                QTimer::singleShot(retryDelay, this, [this, uploadId, attempt]() {
+                    stravaPollUploadForTreadmillTag(uploadId, attempt + 1);
+                });
+            } else {
+                qWarning() << "Strava experimental treadmill tag: upload status failed permanently"
+                           << uploadId << "HTTP" << httpCode;
+                setToastRequested(tr("Strava: unable to update Treadmill tag (experimental)"));
+            }
             return;
         }
 
         const QJsonDocument doc = QJsonDocument::fromJson(payload);
         if (!doc.isObject()) {
-            qWarning() << "Strava experimental treadmill tag: invalid upload status";
+            if (attempt + 1 < maxAttempts) {
+                QTimer::singleShot(retryDelay, this, [this, uploadId, attempt]() {
+                    stravaPollUploadForTreadmillTag(uploadId, attempt + 1);
+                });
+            } else {
+                qWarning() << "Strava experimental treadmill tag: invalid upload status after retries";
+                setToastRequested(tr("Strava: unable to update Treadmill tag (experimental)"));
+            }
             return;
         }
         const QJsonObject upload = doc.object();
-        if (!upload.value(QStringLiteral("error")).isNull() &&
-            !upload.value(QStringLiteral("error")).toString().isEmpty()) {
-            qWarning() << "Strava experimental treadmill tag: upload processing error"
+        if (!upload.value(QStringLiteral("error")).toString().isEmpty()) {
+            qWarning() << "Strava experimental treadmill tag: processing error"
                        << upload.value(QStringLiteral("error")).toString();
+            setToastRequested(tr("Strava: unable to update Treadmill tag (experimental)"));
             return;
         }
         const QJsonValue idValue = upload.value(QStringLiteral("activity_id"));
@@ -11090,47 +11143,88 @@ void homeform::stravaPollUploadForTreadmillTag(const QString &uploadId, int atte
             activityId = QString::number(static_cast<qint64>(idValue.toDouble()));
         else if (idValue.isString())
             activityId = idValue.toString();
+
         if (!activityId.isEmpty() && activityId != QStringLiteral("0")) {
+            qDebug() << "Strava experimental treadmill tag: resolved activity id" << activityId;
             stravaClearTreadmillTag(activityId);
-        } else if (attempt + 1 < 10) {
+        } else if (attempt + 1 < maxAttempts) {
+            // Normal asynchronous processing: don't increase the delay for a healthy 200 response.
             QTimer::singleShot(2000, this, [this, uploadId, attempt]() {
                 stravaPollUploadForTreadmillTag(uploadId, attempt + 1);
             });
         } else {
             qWarning() << "Strava experimental treadmill tag: activity id not ready" << uploadId;
+            setToastRequested(tr("Strava: unable to update Treadmill tag (experimental)"));
         }
     });
 }
 
-void homeform::stravaClearTreadmillTag(const QString &activityId) {
+void homeform::stravaClearTreadmillTag(const QString &activityId, int attempt) {
+    const int maxAttempts = 5;
+    if (attempt >= maxAttempts) {
+        qWarning() << "Strava experimental treadmill tag: PUT retries exhausted" << activityId;
+        setToastRequested(tr("Strava: unable to update Treadmill tag (experimental)"));
+        return;
+    }
     QSettings settings;
     const QByteArray token = settings.value(QZSettings::strava_accesstoken).toString().toUtf8();
-    if (token.isEmpty())
+    if (token.isEmpty()) {
+        qWarning() << "Strava experimental treadmill tag: missing access token for PUT";
         return;
+    }
 
+    qDebug() << "Strava experimental treadmill tag: PUT trainer=false attempt" << (attempt + 1)
+             << "activity" << activityId;
     auto *apiManager = new QNetworkAccessManager(this);
     QNetworkRequest request(QUrl(QStringLiteral("https://www.strava.com/api/v3/activities/") + activityId));
     request.setRawHeader("Authorization", QByteArray("Bearer ") + token);
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
     QNetworkReply *updateReply = apiManager->sendCustomRequest(
         request, QByteArrayLiteral("PUT"), QByteArrayLiteral("{\"trainer\":false}"));
-    connect(updateReply, &QNetworkReply::finished, this, [apiManager, updateReply, activityId]() {
+    QTimer::singleShot(15000, updateReply, [updateReply]() {
+        if (updateReply->isRunning())
+            updateReply->abort();
+    });
+    connect(updateReply, &QNetworkReply::finished, this, [this, apiManager, updateReply, activityId, attempt]() {
         const QByteArray payload = updateReply->readAll();
         const int httpCode = updateReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-        const bool requestOk = updateReply->error() == QNetworkReply::NoError && httpCode == 200;
+        const QNetworkReply::NetworkError networkError = updateReply->error();
+        const int retryDelay = stravaTreadmillTagRetryDelayMs(attempt, updateReply);
+        const bool requestOk = networkError == QNetworkReply::NoError && httpCode == 200;
         updateReply->deleteLater();
         apiManager->deleteLater();
-        if (!requestOk) {
-            qWarning() << "Strava experimental treadmill tag: update failed" << activityId << httpCode;
+
+        qDebug() << "Strava experimental treadmill tag: PUT response"
+                 << activityId << "attempt" << (attempt + 1) << "HTTP" << httpCode
+                 << "network error" << networkError << "body" << payload.left(500);
+
+        bool confirmedClear = false;
+        if (requestOk) {
+            const QJsonDocument doc = QJsonDocument::fromJson(payload);
+            if (doc.isObject() && doc.object().contains(QStringLiteral("trainer")) &&
+                doc.object().value(QStringLiteral("trainer")).isBool()) {
+                confirmedClear = !doc.object().value(QStringLiteral("trainer")).toBool();
+            }
+        }
+        if (confirmedClear) {
+            qDebug() << "Strava experimental treadmill tag: trainer=false confirmed" << activityId;
+            setToastRequested(tr("Strava: Treadmill tag cleared (experimental)"));
             return;
         }
-        const QJsonDocument doc = QJsonDocument::fromJson(payload);
-        if (doc.isObject() && doc.object().contains(QStringLiteral("trainer")) &&
-            !doc.object().value(QStringLiteral("trainer")).toBool(true)) {
-            qDebug() << "Strava experimental treadmill tag: cleared on activity" << activityId;
+
+        // A 200 without an explicit trainer=false does not prove that Strava applied the flag.
+        // Retry that idempotent update; never retry authorization or validation failures.
+        const bool retry = requestOk || stravaTreadmillTagTransientFailure(httpCode, networkError);
+        if (retry && attempt + 1 < maxAttempts) {
+            qWarning() << "Strava experimental treadmill tag: unconfirmed, retrying PUT"
+                       << activityId << "in" << retryDelay << "ms";
+            QTimer::singleShot(retryDelay, this, [this, activityId, attempt]() {
+                stravaClearTreadmillTag(activityId, attempt + 1);
+            });
         } else {
-            qWarning() << "Strava experimental treadmill tag: update accepted but trainer flag not confirmed"
-                       << activityId;
+            qWarning() << "Strava experimental treadmill tag: PUT failed or unconfirmed"
+                       << activityId << "HTTP" << httpCode;
+            setToastRequested(tr("Strava: unable to update Treadmill tag (experimental)"));
         }
     });
 }
