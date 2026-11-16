@@ -2504,6 +2504,7 @@ import AndroidStatusBar 1.0
             property string ui_theme_mode: "auto"
             property bool proform_treadmill_cst_505_pftl59420_2026: false
             property bool proform_use_console_gears: false
+            property bool nordictrack_tseries8_treadmill: false
 
         }
 
@@ -12330,6 +12331,7 @@ import AndroidStatusBar 1.0
                                     "Proform Sport 5.5",
                                     "Proform Sport 6.0",
                                      "ProForm 505 CST PFTL59420 (iFIT 2026)",
+                                    "Nordictrack T Series 8",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -12416,7 +12418,8 @@ import AndroidStatusBar 1.0
                                                     settings.freemotion_t10_9b_hci ? 67 :
                                                     settings.proform_treadmill_sport_55 ? 68 :
                                                     settings.proform_treadmill_sport_6_0 ? 69 :
-                                                     settings.proform_treadmill_cst_505_pftl59420_2026 ? 70 : 0;
+                                                     settings.proform_treadmill_cst_505_pftl59420_2026 ? 70 :
+                                                    settings.nordictrack_tseries8_treadmill ? 71 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -12501,6 +12504,7 @@ import AndroidStatusBar 1.0
                                     settings.proform_treadmill_sport_55 = false;
                                     settings.proform_treadmill_sport_6_0 = false;
                                      settings.proform_treadmill_cst_505_pftl59420_2026 = false;
+                                    settings.nordictrack_tseries8_treadmill = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -12574,6 +12578,7 @@ import AndroidStatusBar 1.0
                                         case 68: settings.proform_treadmill_sport_55 = true; break;
                                         case 69: settings.proform_treadmill_sport_6_0 = true; break;
                                          case 70: settings.proform_treadmill_cst_505_pftl59420_2026 = true; break;
+                                        case 71: settings.nordictrack_tseries8_treadmill = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
