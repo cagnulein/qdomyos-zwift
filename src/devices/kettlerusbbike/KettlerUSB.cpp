@@ -377,12 +377,18 @@ void KettlerUSB::run() {
             isDeviceOpen = false;
         } else if (!(curstatus & KETTLER_PAUSED) && (curstatus & KETTLER_RUNNING) && !isDeviceOpen) {
             if (openPort()) {
+                pvars.lock();
+                deviceStatus = 0;
+                pvars.unlock();
                 quit(2);
                 return;
             }
             isDeviceOpen = true;
             missedStatusPolls = 0;
             if (!initSequence()) {
+                pvars.lock();
+                deviceStatus = 0;
+                pvars.unlock();
                 closePort();
                 quit(2);
                 return;
@@ -654,9 +660,10 @@ QString KettlerUSB::rawRead() {
 
 void KettlerUSB::flushSerialBuffer() {
     qDebug() << "Flushing serial buffer...";
+    // Clear accumulated fragments on every platform, before discarding input.
+    rxBuffer.clear();
 #ifdef Q_OS_ANDROID
     // Clear Android buffer
-    rxBuffer.clear();
     // Read and discard any pending data
     QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
 #elif defined(WIN32)
