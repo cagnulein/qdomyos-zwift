@@ -1269,8 +1269,9 @@ static QList<QPointer<QObject>> &openingPopupItems() {
 }
 
 // The items of popups shown at least once: a popup removed while open (a Loader switched off, a
-// destroy()) sends no hide - QQuickPopup's destructor deletes its item without hiding it
-// (qquickpopup.cpp:820-826) - so its destroyed() gives the focus back as a hide would
+// destroy()) may send no hide - QQuickPopup's destructor closes it (setParentItem(nullptr),
+// qquickpopup.cpp:820-826, 1625-1627), but with an exit transition the item is deleted before
+// that transition hides it - so its destroyed() gives the focus back as a hide would
 static QSet<QObject *> &watchedPopupItems() {
     static QSet<QObject *> items;
     return items;
