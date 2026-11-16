@@ -76,6 +76,65 @@ TEST(FtmsBikeParserTest, KeepsFullFsIb50GearDeltaWithDefaultGain) {
     EXPECT_DOUBLE_EQ(5.0, ftmsbike::applyFsIb50GearGain(5, 1.0));
 }
 
+
+TEST(FtmsBikeParserTest, BhBi9200PhysicalShiftsMatchRecordedResistanceSequence) {
+    // 0x2ACE resistance values from the 2026-11-16 BI9200 QZ-only test:
+    // 81 00 00 01 00 -> 02 -> 03 -> 04 -> 05 -> 06 -> 05 -> 04 -> 03 -> 02 -> 01.
+    const int levels[] = {1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
+    resistance_t delta = 99;
+    for (int i = 1; i < 11; ++i) {
+        ASSERT_TRUE(ftmsbike::bhBi9200PhysicalGearDelta(
+            QStringLiteral("H9110 BI9200"), true, levels[i - 1], levels[i], -1, &delta));
+        EXPECT_EQ(i <= 5 ? 1 : -1, delta);
+    }
+}
+
+TEST(FtmsBikeParserTest, BhBi9200DoesNotChangeGearsOnEchoOrWithoutOptIn) {
+    resistance_t delta = 99;
+    EXPECT_FALSE(ftmsbike::bhBi9200PhysicalGearDelta(
+        QStringLiteral("H9110 BI9200"), true, 2, 3, 0, &delta));
+    EXPECT_EQ(0, delta);
+    EXPECT_FALSE(ftmsbike::bhBi9200PhysicalGearDelta(
+        QStringLiteral("H9110 BI9200"), true, 2, 3, 2999, &delta));
+    EXPECT_EQ(0, delta);
+    EXPECT_TRUE(ftmsbike::bhBi9200PhysicalGearDelta(
+        QStringLiteral("H9110 BI9200"), true, 2, 3, 3000, &delta));
+    EXPECT_EQ(1, delta);
+    EXPECT_FALSE(ftmsbike::bhBi9200PhysicalGearDelta(
+        QStringLiteral("H9110 BI9200"), false, 2, 3, -1, &delta));
+    EXPECT_EQ(0, delta);
+}
+
+TEST(FtmsBikeParserTest, BhBi9200PhysicalShiftClassifierIsIsolatedFromOtherBikes) {
+    resistance_t delta = 99;
+    for (const QString &name : {QStringLiteral("H9110 OSAKA"), QStringLiteral("H9110 BI9200 OTHER"),
+                                QStringLiteral("Wahoo KICKR"), QStringLiteral("FS-IB50")}) {
+        EXPECT_FALSE(ftmsbike::bhBi9200PhysicalGearDelta(name, true, 2, 3, -1, &delta));
+        EXPECT_EQ(0, delta);
+    }
+    EXPECT_TRUE(ftmsbike::bhBi9200PhysicalGearDelta(
+        QStringLiteral("h9110 bi9200"), true, 2, 3, -1, &delta));
+    EXPECT_EQ(1, delta);
+}
+
+TEST(FtmsBikeParserTest, BhBi9200RejectsUninitializedAndNonButtonResistanceChanges) {
+    resistance_t delta = 99;
+    const auto expectIgnored = [&delta](resistance_t before, resistance_t after) {
+        EXPECT_FALSE(ftmsbike::bhBi9200PhysicalGearDelta(
+            QStringLiteral("H9110 BI9200"), true, before, after, -1, &delta));
+        EXPECT_EQ(0, delta);
+    };
+    expectIgnored(-1, 1);
+    expectIgnored(0, 1);
+    expectIgnored(1, 1);
+    expectIgnored(6, 3);
+    expectIgnored(1, 6);
+    expectIgnored(31, 33);
+    expectIgnored(32, 33);
+    EXPECT_FALSE(ftmsbike::bhBi9200PhysicalGearDelta(
+        QStringLiteral("H9110 BI9200"), true, 2, 3, -1, nullptr));
+}
+
 TEST(DaumBikeControlTest, AllowsZeroPowerFallbackWithConnectedVirtualFtmsBike) {
     EXPECT_TRUE(daumbike::shouldWriteResistanceToDaum(true, true, 0));
 }
