@@ -25,9 +25,9 @@ bool isValidCoachSHandshake(const QByteArray &payload);
 // Experimental Coach S power candidate: E0 payload bytes 18-19, U16 BE.
 // Hardware logs show zero at rest; not yet compared with console watts.
 quint16 coachSCandidateWatts(const QByteArray &telemetryPayload);
-// Coach S resistance levels 1..10 mapped to proposed Kinomap target watts.
-// Levels 1..8 are user-reported; 9..10 are unverified extrapolations.
-quint16 coachSTargetWattsForLevel(int level);
+// Coach S 0x00E0 telemetry: byte 23 reports the active resistance level.
+// Returns 0 when the frame is invalid or the reported level is outside 1..10.
+quint8 coachSReportedResistance(const QByteArray &telemetryPayload);
 QVector<Frame> consumeFrames(QByteArray &buffer);
 
 } // namespace kettlerclassicprotocol
