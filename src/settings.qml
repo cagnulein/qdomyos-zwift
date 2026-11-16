@@ -2504,6 +2504,7 @@ import AndroidStatusBar 1.0
             property string ui_theme_mode: "auto"
             property bool proform_treadmill_cst_505_pftl59420_2026: false
             property bool proform_use_console_gears: false
+            property bool resistance_compatibility: false
 
         }
 
@@ -15659,6 +15660,36 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }                    
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Resistance Compatibility")
+                        visible: settings.force_resistance_instead_inclination
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.resistance_compatibility
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.resistance_compatibility = checked
+                    }
+
+                    Label {
+                        text: qsTr("Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.")
+                        visible: settings.force_resistance_instead_inclination
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
 
                     RowLayout {
                         spacing: 10
