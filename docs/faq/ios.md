@@ -64,3 +64,9 @@ QZ's volume-button gear feature intercepts volume-button events and can interact
 For example, when using a rower with QZ on an iPhone, start the iPhone QZ session to record the machine's metrics and separately start the QZ workout on Apple Watch to share heart rate. Confirm that the Heart tile on the iPhone updates. When finished, stop the watch workout and the iPhone session separately.
 
 A rower user confirmed that starting the QZ watch workout restored heart-rate sharing, and the separate Start/Stop behavior was explained in the same support conversation. This describes the current workflow; automatic synchronization of the two workout controls was not available in that setup.
+
+## Can I use QZ on Apple Watch for live heart rate without saving a duplicate workout to Apple Health?
+
+**Yes, on QZ Apple Watch builds that offer the stop confirmation.** Start the QZ workout on Apple Watch to share live heart rate with QZ on the iPhone and the connected training app. When ending the watch workout, choose **Don't Save** rather than **Save to Apple Health** in the watch's stop confirmation. A user confirmed that **Don't Save** prevented the QZ watch workout and its workout heart-rate recording from being saved to Apple Health.
+
+**Limitation:** This does not disable every HealthKit write from QZ or other apps. Cycling speed, cadence, and cycling-performance entries may still appear in Apple Health, including entries written by QZ or Strava. Review the respective apps' Apple Health write permissions if you want to prevent those additional entries. This option is about saving the **watch workout**, not globally disabling HealthKit writes or heart-rate forwarding.
