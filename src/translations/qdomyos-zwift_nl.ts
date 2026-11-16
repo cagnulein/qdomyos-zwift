@@ -2973,12 +2973,12 @@ Met de volgende vragen stem je QZ af op je apparatuur en doelen.</translation>
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Trainingen importeren…</translation>
+        <translation type="vanished">Trainingen importeren…</translation>
     </message>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Trainingsbestanden verwerken…
+        <translation type="vanished">Trainingsbestanden verwerken…
 Bij de eerste start kan dit even duren.</translation>
     </message>
     <message>
@@ -3104,6 +3104,22 @@ Bij de eerste start kan dit even duren.</translation>
     <message>
         <source>Import workouts</source>
         <translation>Trainingen importeren</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>Trainingen worden aan de geschiedenis toegevoegd</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Trainingsbestanden worden gekopieerd</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Trainingen worden aan de geschiedenis toegevoegd: %1 van %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Trainingsbestanden worden gekopieerd: %1 van %2</translation>
     </message>
     <message>
         <source>Open on Peloton</source>

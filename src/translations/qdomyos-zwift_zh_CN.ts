@@ -2974,7 +2974,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>正在处理训练文件...
+        <translation type="vanished">正在处理训练文件...
 首次启动时可能需要一些时间。</translation>
     </message>
     <message>
@@ -3107,7 +3107,7 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>正在导入训练...</translation>
+        <translation type="vanished">正在导入训练...</translation>
     </message>
     <message>
         <source>Filter by date</source>
@@ -3124,6 +3124,22 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Open on Peloton</source>
         <translation>在 Peloton 中打开</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>正在将训练添加到历史记录</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>正在复制训练文件</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>正在将训练添加到历史记录：%1/%2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>正在复制训练文件：%1/%2</translation>
     </message>
     <message>
         <source>Previous month</source>

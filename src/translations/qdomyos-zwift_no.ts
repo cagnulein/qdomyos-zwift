@@ -2957,12 +2957,12 @@ De neste spørsmålene tilpasser QZ til utstyret og målene dine.</translation>
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Importerer treningsøkter …</translation>
+        <translation type="vanished">Importerer treningsøkter …</translation>
     </message>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Behandler treningsfiler …
+        <translation type="vanished">Behandler treningsfiler …
 Dette kan ta litt tid ved første oppstart.</translation>
     </message>
     <message>
@@ -3088,6 +3088,22 @@ Dette kan ta litt tid ved første oppstart.</translation>
     <message>
         <source>Import workouts</source>
         <translation>Importer treningsøkter</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>Legger til treningsøkter i historikken</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Kopierer treningsfiler</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Legger til treningsøkter i historikken: %1 av %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Kopierer treningsfiler: %1 av %2</translation>
     </message>
     <message>
         <source>Open on Peloton</source>
