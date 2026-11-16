@@ -7266,6 +7266,14 @@ VIGTIGT:
         <translation>Bruger modstand i stedet for hældning på smart-hometrainere. Det hjælper, hvis du ikke vil have, at Wahoo Climb eller lignende ændrer hældningen, når du skifter gear. Standard: deaktiveret.</translation>
     </message>
     <message>
+        <source>Resistance Compatibility</source>
+        <translation>Modstandskompatibilitet</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Aktivér dette, hvis ændring af modstand i QZ kun sætter cyklen til niveau 1 eller maksimum. Sender FTMS-modstand ganget med 10. Standard: deaktiveret.</translation>
+    </message>
+    <message>
         <source>AutoLap on Distance:</source>
         <translation>Automatisk omgang efter distance:</translation>
     </message>

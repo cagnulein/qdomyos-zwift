@@ -7266,6 +7266,14 @@ VIKTIGT:
         <translation>För smart trainers: använd motstånd i stället för lutning. Det hjälper om du inte vill att Wahoo Climb eller liknande ändrar lutningen när du växlar. Standard: av.</translation>
     </message>
     <message>
+        <source>Resistance Compatibility</source>
+        <translation>Motståndskompatibilitet</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Aktivera om ändring av motstånd i QZ bara ställer in cykeln på nivå 1 eller max. Skickar FTMS-motståndet multiplicerat med 10. Standard: avaktiverad.</translation>
+    </message>
+    <message>
         <source>AutoLap on Distance:</source>
         <translation>Automatiskt varv efter distans:</translation>
     </message>

@@ -7686,6 +7686,14 @@ IMPORTANT NOTES:
         <translation>对于智能训练器，请使用阻力而不是坡度。如果您不希望 Wahoo Climb 或类似设备在换档时改变坡度，使用此设置会有帮助。默认：禁用</translation>
     </message>
     <message>
+        <source>Resistance Compatibility</source>
+        <translation>阻力兼容模式</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>如果在 QZ 中调整阻力时，单车只能跳到 1 级或最大级别，请启用此选项。FTMS 阻力值将乘以 10 后发送。默认：关闭。</translation>
+    </message>
+    <message>
         <source>AutoLap on Distance:</source>
         <translation>自动圈速（距离）：</translation>
     </message>

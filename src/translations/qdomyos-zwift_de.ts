@@ -7726,6 +7726,14 @@ WICHTIGE HINWEISE:
         <translation>Für smarte Trainer verwenden Sie Widerstand anstelle von Neigung. Das hilft, wenn Sie nicht möchten, dass Wahoo Climb oder Ähnliches die Neigung ändert, wenn Sie die Gänge wechseln. Standard: deaktiviert</translation>
     </message>
     <message>
+        <source>Resistance Compatibility</source>
+        <translation>Widerstandskompatibilität</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Aktivieren, wenn eine Widerstandsänderung in QZ das Fahrrad nur auf Stufe 1 oder Maximum setzt. Sendet den FTMS-Widerstand mit Faktor 10. Standard: deaktiviert.</translation>
+    </message>
+    <message>
         <source>AutoLap on Distance:</source>
         <translation>AutoLap bei Distanz:</translation>
     </message>

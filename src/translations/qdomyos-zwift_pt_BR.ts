@@ -7055,6 +7055,14 @@ IMPORTANT NOTES:
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Resistance Compatibility</source>
+        <translation>Compatibilidade de resistência</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Ative se alterar a resistência no QZ colocar a bicicleta apenas no nível 1 ou no máximo. Envia a resistência FTMS multiplicada por 10. Padrão: desativado.</translation>
+    </message>
+    <message>
         <source>AutoLap on Distance:</source>
         <translation type="unfinished"></translation>
     </message>

@@ -7742,6 +7742,14 @@ NOTES IMPORTANTES :
         <translation>Pour les home trainers connectés, utilisez la résistance au lieu de l&apos;inclinaison. Cela devrait aider si vous ne voulez pas que le Wahoo Climb ou un appareil similaire change l&apos;inclinaison lorsque vous changez de vitesse. Par défaut : désactivé</translation>
     </message>
     <message>
+        <source>Resistance Compatibility</source>
+        <translation>Compatibilité de la résistance</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Activez cette option si le réglage de la résistance dans QZ place le vélo uniquement au niveau 1 ou au maximum. Envoie la résistance FTMS multipliée par 10. Par défaut : désactivé.</translation>
+    </message>
+    <message>
         <source>AutoLap on Distance:</source>
         <translation>Tour automatique par distance :</translation>
     </message>

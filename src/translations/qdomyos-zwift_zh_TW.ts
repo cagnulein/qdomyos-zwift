@@ -7055,6 +7055,14 @@ IMPORTANT NOTES:
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Resistance Compatibility</source>
+        <translation>阻力相容模式</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>如果在 QZ 中調整阻力時，單車只能跳到第 1 級或最大級別，請啟用此選項。FTMS 阻力值將乘以 10 後傳送。預設：關閉。</translation>
+    </message>
+    <message>
         <source>AutoLap on Distance:</source>
         <translation type="unfinished"></translation>
     </message>
