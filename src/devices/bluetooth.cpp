@@ -106,7 +106,8 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     // functional Bluetooth radio). If none of those virtual devices are configured,
     // there is nothing relying on the watchdog, so we leave real discovery alone and
     // let it take as long as it genuinely needs instead of forcing it to end early.
-    bool reliesOnFakeOrVirtualDevice = fake_bike || fake_treadmill || fakedevice_elliptical_ctor ||
+    bool strydeConfigured = !settings.value(QZSettings::stryde_serialport, QZSettings::default_stryde_serialport).toString().isEmpty();
+    bool reliesOnFakeOrVirtualDevice = strydeConfigured || fake_bike || fake_treadmill || fakedevice_elliptical_ctor ||
                                         fakedevice_rower_ctor || !nordictrack_2950_ip.isEmpty() ||
                                         !tdf_10_ip_ctor.isEmpty() || !proform_elliptical_ip_ctor.isEmpty() ||
                                         !proform_rower_ip_ctor.isEmpty() || antbike_ctor || android_antbike_ctor ||
@@ -338,7 +339,7 @@ void bluetooth::finished() {
         settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
     bool waterrower_usb = settings.value(QZSettings::waterrower_usb, QZSettings::default_waterrower_usb).toBool();
     // wifi devices on windows
-    if (!nordictrack_2950_ip.isEmpty() || !tdf_10_ip.isEmpty() || fake_bike || fakedevice_elliptical || fakedevice_rower || fakedevice_treadmill || !proform_elliptical_ip.isEmpty() || !proform_rower_ip.isEmpty() || antbike || android_antbike || waterrower_usb) {
+    if (!settings.value(QZSettings::stryde_serialport, QZSettings::default_stryde_serialport).toString().isEmpty() || !nordictrack_2950_ip.isEmpty() || !tdf_10_ip.isEmpty() || fake_bike || fakedevice_elliptical || fakedevice_rower || fakedevice_treadmill || !proform_elliptical_ip.isEmpty() || !proform_rower_ip.isEmpty() || antbike || android_antbike || waterrower_usb) {
         // faking a bluetooth device for non-BLE devices
         qDebug() << "faking a bluetooth device for non-BLE device";
         deviceDiscovered(QBluetoothDeviceInfo());
@@ -1265,6 +1266,14 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(daumBike);
+            } else if (!settings.value(QZSettings::stryde_serialport, QZSettings::default_stryde_serialport).toString().isEmpty() && !strydeBike) {
+                this->stopDiscovery();
+                strydeBike = new strydebike(noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(strydeBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                connect(strydeBike, &strydebike::debug, this, &bluetooth::debug);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) emit searchingStop();
+                this->signalBluetoothDeviceConnected(strydeBike);
             } else if (!freebeatSerialPort.isEmpty() && !freebeatBike) {
                 this->stopDiscovery();
                 freebeatBike =
@@ -5133,6 +5142,10 @@ void bluetooth::restart() {
         delete daumBike;
         daumBike = nullptr;
     }
+    if (strydeBike) {
+        delete strydeBike;
+        strydeBike = nullptr;
+    }
     if (freebeatBike) {
 
         delete freebeatBike;
@@ -5558,6 +5571,8 @@ bluetoothdevice *bluetooth::device() {
         return kettlerUsbBike;
     } else if (daumBike) {
         return daumBike;
+    } else if (strydeBike) {
+        return strydeBike;
     } else if (freebeatBike) {
         return freebeatBike;
     } else if (csafeRower) {

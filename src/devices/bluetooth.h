@@ -39,6 +39,7 @@
 #include "devices/kettlerusbbike/kettlerusbbike.h"
 #include "devices/daumbike/daumbike.h"
 #include "devices/freebeatbike/freebeatbike.h"
+#include "devices/strydebike/strydebike.h"
 #include "devices/csaferower/csaferower.h"
 #include "devices/csafeelliptical/csafeelliptical.h"
 #endif
@@ -248,6 +249,7 @@ class bluetooth : public QObject, public SignalHandler {
     kettlerusbbike *kettlerUsbBike = nullptr;
     daumbike *daumBike = nullptr;
     freebeatbike *freebeatBike = nullptr;
+    strydebike *strydeBike = nullptr;
     csaferower *csafeRower = nullptr;
     csafeelliptical *csafeElliptical = nullptr;
 #endif
