@@ -6792,6 +6792,7 @@ import AndroidStatusBar 1.0
                                 Label { text: qsTr("Enable serial bike (enter any value):"); wrapMode: window.labelWrap; Layout.fillWidth: true }
                                 SettingsTextField {
                                     id: strydeSerialPortTextField
+                                    Accessible.name: qsTr("Enable serial bike (enter any value)") + ": " + text
                                     savedText: settings.stryde_serialport
                                     horizontalAlignment: Text.AlignRight
                                     onAccepted: { settings.stryde_serialport = text; window.settings_restart_to_apply = true; }
