@@ -7266,6 +7266,14 @@ FONTOS MEGJEGYZÉSEK:
         <translation>Okosgörgőknél ellenállást használ emelkedés helyett. Ez akkor segít, ha nem szeretné, hogy a Wahoo Climb vagy hasonló eszköz fokozatváltáskor módosítsa az emelkedést. Alapértelmezett: ki.</translation>
     </message>
     <message>
+        <source>Resistance Compatibility</source>
+        <translation>Ellenállás-kompatibilitás</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Kapcsold be, ha a QZ-ben állított ellenállás a kerékpárt csak az 1. vagy a maximális szintre állítja. Az FTMS-ellenállást tízszeres értékként küldi. Alapértelmezés: kikapcsolva.</translation>
+    </message>
+    <message>
         <source>AutoLap on Distance:</source>
         <translation>Automatikus kör távolság szerint:</translation>
     </message>

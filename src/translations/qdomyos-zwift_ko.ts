@@ -7314,6 +7314,14 @@ IMPORTANT NOTES:
         <translation>스마트 트레이너에서 경사도 대신 저항을 사용합니다. 기어를 바꿀 때 Wahoo Climb 같은 장치의 경사도가 바뀌지 않게 하는 데 도움이 됩니다. 기본값: 꺼짐</translation>
     </message>
     <message>
+        <source>Resistance Compatibility</source>
+        <translation>저항 호환성</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>QZ에서 저항을 변경할 때 자전거가 레벨 1 또는 최댓값으로만 설정된다면 활성화하세요. FTMS 저항 값을 10배로 전송합니다. 기본값: 비활성화.</translation>
+    </message>
+    <message>
         <source>AutoLap on Distance:</source>
         <translation>거리별 자동 랩:</translation>
     </message>

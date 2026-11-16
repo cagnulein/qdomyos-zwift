@@ -7730,6 +7730,14 @@ NOTAS IMPORTANTES:
         <translation>Para los rodillos inteligentes, usa resistencia en lugar de inclinación. Esto debería ayudar si no quieres que Wahoo Climb o similar cambie la inclinación al cambiar de marchas. Predeterminado: deshabilitado</translation>
     </message>
     <message>
+        <source>Resistance Compatibility</source>
+        <translation>Compatibilidad de resistencia</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Actívalo si al cambiar la resistencia en QZ la bicicleta solo pasa al nivel 1 o al máximo. Envía la resistencia FTMS multiplicada por 10. Predeterminado: desactivado.</translation>
+    </message>
+    <message>
         <source>AutoLap on Distance:</source>
         <translation>Vuelta automática por distancia:</translation>
     </message>

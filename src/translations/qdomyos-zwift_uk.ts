@@ -7710,6 +7710,14 @@ IMPORTANT NOTES:
         <translation>Для смарт-тренажерів: використовувати опір замість нахилу. Допомагає, якщо ви не хочете, щоб Wahoo Climb чи подібний пристрій змінював нахил під час перемикання передач. Типово: вимкнено</translation>
     </message>
     <message>
+        <source>Resistance Compatibility</source>
+        <translation>Сумісність опору</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Увімкніть, якщо зміна опору в QZ встановлює на велосипеді лише рівень 1 або максимум. Надсилає значення опору FTMS, помножене на 10. Типово: вимкнено.</translation>
+    </message>
+    <message>
         <source>AutoLap on Distance:</source>
         <translation>Автоколо за дистанцією:</translation>
     </message>

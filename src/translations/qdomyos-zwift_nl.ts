@@ -7314,6 +7314,14 @@ BELANGRIJK:
         <translation>Gebruik bij smart trainers weerstand in plaats van helling. Dit helpt als je niet wilt dat de Wahoo Climb of iets vergelijkbaars de helling wijzigt wanneer je schakelt. Standaard: uit</translation>
     </message>
     <message>
+        <source>Resistance Compatibility</source>
+        <translation>Weerstandscompatibiliteit</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Schakel dit in als het wijzigen van de weerstand in QZ de fiets alleen op niveau 1 of maximaal zet. Verzendt de FTMS-weerstand vermenigvuldigd met 10. Standaard: uitgeschakeld.</translation>
+    </message>
+    <message>
         <source>AutoLap on Distance:</source>
         <translation>Automatische ronde op afstand:</translation>
     </message>

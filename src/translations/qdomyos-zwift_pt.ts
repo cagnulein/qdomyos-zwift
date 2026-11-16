@@ -7730,6 +7730,14 @@ OBSERVAÇÕES IMPORTANTES:
         <translation>Para rolos inteligentes, use a resistência em vez da inclinação. Isso ajuda a evitar que o Wahoo Climb ou um aparelho semelhante altere a inclinação quando você troca de marcha. Padrão: desativado.</translation>
     </message>
     <message>
+        <source>Resistance Compatibility</source>
+        <translation>Compatibilidade da resistência</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Ative se alterar a resistência no QZ colocar a bicicleta apenas no nível 1 ou no máximo. Envia o valor da resistência FTMS multiplicado por 10. Predefinição: desativado.</translation>
+    </message>
+    <message>
         <source>AutoLap on Distance:</source>
         <translation>AutoLap por Distância:</translation>
     </message>

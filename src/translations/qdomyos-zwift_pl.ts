@@ -7314,6 +7314,14 @@ WAŻNE UWAGI:
         <translation>W przypadku inteligentnych trenażerów używaj oporu zamiast nachylenia. To powinno pomóc, jeśli nie chcesz, aby Wahoo Climb lub podobne urządzenie zmieniało nachylenie podczas zmiany biegów. Domyślnie: wyłączone</translation>
     </message>
     <message>
+        <source>Resistance Compatibility</source>
+        <translation>Zgodność sterowania oporem</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Włącz, jeśli zmiana oporu w QZ ustawia rower wyłącznie na poziom 1 lub maksimum. Wysyła wartość oporu FTMS pomnożoną przez 10. Domyślnie: wyłączone.</translation>
+    </message>
+    <message>
         <source>AutoLap on Distance:</source>
         <translation>AutoLap według dystansu:</translation>
     </message>

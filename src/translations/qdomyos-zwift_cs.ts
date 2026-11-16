@@ -7314,6 +7314,14 @@ DŮLEŽITÉ:
         <translation>U chytrých trenažérů použijte odpor místo sklonu. Pomůže to, pokud nechcete, aby Wahoo Climb nebo podobné zařízení měnilo sklon při řazení převodů. Výchozí: vypnuto</translation>
     </message>
     <message>
+        <source>Resistance Compatibility</source>
+        <translation>Kompatibilita odporu</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Zapněte, pokud změna odporu v QZ nastaví kolo pouze na úroveň 1 nebo na maximum. Odesílá hodnotu odporu FTMS vynásobenou 10. Výchozí: vypnuto.</translation>
+    </message>
+    <message>
         <source>AutoLap on Distance:</source>
         <translation>Automatický okruh po vzdálenosti:</translation>
     </message>

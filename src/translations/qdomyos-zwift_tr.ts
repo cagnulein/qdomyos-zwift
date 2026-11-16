@@ -7314,6 +7314,14 @@ IMPORTANT NOTES:
         <translation>Akıllı antrenman cihazlarında eğim yerine direnç kullanılır. Vites değiştirdiğinizde Wahoo Climb veya benzeri bir cihazın eğimi değiştirmesini istemiyorsanız bu işe yarar. Varsayılan: kapalı</translation>
     </message>
     <message>
+        <source>Resistance Compatibility</source>
+        <translation>Direnç Uyumluluğu</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>QZ'de direnç değiştirildiğinde bisiklet yalnızca 1. seviyeye veya en yüksek seviyeye geçiyorsa etkinleştirin. FTMS direnç değerini 10 ile çarparak gönderir. Varsayılan: kapalı.</translation>
+    </message>
+    <message>
         <source>AutoLap on Distance:</source>
         <translation>Mesafeye göre otomatik tur:</translation>
     </message>

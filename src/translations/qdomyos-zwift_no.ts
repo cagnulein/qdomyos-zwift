@@ -7266,6 +7266,14 @@ VIKTIG:
         <translation>For smartruller: Bruk motstand i stedet for stigning. Dette hjelper hvis du ikke vil at Wahoo Climb eller lignende skal endre stigningen når du skifter gir. Standard: av.</translation>
     </message>
     <message>
+        <source>Resistance Compatibility</source>
+        <translation>Motstandskompatibilitet</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Aktiver hvis endring av motstand i QZ bare setter sykkelen til nivå 1 eller maksimum. Sender FTMS-motstandsverdien multiplisert med 10. Standard: deaktivert.</translation>
+    </message>
+    <message>
         <source>AutoLap on Distance:</source>
         <translation>Automatisk runde etter distanse:</translation>
     </message>
