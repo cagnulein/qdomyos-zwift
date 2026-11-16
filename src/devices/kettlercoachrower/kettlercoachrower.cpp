@@ -16,8 +16,8 @@ constexpr quint16 DEVICE_DETAILS = 0x00d3;
 constexpr quint16 ROWING_TELEMETRY = 0x00e0;
 constexpr quint16 ACTIVITY_STATE = 0x00c0;
 constexpr quint16 HEART_RATE = 0x0008;
-// S-FIT brake write is experimental on Coach S; its readback is unsupported.
-constexpr quint16 BRAKE_LEVEL = 0x001b;
+// Kinomap Coach S experimental target-load command (unconfirmed raw HCI).
+constexpr quint16 TARGET_POWER = 0x00c2;
 constexpr quint8 SUB_READ = 0x01;
 constexpr quint8 SUB_WRITE = 0x02;
 constexpr quint8 SUB_ANSWER = 0x03;
@@ -71,7 +71,7 @@ uint16_t kettlercoachrower::watts() {
 }
 
 resistance_t kettlercoachrower::maxResistance() {
-    return 30; // Unverified S-FIT fallback; Coach S does not answer 0x001D.
+    return 10; // Coach S manual: ten user-selectable resistance levels.
 }
 
 void kettlercoachrower::changeResistance(resistance_t resistance) {
@@ -189,16 +189,21 @@ void kettlercoachrower::enqueueResistanceRequest(resistance_t requested) {
         emit debug(QStringLiteral("Coach S resistance write disabled by QZ setting"));
         return;
     }
-    // Coach S times out on S-FIT min/max reads, so use a conservative
-    // provisional range until Kinomap HCI confirms the Coach S command.
     const int minLevel = 1;
-    const int maxLevel = 30;
-    const quint8 level = static_cast<quint8>(qBound(minLevel, static_cast<int>(requested), maxLevel));
-    emit debug(QStringLiteral("Coach S experimental brake write: requested=%1 level=%2 range=%3..%4")
-                   .arg(requested).arg(level).arg(minLevel).arg(maxLevel));
-    enqueueWrite(BRAKE_LEVEL, QByteArray(1, static_cast<char>(level)));
-    // Do not send 0x001B/01: hardware never answered it, and each retry
-    // stalled normal 0x00E0 telemetry for two seconds.
+    const int maxLevel = maxResistance();
+    const int level = qBound(minLevel, static_cast<int>(requested), maxLevel);
+    const quint16 watts = kettlerclassicprotocol::coachSTargetWattsForLevel(level);
+    const QByteArray payload{
+        static_cast<char>((watts >> 8) & 0xff),
+        static_cast<char>(watts & 0xff)
+    };
+    // 0x00C2/02 is a user-reported Kinomap target-load command, not yet
+    // validated in a matching raw HCI capture. Keep this nonblocking.
+    emit debug(QStringLiteral("Coach S experimental C2 target write level=%1 target=%2 W (L9-L10 estimated)")
+                   .arg(level).arg(watts));
+    enqueueWrite(TARGET_POWER, payload);
+    // No extra reads: the unsupported S-FIT 0x001B/01 and 0x001C/1D
+    // delayed proven 0x00E0 telemetry by two seconds each.
 }
 
 void kettlercoachrower::sendNextRequest() {
@@ -262,14 +267,11 @@ void kettlercoachrower::processFrame(const kettlerclassicprotocol::Frame &frame)
     }
     if (frame.subFunction != SUB_ANSWER && frame.subFunction != SUB_STATUS) return;
 
-    // Some firmware may answer a brake WRITE asynchronously, but do not
-    // assume the command was applied unless it explicitly reports a level.
-    if (frame.function == BRAKE_LEVEL && frame.subFunction == SUB_ANSWER &&
-        frame.payload.size() == 1) {
-        const quint8 level = static_cast<quint8>(frame.payload.at(0));
-        Resistance = level;
-        emit resistanceRead(level);
-        emit debug(QStringLiteral("Coach S reported brake level=%1").arg(level));
+    // A C2/03 response may acknowledge receiving a target, but does not
+    // prove that the resistance changed mechanically.
+    if (frame.function == TARGET_POWER && frame.subFunction == SUB_ANSWER) {
+        emit debug(QStringLiteral("Coach S C2 target-write ACK, payload=") +
+                   frame.payload.toHex(' '));
     }
 
     if (requestInFlight && frame.function == activeRequest.function) {
@@ -362,7 +364,7 @@ void kettlercoachrower::update() {
     if (!socket || socket->state() != QBluetoothSocket::ConnectedState || !initDone) return;
 
     // Writes are explicitly requested by QZ controls. No speculative
-    // 0x000B/0x001B-read/0x001C/0x001D polling: the Coach S never answered.
+    // S-FIT 0x000B/0x001B-read/0x001C/0x001D polling: Coach S never answered.
     if (telemetrySeen && requestResistance != -1) {
         const resistance_t requested = requestResistance;
         requestResistance = -1;
