@@ -22,6 +22,7 @@ class kettlercoachrower : public rower {
     ~kettlercoachrower() override;
     bool connected() override;
     uint16_t watts() override;
+    resistance_t maxResistance() override;
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
@@ -45,10 +46,13 @@ class kettlercoachrower : public rower {
         quint16 function = 0;
         quint8 operation = 0x01;
         QByteArray payload;
+        bool expectsResponse = true;
     };
 
     void createSocket();
     void enqueueRead(quint16 function);
+    void enqueueWrite(quint16 function, const QByteArray &payload);
+    void enqueueResistanceRequest(resistance_t requested);
     void sendNextRequest();
     void processFrame(const kettlerclassicprotocol::Frame &frame);
     void processTelemetry(const QByteArray &payload);
@@ -63,6 +67,15 @@ class kettlercoachrower : public rower {
     bool signalledConnection = false;
     bool signalledDisconnection = false;
     bool virtualCreated = false;
+    bool telemetrySeen = false;
+    bool powerReadEnabled = true;
+    bool brakeReadEnabled = true;
+    bool minLevelReceived = false;
+    bool maxLevelReceived = false;
+    quint8 minBrakeLevel = 1;
+    quint8 maxBrakeLevel = 30;
+    quint8 optionalProbeStage = 0;
+    quint32 telemetryPollBatch = 0;
 
     QBluetoothDeviceInfo bluetoothDevice;
     QBluetoothServiceDiscoveryAgent *discoveryAgent = nullptr;
