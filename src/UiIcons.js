@@ -67,4 +67,5 @@ var codes = {
     "trending_up": 0xe8e5,
     "upload_file": 0xe9fc,
     "videocam": 0xe04b,
+    "watch": 0xe334,
 }
