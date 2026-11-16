@@ -58,6 +58,7 @@ class kettlercoachrower : public rower {
     void sendNextRequest();
     void processFrame(const kettlerclassicprotocol::Frame &frame);
     void processTelemetry(const QByteArray &payload);
+    void recordReportedResistance(quint8 level, const char *source);
     void disconnectAfterError(const QString &reason);
     static quint16 be16(const QByteArray &data, int offset);
 
@@ -81,6 +82,8 @@ class kettlercoachrower : public rower {
     QTimer requestTimeoutTimer;
 
     quint16 currentWatts = 0;
+    int pendingResistanceLevel = -1;
+    int lastReportedResistanceLevel = -1;
     quint16 lastStrokes = 0;
     quint16 lastDistanceMeters = 0;
     QDateTime lastStrokeTime;
