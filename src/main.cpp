@@ -50,6 +50,7 @@
 #include <QQuickWindow>
 #include <QSemaphore>
 #include <QSharedPointer>
+#include <QTextDocument>
 #include <QThread>
 #include <QTimer>
 #include <QtAndroid>
@@ -869,10 +870,30 @@ static void performEffectiveAction(QAccessibleInterface *iface, const QString &a
     valueIface->setCurrentValue(value + step);
 }
 
+// The name of a text without its markup: a Label takes its text as it is for its accessible name
+// (qquicklabel.cpp), tags and all, and TalkBack read them aloud (QTBUG-67880, open). As Qt Widgets
+// does for a QLabel (QAccessibleDisplay::text): a rich or styled text, or an AutoText that
+// Qt::mightBeRichText(), goes through QTextDocument. A name of its own (other than the text) is kept.
+static QString plainName(QAccessibleInterface *iface, const QString &name) {
+    QObject *object = iface->object();
+    if (!object || name.isEmpty() || object->property("text").toString() != name)
+        return name;
+    const QVariant format = object->property("textFormat");
+    if (!format.isValid())
+        return name;
+    // QQuickText::TextFormat: PlainText 0, RichText 1, AutoText 2, MarkdownText 3, StyledText 4
+    const int value = format.toInt();
+    if (value != 1 && value != 4 && !(value == 2 && Qt::mightBeRichText(name)))
+        return name;
+    QTextDocument document;
+    document.setHtml(name);
+    return document.toPlainText();
+}
+
 static QString accessibleDescription(QAccessibleInterface *iface) {
     QString description;
     if (iface && iface->isValid()) {
-        description = iface->text(QAccessible::Name);
+        description = plainName(iface, iface->text(QAccessible::Name));
         if (description.isEmpty())
             description = iface->text(QAccessible::Description);
         if (description.isEmpty()) {
@@ -904,6 +925,55 @@ struct NodeData {
     bool decrease = false;
 };
 
+// Whether an ancestor of this accessible object is a stop of TalkBack's own: focusable, or pressed by a
+// double tap (clickKind()); the text in it is then read with that ancestor, as Android does with the
+// text of a clickable view's children
+static bool insideActionable(QAccessibleInterface *iface) {
+    for (QAccessibleInterface *parent = iface->parent(); parent && parent->isValid(); parent = parent->parent()) {
+        const QAccessible::Role role = parent->role();
+        if (role == QAccessible::Window || role == QAccessible::Application)
+            return false;
+        if (parent->state().focusable || clickKind(parent) != ClickKind::None)
+            return true;
+    }
+    return false;
+}
+
+// The deepest accessible object under a point of the screen (logical pixels), as a touch finds it
+static QAccessibleInterface *accessibleAt(const QPoint &pos) {
+    QAccessibleInterface *root = interfaceFromId(-1);
+    if (!root || !root->isValid())
+        return nullptr;
+    QAccessibleInterface *child = root->childAt(pos.x(), pos.y());
+    QAccessibleInterface *lastChild = nullptr;
+    while (child && child != lastChild) {
+        lastChild = child;
+        child = child->childAt(pos.x(), pos.y());
+    }
+    return lastChild;
+}
+
+// Whether a touch on the middle of this text finds another object, focusable or pressable (or inside
+// one), laid over it and saying the same words (a MouseArea named as the Label it covers: the profile
+// chip of the side menu). That object is the stop; the text is none, so a swipe stops where a touch
+// does. Another text that a control merely covers (a page under the heart rate sensor bar) stays one.
+static bool coveredByActionable(QAccessibleInterface *iface, const QString &text) {
+    const QRect rect = iface->rect();
+    if (rect.isEmpty())
+        return false;
+    QAccessibleInterface *hit = accessibleAt(rect.center());
+    if (!hit || hit == iface || !hit->isValid())
+        return false;
+    for (QAccessibleInterface *node = hit; node && node->isValid(); node = node->parent()) {
+        const QAccessible::Role role = node->role();
+        if (role == QAccessible::Window || role == QAccessible::Application)
+            return false;
+        if (node->state().focusable || clickKind(node) != ClickKind::None)
+            return accessibleDescription(node).contains(text);
+    }
+    return false;
+}
+
 static NodeData nodeData(jint objectId) {
     NodeData data;
     QAccessibleInterface *iface = interfaceFromId(objectId);
@@ -926,7 +996,16 @@ static NodeData nodeData(jint objectId) {
     data.enabled = !state.disabled;
     data.checkable = state.checkable;
     data.checked = state.checked;
-    data.focusable = state.focusable;
+    // A text (Text, Label: StaticText) is focusable, as in Qt since 5.15.9 and 6.2.5 (qtdeclarative
+    // 9c5f772b5e, QTBUG-77371): else TalkBack neither stops on a text of its own (the text of the heart
+    // rate sensor bar) nor lets a touch focus it. Unlike Qt, not a text inside a focusable or pressable
+    // item (an entry of the side menu, a tile): TalkBack reads it with that item, and focusable it would
+    // be a second stop with the same words. Qt 5.15.0 keeps no record of an explicit
+    // Accessible.focusable: false, which Qt's fix respects; QZ sets none, and a text that is to be
+    // passed over takes Accessible.ignored: true. An empty text (a value before the first data) is no stop,
+    // nor a text a touch would not find, under a pressable object of its own (coveredByActionable()).
+    data.focusable = state.focusable || (iface->role() == QAccessible::StaticText && !data.description.isEmpty() &&
+                                         !insideActionable(iface) && !coveredByActionable(iface, data.description));
     data.focused = state.focused;
     data.visible = !state.invisible;
     return data;
@@ -1033,14 +1112,8 @@ static jint hitTest(JNIEnv *, jclass, jfloat x, jfloat y) {
         QAccessibleInterface *root = interfaceFromId(-1);
         if (root && root->isValid()) {
             const QPoint pos = QHighDpi::fromNativePixels(QPoint(int(x), int(y)), root->window());
-            QAccessibleInterface *child = root->childAt(pos.x(), pos.y());
-            QAccessibleInterface *lastChild = nullptr;
-            while (child && child != lastChild) {
-                lastChild = child;
-                child = child->childAt(pos.x(), pos.y());
-            }
-            if (lastChild)
-                return jint(QAccessible::uniqueId(lastChild));
+            if (QAccessibleInterface *hit = accessibleAt(pos))
+                return jint(QAccessible::uniqueId(hit));
         }
         return jint(-1);
     });
