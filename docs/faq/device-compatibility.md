@@ -1,5 +1,12 @@
 # Device compatibility
 
+
+## Can a HOUSEFIT SPIRO 80 iRun connect to QZ and Zwift on Apple TV?
+
+Yes. A rider confirmed that a HOUSEFIT SPIRO 80 iRun worked with QZ and a Zwift setup. Run **QZ on a phone** to connect to the bike, and run **Zwift on Apple TV** as the training app. Pair Zwift to the virtual fitness device advertised by QZ rather than trying to pair Zwift directly to the bike.
+
+When checking whether the bike is discoverable, disconnect any existing iConsole connection first so the bike is free for QZ or a Bluetooth scanning app. The confirmed case establishes that the setup worked; it does not establish support for every HOUSEFIT model or firmware revision.
+
 ## Is the BH Fitness Nexor Dual / i-Nexor compatible with QZ?
 
 Yes. QZ has current support for BH Fitness bikes that use the iConcept/BH DUALKIT Bluetooth protocol, including the Nexor-specific handling used by devices advertising with a `BH-` name.
