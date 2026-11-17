@@ -2491,6 +2491,8 @@ import AndroidStatusBar 1.0
             property string ui_accent: "violet"
             property string ui_theme_mode: "auto"
 
+            property int rouvy_virtual_gearing_profile: 0
+
         }
 
         // The home page has its own Settings copy, read once when it is created: hand it every new
@@ -9400,6 +9402,24 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+                    Label {
+                        text: qsTr("Virtual Gearing Profile")
+                        Layout.fillWidth: true
+                    }
+                    ComboBox {
+                        Layout.fillWidth: true
+                        model: [qsTr("Mixed Terrain (1×24)"), qsTr("Flat (incomplete)"),
+                                qsTr("All-Arounder"), qsTr("Climbing")]
+                        currentIndex: settings.rouvy_virtual_gearing_profile
+                        onActivated: settings.rouvy_virtual_gearing_profile = currentIndex
+                    }
+                    Label {
+                        text: qsTr("Select the same sequential gearing profile as in Rouvy. Flat currently supports only the first 17 gears.")
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                 }
             }
 
