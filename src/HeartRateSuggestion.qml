@@ -38,6 +38,8 @@ UiFrame {
     onSensorsChanged: {
         if (sensors.length === 0)
             list.close()
+        else if (list.visible)
+            list.updateRows()
     }
 
     // the bar takes the taps, not the tiles under it
@@ -114,10 +116,53 @@ UiFrame {
         width: window.ui.modern ? Math.min(window.width - 48, 440) : Math.min(window.width - 40, 460)
         height: Math.min(window.height - 60, listColumn.implicitHeight + topPadding + bottomPadding)
         x: Math.round((parent.width - width) / 2)
-        y: Math.round((parent.height - height) / 2)
+        // centred when it opens; then the top stays: a sensor found meanwhile adds a row at the bottom instead of
+        // centring the taller card again, which moved every row up half a row under the finger. It
+        // moves up only when the card reaches the bottom of the window. openedY is taken on opened, after the
+        // enter transition, when the rows are laid out
+        property real openedY: -1
+        y: openedY >= 0 ? Math.min(openedY, parent.height - height - 30) : Math.round((parent.height - height) / 2)
+        onOpened: openedY = y
+        onClosed: openedY = -1
         padding: window.ui.modern ? 24 : 12
         // closed without a choice: the bar is still there
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        // The rows hold still while the list is open. The search repeats every minute and each find gives a new
+        // sensors array, sorted again by signal (homeform::heartRateSensorFound); an array that differs in anything,
+        // as the model of a ListView, makes it destroy and recreate every row and scroll back to the top
+        // (QQuickItemView::setModel), so the rows changed places under the finger and, with TalkBack, a double
+        // tap connected the sensor now where the focus was.
+        // So the rows are copied when the list opens, in the order of the bar (the strongest signal first), and
+        // while it is open a sensor found again only updates its signal in place, a new one goes last. The bar
+        // clears all the sensors at once (Connect, Not now, withdrawn) and that closes the list: no row to remove
+        ListModel {
+            id: rows
+        }
+        function fillRows() {
+            rows.clear()
+            for (var i = 0; i < bar.sensors.length; i++)
+                rows.append({ "name": bar.sensors[i].name, "address": bar.sensors[i].address,
+                              "rssi": bar.sensors[i].rssi })
+        }
+        function updateRows() {
+            for (var i = 0; i < bar.sensors.length; i++) {
+                var sensor = bar.sensors[i]
+                var row = 0
+                while (row < rows.count && rows.get(row).address !== sensor.address)
+                    row++
+                if (row === rows.count) {
+                    rows.append({ "name": sensor.name, "address": sensor.address, "rssi": sensor.rssi })
+                    continue
+                }
+                // the name too: Connect takes it from the row, as the bar takes it from the sensors
+                if (rows.get(row).name !== sensor.name)
+                    rows.setProperty(row, "name", sensor.name)
+                if (rows.get(row).rssi !== sensor.rssi)
+                    rows.setProperty(row, "rssi", sensor.rssi)
+            }
+        }
+        onAboutToShow: fillRows()
 
         // classic: the bar's look with the accent outline as before; modern: the question card
         background: UiFrame {
@@ -155,7 +200,7 @@ UiFrame {
                 wrapMode: Text.WordWrap
             }
 
-            // the strongest signal first: most likely the user's own sensor. A gym may have many: it scrolls
+            // the strongest signal first when it opens: most likely the user's own sensor. A gym may have many: it scrolls
             ListView {
                 id: sensorList
                 width: parent.width
@@ -179,11 +224,11 @@ UiFrame {
                                    - cancelRow.height - 2 * listColumn.spacing
                                  : window.height - 180)
                 clip: true
-                model: bar.sensors
+                model: rows
 
                 delegate: ItemDelegate {
                     id: sensorRow
-                    readonly property int level: list.signalLevel(modelData.rssi)
+                    readonly property int level: list.signalLevel(model.rssi)
                     width: ListView.view.width
                     // Modern look: the name in line with the title, the signal as bars on the right, a divider
                     // between the rows, the text of the lists (fontBody, textMain), 56 high or more with a bigger
@@ -194,14 +239,14 @@ UiFrame {
                     leftPadding: window.ui.modern ? 0 : padding
                     rightPadding: window.ui.modern ? signalBars.width + 12 : padding
                     // 0 or more: the platform did not give the signal
-                    text: window.ui.modern ? modelData.name
-                                           : modelData.name + (modelData.rssi < 0 ? "  (" + modelData.rssi + " dBm)" : "")
-                    Accessible.name: window.ui.modern && level > 0 ? modelData.name + ", " + list.signalText(level)
-                                                                    : modelData.name
+                    text: window.ui.modern ? model.name
+                                           : model.name + (model.rssi < 0 ? "  (" + model.rssi + " dBm)" : "")
+                    Accessible.name: window.ui.modern && level > 0 ? model.name + ", " + list.signalText(level)
+                                                                    : model.name
                     Accessible.onPressAction: clicked()
                     onClicked: {
                         list.close()
-                        rootItem.heartRateSensorSuggestionConnect(modelData.name, modelData.address)
+                        rootItem.heartRateSensorSuggestionConnect(model.name, model.address)
                     }
 
                     Rectangle {

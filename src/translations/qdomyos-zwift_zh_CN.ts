@@ -2869,6 +2869,18 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>下一步</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>设备、单位和档案，逐步设置</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>选择一个主题，直接进入其设置</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>关闭向导</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>自定义配置</translation>
     </message>
@@ -3228,7 +3240,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>正在处理训练文件...
+        <translation type="vanished">正在处理训练文件...
 首次启动时可能需要一些时间。</translation>
     </message>
     <message>
@@ -3361,7 +3373,7 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>正在导入训练...</translation>
+        <translation type="vanished">正在导入训练...</translation>
     </message>
     <message>
         <source>Filter by date</source>
@@ -3378,6 +3390,22 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Open on Peloton</source>
         <translation>在 Peloton 中打开</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>正在将训练添加到历史记录</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>正在复制训练文件</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>正在将训练添加到历史记录：%1/%2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>正在复制训练文件：%1/%2</translation>
     </message>
     <message>
         <source>Previous month</source>
@@ -3449,9 +3477,25 @@ This may take a few moments on first startup.</source>
         <source>Offset</source>
         <translation>偏移</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>减小档位 %1 的偏移</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>增大档位 %1 的偏移</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>减小%1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>增大%1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>启用自定义坡度-阻力表</translation>
@@ -3467,6 +3511,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Resistance</source>
         <translation>阻力</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>删除坡度为 %1 的点</translation>
     </message>
     <message>
         <source>Add Point</source>
@@ -8926,6 +8974,14 @@ IMPORTANT NOTES:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>对于智能训练器，请使用阻力而不是坡度。如果您不希望 Wahoo Climb 或类似设备在换档时改变坡度，使用此设置会有帮助。默认：禁用</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>阻力兼容模式</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>如果在 QZ 中调整阻力时，单车只能跳到 1 级或最大级别，请启用此选项。FTMS 阻力值将乘以 10 后发送。默认：关闭。</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>

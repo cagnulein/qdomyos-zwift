@@ -1,5 +1,12 @@
 # Bike and trainer troubleshooting
 
+
+## My iConsole-compatible bike connects to QZ but cadence and power stay at zero. What should I try?
+
+If QZ discovers an iConsole-compatible bike (for example, a Stream UB VIII advertising as `i-Console+...`) but only the workout timer advances, open **QZ Settings > iConsole settings** and enable **iConsole bike**. Restart/reconnect QZ and pedal to check whether cadence, watts, and resistance now update. The iConsole setting is in its own settings section, not necessarily under the general Bike Options list.
+
+In a confirmed Stream UB VIII support case, enabling **iConsole bike** restored cadence and other metrics. If the heart-rate tile remains at zero, try setting QZ's **Heart Rate Belt Name** selection to **Disabled** when you want to use heart rate provided through the bike. The same rider confirmed that this restored both the handlebar heart-rate readings and readings from a compatible chest belt connected through the bike; resistance control also worked. If you instead want QZ to connect directly to a separate Bluetooth chest strap, select that strap explicitly.
+
 ## QZ detects my bike, but the bike metrics stay at zero. What should I try?
 
 If QZ recognizes the bike but cadence, power, speed, or other bike data are not updating while other sources such as heart rate still work:

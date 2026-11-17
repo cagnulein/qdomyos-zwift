@@ -12,7 +12,8 @@ import QtGraphicalEffects 1.12
 // is (qtquickcontrols2 5.15, src/imports/controls/material/ComboBox.qml), so nothing changes
 // with the modern look off. Modern look: the box is one step lighter than the page (Material
 // painted it with dialogColor = the page colour, and it vanished into the page), rounded
-// like the text fields and without the shadow; the list is rounded as well.
+// like the text fields and without the shadow; the list is a Material 3 menu: the container
+// of UiMenuBackground, items in rounded blocks inset by 8, the chosen one tinted by the accent.
 T.ComboBox {
     id: control
 
@@ -59,6 +60,13 @@ T.ComboBox {
     // rounded mask of their ripple (see the delegate)
     property int pressedItemIndex: -1
     property int previousPressedItemIndex: -1
+    // Modern: the item under the finger now (-1 - none), it has a rounded block while held
+    property int downItemIndex: -1
+
+    // Modern: the tone of the open list. A list on a popup of the surfaceHigh tone (the RPE
+    // popup) takes surface, one tone below it as a Material 3 menu in a dialog - with the
+    // default it was one colour with the popup
+    property color menuColor: window.ui.surfaceHigh
 
     TextMetrics {
         id: itemMetrics
@@ -99,6 +107,13 @@ T.ComboBox {
     Material.background: modern ? window.ui.surfaceHighest : (flat ? "transparent" : undefined)
     Material.foreground: flat ? undefined : Material.primaryTextColor
 
+    // Modern: the item has a rounded block - it is the chosen one, the one highlighted or the
+    // one held by a finger
+    function hasBlock(i) {
+        return i === control.currentIndex || i === control.highlightedIndex
+            || i === control.downItemIndex
+    }
+
     delegate: MenuItem {
         id: menuItem
         width: ListView.view.width
@@ -108,7 +123,8 @@ T.ComboBox {
         // window. The name is set from the text too, as in the menus of the workout history
         Accessible.name: text
         Accessible.onPressAction: clicked()
-        Material.foreground: control.currentIndex === index ? ListView.view.contentItem.Material.accent : ListView.view.contentItem.Material.foreground
+        Material.foreground: control.modern ? (control.currentIndex === index ? window.ui.accent : window.ui.textMain)
+                                            : control.currentIndex === index ? ListView.view.contentItem.Material.accent : ListView.view.contentItem.Material.foreground
         highlighted: control.highlightedIndex === index
         hoverEnabled: control.hoverEnabled
         onPressedChanged: {
@@ -117,17 +133,28 @@ T.ComboBox {
                 control.pressedItemIndex = index
             }
         }
+        onDownChanged: {
+            if (down)
+                control.downItemIndex = index
+            else if (control.downItemIndex === index)
+                control.downItemIndex = -1
+        }
 
-        // Material's MenuItem background; modern: the highlight is a rounded block inset from
-        // the edges, not a square bar across the whole list
+        // Material's MenuItem background; modern (Material 3 menu): a rounded block inset from
+        // the edges, not a square bar across the whole list - the chosen item a tint of the
+        // accent (as a chosen list card), another item under the finger or the keyboard focus
+        // the state layer of the text colour (8 %)
         background: Rectangle {
             x: control.modern ? 8 : 0
             implicitWidth: 200
             implicitHeight: menuItem.Material.menuItemHeight
             width: menuItem.width - 2 * x
             height: menuItem.height
-            radius: control.modern ? 10 : 0
-            color: menuItem.highlighted ? menuItem.Material.listHighlightColor : "transparent"
+            radius: control.modern ? 12 : 0
+            color: !control.modern ? (menuItem.highlighted ? menuItem.Material.listHighlightColor : "transparent")
+                 : control.currentIndex === index ? window.ui.alpha(window.ui.accent, 0.14)
+                 : menuItem.highlighted ? window.ui.alpha(window.ui.textMain, 0.08)
+                 : "transparent"
 
             // Modern: the mask of the rounded block for the ripple below
             Rectangle {
@@ -163,10 +190,27 @@ T.ComboBox {
                     clipRadius: rippleMask.radius
                     pressed: menuItem.pressed
                     anchor: menuItem
-                    active: menuItem.down || menuItem.highlighted
+                    // Modern: only while pressed - the block of the chosen or highlighted item is
+                    // its colour already, the held ripple laid a grey veil over it the whole time
+                    // the list was open (it opens with the chosen item highlighted, a touch does
+                    // not move that)
+                    active: menuItem.down || (!control.modern && menuItem.highlighted)
                     // Modern: the Material 3 state layer, the text colour at 10 % (as UiButton)
                     color: control.modern ? window.ui.alpha(window.ui.textMain, 0.10) : menuItem.Material.rippleColor
                 }
+            }
+
+            // Modern: a thin line under the item, inset like the highlight, so the items of a long
+            // list (heart rate belts with similar names) do not run together. None under the last
+            // item and none around a rounded block (the chosen, the highlighted or the pressed item), it is not cut
+            Rectangle {
+                visible: control.modern && index < control.count - 1
+                         && !control.hasBlock(index) && !control.hasBlock(index + 1)
+                y: parent.height - height
+                width: parent.width
+                height: 1
+                color: window.ui.outline
+                opacity: 0.6
             }
         }
     }
@@ -242,6 +286,7 @@ T.ComboBox {
         onClosed: {
             control.pressedItemIndex = -1
             control.previousPressedItemIndex = -1
+            control.downItemIndex = -1
         }
         y: control.editable ? control.height - 5 : 0
         // As wide as the longest item (long labels were cut off), not narrower than the field
@@ -297,13 +342,25 @@ T.ComboBox {
             T.ScrollIndicator.vertical: ScrollIndicator { }
         }
 
-        background: Rectangle {
-            radius: control.modern ? 12 : 2
-            color: parent.Material.dialogColor
+        // Classic: Material's popup background as before. Modern: the Material 3 menu container
+        // (UiMenuBackground) - Material gave the list the page colour (dialogColor is the
+        // window's Material.background), and on a card it looked like a hole in it
+        background: Item {
+            Rectangle {
+                visible: !control.modern
+                anchors.fill: parent
+                radius: 2
+                color: Material.dialogColor
 
-            layer.enabled: control.enabled
-            layer.effect: ElevationEffect {
-                elevation: 8
+                layer.enabled: visible && control.enabled
+                layer.effect: ElevationEffect {
+                    elevation: 8
+                }
+            }
+            UiMenuBackground {
+                visible: control.modern
+                anchors.fill: parent
+                color: control.menuColor
             }
         }
     }
