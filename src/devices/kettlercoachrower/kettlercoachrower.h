@@ -6,6 +6,7 @@
 #include <QBluetoothServiceInfo>
 #include <QBluetoothSocket>
 #include <QDateTime>
+#include <QElapsedTimer>
 #include <QQueue>
 #include <QTimer>
 
@@ -86,6 +87,8 @@ class kettlercoachrower : public rower {
     QTimer requestTimeoutTimer;
 
     quint16 currentWatts = 0;
+    QElapsedTimer powerClock;
+    kettlerclassicprotocol::CoachSStrokePowerSmoother strokePower;
     int pendingResistanceLevel = -1;
     int lastReportedResistanceLevel = -1;
     quint16 lastStrokes = 0;
