@@ -82,6 +82,7 @@ class ftmsbike : public bike {
     static bool bhBi9200PhysicalGearDelta(const QString &deviceName, bool enabled,
                                          resistance_t previousResistance, resistance_t currentResistance,
                                          qint64 millisecondsSinceControlCommand, resistance_t *delta);
+    static bool bhBi9200ShouldReplayGearChange(const QString &deviceName, bool physicalShiftPending);
     bool connected() override;
 
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
@@ -200,6 +201,7 @@ class ftmsbike : public bike {
     // BI9200 FTMS resistance notifications can represent physical handlebar shifts.
     resistance_t lastBhBi9200Resistance = -1;
     QDateTime lastBhBi9200ControlCommand;
+    bool bhBi9200PhysicalGearChangePending = false;
 
     inclinationResistanceTable _inclinationResistanceTable;
 
