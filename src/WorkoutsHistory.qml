@@ -1845,6 +1845,12 @@ Page {
                     Text {
                         Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         Layout.fillWidth: true
+                        // Modern look: seven equal columns. A GridLayout grows each column from its
+                        // preferred width (the width of the day name), so "Fri" and "Sat" stayed narrower
+                        // with smaller circles; the same preferred width for every cell makes them equal
+                        // (Qt 6.6 has GridLayout.uniformCellWidths for this, Qt 5.15 does not). -1: the
+                        // default, the classic look as before
+                        Layout.preferredWidth: workoutHistoryPage.modern ? 1 : -1
                         Layout.preferredHeight: 30
                         text: modelData
                         font.bold: true
@@ -1860,6 +1866,8 @@ Page {
                     
                     Rectangle {
                         Layout.fillWidth: true
+                        // the equal columns of the modern look (the day names above)
+                        Layout.preferredWidth: workoutHistoryPage.modern ? 1 : -1
                         Layout.fillHeight: true
                         Layout.minimumHeight: 40
                         
