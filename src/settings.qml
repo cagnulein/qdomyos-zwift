@@ -2389,6 +2389,7 @@ import AndroidStatusBar 1.0
             property real virtual_device_rower_cadence_gain: 1.0
             property real virtual_device_rower_cadence_offset: 0.0
             property bool proform_treadmill_sport_55: false
+            property bool zwift_right_controller_only: false
         }
 
         // The home page has its own Settings copy, read once when it is created: hand it every new
@@ -17169,6 +17170,35 @@ import AndroidStatusBar 1.0
 
                             Label {
                                 text: qsTr("Use it to change the gears on QZ!")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Use Zwift Right Controller Only")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.zwift_right_controller_only
+                                enabled: settings.zwift_click
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.zwift_right_controller_only = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            Label {
+                                text: qsTr("Doesn't require a Zwift unlock.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
