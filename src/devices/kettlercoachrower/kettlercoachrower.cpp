@@ -166,9 +166,10 @@ void kettlercoachrower::rfCommConnected() {
     signalledDisconnection = false;
     awaitingHandshake = true;
     lastStrokeTime = QDateTime();
-    lastDistanceTime = QDateTime();
     lastStrokes = 0;
     lastDistanceMeters = 0;
+    lastStrokeDistanceMeters = 0;
+    Speed = 0;
     telemetrySeen = false;
     requestResistance = -1;
     currentWatts = 0;
@@ -349,35 +350,54 @@ void kettlercoachrower::processTelemetry(const QByteArray &payload) {
     m_watt = currentWatts;
     recordReportedResistance(kettlerclassicprotocol::coachSReportedResistance(payload),
                              "E0 byte 23");
-    if (strokes >= lastStrokes) {
-        if (strokes > lastStrokes) {
-            if (lastStrokeTime.isValid()) {
-                const qint64 elapsedMs = lastStrokeTime.msecsTo(now);
-                if (elapsedMs >= 300 && elapsedMs <= 10000) {
-                    Cadence = qBound(0.0, (60000.0 * (strokes - lastStrokes)) / elapsedMs, 80.0);
-                }
-            }
-            lastStrokeTime = now;
-            lastStrokes = strokes;
-        } else if (lastStrokeTime.isValid() && lastStrokeTime.msecsTo(now) > 6000) {
-            Cadence = 0;
-        }
-        StrokesCount = strokes;
+    // A new workout can reset one or both counters. Never derive an
+    // enormous speed from the old session's distance/time anchor.
+    if (strokes < lastStrokes || meters < lastDistanceMeters) {
+        lastStrokeTime = QDateTime();
+        lastStrokeDistanceMeters = meters;
+        lastStrokes = strokes;
+        lastDistanceMeters = meters;
+        Speed = 0;
+        Cadence = 0;
     }
 
-    if (meters >= lastDistanceMeters) {
-        if (meters > lastDistanceMeters) {
-            if (lastDistanceTime.isValid()) {
-                const qint64 elapsedMs = lastDistanceTime.msecsTo(now);
-                if (elapsedMs >= 300 && elapsedMs <= 10000) {
-                    Speed = qBound(0.0, (meters - lastDistanceMeters) * 3600.0 / elapsedMs, 30.0);
+    if (strokes > lastStrokes) {
+        if (lastStrokeTime.isValid()) {
+            const qint64 elapsedMs = lastStrokeTime.msecsTo(now);
+            if (elapsedMs >= 300 && elapsedMs <= 10000) {
+                const quint16 strokesDelta = strokes - lastStrokes;
+                Cadence = qBound(0.0, (60000.0 * strokesDelta) / elapsedMs, 80.0);
+                if (meters > lastStrokeDistanceMeters) {
+                    // The cumulative meter counter is monotonic but advances
+                    // unevenly within each pull/recovery. Calculate the speed
+                    // of the *completed stroke interval* instead, then hold
+                    // it until the next counter change. currentPace() and
+                    // PM5/MyWhoosh already consume this same Speed metric.
+                    const int distanceDelta = meters - lastStrokeDistanceMeters;
+                    const double strokeSpeedKmh =
+                        qBound(0.0, distanceDelta * 3600000.0 / elapsedMs, 30.0);
+                    Speed = strokeSpeedKmh;
+                    emit debug(QStringLiteral(
+                        "Coach S completed-stroke speed=%1 km/h distanceDelta=%2 m elapsedMs=%3 strokesDelta=%4")
+                                   .arg(strokeSpeedKmh, 0, 'f', 2).arg(distanceDelta)
+                                   .arg(elapsedMs).arg(strokesDelta));
                 }
             }
-            lastDistanceTime = now;
-            lastDistanceMeters = meters;
-        } else if (lastDistanceTime.isValid() && lastDistanceTime.msecsTo(now) > 6000) {
-            Speed = 0;
         }
+        lastStrokeTime = now;
+        lastStrokeDistanceMeters = meters;
+        lastStrokes = strokes;
+    } else if (lastStrokeTime.isValid() &&
+               lastStrokeTime.msecsTo(now) > 6000) {
+        Cadence = 0;
+        if (currentWatts == 0) Speed = 0;
+    }
+    StrokesCount = strokes;
+
+    // Keep the original cumulative distance unchanged; only the derivation
+    // of Speed/500m pace is different for the Coach S.
+    if (meters >= lastDistanceMeters) {
+        lastDistanceMeters = meters;
         Distance = meters / 1000.0;
         Distance1s = meters / 1000.0;
     }
@@ -426,6 +446,14 @@ void kettlercoachrower::update() {
             m_watt = currentWatts;
             emit debug(QStringLiteral("Coach S stroke-average power idle timeout: %1 W")
                            .arg(currentWatts));
+        }
+        // PM5 keeps advertising while the device is idle. Clear the last
+        // completed-stroke pace even if no further E0 frame is received.
+        if (heldWatts == 0 && lastStrokeTime.isValid() &&
+            lastStrokeTime.msecsTo(QDateTime::currentDateTime()) > 6000 &&
+            Speed.value() != 0) {
+            Speed = 0;
+            emit debug(QStringLiteral("Coach S completed-stroke speed idle timeout: 0 km/h"));
         }
     }
 
