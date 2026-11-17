@@ -914,6 +914,7 @@ const QString QZSettings::nordictrackadbbike_resistance = QStringLiteral("nordic
 const QString QZSettings::proform_treadmill_carbon_t7 = QStringLiteral("proform_treadmill_carbon_t7");
 const QString QZSettings::nordictrack_treadmill_exp_5i = QStringLiteral("nordictrack_treadmill_exp_5i");
 const QString QZSettings::dircon_id = QStringLiteral("dircon_id");
+const QString QZSettings::rouvy_virtual_gearing_profile = QStringLiteral("rouvy_virtual_gearing_profile");
 const QString QZSettings::rouvy_compatibility = QStringLiteral("rouvy_compatibility");
 const QString QZSettings::proform_elliptical_ip = QStringLiteral("proform_elliptical_ip");
 const QString QZSettings::default_proform_elliptical_ip = QStringLiteral("");
@@ -1366,7 +1367,7 @@ const QString QZSettings::default_ui_theme_mode = QStringLiteral("auto");
 
 const QString QZSettings::wahoo_wheel_question_answered = QStringLiteral("wahoo_wheel_question_answered");
 
-const uint32_t allSettingsCount = 1054;
+const uint32_t allSettingsCount = 1055;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2447,6 +2448,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::ui_accent, QZSettings::default_ui_accent},
     {QZSettings::ui_theme_mode, QZSettings::default_ui_theme_mode},
     {QZSettings::wahoo_wheel_question_answered, QZSettings::default_wahoo_wheel_question_answered},
+    {QZSettings::rouvy_virtual_gearing_profile, QZSettings::default_rouvy_virtual_gearing_profile},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
