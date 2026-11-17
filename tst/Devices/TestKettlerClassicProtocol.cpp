@@ -313,3 +313,17 @@ TEST(KettlerClassicProtocol, CoachSDefaultL4UsesConfirmedC0Write) {
             0x00c0, 0x02, QByteArray(1, char(4)));
     EXPECT_EQ(initialL4, QByteArray::fromHex("0200c01022000104032dfd"));
 }
+
+TEST(KettlerClassicProtocol, CoachSCounterResetDuringActiveRowClearsPreviousStroke) {
+    kettlerclassicprotocol::CoachSStrokePowerSmoother smoothing;
+    EXPECT_EQ(smoothing.addSample(20, 120, 0), 120);
+    EXPECT_EQ(smoothing.addSample(20, 180, 200), 150);
+    EXPECT_EQ(smoothing.addSample(20, 0, 400), 150);
+    EXPECT_EQ(smoothing.addSample(21, 200, 800), 150);
+    EXPECT_EQ(smoothing.addSample(21, 0, 1000), 200);
+    // An immediate new workout resets the rower's stroke count before the
+    // old inactivity timeout: no completed or partial watts may leak across.
+    EXPECT_EQ(smoothing.addSample(0, 300, 1200), 300);
+    EXPECT_EQ(smoothing.addSample(0, 0, 1400), 300);
+    EXPECT_EQ(smoothing.value(4500), 0);
+}
