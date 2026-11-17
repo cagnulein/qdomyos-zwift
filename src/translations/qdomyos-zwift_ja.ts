@@ -7952,6 +7952,14 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Use Zwift Right Controller Only</source>
+        <translation>Zwiftの右コントローラーのみ使用</translation>
+    </message>
+    <message>
+        <source>Doesn't require a Zwift unlock.</source>
+        <translation>Zwiftのロック解除は不要です。</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

@@ -7916,6 +7916,14 @@ Predeterminado: A = -0.96, B = 1.33</translation>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Use Zwift Right Controller Only</source>
+        <translation>Usar solo el controlador derecho de Zwift</translation>
+    </message>
+    <message>
+        <source>Doesn't require a Zwift unlock.</source>
+        <translation>No requiere desbloqueo de Zwift.</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>
