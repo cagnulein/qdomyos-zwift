@@ -1108,7 +1108,7 @@ Page {
                     }
 
                     Repeater {
-                        // Untranslated keys: onClicked compares against them, so the model must not go through qsTr()
+                        // Untranslated keys: onActivated compares against them, so the model must not go through qsTr()
                         model: [
                             QT_TR_NOOP("Auto-incline with treadmill and Zwift"),
                             QT_TR_NOOP("Auto-resistance with Peloton"),
