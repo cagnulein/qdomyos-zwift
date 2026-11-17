@@ -157,6 +157,13 @@ bool ftmsbike::bhBi9200PhysicalGearDelta(const QString &deviceName, bool enabled
     return true;
 }
 
+bool ftmsbike::bhBi9200ShouldReplayGearChange(const QString &deviceName, bool physicalShiftPending) {
+    // A native handlebar press already changed the BI9200's motor resistance.
+    // Replaying that gear change as an outgoing FTMS command applies it twice.
+    return !physicalShiftPending ||
+           deviceName.compare(QStringLiteral("H9110 BI9200"), Qt::CaseInsensitive) != 0;
+}
+
 void ftmsbike::writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                    bool wait_for_response) {
     QSettings settings;
@@ -668,10 +675,12 @@ void ftmsbike::update() {
         bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
         const bool gearChanged = lastGearValue != gears();
+        const bool replayGearChange =
+            bhBi9200ShouldReplayGearChange(bluetoothDevice.name(), bhBi9200PhysicalGearChangePending);
         // A new Matrix XR connection must not turn the initial gear change
         // (-1 -> 0) into an unsolicited resistance command before 2AD9 is ready.
         if (requestResistance != -1 ||
-            (gearChanged && (!FS_IB50 || !fsIb50PhysicalGearChangePending) &&
+            (gearChanged && replayGearChange && (!FS_IB50 || !fsIb50PhysicalGearChangePending) &&
              !uses16BitResistanceForDevice(bluetoothDevice.name()))) {
             bool deferResistanceRequest = false;
             if (requestResistance > 100) {
@@ -739,7 +748,7 @@ void ftmsbike::update() {
                                                                 // i'm using the gears in the inclination
                 inclinationSent = true;
                 requestInclination = -100;
-            } else if (!FS_IB50 && lastGearValue != gears() &&
+            } else if (!FS_IB50 && replayGearChange && lastGearValue != gears() &&
                        lastRawRequestedInclinationValue != -100) {
                 // Non-FS-IB50 bikes keep the legacy immediate gear-only update.
                 forceInclination(lastRawRequestedInclinationValue + gearsModifier()); // since this bike doesn't have the concept of resistance,
@@ -748,7 +757,7 @@ void ftmsbike::update() {
             }
         }
 
-        if (virtualBike && virtualBike->ftmsDeviceConnected() && !FS_IB50 &&
+        if (virtualBike && virtualBike->ftmsDeviceConnected() && !FS_IB50 && replayGearChange &&
             requestInclination == -100 && lastGearValue != gears() &&
             lastRawRequestedInclinationValue != -100 && lastPacketFromFTMS.length() >= 7) {
             qDebug() << "injecting fake ftms frame in order to send the new gear value ASAP" << lastPacketFromFTMS.toHex(' ');
@@ -812,6 +821,9 @@ void ftmsbike::update() {
         }
 
         lastGearValue = gears();
+        // Clear after processing one update; on-screen QZ shifts and future
+        // Zwift grade commands must retain their regular behavior.
+        bhBi9200PhysicalGearChangePending = false;
         if (!FS_IB50 || inclinationSent) {
             fsIb50PhysicalGearChangePending = false;
         }
@@ -1750,6 +1762,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     qDebug() << QStringLiteral("BH BI9200 physical shift")
                              << lastBhBi9200Resistance << nativeLevel << "delta" << gearDelta;
                     lastRawRequestedResistanceValue = -1;
+                    bhBi9200PhysicalGearChangePending = true;
                     setGears(gears() + gearDelta);
                 }
                 // Always consume the sample, including command echoes, to avoid
@@ -2393,6 +2406,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         lastFsIb50InclinationCommand = QDateTime();
         lastBhBi9200Resistance = -1;
         lastBhBi9200ControlCommand = QDateTime();
+        bhBi9200PhysicalGearChangePending = false;
         if (bluetoothDevice.name().toUpper().startsWith("SUITO")) {
             qDebug() << QStringLiteral("SUITO found");
             max_resistance = 16;
