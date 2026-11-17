@@ -117,6 +117,26 @@ TEST(FtmsBikeParserTest, BhBi9200PhysicalShiftClassifierIsIsolatedFromOtherBikes
     EXPECT_EQ(1, delta);
 }
 
+TEST(FtmsBikeParserTest, BhBi9200NativeShiftDoesNotEchoIntoFtms) {
+    // In the 2026-11-17 test, the physical 1 -> 2 shift triggered an
+    // unwanted outgoing forceResistance 8, followed by the bike jumping to 19.
+    EXPECT_FALSE(ftmsbike::bhBi9200ShouldReplayGearChange(
+        QStringLiteral("H9110 BI9200"), true));
+    // After the pending flag is consumed, QZ's own virtual-gears buttons
+    // and future Zwift commands continue to use the normal FTMS path.
+    EXPECT_TRUE(ftmsbike::bhBi9200ShouldReplayGearChange(
+        QStringLiteral("H9110 BI9200"), false));
+}
+
+TEST(FtmsBikeParserTest, BhBi9200ReplayGatePreservesOtherBikes) {
+    for (const QString &name : {QStringLiteral("H9110 OSAKA"),
+                                QStringLiteral("FS-IB50"),
+                                QStringLiteral("Wahoo KICKR"),
+                                QStringLiteral("H9110 BI9200 OTHER")}) {
+        EXPECT_TRUE(ftmsbike::bhBi9200ShouldReplayGearChange(name, true));
+    }
+}
+
 TEST(FtmsBikeParserTest, BhBi9200RejectsUninitializedAndNonButtonResistanceChanges) {
     resistance_t delta = 99;
     const auto expectIgnored = [&delta](resistance_t before, resistance_t after) {
