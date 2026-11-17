@@ -113,8 +113,11 @@ Page {
              // Modern look: an answer card with an icon and a second line. The moving-on buttons
              // (Back, Next, Finish...) are in the bar there, so every visible button is an answer
              readonly property bool rich: window.ui.modern && iconName !== ""
-             // TalkBack reads the second line after the label
-             Accessible.description: rich ? subtitle : ""
+             // TalkBack reads the second line after the label. In the name, not in
+             // Accessible.description: the Android node takes the description only when the name
+             // is empty (main.cpp, accessibleDescription). Without it the name is the text, as
+             // the button sets it by default (qquickabstractbutton.cpp v5.15.0:1136)
+             Accessible.name: rich && subtitle !== "" ? text + ", " + subtitle : text
              // A translated label can be wider than the screen: cap the button and wrap the text.
              // Capped by the screen, not by parent.width: in a GridLayout the parent's width comes
              // from the buttons themselves, and the loop squeezed them on Android
@@ -297,7 +300,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Welcome to QZ")
-                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.ui.fontPx(28)
+                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.fontPx(28)
                         font.bold: true
                         color: window.ui.ink("white")
                         Layout.topMargin: window.ui.modern ? 16 : 0
@@ -309,7 +312,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Created by Roberto Viola")
-                        font.pixelSize: window.ui.modern ? window.ui.fontBody : window.ui.fontPx(24)
+                        font.pixelSize: window.ui.modern ? window.ui.fontBody : window.fontPx(24)
                         color: window.ui.modern ? window.ui.textMuted : "white"
                         Layout.topMargin: window.ui.modern ? 4 : 0
                     }
@@ -392,7 +395,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("How can I help you?")
-                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.ui.fontPx(24)
+                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.fontPx(24)
                         font.bold: true
                         color: window.ui.ink("white")
                     }
@@ -469,7 +472,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("What's your fitness device?")
-                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.ui.fontPx(24)
+                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.fontPx(24)
                         font.bold: true
                         color: window.ui.ink("white")
                     }
@@ -550,7 +553,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Choose your preferred app")
-                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.ui.fontPx(24)
+                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.fontPx(24)
                         font.bold: true
                         color: window.ui.ink("white")
                     }
@@ -660,7 +663,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Connect to Peloton")
-                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.ui.fontPx(24)
+                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.fontPx(24)
                         font.bold: true
                         color: window.ui.ink("white")
                     }
@@ -755,7 +758,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Peloton Difficulty")
-                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.ui.fontPx(24)
+                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.fontPx(24)
                         font.bold: true
                         color: window.ui.ink("white")
                     }
@@ -778,7 +781,7 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Difficulty")
                         // Modern look: a field label
-                        font.pixelSize: window.ui.modern ? window.ui.fontBody : window.ui.fontPx(20)
+                        font.pixelSize: window.ui.modern ? window.ui.fontBody : window.fontPx(20)
                         font.bold: !window.ui.modern
                         color: window.ui.modern ? window.ui.textMuted : "white"
                         Layout.topMargin: window.ui.modern ? 24 : 0
@@ -869,7 +872,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Bike Resistance Level")
-                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.ui.fontPx(24)
+                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.fontPx(24)
                         font.bold: true
                         color: window.ui.ink("white")
                     }
@@ -969,7 +972,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Custom Configurations")
-                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.ui.fontPx(20)
+                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.fontPx(20)
                         font.bold: true
                         color: window.ui.ink("white")
                     }
@@ -1055,7 +1058,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Select a feature")
-                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.ui.fontPx(24)
+                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.fontPx(24)
                         font.bold: true
                         color: window.ui.ink("white")
                     }
@@ -1145,7 +1148,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Zwift Credentials")
-                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.ui.fontPx(24)
+                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.fontPx(24)
                         font.bold: true
                         color: window.ui.ink("white")
                     }
@@ -1170,7 +1173,7 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Username")
                         // Modern look: a field label
-                        font.pixelSize: window.ui.modern ? window.ui.fontBody : window.ui.fontPx(20)
+                        font.pixelSize: window.ui.modern ? window.ui.fontBody : window.fontPx(20)
                         font.bold: !window.ui.modern
                         color: window.ui.modern ? window.ui.textMuted : "white"
                         Layout.topMargin: window.ui.modern ? 24 : 0
@@ -1195,7 +1198,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Password")
-                        font.pixelSize: window.ui.modern ? window.ui.fontBody : window.ui.fontPx(20)
+                        font.pixelSize: window.ui.modern ? window.ui.fontBody : window.fontPx(20)
                         font.bold: !window.ui.modern
                         color: window.ui.modern ? window.ui.textMuted : "white"
                         Layout.topMargin: window.ui.modern ? 24 : 0
@@ -1289,7 +1292,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Zwift Play and Click")
-                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.ui.fontPx(20)
+                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.fontPx(20)
                         font.bold: true
                         color: window.ui.ink("white")
                     }
@@ -1315,7 +1318,7 @@ Page {
                         topPadding: 0
                         rightPadding: 0
                         leftPadding: 0
-                        font.pixelSize: window.ui.modern ? window.ui.fontBody : window.ui.fontPx(20)
+                        font.pixelSize: window.ui.modern ? window.ui.fontBody : window.fontPx(20)
                         clip: false
                         width: zwiftPlayClickDescription.width
                         checked: settings.zwift_click
@@ -1331,7 +1334,7 @@ Page {
                         bottomPadding: 0
                         topPadding: 0
                         rightPadding: 0
-                        font.pixelSize: window.ui.modern ? window.ui.fontBody : window.ui.fontPx(20)
+                        font.pixelSize: window.ui.modern ? window.ui.fontBody : window.fontPx(20)
                         width: zwiftPlayClickDescription.width
                         leftPadding: 0
                         clip: false
@@ -1425,7 +1428,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Virtual Shifting")
-                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.ui.fontPx(24)
+                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.fontPx(24)
                         font.bold: true
                         color: window.ui.ink("white")
                     }
@@ -1514,7 +1517,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Custom Configurations")
-                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.ui.fontPx(20)
+                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.fontPx(20)
                         font.bold: true
                         color: window.ui.ink("white")
                     }
@@ -1601,7 +1604,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Thank you for setting up QZ!")
-                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.ui.fontPx(20)
+                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.fontPx(20)
                         font.bold: true
                         color: window.ui.ink("white")
                     }
@@ -1682,7 +1685,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Select Your Fitness Device")
-                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.ui.fontPx(24)
+                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.fontPx(24)
                         font.bold: true
                         color: window.ui.ink("white")
                     }
@@ -1796,7 +1799,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Unit System")
-                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.ui.fontPx(24)
+                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.fontPx(24)
                         font.bold: true
                         color: window.ui.ink("white")
                     }
@@ -1892,7 +1895,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("User Information")
-                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.ui.fontPx(24)
+                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.fontPx(24)
                         font.bold: true
                         color: window.ui.ink("white")
                     }
@@ -2058,7 +2061,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Select Your Heart Rate Device")
-                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.ui.fontPx(24)
+                        font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.fontPx(24)
                         font.bold: true
                         color: window.ui.ink("white")
                     }
