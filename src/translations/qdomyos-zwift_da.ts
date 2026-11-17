@@ -2957,12 +2957,12 @@ De følgende spørgsmål tilpasser QZ til dit udstyr og dine mål.</translation>
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Importerer træningspas...</translation>
+        <translation type="vanished">Importerer træningspas...</translation>
     </message>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Behandler træningsfiler...
+        <translation type="vanished">Behandler træningsfiler...
 Det kan tage et øjeblik ved første start.</translation>
     </message>
     <message>
@@ -3090,6 +3090,22 @@ Det kan tage et øjeblik ved første start.</translation>
         <translation>Importér træningspas</translation>
     </message>
     <message>
+        <source>Adding workouts to the history</source>
+        <translation>Tilføjer træningspas til historikken</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Kopierer træningsfiler</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Tilføjer træningspas til historikken: %1 af %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Kopierer træningsfiler: %1 af %2</translation>
+    </message>
+    <message>
         <source>Open on Peloton</source>
         <translation>Åbn i Peloton</translation>
     </message>
@@ -3179,9 +3195,25 @@ Det kan tage et øjeblik ved første start.</translation>
         <source>Offset</source>
         <translation>Justering</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Formindsk justering for gear %1</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Øg justering for gear %1</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Formindsk: %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Øg: %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Aktivér egen tabel for hældning til modstand</translation>
@@ -3197,6 +3229,10 @@ Det kan tage et øjeblik ved første start.</translation>
     <message>
         <source>Resistance</source>
         <translation>Modstand</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Fjern punktet ved hældning %1</translation>
     </message>
     <message>
         <source>Add Point</source>
@@ -7228,6 +7264,14 @@ VIGTIGT:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>Bruger modstand i stedet for hældning på smart-hometrainere. Det hjælper, hvis du ikke vil have, at Wahoo Climb eller lignende ændrer hældningen, når du skifter gear. Standard: deaktiveret.</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>Modstandskompatibilitet</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Aktivér dette, hvis ændring af modstand i QZ kun sætter cyklen til niveau 1 eller maksimum. Sender FTMS-modstand ganget med 10. Standard: deaktiveret.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>

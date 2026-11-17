@@ -15,8 +15,73 @@ ScrollView {
     clip: true
 
     property string defaultInclinationResistanceTable: "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16"
-    property int rowHeight: 55
+    // Modern look: the +/- fields 52 high, 8 between them (4 above and 4 below each)
+    property int rowHeight: window.ui.modern ? 60 : 55
     property int controlHeight: 43
+
+    // Modern look: a +/- field of the table, as on the Wahoo Options page. The classic one is a
+    // text field between two buttons; its "-" and "+" did not fit the modern button and showed
+    // as empty circles
+    component Stepper: Rectangle {
+        id: stepper
+        property alias text: stepperInput.text
+        // The column title, for a screen reader: the field and its - and + say what they change
+        property string label
+        signal step(real delta)
+        signal edited(string value)
+        // A number typed but not confirmed is applied first: a MouseArea does not take the focus
+        // from the field, so its editing does not finish before the step (the classic buttons do)
+        function stepBy(delta) {
+            stepper.edited(stepperInput.text)
+            stepper.step(delta)
+        }
+        radius: 12
+        color: window.ui.surfaceHighest
+
+        MouseArea {
+            id: stepperMinus
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            // Not square: at 52 high, a 360 dp screen left 28 dp for the number between them
+            width: 44
+            onClicked: stepper.stepBy(-0.5)
+            Accessible.role: Accessible.Button
+            Accessible.name: qsTr("Decrease %1").arg(stepper.label)
+            Accessible.onPressAction: stepper.stepBy(-0.5)
+            Rectangle { anchors.fill: parent; radius: 12; color: window.ui.surfaceHigh; visible: stepperMinus.pressed }
+            Rectangle { anchors.centerIn: parent; width: 12; height: 2; radius: 1; color: window.ui.textMain }
+        }
+        MouseArea {
+            id: stepperPlus
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            width: 44
+            onClicked: stepper.stepBy(0.5)
+            Accessible.role: Accessible.Button
+            Accessible.name: qsTr("Increase %1").arg(stepper.label)
+            Accessible.onPressAction: stepper.stepBy(0.5)
+            Rectangle { anchors.fill: parent; radius: 12; color: window.ui.surfaceHigh; visible: stepperPlus.pressed }
+            Rectangle { anchors.centerIn: parent; width: 12; height: 2; radius: 1; color: window.ui.textMain }
+            Rectangle { anchors.centerIn: parent; width: 2; height: 12; radius: 1; color: window.ui.textMain }
+        }
+        UiSpinInput {
+            id: stepperInput
+            anchors.left: stepperMinus.right
+            anchors.right: stepperPlus.left
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            font.pixelSize: window.ui.fontBody
+            color: window.ui.textMain
+            selectionColor: window.ui.accent
+            selectedTextColor: window.ui.accentInk
+            inputMethodHints: Qt.ImhFormattedNumbersOnly
+            Accessible.name: stepper.label + ": " + text
+            onAccepted: stepper.edited(text)
+            onEditingFinished: stepper.edited(text)
+        }
+    }
 
     // The Settings object of settings.qml, given by the page that opens this one: one object
     // for all the settings pages, so a page no longer writes back an old copy of what another
@@ -203,8 +268,8 @@ ScrollView {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.topMargin: 10
-        anchors.leftMargin: window.contentSideMargin
-        anchors.rightMargin: window.contentSideMargin
+        anchors.leftMargin: window.ui.modern ? Math.max(16, window.contentSideMargin) : window.contentSideMargin
+        anchors.rightMargin: window.ui.modern ? Math.max(16, window.contentSideMargin) : window.contentSideMargin
         spacing: 10
 
         IndicatorOnlySwitch {
@@ -225,12 +290,38 @@ ScrollView {
             text: qsTr("Set the resistance QZ should target at each incline. QZ interpolates automatically between points and uses the nearest endpoint outside the configured range. Changes are saved automatically.")
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
-            font.pixelSize: window.fontHint
+            font.pixelSize: window.ui.modern ? window.ui.fontCaption : window.fontHint
             bottomPadding: window.hintGap
-            color: Material.accent
+            color: window.ui.modern ? window.ui.textMuted : Material.accent
+        }
+
+        // Modern look: the column titles over the fields, no grid
+        RowLayout {
+            visible: window.ui.modern
+            Layout.fillWidth: true
+            Layout.topMargin: 4
+            spacing: 8
+            Label {
+                text: qsTr("Inclination (%)")
+                color: window.ui.textMuted
+                horizontalAlignment: Text.AlignHCenter
+                Layout.fillWidth: true
+                Layout.preferredWidth: 1
+                wrapMode: Text.WordWrap
+            }
+            Label {
+                text: qsTr("Resistance")
+                color: window.ui.textMuted
+                horizontalAlignment: Text.AlignHCenter
+                Layout.fillWidth: true
+                Layout.preferredWidth: 1
+                wrapMode: Text.WordWrap
+            }
+            Item { Layout.preferredWidth: 48 }
         }
 
         Rectangle {
+            visible: !window.ui.modern
             Layout.fillWidth: true
             Layout.preferredHeight: 40
             color: "#f0f0f0"
@@ -294,9 +385,76 @@ ScrollView {
             delegate: Rectangle {
                 width: pointTable.width
                 height: rowHeight
-                color: index % 2 === 0 ? "white" : "#fafafa"
+                color: window.ui.modern ? "transparent" : (index % 2 === 0 ? "white" : "#fafafa")
+
+                RowLayout {
+                    visible: window.ui.modern
+                    anchors.fill: parent
+                    anchors.topMargin: 4
+                    anchors.bottomMargin: 4
+                    spacing: 8
+
+                    Stepper {
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: 1
+                        Layout.fillHeight: true
+                        label: qsTr("Inclination (%)")
+                        text: formatNumber(inclination)
+                        onStep: {
+                            text = adjustPoint(index, "inclination", delta)
+                            Qt.callLater(sortPointsAndSave)
+                        }
+                        // index -1: the row is going away - sortPointsAndSave rebuilds the model,
+                        // and the field that had the focus finishes its editing once more
+                        onEdited: {
+                            if (index < 0)
+                                return
+                            text = updatePoint(index, "inclination", value)
+                            Qt.callLater(sortPointsAndSave)
+                        }
+                    }
+
+                    Stepper {
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: 1
+                        Layout.fillHeight: true
+                        label: qsTr("Resistance")
+                        text: formatNumber(resistance)
+                        onStep: text = adjustPoint(index, "resistance", delta)
+                        onEdited: if (index >= 0) text = updatePoint(index, "resistance", value)
+                    }
+
+                    MouseArea {
+                        id: removeButton
+                        Layout.preferredWidth: 48
+                        Layout.fillHeight: true
+                        enabled: pointListModel.count > 1
+                        onClicked: removePoint(index)
+                        Accessible.role: Accessible.Button
+                        // Several rows: the name says which point goes
+                        Accessible.name: qsTr("Remove the point at inclination %1").arg(formatNumber(inclination))
+                        Accessible.onPressAction: {
+                            if (enabled)
+                                removePoint(index)
+                        }
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: 12
+                            color: removeButton.pressed ? window.ui.surfaceHigh : "transparent"
+                        }
+                        UiIcon {
+                            anchors.centerIn: parent
+                            width: 20
+                            height: 20
+                            name: "close"
+                            color: window.ui.textMuted
+                            opacity: removeButton.enabled ? 1 : 0.35
+                        }
+                    }
+                }
 
                 Row {
+                    visible: !window.ui.modern
                     anchors.fill: parent
 
                     Rectangle {
@@ -312,7 +470,7 @@ ScrollView {
                             height: controlHeight
                             spacing: 4
 
-                            Button {
+                            UiButton {
                                 text: "-"
                                 Layout.preferredWidth: 34
                                 Layout.fillHeight: true
@@ -345,7 +503,7 @@ ScrollView {
                                 onEditingFinished: applyValue()
                             }
 
-                            Button {
+                            UiButton {
                                 text: "+"
                                 Layout.preferredWidth: 34
                                 Layout.fillHeight: true
@@ -370,7 +528,7 @@ ScrollView {
                             height: controlHeight
                             spacing: 4
 
-                            Button {
+                            UiButton {
                                 text: "-"
                                 Layout.preferredWidth: 34
                                 Layout.fillHeight: true
@@ -399,7 +557,7 @@ ScrollView {
                                 onEditingFinished: applyValue()
                             }
 
-                            Button {
+                            UiButton {
                                 text: "+"
                                 Layout.preferredWidth: 34
                                 Layout.fillHeight: true
@@ -415,7 +573,7 @@ ScrollView {
                         border.color: "#cccccc"
                         color: "transparent"
 
-                        Button {
+                        UiButton {
                             anchors.centerIn: parent
                             width: Math.min(parent.width * 0.78, 44)
                             height: controlHeight
@@ -431,17 +589,19 @@ ScrollView {
         RowLayout {
             Layout.fillWidth: true
 
-            Button {
+            UiButton {
+                wrapsText: true
                 text: qsTr("Add Point")
                 Layout.fillWidth: true
-                Layout.preferredHeight: 40
+                Layout.preferredHeight: window.ui.modern ? Math.max(48, contentItem.implicitHeight + 24) : 40
                 onClicked: addPoint()
             }
 
-            Button {
+            UiButton {
+                wrapsText: true
                 text: qsTr("Reset Example")
                 Layout.fillWidth: true
-                Layout.preferredHeight: 40
+                Layout.preferredHeight: window.ui.modern ? Math.max(48, contentItem.implicitHeight + 24) : 40
                 onClicked: {
                     setPoints(defaultPoints())
                     savePoints()

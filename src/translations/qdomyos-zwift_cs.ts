@@ -2973,12 +2973,12 @@ Následující otázky přizpůsobí QZ vašemu trenažéru a cílům.</translat
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Importování tréninků…</translation>
+        <translation type="vanished">Importování tréninků…</translation>
     </message>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Zpracování souborů tréninků…
+        <translation type="vanished">Zpracování souborů tréninků…
 Při prvním spuštění to může chvíli trvat.</translation>
     </message>
     <message>
@@ -3106,6 +3106,22 @@ Při prvním spuštění to může chvíli trvat.</translation>
         <translation>Importovat tréninky</translation>
     </message>
     <message>
+        <source>Adding workouts to the history</source>
+        <translation>Přidávání tréninků do historie</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Kopírování souborů tréninků</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Přidávání tréninků do historie: %1 z %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Kopírování souborů tréninků: %1 z %2</translation>
+    </message>
+    <message>
         <source>Open on Peloton</source>
         <translation>Otevřít v Pelotonu</translation>
     </message>
@@ -3195,9 +3211,25 @@ Při prvním spuštění to může chvíli trvat.</translation>
         <source>Offset</source>
         <translation>Korekce</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Snížit korekci převodu %1</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Zvýšit korekci převodu %1</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Snížit: %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Zvýšit: %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Zapnout vlastní tabulku „sklon – odpor“</translation>
@@ -3213,6 +3245,10 @@ Při prvním spuštění to může chvíli trvat.</translation>
     <message>
         <source>Resistance</source>
         <translation>Odpor</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Odebrat bod se sklonem %1</translation>
     </message>
     <message>
         <source>Add Point</source>
@@ -7276,6 +7312,14 @@ DŮLEŽITÉ:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>U chytrých trenažérů použijte odpor místo sklonu. Pomůže to, pokud nechcete, aby Wahoo Climb nebo podobné zařízení měnilo sklon při řazení převodů. Výchozí: vypnuto</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>Kompatibilita odporu</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Zapněte, pokud změna odporu v QZ nastaví kolo pouze na úroveň 1 nebo na maximum. Odesílá hodnotu odporu FTMS vynásobenou 10. Výchozí: vypnuto.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>

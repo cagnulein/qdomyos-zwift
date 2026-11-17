@@ -3497,7 +3497,11 @@ class QZSettings {
     static const QString wahoo_wheel_question_answered;
     static constexpr bool default_wahoo_wheel_question_answered = false;
 
-    // Experimental: clear Strava's trainer flag after uploading a virtual treadmill run.
+    // Use FTMS 16-bit resistance levels multiplied by 10 for compatible trainers.
+    static const QString resistance_compatibility;
+    static constexpr bool default_resistance_compatibility = false;
+
+    // Experimental Strava post-processing of uploaded virtual treadmill runs.
     static const QString strava_clear_treadmill_tag_after_upload;
     static constexpr bool default_strava_clear_treadmill_tag_after_upload = false;
 

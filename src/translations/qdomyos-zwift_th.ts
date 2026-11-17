@@ -3042,6 +3042,22 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Adding workouts to the history</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Open on Peloton</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7037,6 +7053,14 @@ IMPORTANT NOTES:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>โหมดความเข้ากันได้ของแรงต้าน</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>เปิดใช้หากการเปลี่ยนแรงต้านใน QZ ทำให้จักรยานปรับได้เพียงระดับ 1 หรือระดับสูงสุด ส่งค่าแรงต้าน FTMS คูณด้วย 10 ค่าเริ่มต้น: ปิด</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>

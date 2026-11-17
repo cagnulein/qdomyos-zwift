@@ -2974,7 +2974,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Обробка файлів тренувань...
+        <translation type="vanished">Обробка файлів тренувань...
 Під час першого запуску це може тривати деякий час.</translation>
     </message>
     <message>
@@ -3090,6 +3090,22 @@ This may take a few moments on first startup.</source>
         <translation>Імпортувати файл FIT...</translation>
     </message>
     <message>
+        <source>Adding workouts to the history</source>
+        <translation>Додавання тренувань до історії</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Копіювання файлів тренувань</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Додавання тренувань до історії: %1 з %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Копіювання файлів тренувань: %1 з %2</translation>
+    </message>
+    <message>
         <source>Import from QZ Folder...</source>
         <translation>Імпортувати з папки QZ...</translation>
     </message>
@@ -3107,7 +3123,7 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Імпорт тренувань...</translation>
+        <translation type="vanished">Імпорт тренувань...</translation>
     </message>
     <message>
         <source>Filter by date</source>
@@ -3195,9 +3211,25 @@ This may take a few moments on first startup.</source>
         <source>Offset</source>
         <translation>Зміщення</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Зменшити зміщення передачі %1</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Збільшити зміщення передачі %1</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Зменшити: %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Збільшити: %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Увімкнути власну таблицю «нахил – опір»</translation>
@@ -3213,6 +3245,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Resistance</source>
         <translation>Опір</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Видалити точку з нахилом %1</translation>
     </message>
     <message>
         <source>Add Point</source>
@@ -7672,6 +7708,14 @@ IMPORTANT NOTES:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>Для смарт-тренажерів: використовувати опір замість нахилу. Допомагає, якщо ви не хочете, щоб Wahoo Climb чи подібний пристрій змінював нахил під час перемикання передач. Типово: вимкнено</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>Сумісність опору</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Увімкніть, якщо зміна опору в QZ встановлює на велосипеді лише рівень 1 або максимум. Надсилає значення опору FTMS, помножене на 10. Типово: вимкнено.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>

@@ -2974,7 +2974,7 @@ Die folgenden Fragen passen QZ an Ihre Ausrüstung und Ziele an.</translation>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Trainingsdateien werden verarbeitet...
+        <translation type="vanished">Trainingsdateien werden verarbeitet...
 Beim ersten Start kann dies einen Moment dauern.</translation>
     </message>
     <message>
@@ -3107,7 +3107,7 @@ Beim ersten Start kann dies einen Moment dauern.</translation>
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Trainings werden importiert...</translation>
+        <translation type="vanished">Trainings werden importiert...</translation>
     </message>
     <message>
         <source>Filter by date</source>
@@ -3124,6 +3124,22 @@ Beim ersten Start kann dies einen Moment dauern.</translation>
     <message>
         <source>Open on Peloton</source>
         <translation>In Peloton öffnen</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>Trainings werden zum Verlauf hinzugefügt</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Trainingsdateien werden kopiert</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Trainings werden zum Verlauf hinzugefügt: %1 von %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Trainingsdateien werden kopiert: %1 von %2</translation>
     </message>
     <message>
         <source>Previous month</source>
@@ -3195,9 +3211,25 @@ Beim ersten Start kann dies einen Moment dauern.</translation>
         <source>Offset</source>
         <translation>Versatz</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Versatz von Gang %1 verringern</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Versatz von Gang %1 erhöhen</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Verringern: %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Erhöhen: %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Eigene Tabelle Neigung zu Widerstand aktivieren</translation>
@@ -3213,6 +3245,10 @@ Beim ersten Start kann dies einen Moment dauern.</translation>
     <message>
         <source>Resistance</source>
         <translation>Widerstand</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Punkt bei Neigung %1 entfernen</translation>
     </message>
     <message>
         <source>Add Point</source>
@@ -7688,6 +7724,14 @@ WICHTIGE HINWEISE:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>Für smarte Trainer verwenden Sie Widerstand anstelle von Neigung. Das hilft, wenn Sie nicht möchten, dass Wahoo Climb oder Ähnliches die Neigung ändert, wenn Sie die Gänge wechseln. Standard: deaktiviert</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>Widerstandskompatibilität</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Aktivieren, wenn eine Widerstandsänderung in QZ das Fahrrad nur auf Stufe 1 oder Maximum setzt. Sendet den FTMS-Widerstand mit Faktor 10. Standard: deaktiviert.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>
