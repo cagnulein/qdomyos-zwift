@@ -93,8 +93,10 @@ class kettlercoachrower : public rower {
     int lastReportedResistanceLevel = -1;
     quint16 lastStrokes = 0;
     quint16 lastDistanceMeters = 0;
+    // Distance at the last stroke-counter transition, used to derive a full
+    // stroke's average speed rather than the fluctuating per-packet speed.
+    quint16 lastStrokeDistanceMeters = 0;
     QDateTime lastStrokeTime;
-    QDateTime lastDistanceTime;
 };
 
 #endif // KETTLERCOACHROWER_H
