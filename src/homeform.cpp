@@ -11218,6 +11218,35 @@ void homeform::stravaClearTreadmillTag(const QString &activityId, int attempt) {
                  << activityId << "attempt" << (attempt + 1) << "HTTP" << httpCode
                  << "network error" << networkError;
 
+        // Strava can return a useful error message with a 404. Log only its
+        // structured error fields, not the full response or any credentials.
+        if (!requestOk && !payload.isEmpty()) {
+            const QJsonDocument errorDoc = QJsonDocument::fromJson(payload);
+            if (errorDoc.isObject()) {
+                const QJsonObject errorObject = errorDoc.object();
+                QStringList errorCodes;
+                const QJsonArray errors = errorObject.value(QStringLiteral("errors")).toArray();
+                for (const QJsonValue &entry : errors) {
+                    if (!entry.isObject())
+                        continue;
+                    const QJsonObject detail = entry.toObject();
+                    errorCodes << QStringLiteral("%1/%2/%3")
+                                      .arg(detail.value(QStringLiteral("resource")).toString(),
+                                           detail.value(QStringLiteral("field")).toString(),
+                                           detail.value(QStringLiteral("code")).toString())
+                                      .left(160);
+                    if (errorCodes.size() >= 5)
+                        break;
+                }
+                qWarning() << "Strava experimental treadmill tag: PUT API error"
+                           << "message" << errorObject.value(QStringLiteral("message")).toString().left(200)
+                           << "codes" << errorCodes;
+            } else {
+                qWarning() << "Strava experimental treadmill tag: PUT non-JSON error response, bytes"
+                           << payload.size();
+            }
+        }
+
         bool confirmedClear = false;
         if (requestOk) {
             const QJsonDocument doc = QJsonDocument::fromJson(payload);
@@ -11233,8 +11262,12 @@ void homeform::stravaClearTreadmillTag(const QString &activityId, int attempt) {
         }
 
         // A 200 without an explicit trainer=false does not prove that Strava applied the flag.
-        // Retry that idempotent update; never retry authorization or validation failures.
-        const bool retry = requestOk || stravaTreadmillTagTransientFailure(httpCode, networkError);
+        // A newly processed upload can return an activity ID before its editing
+        // endpoint is ready (observed 404 on Renaud's first PUT). Retry a 404
+        // with the existing bounded backoff; persistent 404s may also mean no access.
+        // Never retry other authorization or validation failures.
+        const bool retry = requestOk || httpCode == 404 ||
+                           stravaTreadmillTagTransientFailure(httpCode, networkError);
         if (retry && attempt + 1 < maxAttempts) {
             qWarning() << "Strava experimental treadmill tag: unconfirmed, retrying PUT"
                        << activityId << "in" << retryDelay << "ms";
