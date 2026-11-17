@@ -794,7 +794,9 @@ Page {
                         anchors.fill: parent
                         anchors.margins: 12
                         // Modern look: the icon 16 from the card edge, the lines centred in a card
-                        // that leaves them 8 above and below at least
+                        // that leaves them 8 above and below at least. Centred, not on top as in other
+                        // three-line items: a workout always has exactly three lines, so they line up
+                        // from card to card either way, and centred looked better
                         anchors.leftMargin: workoutHistoryPage.modern ? 16 : 12
                         anchors.rightMargin: workoutHistoryPage.modern ? 16 : 12
                         anchors.topMargin: workoutHistoryPage.modern ? 8 : 12
