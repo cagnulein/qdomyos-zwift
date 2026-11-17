@@ -22,6 +22,8 @@ Item {
     property int topPadding: 0
     property int bottomPadding: 12
     property string text: qsTr("Restoring files of the previous installation")
+    // the name for the screen reader: the same words as text, %1 the count, %2 the total
+    property string accessibleText: qsTr("Restoring files of the previous installation: %1 of %2")
 
     // the count on the screen: the last one of the running pass, kept while the block closes
     property int shownDone: 0
@@ -37,11 +39,17 @@ Item {
     // changes nothing on the screen, whichever of the two comes first. A pass starts from 0 again.
     function sync() {
         if (total > 0) {
-            if (!active || holdTimer.running)
+            // a new pass: the bar starts at its first count, not sliding back from the full bar of
+            // the pass before while the block opens (the bindings of the bar run at each assignment)
+            const newPass = !active || holdTimer.running
+            if (newPass) {
+                fillAnimation.enabled = false
                 shownDone = 0
+            }
             holdTimer.stop()
             shownDone = Math.max(shownDone, Math.min(done, total))
             shownTotal = total
+            fillAnimation.enabled = true
             active = true
         } else if (active && !holdTimer.running) {
             holdTimer.start()
@@ -67,7 +75,7 @@ Item {
     clip: true
 
     Accessible.role: Accessible.ProgressBar
-    Accessible.name: qsTr("Restoring files of the previous installation: %1 of %2").arg(shownDone).arg(shownTotal)
+    Accessible.name: accessibleText.arg(shownDone).arg(shownTotal)
 
     ColumnLayout {
         id: content
@@ -122,7 +130,10 @@ Item {
                 height: parent.height
                 radius: 2
                 color: control.barColor
-                Behavior on width { NumberAnimation { duration: 200 } }
+                Behavior on width {
+                    id: fillAnimation
+                    NumberAnimation { duration: 200 }
+                }
             }
         }
     }

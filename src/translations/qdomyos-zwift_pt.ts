@@ -2869,6 +2869,18 @@ As seguintes perguntas personalizarão o QZ para o seu equipamento e objetivos.<
         <translation>Próximo</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>O seu equipamento, unidades e perfil, passo a passo</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Escolha um tema e vá direto para as configurações dele</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Fechar o assistente</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Configurações personalizadas</translation>
     </message>
@@ -3228,7 +3240,7 @@ As seguintes perguntas personalizarão o QZ para o seu equipamento e objetivos.<
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Processando arquivos de treino...
+        <translation type="vanished">Processando arquivos de treino...
 Isso pode levar alguns instantes na primeira inicialização.</translation>
     </message>
     <message>
@@ -3361,7 +3373,7 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Importando treinos...</translation>
+        <translation type="vanished">Importando treinos...</translation>
     </message>
     <message>
         <source>Filter by date</source>
@@ -3378,6 +3390,22 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
     <message>
         <source>Open on Peloton</source>
         <translation>Abrir no Peloton</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>Adicionando treinos ao histórico</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Copiando arquivos de treino</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Adicionando treinos ao histórico: %1 de %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Copiando arquivos de treino: %1 de %2</translation>
     </message>
     <message>
         <source>Previous month</source>
@@ -3449,9 +3477,25 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <source>Offset</source>
         <translation>Ajuste</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Diminuir o ajuste da marcha %1</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Aumentar o ajuste da marcha %1</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Diminuir: %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Aumentar: %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Ativar tabela personalizada de inclinação para resistência</translation>
@@ -3467,6 +3511,10 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
     <message>
         <source>Resistance</source>
         <translation>Resistência</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Remover o ponto com inclinação %1</translation>
     </message>
     <message>
         <source>Add Point</source>
@@ -8702,6 +8750,14 @@ OBSERVAÇÕES IMPORTANTES:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>Para rolos inteligentes, use a resistência em vez da inclinação. Isso ajuda a evitar que o Wahoo Climb ou um aparelho semelhante altere a inclinação quando você troca de marcha. Padrão: desativado.</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>Compatibilidade da resistência</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Ative se alterar a resistência no QZ colocar a bicicleta apenas no nível 1 ou no máximo. Envia o valor da resistência FTMS multiplicado por 10. Predefinição: desativado.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>

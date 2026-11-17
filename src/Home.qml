@@ -209,6 +209,8 @@ HomeForm {
                 width: parent.width
                 model: [qsTr("Very Bad"), qsTr("Bad"), qsTr("OK"), qsTr("Good"), qsTr("Very Good")]
                 currentIndex: 2
+                // Modern: the popup is surfaceHigh, the list one tone below it
+                menuColor: window.ui.surface
                 onCurrentIndexChanged: rpeFeelPopup.selectedFeel = currentIndex * 25
             }
 

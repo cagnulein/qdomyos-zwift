@@ -196,6 +196,12 @@ class homeform : public QObject {
     Q_PROPERTY(QString toastRequested READ toastRequested NOTIFY toastRequestedChanged WRITE setToastRequested)
     // a workout import (file or folder) is copying or adding to the history
     Q_PROPERTY(bool fitImportRunning READ fitImportRunning NOTIFY fitImportRunningChanged)
+    // a workout import is at file fitImportDone of fitImportTotal: copying the files out of the
+    // picked folder (Android) or, with fitImportAdding, adding them to the history (also the
+    // new files of the fit folder at start); both 0 when no such pass runs
+    Q_PROPERTY(int fitImportDone READ fitImportDone NOTIFY fitImportProgressChanged)
+    Q_PROPERTY(int fitImportTotal READ fitImportTotal NOTIFY fitImportProgressChanged)
+    Q_PROPERTY(bool fitImportAdding READ fitImportAdding NOTIFY fitImportProgressChanged)
     // Android: a saved grant on the QZ folder; the lists then restore files of a previous
     // install by themselves and hide their restore button
     Q_PROPERTY(bool qzFolderGrantSaved READ qzFolderGrantSaved NOTIFY qzFolderGrantSavedChanged)
@@ -837,6 +843,23 @@ public:
             emit fitImportRunningChanged();
         }
     }
+    int fitImportDone() const { return m_fitImportDone; }
+    int fitImportTotal() const { return m_fitImportTotal; }
+    bool fitImportAdding() const { return m_fitImportAdding; }
+    // from the copy thread of the Java side (queued) and from the history processor; 0, 0 when
+    // the pass is over (the stage is kept, so the closing block still says what was done).
+    // One pass at a time: an import started while another pass runs reports after it ends
+    Q_INVOKABLE void setFitImportProgress(bool adding, int done, int total) {
+        if (m_fitImportTotal > 0 && adding != m_fitImportAdding) {
+            return;
+        }
+        if (m_fitImportAdding != adding || m_fitImportDone != done || m_fitImportTotal != total) {
+            m_fitImportAdding = adding;
+            m_fitImportDone = done;
+            m_fitImportTotal = total;
+            emit fitImportProgressChanged();
+        }
+    }
     Q_INVOKABLE bool deleteTrainingProgramFile(const QString &fileUrl);
 
     double wattMaxChart() {
@@ -1232,6 +1255,9 @@ public:
     // automatic import after a new database: no toast when nothing new was found
     bool m_fitImportQuiet = false;
     bool m_fitImportRunning = false;
+    int m_fitImportDone = 0;
+    int m_fitImportTotal = 0;
+    bool m_fitImportAdding = false;
     // one attempt per run: a restore that finds nothing must not repeat on every visit
     bool m_folderRestoreTried = false;
     // restore through a saved grant, true while it runs: no toast when nothing was restored,
@@ -1493,6 +1519,7 @@ public:
     // wahooWheelAnswer(): the value of wahoo_without_wheel_diameter after the answer, for the QML Settings copies
     void wahooWheelAnswered(bool withoutWheelDiameter);
     void fitImportRunningChanged();
+    void fitImportProgressChanged();
     void folderRestoreProgressChanged();
     void qzFolderGrantSavedChanged();
     void signalChanged(QString value);

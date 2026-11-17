@@ -2817,6 +2817,18 @@ Med följande frågor anpassas QZ efter din utrustning och dina mål.</translati
         <translation>Nästa</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Träningsredskap, måttenheter och profil, steg för steg</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Välj ett ämne och gå direkt till dess inställningar</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Stäng guiden</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Anpassade inställningar</translation>
     </message>
@@ -3211,12 +3223,12 @@ Med följande frågor anpassas QZ efter din utrustning och dina mål.</translati
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Importerar träningspass…</translation>
+        <translation type="vanished">Importerar träningspass…</translation>
     </message>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Bearbetar träningsfiler…
+        <translation type="vanished">Bearbetar träningsfiler…
 Det kan ta en stund vid första starten.</translation>
     </message>
     <message>
@@ -3344,6 +3356,22 @@ Det kan ta en stund vid första starten.</translation>
         <translation>Importera träningspass</translation>
     </message>
     <message>
+        <source>Adding workouts to the history</source>
+        <translation>Lägger till träningspass i historiken</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Kopierar träningsfiler</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Lägger till träningspass i historiken: %1 av %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Kopierar träningsfiler: %1 av %2</translation>
+    </message>
+    <message>
         <source>Open on Peloton</source>
         <translation>Öppna i Peloton</translation>
     </message>
@@ -3433,9 +3461,25 @@ Det kan ta en stund vid första starten.</translation>
         <source>Offset</source>
         <translation>Justering</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Minska justering för växel %1</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Öka justering för växel %1</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Minska: %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Öka: %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Aktivera egen tabell för lutning till motstånd</translation>
@@ -3451,6 +3495,10 @@ Det kan ta en stund vid första starten.</translation>
     <message>
         <source>Resistance</source>
         <translation>Motstånd</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Ta bort punkten vid lutning %1</translation>
     </message>
     <message>
         <source>Add Point</source>
@@ -8734,6 +8782,14 @@ VIKTIGT:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>För smart trainers: använd motstånd i stället för lutning. Det hjälper om du inte vill att Wahoo Climb eller liknande ändrar lutningen när du växlar. Standard: av.</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>Motståndskompatibilitet</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Aktivera om ändring av motstånd i QZ bara ställer in cykeln på nivå 1 eller max. Skickar FTMS-motståndet multiplicerat med 10. Standard: avaktiverad.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>

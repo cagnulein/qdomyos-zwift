@@ -1125,9 +1125,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             this, [](const QString& filename) {
                 qDebug() << "FitDatabaseProcessor Processing:" << filename;
             });
+    // the history page shows it: the new files of the fit folder at start, the files of an import
     connect(fitProcessor, &FitDatabaseProcessor::progress,
-            this, [](int processed, int total) {
+            this, [this](int processed, int total) {
                 qDebug() << "FitDatabaseProcessor Progress:" << processed << "/" << total;
+                setFitImportProgress(true, processed, total);
             });
     connect(fitProcessor, &FitDatabaseProcessor::error,
             this, [](const QString& error) {
@@ -1139,6 +1141,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(fitProcessor, &FitDatabaseProcessor::processingStopped,
             this, [this]() {
                 qDebug() << "FitDatabaseProcessor Processing stopped - refreshing workout model";
+                setFitImportProgress(true, 0, 0);
                 workoutModel->setDatabaseProcessing(false);
                 workoutModel->refresh();
                 if (!m_historyRecoveryChecked) {
@@ -1157,6 +1160,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             this, [this](int added, int alreadyInHistory, int unreadable, bool databaseOpen) {
                 qDebug() << "FitDatabaseProcessor import: added" << added << "already" << alreadyInHistory
                          << "unreadable" << unreadable << "database open" << databaseOpen;
+                setFitImportProgress(true, 0, 0);
                 setFitImportRunning(false);
                 const bool quiet = m_fitImportQuiet;
                 m_fitImportQuiet = false;
@@ -1397,6 +1401,18 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnFolderRestoreProgress(JN
     if (homeform::singleton()) {
         QMetaObject::invokeMethod(homeform::singleton(), "setFolderRestoreProgress", Qt::QueuedConnection,
                                   Q_ARG(int, done), Q_ARG(int, total));
+    }
+}
+
+// a workout import from a folder is copying file done of total out of it; 0, 0 when the copy is over
+JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnFitImportProgress(JNIEnv *env, jclass clazz, jint done,
+                                                                          jint total) {
+    Q_UNUSED(env)
+    Q_UNUSED(clazz)
+    if (homeform::singleton()) {
+        QMetaObject::invokeMethod(homeform::singleton(), "setFitImportProgress", Qt::QueuedConnection,
+                                  Q_ARG(bool, false), Q_ARG(int, done), Q_ARG(int, total));
     }
 }
 
