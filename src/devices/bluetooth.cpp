@@ -280,7 +280,32 @@ bluetooth::~bluetooth() {
 
 void bluetooth::signalBluetoothDeviceConnected(bluetoothdevice *b) { emit this->bluetoothDeviceConnected(b); }
 
+void bluetooth::onHomeformReady() {
+    homeformLoaded = true;
+#ifdef Q_OS_ANDROID
+    // The Bluetooth manager is constructed before homeform. Even a queued
+    // 0-ms callback may run in a nested Qt/QML event loop before the view
+    // has connected to deviceConnected()/bluetoothDeviceConnected().
+    // Release exactly the startup work held by the UI readiness barrier.
+    if (scanFinishedPendingHomeform) {
+        scanFinishedPendingHomeform = false;
+        discoveryPendingHomeform = false;
+        QTimer::singleShot(0, this, &bluetooth::finished);
+    } else if (discoveryPendingHomeform) {
+        discoveryPendingHomeform = false;
+        QTimer::singleShot(0, this, &bluetooth::startDiscovery);
+    }
+#endif
+}
+
 void bluetooth::finished() {
+#ifdef Q_OS_ANDROID
+    if (!homeformLoaded) {
+        scanFinishedPendingHomeform = true;
+        debug(QStringLiteral("Bluetooth scan completion deferred until UI ready"));
+        return;
+    }
+#endif
     // DIRCON can be discovered before or after the BLE scan completes.
     if (!device() && tryConnectSelectedDirconDevice())
         return;
@@ -528,6 +553,16 @@ bool bluetooth::tryConnectBondedCoachS() {
 void bluetooth::startDiscovery() {
     if (!this->useDiscovery)
         return;
+#ifdef Q_OS_ANDROID
+    if (!homeformLoaded) {
+        // Applies to the selected bonded Coach S, and also Fake Bike/Rower,
+        // FTMS machines, and any other device discovered at app startup.
+        // Delay startup instead of losing the Qt signal before homeform exists.
+        discoveryPendingHomeform = true;
+        debug(QStringLiteral("Bluetooth startup deferred until UI ready"));
+        return;
+    }
+#endif
 
     if (dirconDiscovery)
         dirconDiscovery->startDiscovery();
