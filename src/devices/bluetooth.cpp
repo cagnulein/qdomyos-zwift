@@ -3641,6 +3641,39 @@ void bluetooth::connectedAndDiscovered() {
         // be allowed to try the bonded SPP path again.
         coachSDirectAttempted = false;
         debug(QStringLiteral("Coach S bonded direct SPP connection confirmed by telemetry"));
+        // Unlike deviceConnected(), this fires only after the SPP connection,
+        // handshake, and first valid E0 telemetry have succeeded. Keep the
+        // existing early tile creation behavior shared with other devices.
+        if (homeform::singleton()) {
+            homeform::singleton()->setToastRequested(QObject::tr("Coach S connected!"));
+        }
+
+        // Direct bonded SPP intentionally bypasses the normal device scan.
+        // That scan also discovers the user's *explicitly selected* BLE heart
+        // rate belt; restore only this missing accessory discovery. The usual
+        // discovery / fake devices / other equipment are not affected.
+        const QString selectedHeartRateBelt =
+            QSettings().value(QZSettings::heart_rate_belt_name,
+                              QZSettings::default_heart_rate_belt_name).toString();
+        if (!selectedHeartRateBelt.isEmpty() &&
+            !selectedHeartRateBelt.startsWith(QStringLiteral("Disabled"))) {
+            QTimer::singleShot(1500, this, [this, selectedHeartRateBelt]() {
+                if (!kettlerCoachRower || !kettlerCoachRower->connected() ||
+                    heartRateBelt || hrmDiscoveryAgent)
+                    return;
+                // The user may have changed the selection during startup.
+                const QString currentlySelected =
+                    QSettings().value(QZSettings::heart_rate_belt_name,
+                                      QZSettings::default_heart_rate_belt_name).toString();
+                if (currentlySelected != selectedHeartRateBelt) return;
+                debug(QStringLiteral("Coach S direct SPP: finding selected HR belt ") +
+                      selectedHeartRateBelt);
+                // Use the existing selected-sensor path (including its
+                // Android scan throttling), matching by BLE name instead
+                // of relying on a potentially rotating cached MAC.
+                reconnectHeartRateBelt(selectedHeartRateBelt, QString());
+            });
+        }
     }
 #endif
 
