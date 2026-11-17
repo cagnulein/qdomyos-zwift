@@ -3098,6 +3098,10 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <translation>Szűrés dátum szerint</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Naptár</translation>
+    </message>
+    <message>
         <source>Import workouts</source>
         <translation>Edzések importálása</translation>
     </message>
@@ -3116,6 +3120,18 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
     <message>
         <source>Copying workout files: %1 of %2</source>
         <translation>Edzésfájlok másolása: %1 / %2</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Ezen a napon nincs edzés</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Még nincs edzés</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>A befejezett edzések itt jelennek meg: nyisson meg egyet a diagramjai megtekintéséhez.</translation>
     </message>
     <message>
         <source>Open on Peloton</source>

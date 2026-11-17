@@ -3078,6 +3078,22 @@ This may take a few moments on first startup.</source>
         <translation>%1日連続</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>カレンダー</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>この日のワークアウトはありません</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>まだワークアウトはありません</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>完了したワークアウトがここに表示されます。開くとグラフを確認できます。</translation>
+    </message>
+    <message>
         <source>Personal best: %1 days</source>
         <translation>自己ベスト: %1日</translation>
     </message>

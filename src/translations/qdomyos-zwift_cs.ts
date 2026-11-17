@@ -3114,6 +3114,10 @@ Při prvním spuštění to může chvíli trvat.</translation>
         <translation>Filtrovat podle data</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Kalendář</translation>
+    </message>
+    <message>
         <source>Import workouts</source>
         <translation>Importovat tréninky</translation>
     </message>
@@ -3132,6 +3136,18 @@ Při prvním spuštění to může chvíli trvat.</translation>
     <message>
         <source>Copying workout files: %1 of %2</source>
         <translation>Kopírování souborů tréninků: %1 z %2</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>V tento den žádné tréninky</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Zatím žádné tréninky</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Zde se objeví dokončené tréninky: otevřete kterýkoli a zobrazte jeho grafy.</translation>
     </message>
     <message>
         <source>Open on Peloton</source>
