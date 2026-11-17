@@ -115,17 +115,17 @@ TEST(FtmsBikeParserTest, PhysicalResistanceGearDeltaCoversRecordedFastShifts) {
 TEST(FtmsBikeParserTest, PhysicalResistanceGearDeltaRejectsUnreliableChanges) {
     const ftmsbike::PhysicalResistanceGearLimits limits{1, 32, 5, 3000};
     resistance_t delta = 99;
-    const auto expectIgnored = [&delta, &limits](resistance_t before, resistance_t after, qint64 since = -1) {
+    const auto expectIgnored = [&delta, &limits](resistance_t before, resistance_t after, qint64 since) {
         EXPECT_FALSE(ftmsbike::physicalResistanceGearDelta(before, after, since, limits, &delta));
         EXPECT_EQ(0, delta);
     };
-    expectIgnored(-1, 1);
-    expectIgnored(0, 1);
-    expectIgnored(1, 1);
-    expectIgnored(1, 7); // Greater than the allowlisted device's maximum 5-step jump.
-    expectIgnored(27, 20);
-    expectIgnored(31, 33);
-    expectIgnored(32, 33);
+    expectIgnored(-1, 1, -1);
+    expectIgnored(0, 1, -1);
+    expectIgnored(1, 1, -1);
+    expectIgnored(1, 7, -1); // Greater than the allowlisted device's maximum 5-step jump.
+    expectIgnored(27, 20, -1);
+    expectIgnored(31, 33, -1);
+    expectIgnored(32, 33, -1);
     expectIgnored(2, 3, 0);
     expectIgnored(2, 3, 2999);
     expectIgnored(23, 25, 100);
