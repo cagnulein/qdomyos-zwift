@@ -122,8 +122,13 @@ quint16 CoachSStrokePowerSmoother::addSample(quint16 strokeCounter,
         driveSamples = 0;
     }
 
-    if (lastStrokeCounter < 0 || strokeCounter < lastStrokeCounter) {
-        // New session or counter reset.
+    if (lastStrokeCounter < 0) {
+        lastStrokeCounter = strokeCounter;
+        lastStrokeMs = nowMs;
+    } else if (strokeCounter < lastStrokeCounter) {
+        // The rower started a new workout while the old stroke average
+        // was still held. Never mix samples across sessions.
+        reset();
         lastStrokeCounter = strokeCounter;
         lastStrokeMs = nowMs;
     } else if (strokeCounter > lastStrokeCounter) {
