@@ -27,6 +27,10 @@ constexpr int POLL_INTERVAL_MS = 500;
 constexpr int REQUEST_TIMEOUT_MS = 2000;
 // Jacek's Coach S console uses L4 as the starting physical load.
 constexpr int DEFAULT_COACH_S_RESISTANCE = 4;
+// The power smoother already has its own cadence-aware stop threshold.
+// Clear held pace sooner, but never before watts have become idle; this
+// prevents a zero-speed flash within a normal rowing recovery.
+constexpr int COACH_S_IDLE_SPEED_TIMEOUT_MS = 3500;
 
 // Kinomap / Kettler S-FIT authentication: the client supplies two random
 // salt bytes and an MD5 digest of salt || fixed protocol key. The rower
@@ -460,7 +464,7 @@ void kettlercoachrower::update() {
         // PM5 keeps advertising while the device is idle. Clear the last
         // completed-stroke pace even if no further E0 frame is received.
         if (heldWatts == 0 && lastStrokeTime.isValid() &&
-            lastStrokeTime.msecsTo(QDateTime::currentDateTime()) > 6000 &&
+            lastStrokeTime.msecsTo(QDateTime::currentDateTime()) > COACH_S_IDLE_SPEED_TIMEOUT_MS &&
             Speed.value() != 0) {
             Speed = 0;
             emit debug(QStringLiteral("Coach S completed-stroke speed idle timeout: 0 km/h"));
