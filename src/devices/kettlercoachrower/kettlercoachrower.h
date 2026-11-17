@@ -28,6 +28,10 @@ class kettlercoachrower : public rower {
     void changeResistance(resistance_t resistance) override;
 
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+#ifdef Q_OS_ANDROID
+    // Known paired MAC: connect over SPP without requiring discoverability.
+    void connectToBondedDevice(const QBluetoothDeviceInfo &device);
+#endif
 
   signals:
     void debug(QString message);
