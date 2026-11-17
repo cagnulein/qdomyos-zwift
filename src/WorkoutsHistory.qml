@@ -1148,8 +1148,8 @@ Page {
 
         // The scrim of the page with a hole for the pressed workout: four bands around the hole
         // and a rounded piece in each of its corners. Not one rounded rectangle with a border far
-        // wider than the window: the scene graph of Qt 5.15 drew such a border with a light wedge
-        // over the header
+        // wider than the window: such a border left most of the header above the hole undimmed
+        // (Android emulator, API 30 and 35)
         Overlay.modal: Item {
             id: holeScrim
             readonly property rect h: modernUploadMenu.hole
