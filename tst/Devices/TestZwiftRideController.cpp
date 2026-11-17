@@ -563,3 +563,49 @@ TEST(ZwiftRideControllerTest, HeldRidePaddlesRepeatGearActionsOnlyWithDebouncing
 
     settings.remove(QZSettings::gears_volume_debouncing);
 }
+
+TEST(ZwiftRideControllerTest, SingleRightClickRequiresOptIn) {
+    QSettings settings;
+    const QVariant saved = settings.value(QZSettings::zwift_right_controller_only);
+    settings.remove(QZSettings::zwift_right_controller_only);
+    EXPECT_FALSE(settings.value(QZSettings::zwift_right_controller_only, QZSettings::default_zwift_right_controller_only).toBool());
+    EXPECT_FALSE(AbstractZapDevice::useSingleRightClickV2(false, 10));
+    EXPECT_TRUE(AbstractZapDevice::useSingleRightClickV2(true, 10));
+    EXPECT_FALSE(AbstractZapDevice::useSingleRightClickV2(true, 3));
+    EXPECT_FALSE(AbstractZapDevice::useSingleRightClickV2(true, 7));
+    EXPECT_FALSE(AbstractZapDevice::useSingleRightClickV2(true, 11));
+    EXPECT_FALSE(AbstractZapDevice::useSingleRightClickV2(true, -1));
+    if (saved.isValid()) settings.setValue(QZSettings::zwift_right_controller_only, saved);
+}
+
+TEST(ZwiftRideControllerTest, RightBMapsToGearDownOnlyInOptInMode) {
+    QSettings settings;
+    const QVariant savedMap = settings.value(QZSettings::zwiftplay_gear_rs2);
+    const QVariant savedSwap = settings.value(QZSettings::zwiftplay_swap);
+    const QVariant savedDebounce = settings.value(QZSettings::gears_volume_debouncing);
+    settings.setValue(QZSettings::zwiftplay_gear_rs2, 2);
+    settings.setValue(QZSettings::zwiftplay_swap, false);
+    settings.setValue(QZSettings::gears_volume_debouncing, true);
+    ZwiftPlayDevice legacy;
+    ButtonEvents legacyEvents;
+    connectButtonEvents(legacy, legacyEvents);
+    processRideFrame(legacy, kIdle);
+    pressAndRelease(legacy, 0xffffffdf);
+    EXPECT_EQ(legacyEvents.gearPlus, 0);
+    EXPECT_EQ(legacyEvents.gearMinus, 0);
+    EXPECT_EQ(legacyEvents.rightBPressed, 1);
+    ZwiftPlayDevice optIn;
+    optIn.singleRightClickV2 = AbstractZapDevice::useSingleRightClickV2(true, 10);
+    ButtonEvents enabledEvents;
+    connectButtonEvents(optIn, enabledEvents);
+    processRideFrame(optIn, kIdle);
+    pressAndRelease(optIn, 0xffffffdf);
+    EXPECT_EQ(enabledEvents.gearPlus, 0);
+    EXPECT_EQ(enabledEvents.gearMinus, 1);
+    if (savedMap.isValid()) settings.setValue(QZSettings::zwiftplay_gear_rs2, savedMap);
+    else settings.remove(QZSettings::zwiftplay_gear_rs2);
+    if (savedSwap.isValid()) settings.setValue(QZSettings::zwiftplay_swap, savedSwap);
+    else settings.remove(QZSettings::zwiftplay_swap);
+    if (savedDebounce.isValid()) settings.setValue(QZSettings::gears_volume_debouncing, savedDebounce);
+    else settings.remove(QZSettings::gears_volume_debouncing);
+}
