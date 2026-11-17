@@ -1169,6 +1169,8 @@ const QString QZSettings::applewatch_as_treadmill_speed = QStringLiteral("applew
 const QString QZSettings::horizon_treadmill_omega_z = QStringLiteral("horizon_treadmill_omega_z");
 const QString QZSettings::nordictrack_elliptical_s700 = QStringLiteral("nordictrack_elliptical_s700");
 
+const QString QZSettings::zwift_right_controller_only = QStringLiteral("zwift_right_controller_only");
+
 // Zwift Play/Ride per-button gear mapping
 const QString QZSettings::zwiftplay_gear_ls1 = QStringLiteral("zwiftplay_gear_ls1");
 const QString QZSettings::zwiftplay_gear_ls2 = QStringLiteral("zwiftplay_gear_ls2");
@@ -2419,6 +2421,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::moovio_lynx_konect_2_0, QZSettings::default_moovio_lynx_konect_2_0},
     {QZSettings::virtual_device_rower_cadence_gain, QZSettings::default_virtual_device_rower_cadence_gain},
     {QZSettings::virtual_device_rower_cadence_offset, QZSettings::default_virtual_device_rower_cadence_offset},
+    {QZSettings::zwift_right_controller_only, QZSettings::default_zwift_right_controller_only},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
