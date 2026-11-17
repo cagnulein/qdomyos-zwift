@@ -2683,6 +2683,18 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>Далі</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Тренажер, одиниці виміру та профіль – крок за кроком</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Оберіть тему й одразу перейдіть до її налаштувань</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Закрити майстер</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Індивідуальні налаштування</translation>
     </message>
@@ -3044,6 +3056,22 @@ This may take a few moments on first startup.</source>
     <message>
         <source>%1 day streak</source>
         <translation>Серія: %1 дн.</translation>
+    </message>
+    <message>
+        <source>Calendar</source>
+        <translation>Календар</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Цього дня тренувань немає</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Тренувань поки немає</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Тут з’являться завершені тренування: відкрийте будь-яке, щоб переглянути графіки.</translation>
     </message>
     <message>
         <source>Personal best: %1 days</source>

@@ -2683,6 +2683,18 @@ Las siguientes preguntas personalizarán QZ para tu equipo y tus objetivos.</tra
         <translation>Siguiente</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Tu equipo, unidades y perfil, paso a paso</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Elige un tema y ve directamente a su configuración</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Cerrar el asistente</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Configuraciones personalizadas</translation>
     </message>
@@ -3064,6 +3076,22 @@ Esto puede tardar un poco en el primer inicio.</translation>
     <message>
         <source>%1 day streak</source>
         <translation>Racha de %1 día</translation>
+    </message>
+    <message>
+        <source>Calendar</source>
+        <translation>Calendario</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>No hay entrenamientos este día</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Aún no hay entrenamientos</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Los entrenamientos terminados aparecen aquí: abre uno para ver sus gráficos.</translation>
     </message>
     <message>
         <source>Personal best: %1 days</source>

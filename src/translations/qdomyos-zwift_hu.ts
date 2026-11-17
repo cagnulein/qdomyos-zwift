@@ -2631,6 +2631,18 @@ A következő kérdésekkel a QZ-t az edzőgépéhez és a céljaihoz szabhatja.
         <translation>Tovább</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Edzőgép, mértékegységek és profil lépésről lépésre</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Válasszon témát, és lépjen közvetlenül a beállításaihoz</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>A varázsló bezárása</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Egyéni konfigurációk</translation>
     </message>
@@ -3086,6 +3098,10 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <translation>Szűrés dátum szerint</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Naptár</translation>
+    </message>
+    <message>
         <source>Import workouts</source>
         <translation>Edzések importálása</translation>
     </message>
@@ -3104,6 +3120,18 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
     <message>
         <source>Copying workout files: %1 of %2</source>
         <translation>Edzésfájlok másolása: %1 / %2</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Ezen a napon nincs edzés</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Még nincs edzés</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>A befejezett edzések itt jelennek meg: nyisson meg egyet a diagramjai megtekintéséhez.</translation>
     </message>
     <message>
         <source>Open on Peloton</source>

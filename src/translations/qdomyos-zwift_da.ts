@@ -2631,6 +2631,18 @@ De følgende spørgsmål tilpasser QZ til dit udstyr og dine mål.</translation>
         <translation>Næste</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Træningsudstyr, måleenheder og profil – trin for trin</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Vælg et emne, og gå direkte til dets indstillinger</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Luk guiden</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Tilpassede indstillinger</translation>
     </message>
@@ -3086,6 +3098,10 @@ Det kan tage et øjeblik ved første start.</translation>
         <translation>Filtrer efter dato</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Kalender</translation>
+    </message>
+    <message>
         <source>Import workouts</source>
         <translation>Importér træningspas</translation>
     </message>
@@ -3104,6 +3120,18 @@ Det kan tage et øjeblik ved første start.</translation>
     <message>
         <source>Copying workout files: %1 of %2</source>
         <translation>Kopierer træningsfiler: %1 af %2</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Ingen træningspas denne dag</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Ingen træningspas endnu</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Afsluttede træningspas vises her: åbn et for at se graferne.</translation>
     </message>
     <message>
         <source>Open on Peloton</source>

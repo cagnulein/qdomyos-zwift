@@ -2647,6 +2647,18 @@ Aşağıdaki sorular QZ&apos;yi ekipmanınıza ve hedeflerinize göre özelleşt
         <translation>İleri</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Cihazınız, birimleriniz ve profiliniz, adım adım</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Bir konu seçin ve doğrudan ayarlarına gidin</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Sihirbazı kapat</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Özel yapılandırmalar</translation>
     </message>
@@ -3102,6 +3114,10 @@ This may take a few moments on first startup.</source>
         <translation>Tarihe göre filtrele</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Takvim</translation>
+    </message>
+    <message>
         <source>Import workouts</source>
         <translation>Antrenmanları içe aktar</translation>
     </message>
@@ -3120,6 +3136,18 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Copying workout files: %1 of %2</source>
         <translation>Antrenman dosyaları kopyalanıyor: %1 / %2</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Bu gün antrenman yok</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Henüz antrenman yok</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Tamamlanan antrenmanlar burada görünür: grafiklerini görmek için birini açın.</translation>
     </message>
     <message>
         <source>Open on Peloton</source>

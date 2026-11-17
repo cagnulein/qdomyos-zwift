@@ -2683,6 +2683,18 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>次へ</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>機器、単位、プロフィールを順番に設定</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>トピックを選んで、その設定に直接移動</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>ウィザードを閉じる</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>カスタム設定</translation>
     </message>
@@ -3064,6 +3076,22 @@ This may take a few moments on first startup.</source>
     <message>
         <source>%1 day streak</source>
         <translation>%1日連続</translation>
+    </message>
+    <message>
+        <source>Calendar</source>
+        <translation>カレンダー</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>この日のワークアウトはありません</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>まだワークアウトはありません</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>完了したワークアウトがここに表示されます。開くとグラフを確認できます。</translation>
     </message>
     <message>
         <source>Personal best: %1 days</source>

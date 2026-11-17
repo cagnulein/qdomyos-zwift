@@ -2683,6 +2683,18 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>下一步</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>设备、单位和档案，逐步设置</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>选择一个主题，直接进入其设置</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>关闭向导</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>自定义配置</translation>
     </message>
@@ -3064,6 +3076,22 @@ This may take a few moments on first startup.</source>
     <message>
         <source>%1 day streak</source>
         <translation>连续 %1 天</translation>
+    </message>
+    <message>
+        <source>Calendar</source>
+        <translation>日历</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>这一天没有训练</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>还没有训练</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>已完成的训练会显示在这里：打开任意一项即可查看图表。</translation>
     </message>
     <message>
         <source>Personal best: %1 days</source>
