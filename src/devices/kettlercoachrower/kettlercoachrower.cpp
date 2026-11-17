@@ -25,6 +25,8 @@ constexpr quint8 SUB_STATUS = 0x04;
 constexpr quint8 SUB_ERROR = 0x05;
 constexpr int POLL_INTERVAL_MS = 500;
 constexpr int REQUEST_TIMEOUT_MS = 2000;
+// Jacek's Coach S console uses L4 as the starting physical load.
+constexpr int DEFAULT_COACH_S_RESISTANCE = 4;
 
 // Kinomap / Kettler S-FIT authentication: the client supplies two random
 // salt bytes and an MD5 digest of salt || fixed protocol key. The rower
@@ -170,6 +172,8 @@ void kettlercoachrower::rfCommConnected() {
     telemetrySeen = false;
     requestResistance = -1;
     currentWatts = 0;
+    strokePower.reset();
+    powerClock.start();
     pendingResistanceLevel = -1;
     lastReportedResistanceLevel = -1;
     Resistance = 0;
@@ -301,6 +305,13 @@ void kettlercoachrower::processFrame(const kettlerclassicprotocol::Frame &frame)
             enqueueRead(DEVICE_MODE);
             enqueueRead(SESSION_STATE);
             enqueueRead(DEVICE_MODE);
+            // Apply the console's practical L4 before the first stroke.
+            // Keep the known-good post-auth setup reads ahead of the write.
+            // Explicit "No write resistance" still takes precedence.
+            if (!noWriteResistance) {
+                emit debug(QStringLiteral("Coach S setting default resistance L4 after authentication"));
+                enqueueResistanceRequest(DEFAULT_COACH_S_RESISTANCE);
+            }
             sendNextRequest();
             return;
         }
@@ -333,7 +344,8 @@ void kettlercoachrower::processTelemetry(const QByteArray &payload) {
     // 2026-11-16 Coach S hardware log: +18..19 follows rowing effort
     // (80..210) and returns to zero on rest. Candidate instantaneous watts;
     // console comparison is still needed to confirm the engineering unit.
-    currentWatts = kettlerclassicprotocol::coachSCandidateWatts(payload);
+    const quint16 rawWatts = kettlerclassicprotocol::coachSCandidateWatts(payload);
+    currentWatts = strokePower.addSample(strokes, rawWatts, powerClock.elapsed());
     m_watt = currentWatts;
     recordReportedResistance(kettlerclassicprotocol::coachSReportedResistance(payload),
                              "E0 byte 23");
@@ -369,8 +381,8 @@ void kettlercoachrower::processTelemetry(const QByteArray &payload) {
         Distance = meters / 1000.0;
         Distance1s = meters / 1000.0;
     }
-    emit debug(QStringLiteral("Coach S e0 counters strokes=%1 distanceCandidate=%2 powerCandidate=%3 fields=%4")
-                   .arg(strokes).arg(meters).arg(currentWatts)
+    emit debug(QStringLiteral("Coach S e0 counters strokes=%1 distanceCandidate=%2 powerCandidate=%3 smoothedWatts=%4 fields=%5")
+                   .arg(strokes).arg(meters).arg(rawWatts).arg(currentWatts)
                    .arg(QString::fromLatin1(payload.toHex(' '))));
 }
 
@@ -404,6 +416,18 @@ void kettlercoachrower::recordReportedResistance(quint8 level, const char *sourc
 
 void kettlercoachrower::update() {
     if (!socket || socket->state() != QBluetoothSocket::ConnectedState || !initDone) return;
+
+    // Clear the held completed-stroke watts when rowing has truly stopped,
+    // even if the Coach S has not supplied another E0 sample.
+    if (powerClock.isValid()) {
+        const quint16 heldWatts = strokePower.value(powerClock.elapsed());
+        if (heldWatts != currentWatts) {
+            currentWatts = heldWatts;
+            m_watt = currentWatts;
+            emit debug(QStringLiteral("Coach S stroke-average power idle timeout: %1 W")
+                           .arg(currentWatts));
+        }
+    }
 
     // Writes are explicitly requested by QZ controls. No speculative
     // S-FIT 0x000B/0x001B-read/0x001C/0x001D polling: Coach S never answered.
