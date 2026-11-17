@@ -563,7 +563,9 @@ Page {
                 // The row has no text of its own: without a name a screen reader stops on the texts
                 // inside it, which cannot be pressed, and the workout cannot be opened
                 Accessible.name: title + ", " + date + ", " + duration
-                width: parent.width
+                // The width of the list: a row filtered out or deleted is destroyed with no parent, and
+                // parent.width then logged "Cannot read property 'width' of null"
+                width: ListView.view ? ListView.view.width : 0
                 // Modern look: three lines (the calories join the stats), a list item of three lines:
                 // the card at least 88 high, growing with a bigger text (the lines + 8 above and
                 // below), and the gap of 8 between the cards.
