@@ -269,3 +269,47 @@ TEST(KettlerClassicProtocol, CoachSE0LastByteReportsResistance) {
     EXPECT_EQ(kettlerclassicprotocol::coachSReportedResistance(capturedTelemetry), 0);
     EXPECT_EQ(kettlerclassicprotocol::coachSReportedResistance(capturedTelemetry.left(23)), 0);
 }
+
+TEST(KettlerClassicProtocol, CoachSStrokePowerExcludesRecoveryZerosAndHoldsLastStroke) {
+    kettlerclassicprotocol::CoachSStrokePowerSmoother smoothing;
+    EXPECT_EQ(smoothing.addSample(10, 0, 0), 0);
+    EXPECT_EQ(smoothing.addSample(10, 100, 100), 100);
+    EXPECT_EQ(smoothing.addSample(10, 200, 300), 150);
+    EXPECT_EQ(smoothing.addSample(10, 0, 500), 150); // completed 150 W, not 100 W
+    EXPECT_EQ(smoothing.addSample(10, 0, 1200), 150); // recovery is not a stop
+    EXPECT_EQ(smoothing.addSample(11, 250, 1700), 150); // still hold prior stroke
+    EXPECT_EQ(smoothing.addSample(11, 350, 1900), 150);
+    EXPECT_EQ(smoothing.addSample(11, 0, 2100), 300); // new nonzero-only average
+    EXPECT_EQ(smoothing.addSample(11, 0, 3100), 300);
+    EXPECT_EQ(smoothing.value(6500), 0); // true inactivity, no stale power
+}
+
+TEST(KettlerClassicProtocol, CoachSStrokePowerCounterChangeCompletesDriveWithoutZero) {
+    kettlerclassicprotocol::CoachSStrokePowerSmoother smoothing;
+    EXPECT_EQ(smoothing.addSample(40, 110, 0), 110);
+    EXPECT_EQ(smoothing.addSample(40, 190, 200), 150);
+    EXPECT_EQ(smoothing.addSample(41, 400, 1200), 150); // previous stroke finalized
+    EXPECT_EQ(smoothing.addSample(41, 0, 1400), 400); // current stroke ends
+    EXPECT_EQ(smoothing.value(4000), 0);
+}
+
+TEST(KettlerClassicProtocol, CoachSStrokePowerAdaptiveStopAndReset) {
+    kettlerclassicprotocol::CoachSStrokePowerSmoother smoothing;
+    smoothing.addSample(1, 160, 0);
+    smoothing.addSample(1, 0, 200);
+    smoothing.addSample(2, 180, 4000); // slow 4-second period
+    EXPECT_EQ(smoothing.addSample(2, 0, 4300), 180);
+    EXPECT_EQ(smoothing.value(8000), 180); // keep slow-stroke recovery
+    EXPECT_EQ(smoothing.value(10500), 0); // stop timeout is capped at 6.5s
+    EXPECT_EQ(smoothing.addSample(0, 240, 11000), 240); // counter reset / new session
+    smoothing.reset();
+    EXPECT_EQ(smoothing.value(12000), 0);
+}
+
+TEST(KettlerClassicProtocol, CoachSDefaultL4UsesConfirmedC0Write) {
+    // Default L4 is the same real Kinomap write proven in the hardware test.
+    const QByteArray initialL4 =
+        kettlerclassicprotocol::encodeFrameWithEscapedPayloadLength(
+            0x00c0, 0x02, QByteArray(1, char(4)));
+    EXPECT_EQ(initialL4, QByteArray::fromHex("0200c01022000104032dfd"));
+}
