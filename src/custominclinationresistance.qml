@@ -193,20 +193,22 @@ ScrollView {
         settings.custom_inclination_resistance_table = pointsToString()
     }
 
+    // Sorts the rows in place with move() instead of rebuilding the model: a clear() emptied the
+    // table for a moment, the page got shorter and scrolled back to the top, so a point edited at
+    // the end of the page jumped out of sight. A moved row also keeps its delegate: the field being
+    // edited is not destroyed and does not finish its editing from a row that is gone (index -1)
     function sortPointsAndSave() {
-        var points = []
-        for (var i = 0; i < pointListModel.count; i++) {
-            var point = pointListModel.get(i)
-            points.push({
-                inclination: parseNumber(point.inclination),
-                resistance: normalizeResistance(point.resistance)
-            })
+        for (var i = 0; i < pointListModel.count - 1; i++) {
+            var lowest = i
+            for (var j = i + 1; j < pointListModel.count; j++) {
+                if (parseNumber(pointListModel.get(j).inclination) < parseNumber(pointListModel.get(lowest).inclination)) {
+                    lowest = j
+                }
+            }
+            if (lowest !== i) {
+                pointListModel.move(lowest, i, 1)
+            }
         }
-
-        points.sort(function(a, b) {
-            return a.inclination - b.inclination
-        })
-        setPoints(points)
         savePoints()
     }
 
@@ -404,8 +406,8 @@ ScrollView {
                             text = adjustPoint(index, "inclination", delta)
                             Qt.callLater(sortPointsAndSave)
                         }
-                        // index -1: the row is going away - sortPointsAndSave rebuilds the model,
-                        // and the field that had the focus finishes its editing once more
+                        // index -1: the row is going away - its remove button is a MouseArea that
+                        // does not take the focus, so the field finishes its editing afterwards
                         onEdited: {
                             if (index < 0)
                                 return
