@@ -375,7 +375,7 @@ void kettlercoachrower::processTelemetry(const QByteArray &payload) {
                     // PM5/MyWhoosh already consume this same Speed metric.
                     const int distanceDelta = meters - lastStrokeDistanceMeters;
                     const double strokeSpeedKmh =
-                        qBound(0.0, distanceDelta * 3600000.0 / elapsedMs, 30.0);
+                        qBound(0.0, distanceDelta * 3600.0 / elapsedMs, 30.0);
                     Speed = strokeSpeedKmh;
                     emit debug(QStringLiteral(
                         "Coach S completed-stroke speed=%1 km/h distanceDelta=%2 m elapsedMs=%3 strokesDelta=%4")
