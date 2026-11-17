@@ -3644,7 +3644,11 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
 void bluetooth::connectedAndDiscovered() {
 #ifdef Q_OS_ANDROID
-    if (coachSDirectInProgress && kettlerCoachRower) {
+    if (coachSDirectInProgress && kettlerCoachRower &&
+        kettlerCoachRower->connected()) {
+        // This slot is shared by every primary/auxiliary device. Do not
+        // declare the Coach S connection successful due to some other
+        // device's connectedAndDiscovered() signal.
         coachSDirectInProgress = false;
         // A later disconnect after a successful direct connection should
         // be allowed to try the bonded SPP path again.
