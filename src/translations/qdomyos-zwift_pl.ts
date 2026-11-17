@@ -2647,6 +2647,18 @@ Odpowiedzi na poniższe pytania pozwolą dostosować QZ do Twojego sprzętu i ce
         <translation>Dalej</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Sprzęt, jednostki i profil – krok po kroku</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Wybierz temat i przejdź prosto do jego ustawień</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Zamknij kreator</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Ustawienia niestandardowe</translation>
     </message>

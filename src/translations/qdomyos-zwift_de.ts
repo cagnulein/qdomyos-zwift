@@ -2683,6 +2683,18 @@ Die folgenden Fragen passen QZ an Ihre Ausrüstung und Ziele an.</translation>
         <translation>Weiter</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Ihr Gerät, Einheiten und Profil – Schritt für Schritt</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Wählen Sie ein Thema und gehen Sie direkt zu seinen Einstellungen</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Assistenten schließen</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Benutzerdefinierte Konfigurationen</translation>
     </message>

@@ -2647,6 +2647,18 @@ Následující otázky přizpůsobí QZ vašemu trenažéru a cílům.</translat
         <translation>Další</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Trenažér, jednotky a profil krok za krokem</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Vyberte téma a přejděte rovnou k jeho nastavení</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Zavřít průvodce</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Vlastní nastavení</translation>
     </message>

@@ -2683,6 +2683,18 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>下一步</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>设备、单位和档案，逐步设置</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>选择一个主题，直接进入其设置</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>关闭向导</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>自定义配置</translation>
     </message>

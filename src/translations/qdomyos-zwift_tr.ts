@@ -2647,6 +2647,18 @@ Aşağıdaki sorular QZ&apos;yi ekipmanınıza ve hedeflerinize göre özelleşt
         <translation>İleri</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Cihazınız, birimleriniz ve profiliniz, adım adım</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Bir konu seçin ve doğrudan ayarlarına gidin</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Sihirbazı kapat</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Özel yapılandırmalar</translation>
     </message>

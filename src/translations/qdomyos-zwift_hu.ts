@@ -2631,6 +2631,18 @@ A következő kérdésekkel a QZ-t az edzőgépéhez és a céljaihoz szabhatja.
         <translation>Tovább</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Edzőgép, mértékegységek és profil lépésről lépésre</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Válasszon témát, és lépjen közvetlenül a beállításaihoz</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>A varázsló bezárása</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Egyéni konfigurációk</translation>
     </message>

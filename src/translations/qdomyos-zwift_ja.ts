@@ -2683,6 +2683,18 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>次へ</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>機器、単位、プロフィールを順番に設定</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>トピックを選んで、その設定に直接移動</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>ウィザードを閉じる</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>カスタム設定</translation>
     </message>

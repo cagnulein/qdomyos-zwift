@@ -2683,6 +2683,18 @@ As seguintes perguntas personalizarão o QZ para o seu equipamento e objetivos.<
         <translation>Próximo</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>O seu equipamento, unidades e perfil, passo a passo</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Escolha um tema e vá direto para as configurações dele</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Fechar o assistente</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Configurações personalizadas</translation>
     </message>

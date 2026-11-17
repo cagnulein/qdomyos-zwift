@@ -2631,6 +2631,18 @@ Med följande frågor anpassas QZ efter din utrustning och dina mål.</translati
         <translation>Nästa</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Träningsredskap, måttenheter och profil, steg för steg</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Välj ett ämne och gå direkt till dess inställningar</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Stäng guiden</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Anpassade inställningar</translation>
     </message>
