@@ -585,7 +585,9 @@ TEST(ZwiftRideControllerTest, RightBMapsToGearDownOnlyInOptInMode) {
     const QVariant savedDebounce = settings.value(QZSettings::gears_volume_debouncing);
     settings.setValue(QZSettings::zwiftplay_gear_rs2, 2);
     settings.setValue(QZSettings::zwiftplay_swap, false);
-    settings.setValue(QZSettings::gears_volume_debouncing, true);
+    // Keep this mapping test independent of the static 250ms debounce state from earlier tests.
+    // Debouncing behavior is already tested separately above.
+    settings.setValue(QZSettings::gears_volume_debouncing, false);
     ZwiftPlayDevice legacy;
     ButtonEvents legacyEvents;
     connectButtonEvents(legacy, legacyEvents);
