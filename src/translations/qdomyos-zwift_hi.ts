@@ -7055,6 +7055,14 @@ IMPORTANT NOTES:
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Resistance Compatibility</source>
+        <translation>प्रतिरोध संगतता</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>इसे चालू करें यदि QZ में प्रतिरोध बदलने पर बाइक केवल स्तर 1 या अधिकतम स्तर पर जाती है। FTMS प्रतिरोध मान को 10 से गुणा करके भेजता है। डिफ़ॉल्ट: बंद।</translation>
+    </message>
+    <message>
         <source>AutoLap on Distance:</source>
         <translation type="unfinished"></translation>
     </message>

@@ -2683,6 +2683,18 @@ As seguintes perguntas personalizarão o QZ para o seu equipamento e objetivos.<
         <translation>Próximo</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>O seu equipamento, unidades e perfil, passo a passo</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Escolha um tema e vá direto para as configurações dele</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Fechar o assistente</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Configurações personalizadas</translation>
     </message>
@@ -3064,6 +3076,22 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
     <message>
         <source>%1 day streak</source>
         <translation>Sequência de %1 dia</translation>
+    </message>
+    <message>
+        <source>Calendar</source>
+        <translation>Calendário</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Sem treinos neste dia</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Ainda sem treinos</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Os treinos concluídos aparecem aqui: abra um para ver os gráficos.</translation>
     </message>
     <message>
         <source>Personal best: %1 days</source>
@@ -7728,6 +7756,14 @@ OBSERVAÇÕES IMPORTANTES:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>Para rolos inteligentes, use a resistência em vez da inclinação. Isso ajuda a evitar que o Wahoo Climb ou um aparelho semelhante altere a inclinação quando você troca de marcha. Padrão: desativado.</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>Compatibilidade da resistência</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Ative se alterar a resistência no QZ colocar a bicicleta apenas no nível 1 ou no máximo. Envia o valor da resistência FTMS multiplicado por 10. Predefinição: desativado.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>

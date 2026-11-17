@@ -2647,6 +2647,18 @@ Následující otázky přizpůsobí QZ vašemu trenažéru a cílům.</translat
         <translation>Další</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Trenažér, jednotky a profil krok za krokem</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Vyberte téma a přejděte rovnou k jeho nastavení</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Zavřít průvodce</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Vlastní nastavení</translation>
     </message>
@@ -3102,6 +3114,10 @@ Při prvním spuštění to může chvíli trvat.</translation>
         <translation>Filtrovat podle data</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Kalendář</translation>
+    </message>
+    <message>
         <source>Import workouts</source>
         <translation>Importovat tréninky</translation>
     </message>
@@ -3120,6 +3136,18 @@ Při prvním spuštění to může chvíli trvat.</translation>
     <message>
         <source>Copying workout files: %1 of %2</source>
         <translation>Kopírování souborů tréninků: %1 z %2</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>V tento den žádné tréninky</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Zatím žádné tréninky</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Zde se objeví dokončené tréninky: otevřete kterýkoli a zobrazte jeho grafy.</translation>
     </message>
     <message>
         <source>Open on Peloton</source>
@@ -7312,6 +7340,14 @@ DŮLEŽITÉ:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>U chytrých trenažérů použijte odpor místo sklonu. Pomůže to, pokud nechcete, aby Wahoo Climb nebo podobné zařízení měnilo sklon při řazení převodů. Výchozí: vypnuto</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>Kompatibilita odporu</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Zapněte, pokud změna odporu v QZ nastaví kolo pouze na úroveň 1 nebo na maximum. Odesílá hodnotu odporu FTMS vynásobenou 10. Výchozí: vypnuto.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>

@@ -2647,6 +2647,18 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>다음</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>운동 기구, 단위, 프로필을 단계별로 설정</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>주제를 골라 해당 설정으로 바로 이동</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>마법사 닫기</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>맞춤 설정</translation>
     </message>
@@ -3102,6 +3114,10 @@ This may take a few moments on first startup.</source>
         <translation>날짜로 필터</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>캘린더</translation>
+    </message>
+    <message>
         <source>Import workouts</source>
         <translation>운동 가져오기</translation>
     </message>
@@ -3120,6 +3136,18 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Copying workout files: %1 of %2</source>
         <translation>운동 파일 복사 중: %1/%2</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>이 날에는 운동이 없습니다</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>아직 운동이 없습니다</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>완료한 운동이 여기에 표시됩니다. 운동을 열면 그래프를 볼 수 있습니다.</translation>
     </message>
     <message>
         <source>Open on Peloton</source>
@@ -7312,6 +7340,14 @@ IMPORTANT NOTES:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>스마트 트레이너에서 경사도 대신 저항을 사용합니다. 기어를 바꿀 때 Wahoo Climb 같은 장치의 경사도가 바뀌지 않게 하는 데 도움이 됩니다. 기본값: 꺼짐</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>저항 호환성</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>QZ에서 저항을 변경할 때 자전거가 레벨 1 또는 최댓값으로만 설정된다면 활성화하세요. FTMS 저항 값을 10배로 전송합니다. 기본값: 비활성화.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>
