@@ -27,6 +27,10 @@ class AbstractZapDevice: public QObject {
         RIGHT
     };
 
+    // Special right-only mapping and idle reset require the explicit user setting.
+    static bool useSingleRightClickV2(bool settingEnabled, int manufacturerType) {
+        return settingEnabled && manufacturerType == 10;
+    }
     bool singleRightClickV2 = false;
 
     QByteArray RIDE_ON;
