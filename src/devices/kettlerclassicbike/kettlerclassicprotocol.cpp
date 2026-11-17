@@ -77,6 +77,80 @@ quint8 coachSReportedResistance(const QByteArray &telemetryPayload) {
     return level >= 1 && level <= 10 ? level : 0;
 }
 
+void CoachSStrokePowerSmoother::reset() {
+    lastStrokeCounter = -1;
+    lastStrokeMs = -1;
+    lastPositiveMs = -1;
+    strokePeriodMs = 0;
+    driveSum = 0;
+    driveSamples = 0;
+    completedWatts = 0;
+}
+
+int CoachSStrokePowerSmoother::inactivityTimeoutMs() const {
+    // Avoid treating a zero-watt recovery sample as the end of rowing.
+    // Follow the observed stroke interval once available, but don't hold
+    // a stale power indefinitely after the athlete stops.
+    return strokePeriodMs > 0 ? qBound(2500, strokePeriodMs * 3 / 2, 6500) : 3000;
+}
+
+void CoachSStrokePowerSmoother::completeDrive() {
+    if (!driveSamples) return;
+    const quint64 roundedMean = (driveSum + driveSamples / 2) / driveSamples;
+    completedWatts = static_cast<quint16>(qMin(roundedMean, quint64(65535)));
+    driveSum = 0;
+    driveSamples = 0;
+}
+
+quint16 CoachSStrokePowerSmoother::value(qint64 nowMs) const {
+    if (lastPositiveMs < 0 || nowMs - lastPositiveMs > inactivityTimeoutMs())
+        return 0;
+    if (completedWatts > 0)
+        return completedWatts;
+    // A first-ever pull has no completed stroke to hold yet. Show its
+    // running nonzero average instead of an unexplained zero until recovery.
+    return driveSamples ? static_cast<quint16>(
+                              qMin((driveSum + driveSamples / 2) / driveSamples,
+                                   quint64(65535))) : 0;
+}
+
+quint16 CoachSStrokePowerSmoother::addSample(quint16 strokeCounter,
+                                            quint16 rawWatts, qint64 nowMs) {
+    if (lastPositiveMs >= 0 && nowMs - lastPositiveMs > inactivityTimeoutMs()) {
+        completedWatts = 0;
+        driveSum = 0;
+        driveSamples = 0;
+    }
+
+    if (lastStrokeCounter < 0 || strokeCounter < lastStrokeCounter) {
+        // New session or counter reset.
+        lastStrokeCounter = strokeCounter;
+        lastStrokeMs = nowMs;
+    } else if (strokeCounter > lastStrokeCounter) {
+        const int increments = strokeCounter - lastStrokeCounter;
+        const qint64 delta = nowMs - lastStrokeMs;
+        if (delta >= 500 && delta <= 15000LL * increments) {
+            strokePeriodMs = static_cast<int>(delta / increments);
+        }
+        // If the counter changes before a zero-watt recovery sample, that
+        // transition also completes the previous drive.
+        completeDrive();
+        lastStrokeCounter = strokeCounter;
+        lastStrokeMs = nowMs;
+    }
+
+    if (rawWatts != 0) {
+        driveSum += rawWatts;
+        ++driveSamples;
+        lastPositiveMs = nowMs;
+    } else {
+        // The recovery phase finishes a drive. Never include its 0 W
+        // sample in the mean; keep the last completed average visible.
+        completeDrive();
+    }
+    return value(nowMs);
+}
+
 quint16 crc16(const QByteArray &data) {
     quint16 crc = 0;
     for (const char byte : data) {
