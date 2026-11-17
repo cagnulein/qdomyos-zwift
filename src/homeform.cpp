@@ -10968,6 +10968,19 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
     dataTypePart.setBody("fit");
     multiPart->append(dataTypePart);
 
+    // Strava supports trainer=0 on the initial FIT upload. Try this for
+    // explicit experimental virtual treadmill uploads only; uploads from
+    // history and all other devices preserve their existing multipart data.
+    // Strava may still classify activities without GPS as stationary.
+    if (clearTreadmillTag) {
+        QHttpPart trainerPart;
+        trainerPart.setHeader(QNetworkRequest::ContentDispositionHeader,
+                              QVariant(QStringLiteral("form-data; name=\"trainer\"")));
+        trainerPart.setBody("0");
+        multiPart->append(trainerPart);
+        qDebug() << "Strava experimental treadmill tag: trainer=0 included in FIT upload";
+    }
+
     QHttpPart externalIdPart;
     externalIdPart.setHeader(QNetworkRequest::ContentDispositionHeader,
                              QVariant(QStringLiteral("form-data; name=\"external_id\"")));
