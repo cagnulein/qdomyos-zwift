@@ -3078,6 +3078,22 @@ Beim ersten Start kann dies einen Moment dauern.</translation>
         <translation>%1-Tages-Serie</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Kalender</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Keine Trainings an diesem Tag</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Noch keine Trainings</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Abgeschlossene Trainings erscheinen hier: Öffnen Sie eines, um seine Diagramme zu sehen.</translation>
+    </message>
+    <message>
         <source>Personal best: %1 days</source>
         <translation>Persönliche Bestleistung: %1 Tage</translation>
     </message>

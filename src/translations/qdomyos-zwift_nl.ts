@@ -3114,6 +3114,10 @@ Bij de eerste start kan dit even duren.</translation>
         <translation>Filteren op datum</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Kalender</translation>
+    </message>
+    <message>
         <source>Import workouts</source>
         <translation>Trainingen importeren</translation>
     </message>
@@ -3132,6 +3136,18 @@ Bij de eerste start kan dit even duren.</translation>
     <message>
         <source>Copying workout files: %1 of %2</source>
         <translation>Trainingsbestanden worden gekopieerd: %1 van %2</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Geen trainingen op deze dag</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Nog geen trainingen</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Afgeronde trainingen verschijnen hier: open er een om de grafieken te bekijken.</translation>
     </message>
     <message>
         <source>Open on Peloton</source>

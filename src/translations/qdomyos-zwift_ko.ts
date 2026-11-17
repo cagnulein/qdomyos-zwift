@@ -3114,6 +3114,10 @@ This may take a few moments on first startup.</source>
         <translation>날짜로 필터</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>캘린더</translation>
+    </message>
+    <message>
         <source>Import workouts</source>
         <translation>운동 가져오기</translation>
     </message>
@@ -3132,6 +3136,18 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Copying workout files: %1 of %2</source>
         <translation>운동 파일 복사 중: %1/%2</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>이 날에는 운동이 없습니다</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>아직 운동이 없습니다</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>완료한 운동이 여기에 표시됩니다. 운동을 열면 그래프를 볼 수 있습니다.</translation>
     </message>
     <message>
         <source>Open on Peloton</source>

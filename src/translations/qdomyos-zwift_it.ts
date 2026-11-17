@@ -3078,6 +3078,22 @@ Al primo avvio potrebbe richiedere qualche istante.</translation>
         <translation>Serie di %1 giorno</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Calendario</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Nessun allenamento in questo giorno</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Ancora nessun allenamento</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Gli allenamenti completati compaiono qui: aprine uno per vederne i grafici.</translation>
+    </message>
+    <message>
         <source>Personal best: %1 days</source>
         <translation>Record personale: %1 giorni</translation>
     </message>
