@@ -1372,9 +1372,7 @@ const QString QZSettings::wahoo_wheel_question_answered = QStringLiteral("wahoo_
 
 const QString QZSettings::resistance_compatibility = QStringLiteral("resistance_compatibility");
 
-const uint32_t allSettingsCount = 1057;
-
-QVariant allSettings[allSettingsCount][2] = {
+QVariant allSettings[][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
     {QZSettings::bike_wheel_revs, QZSettings::default_bike_wheel_revs},
@@ -2458,6 +2456,9 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::resistance_compatibility, QZSettings::default_resistance_compatibility},
     {QZSettings::zwift_right_controller_only, QZSettings::default_zwift_right_controller_only},
 };
+
+// Keep the count in sync with the actual array entries when new settings are added.
+const uint32_t allSettingsCount = sizeof(allSettings) / sizeof(allSettings[0]);
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
     QSettings settings;
