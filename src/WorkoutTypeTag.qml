@@ -48,8 +48,9 @@ Rectangle {
         id: tagText
         anchors.centerIn: parent
         text: workoutSource.toUpperCase()
-        // new look: the source colour darkened (light theme) or as is (dark): contrast >= 4.6:1 on the pill
-        // over the card (surface) of every theme, the lightest - #F3F4F6 of oled light
+        // new look: the source colour, darkened in the light themes, a light shade of it in the dark ones:
+        // contrast >= 4.6:1 on the pill over the card (surface) of every theme; the worst case is PELOTON
+        // on #F3F4F6, the darkest card of the light themes
         color: {
             if (!root.modern)
                 return "white"

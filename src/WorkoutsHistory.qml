@@ -1146,19 +1146,50 @@ Page {
             strokeWidth: window.ui.dark ? 0 : 1
         }
 
-        // The scrim of the page with a hole for the pressed workout: a transparent rectangle
-        // with a border far wider than the window, so its inner edge is the rounded hole
+        // The scrim of the page with a hole for the pressed workout: four bands around the hole
+        // and a rounded piece in each of its corners. Not one rounded rectangle with a border far
+        // wider than the window: the scene graph of Qt 5.15 drew such a border with a light wedge
+        // over the header
         Overlay.modal: Item {
-            readonly property real reach: 2 * Math.max(width, height)
+            id: holeScrim
+            readonly property rect h: modernUploadMenu.hole
+            // the radius of the workout card, smaller when the visible part of the card is low
+            readonly property real r: Math.max(0, Math.min(16, h.width / 2, h.height / 2))
+
+            Rectangle { x: 0; y: 0; width: parent.width; height: holeScrim.h.y; color: window.ui.scrim }
             Rectangle {
-                x: modernUploadMenu.hole.x - parent.reach
-                y: modernUploadMenu.hole.y - parent.reach
-                width: modernUploadMenu.hole.width + 2 * parent.reach
-                height: modernUploadMenu.hole.height + 2 * parent.reach
-                radius: 16 + parent.reach
-                color: "transparent"
-                border.width: parent.reach
-                border.color: window.ui.scrim
+                x: 0; y: holeScrim.h.y + holeScrim.h.height
+                width: parent.width; height: Math.max(0, parent.height - y)
+                color: window.ui.scrim
+            }
+            Rectangle { x: 0; y: holeScrim.h.y; width: holeScrim.h.x; height: holeScrim.h.height; color: window.ui.scrim }
+            Rectangle {
+                x: holeScrim.h.x + holeScrim.h.width; y: holeScrim.h.y
+                width: Math.max(0, parent.width - x); height: holeScrim.h.height
+                color: window.ui.scrim
+            }
+
+            // A corner: an r x r square showing the border of a rectangle whose inner edge is
+            // rounded with the radius r at that corner
+            Repeater {
+                model: [[0, 0], [1, 0], [0, 1], [1, 1]]
+                Item {
+                    x: holeScrim.h.x + modelData[0] * (holeScrim.h.width - holeScrim.r)
+                    y: holeScrim.h.y + modelData[1] * (holeScrim.h.height - holeScrim.r)
+                    width: holeScrim.r
+                    height: holeScrim.r
+                    clip: true
+                    Rectangle {
+                        x: modelData[0] ? -2 * holeScrim.r : -holeScrim.r
+                        y: modelData[1] ? -2 * holeScrim.r : -holeScrim.r
+                        width: 4 * holeScrim.r
+                        height: 4 * holeScrim.r
+                        radius: 2 * holeScrim.r
+                        color: "transparent"
+                        border.width: holeScrim.r
+                        border.color: window.ui.scrim
+                    }
+                }
             }
             Behavior on opacity { NumberAnimation { duration: 150 } }
         }
