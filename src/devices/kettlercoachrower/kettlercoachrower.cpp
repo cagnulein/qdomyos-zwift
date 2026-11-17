@@ -94,6 +94,18 @@ quint16 kettlercoachrower::be16(const QByteArray &data, int offset) {
            static_cast<quint8>(data.at(offset + 1));
 }
 
+#ifdef Q_OS_ANDROID
+void kettlercoachrower::connectToBondedDevice(const QBluetoothDeviceInfo &device) {
+    bluetoothDevice = device;
+    emit debug(QStringLiteral("Coach S connecting directly to bonded SPP address ") +
+               device.address().toString());
+    // The existing secured RFCOMM socket performs the same successful
+    // S-FIT handshake in rfCommConnected(); only the inquiry/SDP scan is skipped.
+    createSocket();
+    socket->connectToService(device.address(), QBluetoothUuid(SERIAL_PORT_UUID));
+}
+#endif
+
 void kettlercoachrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bluetoothDevice = device;
     emit debug(QStringLiteral("Found Kettler Coach S: ") + device.name());
