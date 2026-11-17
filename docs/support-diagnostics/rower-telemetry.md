@@ -38,3 +38,24 @@
 
 - A simulated rower profile can mask the intended physical-device selection. In one support log, the enabled fake rower option was identified after a recognized FTMS rower showed no values and Start briefly flashed; the configuration mismatch was confirmed, although a successful retest was not yet established.
 - Verifying the physical-versus-simulated device choice before requesting protocol traces avoids investigating a BLE parser that QZ may not be using.
+
+## Bluetooth Classic rower reports strokes but not watts or physical resistance changes
+
+### Provide first
+
+- Identify the exact rower/console model, Android version, QZ build, and whether the machine connects over Bluetooth Classic/SPP rather than BLE. Confirm that the manufacturer's app is closed during QZ testing.
+- Report separately whether QZ receives **stroke count, stroke rate, distance, and live watts** while rowing, and whether watts return to zero after stopping. Compare a few live values with the console rather than relying on a workout average.
+- Record whether **Ignore built-in watts** is enabled and whether QZ is using an external power source.
+- For resistance, report the physical console's level range and a short, safe sequence of **nonconsecutive** levels (for example L2 → L4 → L3). For each, distinguish QZ's requested level, any reported level, and whether the actual rowing load changes.
+
+### If still unclear
+
+- Capture one short QZ debug log covering connection, idle, steady strokes, stopping, and two or three deliberate resistance changes. Include approximate timestamps and console readings; keep other training apps closed.
+- If the manufacturer's app physically controls resistance but QZ only updates its requested level, obtain a **separate Android Bluetooth HCI snoop capture** of a short manufacturer-app session when support requests it. Close QZ for that capture and annotate the exact level sequence and whether the load changed. Bluetooth Classic RFCOMM traffic may be fragmented, so preserve the original complete capture rather than copied hex fragments.
+- If a test build changes power decoding or command handling, compare the same short test with the previous build, recording any command timeouts and whether the machine acknowledges or reports each requested level. Only after physical telemetry and control work should the virtual rower and receiving-app pairing be tested separately.
+
+### Why it matters
+
+- Working stroke and distance telemetry does not establish that the same protocol supplies usable power or accepts resistance writes; QZ's requested resistance level is not evidence of physical movement.
+- In a confirmed Bluetooth Classic rower investigation, a comparison of idle and rowing telemetry identified a usable live-power field, while repeated reads of unsupported functions timed out. A separate, time-annotated manufacturer-app HCI capture and an explicitly confirmed nonconsecutive level sequence distinguished actual resistance commands from other changing protocol fields.
+- Checking **Ignore built-in watts** before interpreting a zero-watt tile avoids mistaking a source-selection setting for a decoding failure. Distinguishing physical resistance, device-reported acknowledgements, and virtual-app behavior prevents conflating three independent stages.
