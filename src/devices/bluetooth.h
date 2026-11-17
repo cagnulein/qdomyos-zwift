@@ -226,6 +226,12 @@ class bluetooth : public QObject, public SignalHandler {
 
   private:
     bool useDiscovery = false;
+#ifdef Q_OS_ANDROID
+    // Try the selected, previously bonded Coach S directly once before
+    // falling back to the existing Bluetooth discovery/reconnect loop.
+    bool coachSDirectAttempted = false;
+    bool coachSDirectInProgress = false;
+#endif
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
     QBluetoothDeviceDiscoveryAgent *hrmDiscoveryAgent = nullptr;
@@ -398,6 +404,9 @@ class bluetooth : public QObject, public SignalHandler {
      * @brief Start the Bluetooth discovery agent.
      */
     void startDiscovery();
+#ifdef Q_OS_ANDROID
+    bool tryConnectBondedCoachS();
+#endif
 
     /**
      * @brief Stop the Bluetooth discovery agent.
