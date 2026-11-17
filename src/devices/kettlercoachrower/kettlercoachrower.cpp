@@ -376,11 +376,21 @@ void kettlercoachrower::processTelemetry(const QByteArray &payload) {
                     const int distanceDelta = meters - lastStrokeDistanceMeters;
                     const double strokeSpeedKmh =
                         qBound(0.0, distanceDelta * 3600.0 / elapsedMs, 30.0);
-                    Speed = strokeSpeedKmh;
+                    // Distance is quantized to whole meters, so adjacent
+                    // stroke averages can still bounce by ~1-2 km/h.
+                    // Filter only at stroke boundaries; never update it
+                    // within a drive/recovery. PM5 pace then remains steady.
+                    const double previousSpeedKmh = Speed.value();
+                    const double displaySpeedKmh = previousSpeedKmh > 0.0
+                        ? 0.65 * previousSpeedKmh + 0.35 * strokeSpeedKmh
+                        : strokeSpeedKmh;
+                    Speed = displaySpeedKmh;
                     emit debug(QStringLiteral(
-                        "Coach S completed-stroke speed=%1 km/h distanceDelta=%2 m elapsedMs=%3 strokesDelta=%4")
-                                   .arg(strokeSpeedKmh, 0, 'f', 2).arg(distanceDelta)
-                                   .arg(elapsedMs).arg(strokesDelta));
+                        "Coach S completed-stroke speed=%1 km/h rawStrokeSpeed=%2 km/h distanceDelta=%3 m elapsedMs=%4 strokesDelta=%5")
+                                   .arg(displaySpeedKmh, 0, 'f', 2)
+                                   .arg(strokeSpeedKmh, 0, 'f', 2)
+                                   .arg(distanceDelta).arg(elapsedMs)
+                                   .arg(strokesDelta));
                 }
             }
         }
