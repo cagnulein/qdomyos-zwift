@@ -569,8 +569,11 @@ Page {
 
                     GridLayout {
                         Layout.alignment: Qt.AlignHCenter
-                        // Modern look: two columns of answer cards across the page column, 8 apart
-                        Layout.fillWidth: window.ui.modern
+                        // Modern look: two columns of answer cards across the page column, 8 apart.
+                        // true and not window.ui.modern: a layout with fillWidth unset fills (as in
+                        // the classic look), an explicit false would narrow it there (qquicklayout.cpp
+                        // v5.15.0:1153)
+                        Layout.fillWidth: true
                         Layout.topMargin: window.ui.modern ? 12 : 0
                         columns: 2
                         rowSpacing: window.ui.modern ? 8 : 20
@@ -1686,8 +1689,9 @@ Page {
 
                     RowLayout {
                         spacing: window.ui.modern ? 8 : 10
-                        // Modern look: the list across the column and Refresh beside it, as on the heart rate step
-                        Layout.fillWidth: window.ui.modern
+                        // The list across the column (as a layout with fillWidth unset, the classic
+                        // look); modern look: Refresh beside it, as on the heart rate step
+                        Layout.fillWidth: true
                         Layout.topMargin: window.ui.modern ? 12 : 0
                         ValueComboBox {
                             id: filterDeviceTextField
