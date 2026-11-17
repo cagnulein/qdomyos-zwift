@@ -1829,6 +1829,13 @@ Page {
                 Layout.fillHeight: true
                 columns: 7
                 
+                // Modern look: one size for the round days, from the mean column width. The
+                // layout snaps the column edges to whole pixels (QGridLayoutEngine with
+                // snapToPixelGrid), so of seven equal columns some are 1 dp narrower, and a circle
+                // sized by its own cell came out 1 dp smaller there. floor(mean) - 2 still fits
+                // the narrowest cell, which is at most 1 dp below the mean
+                readonly property real dayCircle: Math.min(40, Math.floor((width - 6 * columnSpacing) / 7) - 2)
+
                 property date selectedDate: new Date()
                 property var workoutDates: workoutModel ? workoutModel.getWorkoutDates() : []
                 
@@ -1913,7 +1920,7 @@ Page {
                         UiFrame {
                             visible: workoutHistoryPage.modern
                             anchors.centerIn: parent
-                            width: Math.min(40, parent.width - 2, parent.height - 2)
+                            width: Math.min(calendar.dayCircle, parent.height - 2)
                             height: width
                             radius: width / 2
                             base: window.ui.surfaceHigh
