@@ -130,11 +130,31 @@ void CharacteristicWriteProcessor0003::handleZwiftGear(const QByteArray &array) 
     uint8_t g = 0;
     QSettings settings;
     if (settings.value(QZSettings::rouvy_compatibility, QZSettings::default_rouvy_compatibility).toBool()) {
-        static const int ratios[] = {7500, 8700, 9800, 11000, 12000, 13100, 14100, 15300,
-                                     16700, 18300, 20400, 22000, 23900, 26200, 27500, 30600,
-                                     32400, 34400, 36700, 39300, 42300, 45800, 50000, 55000};
+        static const int mixed[] = {7500, 8700, 9800, 11000, 12000, 13100, 14100, 15300,
+                                    16700, 18300, 20400, 22000, 23900, 26200, 27500, 30600,
+                                    32400, 34400, 36700, 39300, 42300, 45800, 50000, 55000};
+        // The supplied Flat trace ends after gear 17; do not guess missing ratios.
+        static const int flat[] = {13899, 15000, 16200, 18900, 19500, 20400, 21700, 22100,
+                                   24400, 26000, 26500, 27900, 29400, 30000, 32500, 33100, 35300};
+        static const int allArounder[] = {10600, 12500, 14500, 14600, 16700, 17100, 18400, 20000,
+                                          20600, 22900, 23300, 25000, 25299, 26900, 28200, 29200,
+                                          31800, 32000, 34300, 35000, 36900, 40000, 43600, 48000};
+        static const int climbing[] = {8300, 9400, 10700, 11900, 12500, 13400, 14300, 15400,
+                                       15800, 17600, 17900, 20000, 20500, 22599, 23100, 25000,
+                                       25299, 27300, 28700, 30000, 33100, 35800, 39100, 43000};
+        const int profile = settings.value(QZSettings::rouvy_virtual_gearing_profile,
+                                           QZSettings::default_rouvy_virtual_gearing_profile).toInt();
+        const int *ratios = mixed;
+        int count = 24;
+        switch (profile) {
+        case 1: ratios = flat; count = 17; break;
+        case 2: ratios = allArounder; break;
+        case 3: ratios = climbing; break;
+        case 0: break;
+        default: return;
+        }
         const qint64 ratio = decodeVarint(lastGearRatio, 0).value;
-        for (int i = 0; i < 24; ++i) {
+        for (int i = 0; i < count; ++i) {
             if (ratio == ratios[i]) {
                 g = i + 1;
                 break;
