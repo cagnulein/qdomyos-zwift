@@ -209,7 +209,7 @@ void xcxbike::controllerStateChanged(QLowEnergyController::ControllerState state
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         notificationEnabled = false;
         lastTelemetryTime = QDateTime();
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 

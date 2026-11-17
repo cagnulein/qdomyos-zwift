@@ -400,13 +400,16 @@ void zwiftclickremote::controllerStateChanged(QLowEnergyController::ControllerSt
         qDebug() << QStringLiteral("trying to connect back again...");
         initRequest = false;
         initDone = false;
-        clickV2ActivityTimer.invalidate();
-        clickV2ResetTimer.invalidate();
-        clickV2ResetSent = false;
-        countRxTimeout = 0;
+        // Preserve master's delayed reconnection and reset only the opt-in timer state.
+        if (playDevice->singleRightClickV2) {
+            clickV2ActivityTimer.invalidate();
+            clickV2ResetTimer.invalidate();
+            clickV2ResetSent = false;
+            countRxTimeout = 0;
+        }
 
         if(m_control)
-            m_control->connectToDevice();
+            connectBackLater();
     }
 }
 

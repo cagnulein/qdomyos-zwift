@@ -583,6 +583,15 @@ class bluetoothdevice : public QObject {
     QLowEnergyController *m_control = nullptr;
 
     /**
+     * @brief connectBackLater Reconnects m_control 1 s later, if it is still unconnected then.
+     * Called from the UnconnectedState handler instead of m_control->connectToDevice(): with the phone's
+     * Bluetooth off, Android refuses the connection inside connectToDevice() itself, the handler runs
+     * again from there, and the nested retries overflowed the stack (StackOverflowError in
+     * QtBluetoothLE.connect). Retrying every second also reconnects once Bluetooth is back on.
+     */
+    void connectBackLater();
+
+    /**
      * @brief elapsed A metric object to get and set the elapsed time for the session. Units: seconds
      */
     metric elapsed;
@@ -881,6 +890,9 @@ class bluetoothdevice : public QObject {
      */
     VIRTUAL_DEVICE_MODE virtualDeviceMode = VIRTUAL_DEVICE_MODE::NONE;
     virtualdevice *virtualDevice = nullptr;
+
+    // a connectBackLater() retry is already scheduled
+    bool connectBackPending = false;
 
   protected:
     // useful to understand if a power sensor device for treadmill, it's a real one like the stryd or it's a dumb one like the runpod from Zwift

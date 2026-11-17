@@ -204,6 +204,7 @@ void DirconProcessor::tcpDisconnected() {
     }
     clientsMap.remove(socket);
     socket->deleteLater();
+    emit clientDisconnected();
 }
 
 void DirconProcessor::applicationStateChanged(Qt::ApplicationState state) {

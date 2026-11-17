@@ -1,5 +1,13 @@
 # Treadmill troubleshooting
 
+## Domyos Run 500: QZ remains paused after starting or resuming on the treadmill console
+
+On a Domyos Run 500, QZ may continue to display live speed and incline while its workout session remains **paused** after Start or Resume is pressed on the treadmill console. Live readings alone do not mean that QZ is recording: elapsed workout data, distance, averages and maxima may not advance during the paused interval.
+
+For reliable recording, **press Play/Start in QZ as well** whenever you start or resume the workout from the treadmill console. Alternatively, start the session from QZ. A user confirmed that enabling **Horizon 7.8 start issue** helped with this setup, but console-driven resume still required manually starting QZ's session. Check that the QZ workout timer is advancing before relying on the recording. This is distinct from the treadmill belt's own Start/Pause controls.
+
+Short Android tests on this setup also confirmed live speed and incline controls and recording with the phone screen locked; longer background sessions were not established by those tests.
+
 ## QZ is connected to my treadmill, but the session or distance is not updating. What should I check?
 
 First check whether the QZ workout session itself is paused. If the **Play** button at the top of QZ is flashing, press it to resume/start the QZ session.
@@ -219,3 +227,21 @@ If a ProForm 600i is discovered by QZ but the treadmill stops a few seconds afte
 A ProForm 600i owner reported that the **NordicTrack T6.5S v83** profile appeared to work after other profiles caused short starts or stops. They could then connect QZ to MyWhoosh. This is a **model-specific starting point**, not proof that all ProForm 600i firmware versions use that protocol.
 
 **Limitation:** The same user still reported that **automatic incline from MyWhoosh was not working**. Check live speed and the treadmill's basic start/stop behavior first, then test speed and incline control separately at safe settings. Do not assume MyWhoosh auto-incline is supported by this profile without further verification.
+
+## QZ can read my Toorx FTMS treadmill, but its speed controls do not respond. Which settings should I try?
+
+For a Toorx treadmill using QZ's FTMS/iConsole handling, two settings may be needed together:
+
+1. In **QZ Settings > iConsole Options**, enable **Toorx FTMS Treadmill**.
+2. In **QZ Settings > Treadmill Options > FTMS Treadmill**, select the treadmill's advertised Bluetooth name and confirm the selection.
+3. Restart QZ, reconnect the treadmill, and test a small **Speed +** change while standing safely clear of the belt.
+
+A rider explicitly confirmed that enabling **both** settings restored QZ's treadmill speed control. In a separate Runna test, the same setup successfully passed speed commands through QZ for about **10 minutes**. This does **not** confirm every Runna workout transition or long-session reliability: an earlier test reported that Runna stopped sending commands after about 30 seconds, and later automatic speed transitions were not yet tested.
+
+## Runna reports that the treadmill is incompatible even though QZ receives its speed and incline commands. What should I try?
+
+Start the QZ workout session **before** starting the Runna workout. Connect QZ to the treadmill, start the treadmill belt at a safe low speed if required by its console, press **Start** in QZ, and verify that QZ's **Elapsed** timer is increasing rather than remaining at `00:00:00`. Only then connect Runna to QZ's virtual treadmill and start the Runna workout.
+
+In a confirmed support test, QZ had previously remained paused with an elapsed time of zero while Runna's speed and incline commands still reached the treadmill. Starting QZ first allowed its timer to advance alongside the treadmill timer, and Runna connected and sent speed/incline commands during the subsequent test. The user reported that this sequence appeared to work. This is a useful workaround to try, **not a guarantee** that every Runna interval transition or treadmill model will work.
+
+For Runna to connect to QZ as a treadmill, QZ's **Virtual Device Bluetooth** must be enabled. If the incompatibility warning persists, capture a QZ debug log including the transition between workout steps.

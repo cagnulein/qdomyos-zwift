@@ -100,6 +100,10 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
 
     this->noHeartService = noHeartService;
 
+    // the virtual rower is Bluetooth only: without an adapter there is nothing to start
+    if (noBluetoothAdapter())
+        return;
+
     QSettings settings;
     bool heart_only =
         settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();

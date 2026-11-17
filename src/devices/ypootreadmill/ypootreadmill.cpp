@@ -440,5 +440,5 @@ void ypootreadmill::controllerStateChanged(QLowEnergyController::ControllerState
     requestStart = requestStop = requestPause = -1;
     requestSpeed = -1;
     requestInclination = -100;
-    m_control->connectToDevice();
+    connectBackLater();
 }

@@ -124,3 +124,24 @@
 - Receiving HR in QZ, forwarding it to the machine console, and pairing HR in Zwift are separate stages. A working QZ Heart tile does not establish the Zwift HR pairing.
 - In a confirmed treadmill setup, selecting QZ's separate virtual HR sensor in Zwift restored HR in all three places without changing the chest strap.
 - The [heart-rate FAQ](../faq/heart-rate.md) documents the pairing solution; this intake identifies the failed stage before recommending it.
+
+## Garmin watch shows heart rate, but QZ cannot find it as a Bluetooth belt
+
+### Provide first
+
+- Garmin watch model, phone model and OS, QZ version/build, and whether the watch's **QZ Garmin Companion** app is installed.
+- Identify which path is intended: the watch's **heart-rate broadcast** feature or the **QZ Garmin Companion** watch app. Do not assume that every Garmin watch advertises Bluetooth heart rate.
+- Report whether heart rate changes on the watch, whether the watch appears in **Heart Rate Belt Name**, and whether QZ's Heart Rate tile updates.
+- Provide the current **Garmin Companion** enablement, **Heart Rate Belt Name** selection, and **Disable HRM from the machinery** value. Check one input path at a time.
+
+### If still unclear
+
+- If using direct Bluetooth broadcasting, verify that the specific watch model supports **Bluetooth** HR broadcast (not only ANT+) and check for its advertised name with a Bluetooth scanner before requesting QZ logs.
+- If using QZ Garmin Companion, confirm the companion app is open on the watch, QZ's companion option is enabled, and **Heart Rate Belt Name** is disabled; note whether opening the watch app alone changes the phone's HR tile. Report whether Garmin Connect on the phone recognizes the watch.
+- If HR still stays at zero, send screenshots of the relevant QZ settings and a short QZ debug log covering watch-app startup and a live HR reading. Include the build source if a beta was recently installed.
+
+### Why it matters
+
+- **ANT+ broadcasting is not Bluetooth advertising.** A Garmin watch can show HR locally while remaining absent from QZ's Bluetooth belt list. A confirmed vívoactive 4 case used the companion path rather than direct Bluetooth HR broadcasting.
+- The watch app, QZ's selected input path, and machine-provided HR can conflict independently. One confirmed test began showing HR when the companion was opened, but a concurrent QZ beta update means the precise cause was not isolated.
+- See the [heart-rate FAQ](../faq/heart-rate.md) for setup guidance; this entry is about selecting the evidence needed to identify the correct input path.

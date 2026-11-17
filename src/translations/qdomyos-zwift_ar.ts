@@ -68,6 +68,61 @@
         <source>Other folders</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>المجلد الأب</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>فتح</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>لا توجد ملفات GPX هنا</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 كم</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 م</translation>
+    </message>
+</context>
+<context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>تم العثور على مستشعر نبض القلب: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>تم العثور على مستشعرات نبض القلب: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>اتصال</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>اختيار</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>ليس الآن</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>لا تسأل مرة أخرى</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>اختر مستشعر نبض القلب</translation>
+    </message>
 </context>
 <context>
     <name>Home</name>
@@ -198,7 +253,7 @@ Would you like to do that now?</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>موافق</translation>
     </message>
     <message>
         <source>Good</source>
@@ -225,6 +280,14 @@ Would you like to enable the required services?</source>
     <message>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>إيقاف</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>إلغاء</translation>
     </message>
 </context>
 <context>
@@ -265,6 +328,18 @@ Would you like to enable the required services?</source>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>جارٍ البحث عن جهازك…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>شغّل دراجتك أو جهاز المشي أو جهاز التجديف: سيتصل QZ به تلقائيًا.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>هل تواجه مشكلة في الاتصال؟</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -286,7 +361,7 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Chart</source>
-        <translation type="unfinished"></translation>
+        <translation>الرسم البياني</translation>
     </message>
     <message>
         <source>Treadmill Status</source>
@@ -474,7 +549,7 @@ Would you like to enable the required services?</source>
     <name>QAndroidPlatformTheme</name>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation>نعم</translation>
     </message>
     <message>
         <source>Yes to All</source>
@@ -482,7 +557,7 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation>لا</translation>
     </message>
     <message>
         <source>No to All</source>
@@ -1003,6 +1078,26 @@ Do you want to update QZ settings?</source>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (مستشعر النبض): لا توجد قراءة للنبض. تأكد من أنه يبث بيانات نبض القلب.</translation>
+    </message>
+    <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>جارٍ البحث عن مستشعرات نبض القلب...</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>جارٍ البحث عن %1 (مستشعر النبض)...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>تعذر العثور على %1 (مستشعر النبض). تأكد من تشغيله وبث بيانات نبض القلب.</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>لم يتم العثور على مستشعر نبض قلب قريب. تأكد من تشغيله وبث بيانات نبض القلب.</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1056,7 +1151,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>إلغاء</translation>
     </message>
     <message>
         <source>Discard</source>
@@ -1116,6 +1211,22 @@ Do you want to update QZ settings?</source>
         <source>Other folders</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>اضغط على ملف لتحديده، ثم اضغط على تحميل.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>تحميل</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>لا توجد إعدادات محفوظة</translation>
+    </message>
 </context>
 <context>
     <name>SettingsNumberField</name>
@@ -1142,6 +1253,69 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Maximum: %1</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>تواصل مع دعم QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>إعداد رسالة بريد للدعم مع بيانات التشخيص</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>لا يوجد جهاز متصل</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>السرعة والطاقة تساويان صفرًا</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>دعم QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>تم</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>إخفاء لوحة المفاتيح</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>إغلاق طلب الدعم</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>أخبرنا بما لا يعمل. ستضيف QZ معلومات جهازك وتطبيقك.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>صِف المشكلة...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>صِف المشكلة</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>إرفاق سجل التصحيح إن توفر</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>يمكنك مراجعة الرسالة أو تعديلها قبل إرسالها. لن يُرسل أي شيء تلقائيًا.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>إلغاء</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>فتح البريد الإلكتروني</translation>
     </message>
 </context>
 <context>
@@ -1221,7 +1395,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>حذف</translation>
     </message>
     <message>
         <source>Other folders</source>
@@ -1263,6 +1437,10 @@ Do you want to update QZ settings?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1272,6 +1450,82 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Start Workout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>المجلد الأب</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>لم يتم العثور على تمارين</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>لا توجد تمارين هنا</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>عرض أقل</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>عرض المزيد</translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>نعم</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>لا</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>موافق</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>إلغاء</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>موسّع</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>مطوي</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>ساعات</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>دقيقة</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>ثانية</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1304,7 +1558,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">إلغاء</translation>
     </message>
     <message>
         <source>Confirm</source>
@@ -1328,7 +1582,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation>تحميل</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -1344,7 +1598,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>رجوع</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -2240,6 +2494,16 @@ Do you want to update QZ settings?</source>
         <source>Interval {number}, {field}: {error}</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>مشغّل PID لمعدل ضربات القلب</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>افتراضي</translation>
+    </message>
 </context>
 <context>
     <name>Wizard</name>
@@ -2778,6 +3042,22 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Adding workouts to the history</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Open on Peloton</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2795,6 +3075,10 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>kcal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3425,11 +3709,27 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error retrieving access token, %1 (%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3446,6 +3746,10 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Workouts imported: %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file could not be copied to the QZ folder.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3742,6 +4046,131 @@ This may take a few moments on first startup.</source>
         <source>Spotify songs:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>طلب دعم</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>مشكلة في QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>مرحبًا Roberto،</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>أحتاج إلى مساعدة بشأن QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>المشكلة:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[يرجى وصف المشكلة]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>السلوك المتوقع:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[يرجى وصف ما ينبغي أن يحدث]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- معلومات تشخيص QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>إصدار QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>المنصة: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>الملف الشخصي: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>الجهاز: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>متصل</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>غير متصل</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>الاتصال: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>السرعة: %1 كم/س</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>غير متاح</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>الطاقة: %1 واط</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>الحالة المكتشفة: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>لم يُطلب سجل التصحيح.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>سجل التصحيح معطل. فعّل تسجيل التصحيح وأعد تشغيل QZ قبل إعادة التجربة.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>لم يتم العثور على سجل تصحيح.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>سجل التصحيح غير متاح أو كبير جدًا للتحضير.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>تم إرفاق سجل التصحيح (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>تعذرت كتابة مرفق سجل التصحيح.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>تعذر ضغط سجل التصحيح أو يتجاوز المرفق 10 ميغابايت.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>يرجى إرفاق سجل التصحيح الذي تم إنشاؤه يدويًا</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>لم يتم اكتشاف جهاز</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>تعذر فتح تطبيق البريد الإلكتروني</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ قيد التشغيل</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -3862,6 +4291,17 @@ Do you want to start it now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3883,6 +4323,10 @@ Do you want to start it now?</source>
     </message>
     <message>
         <source>Search settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4072,11 +4516,11 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Not now</source>
-        <translation type="unfinished"></translation>
+        <translation>ليس الآن</translation>
     </message>
     <message>
         <source>Don&apos;t ask again</source>
-        <translation type="unfinished"></translation>
+        <translation>لا تسأل مرة أخرى</translation>
     </message>
     <message>
         <source>Auto Resistance enabled</source>
@@ -4089,6 +4533,118 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Please choose a file</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>تم الحفظ! ابحث في تطبيق الملفات.</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>تم الحفظ! ابحث في المجلد الخاص بالتطبيق.</translation>
+    </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>التروس الافتراضية من Wahoo</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>لمحاكاة التروس الافتراضية، يغيّر QZ محيط العجلة المخزّن في جهاز التدريب. قد تبقى هذه القيمة في الجهاز بعد إغلاق QZ وتؤثر في عمله مع تطبيقات أخرى.
+
+هل تسمح لـ QZ بتغييرها؟
+
+إذا اخترت «لا»، يفعّل QZ خيار Without Wheel Diameter Protocol (الإعدادات &gt; خيارات الدراجة &gt; خيارات Wahoo)، وتعمل التروس الافتراضية عبر الميل. وإذا اخترت «نعم»، يمكنك التراجع لاحقًا من هناك: فعّل ذلك الخيار، ومع اتصال جهاز التدريب، اضغط على Restore Default Setting to the Trainer.</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>رجوع</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>القائمة الرئيسية</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>نافذة عائمة</translation>
+    </message>
+    <message>
+        <source>Load settings</source>
+        <translation>تحميل الإعدادات</translation>
+    </message>
+    <message>
+        <source>Save settings</source>
+        <translation>حفظ الإعدادات</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>الخريطة</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>فيديو</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>الرسم البياني</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>قفل المربعات</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>إلغاء قفل المربعات</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>تعطيل المقاومة التلقائية</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>تمكين المقاومة التلقائية</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>قطع الاتصال بـ Strava</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>الاتصال بـ Strava</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>قطع الاتصال بـ Peloton</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>الاتصال بـ Peloton</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>إعدادات Garmin Connect</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>قطع الاتصال بـ Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>الاتصال بـ Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>تمرين</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>التطبيق</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>الخدمات</translation>
     </message>
 </context>
 <context>
@@ -4165,12 +4721,40 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Other folders</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>حذف</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>ملف تعريف جديد</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>الملفات الشخصية المحفوظة</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>اضغط على ملف تعريف لتحديده، ثم اضغط على تحميل. اضغط مطولًا لحذفه.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>نشط</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>تحميل</translation>
     </message>
 </context>
 <context>
@@ -4337,10 +4921,6 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Changed settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5176,7 +5756,7 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Tiles Options</source>
-        <translation type="unfinished"></translation>
+        <translation>خيارات المربعات</translation>
     </message>
     <message>
         <source>General UI Options</source>
@@ -5609,7 +6189,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">إلغاء</translation>
     </message>
     <message>
         <source>Submit</source>
@@ -6475,6 +7055,14 @@ IMPORTANT NOTES:
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Resistance Compatibility</source>
+        <translation>توافق المقاومة</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>فعّل هذا الخيار إذا كان تغيير المقاومة في QZ يضبط الدراجة على المستوى 1 أو الحد الأقصى فقط. يرسل قيمة مقاومة FTMS مضروبة في 10. الافتراضي: معطّل.</translation>
+    </message>
+    <message>
         <source>AutoLap on Distance:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7157,7 +7745,11 @@ Default: A = -0.96, B = 1.33</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Hidden on its page right now: change it here</source>
+        <source>On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7783,6 +8375,110 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>اضبط كيفية تحويل ميل التطبيق الافتراضي إلى مقاومة الدراجة.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>استخدم تعيينًا مخصصًا عندما يحوّل QZ ميل التطبيق الافتراضي إلى مقاومة.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>زوج واحد من الميل|المقاومة في كل سطر. يستوفي QZ القيم بين النقاط ويقيّد القيم خارج النطاق المحدد.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>اسم مستخدم حساب Life Fitness لتسجيل الدخول إلى الخدمة. يُخزَّن محليًا ولا يُكتب في سجلات التصحيح.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>كلمة مرور حساب Life Fitness لتسجيل الدخول إلى الخدمة. تُخزَّن محليًا ولا تُكتب في سجلات التصحيح.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>إجراء الكاميرا</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>إجراء التعبير</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>محاكي Wattbike</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>موضع مخطط القدرة</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>موضع مخطط نبض القلب</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>موضع مخطط المقاومة مقابل المقاومة المستهدفة</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>موضع مخطط مقاومة Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>موضع مخطط وتيرة الدواسات</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>موضع مخطط توزيع القدرة</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>موضع مخطط السرعة والميل</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>الموضع الرقمي لهذا المخطط في سجل التمارين. أعد الترتيب باستخدام زري الأعلى والأسفل في خيارات الواجهة العامة.</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>البحث عن مستشعر نبض القلب عند البدء</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>خلال أول 5 دقائق بعد اتصال جهاز اللياقة، إذا لم تصل بيانات نبض القلب، يبحث QZ عن مستشعر مرة كل دقيقة: يتصل بحزام النبض المختار بمجرد العثور عليه، أو يقترح مستشعرًا قريبًا إذا لم يتم اختيار حزام. يمكنك النقر على مربع نبض القلب أو رمز Bluetooth في الصفحة الرئيسية للبحث في أي وقت.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>خيارات دراجة Daum</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>المنفذ التسلسلي المستخدم مع أجهزة Daum الكلاسيكية مثل 8008 TRS 3. على Android، عند استخدام محول USB إلى تسلسلي، استخدم &apos;usb&apos;. تُقبل COM1 وCOM2 وغيرها كأسماء بديلة للبحث عن محول USB، لكنها ليست أسماء منافذ Android. على Windows استخدم COM1 أو COM3؛ وعلى Linux/macOS استخدم مسار الجهاز التسلسلي، مثل /dev/ttyUSB0.</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>تأخير الاستعلام عن المقاومة:</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>يستخدم إعداد تأخير الميل لتحديد عدد مرات إرسال QZ تحديثات المقاومة والقدرة إلى Daum. الافتراضي: 0 ثانية.</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>مرشح الميل (%):</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>في تمارين GPX، تجاهل تغيرات الميل الأصغر من هذه القيمة، ولا تُرسل أمر ميل جديدًا إلا عندما يبلغ الفرق عن آخر قيمة مُرسلة الحد المحدد. الافتراضي: 0 (معطّل).</translation>
+    </message>
+    <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>لم يتم العثور على هذا الإعداد في صفحات الإعدادات</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>استخدام تروس وحدة التحكم</translation>
     </message>
     <message>
         <source>Use Zwift Right Controller Only</source>
@@ -8603,6 +9299,10 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>km/h</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>خيارات المربعات</translation>
     </message>
 </context>
 <context>

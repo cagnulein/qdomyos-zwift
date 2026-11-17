@@ -49,6 +49,9 @@ class heartratebelt : public treadmill {
     QLowEnergyCharacteristic gattNotifyCharacteristic;
     QDateTime connectingTime;  // Timestamp when entering connecting state
     static const int CONNECTION_TIMEOUT = 10000; // 10 seconds in milliseconds
+    // No heart rate this long after the last one: the sensor is silent and its heart rate becomes 0
+    static const int NO_HEART_RATE_TIMEOUT = 10000;
+    bool heartRateSilent = false;  // 0 already sent for the silence, waiting for the heart rate to come back
     QTimer* updateTimer;  // Timer for periodic updates
     uint8_t battery_level = 0;
 

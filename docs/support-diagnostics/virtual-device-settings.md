@@ -103,3 +103,48 @@
 - QZ's DIRCON manager is conditional on the **Wahoo DIRCON** setting; a working Bluetooth virtual trainer does not prove that the Wi-Fi trainer service is active.
 - In a reviewed support log, the network trainer appeared in the receiving app but pairing failed while DIRCON was disabled, making the option value a high-value first check.
 - Device discovery, pairing acceptance, and metric streaming are separate stages. See the [integration FAQ](../faq/integrations.md) for supported DIRCON use cases.
+
+## Physical treadmill disconnects shortly after enabling QZ's virtual treadmill on iOS
+
+### Provide first
+
+- Exact treadmill and console model, advertised Bluetooth name, iPhone/iPad model and iOS version, and the **installed QZ build number** (not just the store version).
+- Confirm whether QZ reads **speed and incline continuously with Virtual Device disabled**, then whether the physical connection drops when **Virtual Device** is enabled. Record the elapsed time and whether QZ's session timer or Start state also changes.
+- Identify **all Bluetooth participants**: QZ phone/tablet, treadmill, receiving app (such as Runna), heart-rate strap/watch, remote control, and any manufacturer app. State which device connects to which, and the exact order in which they are started.
+- State whether the treadmill itself automatically connects to nearby Bluetooth heart-rate sensors or remotes, even when QZ has not selected them. Report whether the failure changes when those accessories are already connected before QZ starts.
+
+### If still unclear
+
+- Run two short, comparable tests with the **same startup order** and receiving app closed: Virtual Device off, then on; fully restart QZ between tests. Record whether physical speed/incline continues updating for at least two minutes. Do not change Garmin Companion or other options during this comparison.
+- If the failure occurs only with virtual advertising, capture screenshots of the relevant Experimental virtual-device settings and heart-rate/virtual Bluetooth options. Compare one additional setting at a time **only when supported by the installed build**, keeping the FTMS virtual profile requirements of the receiving app in mind.
+- Supply QZ debug logs for both tests, including the approximate disconnection time and whether the physical BLE connection or virtual advertisement failed first. If the problem depends on an HR strap or remote, report the accessory connection order for each test.
+- After the physical link is stable, test the receiving app separately and report whether it discovers the virtual treadmill as a **controllable treadmill**; stable physical telemetry alone does not establish that the virtual FTMS service remains available.
+
+### Why it matters
+
+- A treadmill may act as both a BLE peripheral for QZ telemetry and a BLE central for its own accessories. Knowing its automatic HR/remote pairing behavior helps distinguish competing Bluetooth connections from a generic iOS disconnection.
+- In a reproduced comparison, the physical treadmill link was stable without virtual advertising and also stayed connected when its accessory connections were already occupied. This is useful evidence of an advertising/connection interaction, **not proof** that the treadmill connected to QZ's virtual heart-rate service.
+- Some compatibility settings alter the **advertised virtual services**, not merely the physical link. A test that stabilizes the physical treadmill but removes virtual FTMS may prevent the receiving app from controlling it; evaluate those outcomes separately.
+- Paired A/B logs and a single changed option distinguish a repeatable interaction from unrelated backgrounding, startup timing, or app pairing differences.
+
+## Garmin watch sees QZ's virtual running sensor but pairing times out
+
+### Provide first
+
+- Garmin watch model, firmware version if known, QZ iPhone/iPad model and iOS version, and the installed QZ build.
+- Confirm that treadmill speed updates **inside QZ** before attempting watch pairing. Identify the treadmill model and whether the watch is recording a **Treadmill** activity rather than using QZ's completed-workout upload.
+- Screenshot QZ's **Virtual Device**, **Virtual Device Bluetooth**, and **Garmin Options > Garmin Bluetooth Sensor** selections. State whether QZ was fully restarted after changing them.
+- Describe the watch's **Sensors & Accessories** search result: is the QZ running sensor absent, visible but timing out, paired but not supplying speed, or dropping later? Include the exact error or a screenshot.
+- State whether the Garmin watch's **Phone Connection** to the same iPhone was enabled during the attempt. Record the result of one comparison with only that watch-phone connection temporarily disabled; keep the iPhone's Bluetooth enabled.
+
+### If still unclear
+
+- Record the exact pairing order: QZ startup, treadmill connection, watch sensor search, and start of the watch's Treadmill activity. Note any previously saved failed QZ sensor entry and whether it was removed before retrying.
+- Check whether the watch actually receives running speed/distance during a short treadmill activity, not merely whether sensor pairing reports success. Restore the watch's phone connection after the test.
+- If it still fails, provide a short QZ debug log spanning virtual-sensor startup and the pairing attempt, plus the watch's sensor screen. Change no other virtual profiles during the comparison.
+
+### Why it matters
+
+- Live treadmill telemetry, QZ's Bluetooth RSC advertisement, Garmin sensor pairing, and activity recording are separate stages. The first failed stage determines which evidence is useful next.
+- A confirmed watch-pairing timeout was resolved by temporarily disconnecting the watch's phone link while leaving the iPhone's Bluetooth on. This comparison helps distinguish competing phone connectivity from a missing virtual RSC advertisement, without assuming the same cause for every Garmin model.
+- Garmin's Bluetooth running sensor is different from its cycling power sensor and from uploading a completed FIT activity. See the [Garmin integration FAQ](../faq/integrations.md) for supported setup guidance.

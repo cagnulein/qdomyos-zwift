@@ -141,15 +141,15 @@ TEST_F(YpooTreadmillTest, PausedDriverDoesNotCountDistanceAcrossPauseOrTelemetry
     EXPECT_NEAR(device.odometer(), 20.0 / 3600.0, 1e-9);
 }
 
-TEST_F(YpooTreadmillTest, DefaultDriverDoesNotOptIntoIdleStopOrVirtualControl) {
+TEST_F(YpooTreadmillTest, GenericTreadmillAdvertisesBroadVirtualFtmsRangesWithoutIdleStop) {
     StopPolicyTestTreadmill otherTreadmill;
     treadmill &base = otherTreadmill;
     base.stopWhenIdle();
     EXPECT_EQ(otherTreadmill.stopCalls, 0u);
     const auto control = base.virtualTreadmillControl();
-    EXPECT_FALSE(control.enabled);
-    EXPECT_TRUE(control.speedRange.isEmpty());
-    EXPECT_TRUE(control.inclineRange.isEmpty());
+    EXPECT_TRUE(control.enabled);
+    EXPECT_EQ(control.speedRange, QByteArray::fromHex("000088130a00"));
+    EXPECT_EQ(control.inclineRange, QByteArray::fromHex("0cfef4010100"));
 }
 
 TEST_F(YpooTreadmillTest, BothYpooModelsQueuePhysicalStopBeforeMotionOrRecording) {

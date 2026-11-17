@@ -74,18 +74,9 @@ Page {
         }
     }
 
-    function hasAnyUploadServiceConfigured(workoutId) {
-        return (rootItem &&
-                (rootItem.isStravaLoggedIn() ||
-                 rootItem.isGarminUploadConfigured() ||
-                 rootItem.isIntervalsICUUploadConfigured())) ||
-               (Qt.platform.os === "ios" &&
-                workoutModel &&
-                workoutModel.canWriteAppleHealth(workoutId))
-    }
-
+    // Opens with any services or none: Share is always there
     function openUploadMenu(delegateItem, workoutId, workoutTitle) {
-        if (!workoutModel || !hasAnyUploadServiceConfigured(workoutId)) {
+        if (!workoutModel) {
             return
         }
 
@@ -233,6 +224,12 @@ Page {
                 anchors.rightMargin: window.contentSideMargin
                 width: 48
                 height: 48
+                // one import at a time: a second copy would report its count into the same block
+                enabled: !(rootItem && rootItem.fitImportRunning)
+                opacity: enabled ? 1 : 0.4
+                // Qt 5.15 does not report a disabled item to TalkBack (fixed in Qt 6 by
+                // qtdeclarative 20fd2902a6): left in, it would be read as a button that works
+                Accessible.ignored: !enabled
 
                 background: Rectangle {
                     radius: 8
@@ -265,39 +262,32 @@ Page {
             }
         }
 
-        // Loading indicator
+        // Loading indicator: the short parts (loading the list, checking the fit folder at start,
+        // reading a picked file); a pass over many files shows its count below instead
         BusyIndicator {
             id: loadingIndicator
             Layout.alignment: Qt.AlignHCenter
-            visible: (workoutModel ? (workoutModel.isLoading || workoutModel.isDatabaseProcessing) : false) ||
-                     (rootItem && rootItem.fitImportRunning)
+            visible: ((workoutModel ? (workoutModel.isLoading || workoutModel.isDatabaseProcessing) : false) ||
+                      (rootItem && rootItem.fitImportRunning)) && !importProgress.visible
             running: visible
         }
 
-        // Workout import message: copying the picked files can take a while
-        Text {
+        // A workout import (copying the files out of the picked folder, then adding them to the
+        // history) and the new files of the fit folder at start: how far it is, above the list
+        UiProgress {
+            id: importProgress
             Layout.fillWidth: true
+            // the edges of the workout cards below
             Layout.leftMargin: window.contentSideMargin
             Layout.rightMargin: window.contentSideMargin
-            visible: rootItem ? rootItem.fitImportRunning : false
-            text: qsTr("Importing workouts...")
-            wrapMode: Text.WordWrap
-            horizontalAlignment: Text.AlignHCenter
-            color: "#666666"
-            font.pixelSize: window.fontPx(16)
-        }
-
-        // Database processing message
-        Text {
-            Layout.fillWidth: true
-            Layout.leftMargin: window.contentSideMargin
-            Layout.rightMargin: window.contentSideMargin
-            visible: workoutModel ? workoutModel.isDatabaseProcessing : false
-            text: qsTr("Processing workout files...\nThis may take a few moments on first startup.")
-            wrapMode: Text.WordWrap
-            horizontalAlignment: Text.AlignHCenter
-            color: "#666666"
-            font.pixelSize: window.fontPx(16)
+            topPadding: 8
+            done: rootItem ? rootItem.fitImportDone : 0
+            // one file (a picked workout) is over at once: the spinner, not a count flashing 1 / 1
+            total: rootItem && rootItem.fitImportTotal > 1 ? rootItem.fitImportTotal : 0
+            text: rootItem && rootItem.fitImportAdding ? qsTr("Adding workouts to the history")
+                                                       : qsTr("Copying workout files")
+            accessibleText: rootItem && rootItem.fitImportAdding ? qsTr("Adding workouts to the history: %1 of %2")
+                                                                 : qsTr("Copying workout files: %1 of %2")
         }
 
         // Workout List
@@ -305,6 +295,8 @@ Page {
             id: workoutListView
             Layout.fillWidth: true
             Layout.fillHeight: true
+            // the gap under the progress is its own (UiProgress)
+            Layout.topMargin: importProgress.visible ? -parent.spacing : 0
             Layout.bottomMargin: streakBanner.visible ? streakBanner.height + 10 : 10
             model: workoutModel
             spacing: 8
@@ -636,7 +628,8 @@ Page {
                     workoutHistoryPage.fitfile_preview_clicked(fileUrl)
 
                     // Push the ChartJsTest view
-                    stackView.push("PreviewChart.qml")
+                    // the file goes along for the Share button of the toolbar
+                    stackView.push("PreviewChart.qml", { fitFilePath: details.filePath })
                 }
 
                 onPressAndHold: {
@@ -716,8 +709,18 @@ Page {
         MenuItem {
             Accessible.onPressAction: triggered()
             Accessible.name: text
+            text: qsTr("Share FIT file")
+            onTriggered: rootItem.shareWorkoutFile(uploadMenu.filePath)
+        }
+
+        // The menu opens without any service as well: a hidden item has no height, or the list
+        // of the menu keeps an empty row for it
+        MenuItem {
+            Accessible.onPressAction: triggered()
+            Accessible.name: text
             text: qsTr("Upload to Strava")
             visible: rootItem && rootItem.isStravaLoggedIn()
+            height: visible ? implicitHeight : 0
             onTriggered: rootItem.uploadHistoricalWorkoutToStrava(uploadMenu.filePath)
         }
 
@@ -726,6 +729,7 @@ Page {
             Accessible.name: text
             text: qsTr("Upload to Garmin")
             visible: rootItem && rootItem.isGarminUploadConfigured()
+            height: visible ? implicitHeight : 0
             onTriggered: rootItem.uploadHistoricalWorkoutToGarmin(uploadMenu.filePath)
         }
 
@@ -734,6 +738,7 @@ Page {
             Accessible.name: text
             text: qsTr("Upload to Intervals.icu")
             visible: rootItem && rootItem.isIntervalsICUUploadConfigured()
+            height: visible ? implicitHeight : 0
             onTriggered: rootItem.uploadHistoricalWorkoutToIntervalsICU(uploadMenu.filePath)
         }
 
@@ -744,6 +749,7 @@ Page {
             visible: Qt.platform.os === "ios" &&
                      workoutModel &&
                      workoutModel.canWriteAppleHealth(uploadMenu.workoutId)
+            height: visible ? implicitHeight : 0
             onTriggered: workoutModel.uploadWorkoutToAppleHealth(uploadMenu.workoutId)
         }
     }

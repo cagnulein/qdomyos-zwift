@@ -39,7 +39,6 @@ platform :ios do
       scheme: "qdomyoszwift",
       configuration: "Release",
       destination: "generic/platform=iOS",
-      sdk: "iphoneos",
       archive_path: "build/ios/qdomyoszwift.xcarchive",
       derived_data_path: "build/ios/DerivedData",
       output_directory: "build/ios/export",
@@ -52,9 +51,19 @@ platform :ios do
       disable_package_automatic_updates: true
     )
 
+    # Fail before uploading to TestFlight if a generated Xcode project or
+    # export silently omits the Watch app, its extension or the iOS widget.
+    ipa_path = lane_context[SharedValues::IPA_OUTPUT_PATH]
+    repo_root = File.expand_path("..", __dir__)
+    verifier = File.join(repo_root, ".github/scripts/verify_ios_distribution.py")
+    archive = File.join(repo_root, "build/ios/qdomyoszwift.xcarchive")
+    sh("python3 #{Shellwords.escape(verifier)} " \
+       "--archive #{Shellwords.escape(archive)} " \
+       "--ipa #{Shellwords.escape(ipa_path)}")
+
     {
       api_key: api_key,
-      ipa_path: lane_context[SharedValues::IPA_OUTPUT_PATH],
+      ipa_path: ipa_path,
       build_number: next_build
     }
   end

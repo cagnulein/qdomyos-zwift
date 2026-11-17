@@ -181,6 +181,7 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::CSCBike)
         ->expectDevice<cscbike>()
         ->acceptDeviceName(QStringLiteral("JOROTO-BK-"), DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName(QStringLiteral("BGYM"), DeviceNameComparison::StartsWithIgnoreCase, 8) // 8-character BGYM CSC bike
         ->configureSettingsWith(
             [cscBikeName](const DeviceDiscoveryInfo &info, bool enable, std::vector<DeviceDiscoveryInfo> &configurations)->void
             {
@@ -464,6 +465,13 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<fitshowtreadmill>()
         ->acceptDeviceName("TR510-T", DeviceNameComparison::StartsWithIgnoreCase);
 
+    // Merach T12 Pro: FTMS is advertised but control uses FitShow.
+    RegisterNewDeviceTestData(DeviceIndex::FitShowMerachT12)
+        ->expectDevice<fitshowtreadmill>()
+        ->acceptDeviceName("MRK-T12-1562", DeviceNameComparison::Exact)
+        ->acceptDeviceName("mrk-t12-1562", DeviceNameComparison::Exact)
+        ->excluding<horizontreadmill>();
+
 
     // FitShow SW
     RegisterNewDeviceTestData(DeviceIndex::FitShowSW)
@@ -574,6 +582,7 @@ void DeviceTestDataIndex::Initialize() {
         "YS_G1_", // Yesoul S3
         "YS_G1MPLUS", // Yesoul G1M Plus
         "DS25-", // Bodytone DS25
+        "DFIT-L-B-", // DFIT FTMS bike (e.g. DFIT-L-B-02066)
         "GB3.0-", // Gymstick GB3.0: generic FTMS bike using resistance levels
         "SCHWINN 510T",
         "3G CARDIO ",
@@ -627,6 +636,10 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::FTMSBike)
         ->expectDevice<ftmsbike>()
         ->acceptDeviceNames(acceptableFTMSNames, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName("ZV-C47306", DeviceNameComparison::IgnoreCase) // Sportstech SX600 FTMS
+        ->acceptDeviceName("ZV-AB12CD", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("ZV-C4730", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("ZV-C473067", DeviceNameComparison::IgnoreCase)
         ->acceptDeviceName("DI", DeviceNameComparison::StartsWithIgnoreCase, 2) // Elite smart trainer #1682)
         ->acceptDeviceName("YSV", DeviceNameComparison::StartsWithIgnoreCase, 9) // YSV100783
         ->acceptDeviceName("URSB", DeviceNameComparison::StartsWithIgnoreCase, 7) // URSB005
@@ -640,6 +653,10 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("ICSE", DeviceNameComparison::StartsWithIgnoreCase, 4)
         ->acceptDeviceName("FLX", DeviceNameComparison::StartsWithIgnoreCase, 10)
         ->acceptDeviceName("CSRB", DeviceNameComparison::StartsWithIgnoreCase, 11)
+        ->acceptDeviceName("07250DrumFit", DeviceNameComparison::IgnoreCase)
+        ->acceptDeviceName("1234DrumFit", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("ABCDDrumFit", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("07250DrumFitX", DeviceNameComparison::IgnoreCase)
         // Hammer Speed Race S (BLE): numeric prefix must not change plain Kettler RACER S routing.
         ->acceptDeviceName("4864 RACER S", DeviceNameComparison::IgnoreCase)
         ->acceptDeviceName("1234 racer s", DeviceNameComparison::IgnoreCase)
@@ -713,7 +730,7 @@ void DeviceTestDataIndex::Initialize() {
     // FTMS Rower
     RegisterNewDeviceTestData(DeviceIndex::FTMSRower)
         ->expectDevice<ftmsrower>()        
-        ->acceptDeviceNames({"CR 00","KAYAKPRO","WHIPR", "KS-WLT", "I-ROWER", "S4 COMMS"}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceNames({"CR 00","KAYAKPRO","WHIPR", "KS-WLT", "I-ROWER", "S4 COMMS", "FIT-RW-"}, DeviceNameComparison::StartsWithIgnoreCase)
         ->acceptDeviceNames({"PM5ROW","PM5XROW","SF-RW"}, DeviceNameComparison::IgnoreCase);
 
     // Horizon GR7 Bike
@@ -824,15 +841,23 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<keepbike>()
         ->acceptDeviceName("KEEP_BIKE_", DeviceNameComparison::StartsWithIgnoreCase);
 
-    // Kettler Classic / MyHomeFIT RFCOMM
+    // The two Classic Bluetooth Kettler devices share framing, not driver or metrics.
     RegisterNewDeviceTestData(DeviceIndex::KettlerClassicBike)
         ->expectDevice<kettlerclassicbike>()
-        // bluetooth.cpp matches RACER S prefixes regardless of case.
         ->acceptDeviceName("RACER S", DeviceNameComparison::StartsWithIgnoreCase)
+        ->rejectDeviceName("COACH S 42FC38", DeviceNameComparison::IgnoreCase)
         ->rejectDeviceName("RACER", DeviceNameComparison::IgnoreCase)
-        ->rejectDeviceName("XRACER S", DeviceNameComparison::IgnoreCase)
         ->configureSettingsWith(QZSettings::bh_spada_2);
 
+    RegisterNewDeviceTestData(DeviceIndex::KettlerCoachRower)
+        ->expectDevice<kettlercoachrower>()
+        ->acceptDeviceName("COACH S 42FC38", DeviceNameComparison::IgnoreCase)
+        ->acceptDeviceName("coach s 42fc38", DeviceNameComparison::IgnoreCase)
+        ->acceptDeviceName("COACH S", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("XCOACH S 42FC38", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("COACH SX", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("RACER S", DeviceNameComparison::IgnoreCase)
+        ->configureSettingsWith(QZSettings::bh_spada_2);
 
     // A DYNAMAX is an FTMS bike only when this specific device is selected as the FTMS bike.
     RegisterNewDeviceTestData(DeviceIndex::DynamaxSprintFTMSBike)

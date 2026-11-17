@@ -27,6 +27,20 @@ static double gradeAdjustedEquivalentSpeed(double speedKmh, double gradePercent)
 
 treadmill::treadmill() {}
 
+// The virtual FTMS interface advertises broad capabilities so training apps can
+// request targets even when the attached treadmill's limits are unknown. The
+// existing QZ speed/incline settings and the physical driver remain responsible
+// for applying supported targets. Model-specific drivers can override these ranges.
+bluetoothdevice::VirtualTreadmillControl treadmill::virtualTreadmillControl() const {
+    VirtualTreadmillControl control;
+    control.enabled = true;
+    // 0–50.00 km/h, in 0.10 km/h increments (FTMS speed units: 0.01 km/h).
+    control.speedRange = QByteArray::fromHex("000088130a00");
+    // -50.0% to +50.0%, in 0.1% increments (FTMS incline units: 0.1%).
+    control.inclineRange = QByteArray::fromHex("0cfef4010100");
+    return control;
+}
+
 void treadmill::changeSpeed(double speed) {
     // Reset target watts only if called from external source
     if (!callingFromFollowPower) {
@@ -375,6 +389,7 @@ void treadmill::cadenceSensor(uint8_t cadence) {
     if (Cadence.value() > 0 || cadence > 0) {
         evaluateStepCount();
     }
+    lastCadenceSensorMs = QDateTime::currentMSecsSinceEpoch();
     Cadence.setValue(cadence);
 }
 void treadmill::powerSensor(uint16_t power) {

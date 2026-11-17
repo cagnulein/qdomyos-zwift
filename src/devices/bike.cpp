@@ -56,6 +56,54 @@ bool bike::targetPowerOverridesExternalApp(qint64 lastAppFrame, qint64 now, bool
     return autoResistance && externalControllerActive && !appErgMode;
 }
 
+bool bike::targetPowerReleaseAvailable() {
+    return targetPowerReleaseSupported() && m_targetPowerOverrideActive && autoResistanceEnable &&
+           m_lastAppCommand != AppCommand::None;
+}
+
+void bike::changeResistanceFromApp(resistance_t resistance) {
+    m_lastAppCommand = AppCommand::Resistance;
+    m_lastAppResistance = resistance;
+    // with auto resistance off changeResistance() only records the request, as before
+    if (targetPowerReleaseSupported() && m_targetPowerOverrideActive && autoResistanceEnable) {
+        qDebug() << QStringLiteral("app resistance kept for Return to app, target power tile in control")
+                 << resistance;
+        return;
+    }
+    changeResistance(resistance);
+}
+
+void bike::rememberAppPower(int32_t power) {
+    m_lastAppCommand = AppCommand::Power;
+    m_lastAppPower = power;
+}
+
+bool bike::releaseTargetPowerToApp() {
+    m_targetPowerOverrideActive = false;
+    QSettings settings;
+    if (m_lastAppCommand == AppCommand::Resistance) {
+        qDebug() << QStringLiteral("Return to app: app resistance restored") << m_lastAppResistance;
+        settings.setValue(QZSettings::zwift_erg, false);
+        changeResistance(m_lastAppResistance);
+        return true;
+    }
+    if (m_lastAppCommand == AppCommand::Power) {
+        qDebug() << QStringLiteral("Return to app: app target power restored") << m_lastAppPower;
+        settings.setValue(QZSettings::zwift_erg, true);
+        changePower(m_lastAppPower);
+        return true;
+    }
+    qDebug() << QStringLiteral("Return to app: no app command to restore");
+    return false;
+}
+
+void bike::forgetAppCommand() {
+    if (m_lastAppCommand != AppCommand::None) {
+        qDebug() << QStringLiteral("app disconnected: stored app command dropped");
+    }
+    m_lastAppCommand = AppCommand::None;
+}
+
 virtualbike *bike::VirtualBike() { return dynamic_cast<virtualbike*>(this->VirtualDevice()); }
 
 void bike::changeResistance(resistance_t resistance) {
@@ -68,8 +116,9 @@ void bike::changeResistance(resistance_t resistance) {
     qDebug() << QStringLiteral("bike::changeResistance") << autoResistanceEnable << resistance;
 
     lastRawRequestedResistanceValue = resistance;
+    const double gearModifier = applyGearModifier() ? gearsModifier() : 0.0;
     if (autoResistanceEnable) {
-        double v = (resistance * m_difficult) + gearsModifier();
+        double v = (resistance * m_difficult) + gearModifier;
         if ((double)v > zwift_erg_resistance_up) {
             qDebug() << "zwift_erg_resistance_up filter enabled!";
             v = (resistance_t)zwift_erg_resistance_up;
@@ -80,7 +129,7 @@ void bike::changeResistance(resistance_t resistance) {
         requestResistance = v;
         emit resistanceChanged(requestResistance);
     }
-    RequestedResistance = resistance * m_difficult + gearsModifier();
+    RequestedResistance = resistance * m_difficult + gearModifier;
 }
 
 void bike::changeInclination(double grade, double percentage) {
@@ -719,8 +768,11 @@ void bike::updateSlopeTargetPower(bool force) {
         return;
     }
 
-    // Apply gear offset to grade (0.5 scaling factor)
-    double grade = m_currentSlopePercent + (gearsModifier() / 2.0);
+    // Apply virtual gear offset to grade (0.5 scaling factor). Physical
+    // gearboxes already apply their ratio mechanically and must not be
+    // counted a second time in the software physics model.
+    const double gearModifier = applyGearModifier() ? gearsModifier() : 0.0;
+    double grade = m_currentSlopePercent + (gearModifier / 2.0);
 
     // Get current speed for slope calculations with fallback to cadence-based estimation
     double speedKmh = getCurrentSpeedForSlope();
