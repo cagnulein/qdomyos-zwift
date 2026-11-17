@@ -283,29 +283,17 @@ void bluetooth::signalBluetoothDeviceConnected(bluetoothdevice *b) { emit this->
 void bluetooth::onHomeformReady() {
     homeformLoaded = true;
 #ifdef Q_OS_ANDROID
-    // The Bluetooth manager is constructed before homeform. Even a queued
-    // 0-ms callback may run in a nested Qt/QML event loop before the view
-    // has connected to deviceConnected()/bluetoothDeviceConnected().
-    // Release exactly the startup work held by the UI readiness barrier.
-    if (scanFinishedPendingHomeform) {
-        scanFinishedPendingHomeform = false;
-        discoveryPendingHomeform = false;
-        QTimer::singleShot(0, this, &bluetooth::finished);
-    } else if (discoveryPendingHomeform) {
-        discoveryPendingHomeform = false;
+    // Only the bonded Coach S fast path needs this: it can complete inside
+    // bluetooth's constructor, before homeform connects to deviceConnected.
+    // Normal discovery and fake devices retain their original startup path.
+    if (coachSDirectPendingHomeform) {
+        coachSDirectPendingHomeform = false;
         QTimer::singleShot(0, this, &bluetooth::startDiscovery);
     }
 #endif
 }
 
 void bluetooth::finished() {
-#ifdef Q_OS_ANDROID
-    if (!homeformLoaded) {
-        scanFinishedPendingHomeform = true;
-        debug(QStringLiteral("Bluetooth scan completion deferred until UI ready"));
-        return;
-    }
-#endif
     // DIRCON can be discovered before or after the BLE scan completes.
     if (!device() && tryConnectSelectedDirconDevice())
         return;
@@ -519,6 +507,15 @@ bool bluetooth::tryConnectBondedCoachS() {
         return false;
     }
 
+    if (!homeformLoaded) {
+        // The direct SPP connection can succeed before the QML/UI connects
+        // to deviceConnected(). Defer this *Coach S-specific* operation
+        // instead of changing the scan lifecycle of all other devices.
+        coachSDirectPendingHomeform = true;
+        debug(QStringLiteral("Coach S bonded direct SPP deferred until UI ready"));
+        return true;
+    }
+
     coachSDirectAttempted = true;
     coachSDirectInProgress = true;
     const QBluetoothDeviceInfo info(address, savedName, 0);
@@ -553,16 +550,6 @@ bool bluetooth::tryConnectBondedCoachS() {
 void bluetooth::startDiscovery() {
     if (!this->useDiscovery)
         return;
-#ifdef Q_OS_ANDROID
-    if (!homeformLoaded) {
-        // Applies to the selected bonded Coach S, and also Fake Bike/Rower,
-        // FTMS machines, and any other device discovered at app startup.
-        // Delay startup instead of losing the Qt signal before homeform exists.
-        discoveryPendingHomeform = true;
-        debug(QStringLiteral("Bluetooth startup deferred until UI ready"));
-        return;
-    }
-#endif
 
     if (dirconDiscovery)
         dirconDiscovery->startDiscovery();
