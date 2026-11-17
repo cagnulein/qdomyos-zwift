@@ -208,7 +208,7 @@ function process_arr(arr) {
         const ctx = chart.canvas.getContext('2d');
         ctx.save();
         ctx.globalCompositeOperation = 'destination-over';
-        ctx.fillStyle = 'white';
+        ctx.fillStyle = qzChartTheme.background(chart);
         ctx.fillRect(0, 0, chart.width, chart.height);
         ctx.restore();
       }
@@ -392,7 +392,7 @@ function process_arr(arr) {
     };
 
     let ctx = document.getElementById('canvas').getContext('2d');
-    var powerChart = new Chart(ctx, config);
+    var powerChart = qzChartTheme.create(ctx, config);
 
     const heartChartBottom = 50;
     const heartChartTop = Math.max(heartZones[3] + 10, maxHeartRate + 10, heart_max + 5, 200);
@@ -549,7 +549,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasHeart').getContext('2d');
-    var heartChart = new Chart(ctx, config);
+    var heartChart = qzChartTheme.create(ctx, config);
 
     config = {
         type: 'line',
@@ -649,7 +649,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasResistance').getContext('2d');
-    var resistanceChart = new Chart(ctx, config);
+    var resistanceChart = qzChartTheme.create(ctx, config);
 
     config = {
         type: 'line',
@@ -749,7 +749,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasPelotonResistance').getContext('2d');
-    var pelotonresistanceChart = new Chart(ctx, config);
+    var pelotonresistanceChart = qzChartTheme.create(ctx, config);
 
     config = {
         type: 'line',
@@ -849,7 +849,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasCadence').getContext('2d');
-    var cadenceChart = new Chart(ctx, config);
+    var cadenceChart = qzChartTheme.create(ctx, config);
 
     config = {
         type: 'bar',
@@ -912,7 +912,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasPowerDistribution').getContext('2d');
-    var powerDistributionChart = new Chart(ctx, config);
+    var powerDistributionChart = qzChartTheme.create(ctx, config);
 
     config = {
         type: 'line',
@@ -1012,7 +1012,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasSpeedInclination').getContext('2d');
-    var speedInclinationChart = new Chart(ctx, config);
+    var speedInclinationChart = qzChartTheme.create(ctx, config);
 }
 
 function dochart_init() {
