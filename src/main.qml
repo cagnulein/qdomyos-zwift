@@ -776,7 +776,11 @@ ApplicationWindow {
         modal: true
         focus: true
         closePolicy: Popup.NoAutoClose
-        onOpened: refresh_bluetooth_devices_clicked()
+        onOpened: {
+            // opened again after a disconnection: nothing picked yet in this window
+            gymModeDeviceComboBox.value = ""
+            refresh_bluetooth_devices_clicked()
+        }
 
         Column {
             id: gymModeColumn
@@ -800,13 +804,14 @@ ApplicationWindow {
                 horizontalAlignment: Text.AlignHCenter
             }
 
-            ValueComboBox {
+            // A pick connects at once, and the search goes on every 10 seconds: the rows of the open
+            // list must stay where they are (DeviceComboBox). The shown text follows the picked
+            // value, not currentIndex: the list is filled again on every opening
+            DeviceComboBox {
                 id: gymModeDeviceComboBox
                 width: parent.width
-                model: rootItem.bluetoothDevices
                 labels: ({ "Disabled": qsTr("Disabled") })
-                displayText: currentIndex >= 0 ? labelFor(currentValue) : qsTr("Select a device")
-                currentIndex: -1
+                displayText: value !== "" ? labelFor(value) : qsTr("Select a device")
                 font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 8)
 
                 onActivated: {

@@ -4,6 +4,7 @@
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QFile>
 #include <QObject>
+#include <QSet>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
 #include <QtBluetooth/qlowenergycharacteristic.h>
@@ -213,6 +214,17 @@ class bluetooth : public QObject, public SignalHandler {
      * already running), otherwise the seconds until the scheduled search.
      */
     int searchNow();
+    /**
+     * @brief searchForDeviceList Searches for the devices of an opened list of devices. With a device connected the
+     * search only fills the list and connects nothing, and it is skipped near the Android limit; without one it is
+     * searchNow(). Does nothing if a search is running or discovery is off.
+     */
+    void searchForDeviceList();
+    /**
+     * @brief isLostDevice The last finished search did not find this device (switched off or out of range), and it
+     * is not in use. It stays in `devices`, the lists of devices hide it.
+     */
+    bool isLostDevice(const QString &name) const { return lostDevices.contains(name); }
 
     // True when the advertised services include one of a fitness machine (FTMS, Cycling Power, Cycling Speed and
     // Cadence, the Concept2 PM5 or Echelon service), as QZ's own virtual devices and most machines advertise next
@@ -472,6 +484,12 @@ class bluetooth : public QObject, public SignalHandler {
     static constexpr qint64 scanStartWindowMs = 30000;
     QList<qint64> scanStartsMs;
     void pruneScanStarts(qint64 now);
+    // The search of searchForDeviceList() with a device connected: what it finds is not connected
+    bool deviceListScan = false;
+    // Names found by the current search, and the ones the last finished search did not find
+    QSet<QString> seenInSearch;
+    QSet<QString> lostDevices;
+    void updateLostDevices();
 
 #ifdef Q_OS_IOS
     lockscreen *h = nullptr;
@@ -486,6 +504,7 @@ class bluetooth : public QObject, public SignalHandler {
   signals:
     void deviceConnected(QBluetoothDeviceInfo b);
     void deviceFound(QString name);
+    void lostDevicesChanged();
     void manualDeviceNotFound(QString name);
     void searchingStop();
     // A heart rate sensor nearby while none is chosen and no heart rate comes (heartRateSensorScan()).
