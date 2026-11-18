@@ -89,6 +89,7 @@ class KettlerUSB : public QThread {
                       double &Distance, int &Status);
 
   private:
+    friend class KettlerUSBTestAccess;
     void run() override; // called by start to kick off the control thread
 
     // Utility and BG Thread functions
@@ -99,6 +100,7 @@ class KettlerUSB : public QThread {
     int sendCommand(const QString &command);
     QString readResponse();
     void parseStatusResponse(const QString &response);
+    void processNativePollResponse(const QString &response);
     void initSequence(); // Send initialization commands
     void sendPowerCommand(double power);
     void pollNativeProtocol();

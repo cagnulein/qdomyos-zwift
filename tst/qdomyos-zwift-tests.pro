@@ -63,6 +63,7 @@ SOURCES += \
         Devices/TestHeartRateSensorOffer.cpp \
         Devices/TestFreebeatBoomBikeParser.cpp \
         Devices/TestKettlerClassicProtocol.cpp \
+        Devices/TestKettlerUSBProtocol.cpp \
         Devices/TestFitPlusBikeResistance.cpp \
         Devices/TestTargetPowerOverride.cpp \
         VirtualRowerCadenceTest.cpp \
