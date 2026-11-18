@@ -1098,6 +1098,10 @@ Do you want to update QZ settings?</source>
         <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
         <translation>לא נמצא חיישן דופק בקרבת מקום. ודא שהוא מופעל ומשדר נתוני דופק.</translation>
     </message>
+    <message>
+        <source>Kingsmith treadmill Bluetooth service unavailable. Retrying connection; if the problem persists, restart the treadmill.</source>
+        <translation>שירות ה-Bluetooth של הליכון Kingsmith אינו זמין. מתבצע ניסיון חיבור מחדש; אם הבעיה נמשכת, יש להפעיל מחדש את ההליכון.</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
