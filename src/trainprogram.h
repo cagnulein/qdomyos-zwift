@@ -137,6 +137,10 @@ class trainprogram : public QObject {
     static int firstBlockingLapButtonRow(const QList<trainrow> &rows, int currentStep, int candidateStep);
     static int firstBlockingTransitionRow(const QList<trainrow> &rows, int currentStep, int candidateStep);
     static bool shouldSendGpxInclination(double lastSentInclination, double nextInclination, double filter);
+    // zoneHR=0 explicitly disables HR control for a workout interval; never overwrite its fixed speed.
+    static bool shouldCompensateSpeedOnInclinationChange(bool ignoreInclination, bool workoutActive, int workoutZoneHR) {
+        return !ignoreInclination && (!workoutActive || workoutZoneHR != 0);
+    }
     static bool isBlockingTransitionRow(const trainrow &row);
     static QString pidHrModeToString(treadmill_pid_hr_mode mode);
     static treadmill_pid_hr_mode pidHrModeFromString(const QString &value);
