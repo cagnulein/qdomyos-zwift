@@ -493,7 +493,10 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
 
         if(SL010 || SPORT01 || TOPUTURE_TEB5 || FS_YK)
             Resistance = requestResistance;
-        
+
+        if (TC_BIKE)
+            tcPendingResistance = requestResistance;
+
         if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28 || USDC_D700 || FS_YK || TUNTURI_E50_168 || VIFHTR ||
            INCONDI_S150I || FS_SB_RCR || HS_5000L || DRUMFIT ||
            uses16BitResistanceForDevice(bluetoothDevice.name()) ||
@@ -1004,6 +1007,16 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             }
         }
 
+        if (TC_BIKE && responseCode == FTMS_RESPONSE_CODE &&
+            requestCode == FTMS_SET_TARGET_RESISTANCE_LEVEL && !native_resistance_received) {
+            if (resultCode == FTMS_SUCCESS && tcPendingResistance >= 1) {
+                Resistance = tcPendingResistance;
+                emit resistanceRead(Resistance.value());
+                qDebug() << "TC FTMS acknowledged resistance:" << tcPendingResistance;
+            }
+            tcPendingResistance = -1;
+        }
+
         if (bluetoothDevice.name().toUpper().startsWith("ICONSOLE+") &&
             responseCode == FTMS_RESPONSE_CODE && requestCode == FTMS_SET_TARGET_POWER &&
             resultCode == FTMS_CONTROL_NOT_PERMITTED) {
@@ -1236,7 +1249,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     m_pelotonResistance = res;
                 }
 
-                if (!resistance_received && !DU30_bike && !SL010 && !FS_YK && !FS_IB50 && !FS_SB_RCR && !isManualResistanceBike() &&
+                if (!TC_BIKE && !resistance_received && !DU30_bike && !SL010 && !FS_YK && !FS_IB50 && !FS_SB_RCR && !isManualResistanceBike() &&
                     shouldUseCalculatedResistanceFallback(now)) {
                     Resistance = m_pelotonResistance;
                     emit resistanceRead(Resistance.value());
@@ -1298,6 +1311,10 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             } else {
                 double ftms_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)newValue.at(index))));
+                if (TC_BIKE && ftms_watt > 1000.0) {
+                    qDebug() << "TC FTMS: ignoring implausible power:" << ftms_watt;
+                    ftms_watt = 0;
+                }
                 m_rawWatt = ftms_watt;  // Always update rawWatt from FTMS bike data
                 if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                         .toString()
@@ -1539,7 +1556,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
                 qDebug() << QStringLiteral("Current Peloton Resistance: ") + QString::number(m_pelotonResistance.value());
 
-                if (!FS_YK && !FS_IB50 && !FS_SB_RCR && !isManualResistanceBike()) {
+                if (!TC_BIKE && !FS_YK && !FS_IB50 && !FS_SB_RCR && !isManualResistanceBike()) {
                     if (settings.value(QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance)
                             .toBool())
                         Resistance = pelotonToBikeResistance(m_pelotonResistance.value());
@@ -1739,7 +1756,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     m_pelotonResistance = res;
                 }
 
-                if (!FS_YK && !FS_IB50 && !FS_SB_RCR && !isManualResistanceBike() && shouldUseCalculatedResistanceFallback(now)) {
+                if (!TC_BIKE && !FS_YK && !FS_IB50 && !FS_SB_RCR && !isManualResistanceBike() && shouldUseCalculatedResistanceFallback(now)) {
                     Resistance = m_pelotonResistance;
                     emit resistanceRead(Resistance.value());
                     emit debug(QStringLiteral("Current Resistance (calculated fallback): ") +
@@ -1767,6 +1784,10 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             } else {
                 double ftms_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                        (uint16_t)((uint8_t)newValue.at(index))));
+                if (TC_BIKE && ftms_watt > 1000.0) {
+                    qDebug() << "TC FTMS: ignoring implausible 0x2ACE power:" << ftms_watt;
+                    ftms_watt = 0;
+                }
                 m_rawWatt = ftms_watt;
                 if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                         .toString()
@@ -2340,6 +2361,12 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("DU30 found");
             max_resistance = 32;
             DU30_bike = true;
+        } else if (device.name().startsWith(QStringLiteral("TC"), Qt::CaseInsensitive)) {
+            qDebug() << QStringLiteral("TC-prefix FTMS bike found - using acknowledged resistance for software ERG");
+            TC_BIKE = true;
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+            max_resistance = 41;
         } else if ((bluetoothDevice.name().toUpper().startsWith("ICSE") && bluetoothDevice.name().length() == 4)) {
             qDebug() << QStringLiteral("ICSE found");
             ICSE = true;
