@@ -342,8 +342,9 @@ button.small {
     color: var(--muted-color);
 }
 
-/* the chips read in the text colour; only the caption before them is muted */
-.qzmc-chip {
+/* the chips read in the text colour; only the caption before them is muted (two classes: the
+   chart script adds its own styles after this file, and its .qzmc-chip would win a tie) */
+.qzmc-bar .qzmc-chip {
     color: var(--text-color);
 }
 
