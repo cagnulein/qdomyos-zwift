@@ -16612,7 +16612,7 @@
     {
       "key": "rouvy_virtual_gearing_profile",
       "name": "Virtual Gearing Profile",
-      "description": "Select the same sequential gearing profile as in Rouvy. Flat currently supports the first 23 gears.",
+      "description": "Select the same sequential gearing profile as in Rouvy.",
       "parent": "Rouvy Options",
       "type": "integer",
       "qmlType": "int",
@@ -16629,7 +16629,7 @@
         ],
         "labels": [
           "Mixed Terrain (1×24)",
-          "Flat (incomplete)",
+          "Flat",
           "All-Arounder",
           "Climbing"
         ]
