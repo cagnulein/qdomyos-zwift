@@ -1312,14 +1312,15 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 double ftms_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)newValue.at(index))));
                 if (TC_BIKE && ftms_watt > 1000.0) {
-                    qDebug() << "TC FTMS: ignoring implausible power:" << ftms_watt;
-                    ftms_watt = 0;
-                }
-                m_rawWatt = ftms_watt;  // Always update rawWatt from FTMS bike data
-                if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-                        .toString()
-                        .startsWith(QStringLiteral("Disabled"))) {
-                    m_watt = ftms_watt;  // Only update watt if no external power sensor
+                    qDebug() << "TC FTMS: ignoring implausible power:" << ftms_watt
+                             << "- keeping last valid power";
+                } else {
+                    m_rawWatt = ftms_watt;  // Always update rawWatt from FTMS bike data
+                    if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                            .toString()
+                            .startsWith(QStringLiteral("Disabled"))) {
+                        m_watt = ftms_watt;  // Only update watt if no external power sensor
+                    }
                 }
 
                 if(!wattReceived && m_watt.value() > 0) {
@@ -1785,14 +1786,15 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 double ftms_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                        (uint16_t)((uint8_t)newValue.at(index))));
                 if (TC_BIKE && ftms_watt > 1000.0) {
-                    qDebug() << "TC FTMS: ignoring implausible 0x2ACE power:" << ftms_watt;
-                    ftms_watt = 0;
-                }
-                m_rawWatt = ftms_watt;
-                if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-                        .toString()
-                        .startsWith(QStringLiteral("Disabled"))) {
-                    m_watt = ftms_watt;
+                    qDebug() << "TC FTMS: ignoring implausible 0x2ACE power:" << ftms_watt
+                             << "- keeping last valid power";
+                } else {
+                    m_rawWatt = ftms_watt;
+                    if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                            .toString()
+                            .startsWith(QStringLiteral("Disabled"))) {
+                        m_watt = ftms_watt;
+                    }
                 }
                 emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
             }
