@@ -390,6 +390,11 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
         emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
     } else if (characteristic.uuid() == QBluetoothUuid::CyclingPowerMeasurement) {
+        // Flags and instantaneous power require at least four bytes.
+        if (newValue.size() < 4) {
+            emit debug(QStringLiteral("Bkool Cycling Power packet too short: ") + newValue.toHex(' '));
+            return;
+        }
         uint16_t flags = (((uint16_t)((uint8_t)newValue.at(1)) << 8) | (uint16_t)((uint8_t)newValue.at(0)));
         const bool cadence_present = (flags & 0x30u) != 0u;
         int index = 4;
