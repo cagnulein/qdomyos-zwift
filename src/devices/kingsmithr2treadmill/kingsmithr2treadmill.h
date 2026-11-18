@@ -95,6 +95,7 @@ class kingsmithr2treadmill : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
+    int missingCommunicationServiceCount = 0;
 
     bool KS_NACH_X21C = false;
     bool KS_NACH_X21C_2 = false;
