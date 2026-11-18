@@ -934,6 +934,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                        settings.value(QZSettings::hertz_xr_770, QZSettings::default_hertz_xr_770).toBool() ||
                        settings.value(QZSettings::taurua_ic90, QZSettings::default_taurua_ic90).toBool()) &&
                       !toorx_ftms;
+    const bool careIconsoleBike = settings.value(QZSettings::toorx_bike, QZSettings::default_toorx_bike).toBool();
     bool snode_bike = settings.value(QZSettings::snode_bike, QZSettings::default_snode_bike).toBool();
     bool fitplus_bike = settings.value(QZSettings::fitplus_bike, QZSettings::default_fitplus_bike).toBool() ||
                         settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
@@ -3053,7 +3054,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 sportsPlusBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(sportsPlusBike);
             } else if (((b.name().toUpper().contains(QStringLiteral("CARE")) && b.name().length() >= 12 &&
-                         !sportsplusbike::isCareSportsPlusBike13Name(b.name())) ||  // CARE968300122, CARE10692135
+                         !sportsplusbike::isCareSportsPlusBike13Name(b.name()) &&
+                         !(careIconsoleBike && b.name().toUpper().startsWith(QStringLiteral("CARE11216+")))) ||  // CARE968300122, CARE10692135
                        (b.name().toUpper().startsWith(QStringLiteral("VMAX"))))
                        && !sportsPlusRower && filter) {
                 this->setLastBluetoothDevice(b);
@@ -3387,7 +3389,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                           (upperDeviceName.startsWith(QStringLiteral("REEBOK"))) ||
                           upperDeviceName.contains(QStringLiteral("CR011R")) ||
                           (upperDeviceName.startsWith(QStringLiteral("FAL-SPORTS")) && toorx_bike) ||
-                          upperDeviceName.startsWith(QStringLiteral("DKN MOTION"))) &&
+                          upperDeviceName.startsWith(QStringLiteral("DKN MOTION")) ||
+                          (careIconsoleBike && upperDeviceName.startsWith(QStringLiteral("CARE11216+")))) &&
                          (toorx_bike))) &&
                        !trxappgateusb && !toorx_ftms && !toorx_ftms_treadmill && !trxappgateusbBike && !isConfiguredFtmsRowerDevice && (filter || isRI009R) && !iconsole_elliptical && !iconsole_rower && ftms_elliptical.contains(QZSettings::default_ftms_elliptical) && !csc_as_bike) {
                 this->setLastBluetoothDevice(b);
