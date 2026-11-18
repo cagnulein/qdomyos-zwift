@@ -7594,6 +7594,14 @@ Please enter it below:</source>
         <translation>Strava 虚拟活动标签</translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track (Experimental)</source>
+        <translation>Strava 模拟 GPS 轨迹（实验性）</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>为没有 GPS 的虚拟活动写入模拟 GPS 轨迹。Strava 可能因此显示爬升高度，但路线并非真实路线。</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation>将虚拟标签附加到 Strava 活动</translation>
     </message>

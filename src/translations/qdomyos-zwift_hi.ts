@@ -6953,6 +6953,14 @@ Please enter it below:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track (Experimental)</source>
+        <translation>Strava सिंथेटिक GPS ट्रैक (प्रायोगिक)</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>GPS रहित वर्चुअल गतिविधियों में सिंथेटिक GPS ट्रैक जोड़ता है। इससे Strava चढ़ाई की ऊँचाई दिखा सकता है, लेकिन यह मार्ग वास्तविक नहीं है।</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation type="unfinished"></translation>
     </message>

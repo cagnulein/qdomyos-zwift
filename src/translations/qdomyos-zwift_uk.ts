@@ -7618,6 +7618,14 @@ Please enter it below:</source>
         <translation>Мітка віртуальної активності Strava</translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track (Experimental)</source>
+        <translation>Синтетичний GPS-трек Strava (експериментально)</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Додає синтетичний GPS-трек до віртуальних тренувань без GPS. Strava може показати набір висоти, але маршрут несправжній.</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation>Додавати до активності Strava мітку віртуальної активності</translation>
     </message>

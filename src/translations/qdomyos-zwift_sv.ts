@@ -7186,6 +7186,14 @@ Ange den nedan:</translation>
         <translation>Strava-tagg för virtuell aktivitet</translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track (Experimental)</source>
+        <translation>Syntetiskt GPS-spår för Strava (experimentellt)</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Lägger till ett syntetiskt GPS-spår i virtuella aktiviteter utan GPS. Strava kan då visa höjdstigning, men rutten är inte verklig.</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation>Lägger till taggen för virtuell aktivitet i Strava-aktiviteten.</translation>
     </message>
