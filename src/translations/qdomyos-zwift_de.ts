@@ -4820,6 +4820,26 @@ Darf QZ diesen Wert ändern?
 
 „Nein“: QZ schaltet „Ohne Laufrad-Durchmesser-Protokoll“ ein (Einstellungen &gt; Fahrradoptionen &gt; Wahoo Optionen), und virtuelle Gänge laufen über die Steigung. Bei „Ja“ lässt sich das später dort rückgängig machen: diese Option einschalten und bei verbundenem Trainer auf „Standardeinstellung des Trainers wiederherstellen“ tippen.</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Das simulierte Gerät (%1) ist aktiv. Falls dies unbeabsichtigt ist, deaktiviere es in den Einstellungen.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Fahrrad</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Laufband</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Crosstrainer</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Rudergerät</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>

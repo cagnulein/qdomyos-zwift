@@ -4646,6 +4646,26 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <source>Services</source>
         <translation>บริการ</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>อุปกรณ์จำลอง (%1) เปิดใช้งานอยู่ หากไม่ได้ตั้งใจ ให้ปิดใช้งานในการตั้งค่า</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>จักรยาน</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>ลู่วิ่ง</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>เครื่องเดินวงรี</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>เครื่องกรรเชียงบก</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>

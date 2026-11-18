@@ -4646,6 +4646,26 @@ Jika memilih Tidak, QZ mengaktifkan Without Wheel Diameter Protocol (Pengaturan 
         <source>Services</source>
         <translation>Layanan</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Perangkat simulasi (%1) aktif. Jika tidak disengaja, nonaktifkan di Pengaturan.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Sepeda</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Treadmill</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Eliptikal</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Mesin dayung</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>

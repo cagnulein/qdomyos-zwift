@@ -4646,6 +4646,26 @@ Si tries No, QZ activa Without Wheel Diameter Protocol (Configuració &gt; Opcio
         <source>Services</source>
         <translation>Serveis</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>El dispositiu simulat (%1) està actiu. Si no era intencionat, desactiva'l a Configuració.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Bicicleta</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Cinta de córrer</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>El·líptica</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Rem</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>

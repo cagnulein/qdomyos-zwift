@@ -4812,6 +4812,26 @@ Zezwolić QZ na zmianę tej wartości?
 
 „Nie”: QZ włączy „Protokół bez zmiany średnicy koła” (Ustawienia &gt; Opcje roweru &gt; Opcje Wahoo), a wirtualne biegi będą działać przez nachylenie. Po wybraniu „Tak” możesz to później cofnąć w tym samym miejscu: włącz tę opcję i przy podłączonym trenażerze dotknij „Przywróć domyślne ustawienia trenażera”.</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Symulowane urządzenie (%1) jest aktywne. Jeśli nie było to zamierzone, wyłącz je w Ustawieniach.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Rower</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Bieżnia</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Orbitrek</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Wioślarz</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>

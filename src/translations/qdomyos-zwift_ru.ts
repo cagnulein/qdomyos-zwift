@@ -4812,6 +4812,26 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
 
 «Нет»: QZ включит «Без протокола диаметра колеса» (Настройки &gt; Параметры велотренажёра &gt; Параметры Wahoo), и виртуальные передачи будут работать через уклон. Если выбрать «Да», это можно позже отменить там же: включите эту настройку и при подключённом тренажёре нажмите «Восстановить настройки тренажёра по умолчанию».</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Виртуальное устройство (%1) активно. Если вы включили его случайно, отключите его в настройках.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Велотренажёр</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Беговая дорожка</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Эллиптический тренажёр</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Гребной тренажёр</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>

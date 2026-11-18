@@ -4812,6 +4812,26 @@ QZ&apos;nin bu değeri değiştirmesine izin verilsin mi?
 
 “Hayır”: QZ, “Tekerlek çapı protokolü olmadan” seçeneğini açar (Ayarlar &gt; Bisiklet seçenekleri &gt; Wahoo seçenekleri) ve sanal vitesler eğim üzerinden çalışır. “Evet” derseniz bunu daha sonra aynı yerden geri alabilirsiniz: bu seçeneği açın ve cihaz bağlıyken “Antrenman cihazının varsayılan ayarını geri yükle” düğmesine dokunun.</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Sanal cihaz (%1) etkin. Bunu istemediyseniz Ayarlar'dan devre dışı bırakın.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Bisiklet</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Koşu bandı</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Eliptik bisiklet</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Kürek makinesi</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>

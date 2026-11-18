@@ -4796,6 +4796,26 @@ Må QZ ændre værdien?
 
 »Nej«: QZ slår »Uden hjuldiameterprotokol« til (Indstillinger &gt; Cykelindstillinger &gt; Wahoo-indstillinger), og virtuelle gear virker via stigningen. Med »Ja« kan du senere fortryde det samme sted: slå denne indstilling til, og tryk, mens hometraineren er forbundet, på »Gendan hometrainerens standardindstilling«.</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Den simulerede enhed (%1) er aktiv. Hvis det ikke var meningen, skal du deaktivere den under Indstillinger.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Cykel</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Løbebånd</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Crosstrainer</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Romaskine</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>

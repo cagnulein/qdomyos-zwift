@@ -4646,6 +4646,26 @@ Jos valitset Ei, QZ ottaa käyttöön asetuksen Without Wheel Diameter Protocol 
         <source>Services</source>
         <translation>Palvelut</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Simuloitu laite (%1) on käytössä. Jos tämä ei ollut tarkoitus, poista se käytöstä asetuksissa.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Kuntopyörä</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Juoksumatto</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Crosstrainer</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Soutulaite</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>

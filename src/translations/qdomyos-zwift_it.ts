@@ -4820,6 +4820,26 @@ Consentire a QZ di modificare questo valore?
 
 «No»: QZ attiva «Senza Protocollo Diametro Ruota» (Impostazioni &gt; Opzioni bici &gt; Opzioni Wahoo) e le marce virtuali funzionano tramite la pendenza. Con «Sì» potrai annullarlo più tardi nello stesso punto: attiva quell&apos;opzione e, con il rullo connesso, tocca «Ripristina le impostazioni predefinite del rullo».</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Il dispositivo simulato (%1) è attivo. Se non è intenzionale, disattivalo nelle Impostazioni.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Bici</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Tapis roulant</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Ellittica</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Vogatore</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
