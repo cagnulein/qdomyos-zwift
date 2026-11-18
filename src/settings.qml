@@ -9720,7 +9720,11 @@ import AndroidStatusBar 1.0
                         modal: true
                         focus: true
                         closePolicy: Popup.CloseOnEscape
-                        anchors.centerIn: Overlay.overlay
+                        // In the overlay, like the other popups: centred in Overlay.overlay from inside a
+                        // StackView page, Qt 5.15.0 (Android) crashes on exit while the popup is open -
+                        // it repositions against the overlay already destroyed (QTBUG-84579, fixed in 5.15.1)
+                        parent: Overlay.overlay
+                        anchors.centerIn: parent
                         width: Math.min(parent.width * 0.9, 400)
 
                         visible: rootItem.garminMfaRequested
