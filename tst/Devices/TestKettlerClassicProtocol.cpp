@@ -303,6 +303,17 @@ TEST(KettlerClassicProtocol, CoachSCoastingSamplesCannotKeepPowerAlive) {
     EXPECT_TRUE(smoothing.active(21000));
 }
 
+TEST(KettlerClassicProtocol, CoachSShortStrokeDoesNotTruncateNextSlowerRecovery) {
+    kettlerclassicprotocol::CoachSStrokePowerSmoother smoothing;
+    EXPECT_EQ(smoothing.addSample(60, 100, 0), 0);
+    EXPECT_EQ(smoothing.addSample(61, 200, 1000), 100);
+    EXPECT_EQ(smoothing.addSample(62, 80, 2470), 200);
+    // Captured adjacent periods: 1.47 s then 2.57 s. The latter must not
+    // flicker to zero during the final 70 ms of the recovery.
+    EXPECT_EQ(smoothing.value(5030), 200);
+    EXPECT_EQ(smoothing.addSample(63, 80, 5040), 80);
+}
+
 TEST(KettlerClassicProtocol, CoachSStrokePowerAdaptiveStopAndReset) {
     kettlerclassicprotocol::CoachSStrokePowerSmoother smoothing;
     EXPECT_EQ(smoothing.addSample(1, 160, 0), 0);

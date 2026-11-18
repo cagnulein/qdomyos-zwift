@@ -87,7 +87,7 @@ void CoachSStrokePowerSmoother::reset() {
 
 int CoachSStrokePowerSmoother::inactivityTimeoutMs() const {
     // Preserve slow recoveries, but never learn an unlimited idle period.
-    return strokePeriodMs > 0 ? qBound(2500, strokePeriodMs * 3 / 2, 6500) : 3000;
+    return strokePeriodMs > 0 ? qBound(3000, strokePeriodMs * 3 / 2, 6500) : 3000;
 }
 
 bool CoachSStrokePowerSmoother::active(qint64 nowMs) const {
