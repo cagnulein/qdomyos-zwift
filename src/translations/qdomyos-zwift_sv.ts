@@ -61,12 +61,36 @@
         <translation>Filter</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Överordnad mapp</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Öppna</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Inga GPX-filer här</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Distans %1 km, höjdmeter: %2 meter</translation>
     </message>
     <message>
         <source>Other folders</source>
         <translation>Andra mappar</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Återställ filer</translation>
     </message>
 </context>
 <context>
@@ -94,6 +118,22 @@
     <message>
         <source>Don&apos;t ask again</source>
         <translation>Fråga inte igen</translation>
+    </message>
+    <message>
+        <source>Strong signal</source>
+        <translation>Starkt signal</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Bra signal</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Medelstarkt signal</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Svag signal</translation>
     </message>
     <message>
         <source>Choose a heart rate sensor</source>
@@ -167,6 +207,14 @@ Vill du göra det nu?</translation>
     <message>
         <source>Rest</source>
         <translation>Vila</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Stoppa</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Avbryt</translation>
     </message>
     <message>
         <source>Very Light</source>
@@ -260,6 +308,14 @@ Vill du aktivera de tjänster som krävs?</translation>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Vill du bli påmind om att aktivera Bluetooth eller platstjänster nästa gång?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Tillbaka till appen</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Lämnar tillbaka styrningen av belastningen till appen</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -298,6 +354,18 @@ Vill du aktivera de tjänster som krävs?</translation>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>Appen bör ansluta automatiskt till din cykel, ditt löpband eller din roddmaskin. &lt;b&gt;Om den inte gör det, kontrollera följande&lt;/b&gt;:&lt;br&gt;1) appen Echelon/Domyos MÅSTE vara stängd medan qdomyos-zwift körs;&lt;br&gt;2) både Bluetooth och Bluetooth-behörigheter MÅSTE vara aktiverade&lt;br&gt;3) cykeln, löpbandet eller roddmaskinen ska slås på INNAN du startar den här appen&lt;br&gt;4) prova att starta om enheten&lt;br&gt;&lt;br&gt;Om cykeln eller löpbandet kopplas från var 30:e sekund kan du prova att inaktivera inställningen ”virtuell enhet” i vänster fält.&lt;br&gt;&lt;br&gt;Om du har problem är du välkommen att kontakta mig på roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Ha ett bra pass!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ frånsäger sig uttryckligen ansvar för&lt;br&gt;oavsiktliga skador och följdskador och tar&lt;br&gt;inget ansvar för förlust&lt;br&gt;eller skada som någon drabbas av till följd av&lt;br&gt;användning eller felaktig användning av appen.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Söker efter träningsredskapet…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Slå på cykeln, löpbandet eller roddmaskinen: QZ ansluter automatiskt.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Går det inte att ansluta?</translation>
     </message>
 </context>
 <context>
@@ -1171,8 +1239,24 @@ Vill du uppdatera QZ-inställningarna?</translation>
         <translation>Välj en fil</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Tryck på en fil för att välja den och sedan på Läs in.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Läs in</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Inga sparade inställningar</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Andra mappar</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Återställ filer</translation>
     </message>
 </context>
 <context>
@@ -1380,16 +1464,40 @@ Vill du uppdatera QZ-inställningarna?</translation>
         <translation>Sök (även i undermappar)…</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Överordnad mapp</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Inga träningspass hittades</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Inga träningspass här</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Andra mappar</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Återställ filer</translation>
+    </message>
+    <message>
         <source>Restore programs</source>
-        <translation>Återställ program</translation>
+        <translation type="vanished">Återställ program</translation>
     </message>
     <message>
         <source>← Back</source>
         <translation>← Tillbaka</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>Visa mindre</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Visa mer</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -1417,6 +1525,28 @@ Vill du uppdatera QZ-inställningarna?</translation>
     <message>
         <source>Cancel</source>
         <translation>Avbryt</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>Återställer filer från den tidigare installationen</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>Återställer filer från den tidigare installationen: %1 av %2</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Expanderat</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Komprimerat</translation>
     </message>
 </context>
 <context>
@@ -2501,6 +2631,18 @@ Med följande frågor anpassas QZ efter din utrustning och dina mål.</translati
         <translation>Nästa</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Träningsredskap, måttenheter och profil, steg för steg</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Välj ett ämne och gå direkt till dess inställningar</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Stäng guiden</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Anpassade inställningar</translation>
     </message>
@@ -2827,12 +2969,12 @@ Med följande frågor anpassas QZ efter din utrustning och dina mål.</translati
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Importerar träningspass…</translation>
+        <translation type="vanished">Importerar träningspass…</translation>
     </message>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Bearbetar träningsfiler…
+        <translation type="vanished">Bearbetar träningsfiler…
 Det kan ta en stund vid första starten.</translation>
     </message>
     <message>
@@ -2956,8 +3098,40 @@ Det kan ta en stund vid första starten.</translation>
         <translation>Filtrera efter datum</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Kalender</translation>
+    </message>
+    <message>
         <source>Import workouts</source>
         <translation>Importera träningspass</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>Lägger till träningspass i historiken</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Kopierar träningsfiler</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Lägger till träningspass i historiken: %1 av %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Kopierar träningsfiler: %1 av %2</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Inga träningspass den här dagen</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Inga träningspass ännu</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Avslutade träningspass visas här: öppna ett om du vill se diagrammen.</translation>
     </message>
     <message>
         <source>Open on Peloton</source>
@@ -3049,9 +3223,25 @@ Det kan ta en stund vid första starten.</translation>
         <source>Offset</source>
         <translation>Justering</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Minska justering för växel %1</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Öka justering för växel %1</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Minska: %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Öka: %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Aktivera egen tabell för lutning till motstånd</translation>
@@ -3067,6 +3257,10 @@ Det kan ta en stund vid första starten.</translation>
     <message>
         <source>Resistance</source>
         <translation>Motstånd</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Ta bort punkten vid lutning %1</translation>
     </message>
     <message>
         <source>Add Point</source>
@@ -3607,6 +3801,14 @@ Det kan ta en stund vid första starten.</translation>
         <translation>hastigheten ändrad till </translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>Återställda filer: %1.</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>Inga filer från en tidigare installation hittades.</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>JSON-tolkningsfel</translation>
     </message>
@@ -3636,11 +3838,11 @@ Det kan ta en stund vid första starten.</translation>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation>Återställda träningsprogram: %1.</translation>
+        <translation type="vanished">Återställda träningsprogram: %1.</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation>Inga träningsprogram från en tidigare installation hittades.</translation>
+        <translation type="vanished">Inga träningsprogram från en tidigare installation hittades.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -4209,6 +4411,20 @@ Vill du starta det nu?</translation>
         <translation>Sparat! Titta i appens privata mapp.</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Återställ filer</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Träningsprogram, GPX-rutter, inställningsfiler och profiler från en tidigare installation kan finnas kvar i QZ-mappen.
+Vill du leta efter dem?
+
+Tillåt åtkomst till QZ-mappen i nästa fönster.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Du är redan ansluten till Peloton. Vill du logga ut?</translation>
     </message>
@@ -4430,14 +4646,14 @@ Tillåt åtkomst till QZ-mappen i nästa fönster.</translation>
     </message>
     <message>
         <source>Training Programs</source>
-        <translation>Träningsprogram</translation>
+        <translation type="vanished">Träningsprogram</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation>Träningsprogram från en tidigare installation kan finnas kvar i QZ-mappen.
+        <translation type="vanished">Träningsprogram från en tidigare installation kan finnas kvar i QZ-mappen.
 Vill du leta efter dem?
 
 Tillåt åtkomst till QZ-mappen i nästa fönster.</translation>
@@ -4619,6 +4835,10 @@ Vill du tillåta att QZ ändrar värdet?
         <translation>Vill du ta bort profilen?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Ta bort</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Profilen har sparats</translation>
     </message>
@@ -4651,8 +4871,32 @@ Vill du tillåta att QZ ändrar värdet?
         <translation>Profilnamn</translation>
     </message>
     <message>
+        <source>New profile</source>
+        <translation>Ny profil</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Sparade profiler</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Tryck på en profil för att välja den och sedan på Läs in. Håll ned för att ta bort den.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Aktiv</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Läs in</translation>
+    </message>
+    <message>
         <source>Profiles</source>
         <translation>Profiler</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Återställ filer</translation>
     </message>
     <message>
         <source>Save</source>
@@ -7050,6 +7294,14 @@ VIKTIGT:
         <translation>För smart trainers: använd motstånd i stället för lutning. Det hjälper om du inte vill att Wahoo Climb eller liknande ändrar lutningen när du växlar. Standard: av.</translation>
     </message>
     <message>
+        <source>Resistance Compatibility</source>
+        <translation>Motståndskompatibilitet</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Aktivera om ändring av motstånd i QZ bara ställer in cykeln på nivå 1 eller max. Skickar FTMS-motståndet multiplicerat med 10. Standard: avaktiverad.</translation>
+    </message>
+    <message>
         <source>AutoLap on Distance:</source>
         <translation>Automatiskt varv efter distans:</translation>
     </message>
@@ -8401,6 +8653,10 @@ Standard: A = -0.96, B = 1.33</translation>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>Vid GPX-träning ignoreras lutningsändringar som är mindre än detta värde. Ett nytt kommando skickas först när skillnaden från senast skickat värde når den angivna tröskeln. Standard: 0 (inaktiverat).</translation>
     </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Använd konsolens växlar</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>
@@ -8834,6 +9090,10 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>It shows 2 big gear buttons on the UI</source>
         <translation>Visar 2 stora växelknappar i gränssnittet.</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Panelalternativ</translation>
     </message>
     <message>
         <source>Remaining Time/Row</source>

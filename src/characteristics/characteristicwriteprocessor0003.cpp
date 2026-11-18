@@ -133,9 +133,10 @@ void CharacteristicWriteProcessor0003::handleZwiftGear(const QByteArray &array) 
         static const int mixed[] = {7500, 8700, 9800, 11000, 12000, 13100, 14100, 15300,
                                     16700, 18300, 20400, 22000, 23900, 26200, 27500, 30600,
                                     32400, 34400, 36700, 39300, 42300, 45800, 50000, 55000};
-        // The supplied Flat trace ends after gear 17; do not guess missing ratios.
+        // The supplied Flat trace ends after gear 23; do not guess the final ratio.
         static const int flat[] = {13899, 15000, 16200, 18900, 19500, 20400, 21700, 22100,
-                                   24400, 26000, 26500, 27900, 29400, 30000, 32500, 33100, 35300};
+                                   24400, 26000, 26500, 27900, 29400, 30000, 32500, 33100, 35300,
+                                   35500, 37900, 39000, 40800, 44200, 48200};
         static const int allArounder[] = {10600, 12500, 14500, 14600, 16700, 17100, 18400, 20000,
                                           20600, 22900, 23300, 25000, 25299, 26900, 28200, 29200,
                                           31800, 32000, 34300, 35000, 36900, 40000, 43600, 48000};
@@ -147,7 +148,7 @@ void CharacteristicWriteProcessor0003::handleZwiftGear(const QByteArray &array) 
         const int *ratios = mixed;
         int count = 24;
         switch (profile) {
-        case 1: ratios = flat; count = 17; break;
+        case 1: ratios = flat; count = 23; break;
         case 2: ratios = allArounder; break;
         case 3: ratios = climbing; break;
         case 0: break;
@@ -365,6 +366,7 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
     else if (receivedData.startsWith(expectedHexArray6)) {
         qDebug() << "Zwift Play Ask 6";
 
+        if (receivedData.size() < 7) return -1;
         reply = QByteArray::fromHex("3c0888041206 0a0440c0bb01");
         reply[9] = receivedData[4];
         reply[10] = receivedData[5];
@@ -381,9 +383,8 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
         reply = QByteArray::fromHex("03080010001827e7 2000 28 00 3093ed01");
         notifier0002->addAnswer(reply);
 
-        reply = QByteArray::fromHex("3c088804120503408c60");
-        reply[8] = receivedData[4];
-        reply[9] = receivedData[5];
+        if (receivedData.size() < 6) return -1;
+        reply = QByteArray::fromHex("3c08880412050a0340") + receivedData.mid(4, 2);
         handleZwiftGear(receivedData.mid(4));
         notifier0004->addAnswer(reply);
     }
@@ -400,7 +401,7 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
         reply = buildCurrentHubRidingData();
         notifier0002->addAnswer(reply);
 
-        changePower(Power.value);
+        changePowerFromApp(Power.value);
     }
     else if (receivedData.startsWith(expectedHexArray9)) {
         qDebug() << "Zwift Play Ask 9";

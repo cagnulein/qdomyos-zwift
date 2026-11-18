@@ -151,6 +151,7 @@
 #include "technogymbike/technogymbike.h"
 #include "devices/toorxtreadmill/toorxtreadmill.h"
 #include "devices/kettlerclassicbike/kettlerclassicbike.h"
+#include "devices/kettlercoachrower/kettlercoachrower.h"
 #include "devices/iconsolebike/iconsolebike.h"
 #include "devices/treadmill.h"
 #include "devices/truetreadmill/truetreadmill.h"
@@ -162,6 +163,9 @@
 #include "devices/ultrasportbike/ultrasportbike.h"
 #include "devices/wahookickrheadwind/wahookickrheadwind.h"
 #include "devices/wahookickrsnapbike/wahookickrsnapbike.h"
+#include "devices/dircon/wahoodirconbike.h"
+#include "devices/dircon/wahoodircontreadmill.h"
+#include "devices/dircon/dircondiscovery.h"
 #include "devices/wahookickruntreadmill/wahookickruntreadmill.h"
 #include "devices/xcxbike/xcxbike.h"
 #include "devices/yesoulbike/yesoulbike.h"
@@ -191,6 +195,7 @@ class bluetooth : public QObject, public SignalHandler {
     bluetoothdevice *externalInclination() { return eliteRizer; }
     bluetoothdevice *heartRateDevice() { return heartRateBelt; }
     QList<QBluetoothDeviceInfo> devices;
+    QList<DirconDeviceInfo> dirconDevices() const;
     bool onlyDiscover = false;
     volatile bool homeformLoaded = false;
 
@@ -258,6 +263,7 @@ class bluetooth : public QObject, public SignalHandler {
     iconsolebike *iconsole = nullptr;
     iconceptbike *iConceptBike = nullptr;
     kettlerclassicbike *kettlerClassicBike = nullptr;
+    kettlercoachrower *kettlerCoachRower = nullptr;
     iconceptelliptical *iConceptElliptical = nullptr;
     trxappgateusbtreadmill *trxappgateusb = nullptr;
     spirittreadmill *spiritTreadmill = nullptr;
@@ -351,6 +357,9 @@ class bluetooth : public QObject, public SignalHandler {
     stagesbike *powerBike = nullptr;
     ultrasportbike *ultraSportBike = nullptr;
     wahookickrsnapbike *wahooKickrSnapBike = nullptr;
+    wahoodirconbike *wahooDirconBike = nullptr;
+    wahoodircontreadmill *wahooDirconTreadmill = nullptr;
+    DirconDiscovery *dirconDiscovery = nullptr;
     wahookickruntreadmill *wahooKickRunTreadmill = nullptr;
     xcxbike *xcxBike = nullptr;
     ypooelliptical *ypooElliptical = nullptr;
@@ -410,6 +419,8 @@ class bluetooth : public QObject, public SignalHandler {
     bool sramDeviceAvaiable();
     bool cycplusBC2DeviceAvaiable();
     bool thinkriderDeviceAvaiable();
+    bool tryConnectSelectedDirconDevice();
+    void connectDirconDevice(const DirconDeviceInfo &deviceInfo);
     bool fitmetria_fanfit_isconnected(const QBluetoothDeviceInfo &device);
     bool gymModeEnabled() const;
     void handleControllerGearChange(bool increase, bool allowMyWhooshOverride);
@@ -511,6 +522,7 @@ class bluetooth : public QObject, public SignalHandler {
     void heartRate(uint8_t heart);
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
   private slots:
+    void onDirconDeviceDiscovered(const QString &displayName);
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
     void deviceUpdated(const QBluetoothDeviceInfo &device, QBluetoothDeviceInfo::Fields updateFields);
 #endif

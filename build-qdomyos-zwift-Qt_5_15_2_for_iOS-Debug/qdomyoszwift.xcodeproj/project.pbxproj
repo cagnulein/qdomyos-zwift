@@ -224,6 +224,12 @@
 		8738249527E646E3004F1B46 /* characteristicnotifier2a37.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8738248927E646E0004F1B46 /* characteristicnotifier2a37.cpp */; };
 		8738249627E646E3004F1B46 /* characteristicnotifier2acd.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8738248A27E646E0004F1B46 /* characteristicnotifier2acd.cpp */; };
 		8738249727E646E3004F1B46 /* characteristicnotifier2a53.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8738248D27E646E1004F1B46 /* characteristicnotifier2a53.cpp */; };
+		A14D1C260000000000000004 /* dircondiscovery.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = A14D1C260000000000000001 /* dircondiscovery.cpp */; };
+		A14D1C260000000000000005 /* moc_dircondiscovery.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = A14D1C260000000000000003 /* moc_dircondiscovery.cpp */; };
+		A14D1C260000000000000009 /* wahoodirconbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = A14D1C260000000000000006 /* wahoodirconbike.cpp */; };
+		A14D1C26000000000000000A /* moc_wahoodirconbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = A14D1C260000000000000008 /* moc_wahoodirconbike.cpp */; };
+		A14D1C26000000000000000E /* wahoodircontreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = A14D1C26000000000000000B /* wahoodircontreadmill.cpp */; };
+		A14D1C26000000000000000F /* moc_wahoodircontreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = A14D1C26000000000000000D /* moc_wahoodircontreadmill.cpp */; };
 		8738249827E646E3004F1B46 /* dirconmanager.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8738249027E646E3004F1B46 /* dirconmanager.cpp */; };
 		873824AD27E64706004F1B46 /* moc_characteristicnotifier.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8738249927E64701004F1B46 /* moc_characteristicnotifier.cpp */; };
 		873824AE27E64706004F1B46 /* moc_browser.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8738249A27E64701004F1B46 /* moc_browser.cpp */; };
@@ -1194,6 +1200,12 @@
 		8738248C27E646E1004F1B46 /* characteristicnotifier2acd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = characteristicnotifier2acd.h; path = ../src/characteristics/characteristicnotifier2acd.h; sourceTree = "<group>"; };
 		8738248D27E646E1004F1B46 /* characteristicnotifier2a53.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicnotifier2a53.cpp; path = ../src/characteristics/characteristicnotifier2a53.cpp; sourceTree = "<group>"; };
 		8738248E27E646E2004F1B46 /* characteristicnotifier2a53.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = characteristicnotifier2a53.h; path = ../src/characteristics/characteristicnotifier2a53.h; sourceTree = "<group>"; };
+		A14D1C260000000000000001 /* dircondiscovery.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = dircondiscovery.cpp; path = ../src/devices/dircon/dircondiscovery.cpp; sourceTree = "<group>"; };
+		A14D1C260000000000000002 /* dircondiscovery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dircondiscovery.h; path = ../src/devices/dircon/dircondiscovery.h; sourceTree = "<group>"; };
+		A14D1C260000000000000006 /* wahoodirconbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wahoodirconbike.cpp; path = ../src/devices/dircon/wahoodirconbike.cpp; sourceTree = "<group>"; };
+		A14D1C260000000000000007 /* wahoodirconbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wahoodirconbike.h; path = ../src/devices/dircon/wahoodirconbike.h; sourceTree = "<group>"; };
+		A14D1C26000000000000000B /* wahoodircontreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wahoodircontreadmill.cpp; path = ../src/devices/dircon/wahoodircontreadmill.cpp; sourceTree = "<group>"; };
+		A14D1C26000000000000000C /* wahoodircontreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wahoodircontreadmill.h; path = ../src/devices/dircon/wahoodircontreadmill.h; sourceTree = "<group>"; };
 		8738248F27E646E2004F1B46 /* dirconmanager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dirconmanager.h; path = ../src/devices/dircon/dirconmanager.h; sourceTree = "<group>"; };
 		8738249027E646E3004F1B46 /* dirconmanager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = dirconmanager.cpp; path = ../src/devices/dircon/dirconmanager.cpp; sourceTree = "<group>"; };
 		8738249927E64701004F1B46 /* moc_characteristicnotifier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_characteristicnotifier.cpp; sourceTree = "<group>"; };
@@ -1215,6 +1227,9 @@
 		873824A927E64705004F1B46 /* moc_resolver_p.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_resolver_p.cpp; sourceTree = "<group>"; };
 		873824AA27E64705004F1B46 /* moc_server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_server.cpp; sourceTree = "<group>"; };
 		873824AB27E64705004F1B46 /* moc_abstractserver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_abstractserver.cpp; sourceTree = "<group>"; };
+		A14D1C260000000000000003 /* moc_dircondiscovery.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_dircondiscovery.cpp; sourceTree = "<group>"; };
+		A14D1C260000000000000008 /* moc_wahoodirconbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_wahoodirconbike.cpp; sourceTree = "<group>"; };
+		A14D1C26000000000000000D /* moc_wahoodircontreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_wahoodircontreadmill.cpp; sourceTree = "<group>"; };
 		873824AC27E64705004F1B46 /* moc_dirconmanager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_dirconmanager.cpp; sourceTree = "<group>"; };
 		873824C127E64769004F1B46 /* characteristicnotifier2ad2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = characteristicnotifier2ad2.h; path = ../src/characteristics/characteristicnotifier2ad2.h; sourceTree = "<group>"; };
 		873824C227E64769004F1B46 /* characteristicnotifier2a37.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = characteristicnotifier2a37.h; path = ../src/characteristics/characteristicnotifier2a37.h; sourceTree = "<group>"; };
@@ -2344,6 +2359,9 @@
 				8738249927E64701004F1B46 /* moc_characteristicnotifier.cpp */,
 				873824A327E64703004F1B46 /* moc_characteristicwriteprocessor.cpp */,
 				8738249B27E64701004F1B46 /* moc_characteristicwriteprocessor2ad9.cpp */,
+				A14D1C260000000000000003 /* moc_dircondiscovery.cpp */,
+				A14D1C260000000000000008 /* moc_wahoodirconbike.cpp */,
+				A14D1C26000000000000000D /* moc_wahoodircontreadmill.cpp */,
 				873824AC27E64705004F1B46 /* moc_dirconmanager.cpp */,
 				8738249F27E64702004F1B46 /* moc_dirconprocessor.cpp */,
 				873824A227E64703004F1B46 /* moc_hostname_p.cpp */,
@@ -2813,6 +2831,12 @@
 				8738248C27E646E1004F1B46 /* characteristicnotifier2acd.h */,
 				8738248627E646DF004F1B46 /* characteristicwriteprocessor2ad9.cpp */,
 				8738248827E646E0004F1B46 /* characteristicwriteprocessor2ad9.h */,
+				A14D1C260000000000000001 /* dircondiscovery.cpp */,
+				A14D1C260000000000000002 /* dircondiscovery.h */,
+				A14D1C260000000000000006 /* wahoodirconbike.cpp */,
+				A14D1C260000000000000007 /* wahoodirconbike.h */,
+				A14D1C26000000000000000B /* wahoodircontreadmill.cpp */,
+				A14D1C26000000000000000C /* wahoodircontreadmill.h */,
 				8738249027E646E3004F1B46 /* dirconmanager.cpp */,
 				8738248F27E646E2004F1B46 /* dirconmanager.h */,
 				8738248427E646DF004F1B46 /* dirconpacket.cpp */,
@@ -3922,6 +3946,9 @@
 				8732C17F27353464006DF424 /* iconceptbike.cpp in Compile Sources */,
 				8774865F2F92434B00A02AFD /* cycplusbc2controller.cpp in Compile Sources */,
 				87CF5169293C879800A7CABC /* characteristicwriteprocessore005.cpp in Compile Sources */,
+				A14D1C260000000000000005 /* moc_dircondiscovery.cpp in Compile Sources */,
+				A14D1C26000000000000000A /* moc_wahoodirconbike.cpp in Compile Sources */,
+				A14D1C26000000000000000F /* moc_wahoodircontreadmill.cpp in Compile Sources */,
 				873824C027E64707004F1B46 /* moc_dirconmanager.cpp in Compile Sources */,
 				2F0E70F826316F3600E11F3A /* virtualbike_zwift.swift in Compile Sources */,
 				8772A0E825E43AE70080718C /* moc_trxappgateusbbike.cpp in Compile Sources */,
@@ -3932,6 +3959,9 @@
 				87BAFE482B8CA7AA00065FCD /* moc_focustreadmill.cpp in Compile Sources */,
 				8768C8BC2BBC11C80099DBE1 /* adb.c in Compile Sources */,
 				EA780CE97E201242E33E6EEE /* bike.cpp in Compile Sources */,
+				A14D1C260000000000000004 /* dircondiscovery.cpp in Compile Sources */,
+				A14D1C260000000000000009 /* wahoodirconbike.cpp in Compile Sources */,
+				A14D1C26000000000000000E /* wahoodircontreadmill.cpp in Compile Sources */,
 				8738249827E646E3004F1B46 /* dirconmanager.cpp in Compile Sources */,
 				87D4693629B64D8100C9A382 /* ios_app_delegate.mm in Compile Sources */,
 				87C5F0D926285E7E0067A1B5 /* moc_mimeattachment.cpp in Compile Sources */,

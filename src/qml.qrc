@@ -143,6 +143,9 @@
         <file>ValueComboBox.qml</file>
         <file>UiComboBox.qml</file>
         <file>UiDrawerItem.qml</file>
+        <file>UiSectionHeader.qml</file>
+        <file>UiSettingFrames.qml</file>
+        <file>UiStickyHeader.qml</file>
         <file>UiButton.qml</file>
         <file>UiFrame.qml</file>
         <file>UiGroupBox.qml</file>
@@ -150,8 +153,10 @@
         <file>UiIcons.js</file>
         <file>UiInfoPopup.qml</file>
         <file>UiMessageDialog.qml</file>
+        <file>UiMenuBackground.qml</file>
         <file>UiNotice.qml</file>
         <file>UiPopup.qml</file>
+        <file>UiProgress.qml</file>
         <file>UiSpinBox.qml</file>
         <file>UiSpinInput.qml</file>
         <file>UiSwitch.qml</file>

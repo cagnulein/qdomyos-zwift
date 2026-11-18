@@ -61,12 +61,36 @@
         <translation>필터</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>상위 폴더</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>열기</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>GPX 파일이 없습니다</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>거리: %1 km, 상승 고도: %2 m</translation>
     </message>
     <message>
         <source>Other folders</source>
         <translation>다른 폴더</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>파일 복원</translation>
     </message>
 </context>
 <context>
@@ -94,6 +118,22 @@
     <message>
         <source>Don&apos;t ask again</source>
         <translation>다시 묻지 않음</translation>
+    </message>
+    <message>
+        <source>Strong signal</source>
+        <translation>강한 신호</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>양호한 신호</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>보통 신호</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>약한 신호</translation>
     </message>
     <message>
         <source>Choose a heart rate sensor</source>
@@ -183,6 +223,14 @@ Would you like to do that now?</source>
     <message>
         <source>Rest</source>
         <translation>휴식</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>중지</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
     </message>
     <message>
         <source>Very Light</source>
@@ -276,6 +324,14 @@ Would you like to enable the required services?</source>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>다음에 Bluetooth 또는 위치 서비스를 켜도록 알림을 받으시겠습니까?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>앱에 돌려주기</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>부하 제어를 앱에 돌려줍니다</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -314,6 +370,18 @@ Would you like to enable the required services?</source>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>이 앱은 자전거/트레드밀/로잉 머신에 자동으로 연결됩니다. &lt;b&gt;연결되지 않으면 다음을 확인하세요&lt;/b&gt;:&lt;br&gt;1) qdomyos-zwift가 실행되는 동안 Echelon/Domyos 앱은 반드시 닫혀 있어야 합니다.&lt;br&gt;2) Bluetooth와 Bluetooth 권한을 반드시 모두 켜야 합니다&lt;br&gt;3) 이 앱을 시작하기 전에 자전거/트레드밀/로잉 머신의 전원을 켜야 합니다&lt;br&gt;4) 기기를 다시 시작해 보세요&lt;br&gt;&lt;br&gt;자전거/트레드밀이 30초마다 연결이 끊기면 왼쪽 메뉴에서 [가상 기기 사용] 설정을 꺼 보세요.&lt;br&gt;&lt;br&gt;문제가 있으면 언제든지 roberto.viola83@gmail.com으로 연락하세요.&lt;br&gt;&lt;br&gt;&lt;b&gt;즐거운 라이드 되세요!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ는 앱의 사용 또는 오용으로 인해&lt;br&gt;발생한 부수적 또는 결과적 손해에 대한&lt;br&gt;책임을 명시적으로 부인하며, 누구에게 발생한&lt;br&gt;어떠한 손실이나 손해에 대해서도&lt;br&gt;책임을 지지 않습니다.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>운동 기구를 찾는 중…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>자전거, 트레드밀 또는 로잉 머신의 전원을 켜세요. QZ가 자동으로 연결합니다.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>연결되지 않나요?</translation>
     </message>
 </context>
 <context>
@@ -1187,8 +1255,24 @@ QZ 설정을 업데이트하시겠습니까?</translation>
         <translation>파일을 선택하세요</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>파일을 눌러 선택한 다음 [불러오기]를 누르세요.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>불러오기</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>저장된 설정이 없습니다</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>다른 폴더</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>파일 복원</translation>
     </message>
 </context>
 <context>
@@ -1396,16 +1480,40 @@ QZ 설정을 업데이트하시겠습니까?</translation>
         <translation>검색(하위 폴더 포함)…</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>상위 폴더</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>운동을 찾을 수 없습니다</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>운동이 없습니다</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>다른 폴더</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>파일 복원</translation>
+    </message>
+    <message>
         <source>Restore programs</source>
-        <translation>프로그램 복원</translation>
+        <translation type="vanished">프로그램 복원</translation>
     </message>
     <message>
         <source>← Back</source>
         <translation>← 뒤로</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>접기</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>더보기</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -1433,6 +1541,28 @@ QZ 설정을 업데이트하시겠습니까?</translation>
     <message>
         <source>Cancel</source>
         <translation>취소</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>이전 설치의 파일 복원 중</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>이전 설치의 파일 복원 중: %1/%2</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>펼쳐짐</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>접힘</translation>
     </message>
 </context>
 <context>
@@ -2517,6 +2647,18 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>다음</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>운동 기구, 단위, 프로필을 단계별로 설정</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>주제를 골라 해당 설정으로 바로 이동</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>마법사 닫기</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>맞춤 설정</translation>
     </message>
@@ -2843,12 +2985,12 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>운동을 가져오는 중…</translation>
+        <translation type="vanished">운동을 가져오는 중…</translation>
     </message>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>운동 파일을 처리하는 중…
+        <translation type="vanished">운동 파일을 처리하는 중…
 처음 실행할 때는 시간이 조금 걸릴 수 있습니다.</translation>
     </message>
     <message>
@@ -2972,8 +3114,40 @@ This may take a few moments on first startup.</source>
         <translation>날짜로 필터</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>캘린더</translation>
+    </message>
+    <message>
         <source>Import workouts</source>
         <translation>운동 가져오기</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>운동을 기록에 추가하는 중</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>운동 파일 복사 중</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>운동을 기록에 추가하는 중: %1/%2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>운동 파일 복사 중: %1/%2</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>이 날에는 운동이 없습니다</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>아직 운동이 없습니다</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>완료한 운동이 여기에 표시됩니다. 운동을 열면 그래프를 볼 수 있습니다.</translation>
     </message>
     <message>
         <source>Open on Peloton</source>
@@ -3065,9 +3239,25 @@ This may take a few moments on first startup.</source>
         <source>Offset</source>
         <translation>보정값</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>기어 %1 보정값 줄이기</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>기어 %1 보정값 늘리기</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>%1 줄이기</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>%1 늘리기</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>사용자 지정 경사도-저항 표 사용</translation>
@@ -3083,6 +3273,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Resistance</source>
         <translation>저항</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>경사도 %1 점 삭제</translation>
     </message>
     <message>
         <source>Add Point</source>
@@ -3623,6 +3817,14 @@ This may take a few moments on first startup.</source>
         <translation>속도 변경 </translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>복원된 파일: %1.</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>이전 설치의 파일을 찾지 못했습니다.</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>JSON 구문 분석 오류</translation>
     </message>
@@ -3652,11 +3854,11 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation>복원된 훈련 프로그램: %1.</translation>
+        <translation type="vanished">복원된 훈련 프로그램: %1.</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation>이전 설치의 훈련 프로그램을 찾지 못했습니다.</translation>
+        <translation type="vanished">이전 설치의 훈련 프로그램을 찾지 못했습니다.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -4225,6 +4427,20 @@ Do you want to start it now?</source>
         <translation>저장했습니다! 앱의 개인 폴더를 확인하세요.</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>파일 복원</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>이전 설치의 훈련 프로그램, GPX 경로, 설정 파일, 프로필이 QZ 폴더에 남아 있을 수 있습니다.
+찾아보시겠습니까?
+
+다음 창에서 QZ 폴더 접근을 허용하세요.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>이미 Peloton에 연결되어 있습니다. 로그아웃하시겠습니까?</translation>
     </message>
@@ -4446,14 +4662,14 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Training Programs</source>
-        <translation>훈련 프로그램</translation>
+        <translation type="vanished">훈련 프로그램</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation>이전 설치의 훈련 프로그램이 QZ 폴더에 남아 있을 수 있습니다.
+        <translation type="vanished">이전 설치의 훈련 프로그램이 QZ 폴더에 남아 있을 수 있습니다.
 찾아보시겠습니까?
 
 다음 창에서 QZ 폴더 접근을 허용하세요.</translation>
@@ -4635,6 +4851,10 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
         <translation>이 프로필을 삭제하시겠습니까?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>삭제</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>프로필 저장됨</translation>
     </message>
@@ -4667,8 +4887,32 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
         <translation>프로필 이름</translation>
     </message>
     <message>
+        <source>New profile</source>
+        <translation>새 프로필</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>저장된 프로필</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>프로필을 눌러 선택한 다음 [불러오기]를 누르세요. 길게 누르면 삭제됩니다.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>사용 중</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>불러오기</translation>
+    </message>
+    <message>
         <source>Profiles</source>
         <translation>프로필</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>파일 복원</translation>
     </message>
     <message>
         <source>Save</source>
@@ -7098,6 +7342,14 @@ IMPORTANT NOTES:
         <translation>스마트 트레이너에서 경사도 대신 저항을 사용합니다. 기어를 바꿀 때 Wahoo Climb 같은 장치의 경사도가 바뀌지 않게 하는 데 도움이 됩니다. 기본값: 꺼짐</translation>
     </message>
     <message>
+        <source>Resistance Compatibility</source>
+        <translation>저항 호환성</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>QZ에서 저항을 변경할 때 자전거가 레벨 1 또는 최댓값으로만 설정된다면 활성화하세요. FTMS 저항 값을 10배로 전송합니다. 기본값: 비활성화.</translation>
+    </message>
+    <message>
         <source>AutoLap on Distance:</source>
         <translation>거리별 자동 랩:</translation>
     </message>
@@ -8425,6 +8677,10 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>GPX 운동에서 이 값보다 작은 경사 변화는 무시하고, 마지막으로 전송한 값과의 차이가 설정된 임계값에 도달했을 때만 새 경사 명령을 보냅니다. 기본값: 0(비활성화).</translation>
     </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>콘솔 기어 사용</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>
@@ -8858,6 +9114,10 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
     <message>
         <source>It shows 2 big gear buttons on the UI</source>
         <translation>화면에 큰 기어 버튼 2개를 표시합니다</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>타일 옵션</translation>
     </message>
     <message>
         <source>Remaining Time/Row</source>

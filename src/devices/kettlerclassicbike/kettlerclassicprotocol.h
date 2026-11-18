@@ -15,6 +15,19 @@ struct Frame {
 
 quint16 crc16(const QByteArray &data);
 QByteArray encodeFrame(quint16 function, quint8 subFunction, const QByteArray &payload = QByteArray());
+// Coach S Kinomap handshake counts escaped payload bytes in its length field.
+// Keep the standard encoder unchanged for other devices and regular commands.
+QByteArray encodeFrameWithEscapedPayloadLength(quint16 function, quint8 subFunction, const QByteArray &payload);
+// Coach S handshake: 2-byte salt || MD5(salt || 16-byte S-FIT key).
+// The Coach S response uses an independently generated salt.
+QByteArray coachSHandshakeForSalt(const QByteArray &salt);
+bool isValidCoachSHandshake(const QByteArray &payload);
+// Experimental Coach S power candidate: E0 payload bytes 18-19, U16 BE.
+// Hardware logs show zero at rest; not yet compared with console watts.
+quint16 coachSCandidateWatts(const QByteArray &telemetryPayload);
+// Coach S 0x00E0 telemetry: byte 23 reports the active resistance level.
+// Returns 0 when the frame is invalid or the reported level is outside 1..10.
+quint8 coachSReportedResistance(const QByteArray &telemetryPayload);
 QVector<Frame> consumeFrames(QByteArray &buffer);
 
 } // namespace kettlerclassicprotocol
