@@ -9442,13 +9442,13 @@ import AndroidStatusBar 1.0
                     ComboBox {
                         Accessible.name: qsTr("Virtual Gearing Profile") + ": " + displayText
                         Layout.fillWidth: true
-                        model: [qsTr("Mixed Terrain (1×24)"), qsTr("Flat (incomplete)"),
+                        model: [qsTr("Mixed Terrain (1×24)"), qsTr("Flat"),
                                 qsTr("All-Arounder"), qsTr("Climbing")]
                         currentIndex: settings.rouvy_virtual_gearing_profile
                         onActivated: settings.rouvy_virtual_gearing_profile = currentIndex
                     }
                     Label {
-                        text: qsTr("Select the same sequential gearing profile as in Rouvy. Flat currently supports the first 23 gears.")
+                        text: qsTr("Select the same sequential gearing profile as in Rouvy.")
                         wrapMode: Text.WordWrap
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
