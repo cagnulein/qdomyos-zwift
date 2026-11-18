@@ -94,7 +94,11 @@
                 color: String(series.color || '#35baf6'),
                 points: Array.isArray(series.points) ? series.points : [],
                 stepped: series.stepped !== false,
-                floor: series.key === 'inclination' ? -50 : 0
+                floor: series.key === 'inclination' ? -50 : 0,
+                // The scale titles and ranges as the single chart had them: the translated axis
+                // label of the series and a scale fitted to the values, not from zero
+                axisTitle: series.axisLabel || '',
+                beginAtZero: false
             }))
         });
         updateMeta(payload);

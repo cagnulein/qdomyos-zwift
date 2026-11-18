@@ -4,14 +4,18 @@
 // others; the choice is kept per page. The workout preview and the workout editor give it
 // their prepared metrics:
 //
-//   var charts = QzMetricCharts.create(host, { storageKey: 'qz.preview.together' });
+//   var charts = QzMetricCharts.create(host, { storageKey: 'qz.workoutpreview.together' });
 //   charts.update({ totalSeconds: 1800, series: [{ key: 'power', label: 'Power', unit: 'W',
 //       color: '#3b82f6', points: [{ x: 0, y: 150 }, ...] }, ...] });
 //
 // A series: key, label, unit, color ('#rrggbb'), points ({x seconds, y; openEnded and
 // segmentLabel of an open ended step}), stepped, floor - values below it mean "not set" and
-// leave a gap (0 by default, the incline goes down to -50). A series without a set value is
-// not drawn. Options: storageKey; colors() - {tick, grid, title} of the axes (neutral greys for
+// leave a gap (0 by default, the incline goes down to -50); axisTitle - the title of its scale
+// ("label (unit)" by default); beginAtZero - false for a scale fitted to the values (by default
+// a scale starts at zero unless the floor is below it). A series without a set value is not
+// drawn. Options: storageKey (localStorage - per page origin, and the app gives its inner
+// server a new port at every start, so the choice lasts while the app runs); colors() - {tick,
+// grid, title} of the axes (neutral greys for
 // a light page by default; the workout editor gives light ones for its dark page); timeTitle() -
 // the title of the time axis under the last chart.
 (function () {
@@ -47,6 +51,9 @@
     }
 
     function axisTitle(series) {
+        if (series.axisTitle) {
+            return series.axisTitle;
+        }
         return series.unit ? series.label + ' (' + series.unit + ')' : series.label;
     }
 
@@ -147,7 +154,7 @@
                     result[axisId(i)] = {
                         type: 'linear',
                         position: i % 2 ? 'right' : 'left',
-                        beginAtZero: floorOf(series) >= 0,
+                        beginAtZero: series.beginAtZero !== false && floorOf(series) >= 0,
                         grid: i ? { drawOnChartArea: false, color: c.grid } : { color: c.grid },
                         ticks: { color: shared ? series.color : c.tick },
                         title: { display: true, text: axisTitle(series), color: series.color }

@@ -31,10 +31,9 @@
             padding: 0 8px;
         }
 
-        /* The charts fill the view (the body padding off): a fixed 400px did not fit the view
-           held sideways - the time axis was cut and the page scrolled - and left a gap upright.
-           One metric takes the whole height; several share it, each chart no lower than 140px
-           (qzmetriccharts.js), and the page scrolls when they do not fit */
+        /* The charts fill the view (the body padding off). One metric takes the whole height;
+           several share it, each chart no lower than 140px (qzmetriccharts.js), and the page
+           scrolls when they do not fit (held sideways, two metrics already do) */
         #chart-container {
             width: 100%;
             min-height: calc(100vh - 20px);
