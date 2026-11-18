@@ -7234,6 +7234,14 @@ Kodu aşağıya girin:</translation>
         <translation>Strava sanal aktivite etiketi</translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track (Experimental)</source>
+        <translation>Strava Sentetik GPS Rotası (Deneysel)</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>GPS verisi olmayan sanal etkinliklere sentetik bir GPS rotası ekler. Strava irtifa kazanımını gösterebilir, ancak rota gerçek değildir.</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation>Strava aktivitesine sanal aktivite etiketi eklenir</translation>
     </message>

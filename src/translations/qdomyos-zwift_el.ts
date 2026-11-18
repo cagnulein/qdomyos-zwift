@@ -6953,6 +6953,14 @@ Please enter it below:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track (Experimental)</source>
+        <translation>Συνθετική διαδρομή GPS για Strava (πειραματικό)</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Προσθέτει συνθετική διαδρομή GPS σε εικονικές δραστηριότητες χωρίς GPS. Το Strava μπορεί να εμφανίσει την υψομετρική άνοδο, αλλά η διαδρομή δεν είναι πραγματική.</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation type="unfinished"></translation>
     </message>
