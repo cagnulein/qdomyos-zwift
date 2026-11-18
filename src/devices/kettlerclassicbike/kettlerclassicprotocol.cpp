@@ -57,6 +57,16 @@ bool isValidCoachSHandshake(const QByteArray &payload) {
     return payload.size() == 18 && coachSHandshakeForSalt(payload.left(2)) == payload;
 }
 
+quint16 coachSStrokeWatts(const QByteArray &telemetryPayload) {
+    if (telemetryPayload.size() != 24 ||
+        static_cast<quint8>(telemetryPayload.at(0)) != 0x00 ||
+        static_cast<quint8>(telemetryPayload.at(1)) != 0x04) {
+        return 0;
+    }
+    return (static_cast<quint16>(static_cast<quint8>(telemetryPayload.at(6))) << 8) |
+           static_cast<quint8>(telemetryPayload.at(7));
+}
+
 quint16 coachSCandidateWatts(const QByteArray &telemetryPayload) {
     if (telemetryPayload.size() != 24 ||
         static_cast<quint8>(telemetryPayload.at(0)) != 0x00 ||
@@ -75,6 +85,97 @@ quint8 coachSReportedResistance(const QByteArray &telemetryPayload) {
     }
     const quint8 level = static_cast<quint8>(telemetryPayload.at(23));
     return level >= 1 && level <= 10 ? level : 0;
+}
+
+void CoachSStrokePowerSmoother::reset() {
+    lastStrokeCounter = -1;
+    lastCompletedStrokeMs = -1;
+    strokePeriodMs = 0;
+    completedWatts = 0;
+}
+
+int CoachSStrokePowerSmoother::inactivityTimeoutMs() const {
+    // Preserve the already hardware-tested cadence-adaptive stop semantics.
+    return strokePeriodMs > 0 ? qBound(3000, strokePeriodMs * 3 / 2, 6500) : 3000;
+}
+
+bool CoachSStrokePowerSmoother::active(qint64 nowMs) const {
+    return lastCompletedStrokeMs >= 0 &&
+           nowMs - lastCompletedStrokeMs <= inactivityTimeoutMs();
+}
+
+quint16 CoachSStrokePowerSmoother::value(qint64 nowMs) const {
+    return active(nowMs) ? completedWatts : 0;
+}
+
+quint16 CoachSStrokePowerSmoother::addSample(quint16 strokeCounter,
+                                            quint16 consoleStrokeWatts, qint64 nowMs) {
+    if (lastStrokeCounter < 0 || strokeCounter < lastStrokeCounter) {
+        // The console retains the previous completed watt value on reconnect.
+        // Treat the first counter value (or a console reset) as baseline only.
+        reset();
+        lastStrokeCounter = strokeCounter;
+        return 0;
+    }
+
+    if (strokeCounter > lastStrokeCounter) {
+        const int increments = strokeCounter - lastStrokeCounter;
+        if (lastCompletedStrokeMs >= 0) {
+            const qint64 interval = (nowMs - lastCompletedStrokeMs) / increments;
+            if (interval >= 500 && interval <= 6500)
+                strokePeriodMs = static_cast<int>(interval);
+        }
+        // Byte offsets 6-7 carry the physical console's stroke average.
+        // The candidate flywheel field (18-19) can stay positive for minutes.
+        completedWatts = consoleStrokeWatts;
+        lastStrokeCounter = strokeCounter;
+        lastCompletedStrokeMs = nowMs;
+    }
+    return value(nowMs);
+}
+
+void CoachSSessionCounters::reset() {
+    initialized = false;
+    previousStrokes = 0;
+    previousMeters = 0;
+    distanceAnchorMeters = 0;
+    clearWorkout();
+}
+
+void CoachSSessionCounters::clearWorkout() {
+    sessionStrokes = 0;
+    sessionMeters = 0;
+    // Starting a fresh workout must not re-credit uncommitted coasting.
+    if (initialized) distanceAnchorMeters = previousMeters;
+}
+
+bool CoachSSessionCounters::addSample(quint16 strokes, quint16 meters, bool strokeActive) {
+    const bool rebase = !initialized || strokes < previousStrokes || meters < previousMeters;
+    if (rebase) {
+        // Keep already credited session totals across a physical console reset.
+        // Never interpret an unsigned counter wrap as meters travelled.
+        initialized = true;
+        previousStrokes = strokes;
+        previousMeters = meters;
+        distanceAnchorMeters = meters;
+        return true;
+    }
+
+    if (strokes > previousStrokes) {
+        sessionStrokes += strokes - previousStrokes;
+        // Commit only the distance up to a *completed* stroke. Following
+        // flywheel motion without another stroke never changes QZ distance.
+        if (strokeActive && meters >= distanceAnchorMeters)
+            sessionMeters += meters - distanceAnchorMeters;
+        distanceAnchorMeters = meters;
+    } else if (!strokeActive) {
+        // Ignore handle nudges before the first stroke, and rebase distance
+        // accumulated by the freely spinning flywheel after an idle timeout.
+        distanceAnchorMeters = meters;
+    }
+    previousStrokes = strokes;
+    previousMeters = meters;
+    return false;
 }
 
 quint16 crc16(const QByteArray &data) {

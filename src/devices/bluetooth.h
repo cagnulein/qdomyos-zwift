@@ -198,6 +198,9 @@ class bluetooth : public QObject, public SignalHandler {
     QList<DirconDeviceInfo> dirconDevices() const;
     bool onlyDiscover = false;
     volatile bool homeformLoaded = false;
+    // Notifies the Bluetooth manager when UI slots have been installed.
+    // Defers only bonded Coach S direct SPP; fake devices retain normal startup.
+    void onHomeformReady();
 
     // Search for the equipment, for the status line on the home page
     bool isSearching() const;
@@ -226,6 +229,15 @@ class bluetooth : public QObject, public SignalHandler {
 
   private:
     bool useDiscovery = false;
+#ifdef Q_OS_ANDROID
+    // Only the already-bonded Coach S direct SPP path is deferred.
+    // Do not delay normal Bluetooth discovery, fake equipment, or DirCon.
+    bool coachSDirectPendingHomeform = false;
+    // Try the selected, previously bonded Coach S directly once before
+    // falling back to the existing Bluetooth discovery/reconnect loop.
+    bool coachSDirectAttempted = false;
+    bool coachSDirectInProgress = false;
+#endif
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
     QBluetoothDeviceDiscoveryAgent *hrmDiscoveryAgent = nullptr;
@@ -398,6 +410,9 @@ class bluetooth : public QObject, public SignalHandler {
      * @brief Start the Bluetooth discovery agent.
      */
     void startDiscovery();
+#ifdef Q_OS_ANDROID
+    bool tryConnectBondedCoachS();
+#endif
 
     /**
      * @brief Stop the Bluetooth discovery agent.

@@ -8,6 +8,7 @@
 #include <QFile>
 #include <memory>
 #include <QMetaEnum>
+#include <QPointer>
 
 #include <QtXml>
 #ifdef Q_OS_ANDROID
@@ -279,6 +280,19 @@ bluetooth::~bluetooth() {
 
 void bluetooth::signalBluetoothDeviceConnected(bluetoothdevice *b) { emit this->bluetoothDeviceConnected(b); }
 
+void bluetooth::onHomeformReady() {
+    homeformLoaded = true;
+#ifdef Q_OS_ANDROID
+    // Only the bonded Coach S fast path needs this: it can complete inside
+    // bluetooth's constructor, before homeform connects to deviceConnected.
+    // Normal discovery and fake devices retain their original startup path.
+    if (coachSDirectPendingHomeform) {
+        coachSDirectPendingHomeform = false;
+        QTimer::singleShot(0, this, &bluetooth::startDiscovery);
+    }
+#endif
+}
+
 void bluetooth::finished() {
     // DIRCON can be discovered before or after the BLE scan completes.
     if (!device() && tryConnectSelectedDirconDevice())
@@ -457,6 +471,82 @@ int bluetooth::searchNow() {
     return 0;
 }
 
+#ifdef Q_OS_ANDROID
+bool bluetooth::tryConnectBondedCoachS() {
+    if (coachSDirectAttempted || onlyDiscover || gymModeEnabled() ||
+        !useDiscovery || device()) {
+        return false;
+    }
+
+    QSettings settings;
+    if (!settings.value(QZSettings::bh_spada_2, QZSettings::default_bh_spada_2).toBool())
+        return false;
+
+    const QString selectedName = filterDevice.trimmed();
+    const bool coachSSelected =
+        selectedName.compare(QStringLiteral("COACH S"), Qt::CaseInsensitive) == 0 ||
+        selectedName.startsWith(QStringLiteral("COACH S "), Qt::CaseInsensitive);
+    if (!coachSSelected) return false;
+
+    // Connect only to the exact saved, explicitly selected Coach S. Never
+    // use this optimisation for another device or an arbitrary cached MAC.
+    const QString savedName = settings.value(
+        QZSettings::bluetooth_lastdevice_name,
+        QZSettings::default_bluetooth_lastdevice_name).toString();
+    if (savedName.compare(selectedName, Qt::CaseInsensitive) != 0)
+        return false;
+
+    const QBluetoothAddress address(settings.value(
+        QZSettings::bluetooth_lastdevice_address,
+        QZSettings::default_bluetooth_lastdevice_address).toString());
+    if (address.isNull()) return false;
+
+    const QBluetoothLocalDevice localDevice;
+    if (localDevice.pairingStatus(address) == QBluetoothLocalDevice::Unpaired) {
+        debug(QStringLiteral("Coach S saved address is not bonded; using discovery"));
+        return false;
+    }
+
+    if (!homeformLoaded) {
+        // The direct SPP connection can succeed before the QML/UI connects
+        // to deviceConnected(). Defer this *Coach S-specific* operation
+        // instead of changing the scan lifecycle of all other devices.
+        coachSDirectPendingHomeform = true;
+        debug(QStringLiteral("Coach S bonded direct SPP deferred until UI ready"));
+        return true;
+    }
+
+    coachSDirectAttempted = true;
+    coachSDirectInProgress = true;
+    const QBluetoothDeviceInfo info(address, savedName, 0);
+    debug(QStringLiteral("Coach S bonded direct SPP attempt (no device scan): ") +
+          address.toString());
+    kettlerCoachRower = new kettlercoachrower(noWriteResistance, noHeartService);
+    emit deviceConnected(info);
+    connect(kettlerCoachRower, &bluetoothdevice::connectedAndDiscovered,
+            this, &bluetooth::connectedAndDiscovered);
+    connect(kettlerCoachRower, &kettlercoachrower::debug, this, &bluetooth::debug);
+    connect(kettlerCoachRower, &kettlercoachrower::disconnected,
+            this, &bluetooth::restart, Qt::QueuedConnection);
+    this->stopDiscovery();
+    const QPointer<kettlercoachrower> trackedRower(kettlerCoachRower);
+    kettlerCoachRower->connectToBondedDevice(info);
+    this->signalBluetoothDeviceConnected(kettlerCoachRower);
+
+    // SDP/Android socket operations can hang without reporting an error.
+    // An uncompleted handshake/telemetry must fall back to normal discovery.
+    QTimer::singleShot(15000, this, [this, trackedRower]() {
+        if (coachSDirectInProgress && trackedRower &&
+            trackedRower == kettlerCoachRower) {
+            debug(QStringLiteral("Coach S direct connection timed out; falling back to discovery"));
+            coachSDirectInProgress = false;
+            restart();
+        }
+    });
+    return true;
+}
+#endif
+
 void bluetooth::startDiscovery() {
     if (!this->useDiscovery)
         return;
@@ -467,6 +557,15 @@ void bluetooth::startDiscovery() {
     // An unavailable Bluetooth adapter must not prevent network discovery.
     if (!this->discoveryAgent)
         return;
+
+#ifdef Q_OS_ANDROID
+    // A paired Coach S responds to an RFCOMM connection even when it is
+    // not discoverable and the console is still in manual/ready mode.
+    // On failure restart() performs the normal scan, with this fast path
+    // suppressed until a successful connection.
+    if (tryConnectBondedCoachS())
+        return;
+#endif
 
     // Android 7.0 and later ignore the scan starts after the 5th one in 30 s: searchNow() checks this list.
     // A start while scanning does nothing, so it is not counted.
@@ -3531,6 +3630,52 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 void bluetooth::connectedAndDiscovered() {
+#ifdef Q_OS_ANDROID
+    if (coachSDirectInProgress && kettlerCoachRower &&
+        kettlerCoachRower->connected()) {
+        // This slot is shared by every primary/auxiliary device. Do not
+        // declare the Coach S connection successful due to some other
+        // device's connectedAndDiscovered() signal.
+        coachSDirectInProgress = false;
+        // A later disconnect after a successful direct connection should
+        // be allowed to try the bonded SPP path again.
+        coachSDirectAttempted = false;
+        debug(QStringLiteral("Coach S bonded direct SPP connection confirmed by telemetry"));
+        // Unlike deviceConnected(), this fires only after the SPP connection,
+        // handshake, and first valid E0 telemetry have succeeded. Keep the
+        // existing early tile creation behavior shared with other devices.
+        if (homeform::singleton()) {
+            homeform::singleton()->setToastRequested(QObject::tr("Coach S connected!"));
+        }
+
+        // Direct bonded SPP intentionally bypasses the normal device scan.
+        // That scan also discovers the user's *explicitly selected* BLE heart
+        // rate belt; restore only this missing accessory discovery. The usual
+        // discovery / fake devices / other equipment are not affected.
+        const QString selectedHeartRateBelt =
+            QSettings().value(QZSettings::heart_rate_belt_name,
+                              QZSettings::default_heart_rate_belt_name).toString();
+        if (!selectedHeartRateBelt.isEmpty() &&
+            !selectedHeartRateBelt.startsWith(QStringLiteral("Disabled"))) {
+            QTimer::singleShot(1500, this, [this, selectedHeartRateBelt]() {
+                if (!kettlerCoachRower || !kettlerCoachRower->connected() ||
+                    heartRateBelt || hrmDiscoveryAgent)
+                    return;
+                // The user may have changed the selection during startup.
+                const QString currentlySelected =
+                    QSettings().value(QZSettings::heart_rate_belt_name,
+                                      QZSettings::default_heart_rate_belt_name).toString();
+                if (currentlySelected != selectedHeartRateBelt) return;
+                debug(QStringLiteral("Coach S direct SPP: finding selected HR belt ") +
+                      selectedHeartRateBelt);
+                // Use the existing selected-sensor path (including its
+                // Android scan throttling), matching by BLE name instead
+                // of relying on a potentially rotating cached MAC.
+                reconnectHeartRateBelt(selectedHeartRateBelt, QString());
+            });
+        }
+    }
+#endif
 
     qDebug() << "bluetooth::connectedAndDiscovered()";
 
@@ -4596,6 +4741,9 @@ void bluetooth::startHeartRateSensorScan(const QString &heartRateBeltName, bool 
 }
 
 void bluetooth::restart() {
+#ifdef Q_OS_ANDROID
+    coachSDirectInProgress = false;
+#endif
 
     QSettings settings;
 
