@@ -4812,6 +4812,26 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
 
 [아니요]: QZ가 [휠 지름 없는 프로토콜]을 켜고([설정] &gt; [자전거 옵션] &gt; [Wahoo 옵션]), 가상 기어는 경사를 통해 작동합니다. [예]를 선택하면 나중에 같은 곳에서 되돌릴 수 있습니다. 이 옵션을 켜고 트레이너가 연결된 상태에서 [트레이너 기본 설정 복원]을 누르세요.</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>가상 기기(%1)가 활성화되었습니다. 의도한 설정이 아니라면 설정에서 비활성화하세요.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>자전거</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>러닝머신</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>일립티컬</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>로잉머신</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>

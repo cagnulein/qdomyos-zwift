@@ -895,6 +895,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(bluetoothManager, &bluetooth::bluetoothDeviceConnected, this, &homeform::bluetoothDeviceConnected);
     connect(bluetoothManager, &bluetooth::bluetoothDeviceDisconnected, this, &homeform::bluetoothDeviceDisconnected);
     connect(bluetoothManager, &bluetooth::deviceFound, this, &homeform::deviceFound);
+    connect(bluetoothManager, &bluetooth::fakeDeviceActivated, this, &homeform::fakeDeviceActivated);
     connect(bluetoothManager, &bluetooth::manualDeviceNotFound, this, [this](const QString &name) {
         setToastRequested(
             QObject::tr("QZ is looking for %1. Please wake it up or change this device under the Manual Device "

@@ -468,10 +468,12 @@ class bluetooth : public QObject, public SignalHandler {
      */
     void setLastBluetoothDevice(const QBluetoothDeviceInfo &b);
     void signalBluetoothDeviceConnected(bluetoothdevice *b);
+    void scheduleFakeDeviceToast(bluetoothdevice *fakeDevice, const QString &type);
   signals:
     void deviceConnected(QBluetoothDeviceInfo b);
     void deviceFound(QString name);
     void manualDeviceNotFound(QString name);
+    void fakeDeviceActivated(const QString &type);
     void searchingStop();
     // A heart rate sensor nearby while none is chosen and no heart rate comes (heartRateSensorScan()).
     // address: the Bluetooth address, the device UUID on iOS; onTap: found by the search a tap started

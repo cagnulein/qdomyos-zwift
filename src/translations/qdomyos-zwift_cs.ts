@@ -4812,6 +4812,26 @@ Povolit QZ tuto hodnotu měnit?
 
 „Ne“: QZ zapne „Bez protokolu průměru kola“ (Nastavení &gt; Možnosti kola &gt; Možnosti Wahoo) a virtuální převody budou fungovat přes stoupání. Při volbě „Ano“ to můžete později vrátit tamtéž: zapněte tuto možnost a při připojeném trenažéru klepněte na „Obnovit výchozí nastavení trenažéru“.</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Simulované zařízení (%1) je aktivní. Pokud to nebylo záměrné, vypněte ho v Nastavení.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Kolo</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Běžecký pás</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Eliptický trenažér</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Veslovací trenažér</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>

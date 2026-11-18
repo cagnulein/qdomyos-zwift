@@ -557,6 +557,25 @@ ApplicationWindow {
         id: toast
     }
 
+    Connections {
+        target: rootItem
+        ignoreUnknownSignals: true
+        function onFakeDeviceActivated(type) {
+            var deviceName
+            if (type === "bike")
+                deviceName = qsTr("Bike")
+            else if (type === "treadmill")
+                deviceName = qsTr("Treadmill")
+            else if (type === "elliptical")
+                deviceName = qsTr("Elliptical")
+            else if (type === "rower")
+                deviceName = qsTr("Rower")
+            else
+                return
+            toast.show(qsTr("Fake device (%1) is active. If this was unintentional, disable it in Settings.").arg(deviceName), 6000)
+        }
+    }
+
     property bool lapPromptVisible: false
     property string lapPromptText: ""
 

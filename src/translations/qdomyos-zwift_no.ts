@@ -4796,6 +4796,26 @@ Skal QZ få endre denne verdien?
 
 «Nei»: QZ slår på «Uten hjuldiameterprotokoll» (Innstillinger &gt; Sykkelalternativer &gt; Alternativer for Wahoo), og virtuelle gir virker via stigningen. Med «Ja» kan du angre dette senere samme sted: slå på dette alternativet og trykk på «Gjenopprett standardinnstilling på sykkelrullen» mens sykkelrullen er tilkoblet.</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Den simulerte enheten (%1) er aktiv. Hvis dette ikke var tilsiktet, deaktiver den i Innstillinger.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Sykkel</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Tredemølle</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Ellipsemaskin</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Romaskin</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>

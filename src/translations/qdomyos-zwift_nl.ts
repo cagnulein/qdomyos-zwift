@@ -4812,6 +4812,26 @@ Mag QZ deze waarde wijzigen?
 
 ‘Nee’: QZ schakelt ‘Zonder wieldiameterprotocol’ in (Instellingen &gt; Fietsopties &gt; Wahoo-opties) en virtuele versnellingen werken via het hellingspercentage. Met ‘Ja’ kun je dit later daar ongedaan maken: schakel die optie in en tik, terwijl de trainer verbonden is, op ‘Standaardinstelling van de trainer herstellen’.</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Het gesimuleerde apparaat (%1) is actief. Schakel het uit in Instellingen als dit niet de bedoeling is.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Fiets</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Loopband</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Crosstrainer</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Roeimachine</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>

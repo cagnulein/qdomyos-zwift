@@ -4646,6 +4646,26 @@ Dacă alegi Nu, QZ activează Without Wheel Diameter Protocol (Setări &gt; Opț
         <source>Services</source>
         <translation>Servicii</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Dispozitivul simulat (%1) este activ. Dacă acest lucru nu a fost intenționat, dezactivează-l din Setări.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Bicicletă</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Bandă de alergare</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Eliptică</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Aparat de vâslit</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
