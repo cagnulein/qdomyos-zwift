@@ -568,6 +568,12 @@ void kingsmithr2treadmill::serviceScanDone(void) {
         _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("00021234-0000-1000-8000-00805f9b34fb"));
         gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     }
+    if (!gattCommunicationChannelService) {
+        emit debug(QStringLiteral("Kingsmith BLE communication service not found; disconnecting"));
+        m_control->disconnectFromDevice();
+        return;
+    }
+
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
             &kingsmithr2treadmill::stateChanged);
     gattCommunicationChannelService->discoverDetails();
