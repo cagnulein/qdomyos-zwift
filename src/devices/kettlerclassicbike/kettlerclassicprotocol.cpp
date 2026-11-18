@@ -57,6 +57,16 @@ bool isValidCoachSHandshake(const QByteArray &payload) {
     return payload.size() == 18 && coachSHandshakeForSalt(payload.left(2)) == payload;
 }
 
+quint16 coachSStrokeWatts(const QByteArray &telemetryPayload) {
+    if (telemetryPayload.size() != 24 ||
+        static_cast<quint8>(telemetryPayload.at(0)) != 0x00 ||
+        static_cast<quint8>(telemetryPayload.at(1)) != 0x04) {
+        return 0;
+    }
+    return (static_cast<quint16>(static_cast<quint8>(telemetryPayload.at(6))) << 8) |
+           static_cast<quint8>(telemetryPayload.at(7));
+}
+
 quint16 coachSCandidateWatts(const QByteArray &telemetryPayload) {
     if (telemetryPayload.size() != 24 ||
         static_cast<quint8>(telemetryPayload.at(0)) != 0x00 ||
@@ -82,11 +92,10 @@ void CoachSStrokePowerSmoother::reset() {
     lastCompletedStrokeMs = -1;
     strokePeriodMs = 0;
     completedWatts = 0;
-    samples.clear();
 }
 
 int CoachSStrokePowerSmoother::inactivityTimeoutMs() const {
-    // Preserve slow recoveries, but never learn an unlimited idle period.
+    // Preserve the already hardware-tested cadence-adaptive stop semantics.
     return strokePeriodMs > 0 ? qBound(3000, strokePeriodMs * 3 / 2, 6500) : 3000;
 }
 
@@ -100,17 +109,15 @@ quint16 CoachSStrokePowerSmoother::value(qint64 nowMs) const {
 }
 
 quint16 CoachSStrokePowerSmoother::addSample(quint16 strokeCounter,
-                                            quint16 rawWatts, qint64 nowMs) {
+                                            quint16 consoleStrokeWatts, qint64 nowMs) {
     if (lastStrokeCounter < 0 || strokeCounter < lastStrokeCounter) {
+        // The console retains the previous completed watt value on reconnect.
+        // Treat the first counter value (or a console reset) as baseline only.
         reset();
         lastStrokeCounter = strokeCounter;
+        return 0;
     }
 
-    // A long coast must not accumulate an unbounded "stroke".
-    while (!samples.isEmpty() && nowMs - samples.first().timeMs > 6500)
-        samples.removeFirst();
-
-    bool boundarySampleUsed = false;
     if (strokeCounter > lastStrokeCounter) {
         const int increments = strokeCounter - lastStrokeCounter;
         if (lastCompletedStrokeMs >= 0) {
@@ -118,30 +125,12 @@ quint16 CoachSStrokePowerSmoother::addSample(quint16 strokeCounter,
             if (interval >= 500 && interval <= 6500)
                 strokePeriodMs = static_cast<int>(interval);
         }
-
-        // The counter increment, not a raw zero, completes the pull.
-        // Exclude zero values and samples too old to belong to this cycle.
-        quint64 sum = 0;
-        quint32 count = 0;
-        const int windowMs = inactivityTimeoutMs();
-        for (const Sample &sample : samples) {
-            if (nowMs - sample.timeMs <= windowMs) {
-                sum += sample.watts;
-                ++count;
-            }
-        }
-        completedWatts = count ? static_cast<quint16>((sum + count / 2) / count)
-                               : rawWatts;
-        boundarySampleUsed = count == 0;
-        samples.clear();
+        // Byte offsets 6-7 carry the physical console's stroke average.
+        // The candidate flywheel field (18-19) can stay positive for minutes.
+        completedWatts = consoleStrokeWatts;
         lastStrokeCounter = strokeCounter;
         lastCompletedStrokeMs = nowMs;
     }
-
-    // A boundary frame starts the next interval unless it was the only
-    // measured power for the completed stroke. Never publish mid-stroke.
-    if (rawWatts > 0 && !boundarySampleUsed)
-        samples.append(Sample{nowMs, rawWatts});
     return value(nowMs);
 }
 
@@ -149,24 +138,44 @@ void CoachSSessionCounters::reset() {
     initialized = false;
     previousStrokes = 0;
     previousMeters = 0;
+    distanceAnchorMeters = 0;
     clearWorkout();
 }
 
 void CoachSSessionCounters::clearWorkout() {
     sessionStrokes = 0;
     sessionMeters = 0;
+    // Starting a fresh workout must not re-credit uncommitted coasting.
+    if (initialized) distanceAnchorMeters = previousMeters;
 }
 
-bool CoachSSessionCounters::addSample(quint16 strokes, quint16 meters) {
+bool CoachSSessionCounters::addSample(quint16 strokes, quint16 meters, bool strokeActive) {
     const bool rebase = !initialized || strokes < previousStrokes || meters < previousMeters;
-    if (!rebase) {
-        sessionStrokes += strokes - previousStrokes;
-        sessionMeters += meters - previousMeters;
+    if (rebase) {
+        // Keep already credited session totals across a physical console reset.
+        // Never interpret an unsigned counter wrap as meters travelled.
+        initialized = true;
+        previousStrokes = strokes;
+        previousMeters = meters;
+        distanceAnchorMeters = meters;
+        return true;
     }
-    initialized = true;
+
+    if (strokes > previousStrokes) {
+        sessionStrokes += strokes - previousStrokes;
+        // Commit only the distance up to a *completed* stroke. Following
+        // flywheel motion without another stroke never changes QZ distance.
+        if (strokeActive && meters >= distanceAnchorMeters)
+            sessionMeters += meters - distanceAnchorMeters;
+        distanceAnchorMeters = meters;
+    } else if (!strokeActive) {
+        // Ignore handle nudges before the first stroke, and rebase distance
+        // accumulated by the freely spinning flywheel after an idle timeout.
+        distanceAnchorMeters = meters;
+    }
     previousStrokes = strokes;
     previousMeters = meters;
-    return rebase;
+    return false;
 }
 
 quint16 crc16(const QByteArray &data) {
