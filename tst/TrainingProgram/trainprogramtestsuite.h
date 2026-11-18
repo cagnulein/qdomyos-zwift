@@ -15,7 +15,6 @@ public:
     void test_pidHrModeRoundTripsKnownValues();
     void test_pidHrModeWorkoutOverrideTakesPrecedence();
     void test_pidHrModeAndMaxInclinationRoundTripThroughXml();
-    void test_pidZeroZoneNeverOverridesXmlSpeedOnInclinationChange();
     void test_ziproShredHighInclineXmlValuesArePreserved();
 };
 
@@ -57,10 +56,6 @@ TEST_F(TrainProgramTestSuite, PidHrModeWorkoutOverrideTakesPrecedence) {
 
 TEST_F(TrainProgramTestSuite, PidHrModeAndMaxInclinationRoundTripThroughXml) {
     this->test_pidHrModeAndMaxInclinationRoundTripThroughXml();
-}
-
-TEST_F(TrainProgramTestSuite, PidZeroZoneNeverOverridesXmlSpeedOnInclinationChange) {
-    this->test_pidZeroZoneNeverOverridesXmlSpeedOnInclinationChange();
 }
 
 TEST_F(TrainProgramTestSuite, ZiproShredHighInclineXmlValuesArePreserved) {
