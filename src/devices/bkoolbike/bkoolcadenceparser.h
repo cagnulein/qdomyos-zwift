@@ -23,7 +23,7 @@ inline quint32 readLe32(const QByteArray &data, int index) {
            (static_cast<quint32>(readLe16(data, index + 2)) << 16);
 }
 
-inline double parseCustomCadence(const QByteArray &data) {
+inline double parseCustomCadence(const QByteArray &data, bool fitnessBike) {
     if (data.size() != 5) {
         return -1.0;
     }
@@ -32,7 +32,10 @@ inline double parseCustomCadence(const QByteArray &data) {
         return 0.0;
     }
     const double cadence = raw / kCustomCadenceScale;
-    return cadence > 0.0 && cadence <= kMaxCadenceRpm ? cadence : -1.0;
+    // Keep the old <255 rpm acceptance for BKOOLSMARTPRO; the stricter
+    // ceiling is specific to the Smart Bike v1 data observed in the log.
+    const bool withinRange = fitnessBike ? cadence <= kMaxCadenceRpm : cadence < 255.0;
+    return cadence > 0.0 && withinRange ? cadence : -1.0;
 }
 
 struct Counter {
@@ -55,7 +58,7 @@ struct PowerSample {
 // crank fields are zero; wheel revolutions are not pedal revolutions.
 // Preserve the wheel counter for legacy virtual-device publication, but do
 // not infer *cadence* from it when crank data was advertised but empty.
-inline PowerSample parsePowerSample(const QByteArray &data, quint16 flags, int index) {
+inline PowerSample parsePowerSample(const QByteArray &data, quint16 flags, int index, bool fitnessBike) {
     PowerSample sample;
     if (index < 0 || index > data.size()) {
         return sample;
@@ -75,8 +78,10 @@ inline PowerSample parsePowerSample(const QByteArray &data, quint16 flags, int i
         sample.publicationCounter = wheel;
         sample.hasPublicationCounter = true;
         index += 6;
-        if (!hasCrank) {
-            sample.cadenceCounter = wheel; // preserve wheel-only legacy fallback
+        if (!hasCrank || !fitnessBike) {
+            // Legacy BKOOLSMARTPRO behavior: prefer the wheel counter even
+            // if crank data is advertised. The v1 fix is opt-in by model.
+            sample.cadenceCounter = wheel;
             sample.hasCadenceCounter = true;
         }
     }
@@ -89,8 +94,10 @@ inline PowerSample parsePowerSample(const QByteArray &data, quint16 flags, int i
         crank.revolutions = readLe16(data, index);
         crank.eventTime = readLe16(data, index + 2);
         if (hasWheel && crank.revolutions == 0 && crank.eventTime == 0) {
-            sample.emptyCrankFields = true;
-        } else {
+            sample.emptyCrankFields = fitnessBike;
+        } else if (fitnessBike || !hasWheel) {
+            // On v1 prefer the actual crank block. Non-v1 wheel+crank
+            // packets retain the original wheel-first behavior.
             sample.publicationCounter = crank;
             sample.hasPublicationCounter = true;
             sample.cadenceCounter = crank;
@@ -102,7 +109,8 @@ inline PowerSample parsePowerSample(const QByteArray &data, quint16 flags, int i
 
 // Returns -1 when there is no meaningful new cadence; caller keeps the last
 // valid sample or applies its existing 2-second stop timeout.
-inline double cadenceFromCounters(const Counter &previous, const Counter &current) {
+inline double cadenceFromCounters(const Counter &previous, const Counter &current,
+                                  double maxRpm = kMaxCadenceRpm) {
     if (previous.isWheel != current.isWheel) {
         return -1.0;
     }
@@ -116,7 +124,7 @@ inline double cadenceFromCounters(const Counter &previous, const Counter &curren
     const double tickRate = current.isWheel ? 2048.0 : 1024.0;
     const double cadence = static_cast<double>(deltaRevolutions) * tickRate * 60.0 /
                            static_cast<double>(deltaTime);
-    return cadence > 0.0 && cadence <= kMaxCadenceRpm ? cadence : -1.0;
+    return cadence > 0.0 && (maxRpm <= 0.0 || cadence <= maxRpm) ? cadence : -1.0;
 }
 
 } // namespace BkoolCadence
