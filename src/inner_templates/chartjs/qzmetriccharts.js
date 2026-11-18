@@ -1,4 +1,4 @@
-// Modern look (fork only): the metrics of a workout - power, speed, incline, resistance,
+// The metrics of a workout - power, speed, incline, resistance,
 // cadence - each on its own small chart with its own scale, one under another. The chips at
 // the top right put the ticked metrics (two or more) together on one shared chart above the
 // others; the choice is kept per page. The workout preview and the workout editor give it
@@ -11,10 +11,9 @@
 // A series: key, label, unit, color ('#rrggbb'), points ({x seconds, y; openEnded and
 // segmentLabel of an open ended step}), stepped, floor - values below it mean "not set" and
 // leave a gap (0 by default, the incline goes down to -50). A series without a set value is
-// not drawn. Options: storageKey; make(ctx, config) and restyle(chart, config) - how the page
-// makes and redraws a chart (qzChartTheme on the preview, new Chart by default); colors() -
-// {tick, grid, title} of the axes (neutral greys by default, which qzChartTheme repaints for
-// the dark theme); timeTitle() - the title of the time axis under the last chart.
+// not drawn. Options: storageKey; colors() - {tick, grid, title} of the axes (neutral greys for
+// a light page by default; the workout editor gives light ones for its dark page); timeTitle() -
+// the title of the time axis under the last chart.
 (function () {
     var STYLE = ''
         + '.qzmc-host{display:flex;flex-direction:column;gap:8px;min-height:0}'
@@ -113,10 +112,6 @@
             var charts = []; // {group: [keys], chart, box}
             var layout = '';
 
-            function make(ctx, config) {
-                return options.make ? options.make(ctx, config) : new Chart(ctx, config);
-            }
-
             function colors() {
                 return Object.assign({ tick: '#666', grid: 'rgba(0, 0, 0, 0.05)', title: '#666' },
                                      options.colors ? options.colors() : {});
@@ -126,8 +121,7 @@
                 return options.timeTitle ? options.timeTitle() : 'Time';
             }
 
-            // The first axis is "y": qzChartTheme styles the x and y scales of every chart and
-            // would add a stray default y axis to a chart without one
+            // The axes of a shared chart: the first keeps the usual id "y", the next ones y1, y2...
             function axisId(i) {
                 return i ? 'y' + i : 'y';
             }
@@ -295,7 +289,7 @@
                         var canvas = document.createElement('canvas');
                         box.appendChild(canvas);
                         list.appendChild(box);
-                        var chart = make(canvas.getContext('2d'), config(group, i === plan.length - 1));
+                        var chart = new Chart(canvas.getContext('2d'), config(group, i === plan.length - 1));
                         charts.push({ chart: chart, box: box });
                     });
                     return;
@@ -305,9 +299,6 @@
                     var fresh = config(group, i === plan.length - 1);
                     chart.config.data.datasets = fresh.data.datasets;
                     chart.config.options.scales = fresh.options.scales;
-                    if (options.restyle) {
-                        options.restyle(chart, { options: chart.config.options, data: chart.config.data });
-                    }
                     chart.update('none');
                 });
             }
@@ -316,14 +307,6 @@
                 update: function (next) {
                     payload = next;
                     draw(false);
-                },
-                // Redraw in the current colours (the page theme changed)
-                refresh: function () {
-                    draw(true);
-                },
-                // How many charts are drawn (the page sizes itself by it)
-                count: function () {
-                    return charts.length;
                 }
             };
         }

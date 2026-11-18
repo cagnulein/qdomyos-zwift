@@ -44,6 +44,11 @@
             padding: 10px;
         }
 
+        /* modern look: no padding above and below the card, so it takes the whole view */
+        body.modern #chart-container {
+            min-height: 100vh;
+        }
+
         canvas {
             width: 100% !important;
             height: 100% !important;
