@@ -370,14 +370,19 @@ void kettlercoachrower::processTelemetry(const QByteArray &payload) {
     const quint16 strokes = be16(payload, 2);
     const quint16 meters = be16(payload, 16);
     const quint16 rawWatts = kettlerclassicprotocol::coachSCandidateWatts(payload);
+    const quint16 consoleStrokeWatts = kettlerclassicprotocol::coachSStrokeWatts(payload);
+    const bool completedStroke = sessionCounters.hasSample() &&
+                                 strokes > sessionCounters.rawStrokes();
+    const bool strokeActive = strokePower.active(nowMs) || completedStroke;
 
-    // Initial frame or console reset: no previous session counts or
-    // impossible speed across a counter reset.
-    if (sessionCounters.addSample(strokes, meters))
+    // The physical console's distance can advance without new strokes.
+    // A stroke boundary commits the distance, whereas an idle sample rebases
+    // the raw counter. Keep the validated raw-counter pace path unchanged.
+    if (sessionCounters.addSample(strokes, meters, strokeActive))
         resetStrokeMetrics();
 
     updateStrokeIdle(nowMs);
-    currentWatts = strokePower.addSample(strokes, rawWatts, nowMs);
+    currentWatts = strokePower.addSample(strokes, consoleStrokeWatts, nowMs);
     m_watt = currentWatts;
     recordReportedResistance(kettlerclassicprotocol::coachSReportedResistance(payload),
                              "E0 byte 23");
@@ -415,10 +420,11 @@ void kettlercoachrower::processTelemetry(const QByteArray &payload) {
     StrokesCount = static_cast<double>(sessionCounters.strokes());
     Distance = sessionCounters.meters() / 1000.0;
     Distance1s = sessionCounters.meters() / 1000.0;
-    emit debug(QStringLiteral("Coach S e0 counters strokes=%1 distanceCandidate=%2 powerCandidate=%3 smoothedWatts=%4 fields=%5 sessionStrokes=%6 sessionMeters=%7")
+    emit debug(QStringLiteral("Coach S e0 counters strokes=%1 distanceCandidate=%2 powerCandidate=%3 smoothedWatts=%4 fields=%5 sessionStrokes=%6 sessionMeters=%7 consoleStrokeWatts=%8")
                    .arg(strokes).arg(meters).arg(rawWatts).arg(currentWatts)
                    .arg(QString::fromLatin1(payload.toHex(' ')))
-                   .arg(sessionCounters.strokes()).arg(sessionCounters.meters()));
+                   .arg(sessionCounters.strokes()).arg(sessionCounters.meters())
+                   .arg(consoleStrokeWatts));
 }
 
 void kettlercoachrower::recordReportedResistance(quint8 level, const char *source) {
