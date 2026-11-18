@@ -32,7 +32,11 @@
   <script>    
     // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
     const viewer = new Cesium.Viewer('cesiumContainer', {
-      terrainProvider: Cesium.createWorldTerrain()
+      terrainProvider: Cesium.createWorldTerrain(),
+      // No "?" button: Cesium cannot remember in localStorage that its help was shown (null in
+      // the Android WebView, a new port on every start), so the mouse help opened by itself at
+      // every app start, over the top of the map, in English only.
+      navigationHelpButton: false
     });
 
     $('.cesium-viewer-animationContainer').css("visibility", "hidden");
