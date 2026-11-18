@@ -27,6 +27,7 @@
 #include <QString>
 
 #include "devices/bike.h"
+#include "bkoolcadenceparser.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -77,6 +78,10 @@ class bkoolbike : public bike {
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;
     uint16_t CrankRevsRead = 0;
+
+    // Separate from CSC (0x2A5B), which has its own counter state.
+    BkoolCadence::Counter powerCadencePrevious;
+    bool powerCadenceBaselineValid = false;
 
     double lastGearValue = -1;
 
