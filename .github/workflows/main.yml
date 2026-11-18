@@ -1314,6 +1314,11 @@ jobs:
             # Accessibility stress test: the tile settings page opened and closed 40 times while the
             # tree is read without pause, then accessibility turned on and off 20 times
             sh .github/scripts/android_accessibility_stress_test.sh 40 20
+            # TalkBack regression: without touching the screen, focusing Community must not open Chrome.
+            # Settings must activate through ACTION_CLICK (not a fallback finger tap); then the
+            # first and last settings sections must be focusable, scroll into view and open.
+            # --fake-bike starts QZ from home with a reproducible emulator configuration.
+            sh .github/scripts/android_accessibility_test.sh --fake-bike Main_menu=Settings focus:Community focus:Settings Settings=General_Options focus:General_Options General_Options=App_Language: focus:Experimental_Features Experimental_Features=Gym_Mode
 
             # Keep the email integration test LAST: it intentionally opens an
             # Android resolver / fake mail Activity and should not leave QZ's
