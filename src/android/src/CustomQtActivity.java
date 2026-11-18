@@ -31,6 +31,8 @@ import android.view.Window;
 import android.view.WindowInsetsController;
 import android.view.DisplayCutout;
 import android.graphics.Insets;
+import org.qtproject.qt5.android.QtActivityDelegate;
+import org.qtproject.qt5.android.QtNative;
 import org.qtproject.qt5.android.bindings.QtActivity;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -125,6 +127,12 @@ public class CustomQtActivity extends QtActivity {
     // (a back gesture or press the user aborted) is dropped too, so it no longer goes back.
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+            // A keyboard on the screen takes Back before the activity; here it is gone, unless the
+            // insets still show it. Tell Qt before it decides whether this Back only hides it
+            // (see the keyboard listener in onCreate)
+            keyboardHiddenByInsets();
+        }
         if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && !injectingBackKey) {
             if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
                 backDownSentToQt = true;
@@ -139,6 +147,21 @@ public class CustomQtActivity extends QtActivity {
             }
         }
         return super.dispatchKeyEvent(event);
+    }
+
+    // API 30+: when the window insets show no keyboard, Qt is told it is hidden
+    private void keyboardHiddenByInsets() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            return;
+        }
+        WindowInsets insets = getWindow().getDecorView().getRootWindowInsets();
+        if (insets == null || insets.isVisible(WindowInsets.Type.ime())) {
+            return;
+        }
+        QtActivityDelegate delegate = QtNative.activityDelegate();
+        if (delegate != null) {
+            delegate.setKeyboardVisibility(false, System.nanoTime());
+        }
     }
 
     private void registerBackCallback() {
@@ -674,6 +697,42 @@ public class CustomQtActivity extends QtActivity {
                         watchWebViews(getWindow().getDecorView());
                     }
                 });
+
+        // Qt 5.15 learns that the user closed the keyboard (its own hide key, or the back key, which
+        // the keyboard takes) only from a guess: 100 ms after finishComposingText, which Qt takes as
+        // the connection closing, the screen height minus the visible frame must be under 100 px
+        // (HideKeyboardRunnable, QtInputConnection.java). The guess misses on Android 15 and 16 and
+        // on some older devices; then Qt keeps the keyboard "visible" and spends the next Back on
+        // hiding it (QtActivityDelegate onKeyDown/onKeyUp): the user has to press Back twice.
+        // Qt 6 follows the keyboard by WindowInsets.isVisible(ime()) on API 30+ (qtbase 33cf82c13d,
+        // QTBUG-98984), from a global layout listener (f3a51f8b38, QTBUG-141908); the same here, in
+        // both directions. Qt 5.15's own updates stay (they cannot be switched off as in Qt 6,
+        // 21616e1447) and the time stamps keep the latest; a late one of them saying "visible" is
+        // undone on the next Back (keyboardHiddenByInsets() in dispatchKeyEvent).
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            final View imeRoot = getWindow().getDecorView();
+            imeRoot.getViewTreeObserver().addOnGlobalLayoutListener(
+                    new ViewTreeObserver.OnGlobalLayoutListener() {
+                        private boolean imeWasVisible = false;
+
+                        @Override
+                        public void onGlobalLayout() {
+                            WindowInsets insets = imeRoot.getRootWindowInsets();
+                            if (insets == null) {
+                                return;
+                            }
+                            boolean imeVisible = insets.isVisible(WindowInsets.Type.ime());
+                            if (imeVisible == imeWasVisible) {
+                                return;
+                            }
+                            imeWasVisible = imeVisible;
+                            QtActivityDelegate delegate = QtNative.activityDelegate();
+                            if (delegate != null) {
+                                delegate.setKeyboardVisibility(imeVisible, System.nanoTime());
+                            }
+                        }
+                    });
+        }
 
         // Make the window truly edge-to-edge so the app renders into ALL screen areas
         // including the display cutout (punch-hole/notch) on all 4 rotation variants.
