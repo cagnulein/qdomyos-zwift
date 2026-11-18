@@ -32,7 +32,23 @@ jkfitness10800treadmill::jkfitness10800treadmill(bool noConsole, bool noHeartSer
     heartbeatTimer.setInterval(1000);
     connect(&heartbeatTimer, &QTimer::timeout, this, &jkfitness10800treadmill::sendHeartbeat);
     startupSettleTimer.setSingleShot(true);
-    connect(&startupSettleTimer, &QTimer::timeout, this, &jkfitness10800treadmill::advanceDiscoveryQuery);
+    connect(&startupSettleTimer, &QTimer::timeout, this, [this]() {
+        if (!socket || socket->state() != QBluetoothSocket::ConnectedState) return;
+        if (!nativeStartupComplete) {
+            // RunOnEarth sends this burst without waiting for individual ACKs.
+            for (const QByteArray &frame : jkfitness10800protocol::initializationFrames())
+                writeFrame(frame, QStringLiteral("native discovery query"));
+            nativeStartupComplete = true;
+            startupSettleTimer.start(2000);
+            return;
+        }
+        emit debug(QStringLiteral("Native discovery settled: type=") + QString::number(protocolDeviceType) +
+                   (deviceTypeKnown ? QStringLiteral(" (reported)") : QStringLiteral(" (APK default)")) +
+                   QStringLiteral(" units=") + QString::number(units) +
+                   (unitsKnown ? QStringLiteral(" (reported)") : QStringLiteral(" (APK default)")));
+        discoverySettled = true;
+        updateReadyState();
+    });
     startSequenceTimer.setSingleShot(true);
     connect(&startSequenceTimer, &QTimer::timeout, this, &jkfitness10800treadmill::sendNextStartFrame);
 }
@@ -130,58 +146,25 @@ void jkfitness10800treadmill::rfCommConnected() {
     resetConnectionState();
     sendHeartbeat();
     heartbeatTimer.start();
-    for (const QByteArray &frame : jkfitness10800protocol::initializationFrames())
-        discoveryQueries.enqueue(frame);
     startupSettleTimer.start(700);
 }
 
-
-void jkfitness10800treadmill::advanceDiscoveryQuery() {
-    if (!socket || socket->state() != QBluetoothSocket::ConnectedState) return;
-    if (!pendingDiscoveryQuery.isEmpty()) {
-        const quint8 opcode = static_cast<quint8>(pendingDiscoveryQuery.at(1));
-        const bool required = opcode == 0x0c || opcode == 0xbb;
-        emit debug(QStringLiteral("Discovery query timeout opcode=0x") + QString::number(opcode, 16) +
-                   QStringLiteral(" attempt=") + QString::number(discoveryAttempts));
-        if (required && discoveryAttempts < 3) {
-            ++discoveryAttempts;
-            writeFrame(pendingDiscoveryQuery, QStringLiteral("discovery retry attempt=") +
-                       QString::number(discoveryAttempts));
-            startupSettleTimer.start(1500);
-            return;
-        }
-        pendingDiscoveryQuery.clear();
-    }
-    while (!discoveryQueries.isEmpty()) {
-        const QByteArray frame = discoveryQueries.dequeue();
-        const quint8 opcode = static_cast<quint8>(frame.at(1));
-        if ((opcode == 0x0c && unitsKnown) || (opcode == 0xbb && deviceTypeKnown)) continue;
-        pendingDiscoveryQuery = frame;
-        discoveryAttempts = 1;
-        writeFrame(frame, QStringLiteral("discovery query attempt=1"));
-        startupSettleTimer.start(1500);
-        return;
-    }
-    emit debug(QStringLiteral("Discovery queries finished: typeKnown=") + QString::number(deviceTypeKnown) +
-               QStringLiteral(" unitsKnown=") + QString::number(unitsKnown));
-    if (!initDone)
-        emit debug(QStringLiteral("JK Fitness initialization incomplete; controls disabled. Missing or unsupported type/units."));
-}
-
-void jkfitness10800treadmill::completeDiscoveryQuery(quint8 opcode) {
-    if (pendingDiscoveryQuery.isEmpty() ||
-        static_cast<quint8>(pendingDiscoveryQuery.at(1)) != opcode) return;
-    emit debug(QStringLiteral("Discovery response matched opcode=0x") + QString::number(opcode, 16));
-    pendingDiscoveryQuery.clear();
-    // Defer the next write until all frames in this RX chunk have been processed.
-    startupSettleTimer.start(200);
-}
 
 void jkfitness10800treadmill::sendHeartbeat() {
     writeFrame(jkfitness10800protocol::heartbeatFrame(), QStringLiteral("native heartbeat"));
 }
 
 void jkfitness10800treadmill::sendNextStartFrame() {
+    if (startWaitingForRunning) {
+        startWaitingForRunning = false;
+        startSequenceQueue.clear();
+        requestStart = -1;
+        requestSpeed = -1;
+        requestInclination = -100;
+        emit debug(QStringLiteral("Start timed out waiting for console running state; sequence cancelled"));
+        writeFrame(jkfitness10800protocol::stopFrame(), QStringLiteral("stop after start timeout"));
+        return;
+    }
     if (requestStop != -1) {
         startSequenceQueue.clear();
         startWaitingForRunning = false;
@@ -193,16 +176,24 @@ void jkfitness10800treadmill::sendNextStartFrame() {
         return;
     }
     const QByteArray frame = startSequenceQueue.dequeue();
-    writeFrame(frame, QStringLiteral("native type-2 start sequence"));
     if (frame == QByteArray::fromHex("55080101")) {
+        // Arm before writing so a prompt running reply cannot be lost.
         startWaitingForRunning = true;
+        startSequenceTimer.start(10000);
+        writeFrame(frame, QStringLiteral("native type-2 start enable; waiting for running state"));
         return;
     }
+    writeFrame(frame, QStringLiteral("native type-2 start sequence"));
     if (!startSequenceQueue.isEmpty()) startSequenceTimer.start(600);
 }
 
 void jkfitness10800treadmill::updateReadyState() {
-    if (!deviceTypeKnown || !unitsKnown || protocolDeviceType != 2 || connectedSignalEmitted) return;
+    if (!discoverySettled || protocolDeviceType != 2 || connectedSignalEmitted) return;
+    // Do not replay button presses queued while the connection was initializing.
+    requestStart = -1;
+    requestStop = -1;
+    requestSpeed = -1;
+    requestInclination = -100;
     initDone = true;
     connectedSignalEmitted = true;
     emit connectedAndDiscovered();
@@ -236,9 +227,6 @@ void jkfitness10800treadmill::readSocket() {
         emit debug(QStringLiteral("<< ") + frame.raw.toHex(' ') + QStringLiteral(" // opcode=0x") +
                    QString::number(frame.opcode, 16));
         processFrame(frame.raw);
-        // Heartbeat/status traffic must not complete the required identification queries.
-        if (frame.opcode != 0x0c && frame.opcode != 0xbb)
-            completeDiscoveryQuery(frame.opcode);
     }
 }
 
@@ -249,7 +237,6 @@ void jkfitness10800treadmill::processFrame(const QByteArray &frame) {
     if (jkfitness10800protocol::decodeDeviceType(frame, discoveredValue)) {
         protocolDeviceType = discoveredValue;
         deviceTypeKnown = true;
-        completeDiscoveryQuery(0xbb);
         emit debug(QStringLiteral("Protocol device type discovered: ") + QString::number(protocolDeviceType));
         if (protocolDeviceType != 2) {
             initDone = false;
@@ -266,7 +253,6 @@ void jkfitness10800treadmill::processFrame(const QByteArray &frame) {
     if (jkfitness10800protocol::decodeUnits(frame, discoveredValue)) {
         units = discoveredValue;
         unitsKnown = true;
-        completeDiscoveryQuery(0x0c);
         emit debug(QStringLiteral("Protocol speed units discovered: ") + QString::number(units));
         updateReadyState();
         if (deviceTypeKnown && protocolDeviceType == 2) {
@@ -275,11 +261,11 @@ void jkfitness10800treadmill::processFrame(const QByteArray &frame) {
         return;
     }
     if (jkfitness10800protocol::isRetryDeviceTypeQuery(frame)) {
-        // The discovery timer bounds retries; do not flood the console on empty replies.
-        emit debug(QStringLiteral("Device type retry requested; awaiting bounded discovery retry"));
+        if (deviceTypeRetries++ < 3)
+            writeFrame(QByteArray::fromHex("55bb01ff"), QStringLiteral("native device type retry"));
         return;
     }
-    const bool typeTwoStopped = deviceTypeKnown && protocolDeviceType == 2 && frame == QByteArray::fromHex("550b0101");
+    const bool typeTwoStopped = protocolDeviceType == 2 && frame == QByteArray::fromHex("550b0101");
     if (jkfitness10800protocol::isConsoleState(frame, running, paused) || typeTwoStopped) {
         if (typeTwoStopped) running = false;
         if (running && startWaitingForRunning) {
@@ -320,7 +306,7 @@ void jkfitness10800treadmill::processFrame(const QByteArray &frame) {
 
     double speed = 0.0;
     double incline = 0.0;
-    if (!deviceTypeKnown || !unitsKnown || protocolDeviceType != 2 ||
+    if (protocolDeviceType != 2 ||
         !jkfitness10800protocol::decodeTelemetry(frame, protocolDeviceType, units, speed, incline)) {
         return;
     }
@@ -348,8 +334,7 @@ void jkfitness10800treadmill::processFrame(const QByteArray &frame) {
 }
 
 void jkfitness10800treadmill::update() {
-    if (!socket || socket->state() != QBluetoothSocket::ConnectedState || !initDone || !deviceTypeKnown ||
-        !unitsKnown || protocolDeviceType != 2) {
+    if (!socket || socket->state() != QBluetoothSocket::ConnectedState || !initDone || protocolDeviceType != 2) {
         return;
     }
 
@@ -454,9 +439,9 @@ void jkfitness10800treadmill::onSocketErrorOccurred(QBluetoothSocket::SocketErro
 void jkfitness10800treadmill::resetConnectionState() {
     heartbeatTimer.stop();
     startupSettleTimer.stop();
-    discoveryQueries.clear();
-    pendingDiscoveryQuery.clear();
-    discoveryAttempts = 0;
+    nativeStartupComplete = false;
+    discoverySettled = false;
+    deviceTypeRetries = 0;
     startSequenceTimer.stop();
     startSequenceQueue.clear();
     startWaitingForRunning = false;
@@ -475,6 +460,5 @@ void jkfitness10800treadmill::resetConnectionState() {
 }
 
 bool jkfitness10800treadmill::connected() {
-    return socket && socket->state() == QBluetoothSocket::ConnectedState && deviceTypeKnown && unitsKnown &&
-           protocolDeviceType == 2 && initDone;
+    return socket && socket->state() == QBluetoothSocket::ConnectedState && protocolDeviceType == 2 && initDone;
 }

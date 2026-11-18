@@ -13,6 +13,7 @@
 
 class jkfitness10800treadmill : public treadmill {
     Q_OBJECT
+    friend class JkFitness10800HandshakeTestPeer;
 
   public:
     explicit jkfitness10800treadmill(bool noConsole = false, bool noHeartService = false);
@@ -48,8 +49,6 @@ class jkfitness10800treadmill : public treadmill {
 
   private:
     void createSocket();
-    void advanceDiscoveryQuery();
-    void completeDiscoveryQuery(quint8 opcode);
     void writeFrame(const QByteArray &frame, const QString &info);
     void processFrame(const QByteArray &frame);
     void resetConnectionState();
@@ -75,9 +74,9 @@ class jkfitness10800treadmill : public treadmill {
     QBluetoothSocket *socket = nullptr;
     QByteArray socketReadBuffer;
     QQueue<QByteArray> startSequenceQueue;
-    QQueue<QByteArray> discoveryQueries;
-    QByteArray pendingDiscoveryQuery;
-    int discoveryAttempts = 0;
+    bool nativeStartupComplete = false;
+    bool discoverySettled = false;
+    int deviceTypeRetries = 0;
 
     QTimer *refresh = nullptr;
     QTimer heartbeatTimer;

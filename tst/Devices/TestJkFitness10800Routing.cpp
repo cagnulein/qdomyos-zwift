@@ -53,3 +53,60 @@ TEST(JkFitness10800Routing, RequiresBhSpadaCompatibilityAndMatchesModelPrefix) {
 
     testSettings.deactivate();
 }
+
+// Exercise the real driver state transitions without a Bluetooth adapter.
+class JkFitness10800HandshakeTestPeer {
+  public:
+    static void defaultsAndDiscovery() {
+        jkfitness10800treadmill driver;
+        driver.updateReadyState();
+        EXPECT_FALSE(driver.initDone);
+        driver.processFrame(QByteArray::fromHex("551e0101"));
+        driver.processFrame(QByteArray::fromHex("55c0020ac1"));
+        EXPECT_FALSE(driver.initDone);
+        driver.requestStart = 1;
+        driver.discoverySettled = true;
+        driver.updateReadyState();
+        EXPECT_TRUE(driver.initDone);
+        EXPECT_FALSE(driver.deviceTypeKnown);
+        EXPECT_FALSE(driver.unitsKnown);
+        EXPECT_EQ(driver.protocolDeviceType, 2);
+        EXPECT_EQ(driver.units, 0);
+        EXPECT_EQ(driver.requestStart, -1);
+        driver.processFrame(QByteArray::fromHex("550d0a00000000000008320600"));
+        EXPECT_DOUBLE_EQ(driver.currentSpeed().value(), 8.5);
+        driver.processFrame(QByteArray::fromHex("550c0101"));
+        EXPECT_TRUE(driver.unitsKnown);
+        EXPECT_EQ(driver.units, 1);
+        driver.resetConnectionState();
+        EXPECT_FALSE(driver.initDone);
+        EXPECT_FALSE(driver.discoverySettled);
+        EXPECT_FALSE(driver.nativeStartupComplete);
+        EXPECT_EQ(driver.units, 0);
+    }
+    static void unsupportedTypeAndTimeout() {
+        jkfitness10800treadmill driver;
+        driver.discoverySettled = true;
+        driver.updateReadyState();
+        driver.startSequenceQueue.enqueue(QByteArray::fromHex("550a0101"));
+        driver.processFrame(QByteArray::fromHex("55bb0101"));
+        EXPECT_FALSE(driver.initDone);
+        EXPECT_TRUE(driver.startSequenceQueue.isEmpty());
+        driver.resetConnectionState();
+        driver.startWaitingForRunning = true;
+        driver.requestSpeed = 4;
+        driver.startSequenceQueue.enqueue(QByteArray::fromHex("550a0101"));
+        driver.sendNextStartFrame();
+        EXPECT_FALSE(driver.startWaitingForRunning);
+        EXPECT_TRUE(driver.startSequenceQueue.isEmpty());
+        EXPECT_EQ(driver.requestSpeed, -1);
+    }
+};
+
+TEST(JkFitness10800Handshake, UsesApkDefaultsOnlyAfterDiscoverySettles) {
+    JkFitness10800HandshakeTestPeer::defaultsAndDiscovery();
+}
+
+TEST(JkFitness10800Handshake, RejectsReportedNonTreadmillAndCancelsTimedOutStart) {
+    JkFitness10800HandshakeTestPeer::unsupportedTypeAndTimeout();
+}
