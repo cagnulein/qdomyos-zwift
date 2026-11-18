@@ -575,8 +575,7 @@ void kingsmithr2treadmill::serviceScanDone(void) {
         if (missingCommunicationServiceCount < 3 && ++missingCommunicationServiceCount == 3 &&
             homeform::singleton()) {
             homeform::singleton()->setToastRequested(
-                QObject::tr("Kingsmith treadmill Bluetooth service unavailable. Retrying connection; if the "
-                            "problem persists, restart the treadmill."));
+                QObject::tr("Kingsmith treadmill Bluetooth service unavailable. Retrying connection; if the problem persists, restart the treadmill."));
         }
         m_control->disconnectFromDevice();
         return;
