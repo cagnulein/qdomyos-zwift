@@ -203,7 +203,11 @@
                                     title: function (items) { return items.length ? clock(items[0].parsed.x) : ''; },
                                     label: function (item) {
                                         var ds = item.dataset;
-                                        var text = ds.label + ': ' + Math.round(item.parsed.y * 10) / 10;
+                                        // The number as the axis writes it (Chart.js formats ticks
+                                        // by the page locale): "9,7", not "9.7", where comma is the
+                                        // decimal mark
+                                        var value = Math.round(item.parsed.y * 10) / 10;
+                                        var text = ds.label + ': ' + value.toLocaleString(item.chart.options.locale);
                                         if (ds.unit) {
                                             text += ' ' + ds.unit;
                                         }
