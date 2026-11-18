@@ -106,11 +106,11 @@
         function metricSeries(workoutData, deviceType) {
             const seconds = workoutData.watts.length;
             const all = {
-                power: { key: 'power', label: tq('workoutEditor.power', 'Power'), unit: 'W', color: '#3b82f6', points: workoutData.watts },
-                speed: { key: 'speed', label: tq('workoutEditor.speed', 'Speed'), unit: miles === 1 ? 'km/h' : 'mph', color: '#06b6d4', points: speedPoints(workoutData.speed) },
+                power: { key: 'power', label: tq('workoutEditor.power', 'Power'), unit: tq('unit.w', 'W'), color: '#3b82f6', points: workoutData.watts },
+                speed: { key: 'speed', label: tq('workoutEditor.speed', 'Speed'), unit: miles === 1 ? tq('unit.kmh', 'km/h') : tq('unit.mph', 'mph'), color: '#06b6d4', points: speedPoints(workoutData.speed) },
                 inclination: { key: 'inclination', label: tq('workoutEditor.incline', 'Incline'), unit: '%', color: '#10b981', points: everySecond(workoutData.inclination, seconds), floor: -50 },
                 resistance: { key: 'resistance', label: tq('workoutEditor.resistance', 'Resistance'), unit: '', color: '#8b5cf6', points: workoutData.resistance },
-                cadence: { key: 'cadence', label: tq('workoutEditor.cadence', 'Cadence'), unit: 'rpm', color: '#f59e0b', points: workoutData.cadence }
+                cadence: { key: 'cadence', label: tq('workoutEditor.cadence', 'Cadence'), unit: tq('unit.rpm', 'rpm'), color: '#f59e0b', points: workoutData.cadence }
             };
             // The device's own metrics first
             const order = deviceType === 'treadmill'
