@@ -1448,6 +1448,7 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::ToorxAppGateUSBBike)
         ->expectDevice<trxappgateusbbike>()        
         ->acceptDeviceNames({"TUN ","PASYOU-","IBIKING+",}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceNames({"CARE11216+0505", "CARE11216+X"}, DeviceNameComparison::IgnoreCase)
         ->configureSettingsWith(
             [](const DeviceDiscoveryInfo &info, bool enable, std::vector<DeviceDiscoveryInfo> &configurations) -> void
             {
@@ -1477,7 +1478,6 @@ void DeviceTestDataIndex::Initialize() {
                              "VIFHTR2.1",
                              "REEBOK",
                              "DKN MOTION"}, DeviceNameComparison::StartsWithIgnoreCase)
-        ->acceptDeviceName("CARE11216+0505", DeviceNameComparison::IgnoreCase)
         ->acceptDeviceName("CR011R", DeviceNameComparison::IgnoreCase)
         ->acceptDeviceNames({"CR011R", "xCR011R"}, DeviceNameComparison::StartsWithIgnoreCase) // a contains relationship
         ->configureSettingsWith(
