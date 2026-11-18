@@ -1129,6 +1129,14 @@ Vill du uppdatera QZ-inställningarna?</translation>
         <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
         <translation>%1 (pulssensor) hittades inte. Kontrollera att den är på och sänder pulsdata.</translation>
     </message>
+    <message>
+        <source>DirCon port %1 is already in use. Check Fake Device settings or other apps, then restart QZ.</source>
+        <translation>DirCon-port %1 används redan. Kontrollera inställningarna för simulerade enheter eller andra appar och starta om QZ.</translation>
+    </message>
+    <message>
+        <source>DirCon could not start on port %1. Check the QZ Debug Log for details.</source>
+        <translation>DirCon kunde inte starta på port %1. Se QZ:s felsökningslogg för mer information.</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
