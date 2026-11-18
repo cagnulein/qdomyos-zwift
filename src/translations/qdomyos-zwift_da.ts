@@ -1129,6 +1129,10 @@ Vil du opdatere QZ-indstillingerne?</translation>
         <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
         <translation>%1 (pulssensor) blev ikke fundet. Sørg for, at den er tændt og udsender pulsmålinger.</translation>
     </message>
+    <message>
+        <source>Kingsmith treadmill Bluetooth service unavailable. Retrying connection; if the problem persists, restart the treadmill.</source>
+        <translation>Bluetooth-tjenesten på Kingsmith-løbebåndet er ikke tilgængelig. Forsøger at oprette forbindelse igen; genstart løbebåndet, hvis problemet fortsætter.</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
