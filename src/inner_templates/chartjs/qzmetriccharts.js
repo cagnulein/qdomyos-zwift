@@ -19,25 +19,30 @@
 // a light page by default; the workout editor gives light ones for its dark page); timeTitle() -
 // the title of the time axis under the last chart; caption() - the words before the chips.
 (function () {
+    // Spacing by margins, not the flex gap: the WebView of the older Android consoles predates
+    // Chrome 84, which brought gap to flex (the API 30 emulator has WebView 83)
     var STYLE = ''
-        + '.qzmc-host{display:flex;flex-direction:column;gap:8px;min-height:0}'
-        + '.qzmc-bar{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:8px}'
+        + '.qzmc-host{display:flex;flex-direction:column;min-height:0}'
+        + '.qzmc-bar{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;margin:-4px 0 4px}'
+        + '.qzmc-bar>*{margin:4px 0 4px 8px}'
         + '.qzmc-bar:empty{display:none}'
         + '.qzmc-caption{font-size:13px;opacity:.7;margin-right:2px}'
         // Material 3 filter chips: 32px high, corner 8px, an outline when off, a tonal fill and a
         // check when on; the touch area reaches 8px above and below the chip
-        + '.qzmc-chip{position:relative;display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px 0 8px;'
+        + '.qzmc-chip{position:relative;display:inline-flex;align-items:center;height:32px;padding:0 12px 0 8px;'
         + 'border:1px solid var(--qzmc-outline);border-radius:8px;background:transparent;color:inherit;font-family:inherit;font-size:14px;font-weight:500;line-height:1;'
         + 'cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}'
         + '.qzmc-chip:hover{border-color:var(--qzmc-outline)}'
         + '.qzmc-chip::after{content:"";position:absolute;left:0;right:0;top:-8px;bottom:-8px}'
         + '.qzmc-dot{width:10px;height:10px;border-radius:50%;margin:0 2px}'
         + '.qzmc-check{display:none;width:18px;height:18px}'
+        + '.qzmc-chip>:last-child{margin-left:6px}'
         + '.qzmc-chip[aria-pressed="true"]{border-color:transparent;background:var(--qzmc-tonal)}'
         + '.qzmc-chip[aria-pressed="true"] .qzmc-dot{display:none}'
         + '.qzmc-chip[aria-pressed="true"] .qzmc-check{display:block}'
-        + '.qzmc-list{display:flex;flex-direction:column;gap:8px;flex:1 1 auto;min-height:0}'
+        + '.qzmc-list{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}'
         + '.qzmc-box{position:relative;flex:1 1 0;min-height:140px}'
+        + '.qzmc-box+.qzmc-box{margin-top:8px}'
         + '.qzmc-box canvas{width:100%!important;height:100%!important}';
 
     function injectStyle() {
