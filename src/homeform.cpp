@@ -8705,11 +8705,7 @@ void homeform::update() {
             }
 
             if (bluetoothManager->device()->deviceType() == TREADMILL &&
-                trainprogram::shouldCompensateSpeedOnInclinationChange(
-                    settings.value(QZSettings::trainprogram_pid_ignore_inclination,
-                                   QZSettings::default_trainprogram_pid_ignore_inclination).toBool(),
-                    trainProgram && trainProgram->isStarted(),
-                    trainProgram ? trainProgram->currentRow().zoneHR : -1) &&
+                !settings.value(QZSettings::trainprogram_pid_ignore_inclination, QZSettings::default_trainprogram_pid_ignore_inclination).toBool() &&
                 bluetoothManager->device()->currentInclination().value() != lastInclination && lastWattage != 0) {
                 last_seconds_pid_heart_zone = seconds;
 
