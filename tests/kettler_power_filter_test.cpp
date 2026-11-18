@@ -27,4 +27,14 @@ int main() {
     assert(f.apply(0, 60, 12100) == 0);
     assert(f.apply(100, 60, 13000) == 100);
     assert(f.apply(5, 0, 13100) == 5);
+    // Replay the 17:25:54-58 sequence, including the 170 W frame that
+    // arrived during the CM response rather than the PW response.
+    f.reset();
+    assert(f.apply(105, 75, 0) == 105);
+    assert(f.apply(10, 75, 657) == 105);
+    assert(f.apply(10, 72, 2451) == 105);
+    assert(f.apply(10, 71, 3114) == 105);
+    assert(f.apply(10, 70, 3779) == 105);
+    assert(f.apply(170, 69, 3947) == 170);
+    assert(f.apply(10, 65, 5592) == 170);
 }

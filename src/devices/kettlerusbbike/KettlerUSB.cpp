@@ -110,13 +110,15 @@ void KettlerUSB::sendPowerCommand(double power) {
 
 void KettlerUSB::pollNativeProtocol() {
     // Match the native application's steady-state request/response block:
-    // CM -> ACK, ID -> AR1S, VE -> 018. Each response is consumed before the
-    // next command is sent so it cannot be mistaken for telemetry.
+    // CM -> ACK, ID -> AR1S, VE -> 018. Serial responses may be delayed,
+    // so a status frame can also arrive while reading any of these replies.
     sendCommand("CM");
     KettlerSleeper::msleep(150);
     QString cmResponse = readResponse();
     if (!cmResponse.isEmpty()) {
         qDebug() << "  Native CM response:" << cmResponse;
+        if (cmResponse.contains('\t'))
+            parseStatusResponse(cmResponse);
     }
 
     sendCommand("ID");
@@ -124,6 +126,8 @@ void KettlerUSB::pollNativeProtocol() {
     QString idResponse = readResponse();
     if (!idResponse.isEmpty()) {
         qDebug() << "  Native ID response:" << idResponse;
+        if (idResponse.contains('\t'))
+            parseStatusResponse(idResponse);
     }
 
     sendCommand("VE");
@@ -131,6 +135,8 @@ void KettlerUSB::pollNativeProtocol() {
     QString veResponse = readResponse();
     if (!veResponse.isEmpty()) {
         qDebug() << "  Native VE response:" << veResponse;
+        if (veResponse.contains('\t'))
+            parseStatusResponse(veResponse);
     }
 }
 
