@@ -290,7 +290,11 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts, const b
         !power_as_bike && !power_as_treadmill)
         watt_calc = false;
 
-    if(deviceType() == BIKE && !from_accessory)  // append only if it's coming from the bike, not from the power sensor
+    if(deviceType() == BIKE && !from_accessory &&
+       (!TC_BIKE ||
+        (!paused && Cadence.value() > 0 && m_watt.value() > 0 &&
+         Resistance.value() >= 1 && Resistance.value() <= 41 &&
+         Resistance.valueChanged().msecsTo(current) >= 3000)))
         _ergTable.collectData(Cadence.value(), m_watt.value(), Resistance.value());
 
     if (!_firstUpdate && !paused) {
