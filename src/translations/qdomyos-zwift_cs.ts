@@ -7234,8 +7234,8 @@ Zadejte ho níže:</translation>
         <translation>Štítek virtuální aktivity Strava</translation>
     </message>
     <message>
-        <source>Strava Synthetic GPS Track (Experimental)</source>
-        <translation>Syntetická GPS trasa pro Stravu (experimentální)</translation>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Syntetická GPS trasa pro Stravu</translation>
     </message>
     <message>
         <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>

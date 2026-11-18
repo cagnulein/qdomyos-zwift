@@ -7850,8 +7850,8 @@ NOTE IMPORTANTI:
         <translation>Strava Tag Attività Virtuale</translation>
     </message>
     <message>
-        <source>Strava Synthetic GPS Track (Experimental)</source>
-        <translation>Tracciato GPS sintetico per Strava (sperimentale)</translation>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Tracciato GPS sintetico per Strava</translation>
     </message>
     <message>
         <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>

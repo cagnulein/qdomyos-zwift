@@ -6953,8 +6953,8 @@ Please enter it below:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Strava Synthetic GPS Track (Experimental)</source>
-        <translation>مسار GPS اصطناعي لـ Strava (تجريبي)</translation>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>مسار GPS اصطناعي لـ Strava</translation>
     </message>
     <message>
         <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>

@@ -7670,8 +7670,8 @@ Please enter it below:</source>
         <translation>Strava バーチャルアクティビティタグ</translation>
     </message>
     <message>
-        <source>Strava Synthetic GPS Track (Experimental)</source>
-        <translation>Strava 用の合成 GPS トラック（実験的）</translation>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Strava 用の合成 GPS トラック</translation>
     </message>
     <message>
         <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>

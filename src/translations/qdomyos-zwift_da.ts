@@ -7186,8 +7186,8 @@ Indtast den herunder:</translation>
         <translation>Strava-mærke for virtuel aktivitet</translation>
     </message>
     <message>
-        <source>Strava Synthetic GPS Track (Experimental)</source>
-        <translation>Syntetisk GPS-spor til Strava (eksperimentelt)</translation>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Syntetisk GPS-spor til Strava</translation>
     </message>
     <message>
         <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
