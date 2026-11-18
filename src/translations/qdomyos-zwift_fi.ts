@@ -1098,6 +1098,10 @@ Do you want to update QZ settings?</source>
         <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
         <translation>Läheltä ei löytynyt sykesensoria. Varmista, että se on päällä ja lähettää syketietoja.</translation>
     </message>
+    <message>
+        <source>Kingsmith treadmill Bluetooth service unavailable. Retrying connection; if the problem persists, restart the treadmill.</source>
+        <translation>Kingsmith-juoksumaton Bluetooth-palvelu ei ole käytettävissä. Yhteyttä yritetään muodostaa uudelleen. Jos ongelma jatkuu, käynnistä juoksumatto uudelleen.</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
