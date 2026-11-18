@@ -373,7 +373,7 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
     } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("f03ee006-4910-473c-be46-960948c2f59c"))) {
-        const double customCadence = BkoolCadence::parseCustomCadence(newValue);
+        const double customCadence = BkoolCadence::parseCustomCadence(newValue, bkool_fitness_bike);
         if (!hasExternalCadenceSensor(settings)) {
             if (customCadence >= 0.0) {
                 Cadence = customCadence;
@@ -418,7 +418,7 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
         if (cadence_present) {
             const BkoolCadence::PowerSample sample =
-                BkoolCadence::parsePowerSample(newValue, flags, index);
+                BkoolCadence::parsePowerSample(newValue, flags, index, bkool_fitness_bike);
             // Retain the existing revolution/timestamp publication for virtual
             // CSC/DirCon clients, even when the advertised crank data is empty.
             if (sample.hasPublicationCounter) {
@@ -437,7 +437,8 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
                     if (powerCadenceBaselineValid &&
                         powerCadencePrevious.isWheel == sample.cadenceCounter.isWheel) {
                         const double cadence = BkoolCadence::cadenceFromCounters(
-                            powerCadencePrevious, sample.cadenceCounter);
+                            powerCadencePrevious, sample.cadenceCounter,
+                            bkool_fitness_bike ? BkoolCadence::kMaxCadenceRpm : 0.0);
                         if (cadence > 0.0) {
                             Cadence = cadence;
                             lastGoodCadence = now;
