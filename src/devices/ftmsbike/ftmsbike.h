@@ -198,6 +198,7 @@ class ftmsbike : public bike {
     // D500V2 workaround: track if we're awaiting start simulation command after request control
     bool awaiting_start_simulation_after_request_control = false;
     resistance_t lastDomyosRequestedResistance = -1;
+    resistance_t tcPendingResistance = -1;
 
     bool DU30_bike = false;
     bool ICSE = false;
