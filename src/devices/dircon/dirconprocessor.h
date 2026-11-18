@@ -123,6 +123,7 @@ class DirconProcessor : public QObject {
     void onCharacteristicWrite(quint16 uuid, QByteArray data);
     void onCharacteristicNotificationSwitch(quint16 uuid, char switchval);
     void clientDisconnected();
+    void bindFailed(quint16 port, QAbstractSocket::SocketError error, const QString &reason);
 };
 
 #endif // DIRCONPROCESSOR_H

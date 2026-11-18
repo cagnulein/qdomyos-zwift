@@ -4,10 +4,12 @@
 #include <QDateTime>
 #include <QEventLoop>
 #include <QSettings>
+#include <QTcpServer>
 #include <functional>
 
 #include "Tools/testsettings.h"
 #include "devices/dircon/dirconmanager.h"
+#include "devices/dircon/dirconprocessor.h"
 #include "devices/dircon/wahoodirconbike.h"
 #include "devices/dircon/wahoodircontreadmill.h"
 #include "devices/fakebike/fakebike.h"
@@ -241,5 +243,37 @@ void DirconLoopbackTestSuite::test_two_fakebike_dircon_servers_accept_two_wahood
     EXPECT_TRUE(waitForCondition([&secondClient]() { return secondClient.wattsMetric().value() > 0; }, 8000))
         << "Second DirCon bike client did not receive telemetry";
 
+    testSettings.deactivate();
+}
+
+void DirconLoopbackTestSuite::test_dircon_bind_failure_diagnostics_and_recovery() {
+    TestSettings testSettings(QStringLiteral("qz-test-org"), QStringLiteral("qz-test-dircon-bind-failure"));
+    testSettings.activate();
+    testSettings.qsettings.setValue(QZSettings::rouvy_compatibility, true);
+
+    QTcpServer occupied;
+    ASSERT_TRUE(occupied.listen(QHostAddress::AnyIPv4, 0));
+    const quint16 port = occupied.serverPort();
+
+    DirconProcessor processor({}, QStringLiteral("Wahoo KICKR test"), port, QStringLiteral("test"),
+                              QStringLiteral("00:11:22:33:44:55"));
+    int failures = 0;
+    QObject::connect(&processor, &DirconProcessor::bindFailed, &processor,
+                     [&](quint16 failedPort, QAbstractSocket::SocketError error, const QString &reason) {
+                         ++failures;
+                         EXPECT_EQ(failedPort, port);
+                         EXPECT_EQ(error, QAbstractSocket::AddressInUseError);
+                         EXPECT_FALSE(reason.isEmpty());
+                     });
+
+    EXPECT_FALSE(processor.init());
+    EXPECT_EQ(failures, 1);
+    EXPECT_FALSE(processor.init());
+    EXPECT_EQ(failures, 2);
+    EXPECT_TRUE(occupied.isListening());
+
+    occupied.close();
+    EXPECT_TRUE(processor.init()) << "DirCon must bind normally after the competing server releases its port";
+    EXPECT_EQ(failures, 2);
     testSettings.deactivate();
 }
