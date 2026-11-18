@@ -2147,6 +2147,11 @@ Do you want to update QZ settings?</source>
         <translation>Inclinación (%)</translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>En un gráfico:</translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation>Potencia promedio</translation>

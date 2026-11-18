@@ -24,11 +24,14 @@
         charts: null
     };
 
-    // Axis colours over the dark page of the editor (the same as the single chart had before)
+    // Axis colours over the dark page of the editor (the same as the single chart had before),
+    // and the chips: a light outline, the accent of the editor as the fill of a selected one
     const AXIS_COLORS = {
         tick: 'rgba(255,255,255,0.65)',
         grid: 'rgba(255,255,255,0.04)',
-        title: 'rgba(255,255,255,0.75)'
+        title: 'rgba(255,255,255,0.75)',
+        outline: 'rgba(255,255,255,0.38)',
+        tonal: 'rgba(53,186,246,0.24)'
     };
 
     function formatSeconds(total) {
@@ -53,7 +56,8 @@
         state.charts = QzMetricCharts.create(host, {
             storageKey: 'qz.workouteditor.together',
             colors: () => AXIS_COLORS,
-            timeTitle: () => t('workoutEditor.time', 'Time')
+            timeTitle: () => t('workoutEditor.time', 'Time'),
+            caption: () => t('chart.onOneChart', 'On one chart:')
         });
         return state.charts;
     }

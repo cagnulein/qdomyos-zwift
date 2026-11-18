@@ -1,7 +1,7 @@
 // The metrics of a workout - power, speed, incline, resistance,
 // cadence - each on its own small chart with its own scale, one under another. The chips at
-// the top right put the ticked metrics (two or more) together on one shared chart above the
-// others; the choice is kept per page. The workout preview and the workout editor give it
+// the top right ("On one chart:") put the selected metrics (two or more) together on one shared
+// chart above the others; the choice is kept per page. The workout preview and the workout editor give it
 // their prepared metrics:
 //
 //   var charts = QzMetricCharts.create(host, { storageKey: 'qz.workoutpreview.together' });
@@ -15,17 +15,26 @@
 // a scale starts at zero unless the floor is below it). A series without a set value is not
 // drawn. Options: storageKey (localStorage - per page origin, and the app gives its inner
 // server a new port at every start, so the choice lasts while the app runs); colors() - {tick,
-// grid, title} of the axes (neutral greys for
+// grid, title} of the axes and {outline, tonal} of the chips (neutral greys for
 // a light page by default; the workout editor gives light ones for its dark page); timeTitle() -
-// the title of the time axis under the last chart.
+// the title of the time axis under the last chart; caption() - the words before the chips.
 (function () {
     var STYLE = ''
         + '.qzmc-host{display:flex;flex-direction:column;gap:8px;min-height:0}'
-        + '.qzmc-bar{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px 12px;font-size:13px;line-height:1.2}'
+        + '.qzmc-bar{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:8px}'
         + '.qzmc-bar:empty{display:none}'
-        + '.qzmc-chip{display:inline-flex;align-items:center;gap:6px;cursor:pointer;user-select:none;-webkit-user-select:none;white-space:nowrap}'
-        + '.qzmc-chip input{margin:0;width:16px;height:16px}'
-        + '.qzmc-swatch{display:inline-block;width:12px;height:3px;border-radius:2px}'
+        + '.qzmc-caption{font-size:13px;opacity:.7;margin-right:2px}'
+        // Material 3 filter chips: 32px high, corner 8px, an outline when off, a tonal fill and a
+        // check when on; the touch area reaches 8px above and below the chip
+        + '.qzmc-chip{position:relative;display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px 0 8px;'
+        + 'border:1px solid var(--qzmc-outline);border-radius:8px;background:transparent;color:inherit;font-family:inherit;font-size:14px;font-weight:500;line-height:1;'
+        + 'cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}'
+        + '.qzmc-chip::after{content:"";position:absolute;left:0;right:0;top:-8px;bottom:-8px}'
+        + '.qzmc-dot{width:10px;height:10px;border-radius:50%;margin:0 2px}'
+        + '.qzmc-check{display:none;width:18px;height:18px}'
+        + '.qzmc-chip[aria-pressed="true"]{border-color:transparent;background:var(--qzmc-tonal)}'
+        + '.qzmc-chip[aria-pressed="true"] .qzmc-dot{display:none}'
+        + '.qzmc-chip[aria-pressed="true"] .qzmc-check{display:block}'
         + '.qzmc-list{display:flex;flex-direction:column;gap:8px;flex:1 1 auto;min-height:0}'
         + '.qzmc-box{position:relative;flex:1 1 0;min-height:140px}'
         + '.qzmc-box canvas{width:100%!important;height:100%!important}';
@@ -120,7 +129,8 @@
             var layout = '';
 
             function colors() {
-                return Object.assign({ tick: '#666', grid: 'rgba(0, 0, 0, 0.05)', title: '#666' },
+                return Object.assign({ tick: '#666', grid: 'rgba(0, 0, 0, 0.05)', title: '#666',
+                                       outline: '#79747e', tonal: '#e8def8' },
                                      options.colors ? options.colors() : {});
             }
 
@@ -241,33 +251,44 @@
                 return result;
             }
 
+            var CHECK = '<svg class="qzmc-check" viewBox="0 0 24 24" aria-hidden="true">'
+                + '<path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>';
+
             function drawBar(seriesList) {
                 bar.innerHTML = '';
                 if (seriesList.length < 2) {
                     return;
                 }
+                var c = colors();
+                host.style.setProperty('--qzmc-outline', c.outline);
+                host.style.setProperty('--qzmc-tonal', c.tonal);
+                var caption = document.createElement('span');
+                caption.className = 'qzmc-caption';
+                caption.textContent = options.caption ? options.caption() : 'On one chart:';
+                bar.appendChild(caption);
                 seriesList.forEach(function (series) {
-                    var chip = document.createElement('label');
+                    var on = together.indexOf(series.key) >= 0;
+                    var chip = document.createElement('button');
+                    chip.type = 'button';
                     chip.className = 'qzmc-chip';
-                    var box = document.createElement('input');
-                    box.type = 'checkbox';
-                    box.checked = together.indexOf(series.key) >= 0;
-                    box.addEventListener('change', function () {
+                    chip.setAttribute('aria-pressed', on ? 'true' : 'false');
+                    var dot = document.createElement('span');
+                    dot.className = 'qzmc-dot';
+                    dot.style.backgroundColor = series.color;
+                    var text = document.createElement('span');
+                    text.textContent = series.label;
+                    chip.appendChild(dot);
+                    chip.insertAdjacentHTML('beforeend', CHECK);
+                    chip.lastChild.style.color = series.color;
+                    chip.appendChild(text);
+                    chip.addEventListener('click', function () {
                         together = together.filter(function (k) { return k !== series.key; });
-                        if (box.checked) {
+                        if (!on) {
                             together.push(series.key);
                         }
                         writeTogether(options.storageKey, together);
                         draw(true);
                     });
-                    var swatch = document.createElement('span');
-                    swatch.className = 'qzmc-swatch';
-                    swatch.style.backgroundColor = series.color;
-                    var text = document.createElement('span');
-                    text.textContent = series.label;
-                    chip.appendChild(box);
-                    chip.appendChild(swatch);
-                    chip.appendChild(text);
                     bar.appendChild(chip);
                 });
             }

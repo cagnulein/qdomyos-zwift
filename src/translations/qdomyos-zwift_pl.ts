@@ -2095,6 +2095,11 @@ Zaktualizować ustawienia QZ?</translation>
         <translation>Nachylenie (%)</translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>Na jednym wykresie:</translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation>Średnia moc</translation>

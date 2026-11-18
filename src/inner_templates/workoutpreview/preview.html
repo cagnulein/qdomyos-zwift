@@ -129,7 +129,8 @@
             if (!charts) {
                 charts = QzMetricCharts.create(document.getElementById('chart-container'), {
                     storageKey: 'qz.workoutpreview.together',
-                    timeTitle: function () { return tq('workoutEditor.time', 'Time'); }
+                    timeTitle: function () { return tq('workoutEditor.time', 'Time'); },
+                    caption: function () { return tq('chart.onOneChart', 'On one chart:'); }
                 });
             }
             let total = 0;
