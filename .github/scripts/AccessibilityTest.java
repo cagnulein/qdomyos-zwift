@@ -5,6 +5,8 @@
 // - moves the accessibility focus to a node below the screen, if there is one, and checks that QZ
 //   scrolled it into view (CustomQtActivity -> nativeScrollToAccessibleObject),
 // - moves the accessibility focus over the app's nodes; each one must take it,
+// - can require focus:<name> to move accessibility focus and scroll a distant setting into view
+//   without activating any external link;
 // - presses the given buttons in turn (QZ presses a Qt button itself, nativeAccessibleClick, and
 //   answers true; Qt 5.15 alone answers false for a button) and checks what each press shows.
 //   An item that is not a Qt button with Accessible.onPressAction must answer true too (Qt 5.15.0
@@ -233,6 +235,9 @@ public class AccessibilityTest {
     }
 
     private static boolean press(String press) throws Exception {
+        if (press.startsWith("focus:")) {
+            return focus(press.substring("focus:".length()).replace('_', ' '));
+        }
         if (press.startsWith("see:")) {
             return see(press.substring("see:".length()).replace('_', ' '));
         }
@@ -319,6 +324,46 @@ public class AccessibilityTest {
         }
         System.out.println("OK pressed '" + button + "': " + describe(shown));
         return true;
+    }
+
+    // Simulate a TalkBack swipe to an item, including Qt's scroll-to-accessibility-focus.
+    // Focus alone must never activate the item or switch the foreground app to a browser.
+    private static boolean focus(String text) throws Exception {
+        AccessibilityNodeInfo target = find(text, false);
+        if (target == null || !target.isFocusable()) {
+            System.out.println("FAIL '" + text + "' is absent or not accessibility-focusable");
+            return false;
+        }
+        if (!target.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS)) {
+            System.out.println("FAIL cannot accessibility-focus '" + text + "'");
+            return false;
+        }
+        for (int i = 0; i < 60; i++) {
+            AccessibilityNodeInfo root = automation.getRootInActiveWindow();
+            if (root == null || root.getPackageName() == null
+                    || !PACKAGE.equals(root.getPackageName().toString())) {
+                System.out.println("FAIL focusing '" + text + "' left QZ (active window "
+                        + (root == null ? null : root.getPackageName()) + ")");
+                return false;
+            }
+            Rect screen = new Rect();
+            root.getBoundsInScreen(screen);
+            for (AccessibilityNodeInfo node : appNodes()) {
+                CharSequence desc = node.getContentDescription();
+                if (desc == null || !startsWith(desc.toString(), text) || !node.isAccessibilityFocused()) {
+                    continue;
+                }
+                Rect bounds = new Rect();
+                node.getBoundsInScreen(bounds);
+                if (!bounds.isEmpty() && screen.contains(bounds.centerX(), bounds.centerY())) {
+                    System.out.println("OK accessible focus reached '" + text + "' " + bounds.toShortString());
+                    return true;
+                }
+            }
+            Thread.sleep(500);
+        }
+        System.out.println("FAIL '" + text + "' did not scroll into view with accessibility focus in 30 s");
+        return false;
     }
 
     // A node with this description must show within 5 s, nothing is pressed
