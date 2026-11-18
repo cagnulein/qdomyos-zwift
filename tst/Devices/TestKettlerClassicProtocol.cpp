@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <QByteArray>
+#include <cmath>
 
 #include "devices/kettlerclassicbike/kettlerclassicprotocol.h"
 
@@ -406,6 +407,77 @@ TEST(KettlerClassicProtocol, CoachSSessionCountersStartAtZeroAndRebase) {
     EXPECT_TRUE(counters.addSample(71, 653, false));
     EXPECT_EQ(counters.strokes(), 0u);
     EXPECT_EQ(counters.meters(), 0u);
+}
+
+TEST(KettlerClassicProtocol, CoachSConcept2PaceUsesWattsNotFlywheelDistance) {
+    kettlerclassicprotocol::CoachSPowerBasedPace pace;
+    // 2026-11-18, 20:35:50 (L4, 185 W) and 20:35:58 (L5, 338 W):
+    // raw Coach S flywheel distance remained about 8 m/stroke despite
+    // almost doubled real power. Concept2-equivalent speed must increase.
+    pace.completedStroke(185, -1, false); // first stroke: no interval yet
+    const double lowSpeed = pace.speedKmh();
+    EXPECT_NEAR(lowSpeed, std::cbrt(185.0 / 2.8) * 3.6, 0.001);
+    EXPECT_NEAR(500.0 / (lowSpeed / 3.6), 123.7, 0.5); // s/500 m
+    EXPECT_DOUBLE_EQ(pace.meters(), 0.0);
+
+    pace.completedStroke(185, 1981, true);
+    const double firstDistance = pace.meters();
+    EXPECT_NEAR(firstDistance, (lowSpeed / 3.6) * 1.981, 0.001);
+
+    pace.completedStroke(338, 1981, true);
+    const double highSpeed = pace.speedKmh();
+    EXPECT_NEAR(highSpeed, std::cbrt(338.0 / 2.8) * 3.6, 0.001);
+    EXPECT_NEAR(500.0 / (highSpeed / 3.6), 101.2, 0.5); // s/500 m
+    EXPECT_GT(highSpeed, lowSpeed);
+    EXPECT_NEAR(pace.meters() - firstDistance,
+                (highSpeed / 3.6) * 1.981, 0.001);
+}
+
+TEST(KettlerClassicProtocol, CoachSConcept2NoGhostMetersAndStopsCleanly) {
+    kettlerclassicprotocol::CoachSPowerBasedPace pace;
+    pace.completedStroke(145, -1, false); // old initial console watt is ignored
+    // A fresh QZ session has no committed distance before a second stroke.
+    EXPECT_DOUBLE_EQ(pace.meters(), 0.0);
+    pace.reset();
+    EXPECT_DOUBLE_EQ(pace.speedKmh(), 0.0);
+    pace.completedStroke(12, -1, false);
+    EXPECT_DOUBLE_EQ(pace.meters(), 0.0);
+    pace.completedStroke(17, 2000, true);
+    const double lastStrokeDistance = pace.meters();
+    EXPECT_GT(lastStrokeDistance, 0.0);
+    // Idle E0 telemetry from a coasting flywheel does not invoke
+    // completedStroke(): both speed and session distance stay unchanged
+    // until the caller's existing adaptive timeout zeros the speed.
+    EXPECT_DOUBLE_EQ(pace.meters(), lastStrokeDistance);
+
+    pace.completedStroke(142, 8000, false); // first stroke after long stop
+    EXPECT_DOUBLE_EQ(pace.meters(), lastStrokeDistance);
+    EXPECT_GT(pace.speedKmh(), 0.0);
+    pace.completedStroke(186, 2000, true);
+    EXPECT_GT(pace.meters(), lastStrokeDistance);
+
+    const double latest = pace.meters();
+    pace.completedStroke(0, 2000, true);
+    EXPECT_DOUBLE_EQ(pace.speedKmh(), 0.0);
+    EXPECT_DOUBLE_EQ(pace.meters(), latest);
+    pace.reset();
+    EXPECT_DOUBLE_EQ(pace.speedKmh(), 0.0);
+    EXPECT_DOUBLE_EQ(pace.meters(), 0.0);
+}
+
+TEST(KettlerClassicProtocol, CoachSConcept2ModeTogglePreservesDistance) {
+    kettlerclassicprotocol::CoachSPowerBasedPace pace;
+    pace.reset(87.5); // existing raw-counter workout when setting enabled
+    pace.completedStroke(185, -1, false);
+    EXPECT_DOUBLE_EQ(pace.meters(), 87.5);
+    pace.completedStroke(185, 2000, true);
+    EXPECT_GT(pace.meters(), 87.5);
+    const double beforeSwitch = pace.meters();
+    pace.reset(beforeSwitch); // re-enable power-based mode mid-session
+    EXPECT_DOUBLE_EQ(pace.meters(), beforeSwitch);
+    EXPECT_DOUBLE_EQ(pace.speedKmh(), 0.0);
+    pace.completedStroke(185, 2000, false);
+    EXPECT_DOUBLE_EQ(pace.meters(), beforeSwitch);
 }
 
 TEST(KettlerClassicProtocol, CoachSNovember18NudgeAndCoastCannotCreditDistance) {
