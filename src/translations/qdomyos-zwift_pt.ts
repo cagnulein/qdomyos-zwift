@@ -1145,6 +1145,10 @@ Deseja atualizar as configurações do QZ?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>Falha ao inicializar a YPOO M5; é necessário reconectar</translation>
     </message>
+    <message>
+        <source>Kingsmith treadmill Bluetooth service unavailable. Retrying connection; if the problem persists, restart the treadmill.</source>
+        <translation>O serviço Bluetooth da passadeira Kingsmith não está disponível. A tentar ligar novamente; se o problema persistir, reinicie a passadeira.</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
