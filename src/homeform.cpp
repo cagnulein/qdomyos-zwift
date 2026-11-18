@@ -9905,13 +9905,7 @@ void homeform::saveStravaTokensForAthlete(const QString &accessToken, const QStr
 
         if (athleteReply->error() == QNetworkReply::NoError) {
             const QJsonDocument document = QJsonDocument::fromJson(athleteReply->readAll());
-            const QJsonValue idValue = document.object().value(QStringLiteral("id"));
-            QString athleteId;
-            if (idValue.isString()) {
-                athleteId = idValue.toString();
-            } else if (idValue.isDouble()) {
-                athleteId = QString::number(static_cast<qint64>(idValue.toDouble()));
-            }
+            const QString athleteId = stravaAthleteIdFromJson(document.object());
 
             if (!athleteId.isEmpty() && athleteId != QStringLiteral("0")) {
                 settings.setValue(QZSettings::strava_current_user_id, athleteId);
