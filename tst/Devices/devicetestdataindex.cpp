@@ -1477,6 +1477,7 @@ void DeviceTestDataIndex::Initialize() {
                              "VIFHTR2.1",
                              "REEBOK",
                              "DKN MOTION"}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName("CARE11216+0505", DeviceNameComparison::IgnoreCase)
         ->acceptDeviceName("CR011R", DeviceNameComparison::IgnoreCase)
         ->acceptDeviceNames({"CR011R", "xCR011R"}, DeviceNameComparison::StartsWithIgnoreCase) // a contains relationship
         ->configureSettingsWith(
