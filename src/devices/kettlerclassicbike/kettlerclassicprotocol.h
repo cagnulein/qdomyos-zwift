@@ -29,24 +29,42 @@ quint16 coachSCandidateWatts(const QByteArray &telemetryPayload);
 // Returns 0 when the frame is invalid or the reported level is outside 1..10.
 quint8 coachSReportedResistance(const QByteArray &telemetryPayload);
 
-// Coach S console-style power: mean of nonzero drive samples, published
-// after a stroke ends and held through recovery. Times are monotonic ms.
+// Only completed Coach S strokes publish power; raw flywheel samples can
+// remain positive long after the handle stops.
 class CoachSStrokePowerSmoother {
 public:
     void reset();
     quint16 addSample(quint16 strokeCounter, quint16 rawWatts, qint64 nowMs);
     quint16 value(qint64 nowMs) const;
+    bool active(qint64 nowMs) const;
 private:
-    void completeDrive();
     int inactivityTimeoutMs() const;
-
+    struct Sample { qint64 timeMs; quint16 watts; };
+    QVector<Sample> samples;
     int lastStrokeCounter = -1;
-    qint64 lastStrokeMs = -1;
-    qint64 lastPositiveMs = -1;
+    qint64 lastCompletedStrokeMs = -1;
     int strokePeriodMs = 0;
-    quint64 driveSum = 0;
-    quint32 driveSamples = 0;
     quint16 completedWatts = 0;
+};
+
+// The console retains raw counters across app sessions. Only accumulate
+// deltas after the initial frame; rebase safely on a console counter reset.
+class CoachSSessionCounters {
+public:
+    void reset();
+    void clearWorkout();
+    bool addSample(quint16 strokes, quint16 meters);
+    bool hasSample() const { return initialized; }
+    quint16 rawStrokes() const { return previousStrokes; }
+    quint16 rawMeters() const { return previousMeters; }
+    quint64 strokes() const { return sessionStrokes; }
+    quint64 meters() const { return sessionMeters; }
+private:
+    bool initialized = false;
+    quint16 previousStrokes = 0;
+    quint16 previousMeters = 0;
+    quint64 sessionStrokes = 0;
+    quint64 sessionMeters = 0;
 };
 
 QVector<Frame> consumeFrames(QByteArray &buffer);

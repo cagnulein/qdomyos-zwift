@@ -27,10 +27,6 @@ constexpr int POLL_INTERVAL_MS = 500;
 constexpr int REQUEST_TIMEOUT_MS = 2000;
 // Jacek's Coach S console uses L4 as the starting physical load.
 constexpr int DEFAULT_COACH_S_RESISTANCE = 4;
-// The power smoother already has its own cadence-aware stop threshold.
-// Clear held pace sooner, but never before watts have become idle; this
-// prevents a zero-speed flash within a normal rowing recovery.
-constexpr int COACH_S_IDLE_SPEED_TIMEOUT_MS = 3500;
 
 // Kinomap / Kettler S-FIT authentication: the client supplies two random
 // salt bytes and an MD5 digest of salt || fixed protocol key. The rower
@@ -169,16 +165,14 @@ void kettlercoachrower::rfCommConnected() {
     signalledConnection = false;
     signalledDisconnection = false;
     awaitingHandshake = true;
-    lastStrokeTime = QDateTime();
-    lastStrokes = 0;
-    lastDistanceMeters = 0;
-    lastStrokeDistanceMeters = 0;
-    Speed = 0;
+    sessionCounters.reset();
+    powerClock.start();
+    resetStrokeMetrics();
+    Distance = 0;
+    Distance1s = 0;
+    StrokesCount = 0;
     telemetrySeen = false;
     requestResistance = -1;
-    currentWatts = 0;
-    strokePower.reset();
-    powerClock.start();
     pendingResistanceLevel = -1;
     lastReportedResistanceLevel = -1;
     Resistance = 0;
@@ -336,54 +330,69 @@ void kettlercoachrower::processFrame(const kettlerclassicprotocol::Frame &frame)
     sendNextRequest();
 }
 
+void kettlercoachrower::resetStrokeMetrics() {
+    strokePower.reset();
+    lastStrokeMs = -1;
+    lastStrokes = sessionCounters.rawStrokes();
+    lastStrokeDistanceMeters = sessionCounters.rawMeters();
+    currentWatts = 0;
+    m_watt = 0;
+    Speed = 0;
+    Cadence = 0;
+    if (sessionCounters.hasSample() && powerClock.isValid())
+        strokePower.addSample(lastStrokes, 0, powerClock.elapsed());
+}
+
+void kettlercoachrower::clearStats() {
+    rower::clearStats();
+    // Start a new QZ workout at the latest physical counter values.
+    sessionCounters.clearWorkout();
+    resetStrokeMetrics();
+    Distance = 0;
+    Distance1s = 0;
+    StrokesCount = 0;
+}
+
+void kettlercoachrower::updateStrokeIdle(qint64 nowMs) {
+    if (strokePower.active(nowMs)) return;
+    if (currentWatts != 0 || Speed.value() != 0 || Cadence.value() != 0) {
+        currentWatts = 0;
+        m_watt = 0;
+        Speed = 0;
+        Cadence = 0;
+        emit debug(QStringLiteral("Coach S no completed stroke: power, speed and cadence idle"));
+    }
+}
+
 void kettlercoachrower::processTelemetry(const QByteArray &payload) {
     if (payload.size() != 24 || be16(payload, 0) != 0x0004) return;
-    const QDateTime now = QDateTime::currentDateTime();
-
-    // Candidate offsets grounded in the 2026-11-15 Kinomap HCI capture.
-    // The counters at +2 (0..18) and +16 (0..119) were monotonic in that
-    // session. Other fields are deliberately not claimed to be watts/HR.
-    // Validate units with a console-vs-QZ hardware test before extending.
+    const qint64 nowMs = powerClock.elapsed();
     const quint16 strokes = be16(payload, 2);
     const quint16 meters = be16(payload, 16);
-    // 2026-11-16 Coach S hardware log: +18..19 follows rowing effort
-    // (80..210) and returns to zero on rest. Candidate instantaneous watts;
-    // console comparison is still needed to confirm the engineering unit.
     const quint16 rawWatts = kettlerclassicprotocol::coachSCandidateWatts(payload);
-    currentWatts = strokePower.addSample(strokes, rawWatts, powerClock.elapsed());
+
+    // Initial frame or console reset: no previous session counts or
+    // impossible speed across a counter reset.
+    if (sessionCounters.addSample(strokes, meters))
+        resetStrokeMetrics();
+
+    updateStrokeIdle(nowMs);
+    currentWatts = strokePower.addSample(strokes, rawWatts, nowMs);
     m_watt = currentWatts;
     recordReportedResistance(kettlerclassicprotocol::coachSReportedResistance(payload),
                              "E0 byte 23");
-    // A new workout can reset one or both counters. Never derive an
-    // enormous speed from the old session's distance/time anchor.
-    if (strokes < lastStrokes || meters < lastDistanceMeters) {
-        lastStrokeTime = QDateTime();
-        lastStrokeDistanceMeters = meters;
-        lastStrokes = strokes;
-        lastDistanceMeters = meters;
-        Speed = 0;
-        Cadence = 0;
-    }
 
     if (strokes > lastStrokes) {
-        if (lastStrokeTime.isValid()) {
-            const qint64 elapsedMs = lastStrokeTime.msecsTo(now);
-            if (elapsedMs >= 300 && elapsedMs <= 10000) {
+        if (lastStrokeMs >= 0) {
+            const qint64 elapsedMs = nowMs - lastStrokeMs;
+            if (elapsedMs >= 300 && elapsedMs <= 6500) {
                 const quint16 strokesDelta = strokes - lastStrokes;
                 Cadence = qBound(0.0, (60000.0 * strokesDelta) / elapsedMs, 80.0);
                 if (meters > lastStrokeDistanceMeters) {
-                    // The cumulative meter counter is monotonic but advances
-                    // unevenly within each pull/recovery. Calculate the speed
-                    // of the *completed stroke interval* instead, then hold
-                    // it until the next counter change. currentPace() and
-                    // PM5/MyWhoosh already consume this same Speed metric.
                     const int distanceDelta = meters - lastStrokeDistanceMeters;
                     const double strokeSpeedKmh =
                         qBound(0.0, distanceDelta * 3600.0 / elapsedMs, 30.0);
-                    // Distance is quantized to whole meters, so adjacent
-                    // stroke averages can still bounce by ~1-2 km/h.
-                    // Filter only at stroke boundaries; never update it
-                    // within a drive/recovery. PM5 pace then remains steady.
+                    // Preserve the existing, hardware-validated pace EMA.
                     const double previousSpeedKmh = Speed.value();
                     const double displaySpeedKmh = previousSpeedKmh > 0.0
                         ? 0.65 * previousSpeedKmh + 0.35 * strokeSpeedKmh
@@ -398,26 +407,18 @@ void kettlercoachrower::processTelemetry(const QByteArray &payload) {
                 }
             }
         }
-        lastStrokeTime = now;
+        lastStrokeMs = nowMs;
         lastStrokeDistanceMeters = meters;
         lastStrokes = strokes;
-    } else if (lastStrokeTime.isValid() &&
-               lastStrokeTime.msecsTo(now) > 6000) {
-        Cadence = 0;
-        if (currentWatts == 0) Speed = 0;
     }
-    StrokesCount = strokes;
 
-    // Keep the original cumulative distance unchanged; only the derivation
-    // of Speed/500m pace is different for the Coach S.
-    if (meters >= lastDistanceMeters) {
-        lastDistanceMeters = meters;
-        Distance = meters / 1000.0;
-        Distance1s = meters / 1000.0;
-    }
-    emit debug(QStringLiteral("Coach S e0 counters strokes=%1 distanceCandidate=%2 powerCandidate=%3 smoothedWatts=%4 fields=%5")
+    StrokesCount = static_cast<double>(sessionCounters.strokes());
+    Distance = sessionCounters.meters() / 1000.0;
+    Distance1s = sessionCounters.meters() / 1000.0;
+    emit debug(QStringLiteral("Coach S e0 counters strokes=%1 distanceCandidate=%2 powerCandidate=%3 smoothedWatts=%4 fields=%5 sessionStrokes=%6 sessionMeters=%7")
                    .arg(strokes).arg(meters).arg(rawWatts).arg(currentWatts)
-                   .arg(QString::fromLatin1(payload.toHex(' '))));
+                   .arg(QString::fromLatin1(payload.toHex(' ')))
+                   .arg(sessionCounters.strokes()).arg(sessionCounters.meters()));
 }
 
 void kettlercoachrower::recordReportedResistance(quint8 level, const char *source) {
@@ -451,25 +452,9 @@ void kettlercoachrower::recordReportedResistance(quint8 level, const char *sourc
 void kettlercoachrower::update() {
     if (!socket || socket->state() != QBluetoothSocket::ConnectedState || !initDone) return;
 
-    // Clear the held completed-stroke watts when rowing has truly stopped,
-    // even if the Coach S has not supplied another E0 sample.
-    if (powerClock.isValid()) {
-        const quint16 heldWatts = strokePower.value(powerClock.elapsed());
-        if (heldWatts != currentWatts) {
-            currentWatts = heldWatts;
-            m_watt = currentWatts;
-            emit debug(QStringLiteral("Coach S stroke-average power idle timeout: %1 W")
-                           .arg(currentWatts));
-        }
-        // PM5 keeps advertising while the device is idle. Clear the last
-        // completed-stroke pace even if no further E0 frame is received.
-        if (heldWatts == 0 && lastStrokeTime.isValid() &&
-            lastStrokeTime.msecsTo(QDateTime::currentDateTime()) > COACH_S_IDLE_SPEED_TIMEOUT_MS &&
-            Speed.value() != 0) {
-            Speed = 0;
-            emit debug(QStringLiteral("Coach S completed-stroke speed idle timeout: 0 km/h"));
-        }
-    }
+    // Coasting raw watt samples do not keep power, speed or cadence alive.
+    if (powerClock.isValid())
+        updateStrokeIdle(powerClock.elapsed());
 
     // Writes are explicitly requested by QZ controls. No speculative
     // S-FIT 0x000B/0x001B-read/0x001C/0x001D polling: Coach S never answered.

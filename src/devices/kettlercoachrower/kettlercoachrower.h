@@ -24,6 +24,7 @@ class kettlercoachrower : public rower {
     bool connected() override;
     uint16_t watts() override;
     resistance_t maxResistance() override;
+    void clearStats() override;
 
   public slots:
     void changeResistance(resistance_t resistance) override;
@@ -63,6 +64,8 @@ class kettlercoachrower : public rower {
     void sendNextRequest();
     void processFrame(const kettlerclassicprotocol::Frame &frame);
     void processTelemetry(const QByteArray &payload);
+    void resetStrokeMetrics();
+    void updateStrokeIdle(qint64 nowMs);
     void recordReportedResistance(quint8 level, const char *source);
     void disconnectAfterError(const QString &reason);
     static quint16 be16(const QByteArray &data, int offset);
@@ -89,14 +92,14 @@ class kettlercoachrower : public rower {
     quint16 currentWatts = 0;
     QElapsedTimer powerClock;
     kettlerclassicprotocol::CoachSStrokePowerSmoother strokePower;
+    kettlerclassicprotocol::CoachSSessionCounters sessionCounters;
     int pendingResistanceLevel = -1;
     int lastReportedResistanceLevel = -1;
     quint16 lastStrokes = 0;
-    quint16 lastDistanceMeters = 0;
-    // Distance at the last stroke-counter transition, used to derive a full
-    // stroke's average speed rather than the fluctuating per-packet speed.
+    // Raw distance at the last completed stroke, independent of the
+    // QZ workout's session counters. The elapsed clock is monotonic.
     quint16 lastStrokeDistanceMeters = 0;
-    QDateTime lastStrokeTime;
+    qint64 lastStrokeMs = -1;
 };
 
 #endif // KETTLERCOACHROWER_H

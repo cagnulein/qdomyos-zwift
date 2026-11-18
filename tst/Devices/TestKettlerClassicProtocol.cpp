@@ -270,40 +270,52 @@ TEST(KettlerClassicProtocol, CoachSE0LastByteReportsResistance) {
     EXPECT_EQ(kettlerclassicprotocol::coachSReportedResistance(capturedTelemetry.left(23)), 0);
 }
 
-TEST(KettlerClassicProtocol, CoachSStrokePowerExcludesRecoveryZerosAndHoldsLastStroke) {
+TEST(KettlerClassicProtocol, CoachSPowerPublishesOnlyOnCompletedStrokes) {
     kettlerclassicprotocol::CoachSStrokePowerSmoother smoothing;
-    EXPECT_EQ(smoothing.addSample(10, 0, 0), 0);
-    EXPECT_EQ(smoothing.addSample(10, 100, 100), 100);
-    EXPECT_EQ(smoothing.addSample(10, 200, 300), 150);
-    EXPECT_EQ(smoothing.addSample(10, 0, 500), 150); // completed 150 W, not 100 W
-    EXPECT_EQ(smoothing.addSample(10, 0, 1200), 150); // recovery is not a stop
-    EXPECT_EQ(smoothing.addSample(11, 250, 1700), 150); // still hold prior stroke
-    EXPECT_EQ(smoothing.addSample(11, 350, 1900), 150);
-    EXPECT_EQ(smoothing.addSample(11, 0, 2100), 300); // new nonzero-only average
-    EXPECT_EQ(smoothing.addSample(11, 0, 3100), 300);
-    EXPECT_EQ(smoothing.value(6500), 0); // true inactivity, no stale power
+    EXPECT_EQ(smoothing.addSample(60, 0, 0), 0);
+    // Handle nudge before the first completed stroke.
+    EXPECT_EQ(smoothing.addSample(60, 212, 100), 0);
+    EXPECT_EQ(smoothing.addSample(60, 231, 300), 0);
+    EXPECT_EQ(smoothing.addSample(60, 0, 500), 0);
+    EXPECT_EQ(smoothing.addSample(60, 347, 4200), 0);
+    EXPECT_EQ(smoothing.addSample(60, 289, 4700), 0);
+    EXPECT_EQ(smoothing.addSample(61, 80, 5200), 318);
+    EXPECT_EQ(smoothing.addSample(61, 0, 5400), 318);
+    EXPECT_EQ(smoothing.addSample(61, 280, 6000), 318);
+    EXPECT_EQ(smoothing.addSample(61, 0, 6700), 318);
+    EXPECT_EQ(smoothing.addSample(62, 80, 7200), 180);
 }
 
-TEST(KettlerClassicProtocol, CoachSStrokePowerCounterChangeCompletesDriveWithoutZero) {
+TEST(KettlerClassicProtocol, CoachSCoastingSamplesCannotKeepPowerAlive) {
     kettlerclassicprotocol::CoachSStrokePowerSmoother smoothing;
-    EXPECT_EQ(smoothing.addSample(40, 110, 0), 110);
-    EXPECT_EQ(smoothing.addSample(40, 190, 200), 150);
-    EXPECT_EQ(smoothing.addSample(41, 400, 1200), 150); // previous stroke finalized
-    EXPECT_EQ(smoothing.addSample(41, 0, 1400), 400); // current stroke ends
-    EXPECT_EQ(smoothing.value(4000), 0);
+    EXPECT_EQ(smoothing.addSample(69, 250, 0), 0);
+    EXPECT_EQ(smoothing.addSample(70, 250, 1000), 250);
+    EXPECT_EQ(smoothing.addSample(70, 250, 2000), 250);
+    EXPECT_EQ(smoothing.addSample(71, 80, 3000), 250);
+    EXPECT_EQ(smoothing.addSample(71, 80, 4500), 250);
+    EXPECT_TRUE(smoothing.active(6000));
+    EXPECT_EQ(smoothing.addSample(71, 255, 6100), 0);
+    EXPECT_FALSE(smoothing.active(6100));
+    for (int ms = 6500; ms <= 20000; ms += 500)
+        EXPECT_EQ(smoothing.addSample(71, ms == 9500 ? 255 : 80, ms), 0);
+    EXPECT_EQ(smoothing.value(20500), 0);
+    EXPECT_EQ(smoothing.addSample(72, 80, 21000), 80);
+    EXPECT_TRUE(smoothing.active(21000));
 }
 
 TEST(KettlerClassicProtocol, CoachSStrokePowerAdaptiveStopAndReset) {
     kettlerclassicprotocol::CoachSStrokePowerSmoother smoothing;
-    smoothing.addSample(1, 160, 0);
-    smoothing.addSample(1, 0, 200);
-    smoothing.addSample(2, 180, 4000); // slow 4-second period
-    EXPECT_EQ(smoothing.addSample(2, 0, 4300), 180);
-    EXPECT_EQ(smoothing.value(8000), 180); // keep slow-stroke recovery
-    EXPECT_EQ(smoothing.value(10500), 0); // stop timeout is capped at 6.5s
-    EXPECT_EQ(smoothing.addSample(0, 240, 11000), 240); // counter reset / new session
+    EXPECT_EQ(smoothing.addSample(1, 160, 0), 0);
+    EXPECT_EQ(smoothing.addSample(2, 0, 1000), 160);
+    EXPECT_EQ(smoothing.addSample(2, 180, 4000), 160);
+    EXPECT_EQ(smoothing.addSample(3, 0, 5000), 180);
+    EXPECT_EQ(smoothing.value(10000), 180);
+    EXPECT_EQ(smoothing.value(11001), 0);
+    EXPECT_EQ(smoothing.addSample(0, 240, 12000), 0);
+    EXPECT_EQ(smoothing.addSample(1, 0, 14000), 240);
     smoothing.reset();
-    EXPECT_EQ(smoothing.value(12000), 0);
+    EXPECT_FALSE(smoothing.active(15000));
+    EXPECT_EQ(smoothing.value(15000), 0);
 }
 
 TEST(KettlerClassicProtocol, CoachSDefaultL4UsesConfirmedC0Write) {
@@ -316,14 +328,38 @@ TEST(KettlerClassicProtocol, CoachSDefaultL4UsesConfirmedC0Write) {
 
 TEST(KettlerClassicProtocol, CoachSCounterResetDuringActiveRowClearsPreviousStroke) {
     kettlerclassicprotocol::CoachSStrokePowerSmoother smoothing;
-    EXPECT_EQ(smoothing.addSample(20, 120, 0), 120);
-    EXPECT_EQ(smoothing.addSample(20, 180, 200), 150);
-    EXPECT_EQ(smoothing.addSample(20, 0, 400), 150);
+    EXPECT_EQ(smoothing.addSample(20, 120, 0), 0);
+    EXPECT_EQ(smoothing.addSample(20, 180, 200), 0);
     EXPECT_EQ(smoothing.addSample(21, 200, 800), 150);
-    EXPECT_EQ(smoothing.addSample(21, 0, 1000), 200);
-    // An immediate new workout resets the rower's stroke count before the
-    // old inactivity timeout: no completed or partial watts may leak across.
-    EXPECT_EQ(smoothing.addSample(0, 300, 1200), 300);
-    EXPECT_EQ(smoothing.addSample(0, 0, 1400), 300);
-    EXPECT_EQ(smoothing.value(4500), 0);
+    EXPECT_EQ(smoothing.addSample(0, 300, 1200), 0);
+    EXPECT_EQ(smoothing.addSample(0, 0, 1400), 0);
+    EXPECT_EQ(smoothing.addSample(1, 0, 2600), 300);
+    EXPECT_EQ(smoothing.value(5701), 0);
+}
+
+TEST(KettlerClassicProtocol, CoachSSessionCountersStartAtZeroAndRebase) {
+    kettlerclassicprotocol::CoachSSessionCounters counters;
+    EXPECT_TRUE(counters.addSample(71, 653));
+    EXPECT_EQ(counters.strokes(), 0u);
+    EXPECT_EQ(counters.meters(), 0u);
+    EXPECT_FALSE(counters.addSample(71, 653));
+    EXPECT_FALSE(counters.addSample(72, 663));
+    EXPECT_EQ(counters.strokes(), 1u);
+    EXPECT_EQ(counters.meters(), 10u);
+    counters.clearWorkout();
+    EXPECT_EQ(counters.strokes(), 0u);
+    EXPECT_EQ(counters.meters(), 0u);
+    EXPECT_FALSE(counters.addSample(73, 675));
+    EXPECT_EQ(counters.strokes(), 1u);
+    EXPECT_EQ(counters.meters(), 12u);
+    EXPECT_TRUE(counters.addSample(0, 0));
+    EXPECT_EQ(counters.strokes(), 1u);
+    EXPECT_EQ(counters.meters(), 12u);
+    EXPECT_FALSE(counters.addSample(1, 9));
+    EXPECT_EQ(counters.strokes(), 2u);
+    EXPECT_EQ(counters.meters(), 21u);
+    counters.reset();
+    EXPECT_TRUE(counters.addSample(71, 653));
+    EXPECT_EQ(counters.strokes(), 0u);
+    EXPECT_EQ(counters.meters(), 0u);
 }
