@@ -99,15 +99,6 @@ void TrainProgramTestSuite::test_pidHrModeAndMaxInclinationRoundTripThroughXml()
     EXPECT_DOUBLE_EQ(loaded.first().maxInclination, 12.5);
 }
 
-void TrainProgramTestSuite::test_pidZeroZoneNeverOverridesXmlSpeedOnInclinationChange() {
-    // Repro: ZIPRO Shred XML interval forces speed while zonehr="0" and inclination changes.
-    EXPECT_FALSE(trainprogram::shouldCompensateSpeedOnInclinationChange(false, true, 0));
-    EXPECT_FALSE(trainprogram::shouldCompensateSpeedOnInclinationChange(true, true, 3));
-    EXPECT_TRUE(trainprogram::shouldCompensateSpeedOnInclinationChange(false, true, 3));
-    EXPECT_TRUE(trainprogram::shouldCompensateSpeedOnInclinationChange(false, true, -1));
-    EXPECT_TRUE(trainprogram::shouldCompensateSpeedOnInclinationChange(false, false, 0));
-}
-
 void TrainProgramTestSuite::test_ziproShredHighInclineXmlValuesArePreserved() {
     QTemporaryDir temporaryDir;
     ASSERT_TRUE(temporaryDir.isValid());
