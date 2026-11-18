@@ -1098,6 +1098,14 @@ Do you want to update QZ settings?</source>
         <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
         <translation>לא נמצא חיישן דופק בקרבת מקום. ודא שהוא מופעל ומשדר נתוני דופק.</translation>
     </message>
+    <message>
+        <source>DirCon port %1 is already in use. Check Fake Device settings or other apps, then restart QZ.</source>
+        <translation>יציאת DirCon ‏%1 כבר בשימוש. יש לבדוק את הגדרות המכשירים המדומים או אפליקציות אחרות, ולאחר מכן להפעיל מחדש את QZ.</translation>
+    </message>
+    <message>
+        <source>DirCon could not start on port %1. Check the QZ Debug Log for details.</source>
+        <translation>לא ניתן להפעיל את DirCon ביציאה %1. פרטים נוספים זמינים ביומן ניפוי השגיאות של QZ.</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
