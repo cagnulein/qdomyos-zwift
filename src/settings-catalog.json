@@ -7024,7 +7024,7 @@
     },
     {
       "key": "strava_synthetic_gps_track",
-      "name": "Strava Synthetic GPS Track (Experimental)",
+      "name": "Strava Synthetic GPS Track",
       "description": "Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.",
       "parent": "Advanced Settings",
       "type": "boolean",

@@ -7234,8 +7234,8 @@ Please enter it below:</source>
         <translation>Strava 가상 활동 태그</translation>
     </message>
     <message>
-        <source>Strava Synthetic GPS Track (Experimental)</source>
-        <translation>Strava 합성 GPS 경로(실험적)</translation>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Strava 합성 GPS 경로</translation>
     </message>
     <message>
         <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
