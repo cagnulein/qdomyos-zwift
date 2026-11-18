@@ -342,6 +342,11 @@ button.small {
     color: var(--muted-color);
 }
 
+/* the chips read in the text colour; only the caption before them is muted */
+.qzmc-chip {
+    color: var(--text-color);
+}
+
 .interval-card.selected {
     border-color: var(--accent-color);
     box-shadow: 0 0 0 1px rgba(53, 186, 246, 0.35);

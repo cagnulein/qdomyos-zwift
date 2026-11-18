@@ -2081,7 +2081,7 @@ Vil du opdatere QZ-indstillingerne?</translation>
     <message>
         <source>On one chart:</source>
         <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
-        <translation>I ét diagram:</translation>
+        <translation>I én graf:</translation>
     </message>
     <message>
         <source>Avg Output</source>
