@@ -9440,6 +9440,7 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                     }
                     ComboBox {
+                        Accessible.name: qsTr("Virtual Gearing Profile") + ": " + displayText
                         Layout.fillWidth: true
                         model: [qsTr("Mixed Terrain (1×24)"), qsTr("Flat (incomplete)"),
                                 qsTr("All-Arounder"), qsTr("Climbing")]
