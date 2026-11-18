@@ -5,7 +5,6 @@
 #include <QBluetoothLocalDevice>
 #include <QRegularExpression>
 #include <QDateTime>
-#include <QPointer>
 #include <QFile>
 #include <memory>
 #include <QMetaEnum>
@@ -279,15 +278,6 @@ bluetooth::~bluetooth() {
 }
 
 void bluetooth::signalBluetoothDeviceConnected(bluetoothdevice *b) { emit this->bluetoothDeviceConnected(b); }
-
-void bluetooth::scheduleFakeDeviceToast(bluetoothdevice *fakeDevice, const QString &type) {
-    QPointer<bluetoothdevice> guardedDevice(fakeDevice);
-    QTimer::singleShot(5000, this, [this, guardedDevice, type]() {
-        // Do not report a device that was destroyed during a restart/disconnect.
-        if (guardedDevice)
-            emit fakeDeviceActivated(type);
-    });
-}
 
 void bluetooth::finished() {
     // DIRCON can be discovered before or after the BLE scan completes.
@@ -1159,7 +1149,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(fakeBike);
-                scheduleFakeDeviceToast(fakeBike, QStringLiteral("bike"));
             } else if (fakedevice_elliptical && !fakeElliptical) {
                 this->stopDiscovery();
                 fakeElliptical = new fakeelliptical(noWriteResistance, noHeartService, false);
@@ -1175,7 +1164,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(fakeElliptical);
-                scheduleFakeDeviceToast(fakeElliptical, QStringLiteral("elliptical"));
             } else if (fakedevice_rower && !fakeRower) {
                 this->stopDiscovery();
                 fakeRower = new fakerower(noWriteResistance, noHeartService, false);
@@ -1190,7 +1178,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(fakeRower);
-                scheduleFakeDeviceToast(fakeRower, QStringLiteral("rower"));
             } else if (fakedevice_treadmill && !fakeTreadmill) {
                 this->stopDiscovery();
                 fakeTreadmill = new faketreadmill(noWriteResistance, noHeartService, false);
@@ -1206,7 +1193,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(fakeTreadmill);
-                scheduleFakeDeviceToast(fakeTreadmill, QStringLiteral("treadmill"));
 
             } else if (!proformtdf4ip.isEmpty() && !proformWifiBike) {
                 this->stopDiscovery();

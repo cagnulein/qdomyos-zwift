@@ -1521,7 +1521,6 @@ public:
     void changePelotonAskStart(bool value);
     void changePelotonProvider(QString value);
     void toastRequestedChanged(QString value);
-    void fakeDeviceActivated(const QString &type);
     void restartToApplyRequested(QString message);
     void stravaUploadRequestedChanged(bool value);
     void garminMfaRequestedChanged(bool value);
