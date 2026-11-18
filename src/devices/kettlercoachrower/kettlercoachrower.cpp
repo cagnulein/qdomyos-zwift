@@ -166,6 +166,9 @@ void kettlercoachrower::rfCommConnected() {
     signalledDisconnection = false;
     awaitingHandshake = true;
     sessionCounters.reset();
+    powerBasedPace.reset();
+    lastPowerBasedMode = false;
+    rawDistanceOffsetMeters = 0.0;
     powerClock.start();
     resetStrokeMetrics();
     Distance = 0;
@@ -347,6 +350,9 @@ void kettlercoachrower::clearStats() {
     rower::clearStats();
     // Start a new QZ workout at the latest physical counter values.
     sessionCounters.clearWorkout();
+    powerBasedPace.reset();
+    lastPowerBasedMode = false;
+    rawDistanceOffsetMeters = 0.0;
     resetStrokeMetrics();
     Distance = 0;
     Distance1s = 0;
@@ -371,6 +377,10 @@ void kettlercoachrower::processTelemetry(const QByteArray &payload) {
     const quint16 meters = be16(payload, 16);
     const quint16 rawWatts = kettlerclassicprotocol::coachSCandidateWatts(payload);
     const quint16 consoleStrokeWatts = kettlerclassicprotocol::coachSStrokeWatts(payload);
+    const bool precedingStrokeActive = strokePower.active(nowMs);
+    QSettings settings;
+    const bool powerBasedMode = settings.value(
+        QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool();
     const bool completedStroke = sessionCounters.hasSample() &&
                                  strokes > sessionCounters.rawStrokes();
     const bool strokeActive = strokePower.active(nowMs) || completedStroke;
@@ -387,13 +397,37 @@ void kettlercoachrower::processTelemetry(const QByteArray &payload) {
     recordReportedResistance(kettlerclassicprotocol::coachSReportedResistance(payload),
                              "E0 byte 23");
 
+    if (powerBasedMode != lastPowerBasedMode) {
+        // Preserve the displayed session distance if the setting is toggled
+        // while QZ is running, without changing raw console counters.
+        const double displayedMeters = Distance.value() * 1000.0;
+        if (powerBasedMode)
+            powerBasedPace.reset(displayedMeters);
+        else
+            rawDistanceOffsetMeters = displayedMeters -
+                                      static_cast<double>(sessionCounters.meters());
+        lastPowerBasedMode = powerBasedMode;
+        emit debug(QStringLiteral("Coach S Concept2 power-based pace %1")
+                       .arg(powerBasedMode ? QStringLiteral("enabled")
+                                           : QStringLiteral("disabled")));
+    }
+
     if (strokes > lastStrokes) {
+        if (powerBasedMode) {
+            const qint64 elapsedMs = lastStrokeMs >= 0 ? nowMs - lastStrokeMs : -1;
+            powerBasedPace.completedStroke(currentWatts, elapsedMs,
+                                           precedingStrokeActive);
+            Speed = powerBasedPace.speedKmh();
+            emit debug(QStringLiteral("Coach S Concept2-equivalent speed=%1 km/h power=%2 W sessionMeters=%3")
+                           .arg(Speed.value(), 0, 'f', 2).arg(currentWatts)
+                           .arg(powerBasedPace.meters(), 0, 'f', 2));
+        }
         if (lastStrokeMs >= 0) {
             const qint64 elapsedMs = nowMs - lastStrokeMs;
             if (elapsedMs >= 300 && elapsedMs <= 6500) {
                 const quint16 strokesDelta = strokes - lastStrokes;
                 Cadence = qBound(0.0, (60000.0 * strokesDelta) / elapsedMs, 80.0);
-                if (meters > lastStrokeDistanceMeters) {
+                if (!powerBasedMode && meters > lastStrokeDistanceMeters) {
                     const int distanceDelta = meters - lastStrokeDistanceMeters;
                     const double strokeSpeedKmh =
                         qBound(0.0, distanceDelta * 3600.0 / elapsedMs, 30.0);
@@ -418,8 +452,12 @@ void kettlercoachrower::processTelemetry(const QByteArray &payload) {
     }
 
     StrokesCount = static_cast<double>(sessionCounters.strokes());
-    Distance = sessionCounters.meters() / 1000.0;
-    Distance1s = sessionCounters.meters() / 1000.0;
+    const double displayedMeters = powerBasedMode
+        ? powerBasedPace.meters()
+        : qMax(0.0, static_cast<double>(sessionCounters.meters()) +
+                        rawDistanceOffsetMeters);
+    Distance = displayedMeters / 1000.0;
+    Distance1s = displayedMeters / 1000.0;
     emit debug(QStringLiteral("Coach S e0 counters strokes=%1 distanceCandidate=%2 powerCandidate=%3 smoothedWatts=%4 fields=%5 sessionStrokes=%6 sessionMeters=%7 consoleStrokeWatts=%8")
                    .arg(strokes).arg(meters).arg(rawWatts).arg(currentWatts)
                    .arg(QString::fromLatin1(payload.toHex(' ')))
