@@ -1098,6 +1098,10 @@ Do you want to update QZ settings?</source>
         <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
         <translation>Δεν βρέθηκε κοντινός αισθητήρας καρδιακών παλμών. Βεβαιωθείτε ότι είναι ενεργός και μεταδίδει δεδομένα.</translation>
     </message>
+    <message>
+        <source>Kingsmith treadmill Bluetooth service unavailable. Retrying connection; if the problem persists, restart the treadmill.</source>
+        <translation>Η υπηρεσία Bluetooth του διαδρόμου Kingsmith δεν είναι διαθέσιμη. Γίνεται νέα προσπάθεια σύνδεσης· αν το πρόβλημα επιμένει, επανεκκινήστε τον διάδρομο.</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
