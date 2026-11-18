@@ -1098,6 +1098,10 @@ Do you want to update QZ settings?</source>
         <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
         <translation>आसपास कोई हृदय गति सेंसर नहीं मिला। सुनिश्चित करें कि वह चालू है और हृदय गति प्रसारित कर रहा है।</translation>
     </message>
+    <message>
+        <source>Kingsmith treadmill Bluetooth service unavailable. Retrying connection; if the problem persists, restart the treadmill.</source>
+        <translation>Kingsmith ट्रेडमिल की Bluetooth सेवा उपलब्ध नहीं है। कनेक्शन का दोबारा प्रयास किया जा रहा है; समस्या बनी रहे तो ट्रेडमिल को पुनः चालू करें।</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
