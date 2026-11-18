@@ -4839,6 +4839,9 @@ void bluetooth::restart() {
     if (onlyDiscover) {
 
         onlyDiscover = false;
+        // Refresh during the search of an open list: its devices go on as on master (a MOXY6 or CORE
+        // sensor switched on after the equipment is connected only this way)
+        deviceListScan = false;
         this->startDiscovery();
         return;
     }

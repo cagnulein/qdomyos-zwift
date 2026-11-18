@@ -24,10 +24,17 @@ ValueComboBox {
         return bracket < 0 || !row.endsWith("%)") ? row : row.substring(0, bracket)
     }
 
+    // rows.clear() sets currentIndex to -1: the row of the value is set again, so the list shows it
+    // chosen and Enter without a highlighted row takes it, as with the model of the plain ComboBox
     function fill() {
         rows.clear()
-        for (var i = 0; i < found.length; ++i)
+        var current = -1
+        for (var i = 0; i < found.length; ++i) {
             rows.append({ "name": found[i] })
+            if (current < 0 && value !== "" && deviceName(found[i]) === deviceName(value))
+                current = i
+        }
+        currentIndex = current
         measureItems()
     }
 

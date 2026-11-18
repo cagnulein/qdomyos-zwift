@@ -815,6 +815,9 @@ ApplicationWindow {
                 font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 8)
 
                 onActivated: {
+                    // Enter with no row highlighted: nothing picked yet
+                    if (index < 0)
+                        return
                     var selectedDevice = stripBluetoothDeviceName(currentValue)
                     if (selectedDevice === "Disabled" || selectedDevice === "Wifi" || selectedDevice.length === 0) {
                         return
