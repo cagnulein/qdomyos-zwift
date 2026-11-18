@@ -255,6 +255,8 @@
     }
 
     function bindEvents() {
+        // The chart card is titled with the workout name: follow it while it is typed
+        selectors.name.addEventListener('input', updateChart);
         selectors.device.addEventListener('change', () => {
             if (window.QZ_OFFLINE) {
                 state.device = selectors.device.value;
@@ -538,6 +540,7 @@
                     if (state.lastSaved === name) {
                         state.lastSaved = '';
                         selectors.name.value = '';
+                        updateChart();
                     }
                     // Refresh the program list
                     return refreshProgramList();
@@ -1412,6 +1415,7 @@
             }
             state.lastSaved = payload.name;
             selectors.name.value = payload.name;
+            updateChart();
             announce(t('workoutEditor.savedName', 'Saved {name}').replace('{name}', payload.name));
 
             console.log('[saveWorkflow] Refreshing program list...');
