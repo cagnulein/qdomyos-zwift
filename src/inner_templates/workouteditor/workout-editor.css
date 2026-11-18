@@ -348,6 +348,12 @@ button.small {
     color: var(--text-color);
 }
 
+/* the muted colour is dim enough on this dark page; the chart script's opacity on top of it
+   would take the caption below 4.5:1 */
+.qzmc-bar .qzmc-caption {
+    opacity: 1;
+}
+
 .interval-card.selected {
     border-color: var(--accent-color);
     box-shadow: 0 0 0 1px rgba(53, 186, 246, 0.35);
