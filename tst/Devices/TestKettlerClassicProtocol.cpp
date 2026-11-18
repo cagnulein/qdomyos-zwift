@@ -219,15 +219,15 @@ TEST(KettlerClassicProtocol, CoachSConsoleWattsUseE0BytesSixSeven) {
     // completed stroke boundaries; bytes 18-19 do not contain those watts.
     const struct { const char *payload; quint16 watts; } captures[] = {
         {"000400280018009100c4046d0000000001ae000000000004", 145}, // old workout
-        {"000400290018000c00c4046d0000000001b8005000000004", 12},
-        {"0004002b0018001100c4046d0000000001d0005000000004", 17}
+        {"000400290006000c001001e8120200f401b8005013130004", 12},
+        {"0004002b008c0011001704b11f8500b601d000500a740004", 17}
     };
     for (const auto &entry : captures) {
         const QByteArray e0 = QByteArray::fromHex(entry.payload);
         ASSERT_EQ(e0.size(), 24);
         EXPECT_EQ(kettlerclassicprotocol::coachSStrokeWatts(e0), entry.watts);
     }
-    QByteArray invalid(24, '\\0');
+    QByteArray invalid(24, char(0));
     invalid[0] = char(0);
     invalid[1] = char(4);
     invalid[6] = char(0);
