@@ -554,6 +554,9 @@ class bluetoothdevice : public QObject {
     void verticalOscillationChanged(double verticalOscillation);
 
   protected:
+    // TC-prefix FTMS bikes: learn ERG from the acknowledged command, not Peloton estimates.
+    bool TC_BIKE = false;
+
     /**
      * @brief Mode of operation for the virtual device with the bluetoothdevice object.
      */
