@@ -2637,6 +2637,7 @@ import AndroidStatusBar 1.0
 
                 TextField {
                     id: settingsSearchTextField
+                    Accessible.name: qsTr("Search settings") + ": " + text
                     Layout.fillWidth: true
                     placeholderText: qsTr("Search settings")
                     selectByMouse: true
@@ -2874,6 +2875,7 @@ import AndroidStatusBar 1.0
                         }
                         UiComboBox {
                             id: appLanguageCombo
+                            Accessible.name: qsTr("App Language:") + " " + displayText
                             model: appLanguageOptions
                             textRole: "label"
                             Layout.fillHeight: false
@@ -2938,6 +2940,8 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: if (valid) settings.weight = ((settings.miles_unit && !settings.weight_kg_unit)?value / 2.20462:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Player Weight") + ": " + text
                         }
                         Button {
                             id: okWeightButton
@@ -2945,6 +2949,8 @@ import AndroidStatusBar 1.0
                             enabled: weightTextField.valid && weightTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.weight = ((settings.miles_unit && !settings.weight_kg_unit)?weightTextField.value / 2.20462:weightTextField.value); toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Player Weight")
                         }
                     }
                     Label {
@@ -2988,6 +2994,8 @@ import AndroidStatusBar 1.0
                                 }
                             }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Player Height") + ": " + text
                         }
                         Button {
                             id: okHeightButton
@@ -3008,6 +3016,8 @@ import AndroidStatusBar 1.0
                                 }
                                 toast.show(qsTr("Setting saved!"));
                             }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Player Height")
                         }
                     }
                     Label {
@@ -3044,6 +3054,8 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: if (valid) settings.age = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Player Age") + ": " + text
                         }
                         Button {
                             id: okAgeButton
@@ -3051,6 +3063,8 @@ import AndroidStatusBar 1.0
                             enabled: ageTextField.valid && ageTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.age = ageTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Player Age")
                         }
                     }
 
@@ -3087,6 +3101,8 @@ import AndroidStatusBar 1.0
                                 console.log("combomodel activated" + sexTextField.currentIndex)
                              }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Gender") + ": " + displayText
                         }
                         Button {
                             id: okSex
@@ -3094,6 +3110,8 @@ import AndroidStatusBar 1.0
                             enabled: sexTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.sex = sexTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Gender")
                         }
                     }
 
@@ -3131,6 +3149,8 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: if (valid) settings.ftp = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("FTP value") + ": " + text
                         }
                         Button {
                             id: okFTPButton
@@ -3138,6 +3158,8 @@ import AndroidStatusBar 1.0
                             enabled: ftpTextField.valid && ftpTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ftp = ftpTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save FTP value")
                         }
                     }
 
@@ -3173,12 +3195,16 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: if (valid) settings.ftp_run = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Critical Power Run value") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: ftpRunTextField.valid && ftpRunTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ftp_run = ftpRunTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Critical Power Run value")
                         }
                     }
 
@@ -3212,6 +3238,8 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: settings.user_nickname = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Nickname") + ": " + text
                         }
                         Button {
                             id: okNicknameButton
@@ -3219,6 +3247,8 @@ import AndroidStatusBar 1.0
                             enabled: nicknameTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.user_nickname = nicknameTextField.text; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Nickname")
                         }
                     }
 
@@ -3254,6 +3284,8 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhEmailCharactersOnly | Qt.ImhNoAutoUppercase
                             onAccepted: settings.user_email = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Email") + ": " + text
                         }
                         Button {
                             id: okEmailButton
@@ -3261,6 +3293,8 @@ import AndroidStatusBar 1.0
                             enabled: emailTextField.acceptableInput && emailTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.user_email = emailTextField.text; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Email")
                         }
                     }
 
@@ -3574,6 +3608,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: heartBeltNameTextField
+                            Accessible.name: qsTr("Heart Belt Name:") + " " + displayText
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.heart_rate_belt_name
@@ -3675,6 +3710,8 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: if (valid) settings.heart_rate_zone1 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Zone 1 %") + ": " + text
                                 }
                                 Button {
                                     id: okHeartRateZone1Button
@@ -3682,6 +3719,8 @@ import AndroidStatusBar 1.0
                                     enabled: heartRateZone1TextField.valid && heartRateZone1TextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.heart_rate_zone1 = heartRateZone1TextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Zone 1 %")
                                 }
                             }
 
@@ -3703,6 +3742,8 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: if (valid) settings.heart_rate_zone2 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Zone 2 %") + ": " + text
                                 }
                                 Button {
                                     id: okHeartRateZone2Button
@@ -3710,6 +3751,8 @@ import AndroidStatusBar 1.0
                                     enabled: heartRateZone2TextField.valid && heartRateZone2TextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.heart_rate_zone2 = heartRateZone2TextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Zone 2 %")
                                 }
                             }
 
@@ -3731,6 +3774,8 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: if (valid) settings.heart_rate_zone3 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Zone 3 %") + ": " + text
                                 }
                                 Button {
                                     id: okHeartRateZone3Button
@@ -3738,6 +3783,8 @@ import AndroidStatusBar 1.0
                                     enabled: heartRateZone3TextField.valid && heartRateZone3TextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.heart_rate_zone3 = heartRateZone3TextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Zone 3 %")
                                 }
                             }
 
@@ -3759,6 +3806,8 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: if (valid) settings.heart_rate_zone4 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Zone 4 %") + ": " + text
                                 }
                                 Button {
                                     id: okHeartRateZone4Button
@@ -3766,6 +3815,8 @@ import AndroidStatusBar 1.0
                                     enabled: heartRateZone4TextField.valid && heartRateZone4TextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.heart_rate_zone4 = heartRateZone4TextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Zone 4 %")
                                 }
                             }
 
@@ -3839,6 +3890,8 @@ import AndroidStatusBar 1.0
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: if (valid) settings.heart_max_override_value = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Max Heart Rate") + ": " + text
                                         }
                                         Button {
                                             id: okHeartRateMaxOverrideValue
@@ -3846,6 +3899,8 @@ import AndroidStatusBar 1.0
                                             enabled: heartRateMaxOverrideValueTextField.valid && heartRateMaxOverrideValueTextField.dirty
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.heart_max_override_value = heartRateMaxOverrideValueTextField.value; toast.show(qsTr("Setting saved!")); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Max Heart Rate")
                                         }
                                     }
 
@@ -3883,6 +3938,8 @@ import AndroidStatusBar 1.0
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: if (valid) settings.heart_rate_resting = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Resting Heart Rate") + ": " + text
                                         }
                                         Button {
                                             id: okHeartRateRestingValue
@@ -3890,6 +3947,8 @@ import AndroidStatusBar 1.0
                                             enabled: heartRateRestingValueTextField.valid && heartRateRestingValueTextField.dirty
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.heart_rate_resting = heartRateRestingValueTextField.value; toast.show(qsTr("Setting saved!")); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Resting Heart Rate")
                                         }
                                     }
 
@@ -3936,6 +3995,8 @@ import AndroidStatusBar 1.0
                                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                                             onAccepted: if (valid) settings.power_hr_pwr1 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Session 1 Watt") + ": " + text
                                         }
                                         Button {
                                             id: okPowerFromHeartPWR1
@@ -3943,6 +4004,8 @@ import AndroidStatusBar 1.0
                                             enabled: powerFromHeartPWR1TextField.valid && powerFromHeartPWR1TextField.dirty
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.power_hr_pwr1 = powerFromHeartPWR1TextField.value; toast.show(qsTr("Setting saved!")); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Session 1 Watt")
                                         }
                                     }
 
@@ -3965,6 +4028,8 @@ import AndroidStatusBar 1.0
                                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                                             onAccepted: if (valid) settings.power_hr_hr1 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Session 1 HR") + ": " + text
                                         }
                                         Button {
                                             id: okPowerFromHeartHR1
@@ -3972,6 +4037,8 @@ import AndroidStatusBar 1.0
                                             enabled: powerFromHeartHR1TextField.valid && powerFromHeartHR1TextField.dirty
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.power_hr_hr1 = powerFromHeartHR1TextField.value; toast.show(qsTr("Setting saved!")); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Session 1 HR")
                                         }
                                     }
 
@@ -3994,6 +4061,8 @@ import AndroidStatusBar 1.0
                                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                                             onAccepted: if (valid) settings.power_hr_pwr2 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Session 2 Watt") + ": " + text
                                         }
                                         Button {
                                             id: okPowerFromHeartPWR2
@@ -4001,6 +4070,8 @@ import AndroidStatusBar 1.0
                                             enabled: powerFromHeartPWR2TextField.valid && powerFromHeartPWR2TextField.dirty
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.power_hr_pwr2 = powerFromHeartPWR2TextField.value; toast.show(qsTr("Setting saved!")); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Session 2 Watt")
                                         }
                                     }
 
@@ -4023,6 +4094,8 @@ import AndroidStatusBar 1.0
                                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                                             onAccepted: if (valid) settings.power_hr_hr2 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Session 2 HR") + ": " + text
                                         }
                                         Button {
                                             id: okPowerFromHeartHR2
@@ -4030,6 +4103,8 @@ import AndroidStatusBar 1.0
                                             enabled: powerFromHeartHR2TextField.valid && powerFromHeartHR2TextField.dirty
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.power_hr_hr2 = powerFromHeartHR2TextField.value; toast.show(qsTr("Setting saved!")); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Session 2 HR")
                                         }
                                     }
                                 }
@@ -4164,6 +4239,8 @@ import AndroidStatusBar 1.0
                             enabled: gearsRestoreValueDelegate.checked
                             onAccepted: if (valid) settings.gears_current_value_f = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Gear Value") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -4173,6 +4250,8 @@ import AndroidStatusBar 1.0
                                 settings.gears_current_value_f = specificGearValueField.value
                                 toast.show(qsTr("Setting saved!"))
                             }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Gear Value")
                         }
                     }
 
@@ -4206,6 +4285,8 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.rolling_resistance = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Rolling Resistance Factor") + ": " + text
                         }
                         Button {
                             id: okRollingResistanceButton
@@ -4213,6 +4294,8 @@ import AndroidStatusBar 1.0
                             enabled: rollingreistanceTextField.valid && rollingreistanceTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.rolling_resistance = rollingreistanceTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Rolling Resistance Factor")
                         }
                     }
                     Label {
@@ -4241,6 +4324,8 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.bike_weight = ((settings.miles_unit && !settings.weight_kg_unit)?value / 2.20462:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Bike Weight") + ": " + text
                         }
                         Button {
                             id: okBikeWeightButton
@@ -4248,6 +4333,8 @@ import AndroidStatusBar 1.0
                             enabled: bikeweightTextField.valid && bikeweightTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.bike_weight = ((settings.miles_unit && !settings.weight_kg_unit)?bikeweightTextField.value / 2.20462:bikeweightTextField.value); toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Bike Weight")
                         }
                     }
 
@@ -4282,6 +4369,8 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.crrGain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Rolling Res. Gain") + ": " + text
                         }
                         Button {
                             id: okCRRGainButton
@@ -4289,6 +4378,8 @@ import AndroidStatusBar 1.0
                             enabled: crrGainTextField.valid && crrGainTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.crrGain = crrGainTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Rolling Res. Gain")
                         }
                     }
                     RowLayout {
@@ -4308,6 +4399,8 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.cwGain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Wind Res. Gain") + ": " + text
                         }
                         Button {
                             id: okCWGainButton
@@ -4315,6 +4408,8 @@ import AndroidStatusBar 1.0
                             enabled: cwGainTextField.valid && cwGainTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.cwGain = cwGainTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Wind Res. Gain")
                         }
                     }
                     IndicatorOnlySwitch {
@@ -4414,6 +4509,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Left Up:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_up
                                     onActivated: { settings.mywhoosh_link_left_up = currentIndex; window.settings_restart_to_apply = true; }
@@ -4427,6 +4523,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Left Down:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_down
                                     onActivated: { settings.mywhoosh_link_left_down = currentIndex; window.settings_restart_to_apply = true; }
@@ -4440,6 +4537,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Left Left:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_left
                                     onActivated: { settings.mywhoosh_link_left_left = currentIndex; window.settings_restart_to_apply = true; }
@@ -4453,6 +4551,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Left Right:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_right
                                     onActivated: { settings.mywhoosh_link_left_right = currentIndex; window.settings_restart_to_apply = true; }
@@ -4466,6 +4565,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Left Shoulder:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_shoulder
                                     onActivated: { settings.mywhoosh_link_left_shoulder = currentIndex; window.settings_restart_to_apply = true; }
@@ -4479,6 +4579,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Left Power:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_power
                                     onActivated: { settings.mywhoosh_link_left_power = currentIndex; window.settings_restart_to_apply = true; }
@@ -4501,6 +4602,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Right Y:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_y
                                     onActivated: { settings.mywhoosh_link_right_y = currentIndex; window.settings_restart_to_apply = true; }
@@ -4514,6 +4616,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Right A:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_a
                                     onActivated: { settings.mywhoosh_link_right_a = currentIndex; window.settings_restart_to_apply = true; }
@@ -4527,6 +4630,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Right B:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_b
                                     onActivated: { settings.mywhoosh_link_right_b = currentIndex; window.settings_restart_to_apply = true; }
@@ -4540,6 +4644,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Right Z:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_z
                                     onActivated: { settings.mywhoosh_link_right_z = currentIndex; window.settings_restart_to_apply = true; }
@@ -4553,6 +4658,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Right Shoulder:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_shoulder
                                     onActivated: { settings.mywhoosh_link_right_shoulder = currentIndex; window.settings_restart_to_apply = true; }
@@ -4566,6 +4672,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Right Power:") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_power
                                     onActivated: { settings.mywhoosh_link_right_power = currentIndex; window.settings_restart_to_apply = true; }
@@ -4607,6 +4714,8 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: if (valid) settings.bike_resistance_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Zwift Resistance Offset") + ": " + text
                         }
                         Button {
                             id: okBikeResistanceOffsetButton
@@ -4614,6 +4723,8 @@ import AndroidStatusBar 1.0
                             enabled: bikeResistanceOffsetTextField.valid && bikeResistanceOffsetTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.bike_resistance_offset = bikeResistanceOffsetTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Zwift Resistance Offset")
                         }
                     }
 
@@ -4650,6 +4761,8 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.bike_power_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Zwift Power Offset (W)") + ": " + text
                         }
                         Button {
                             id: okBikePowerOffsetButton
@@ -4657,6 +4770,8 @@ import AndroidStatusBar 1.0
                             enabled: bikePowerOffsetTextField.valid && bikePowerOffsetTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.bike_power_offset = bikePowerOffsetTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Zwift Power Offset (W)")
                         }
                     }
 
@@ -4691,6 +4806,8 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.bike_resistance_gain_f = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Zwift Resistance Gain") + ": " + text
                         }
                         Button {
                             id: okBikeResistanceGainButton
@@ -4698,6 +4815,8 @@ import AndroidStatusBar 1.0
                             enabled: bikeResistanceGainTextField.valid && bikeResistanceGainTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.bike_resistance_gain_f = bikeResistanceGainTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Zwift Resistance Gain")
                         }
                     }
 
@@ -4732,6 +4851,8 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.zwift_erg_filter = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Zwift ERG Watt Up Filter") + ": " + text
                         }
                         Button {
                             id: okzwiftErgFilterButton
@@ -4739,6 +4860,8 @@ import AndroidStatusBar 1.0
                             enabled: zwiftErgFilterTextField.valid && zwiftErgFilterTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.zwift_erg_filter = zwiftErgFilterTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Zwift ERG Watt Up Filter")
                         }
                     }
 
@@ -4773,6 +4896,8 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.zwift_erg_filter_down = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Zwift ERG Watt Down Filter") + ": " + text
                         }
                         Button {
                             id: okzwiftErgDownFilterButton
@@ -4780,6 +4905,8 @@ import AndroidStatusBar 1.0
                             enabled: zwiftErgDownFilterTextField.valid && zwiftErgDownFilterTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.zwift_erg_filter_down = zwiftErgDownFilterTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Zwift ERG Watt Down Filter")
                         }
                     }
 
@@ -4814,6 +4941,8 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.zwift_erg_resistance_down = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Min. Resistance") + ": " + text
                         }
                         Button {
                             id: okzwiftErgResistanceDownButton
@@ -4821,6 +4950,8 @@ import AndroidStatusBar 1.0
                             enabled: zwiftErgResistanceDownTextField.valid && zwiftErgResistanceDownTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.zwift_erg_resistance_down = zwiftErgResistanceDownTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Min. Resistance")
                         }
                     }
 
@@ -4855,6 +4986,8 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.zwift_erg_resistance_up = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Max. Resistance") + ": " + text
                         }
                         Button {
                             id: okzwiftErgResistanceUpButton
@@ -4862,6 +4995,8 @@ import AndroidStatusBar 1.0
                             enabled: zwiftErgResistanceUpTextField.valid && zwiftErgResistanceUpTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.zwift_erg_resistance_up = zwiftErgResistanceUpTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Max. Resistance")
                         }
                     }
 
@@ -4897,6 +5032,8 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.bike_resistance_start = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Resistance at Startup") + ": " + text
                         }
                         Button {
                             id: okBikeResistanceStartButton
@@ -4904,6 +5041,8 @@ import AndroidStatusBar 1.0
                             enabled: bikeResistanceStartTextField.valid && bikeResistanceStartTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.bike_resistance_start = bikeResistanceStartTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Resistance at Startup")
                         }
                     }
 
@@ -4937,12 +5076,16 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.gears_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Gears Gain") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: gearsGainTextField.valid && gearsGainTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.gears_gain = gearsGainTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Gears Gain")
                         }
                     }
 
@@ -4995,12 +5138,16 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.gears_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Gears Offset") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: gearsOffsetTextField.valid && gearsOffsetTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.gears_offset = gearsOffsetTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Gears Offset")
                         }
                     }
 
@@ -5074,6 +5221,8 @@ import AndroidStatusBar 1.0
                                     onActivated: {
                                         settings.automatic_virtual_shifting_profile = currentIndex
                                     }
+                                    Accessible.role: Accessible.ComboBox
+                                    Accessible.name: qsTr("Profile") + ": " + displayText
                                 }
                             }
 
@@ -5108,12 +5257,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_gear_up_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Cruise - Gear Up Cadence (RPM)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingGearUpCadenceTextField.valid && automaticVirtualShiftingGearUpCadenceTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_gear_up_cadence = automaticVirtualShiftingGearUpCadenceTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Cruise - Gear Up Cadence (RPM)")
                                 }
                             }
 
@@ -5134,12 +5287,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.automatic_virtual_shifting_gear_up_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Cruise - Gear Up Time (seconds)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingGearUpTimeTextField.valid && automaticVirtualShiftingGearUpTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_gear_up_time = automaticVirtualShiftingGearUpTimeTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Cruise - Gear Up Time (seconds)")
                                 }
                             }
 
@@ -5163,12 +5320,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_gear_down_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Cruise - Gear Down Cadence (RPM)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingGearDownCadenceTextField.valid && automaticVirtualShiftingGearDownCadenceTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_gear_down_cadence = automaticVirtualShiftingGearDownCadenceTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Cruise - Gear Down Cadence (RPM)")
                                 }
                             }
 
@@ -5189,12 +5350,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.automatic_virtual_shifting_gear_down_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Cruise - Gear Down Time (seconds)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingGearDownTimeTextField.valid && automaticVirtualShiftingGearDownTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_gear_down_time = automaticVirtualShiftingGearDownTimeTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Cruise - Gear Down Time (seconds)")
                                 }
                             }
 
@@ -5229,12 +5394,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_climb_gear_up_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Climb - Gear Up Cadence (RPM)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingClimbGearUpCadenceTextField.valid && automaticVirtualShiftingClimbGearUpCadenceTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_climb_gear_up_cadence = automaticVirtualShiftingClimbGearUpCadenceTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Climb - Gear Up Cadence (RPM)")
                                 }
                             }
 
@@ -5255,12 +5424,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.automatic_virtual_shifting_climb_gear_up_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Climb - Gear Up Time (seconds)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingClimbGearUpTimeTextField.valid && automaticVirtualShiftingClimbGearUpTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_climb_gear_up_time = automaticVirtualShiftingClimbGearUpTimeTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Climb - Gear Up Time (seconds)")
                                 }
                             }
 
@@ -5284,12 +5457,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_climb_gear_down_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Climb - Gear Down Cadence (RPM)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingClimbGearDownCadenceTextField.valid && automaticVirtualShiftingClimbGearDownCadenceTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_climb_gear_down_cadence = automaticVirtualShiftingClimbGearDownCadenceTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Climb - Gear Down Cadence (RPM)")
                                 }
                             }
 
@@ -5310,12 +5487,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.automatic_virtual_shifting_climb_gear_down_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Climb - Gear Down Time (seconds)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingClimbGearDownTimeTextField.valid && automaticVirtualShiftingClimbGearDownTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_climb_gear_down_time = automaticVirtualShiftingClimbGearDownTimeTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Climb - Gear Down Time (seconds)")
                                 }
                             }
 
@@ -5350,12 +5531,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_sprint_gear_up_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Sprint - Gear Up Cadence (RPM)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingSprintGearUpCadenceTextField.valid && automaticVirtualShiftingSprintGearUpCadenceTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_sprint_gear_up_cadence = automaticVirtualShiftingSprintGearUpCadenceTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Sprint - Gear Up Cadence (RPM)")
                                 }
                             }
 
@@ -5376,12 +5561,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.automatic_virtual_shifting_sprint_gear_up_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Sprint - Gear Up Time (seconds)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingSprintGearUpTimeTextField.valid && automaticVirtualShiftingSprintGearUpTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_sprint_gear_up_time = automaticVirtualShiftingSprintGearUpTimeTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Sprint - Gear Up Time (seconds)")
                                 }
                             }
 
@@ -5405,12 +5594,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_sprint_gear_down_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Sprint - Gear Down Cadence (RPM)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingSprintGearDownCadenceTextField.valid && automaticVirtualShiftingSprintGearDownCadenceTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_sprint_gear_down_cadence = automaticVirtualShiftingSprintGearDownCadenceTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Sprint - Gear Down Cadence (RPM)")
                                 }
                             }
 
@@ -5431,12 +5624,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.automatic_virtual_shifting_sprint_gear_down_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Sprint - Gear Down Time (seconds)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingSprintGearDownTimeTextField.valid && automaticVirtualShiftingSprintGearDownTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_sprint_gear_down_time = automaticVirtualShiftingSprintGearDownTimeTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Sprint - Gear Down Time (seconds)")
                                 }
                             }
                         }
@@ -5451,6 +5648,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: ftmsBikeTextField
+                            Accessible.name: qsTr("FTMS Bike:") + " " + displayText
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.ftms_bike
@@ -5574,6 +5772,8 @@ import AndroidStatusBar 1.0
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.schwinn_resistance_smooth = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Resistance Smoothing") + ": " + text
                                 }
                                 Button {
                                     id: okschwinnResistanceSmoothButton
@@ -5581,6 +5781,8 @@ import AndroidStatusBar 1.0
                                     enabled: scwhinnResistanceSmoothTextField.valid && scwhinnResistanceSmoothTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.schwinn_resistance_smooth = scwhinnResistanceSmoothTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Resistance Smoothing")
                                 }
                             }
                             Label {
@@ -5621,6 +5823,8 @@ import AndroidStatusBar 1.0
                                 //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 onAccepted: settings.horizon_gr7_cadence_multiplier = value
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                Accessible.role: Accessible.EditableText
+                                Accessible.name: qsTr("GR7 Cadence Multiplier") + ": " + text
                             }
                             Button {
                                 id: okhorizonGr7CadenceMultiplierButton
@@ -5628,6 +5832,8 @@ import AndroidStatusBar 1.0
                                 enabled: horizonGr7CadenceMultiplierTextField.valid && horizonGr7CadenceMultiplierTextField.dirty
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: { settings.horizon_gr7_cadence_multiplier = horizonGr7CadenceMultiplierTextField.value; toast.show(qsTr("Setting saved!")); }
+                                Accessible.role: Accessible.Button
+                                Accessible.name: qsTr("Save GR7 Cadence Multiplier")
                             }
                         }
                     }
@@ -5662,6 +5868,8 @@ import AndroidStatusBar 1.0
                                         displayText = echelonWattTableTextField.currentValue
                                     }
 
+                                    Accessible.role: Accessible.ComboBox
+                                    Accessible.name: qsTr("Watt Profile") + ": " + displayText
                                 }
                                 Button {
                                     id: okEchelonWattTable
@@ -5669,6 +5877,8 @@ import AndroidStatusBar 1.0
                                     enabled: echelonWattTableTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.echelon_watttable = echelonWattTableTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Watt Profile")
                                 }
                             }
                             RowLayout {
@@ -5688,6 +5898,8 @@ import AndroidStatusBar 1.0
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.echelon_resistance_gain = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Resistance Gain") + ": " + text
                                 }
                                 Button {
                                     id: okechelonResistanceGainButton
@@ -5695,6 +5907,8 @@ import AndroidStatusBar 1.0
                                     enabled: echelonResistanceGainTextField.valid && echelonResistanceGainTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.echelon_resistance_gain = echelonResistanceGainTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Resistance Gain")
                                 }
                             }
                             RowLayout {
@@ -5717,6 +5931,8 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: if (valid) settings.echelon_resistance_offset = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Resistance Offset") + ": " + text
                                 }
                                 Button {
                                     id: okechelonResistanceOffsetButton
@@ -5724,6 +5940,8 @@ import AndroidStatusBar 1.0
                                     enabled: echelonResistanceOffsetTextField.valid && echelonResistanceOffsetTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.echelon_resistance_offset = echelonResistanceOffsetTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Resistance Offset")
                                 }
                             }
                             IndicatorOnlySwitch {
@@ -6092,6 +6310,8 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.flywheel_filter = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Samples Filter") + ": " + text
                                 }
                                 Button {
                                     id: okflywheelBikeFilterButton
@@ -6099,6 +6319,8 @@ import AndroidStatusBar 1.0
                                     enabled: flywheelBikeFilterTextField.valid && flywheelBikeFilterTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.flywheel_filter = flywheelBikeFilterTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Samples Filter")
                                 }
                             }
                             IndicatorOnlySwitch {
@@ -6156,6 +6378,8 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.domyos_bike_cadence_filter = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Cadence Filter") + ": " + text
                                 }
                                 Button {
                                     id: okDomyosBikeCadenceFilter
@@ -6163,6 +6387,8 @@ import AndroidStatusBar 1.0
                                     enabled: domyosBikeCadenceFilterTextField.valid && domyosBikeCadenceFilterTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.domyos_bike_cadence_filter = domyosBikeCadenceFilterTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Cadence Filter")
                                 }
                             }
                             IndicatorOnlySwitch {
@@ -6292,6 +6518,8 @@ import AndroidStatusBar 1.0
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.proform_wheel_ratio = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Wheel Ratio") + ": " + text
                                 }
                                 Button {
                                     id: okproformBikeWheelRatioButton
@@ -6299,6 +6527,8 @@ import AndroidStatusBar 1.0
                                     enabled: proformBikeWheelRatioTextField.valid && proformBikeWheelRatioTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.proform_wheel_ratio = proformBikeWheelRatioTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Wheel Ratio")
                                 }
                             }
 
@@ -6309,6 +6539,7 @@ import AndroidStatusBar 1.0
                             }
 
                             UiComboBox {
+                                Accessible.name: qsTr("Specific Model:") + " " + displayText
                                 Layout.fillWidth: true
                                 id: bikeModelComboBox
                                 property bool initialized: false
@@ -6497,12 +6728,16 @@ import AndroidStatusBar 1.0
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: { settings.proformtdf1ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("TDF1 IP") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: proformTDF1IPTextField.valid && proformTDF1IPTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.proformtdf1ip = proformTDF1IPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save TDF1 IP")
                                 }
                             }
 
@@ -6524,6 +6759,8 @@ import AndroidStatusBar 1.0
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: { settings.proformtdf4ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("TDF4 IP") + ": " + text
                                 }
                                 Button {
                                     id: okproformTDF4IPButton
@@ -6531,6 +6768,8 @@ import AndroidStatusBar 1.0
                                     enabled: proformTDF4IPTextField.valid && proformTDF4IPTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.proformtdf4ip = proformTDF4IPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save TDF4 IP")
                                 }
                             }
                             RowLayout {
@@ -6551,6 +6790,8 @@ import AndroidStatusBar 1.0
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: { settings.tdf_10_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("TDF Companion IP") + ": " + text
                                 }
                                 Button {
                                     id: okproformTDFCompanionIPButton
@@ -6558,6 +6799,8 @@ import AndroidStatusBar 1.0
                                     enabled: proformTDFCompanionIPTextField.valid && proformTDFCompanionIPTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.tdf_10_ip = proformTDFCompanionIPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save TDF Companion IP")
                                 }
                             }
                             IndicatorOnlySwitch {
@@ -6613,6 +6856,8 @@ import AndroidStatusBar 1.0
                                 //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 onAccepted: { settings.computrainer_serialport = text; window.settings_restart_to_apply = true; }
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                Accessible.role: Accessible.EditableText
+                                Accessible.name: qsTr("Serial Port") + ": " + text
                             }
                             Button {
                                 id: okcomputrainerSerialPortButton
@@ -6620,6 +6865,8 @@ import AndroidStatusBar 1.0
                                 enabled: computrainerSerialPortTextField.dirty
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: { settings.computrainer_serialport = computrainerSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                Accessible.role: Accessible.Button
+                                Accessible.name: qsTr("Save Serial Port")
                             }
                         }
                     }
@@ -6649,6 +6896,8 @@ import AndroidStatusBar 1.0
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onAccepted: { settings.kettler_usb_serialport = text; window.settings_restart_to_apply = true; }
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                Accessible.role: Accessible.EditableText
+                                Accessible.name: qsTr("Serial Port") + ": " + text
                             }
                             Button {
                                 id: okKettlerUsbSerialPortButton
@@ -6656,6 +6905,8 @@ import AndroidStatusBar 1.0
                                 enabled: kettlerUsbSerialPortTextField.dirty
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: { settings.kettler_usb_serialport = kettlerUsbSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                Accessible.role: Accessible.Button
+                                Accessible.name: qsTr("Save Serial Port")
                             }
                         }
                         RowLayout {
@@ -6676,6 +6927,8 @@ import AndroidStatusBar 1.0
                                     console.log("kettler baudrate combobox activated" + kettlerUsbBaudrateComboBox.currentIndex)
                                     displayText = kettlerUsbBaudrateComboBox.currentValue
                                 }
+                                Accessible.role: Accessible.ComboBox
+                                Accessible.name: qsTr("Baudrate") + ": " + displayText
                             }
                             Button {
                                 id: okKettlerUsbBaudrateButton
@@ -6687,6 +6940,8 @@ import AndroidStatusBar 1.0
                                     window.settings_restart_to_apply = true;
                                     toast.show(qsTr("Setting saved!"));
                                 }
+                                Accessible.role: Accessible.Button
+                                Accessible.name: qsTr("Save Baudrate")
                             }
                         }
                     }
@@ -6799,6 +7054,7 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsTextField {
                                     id: freebeatSerialPortTextField
+                                    Accessible.name: qsTr("Serial Port:") + " " + text
                                     savedText: settings.freebeat_serialport
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -6862,6 +7118,8 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: { settings.m3i_bike_id = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Bike ID") + ": " + text
                                 }
                                 Button {
                                     id: okm3iBikeIdButton
@@ -6869,6 +7127,8 @@ import AndroidStatusBar 1.0
                                     enabled: m3iBikeIdTextField.valid && m3iBikeIdTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.m3i_bike_id = m3iBikeIdTextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Bike ID")
                                 }
                             }
 
@@ -6890,6 +7150,8 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.m3i_bike_speed_buffsize = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Speed Buffer Size") + ": " + text
                                 }
                                 Button {
                                     id: okm3iBikeSpeedBuffsizeButton
@@ -6897,6 +7159,8 @@ import AndroidStatusBar 1.0
                                     enabled: m3iBikeSpeedBuffsizeTextField.valid && m3iBikeSpeedBuffsizeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.m3i_bike_speed_buffsize = m3iBikeSpeedBuffsizeTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Speed Buffer Size")
                                 }
                             }
 
@@ -7003,6 +7267,8 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: if (valid) { settings.ant_bike_device_number = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("ANT+ Bike Device Number (0=Auto)") + ": " + text
                                 }
                                 Button {
                                     id: okAntBikeDeviceNumberButton
@@ -7010,6 +7276,8 @@ import AndroidStatusBar 1.0
                                     enabled: antBikeDeviceNumberTextField.valid && antBikeDeviceNumberTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.ant_bike_device_number = antBikeDeviceNumberTextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save ANT+ Bike Device Number (0=Auto)")
                                 }
                             }
                         }
@@ -7128,12 +7396,16 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.ant_speed_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("ANT+ Speed Offset") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: antspeedOffsetTextField.valid && antspeedOffsetTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ant_speed_offset = antspeedOffsetTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save ANT+ Speed Offset")
                         }
                     }
 
@@ -7168,12 +7440,16 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.ant_speed_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("ANT+ Speed Gain") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: antspeedGainTextField.valid && antspeedGainTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ant_speed_gain = antspeedGainTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save ANT+ Speed Gain")
                         }
                     }
 
@@ -7225,6 +7501,8 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: if (valid) { settings.ant_heart_device_number = value; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("ANT+ Heart Device Number (0=Auto)") + ": " + text
                         }
                         Button {
                             id: okAntHeartDeviceNumberButton
@@ -7232,6 +7510,8 @@ import AndroidStatusBar 1.0
                             enabled: antHeartDeviceNumberTextField.valid && antHeartDeviceNumberTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ant_heart_device_number = antHeartDeviceNumberTextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save ANT+ Heart Device Number (0=Auto)")
                         }
                     }
 
@@ -7326,6 +7606,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: uiZoomTextField
+                            Accessible.name: labelUiZoom.text + " " + text
                             minimum: 10
                             savedText: settings.ui_zoom
                             horizontalAlignment: Text.AlignRight
@@ -7337,6 +7618,8 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             id: okUiZoomButton
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Tile Size")
                             text: qsTr("OK")
                             enabled: uiZoomTextField.valid && uiZoomTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -7512,6 +7795,8 @@ import AndroidStatusBar 1.0
                             onActivated: {
                                 console.log("floatingwindow_type activated" + floatingWindowTypeComboBox.currentIndex)
                             }
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Floating Window Type") + ": " + displayText
                         }
                         Button {
                             id: okFloatingWindowTypeButton
@@ -7519,6 +7804,8 @@ import AndroidStatusBar 1.0
                             enabled: floatingWindowTypeComboBox.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.floatingwindow_type = floatingWindowTypeComboBox.currentIndex; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Floating Window Type")
                         }
                     }
 
@@ -7568,6 +7855,8 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: if (valid) settings.floating_width = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Floating Window Width") + ": " + text
                         }
                         Button {
                             id: okFloatingWidthButton
@@ -7575,6 +7864,8 @@ import AndroidStatusBar 1.0
                             enabled: floatingWidthField.valid && floatingWidthField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.floating_width = floatingWidthField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Floating Window Width")
                         }
                     }
 
@@ -7610,6 +7901,8 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: if (valid) settings.floating_height = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Floating Window Height") + ": " + text
                         }
                         Button {
                             id: okFloatingHeightButton
@@ -7617,6 +7910,8 @@ import AndroidStatusBar 1.0
                             enabled: floatingHeightField.valid && floatingHeightField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.floating_height = floatingHeightField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Floating Window Height")
                         }
                     }
 
@@ -7652,6 +7947,8 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: if (valid) settings.floating_transparency = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Floating Window % Transparency") + ": " + text
                         }
                         Button {
                             id: okFloatingTransparencyButton
@@ -7659,6 +7956,8 @@ import AndroidStatusBar 1.0
                             enabled: floatingTransparencyField.valid && floatingTransparencyField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.floating_transparency = floatingTransparencyField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Floating Window % Transparency")
                         }
                     }
 
@@ -7728,6 +8027,8 @@ import AndroidStatusBar 1.0
                             onActivated: {
                                 console.log("chart_display_mode activated" + chartDisplayModeComboBox.currentIndex)
                             }
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Chart Display Mode") + ": " + displayText
                         }
                         Button {
                             id: okChartDisplayModeButton
@@ -7735,6 +8036,8 @@ import AndroidStatusBar 1.0
                             enabled: chartDisplayModeComboBox.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.chart_display_mode = chartDisplayModeComboBox.currentIndex; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Chart Display Mode")
                         }
                     }
 
@@ -7890,12 +8193,16 @@ import AndroidStatusBar 1.0
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: displayText = currentValue
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("iOS Live Activity Left Metric") + ": " + displayText
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: iosLiveActivityCompactLeadingMetricComboBox.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ios_live_activity_compact_leading_metric = iosLiveActivityCompactLeadingMetricComboBox.displayText; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save iOS Live Activity Left Metric")
                         }
                     }
 
@@ -7913,12 +8220,16 @@ import AndroidStatusBar 1.0
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: displayText = currentValue
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("iOS Live Activity Right Metric") + ": " + displayText
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: iosLiveActivityCompactTrailingMetricComboBox.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ios_live_activity_compact_trailing_metric = iosLiveActivityCompactTrailingMetricComboBox.displayText; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save iOS Live Activity Right Metric")
                         }
                     }
 
@@ -7975,6 +8286,8 @@ import AndroidStatusBar 1.0
                                       onPressed: {
                                           if(OS_VERSION !== "Android") backgroundColorDialog.visible = true
                                       }
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Background Color") + ": " + text
                                 }
                                 Button {
                                     id: okBackgroundColor
@@ -7982,6 +8295,8 @@ import AndroidStatusBar 1.0
                                     enabled: backgroundColorTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.theme_background_color = backgroundColorTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Background Color")
                                 }
                                 ColorDialog {
                                     id: backgroundColorDialog
@@ -8011,6 +8326,8 @@ import AndroidStatusBar 1.0
                                       onPressed: {
                                           if(OS_VERSION !== "Android") tilebackgroundColorDialog.visible = true
                                       }
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Tiles Background Color") + ": " + text
                                 }
                                 Button {
                                     id: oktileBackgroundColor
@@ -8018,6 +8335,8 @@ import AndroidStatusBar 1.0
                                     enabled: tilebackgroundColorTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.theme_tile_background_color = tilebackgroundColorTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Tiles Background Color")
                                 }
                                 ColorDialog {
                                     id: tilebackgroundColorDialog
@@ -8060,6 +8379,8 @@ import AndroidStatusBar 1.0
                                       onPressed: {
                                           if(OS_VERSION !== "Android") tileShadowColorDialog.visible = true
                                       }
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Tiles Shadow Color") + ": " + text
                                 }
                                 Button {
                                     id: oktileShadowColor
@@ -8067,6 +8388,8 @@ import AndroidStatusBar 1.0
                                     enabled: tileShadowColorTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.theme_tile_shadow_color = tileShadowColorTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Tiles Shadow Color")
                                 }
                                 ColorDialog {
                                     id: tileShadowColorDialog
@@ -8095,6 +8418,8 @@ import AndroidStatusBar 1.0
                                       onPressed: {
                                           if(OS_VERSION !== "Android") statusbarbackgroundColorDialog.visible = true
                                       }
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Statusbar Background Color") + ": " + text
                                 }
                                 Button {
                                     id: okStatusbarBackgroundColor
@@ -8102,6 +8427,8 @@ import AndroidStatusBar 1.0
                                     enabled: statusbarbackgroundColorTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.theme_status_bar_background_color = statusbarbackgroundColorTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Statusbar Background Color")
                                 }
                                 ColorDialog {
                                     id: statusbarbackgroundColorDialog
@@ -8132,12 +8459,16 @@ import AndroidStatusBar 1.0
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: if (valid) { settings.theme_tile_secondline_textsize = value; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("2nd line tile text size") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: secondLineTextSizeField.valid && secondLineTextSizeField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.theme_tile_secondline_textsize = secondLineTextSizeField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save 2nd line tile text size")
                                 }
                             }
                         }
@@ -8170,6 +8501,8 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: { settings.peloton_username = text; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Username")
                         }
                         Button {
                             id: okPelotonUsernameButton
@@ -8177,6 +8510,8 @@ import AndroidStatusBar 1.0
                             enabled: pelotonUsernameTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_username = pelotonUsernameTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Username")
                         }
                     }
 
@@ -8222,6 +8557,8 @@ import AndroidStatusBar 1.0
                             echoMode: TextInput.PasswordEchoOnEdit
                             onAccepted: { settings.peloton_password = text; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Password")
                         }
                         Button {
                             id: okPelotonPasswordButton
@@ -8229,6 +8566,8 @@ import AndroidStatusBar 1.0
                             enabled: pelotonPasswordTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_password = pelotonPasswordTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Password")
                         }
                     }
 
@@ -8255,8 +8594,12 @@ import AndroidStatusBar 1.0
                             fillMode: Image.PreserveAspectFit
                             visible: true
                             width: parent.width
+                            Accessible.ignored: true
                         }
                         Layout.fillWidth: true
+                        Accessible.role: Accessible.Button
+                        Accessible.name: qsTr("Connect to Peloton")
+                        Accessible.description: qsTr("Opens the Peloton login page")
                         onClicked: {
                             peloton_connect_clicked()
                         }
@@ -8281,6 +8624,8 @@ import AndroidStatusBar 1.0
                                 console.log("combomodel activated" + pelotonDifficultyTextField.currentIndex)
                              }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Difficulty") + ": " + displayText
                         }
                         Button {
                             id: okPelotonDifficultyButton
@@ -8288,6 +8633,8 @@ import AndroidStatusBar 1.0
                             enabled: pelotonDifficultyTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_difficulty = pelotonDifficultyTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Difficulty")
                         }
                     }
 
@@ -8323,12 +8670,16 @@ import AndroidStatusBar 1.0
                                 displayText = pelotonTreadmillLevelTextField.currentValue
                              }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Treadmill Level") + ": " + displayText
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: pelotonTreadmillLevelTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_treadmill_level = parseInt(pelotonTreadmillLevelTextField.displayText); toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Treadmill Level")
                         }
                     }
 
@@ -8364,12 +8715,16 @@ import AndroidStatusBar 1.0
                                 displayText = pelotonTreadmillWalkLevelTextField.currentValue
                              }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Treadmill Walk Level") + ": " + displayText
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: pelotonTreadmillWalkLevelTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_treadmill_walk_level = parseInt(pelotonTreadmillWalkLevelTextField.displayText); toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Treadmill Walk Level")
                         }
                     }
 
@@ -8401,12 +8756,16 @@ import AndroidStatusBar 1.0
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Walking Min Speed") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: pelotonTreadmillWalkingMinSpeedTextField.valid && pelotonTreadmillWalkingMinSpeedTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_treadmill_walking_min_speed = (settings.miles_unit ? pelotonTreadmillWalkingMinSpeedTextField.value / 0.621371 : pelotonTreadmillWalkingMinSpeedTextField.value); toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Walking Min Speed")
                         }
                     }
 
@@ -8438,12 +8797,16 @@ import AndroidStatusBar 1.0
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Running Min Speed") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: pelotonTreadmillRunningMinSpeedTextField.valid && pelotonTreadmillRunningMinSpeedTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_treadmill_running_min_speed = (settings.miles_unit ? pelotonTreadmillRunningMinSpeedTextField.value / 0.621371 : pelotonTreadmillRunningMinSpeedTextField.value); toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Running Min Speed")
                         }
                     }
 
@@ -8479,12 +8842,16 @@ import AndroidStatusBar 1.0
                                 displayText = pelotonRowerLevelTextField.currentValue
                              }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Rower Level") + ": " + displayText
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: pelotonRowerLevelTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_rower_level = parseInt(pelotonRowerLevelTextField.displayText); toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Rower Level")
                         }
                     }
 
@@ -8518,6 +8885,8 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: settings.pzp_username = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("PZP Username") + ": " + text
                         }
                         Button {
                             id: okPZPUsernameButton
@@ -8525,6 +8894,8 @@ import AndroidStatusBar 1.0
                             enabled: pzpUsernameTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pzp_username = pzpUsernameTextField.text; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save PZP Username")
                         }
                     }
 
@@ -8569,6 +8940,8 @@ import AndroidStatusBar 1.0
                             echoMode: TextInput.PasswordEchoOnEdit
                             onAccepted: settings.pzp_password = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("PZP Password")
                         }
                         Button {
                             id: okPZPPasswordButton
@@ -8576,6 +8949,8 @@ import AndroidStatusBar 1.0
                             enabled: pzpPasswordTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pzp_password = pzpPasswordTextField.text; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save PZP Password")
                         }
                     }
 
@@ -8610,6 +8985,8 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.peloton_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Conversion Gain") + ": " + text
                         }
                         Button {
                             id: okPelotonGainButton
@@ -8617,6 +8994,8 @@ import AndroidStatusBar 1.0
                             enabled: pelotonGainTextField.valid && pelotonGainTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_gain = pelotonGainTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Conversion Gain")
                         }
                     }
 
@@ -8652,6 +9031,8 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.peloton_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Conversion Offset") + ": " + text
                         }
                         Button {
                             id: okPelotonOffsetButton
@@ -8659,6 +9040,8 @@ import AndroidStatusBar 1.0
                             enabled: pelotonOffsetTextField.valid && pelotonOffsetTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_offset = pelotonOffsetTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Conversion Offset")
                         }
                     }
 
@@ -8781,6 +9164,8 @@ import AndroidStatusBar 1.0
                                 displayText = pelotonCadenceMetricTextField.currentValue
                              }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Override Cadence Metric")
                         }
                         Button {
                             id: okPelotonCadenceMetric
@@ -8788,6 +9173,8 @@ import AndroidStatusBar 1.0
                             enabled: pelotonCadenceMetricTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.peloton_cadence_metric = pelotonCadenceMetricTextField.displayText;
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Override Cadence Metric")
                         }
                     }*/
 
@@ -8810,6 +9197,8 @@ import AndroidStatusBar 1.0
                                 displayText = pelotonHeartRateMetricTextField.currentValue
                              }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Override HR Metric") + ": " + displayText
                         }
                         Button {
                             id: okPelotonHeartRateMetric
@@ -8817,6 +9206,8 @@ import AndroidStatusBar 1.0
                             enabled: pelotonHeartRateMetricTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_heartrate_metric = pelotonHeartRateMetricTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Override HR Metric")
                         }
                     }
 
@@ -8853,6 +9244,8 @@ import AndroidStatusBar 1.0
                                 console.log("combomodel activated" + pelotonDateOnStravaTextField.currentIndex)
                             }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Date on Strava") + ": " + displayText
                         }
                         Button {
                             id: okPelotonDateOnStrava
@@ -8860,6 +9253,8 @@ import AndroidStatusBar 1.0
                             enabled: pelotonDateOnStravaTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_date = pelotonDateOnStravaTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Date on Strava")
                         }
                     }
 
@@ -8895,12 +9290,16 @@ import AndroidStatusBar 1.0
                                 displayText = pelotonDateFormatTextField.currentValue
                             }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Date Format") + ": " + displayText
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: pelotonDateFormatTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_date_format = pelotonDateFormatTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Date Format")
                         }
                     }
 
@@ -9072,6 +9471,8 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: { settings.zwift_username = text; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Username") + ": " + text
                         }
                         Button {
                             id: okZwiftUsernameButton
@@ -9079,6 +9480,8 @@ import AndroidStatusBar 1.0
                             enabled: zwiftUsernameTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.zwift_username = zwiftUsernameTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Username")
                         }
                     }
 
@@ -9124,6 +9527,8 @@ import AndroidStatusBar 1.0
                             echoMode: TextInput.PasswordEchoOnEdit
                             onAccepted: { settings.zwift_password = text; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Password")
                         }
                         Button {
                             id: okZwiftPasswordButton
@@ -9131,6 +9536,8 @@ import AndroidStatusBar 1.0
                             enabled: zwiftPasswordTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.zwift_password = zwiftPasswordTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Password")
                         }
                     }
 
@@ -9274,12 +9681,16 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: if (valid) { settings.zwift_api_poll = value; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Poll Time") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: zwiftPollTimeTextField.valid && zwiftPollTimeTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.zwift_api_poll = zwiftPollTimeTextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Poll Time")
                         }
                     }
 
@@ -9638,6 +10049,8 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhEmailCharactersOnly | Qt.ImhNoAutoUppercase
                             onAccepted: { rootItem.garmin_connect_logout(); settings.garmin_email = text; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Garmin Email") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
@@ -9648,6 +10061,8 @@ import AndroidStatusBar 1.0
                                 settings.garmin_email = garminEmailTextField.text;
                                 toast.show(qsTr("Setting saved!"));
                             }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Garmin Email")
                         }
                     }
 
@@ -9667,6 +10082,8 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: { rootItem.garmin_connect_logout(); settings.garmin_password = text; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Garmin Password")
                         }
                         Button {
                             text: qsTr("OK")
@@ -9677,6 +10094,8 @@ import AndroidStatusBar 1.0
                                 settings.garmin_password = garminPasswordTextField.text;
                                 toast.show(qsTr("Setting saved!"));
                             }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Garmin Password")
                         }
                     }
 
@@ -9703,6 +10122,8 @@ import AndroidStatusBar 1.0
                                     window.settings_restart_to_apply = true;
                                 }
                             }
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Garmin Server") + ": " + displayText
                         }
                     }
 
@@ -9754,6 +10175,7 @@ import AndroidStatusBar 1.0
 
                             TextField {
                                 id: mfaCodeTextField
+                                Accessible.name: qsTr("Enter MFA code") + ": " + text
                                 placeholderText: qsTr("Enter MFA code")
                                 horizontalAlignment: Text.AlignHCenter
                                 Layout.fillWidth: true
@@ -9851,6 +10273,7 @@ import AndroidStatusBar 1.0
 
                     UiComboBox {
                         id: garminDeviceComboBoxDelegate
+                        Accessible.name: qsTr("Garmin device for FIT file") + ": " + displayText
                         model: [
                             "Approach G10",
                             "Approach G80",
@@ -10570,6 +10993,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         TextField {
                             id: garminDeviceSerialTextField
+                            Accessible.name: qsTr("Garmin device UNIT ID") + ": " + text
                             text: settings.garmin_device_serial
                             Layout.fillWidth: true
                             Layout.preferredWidth: 250
@@ -10771,6 +11195,8 @@ import AndroidStatusBar 1.0
                                 console.log("combomodel activated" + treadmillPidHRTextField.currentIndex)
                              }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("PID on Heart Zone") + ": " + displayText
                         }
                         Button {
                             id: okTreadmillPidHR
@@ -10778,6 +11204,8 @@ import AndroidStatusBar 1.0
                             enabled: treadmillPidHRTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.treadmill_pid_heart_zone = treadmillPidHRTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save PID on Heart Zone")
                         }
                     }
 
@@ -10791,6 +11219,7 @@ import AndroidStatusBar 1.0
                         }
                         ValueComboBox {
                             id: treadmillPidHRControlTextField
+                            Accessible.name: labelTreadmillPidHRControl.text + " " + displayText
                             model: [ "Speed", "Inclination" ]
                             labels: ({ "Speed": qsTr("Speed"), "Inclination": qsTr("Inclination") })
                             savedText: settings.treadmill_pid_heart_control
@@ -10801,6 +11230,8 @@ import AndroidStatusBar 1.0
                         Button {
                             text: qsTr("OK")
                             enabled: treadmillPidHRControlTextField.dirty
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save PID HR actuator")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: {
                                 settings.treadmill_pid_heart_control = treadmillPidHRControlTextField.value;
@@ -10841,12 +11272,16 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("PID on HR min") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: treadmillPidHRminTextField.valid && treadmillPidHRminTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.treadmill_pid_heart_min = treadmillPidHRminTextField.value ; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save PID on HR min")
                         }
                     }
 
@@ -10868,12 +11303,16 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("PID on HR max") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: treadmillPidHRmaxTextField.valid && treadmillPidHRmaxTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.treadmill_pid_heart_max = treadmillPidHRmaxTextField.value ; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save PID on HR max")
                         }
                     }
 
@@ -10928,6 +11367,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: pidHrRecoveryZoneLimitTextField
+                            Accessible.name: qsTr("PID Recovery Zone Lower Limit (%):") + " " + text
                             maximum: 100
                             savedText: settings.trainprogram_pid_hr_recovery_zone_limit
                             horizontalAlignment: Text.AlignRight
@@ -10966,6 +11406,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: pidHrPushyZoneLimitTextField
+                            Accessible.name: qsTr("PID Pushy Zone Limit:") + " " + text
                             savedText: settings.trainprogram_pid_hr_pushy_zone_limit
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -11039,6 +11480,8 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("1 mile pace (total time)") + ": " + text
                         }
                         Button {
                             id: okTrainProgramPace1Mile
@@ -11046,6 +11489,8 @@ import AndroidStatusBar 1.0
                             enabled: trainProgramPace1mileTextField.valid && trainProgramPace1mileTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pacef_1mile = (((parseInt(trainProgramPace1mileTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace1mileTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace1mileTextField.text.split(":")[2]))) / 1.60934; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save 1 mile pace (total time)")
                         }
                     }
 
@@ -11080,6 +11525,8 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("5 km pace (total time)") + ": " + text
                         }
                         Button {
                             id: okTrainProgramPace5km
@@ -11087,6 +11534,8 @@ import AndroidStatusBar 1.0
                             enabled: trainProgramPace5kmTextField.valid && trainProgramPace5kmTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pacef_5km = (((parseInt(trainProgramPace5kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace5kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace5kmTextField.text.split(":")[2]))) / 5; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save 5 km pace (total time)")
                         }
                     }
 
@@ -11121,6 +11570,8 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("10 km pace (total time)") + ": " + text
                         }
                         Button {
                             id: okTrainProgramPace10KM
@@ -11128,6 +11579,8 @@ import AndroidStatusBar 1.0
                             enabled: trainProgramPace10kmTextField.valid && trainProgramPace10kmTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pacef_10km = (((parseInt(trainProgramPace10kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace10kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace10kmTextField.text.split(":")[2]))) / 10; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save 10 km pace (total time)")
                         }
                     }
 
@@ -11162,6 +11615,8 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Half Marathon pace (total time)") + ": " + text
                         }
                         Button {
                             id: okTrainProgramPaceHalfMarathon
@@ -11169,6 +11624,8 @@ import AndroidStatusBar 1.0
                             enabled: trainProgramPaceHalfMarathonTextField.valid && trainProgramPaceHalfMarathonTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pacef_halfmarathon = (((parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[2]))) / 21; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Half Marathon pace (total time)")
                         }
                     }
 
@@ -11203,6 +11660,8 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Marathon pace (total time)") + ": " + text
                         }
                         Button {
                             id: okTrainProgramPaceMarathon
@@ -11210,6 +11669,8 @@ import AndroidStatusBar 1.0
                             enabled: trainProgramPaceMarathonTextField.valid && trainProgramPaceMarathonTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pacef_marathon = (((parseInt(trainProgramPaceMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceMarathonTextField.text.split(":")[2]))) / 42; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Marathon pace (total time)")
                         }
                     }
 
@@ -11237,6 +11698,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsFormatField {
                             id: trainProgramWarmupSpeedTextField
+                            Accessible.name: qsTr("Warmup Speed (pace):") + " " + text
                             format: "time"
                             savedText: paceSecondsToTime(settings.trainprogram_warmup_speed)
                             horizontalAlignment: Text.AlignRight
@@ -11263,6 +11725,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsFormatField {
                             id: trainProgramCooldownSpeedTextField
+                            Accessible.name: qsTr("Cooldown Speed (pace):") + " " + text
                             format: "time"
                             savedText: paceSecondsToTime(settings.trainprogram_cooldown_speed)
                             horizontalAlignment: Text.AlignRight
@@ -11289,6 +11752,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsFormatField {
                             id: trainProgramRestSpeedTextField
+                            Accessible.name: qsTr("Rest Speed (pace):") + " " + text
                             format: "time"
                             savedText: paceSecondsToTime(settings.trainprogram_rest_speed)
                             horizontalAlignment: Text.AlignRight
@@ -11324,6 +11788,8 @@ import AndroidStatusBar 1.0
                                 console.log("combomodel activated" + treadmillPaceDefaultTextField.currentIndex)
                              }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Default Pace") + ": " + displayText
                         }
                         Button {
                             id: okTreadmillPaceDefault
@@ -11331,6 +11797,8 @@ import AndroidStatusBar 1.0
                             enabled: treadmillPaceDefaultTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pace_default = treadmillPaceDefaultTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Default Pace")
                         }
                     }
 
@@ -11365,6 +11833,8 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("ERG Mode Watt Step") + ": " + text
                         }
                         Button {
                             id: okPidHeartZoneErgModeWattStep
@@ -11372,6 +11842,8 @@ import AndroidStatusBar 1.0
                             enabled: pidHeartZoneErgModeWattStepTextField.valid && pidHeartZoneErgModeWattStepTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pid_heart_zone_erg_mode_watt_step = parseInt(pidHeartZoneErgModeWattStepTextField.value); toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save ERG Mode Watt Step")
                         }
                     }
 
@@ -11419,6 +11891,8 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: if (valid) settings.trainprogram_total = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Duration (minutes)") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomDuration
@@ -11426,6 +11900,8 @@ import AndroidStatusBar 1.0
                             enabled: trainProgramRandomDurationTextField.valid && trainProgramRandomDurationTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.trainprogram_total = trainProgramRandomDurationTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Duration (minutes)")
                         }
                     }
 
@@ -11447,6 +11923,8 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: if (valid) settings.trainprogram_period_seconds = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Period (seconds)") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomPeriod
@@ -11454,6 +11932,8 @@ import AndroidStatusBar 1.0
                             enabled: trainProgramRandomPeriodTextField.valid && trainProgramRandomPeriodTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.trainprogram_period_seconds = trainProgramRandomPeriodTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Period (seconds)")
                         }
                     }
 
@@ -11474,6 +11954,8 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.trainprogram_speed_min = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Speed min.") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomSpeedMin
@@ -11481,6 +11963,8 @@ import AndroidStatusBar 1.0
                             enabled: trainProgramRandomSpeedMinTextField.valid && trainProgramRandomSpeedMinTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.trainprogram_speed_min = trainProgramRandomSpeedMinTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Speed min.")
                         }
                     }
 
@@ -11501,6 +11985,8 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.trainprogram_speed_max = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Speed max.") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomSpeedMax
@@ -11508,6 +11994,8 @@ import AndroidStatusBar 1.0
                             enabled: trainProgramRandomSpeedMaxTextField.valid && trainProgramRandomSpeedMaxTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.trainprogram_speed_max = trainProgramRandomSpeedMaxTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Speed max.")
                         }
                     }
 
@@ -11529,6 +12017,8 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.trainprogram_incline_min = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Incline min.") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomInclineMin
@@ -11536,6 +12026,8 @@ import AndroidStatusBar 1.0
                             enabled: trainProgramRandomInclineMinTextField.valid && trainProgramRandomInclineMinTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.trainprogram_incline_min = trainProgramRandomInclineMinTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Incline min.")
                         }
                     }
 
@@ -11556,6 +12048,8 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.trainprogram_incline_max = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Incline max.") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomInclineMax
@@ -11563,6 +12057,8 @@ import AndroidStatusBar 1.0
                             enabled: trainProgramRandomInclineMaxTextField.valid && trainProgramRandomInclineMaxTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.trainprogram_incline_max = trainProgramRandomInclineMaxTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Incline max.")
                         }
                     }
 
@@ -11622,6 +12118,8 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.trainprogram_resistance_min = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Resistance min.") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomResistanceMin
@@ -11629,6 +12127,8 @@ import AndroidStatusBar 1.0
                             enabled: trainProgramRandomResistanceMinTextField.valid && trainProgramRandomResistanceMinTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.trainprogram_resistance_min = trainProgramRandomResistanceMinTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Resistance min.")
                         }
                     }
 
@@ -11649,6 +12149,8 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.trainprogram_resistance_max = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Resistance max.") + ": " + text
                         }
                         Button {
                             id: okTrainProgramRandomResistanceMax
@@ -11656,6 +12158,8 @@ import AndroidStatusBar 1.0
                             enabled: trainProgramRandomResistanceMaxTextField.valid && trainProgramRandomResistanceMaxTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.trainprogram_resistance_max = trainProgramRandomResistanceMaxTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Resistance max.")
                         }
                     }
 
@@ -11905,6 +12409,8 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.treadmill_step_speed = (settings.miles_unit?value * 1.60934:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Speed Step") + ": " + text
                         }
                         Button {
                             id: okTreadmillSpeedStepButton
@@ -11912,6 +12418,8 @@ import AndroidStatusBar 1.0
                             enabled: treadmillSpeedStepTextField.valid && treadmillSpeedStepTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.treadmill_step_speed = (settings.miles_unit?treadmillSpeedStepTextField.value * 1.60934:treadmillSpeedStepTextField.value); toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Speed Step")
                         }
                     }
 
@@ -11949,12 +12457,16 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: if (valid) settings.treadmill_incline_min = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Min. Inclination") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: treadmillInclinationMinTextField.valid && treadmillInclinationMinTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.treadmill_incline_min = treadmillInclinationMinTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Min. Inclination")
                         }
                     }
 
@@ -11990,12 +12502,16 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: if (valid) settings.treadmill_incline_max = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Max. Inclination") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: treadmillInclinationMaxTextField.valid && treadmillInclinationMaxTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.treadmill_incline_max = treadmillInclinationMaxTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Max. Inclination")
                         }
                     }
 
@@ -12029,12 +12545,16 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.treadmill_speed_max = (settings.miles_unit?value * 1.60934:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Max. Speed") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: treadmillSpeedMaxTextField.valid && treadmillSpeedMaxTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.treadmill_speed_max = (settings.miles_unit?treadmillSpeedMaxTextField.value * 1.60934:treadmillSpeedMaxTextField.value); toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Max. Speed")
                         }
                     }
 
@@ -12068,12 +12588,16 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.treadmill_speed_min = (settings.miles_unit?value * 1.60934:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Min. Speed") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: treadmillSpeedMinTextField.valid && treadmillSpeedMinTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.treadmill_speed_min = (settings.miles_unit?treadmillSpeedMinTextField.value * 1.60934:treadmillSpeedMinTextField.value); toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Min. Speed")
                         }
                     }
 
@@ -12108,6 +12632,8 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.step_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Step Count Gain") + ": " + text
                         }
                         Button {
                             id: okStepGainButton
@@ -12115,6 +12641,8 @@ import AndroidStatusBar 1.0
                             enabled: stepGainTextField.valid && stepGainTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.step_gain = stepGainTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Step Count Gain")
                         }
                     }
 
@@ -12193,6 +12721,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: ftmsTreadmillTextField
+                            Accessible.name: qsTr("FTMS Treadmill:") + " " + displayText
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.ftms_treadmill
@@ -12255,6 +12784,7 @@ import AndroidStatusBar 1.0
                             }
 
                             UiComboBox {
+                                Accessible.name: qsTr("Specific Model:") + " " + displayText
                                 Layout.fillWidth: true
                                 id: treadmillModelComboBox
                                 property bool initialized: false
@@ -12598,6 +13128,8 @@ import AndroidStatusBar 1.0
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: { settings.proformtreadmillip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Proform IP") + ": " + text
                                 }
                                 Button {
                                     id: okproformtreadmillIPButton
@@ -12605,6 +13137,8 @@ import AndroidStatusBar 1.0
                                     enabled: proformtreadmillIPTextField.valid && proformtreadmillIPTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.proformtreadmillip = proformtreadmillIPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Proform IP")
                                 }
                             }
                             RowLayout {
@@ -12625,6 +13159,8 @@ import AndroidStatusBar 1.0
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: { settings.nordictrack_2950_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Nordictrack 2950 IP") + ": " + text
                                 }
                                 Button {
                                     id: oknordictrack2950IPButton
@@ -12632,6 +13168,8 @@ import AndroidStatusBar 1.0
                                     enabled: nordictrack2950IPTextField.valid && nordictrack2950IPTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.nordictrack_2950_ip = nordictrack2950IPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Nordictrack 2950 IP")
                                 }
                             }
                             IndicatorOnlySwitch {
@@ -12861,6 +13399,7 @@ import AndroidStatusBar 1.0
                                 Label { text: qsTr("Life Fitness username/email:"); wrapMode: window.labelWrap; Layout.fillWidth: true }
                                 SettingsTextField {
                                     id: lifeFitnessUsernameTextField
+                                    Accessible.name: qsTr("Life Fitness username/email") + ": " + text
                                     savedText: settings.life_fitness_username
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: { settings.life_fitness_username = text; window.settings_restart_to_apply = true; }
@@ -12868,6 +13407,8 @@ import AndroidStatusBar 1.0
                                 Button {
                                     text: qsTr("OK")
                                     enabled: lifeFitnessUsernameTextField.dirty
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Life Fitness username/email")
                                     onClicked: { settings.life_fitness_username = lifeFitnessUsernameTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
@@ -12876,6 +13417,7 @@ import AndroidStatusBar 1.0
                                 Label { text: qsTr("Life Fitness password:"); wrapMode: window.labelWrap; Layout.fillWidth: true }
                                 SettingsTextField {
                                     id: lifeFitnessPasswordTextField
+                                    Accessible.name: qsTr("Life Fitness password")
                                     savedText: settings.life_fitness_password
                                     echoMode: TextInput.Password
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -12884,6 +13426,8 @@ import AndroidStatusBar 1.0
                                 Button {
                                     text: qsTr("OK")
                                     enabled: lifeFitnessPasswordTextField.dirty
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Life Fitness password")
                                     onClicked: { settings.life_fitness_password = lifeFitnessPasswordTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
@@ -13096,12 +13640,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: { settings.domyos_treadmill_button_5kmh = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Remap 5 km/h button") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: domyosTreadmillButton5KmhTimeTextField.valid && domyosTreadmillButton5KmhTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.domyos_treadmill_button_5kmh = domyosTreadmillButton5KmhTimeTextField.value; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Remap 5 km/h button")
                                 }
                             }
 
@@ -13121,12 +13669,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: { settings.domyos_treadmill_button_10kmh = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Remap 10 km/h button") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: domyosTreadmillButton10KmhTimeTextField.valid && domyosTreadmillButton10KmhTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.domyos_treadmill_button_10kmh = domyosTreadmillButton10KmhTimeTextField.value; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Remap 10 km/h button")
                                 }
                             }
 
@@ -13146,12 +13698,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: { settings.domyos_treadmill_button_16kmh = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Remap 16 km/h button") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: domyosTreadmillButton16KmhTimeTextField.valid && domyosTreadmillButton16KmhTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.domyos_treadmill_button_16kmh = domyosTreadmillButton16KmhTimeTextField.value; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Remap 16 km/h button")
                                 }
                             }
 
@@ -13171,12 +13727,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: { settings.domyos_treadmill_button_22kmh = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Remap 22 km/h button") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: domyosTreadmillButton22KmhTimeTextField.valid && domyosTreadmillButton22KmhTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.domyos_treadmill_button_22kmh = domyosTreadmillButton22KmhTimeTextField.value; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Remap 22 km/h button")
                                 }
                             }
 
@@ -13198,12 +13758,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: if (valid) { settings.poll_device_time = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Pool time (ms)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: pollDeviceTimeTextField.valid && pollDeviceTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.poll_device_time = pollDeviceTimeTextField.value; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Pool time (ms)")
                                 }
                             }
                             Label {
@@ -13421,6 +13985,8 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.fitshow_user_id = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("User ID") + ": " + text
                                 }
                                 Button {
                                     id: okfitshowTreadmillUserIdButton
@@ -13428,6 +13994,8 @@ import AndroidStatusBar 1.0
                                     enabled: fitshowTreadmillUserIdTextField.valid && fitshowTreadmillUserIdTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitshow_user_id = fitshowTreadmillUserIdTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save User ID")
                                 }
                             }
                         }
@@ -13595,6 +14163,8 @@ import AndroidStatusBar 1.0
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: { settings.horizon_treadmill_profile_user1 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("User 1") + ": " + text
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile1Button
@@ -13602,6 +14172,8 @@ import AndroidStatusBar 1.0
                                     enabled: horizonTreadmillProfile1TextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.horizon_treadmill_profile_user1 = horizonTreadmillProfile1TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save User 1")
                                 }
                             }
                             RowLayout {
@@ -13620,6 +14192,8 @@ import AndroidStatusBar 1.0
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: { settings.horizon_treadmill_profile_user2 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("User 2") + ": " + text
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile2Button
@@ -13627,6 +14201,8 @@ import AndroidStatusBar 1.0
                                     enabled: horizonTreadmillProfile2TextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.horizon_treadmill_profile_user2 = horizonTreadmillProfile2TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save User 2")
                                 }
                             }
                             RowLayout {
@@ -13645,6 +14221,8 @@ import AndroidStatusBar 1.0
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: { settings.horizon_treadmill_profile_user3 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("User 3") + ": " + text
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile3Button
@@ -13652,6 +14230,8 @@ import AndroidStatusBar 1.0
                                     enabled: horizonTreadmillProfile3TextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.horizon_treadmill_profile_user3 = horizonTreadmillProfile3TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save User 3")
                                 }
                             }
                             RowLayout {
@@ -13670,6 +14250,8 @@ import AndroidStatusBar 1.0
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: { settings.horizon_treadmill_profile_user4 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("User 4") + ": " + text
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile4Button
@@ -13677,6 +14259,8 @@ import AndroidStatusBar 1.0
                                     enabled: horizonTreadmillProfile4TextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.horizon_treadmill_profile_user4 = horizonTreadmillProfile4TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save User 4")
                                 }
                             }
                             RowLayout {
@@ -13695,6 +14279,8 @@ import AndroidStatusBar 1.0
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: { settings.horizon_treadmill_profile_user5 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("User 5") + ": " + text
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile5Button
@@ -13702,6 +14288,8 @@ import AndroidStatusBar 1.0
                                     enabled: horizonTreadmillProfile5TextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.horizon_treadmill_profile_user5 = horizonTreadmillProfile5TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save User 5")
                                 }
                             }
                         }
@@ -14195,12 +14783,16 @@ import AndroidStatusBar 1.0
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: { settings.csafe_rower = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Serial Port") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: csaferowerSerialPortTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.csafe_rower = csaferowerSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Serial Port")
                                 }
                             }
                         }
@@ -14215,6 +14807,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: ftmsRowerTextField
+                            Accessible.name: qsTr("FTMS Rower:") + " " + displayText
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.ftms_rower
@@ -14338,12 +14931,16 @@ import AndroidStatusBar 1.0
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: { settings.proform_rower_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("ProForm Rower IP") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: proformRowerIPTextField.valid && proformRowerIPTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.proform_rower_ip = proformRowerIPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save ProForm Rower IP")
                                 }
                             }
                         }
@@ -14378,6 +14975,7 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: domyosEllipticalSpeedRatioTextField
+                                    Accessible.name: labelDomyosEllipticalSpeedRatio.text + " " + text
                                     savedText: settings.domyos_elliptical_speed_ratio
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -14388,6 +14986,8 @@ import AndroidStatusBar 1.0
                                 }
                                 Button {
                                     id: okDomyosEllipticalRatioButton
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Domyos Elliptical Speed Ratio")
                                     text: qsTr("OK")
                                     enabled: domyosEllipticalSpeedRatioTextField.valid && domyosEllipticalSpeedRatioTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -14432,12 +15032,16 @@ import AndroidStatusBar 1.0
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: { settings.csafe_elliptical_port = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Serial Port") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: csafeellipticalSerialPortTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.csafe_elliptical_port = csafeellipticalSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Serial Port")
                                 }
                             }
                         }
@@ -14452,6 +15056,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: ftmsEllipticalTextField
+                            Accessible.name: qsTr("FTMS Elliptical:") + " " + displayText
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.ftms_elliptical
@@ -14596,12 +15201,16 @@ import AndroidStatusBar 1.0
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: { settings.proform_elliptical_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Companion IP") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: proformEllipticalCompanionIPTextField.valid && proformEllipticalCompanionIPTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.proform_elliptical_ip = proformEllipticalCompanionIPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Companion IP")
                                 }
                             }
                             IndicatorOnlySwitch {
@@ -14703,6 +15312,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: filterDeviceTextField
+                            Accessible.name: qsTr("Manual Device:") + " " + displayText
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.filter_device
@@ -14790,6 +15400,8 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: { settings.watt_offset = value; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Watt Offset") + ": " + text
                         }
                         Button {
                             id: okwattOffsetButton
@@ -14797,6 +15409,8 @@ import AndroidStatusBar 1.0
                             enabled: wattOffsetTextField.valid && wattOffsetTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.watt_offset = wattOffsetTextField.value; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Watt Offset")
                         }
                     }
 
@@ -14831,6 +15445,8 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: { settings.watt_gain = value; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Watt Gain") + ": " + text
                         }
                         Button {
                             id: okWattGainButton
@@ -14838,6 +15454,8 @@ import AndroidStatusBar 1.0
                             enabled: wattGainTextField.valid && wattGainTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.watt_gain = wattGainTextField.value; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Watt Gain")
                         }
                     }
 
@@ -14865,6 +15483,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: wattMaxTextField
+                            Accessible.name: qsTr("Max Watt:") + " " + text
                             savedText: settings.watt_max
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -14913,6 +15532,8 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.speed_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Speed Offset") + ": " + text
                         }
                         Button {
                             id: okspeedOffsetButton
@@ -14920,6 +15541,8 @@ import AndroidStatusBar 1.0
                             enabled: speedOffsetTextField.valid && speedOffsetTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.speed_offset = speedOffsetTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Speed Offset")
                         }
                     }
 
@@ -14955,6 +15578,8 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.speed_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Speed Gain") + ": " + text
                         }
                         Button {
                             id: okSpeedGainButton
@@ -14962,6 +15587,8 @@ import AndroidStatusBar 1.0
                             enabled: speedGainTextField.valid && speedGainTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.speed_gain = speedGainTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Speed Gain")
                         }
                     }
 
@@ -14997,6 +15624,8 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.cadence_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Cadence Offset") + ": " + text
                         }
                         Button {
                             id: okcadenceOffsetButton
@@ -15004,6 +15633,8 @@ import AndroidStatusBar 1.0
                             enabled: cadenceOffsetTextField.valid && cadenceOffsetTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.cadence_offset = cadenceOffsetTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Cadence Offset")
                         }
                     }
 
@@ -15038,6 +15669,8 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.cadence_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Cadence Gain") + ": " + text
                         }
                         Button {
                             id: okCadenceGainButton
@@ -15045,6 +15678,8 @@ import AndroidStatusBar 1.0
                             enabled: cadenceGainTextField.valid && cadenceGainTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.cadence_gain = cadenceGainTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Cadence Gain")
                         }
                     }
 
@@ -15088,12 +15723,16 @@ import AndroidStatusBar 1.0
                                 console.log("combomodel activated" + stravaUploadMode.currentIndex)
                              }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Strava Upload") + ": " + displayText
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: stravaUploadMode.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.strava_upload_mode = stravaUploadMode.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Strava Upload")
                         }
                     }
 
@@ -15113,6 +15752,8 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: settings.strava_suffix = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Suffix activity") + ": " + text
                         }
                         Button {
                             id: okStravaSuffixButton
@@ -15120,6 +15761,8 @@ import AndroidStatusBar 1.0
                             enabled: stravaSuffixTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.strava_suffix = stravaSuffixTextField.text; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Suffix activity")
                         }
                     }
 
@@ -15337,6 +15980,8 @@ import AndroidStatusBar 1.0
                                     settings.power_avg_5s = true;
                                 }
                             }
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Power Averaging Mode") + ": " + displayText
                         }
                     }
 
@@ -15430,6 +16075,8 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.zwift_inclination_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Zwift Inclination Offset") + ": " + text
                         }
                         Button {
                             id: okTreadmillInclinationOffsetButton
@@ -15437,6 +16084,8 @@ import AndroidStatusBar 1.0
                             enabled: treadmillInclinationOffsetTextField.valid && treadmillInclinationOffsetTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.zwift_inclination_offset = treadmillInclinationOffsetTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Zwift Inclination Offset")
                         }
                     }
 
@@ -15471,6 +16120,8 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.zwift_inclination_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Zwift Inclination Gain") + ": " + text
                         }
                         Button {
                             id: okTreadmillInclinationGainButton
@@ -15478,6 +16129,8 @@ import AndroidStatusBar 1.0
                             enabled: treadmillInclinationGainTextField.valid && treadmillInclinationGainTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.zwift_inclination_gain = treadmillInclinationGainTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Zwift Inclination Gain")
                         }
                     }
 
@@ -15512,12 +16165,16 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.min_inclination = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Minimum Inclination") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: minInclinationTextField.valid && minInclinationTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.min_inclination = minInclinationTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Minimum Inclination")
                         }
                     }
 
@@ -15552,6 +16209,8 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.treadmill_step_incline = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Inclination Step") + ": " + text
                         }
                         Button {
                             id: okInclinationStepButton
@@ -15559,6 +16218,8 @@ import AndroidStatusBar 1.0
                             enabled: inclinationStepTextField.valid && inclinationStepTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.treadmill_step_incline = inclinationStepTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Inclination Step")
                         }
                     }
 
@@ -15707,12 +16368,16 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.autolap_distance = (settings.miles_unit?value * 1.60934:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("AutoLap on Distance") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: autoLapOnDistanceTextField.valid && autoLapOnDistanceTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.autolap_distance = (settings.miles_unit?autoLapOnDistanceTextField.value * 1.60934:autoLapOnDistanceTextField.value); toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save AutoLap on Distance")
                         }
                     }
 
@@ -15746,12 +16411,16 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.inclination_delay_seconds = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Inclination Delay") + ": " + text
                         }
                         Button {
                             text: qsTr("OK")
                             enabled: treadmillInclinationDelayTextField.valid && treadmillInclinationDelayTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.inclination_delay_seconds = treadmillInclinationDelayTextField.value; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Inclination Delay")
                         }
                     }
 
@@ -15867,6 +16536,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 ValueComboBox {
                                     id: cadenceSensorNameTextField
+                                    Accessible.name: qsTr("Cadence Sensor:") + " " + displayText
                                     model: rootItem.bluetoothDevices
                                     labels: ({ "Disabled": qsTr("Disabled") })
                                     savedText: settings.cadence_sensor_name
@@ -15925,6 +16595,8 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.cadence_sensor_speed_ratio = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Wheel Ratio") + ": " + text
                                 }
                                 Button {
                                     id: okCadenceSpeedRatio
@@ -15932,6 +16604,8 @@ import AndroidStatusBar 1.0
                                     enabled: cadenceSpeedRatioTextField.valid && cadenceSpeedRatioTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.cadence_sensor_speed_ratio = cadenceSpeedRatioTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Wheel Ratio")
                                 }
                             }
 
@@ -16021,12 +16695,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.cscbike_custom_resistance_level_1 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Resistance Level 1") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: cscBikeCustomResistanceLevel1TextField.valid && cscBikeCustomResistanceLevel1TextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.cscbike_custom_resistance_level_1 = cscBikeCustomResistanceLevel1TextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Resistance Level 1")
                                 }
                             }
 
@@ -16046,12 +16724,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.cscbike_custom_watt_1 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Watt 1") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: cscBikeCustomWatt1TextField.valid && cscBikeCustomWatt1TextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.cscbike_custom_watt_1 = cscBikeCustomWatt1TextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Watt 1")
                                 }
                             }
 
@@ -16071,12 +16753,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.cscbike_custom_resistance_level_2 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Resistance Level 2") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: cscBikeCustomResistanceLevel2TextField.valid && cscBikeCustomResistanceLevel2TextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.cscbike_custom_resistance_level_2 = cscBikeCustomResistanceLevel2TextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Resistance Level 2")
                                 }
                             }
 
@@ -16096,12 +16782,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.cscbike_custom_watt_2 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Watt 2") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: cscBikeCustomWatt2TextField.valid && cscBikeCustomWatt2TextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.cscbike_custom_watt_2 = cscBikeCustomWatt2TextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Watt 2")
                                 }
                             }
 
@@ -16310,6 +17000,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 SettingsNumberField {
                                     id: powerSensorSpeedCorrectionThresholdTextField
+                                    Accessible.name: qsTr("Power sensor speed correction threshold (%):") + " " + text
                                     minimum: 0
                                     maximum: 100
                                     savedText: settings.power_sensor_speed_correction_threshold
@@ -16433,6 +17124,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 SettingsNumberField {
                                     id: powerSensorSpeedInclinationCoeffATextField
+                                    Accessible.name: qsTr("Power Sensor Speed/Incline Coefficient A:") + " " + text
                                     signed: true
                                     savedText: settings.power_sensor_speed_inclination_coeff_a
                                     horizontalAlignment: Text.AlignRight
@@ -16457,6 +17149,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 SettingsNumberField {
                                     id: powerSensorSpeedInclinationCoeffBTextField
+                                    Accessible.name: qsTr("Power Sensor Speed/Incline Coefficient B:") + " " + text
                                     signed: true
                                     savedText: settings.power_sensor_speed_inclination_coeff_b
                                     horizontalAlignment: Text.AlignRight
@@ -16496,6 +17189,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 ValueComboBox {
                                     id: powerSensorNameTextField
+                                    Accessible.name: qsTr("Power Sensor:") + " " + displayText
                                     model: rootItem.bluetoothDevices
                                     labels: ({ "Disabled": qsTr("Disabled") })
                                     savedText: settings.power_sensor_name
@@ -16564,6 +17258,7 @@ import AndroidStatusBar 1.0
                                         spacing: 10
                                         ValueComboBox {
                                             id: eliteRizerNameTextField
+                                            Accessible.name: labelEliteRizerName.text + " " + displayText
                                             model: rootItem.bluetoothDevices
                                             labels: ({ "Disabled": qsTr("Disabled") })
                                             savedText: settings.elite_rizer_name
@@ -16607,6 +17302,8 @@ import AndroidStatusBar 1.0
                                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                             onAccepted: settings.elite_rizer_gain = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Difficulty/Gain") + ": " + text
                                         }
                                         Button {
                                             id: okEliteRizerGainButton
@@ -16614,6 +17311,8 @@ import AndroidStatusBar 1.0
                                             enabled: eliteRizerGainTextField.valid && eliteRizerGainTextField.dirty
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.elite_rizer_gain = eliteRizerGainTextField.value; toast.show(qsTr("Setting saved!")); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Difficulty/Gain")
                                         }
                                     }                                    
                                 }                                
@@ -16635,6 +17334,7 @@ import AndroidStatusBar 1.0
                                         spacing: 10
                                         ValueComboBox {
                                             id: eliteSterzoSmartNameTextField
+                                            Accessible.name: labelEliteSterzoSmartName.text + " " + displayText
                                             model: rootItem.bluetoothDevices
                                             labels: ({ "Disabled": qsTr("Disabled") })
                                             savedText: settings.elite_sterzo_smart_name
@@ -16684,6 +17384,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 ValueComboBox {
                                     id: ftmsAccessoryNameTextField
+                                    Accessible.name: qsTr("SmartSpin2k device:") + " " + displayText
                                     model: rootItem.bluetoothDevices
                                     labels: ({ "Disabled": qsTr("Disabled") })
                                     savedText: settings.ftms_accessory_name
@@ -16743,6 +17444,8 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.ss2k_shift_step = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Shift Step") + ": " + text
                                 }
                                 Button {
                                     id: okSS2kShiftStep
@@ -16750,6 +17453,8 @@ import AndroidStatusBar 1.0
                                     enabled: ss2kShiftStepTextField.valid && ss2kShiftStepTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.ss2k_shift_step = ss2kShiftStepTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Shift Step")
                                 }
                             }
                             RowLayout {
@@ -16769,6 +17474,8 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.ss2k_max_resistance = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Max Resistance") + ": " + text
                                 }
                                 Button {
                                     id: okSS2kMaxResistance
@@ -16776,6 +17483,8 @@ import AndroidStatusBar 1.0
                                     enabled: ss2kMaxResistanceTextField.valid && ss2kMaxResistanceTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.ss2k_max_resistance = ss2kMaxResistanceTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Max Resistance")
                                 }
                             }
                             RowLayout {
@@ -16795,6 +17504,8 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.ss2k_min_resistance = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Min Resistance") + ": " + text
                                 }
                                 Button {
                                     id: okSS2kMinResistance
@@ -16802,6 +17513,8 @@ import AndroidStatusBar 1.0
                                     enabled: ss2kMinResistanceTextField.valid && ss2kMinResistanceTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.ss2k_min_resistance = ss2kMinResistanceTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Min Resistance")
                                 }
                             }
 
@@ -16830,6 +17543,8 @@ import AndroidStatusBar 1.0
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: { settings.ss2k_resistance_sample_1 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Resistance Sample 1") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kResistanceSample1
@@ -16837,6 +17552,8 @@ import AndroidStatusBar 1.0
                                             enabled: ss2kResistanceSample1TextField.valid && ss2kResistanceSample1TextField.dirty
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.ss2k_resistance_sample_1 = ss2kResistanceSample1TextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Resistance Sample 1")
                                         }
                                     }
                                     RowLayout {
@@ -16855,6 +17572,8 @@ import AndroidStatusBar 1.0
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: { settings.ss2k_shift_step_sample_1 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Shift Step Sample 1") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample1
@@ -16862,6 +17581,8 @@ import AndroidStatusBar 1.0
                                             enabled: ss2kShiftStepSample1TextField.valid && ss2kShiftStepSample1TextField.dirty
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.ss2k_shift_step_sample_1 = ss2kShiftStepSample1TextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Shift Step Sample 1")
                                         }
                                     }
                                     RowLayout {
@@ -16881,6 +17602,8 @@ import AndroidStatusBar 1.0
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: { settings.ss2k_resistance_sample_2 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Resistance Sample 2") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kResistanceSample2
@@ -16888,6 +17611,8 @@ import AndroidStatusBar 1.0
                                             enabled: ss2kResistanceSample2TextField.valid && ss2kResistanceSample2TextField.dirty
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.ss2k_resistance_sample_2 = ss2kResistanceSample2TextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Resistance Sample 2")
                                         }
                                     }
                                     RowLayout {
@@ -16906,6 +17631,8 @@ import AndroidStatusBar 1.0
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: { settings.ss2k_shift_step_sample_2 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Shift Step Sample 2") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample2
@@ -16913,6 +17640,8 @@ import AndroidStatusBar 1.0
                                             enabled: ss2kShiftStepSample2TextField.valid && ss2kShiftStepSample2TextField.dirty
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.ss2k_shift_step_sample_2 = ss2kShiftStepSample2TextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Shift Step Sample 2")
                                         }
                                     }
                                     RowLayout {
@@ -16932,6 +17661,8 @@ import AndroidStatusBar 1.0
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: { settings.ss2k_resistance_sample_3 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Resistance Sample 3") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kResistanceSample3
@@ -16939,6 +17670,8 @@ import AndroidStatusBar 1.0
                                             enabled: ss2kResistanceSample3TextField.valid && ss2kResistanceSample3TextField.dirty
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.ss2k_resistance_sample_3 = ss2kResistanceSample3TextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Resistance Sample 3")
                                         }
                                     }
                                     RowLayout {
@@ -16957,6 +17690,8 @@ import AndroidStatusBar 1.0
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: { settings.ss2k_shift_step_sample_3 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Shift Step Sample 3") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample3
@@ -16964,6 +17699,8 @@ import AndroidStatusBar 1.0
                                             enabled: ss2kShiftStepSample3TextField.valid && ss2kShiftStepSample3TextField.dirty
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.ss2k_shift_step_sample_3 = ss2kShiftStepSample3TextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Shift Step Sample 3")
                                         }
                                     }
                                     RowLayout {
@@ -16983,6 +17720,8 @@ import AndroidStatusBar 1.0
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: { settings.ss2k_resistance_sample_4 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Resistance Sample 4") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kResistanceSample4
@@ -16990,6 +17729,8 @@ import AndroidStatusBar 1.0
                                             enabled: ss2kResistanceSample4TextField.valid && ss2kResistanceSample4TextField.dirty
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.ss2k_resistance_sample_4 = ss2kResistanceSample4TextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Resistance Sample 4")
                                         }
                                     }
                                     RowLayout {
@@ -17008,6 +17749,8 @@ import AndroidStatusBar 1.0
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: { settings.ss2k_shift_step_sample_4 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Shift Step Sample 4") + ": " + text
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample4
@@ -17015,6 +17758,8 @@ import AndroidStatusBar 1.0
                                             enabled: ss2kShiftStepSample4TextField.valid && ss2kShiftStepSample4TextField.dirty
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.ss2k_shift_step_sample_4 = ss2kShiftStepSample4TextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Shift Step Sample 4")
                                         }
                                     }
                                 }
@@ -17065,6 +17810,8 @@ import AndroidStatusBar 1.0
                                         console.log("combomodel activated" + fitmetriaFanFitModeTextField.currentIndex)
                                     }
 
+                                    Accessible.role: Accessible.ComboBox
+                                    Accessible.name: qsTr("Mode") + ": " + displayText
                                 }
                                 Button {
                                     id: okFitmetriaFanFitModeTextField
@@ -17072,6 +17819,8 @@ import AndroidStatusBar 1.0
                                     enabled: fitmetriaFanFitModeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitmetria_fanfit_mode = fitmetriaFanFitModeTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Mode")
                                 }
                             }
                             RowLayout {
@@ -17093,6 +17842,8 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: if (valid) settings.fitmetria_fanfit_min = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Min. value (0-100)") + ": " + text
                                 }
                                 Button {
                                     id: okFitmetriaFanFitMin
@@ -17100,6 +17851,8 @@ import AndroidStatusBar 1.0
                                     enabled: fitmetriaFanFitMinTextField.valid && fitmetriaFanFitMinTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitmetria_fanfit_min = fitmetriaFanFitMinTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Min. value (0-100)")
                                 }
                             }
                             RowLayout {
@@ -17121,6 +17874,8 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: if (valid) settings.fitmetria_fanfit_max = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Max value (0-100)") + ": " + text
                                 }
                                 Button {
                                     id: okFitmetriaFanFitMax
@@ -17128,6 +17883,8 @@ import AndroidStatusBar 1.0
                                     enabled: fitmetriaFanFitMaxTextField.valid && fitmetriaFanFitMaxTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitmetria_fanfit_max = fitmetriaFanFitMaxTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Max value (0-100)")
                                 }
                             }
                         }
@@ -17173,12 +17930,16 @@ import AndroidStatusBar 1.0
                                         console.log("combomodel activated" + headWindModeTextField.currentIndex)
                                     }
 
+                                    Accessible.role: Accessible.ComboBox
+                                    Accessible.name: qsTr("Mode") + ": " + displayText
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: headWindModeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitmetria_fanfit_mode = headWindModeTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Mode")
                                 }
                             }
                             RowLayout {
@@ -17199,12 +17960,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: if (valid) settings.fitmetria_fanfit_min = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Min. value (0-100)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: headWindMinTextField.valid && headWindMinTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitmetria_fanfit_min = headWindMinTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Min. value (0-100)")
                                 }
                             }
                             RowLayout {
@@ -17225,12 +17990,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: if (valid) settings.fitmetria_fanfit_max = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Max value (0-100)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: headWindMaxTextField.valid && headWindMaxTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitmetria_fanfit_max = headWindMaxTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Max value (0-100)")
                                 }
                             }
                         }
@@ -17276,12 +18045,16 @@ import AndroidStatusBar 1.0
                                         console.log("combomodel activated" + eliteAriaModeTextField.currentIndex)
                                     }
 
+                                    Accessible.role: Accessible.ComboBox
+                                    Accessible.name: qsTr("Mode") + ": " + displayText
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: eliteAriaModeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitmetria_fanfit_mode = eliteAriaModeTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Mode")
                                 }
                             }
                             RowLayout {
@@ -17302,12 +18075,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: if (valid) settings.fitmetria_fanfit_min = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Min. value (0-100)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: eliteAriaMinTextField.valid && eliteAriaMinTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitmetria_fanfit_min = eliteAriaMinTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Min. value (0-100)")
                                 }
                             }
                             RowLayout {
@@ -17328,12 +18105,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: if (valid) settings.fitmetria_fanfit_max = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Max value (0-100)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: eliteAriaMaxTextField.valid && eliteAriaMaxTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitmetria_fanfit_max = eliteAriaMaxTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Max value (0-100)")
                                 }
                             }
                         }
@@ -17660,6 +18441,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Left Shifter Up (LS1):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_ls1
                                     onActivated: settings.zwiftplay_gear_ls1 = currentIndex
@@ -17673,6 +18455,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Left Shifter Down (LS2):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_ls2
                                     onActivated: settings.zwiftplay_gear_ls2 = currentIndex
@@ -17686,6 +18469,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Right Shifter Up (RS1):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_rs1
                                     onActivated: settings.zwiftplay_gear_rs1 = currentIndex
@@ -17699,6 +18483,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Right Shifter Down (RS2):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_rs2
                                     onActivated: settings.zwiftplay_gear_rs2 = currentIndex
@@ -17712,6 +18497,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Left Paddle (ZL):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_paddle_left
                                     onActivated: settings.zwiftplay_gear_paddle_left = currentIndex
@@ -17725,6 +18511,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Right Paddle (ZR):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_paddle_right
                                     onActivated: settings.zwiftplay_gear_paddle_right = currentIndex
@@ -17738,6 +18525,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Power Up (LB):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_lb
                                     onActivated: settings.zwiftplay_gear_lb = currentIndex
@@ -17751,6 +18539,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Ride On (RB):") + " " + displayText
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_rb
                                     onActivated: settings.zwiftplay_gear_rb = currentIndex
@@ -17775,12 +18564,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: if (valid) { settings.poll_device_time = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Pool time (ms)") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: zwiftDevPollTimeTextField.valid && zwiftDevPollTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.poll_device_time = zwiftDevPollTimeTextField.value; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Pool time (ms)")
                                 }
                             }
                             Label {
@@ -17841,6 +18634,8 @@ import AndroidStatusBar 1.0
                                 displayText = mapsTypeTextField.currentValue
                             }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Maps Type") + ": " + displayText
                         }
                         Button {
                             id: okMapsType
@@ -17848,6 +18643,8 @@ import AndroidStatusBar 1.0
                             enabled: mapsTypeTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.maps_type = mapsTypeTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Maps Type")
                         }
                     }
                     IndicatorOnlySwitch {
@@ -17897,6 +18694,8 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.video_playback_window_s = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Window Time (sec.)")
                         }
                         Button {
                             id: okVideoWindow
@@ -17904,6 +18703,8 @@ import AndroidStatusBar 1.0
                             enabled: videoWindowTextField.valid && videoWindowTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.video_playback_window_s = videoWindowTextField.value
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Window Time (sec.)")
                         }
                     }
                 }
@@ -18471,12 +19272,17 @@ import AndroidStatusBar 1.0
                                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                                             onAccepted: { settings.dircon_id = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Wahoo device ID") + ": " + text
+                                            Accessible.description: qsTr("Virtual Wahoo device ID. Change if you have multiple QZ instances. Default: 0")
                                         }
                                         Button {
                                             text: qsTr("OK")
                                             enabled: dirconIdTextField.valid && dirconIdTextField.dirty
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.dircon_id = dirconIdTextField.value; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true; }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Wahoo device ID")
                                         }
                                     }
 
@@ -18513,6 +19319,9 @@ import AndroidStatusBar 1.0
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: if (valid) settings.dircon_server_base_port = value
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Wahoo direct connect server port") + ": " + text
+                                            Accessible.description: qsTr("TCP port for the Wahoo direct connect server. Default: 36866")
                                         }
                                         Button {
                                             id: okDirconServerPort
@@ -18520,6 +19329,8 @@ import AndroidStatusBar 1.0
                                             enabled: dirconServerPortTextField.valid && dirconServerPortTextField.dirty
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.dircon_server_base_port = dirconServerPortTextField.value; toast.show(qsTr("Setting saved!")); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save server port")
                                         }
                                     }
                                 }
@@ -18551,12 +19362,16 @@ import AndroidStatusBar 1.0
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: settings.mqtt_host = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("MQTT Host") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: mqttHostTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.mqtt_host = mqttHostTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save MQTT Host")
                                 }
                             }
 
@@ -18593,12 +19408,16 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: if (valid) settings.mqtt_port = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("MQTT Port") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: mqttPortTextField.valid && mqttPortTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.mqtt_port = mqttPortTextField.value; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save MQTT Port")
                                 }
                             }
 
@@ -18632,12 +19451,16 @@ import AndroidStatusBar 1.0
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: settings.mqtt_username = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Username") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: mqttUsernameTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.mqtt_username = mqttUsernameTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Username")
                                 }
                             }
 
@@ -18672,12 +19495,16 @@ import AndroidStatusBar 1.0
                                     echoMode: TextInput.Password
                                     onAccepted: settings.mqtt_password = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Password")
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: mqttPasswordTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.mqtt_password = mqttPasswordTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Password")
                                 }
                             }
 
@@ -18711,12 +19538,16 @@ import AndroidStatusBar 1.0
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: settings.mqtt_deviceid = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Device ID") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: mqttDeviceIdTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.mqtt_deviceid = mqttDeviceIdTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Device ID")
                                 }
                             }
 
@@ -18762,12 +19593,16 @@ import AndroidStatusBar 1.0
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: { settings.osc_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("OSC IP") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: oscIPTextField.valid && oscIPTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.osc_ip = oscIPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save OSC IP")
                                 }
                             }
 
@@ -18791,12 +19626,16 @@ import AndroidStatusBar 1.0
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: if (valid) { settings.osc_port = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("OSC Port") + ": " + text
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: oscPortTextField.valid && oscPortTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.osc_port = oscPortTextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save OSC Port")
                                 }
                             }
                         }
@@ -19345,3 +20184,4 @@ Designer {
     D{i:0;formeditorZoom:0.6600000262260437}
 }
 ##^##*/
+

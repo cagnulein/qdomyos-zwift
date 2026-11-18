@@ -887,6 +887,10 @@ double lockscreen::systemFontScale() {
     return scaled > 0 ? scaled / body : 1.0;
 }
 
+void lockscreen::postAccessibilityScreenChanged() {
+    UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
+}
+
 bool lockscreen::systemDarkMode() {
     // The screen carries the appearance of the system, not an override of a window
     if (@available(iOS 13.0, *)) {

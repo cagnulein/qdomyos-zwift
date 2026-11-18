@@ -102,8 +102,33 @@ Page {
         initialItem: welcomeComponent
     }
 
+    component AccessibleText: Text {
+        Accessible.role: Accessible.StaticText
+        Accessible.name: text
+        Accessible.focusable: visible && text !== ""
+        Accessible.ignored: !visible || text === ""
+    }
+
+    component WizardStep: Item {
+        property string accessibleTitle: ""
+
+        anchors.fill: parent
+        Accessible.ignored: true
+    }
+
     component WizardButton: Button {
              id: wizardButton
+             signal activated()
+
+             function activate() {
+                 activated()
+             }
+
+             onClicked: activate()
+             Accessible.role: Accessible.Button
+             Accessible.focusable: visible && enabled
+             Accessible.ignored: !visible
+             Accessible.onPressAction: activate()
              property color textColor: "#800080"
              property color backgroundColor: "white"
              // Modern look, answers only: an icon on the left and a line of explanation
@@ -156,6 +181,7 @@ Page {
                      wrapMode: Text.WordWrap
                      horizontalAlignment: Text.AlignHCenter
                      verticalAlignment: Text.AlignVCenter
+                     Accessible.ignored: true
                  }
 
                  Row {
@@ -191,6 +217,7 @@ Page {
                              font.weight: Font.DemiBold
                              color: window.ui.textMain
                              wrapMode: Text.WordWrap
+                             Accessible.ignored: true
                          }
                          Text {
                              width: parent.width
@@ -199,6 +226,7 @@ Page {
                              font.pixelSize: window.ui.fontCaption
                              color: window.ui.textMuted
                              wrapMode: Text.WordWrap
+                             Accessible.ignored: true
                          }
                      }
                  }
@@ -264,8 +292,8 @@ Page {
     Component {
         id: welcomeComponent
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Welcome to QZ")
             ScrollView {
                 id: stepScroll
                 contentWidth: availableWidth
@@ -292,9 +320,10 @@ Page {
                         source: "qrc:/inner_templates/chartjs/qzlogo.png" // Replace with your logo path
                         width: 100
                         height: 100
+                        Accessible.ignored: true
                     }
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -306,7 +335,7 @@ Page {
                         Layout.topMargin: window.ui.modern ? 16 : 0
                     }
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -317,7 +346,7 @@ Page {
                         Layout.topMargin: window.ui.modern ? 4 : 0
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.topMargin: window.ui.modern ? 12 : 0
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("QZ is designed to maximize your workout experience on a range of fitness equipment, including indoor bikes, treadmills, ellipticals, and rower. By connecting seamlessly with your devices, QZ provides realtime data, personalized workout plans, and interactive elements to keep you motivated.\n\nThe following questions will customize QZ for your equipment and goals.")
@@ -333,7 +362,7 @@ Page {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Start")
-                        onClicked: goNext()
+                        onActivated: goNext()
                     }
                 }
             }
@@ -357,8 +386,8 @@ Page {
     Component {
         id: step1Component
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("How can I help you?")
             // no button bar on this step: the drag fix of WizardBar is set here
             Binding {
                 when: window.ui.modern
@@ -389,7 +418,7 @@ Page {
                     Binding on spacing { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
                     width: window.ui.modern ? parent.width - 2 * wizardPage.modernMargin : parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -406,7 +435,7 @@ Page {
                         text: qsTr("First-time setup")
                         iconName: "rocket_launch"
                         subtitle: qsTr("Your equipment, units and profile, step by step")
-                        onClicked: {
+                        onActivated: {
                             selectedOptions.step1 = "First-time setup"
                             stackViewLocal.push(step2Component)
                         }
@@ -418,7 +447,7 @@ Page {
                         text: qsTr("Help with a specific feature")
                         iconName: "help"
                         subtitle: qsTr("Pick a topic and go straight to its settings")
-                        onClicked: {
+                        onActivated: {
                             selectedOptions.step1 = "Help with a specific feature"
                             stackViewLocal.push(step2HelpComponent)
                         }
@@ -430,7 +459,7 @@ Page {
                         text: qsTr("I'm fine, thanks.")
                         iconName: "check_circle"
                         subtitle: qsTr("Close the wizard")
-                        onClicked: {
+                        onActivated: {
                                 stackView.pop();
                         }
                     }
@@ -442,8 +471,8 @@ Page {
     Component {
         id: step2Component
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("What's your fitness device?")
             ScrollView {
                 id: stepScroll
                 contentWidth: availableWidth
@@ -466,7 +495,7 @@ Page {
                     Binding on spacing { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
                     width: window.ui.modern ? parent.width - 2 * wizardPage.modernMargin : parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -483,7 +512,7 @@ Page {
                             Layout.topMargin: window.ui.modern ? (index === 0 ? 12 : 8) : 0
                             Layout.alignment: Qt.AlignHCenter
                             text: qsTr(modelData)
-                            onClicked: {
+                            onActivated: {
                                 if (modelData === "Rower") {
                                     settings.virtual_device_rower = true
                                 } else {
@@ -506,7 +535,7 @@ Page {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
                 }
             }
@@ -524,8 +553,8 @@ Page {
     Component {
         id: step3Component
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Choose your preferred app")
             ScrollView {
                 id: stepScroll
                 contentWidth: availableWidth
@@ -547,7 +576,7 @@ Page {
                     Binding on spacing { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
                     width: window.ui.modern ? parent.width - 2 * wizardPage.modernMargin : parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -558,7 +587,7 @@ Page {
                         color: window.ui.ink("white")
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.topMargin: window.ui.modern ? 4 : 0
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("QZ allows you to connect to both of them, even simultaneously if you want!")
@@ -589,7 +618,7 @@ Page {
                                 Layout.preferredWidth: window.ui.modern ? (stackViewLocal.width - 2 * wizardPage.modernMargin - 8) / 2
                                                      : window.textScale !== 1 ? Math.min(window.fontPx(150), (stackViewLocal.width * 0.9 - 20) / 2) : 150
                                 text: qsTr(modelData)
-                                onClicked: {
+                                onActivated: {
                                     selectedOptions.step3 = modelData
                                     if (modelData === "Peloton") {
                                         stackViewLocal.push(pelotonLoginComponent)
@@ -616,7 +645,7 @@ Page {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
                 }
             }
@@ -634,8 +663,8 @@ Page {
     Component {
         id: pelotonLoginComponent
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Connect to Peloton")
             ScrollView {
                 id: stepScroll
                 contentWidth: availableWidth
@@ -657,7 +686,7 @@ Page {
                     Binding on spacing { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
                     width: window.ui.modern ? parent.width - 2 * wizardPage.modernMargin : parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -668,7 +697,7 @@ Page {
                         color: window.ui.ink("white")
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.topMargin: window.ui.modern ? 4 : 0
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Click the button below to connect your Peloton account")
@@ -680,24 +709,34 @@ Page {
                         color: window.ui.modern ? window.ui.textMuted : "white"
                     }
 
-                    Image {
+                    Button {
+                        id: pelotonConnectButton
+
+                        function activate() {
+                            stackViewLocal.push("WebPelotonAuth.qml")
+                            stackViewLocal.currentItem.goBack.connect(function() {
+                                        stackViewLocal.pop();
+                                        stackViewLocal.push(pelotonDifficultyComponent)
+                                    })
+                            peloton_connect_clicked()
+                        }
+
                         Layout.topMargin: window.ui.modern ? 12 : 0
                         Layout.alignment: Qt.AlignHCenter
-                        source: "icons/icons/Button_Connect_Rect_DarkMode.png"
-                        fillMode: Image.PreserveAspectFit
-                        width: parent.width * 0.8
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                stackViewLocal.push("WebPelotonAuth.qml")
-                                stackViewLocal.currentItem.goBack.connect(function() {
-                                            stackViewLocal.pop();
-                                            stackViewLocal.push(pelotonDifficultyComponent)
-                                        })
-                                peloton_connect_clicked()
-                            }
+                        Layout.preferredWidth: parent.width * 0.8
+                        Layout.preferredHeight: 56
+                        background: Image {
+                            source: "icons/icons/Button_Connect_Rect_DarkMode.png"
+                            fillMode: Image.PreserveAspectFit
                         }
+                        contentItem: null
+                        Accessible.role: Accessible.Button
+                        Accessible.name: qsTr("Connect to Peloton")
+                        Accessible.description: qsTr("Opens the Peloton login page")
+                        Accessible.focusable: visible && enabled
+                        Accessible.ignored: !visible
+                        Accessible.onPressAction: activate()
+                        onClicked: activate()
                     }
 
                     Item {
@@ -710,7 +749,7 @@ Page {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
                 }
             }
@@ -728,9 +767,9 @@ Page {
     Component {
         id: pelotonDifficultyComponent
 
-        Item {
+        WizardStep {
+            accessibleTitle: qsTr("Peloton Difficulty")
             readonly property bool wizardLastStep: true
-            anchors.fill: parent
             ScrollView {
                 id: stepScroll
                 contentWidth: availableWidth
@@ -752,7 +791,7 @@ Page {
                     Binding on spacing { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
                     width: window.ui.modern ? parent.width - 2 * wizardPage.modernMargin : parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -763,7 +802,7 @@ Page {
                         color: window.ui.ink("white")
                     }
 
-                    Text {
+                    AccessibleText {
                         text: qsTr("Typically, Peloton coaches call out a range for target incline, resistance and/or speed. Use this setting to choose the difficulty of the target QZ communicates. Difficulty level can be set to lower, upper or average")
                         font.pixelSize: window.ui.modern ? window.ui.fontBody : window.fontPx(20)
                         wrapMode: Text.WordWrap
@@ -774,7 +813,7 @@ Page {
                         Layout.topMargin: window.ui.modern ? 4 : 0
                     }
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -799,13 +838,16 @@ Page {
                             console.log("combomodel activated" + pelotonDifficultyTextField.currentIndex)
                             settings.peloton_difficulty = pelotonDifficultyTextField.currentValue;
                         }
+                        Accessible.role: Accessible.ComboBox
+                        Accessible.name: qsTr("Peloton difficulty level") + ": " + displayText
+                        Accessible.description: qsTr("Choose whether QZ targets the lower, upper or average of the instructor's range")
                     }
 
                     WizardButton {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Finish")
-                        onClicked: goNext()
+                        onActivated: goNext()
                     }
 
                     Item {
@@ -818,7 +860,7 @@ Page {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
                 }
             }
@@ -843,8 +885,8 @@ Page {
     Component {
         id: zwiftComponent
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Bike Resistance Level")
             ScrollView {
                 id: stepScroll
                 contentWidth: availableWidth
@@ -866,7 +908,7 @@ Page {
                     Binding on spacing { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
                     width: window.ui.modern ? parent.width - 2 * wizardPage.modernMargin : parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -877,7 +919,7 @@ Page {
                         color: window.ui.ink("white")
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.topMargin: window.ui.modern ? 4 : 0
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("What resistance level feels like a flat road on your bike?")
@@ -897,6 +939,8 @@ Page {
                         to: 100
                         value: 18
                         editable: true
+                        Accessible.name: qsTr("Resistance level for flat road") + ": " + textFromValue(value, locale)
+                        Accessible.description: qsTr("Resistance level that feels like riding on flat ground. Range 0 to 100.")
                     }
 
                     Item {
@@ -909,14 +953,14 @@ Page {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
-                        onClicked: goNext()
+                        onActivated: goNext()
                     }
 
                     WizardButton {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
                 }
             }
@@ -942,9 +986,9 @@ Page {
     Component {
         id: step4Component
 
-        Item {
+        WizardStep {
+            accessibleTitle: qsTr("Custom Configurations")
             readonly property bool wizardLastStep: true
-            anchors.fill: parent
             ScrollView {
                 id: stepScroll
                 contentWidth: availableWidth
@@ -966,7 +1010,7 @@ Page {
                     Binding on spacing { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
                     width: window.ui.modern ? parent.width - 2 * wizardPage.modernMargin : parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -977,7 +1021,7 @@ Page {
                         color: window.ui.ink("white")
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.topMargin: window.ui.modern ? 4 : 0
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Here you will see custom configurations based on your previous choices.")
@@ -998,14 +1042,14 @@ Page {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
 
                     WizardButton {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Finish")
-                        onClicked: goNext()
+                        onActivated: goNext()
                     }
                 }
             }
@@ -1029,8 +1073,8 @@ Page {
     Component {
         id: step2HelpComponent
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Select a feature")
             ScrollView {
                 id: stepScroll
                 contentWidth: availableWidth
@@ -1052,7 +1096,7 @@ Page {
                     Binding on spacing { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
                     width: window.ui.modern ? parent.width - 2 * wizardPage.modernMargin : parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -1064,7 +1108,7 @@ Page {
                     }
 
                     Repeater {
-                        // Untranslated keys: onClicked compares against them, so the model must not go through qsTr()
+                        // Untranslated keys: onActivated compares against them, so the model must not go through qsTr()
                         model: [
                             QT_TR_NOOP("Auto-incline with treadmill and Zwift"),
                             QT_TR_NOOP("Auto-resistance with Peloton"),
@@ -1075,7 +1119,7 @@ Page {
                             Layout.topMargin: window.ui.modern ? (index === 0 ? 12 : 8) : 0
                             Layout.alignment: Qt.AlignHCenter
                             text: qsTr(modelData)
-                            onClicked: {
+                            onActivated: {
                                 selectedOptions.step2Help = modelData
                                 if(modelData === "Auto-incline with treadmill and Zwift")
                                     stackViewLocal.push(zwiftAutoInclination)
@@ -1101,7 +1145,7 @@ Page {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
                 }
             }
@@ -1119,8 +1163,8 @@ Page {
     Component {
         id: zwiftAutoInclination
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Zwift Credentials")
             ScrollView {
                 id: stepScroll
                 contentWidth: availableWidth
@@ -1142,7 +1186,7 @@ Page {
                     Binding on spacing { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
                     width: window.ui.modern ? parent.width - 2 * wizardPage.modernMargin : parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -1153,7 +1197,7 @@ Page {
                         color: window.ui.ink("white")
                     }
 
-                    Text {
+                    AccessibleText {
                         // a plain Text does not inherit the window font: the text size while it is not 100 %
                         Binding on font.pixelSize { when: window.ui.modern || window.scaledFontPx > 0; value: window.ui.modern ? window.ui.fontBody : window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         Layout.alignment: Qt.AlignHCenter
@@ -1166,7 +1210,7 @@ Page {
                         color: window.ui.modern ? window.ui.textMuted : "white"
                     }
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: window.ui.modern ? Text.AlignLeft : Text.AlignHCenter
                         Layout.fillWidth: true
@@ -1190,9 +1234,11 @@ Page {
                         Layout.fillHeight: false
                         onAccepted: settings.zwift_username = text
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        Accessible.role: Accessible.EditableText
+                        Accessible.name: qsTr("Zwift username") + ": " + text
                     }
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: window.ui.modern ? Text.AlignLeft : Text.AlignHCenter
                         Layout.fillWidth: true
@@ -1216,6 +1262,8 @@ Page {
                         echoMode: TextInput.PasswordEchoOnEdit
                         onAccepted: settings.zwift_password = text
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        Accessible.role: Accessible.EditableText
+                        Accessible.name: qsTr("Zwift password")
                     }
 
                     Item {
@@ -1228,14 +1276,14 @@ Page {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
-                        onClicked: goNext()
+                        onActivated: goNext()
                     }
 
                     WizardButton {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
                 }
             }
@@ -1262,9 +1310,9 @@ Page {
     Component {
         id: zwiftPlayClick
 
-        Item {
+        WizardStep {
+            accessibleTitle: qsTr("Zwift Play and Click")
             readonly property bool wizardLastStep: true
-            anchors.fill: parent
             ScrollView {
                 id: stepScroll
                 contentWidth: availableWidth
@@ -1286,7 +1334,7 @@ Page {
                     Binding on spacing { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
                     width: window.ui.modern ? parent.width - 2 * wizardPage.modernMargin : parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -1297,7 +1345,7 @@ Page {
                         color: window.ui.ink("white")
                     }
 
-                    Text {
+                    AccessibleText {
                         Binding on font.pixelSize { when: window.ui.modern || window.scaledFontPx > 0; value: window.ui.modern ? window.ui.fontBody : window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         id: zwiftPlayClickDescription
                         Layout.alignment: Qt.AlignHCenter
@@ -1313,6 +1361,10 @@ Page {
                     UiSwitchDelegate {
                         Layout.topMargin: window.ui.modern ? 12 : 0
                         text: qsTr("Zwift Click")
+                        function activate() {
+                            checked = !checked
+                            settings.zwift_click = checked
+                        }
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -1325,11 +1377,19 @@ Page {
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.zwift_click = checked;  }
+                        Accessible.name: text
+                        Accessible.description: checked ? qsTr("Enabled") : qsTr("Disabled")
+                        Accessible.focusable: visible && enabled
+                        Accessible.onPressAction: activate()
                     }
 
                     UiSwitchDelegate {
                         Layout.topMargin: window.ui.modern ? 8 : 0
                         text: qsTr("Zwift Play")
+                        function activate() {
+                            checked = !checked
+                            settings.zwift_play = checked
+                        }
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -1342,9 +1402,13 @@ Page {
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.zwift_play = checked; }
+                        Accessible.name: text
+                        Accessible.description: checked ? qsTr("Enabled") : qsTr("Disabled")
+                        Accessible.focusable: visible && enabled
+                        Accessible.onPressAction: activate()
                     }
 
-                    Text {
+                    AccessibleText {
                         Binding on font.pixelSize { when: window.ui.modern || window.scaledFontPx > 0; value: window.ui.modern ? window.ui.fontBody : window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         Layout.alignment: Qt.AlignHCenter
                         Layout.topMargin: window.ui.modern ? 24 : 0
@@ -1366,14 +1430,14 @@ Page {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
 
                     WizardButton {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Finish")
-                        onClicked: goNext()
+                        onActivated: goNext()
                     }
                 }
             }
@@ -1398,9 +1462,9 @@ Page {
     Component {
         id: virtualShifting
 
-        Item {
+        WizardStep {
+            accessibleTitle: qsTr("Virtual Shifting")
             readonly property bool wizardLastStep: true
-            anchors.fill: parent
             ScrollView {
                 id: stepScroll
                 contentWidth: availableWidth
@@ -1422,7 +1486,7 @@ Page {
                     Binding on spacing { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
                     width: window.ui.modern ? parent.width - 2 * wizardPage.modernMargin : parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -1433,7 +1497,7 @@ Page {
                         color: window.ui.ink("white")
                     }
 
-                    Text {
+                    AccessibleText {
                         Binding on font.pixelSize { when: window.ui.modern || window.scaledFontPx > 0; value: window.ui.modern ? window.ui.fontBody : window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         Layout.alignment: Qt.AlignHCenter
                         Layout.topMargin: window.ui.modern ? 4 : 0
@@ -1455,14 +1519,14 @@ Page {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
 
                     WizardButton {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Finish")
-                        onClicked: goNext()
+                        onActivated: goNext()
                     }
                 }
             }
@@ -1487,9 +1551,9 @@ Page {
     Component {
         id: step3HelpComponent
 
-        Item {
+        WizardStep {
+            accessibleTitle: qsTr("Custom Configurations")
             readonly property bool wizardLastStep: true
-            anchors.fill: parent
             ScrollView {
                 id: stepScroll
                 contentWidth: availableWidth
@@ -1511,7 +1575,7 @@ Page {
                     Binding on spacing { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
                     width: window.ui.modern ? parent.width - 2 * wizardPage.modernMargin : parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -1522,7 +1586,7 @@ Page {
                         color: window.ui.ink("white")
                     }
 
-                    Text {
+                    AccessibleText {
                         Binding on font.pixelSize { when: window.ui.modern || window.scaledFontPx > 0; value: window.ui.modern ? window.ui.fontBody : window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         Layout.alignment: Qt.AlignHCenter
                         Layout.topMargin: window.ui.modern ? 4 : 0
@@ -1543,14 +1607,14 @@ Page {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
 
                     WizardButton {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Finish")
-                        onClicked: goNext()
+                        onActivated: goNext()
                     }
                 }
             }
@@ -1574,9 +1638,9 @@ Page {
     Component {
         id: finalStepComponent
 
-        Item {
+        WizardStep {
+            accessibleTitle: qsTr("Thank you for setting up QZ!")
             readonly property bool wizardDone: true
-            anchors.fill: parent
             ScrollView {
                 id: stepScroll
                 contentWidth: availableWidth
@@ -1598,7 +1662,7 @@ Page {
                     Binding on spacing { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
                     width: window.ui.modern ? parent.width - 2 * wizardPage.modernMargin : parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -1609,7 +1673,7 @@ Page {
                         color: window.ui.ink("white")
                     }
 
-                    Text {
+                    AccessibleText {
                         Binding on font.pixelSize { when: window.ui.modern || window.scaledFontPx > 0; value: window.ui.modern ? window.ui.fontBody : window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         Layout.alignment: Qt.AlignHCenter
                         Layout.topMargin: window.ui.modern ? 4 : 0
@@ -1619,9 +1683,14 @@ Page {
                         horizontalAlignment: window.ui.modern ? Text.AlignLeft : Text.AlignHCenter
                         color: window.ui.modern ? window.ui.textMuted : "white"
                         Layout.fillWidth: true
+                        Accessible.role: Accessible.Button
+                        Accessible.name: qsTr("Email support")
+                        Accessible.description: text
+                        Accessible.onPressAction: Qt.openUrlExternally("mailto:roberto.viola83@gmail.com")
                         MouseArea {
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor
+                            Accessible.ignored: true
                             onClicked: {
                                 Qt.openUrlExternally("mailto:roberto.viola83@gmail.com")
                             }
@@ -1632,7 +1701,7 @@ Page {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Close")
-                        onClicked: goNext()
+                        onActivated: goNext()
                     }
                 }
             }
@@ -1655,8 +1724,8 @@ Page {
     Component {
         id: bluetoothDeviceSelectionComponent
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Select Your Fitness Device")
             ScrollView {
                 id: stepScroll
                 contentWidth: availableWidth
@@ -1679,7 +1748,7 @@ Page {
                     Binding on spacing { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
                     width: window.ui.modern ? parent.width - 2 * wizardPage.modernMargin : parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -1707,6 +1776,9 @@ Page {
                             onActivated: {
                                 console.log("combomodel activated" + filterDeviceTextField.currentIndex)
                             }
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Fitness device") + ": " + displayText
+                            Accessible.description: qsTr("Select your fitness device from the list of nearby Bluetooth devices. Tap Refresh to scan again.")
                         }
 
                         UiButton {
@@ -1724,7 +1796,7 @@ Page {
                         visible: !window.ui.modern
                         text: qsTr("Refresh")
                         Layout.alignment: Qt.AlignHCenter
-                        onClicked: refresh_bluetooth_devices_clicked();
+                        onActivated: refresh_bluetooth_devices_clicked();
                     }
 
                     Item {
@@ -1737,14 +1809,14 @@ Page {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
-                        onClicked: goNext()
+                        onActivated: goNext()
                     }
 
                     WizardButton {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
                 }
             }
@@ -1769,8 +1841,8 @@ Page {
     Component {
         id: unitSelectionComponent
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Unit System")
             ScrollView {
                 id: stepScroll
                 contentWidth: availableWidth
@@ -1793,7 +1865,7 @@ Page {
                     Binding on spacing { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
                     width: window.ui.modern ? parent.width - 2 * wizardPage.modernMargin : parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -1804,7 +1876,7 @@ Page {
                         color: window.ui.ink("white")
                     }
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -1821,6 +1893,9 @@ Page {
                         Layout.topMargin: window.ui.modern ? 12 : 0
                         model: [qsTr("Metric"), qsTr("Imperial")]
                         currentIndex: settings.miles_unit ? 1 : 0
+                        Accessible.role: Accessible.ComboBox
+                        Accessible.name: qsTr("Unit system") + ": " + displayText
+                        Accessible.description: qsTr("Metric uses kilometers and kilograms. Imperial uses miles and pounds.")
                     }
 
                     Item {
@@ -1833,14 +1908,14 @@ Page {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
-                        onClicked: goNext()
+                        onActivated: goNext()
                     }
 
                     WizardButton {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
                 }
             }
@@ -1865,8 +1940,8 @@ Page {
     Component {
         id: userInfoComponent
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("User Information")
             ScrollView {
                 id: stepScroll
                 contentWidth: availableWidth
@@ -1889,7 +1964,7 @@ Page {
                     Binding on spacing { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
                     width: window.ui.modern ? parent.width - 2 * wizardPage.modernMargin : parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -1900,7 +1975,7 @@ Page {
                         color: window.ui.ink("white")
                     }
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -1941,9 +2016,12 @@ Page {
                         onValueChanged: {
                             settings.weight = weightOf(value)
                         }
+
+                        Accessible.name: qsTr("Body weight") + ": " + textFromValue(value, locale)
+                        Accessible.description: (settings.miles_unit && !settings.weight_kg_unit) ? qsTr("Your weight in pounds") : qsTr("Your weight in kilograms")
                     }
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -1962,9 +2040,11 @@ Page {
                         to: 120
                         value: settings.age
                         editable: true
+                        Accessible.name: qsTr("Age") + ": " + textFromValue(value, locale)
+                        Accessible.description: qsTr("Your age in years. Used for heart rate zone calculations.")
                     }
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -1985,6 +2065,9 @@ Page {
                         labels: ({ "Male": qsTr("Male"), "Female": qsTr("Female") })
                         currentIndex: settings.sex === "Male" ? 0 : 1
                         value: settings.sex === "Male" ? "Male" : "Female"
+                        Accessible.role: Accessible.ComboBox
+                        Accessible.name: qsTr("Gender") + ": " + displayText
+                        Accessible.description: qsTr("Used for calorie calculations")
                     }
 
                     Item {
@@ -1997,14 +2080,14 @@ Page {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
-                        onClicked: goNext()
+                        onActivated: goNext()
                     }
 
                     WizardButton {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
                 }
             }
@@ -2031,8 +2114,8 @@ Page {
     Component {
         id: heartRateDeviceSelectionComponent
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Select Your Heart Rate Device")
             ScrollView {
                 id: stepScroll
                 contentWidth: availableWidth
@@ -2055,7 +2138,7 @@ Page {
                     Binding on spacing { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
                     width: window.ui.modern ? parent.width - 2 * wizardPage.modernMargin : parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -2066,7 +2149,7 @@ Page {
                         color: window.ui.ink("white")
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         Layout.topMargin: window.ui.modern ? 4 : 0
                         text: qsTr("Choose your heart rate belt or select a smartwatch option:")
@@ -2094,6 +2177,9 @@ Page {
                             onActivated: {
                                 console.log("combomodel activated" + heartBeltNameTextField.currentIndex)
                             }
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Heart rate belt") + ": " + displayText
+                            Accessible.description: qsTr("Select your Bluetooth heart rate belt from the list. Tap Refresh to scan again. Choose Disabled if using a smartwatch.")
                         }
 
                         // Modern look: Refresh as a tonal button beside the list
@@ -2112,10 +2198,10 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                         id: refreshHeartBeltNameButton
                         text: qsTr("Refresh")
-                        onClicked: refresh_bluetooth_devices_clicked();
+                        onActivated: refresh_bluetooth_devices_clicked();
                     }
 
-                    Text {
+                    AccessibleText {
                         wrapMode: Text.WordWrap
                         // Modern look: the title of the group of watch cards
                         horizontalAlignment: window.ui.modern ? Text.AlignLeft : Text.AlignHCenter
@@ -2135,14 +2221,14 @@ Page {
                         iconName: "watch"
                         subtitle: qsTr("Download the QZ Companion App there")
                         text: qsTr("Apple Watch")
-                        onClicked: {
+                        onActivated: {
                             settings.heart_rate_belt_name = "Disabled"
                             settings.garmin_companion = false
                             stackViewLocal.push(step3Component)
                         }
                     }
 
-                    Text {
+                    AccessibleText {
                         // Modern look: the second line of the watch card above
                         visible: !window.ui.modern
                         Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
@@ -2161,14 +2247,14 @@ Page {
                         iconName: "watch"
                         subtitle: qsTr("Download the QZ Companion App there")
                         text: qsTr("Wear OS watch")
-                        onClicked: {
+                        onActivated: {
                             settings.heart_rate_belt_name = "Disabled"
                             settings.garmin_companion = false
                             stackViewLocal.push(step3Component)
                         }
                     }
 
-                    Text {
+                    AccessibleText {
                         // Modern look: the second line of the watch card above
                         visible: !window.ui.modern
                         Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
@@ -2187,14 +2273,14 @@ Page {
                         iconName: "watch"
                         subtitle: qsTr("Download the QZ Companion App there")
                         text: qsTr("Garmin watch")
-                        onClicked: {
+                        onActivated: {
                             settings.heart_rate_belt_name = "Disabled"
                             settings.garmin_companion = true
                             stackViewLocal.push(step3Component)
                         }
                     }
 
-                    Text {
+                    AccessibleText {
                         // Modern look: the second line of the watch card above
                         visible: !window.ui.modern
                         Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
@@ -2216,14 +2302,14 @@ Page {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
-                        onClicked: goNext()
+                        onActivated: goNext()
                     }
 
                     WizardButton {
                         visible: !window.ui.modern
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
                 }
             }

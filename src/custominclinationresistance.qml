@@ -482,6 +482,7 @@ ScrollView {
 
                             TextField {
                                 id: inclinationField
+                                Accessible.name: qsTr("Inclination (%)") + ": " + text
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
                                 text: formatNumber(inclination)
@@ -537,6 +538,7 @@ ScrollView {
 
                             TextField {
                                 id: resistanceField
+                                Accessible.name: qsTr("Resistance") + ": " + text
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
                                 text: formatNumber(resistance)

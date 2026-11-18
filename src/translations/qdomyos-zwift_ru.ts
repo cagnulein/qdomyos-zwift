@@ -301,8 +301,16 @@ Would you like to do that now?</source>
         <translation>Уменьшить </translation>
     </message>
     <message>
+        <source>, current value </source>
+        <translation>, текущее значение </translation>
+    </message>
+    <message>
         <source>Decrease the value of </source>
         <translation>Уменьшить значение параметра </translation>
+    </message>
+    <message>
+        <source>. Current value </source>
+        <translation>. Текущее значение </translation>
     </message>
     <message>
         <source>Increase </source>
@@ -368,8 +376,44 @@ Would you like to enable the required services?</source>
         <translation>Начать новый круг</translation>
     </message>
     <message>
+        <source>This app should automatically connect to your bike, treadmill, or rower.
+
+If it doesn&apos;t, check that:
+- the Echelon/Domyos app is closed while QZ is running
+- Bluetooth and Bluetooth permissions are enabled
+- your equipment is turned on before starting QZ
+- you have restarted your device
+
+If your bike or treadmill disconnects every 30 seconds, disable the Virtual Device setting in the left bar.
+
+For help, contact roberto.viola83@gmail.com.
+
+Have a nice ride!
+
+QZ disclaims liability for incidental or consequential damages and assumes no responsibility for any loss or damage caused by use or misuse of the app.
+
+Roberto Viola</source>
+        <translation>Приложение должно само подключиться к вашему велотренажёру, беговой дорожке или гребному тренажёру.
+
+Если этого не произошло, проверьте, что:
+- приложение Echelon/Domyos закрыто, пока работает QZ
+- Bluetooth и разрешения для Bluetooth включены
+- тренажёр включён до запуска QZ
+- вы перезагрузили устройство
+
+Если велотренажёр или дорожка отключается каждые 30 секунд, выключите настройку «Включить виртуальное устройство» на левой панели.
+
+За помощью пишите на roberto.viola83@gmail.com.
+
+Хорошей тренировки!
+
+QZ не несёт ответственности за случайный или косвенный ущерб, а также за любые потери или вред, вызванные использованием или неправильным использованием приложения.
+
+Roberto Viola</translation>
+    </message>
+    <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
-        <translation>Приложение должно само подключиться к вашему велотренажёру, беговой дорожке или гребному тренажёру. &lt;b&gt;Если этого не произошло, проверьте&lt;/b&gt;:&lt;br&gt;1) приложение Echelon/Domyos ОБЯЗАТЕЛЬНО должно быть закрыто, пока работает qdomyos-zwift;&lt;br&gt;2) Bluetooth и разрешения для Bluetooth ОБЯЗАТЕЛЬНО должны быть включены&lt;br&gt;3) тренажёр нужно включить ДО запуска этого приложения&lt;br&gt;4) попробуйте перезагрузить ваше устройство&lt;br&gt;&lt;br&gt;Если велотренажёр или дорожка отключается каждые 30 секунд, попробуйте выключить настройку «Включить виртуальное устройство» на левой панели.&lt;br&gt;&lt;br&gt;Если возникнут проблемы, смело пишите мне на roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Хорошей тренировки!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ прямо отказывается от ответственности за&lt;br&gt;случайный или косвенный ущерб и не несёт&lt;br&gt;никакой ответственности за любые потери&lt;br&gt;или вред, понесённые кем-либо в результате&lt;br&gt;использования или неправильного использования приложения.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+        <translation type="vanished">Приложение должно само подключиться к вашему велотренажёру, беговой дорожке или гребному тренажёру. &lt;b&gt;Если этого не произошло, проверьте&lt;/b&gt;:&lt;br&gt;1) приложение Echelon/Domyos ОБЯЗАТЕЛЬНО должно быть закрыто, пока работает qdomyos-zwift;&lt;br&gt;2) Bluetooth и разрешения для Bluetooth ОБЯЗАТЕЛЬНО должны быть включены&lt;br&gt;3) тренажёр нужно включить ДО запуска этого приложения&lt;br&gt;4) попробуйте перезагрузить ваше устройство&lt;br&gt;&lt;br&gt;Если велотренажёр или дорожка отключается каждые 30 секунд, попробуйте выключить настройку «Включить виртуальное устройство» на левой панели.&lt;br&gt;&lt;br&gt;Если возникнут проблемы, смело пишите мне на roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Хорошей тренировки!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ прямо отказывается от ответственности за&lt;br&gt;случайный или косвенный ущерб и не несёт&lt;br&gt;никакой ответственности за любые потери&lt;br&gt;или вред, понесённые кем-либо в результате&lt;br&gt;использования или неправильного использования приложения.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
     </message>
     <message>
         <source>Looking for your equipment…</source>
@@ -2099,6 +2143,128 @@ Do you want to update QZ settings?</source>
         <translation>Интервалов: {count}</translation>
     </message>
     <message>
+        <source>Workout name</source>
+        <translation>Название тренировки</translation>
+    </message>
+    <message>
+        <source>Workout device type</source>
+        <translation>Тип тренажёра для тренировки</translation>
+    </message>
+    <message>
+        <source>Create a new workout</source>
+        <translation>Создать новую тренировку</translation>
+    </message>
+    <message>
+        <source>Paste XML from the Clipboard to the Workout Editor</source>
+        <translation>Вставить XML из буфера обмена в редактор тренировок</translation>
+    </message>
+    <message>
+        <source>Save workout</source>
+        <translation>Сохранить тренировку</translation>
+    </message>
+    <message>
+        <source>Save workout and start it</source>
+        <translation>Сохранить тренировку и начать её</translation>
+    </message>
+    <message>
+        <source>Show advanced interval fields</source>
+        <translation>Показать дополнительные поля интервалов</translation>
+    </message>
+    <message>
+        <source>Workout editor controls</source>
+        <translation>Элементы управления редактора тренировок</translation>
+    </message>
+    <message>
+        <source>Add interval</source>
+        <translation>Добавить интервал</translation>
+    </message>
+    <message>
+        <source>Repeat selected intervals</source>
+        <translation>Повторить выделенные интервалы</translation>
+    </message>
+    <message>
+        <source>Clear all intervals</source>
+        <translation>Очистить все интервалы</translation>
+    </message>
+    <message>
+        <source>Workout preview chart</source>
+        <translation>График предпросмотра тренировки</translation>
+    </message>
+    <message>
+        <source>Chart legend</source>
+        <translation>Легенда графика</translation>
+    </message>
+    <message>
+        <source>Saved workout programs</source>
+        <translation>Сохранённые программы тренировок</translation>
+    </message>
+    <message>
+        <source>Load selected workout program</source>
+        <translation>Загрузить выбранную программу тренировки</translation>
+    </message>
+    <message>
+        <source>Delete selected workout program</source>
+        <translation>Удалить выбранную программу тренировки</translation>
+    </message>
+    <message>
+        <source>Refresh workout program list</source>
+        <translation>Обновить список программ тренировок</translation>
+    </message>
+    <message>
+        <source>Select interval {number}</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation>Выбрать интервал {number}</translation>
+    </message>
+    <message>
+        <source>Move interval {number} up</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation>Переместить интервал {number} вверх</translation>
+    </message>
+    <message>
+        <source>Move interval {number} down</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation>Переместить интервал {number} вниз</translation>
+    </message>
+    <message>
+        <source>Copy interval {number}</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation>Копировать интервал {number}</translation>
+    </message>
+    <message>
+        <source>Delete interval {number}</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation>Удалить интервал {number}</translation>
+    </message>
+    <message>
+        <source>Enable {field} for interval {number}</source>
+        <extracomment>Screen reader name of a field checkbox; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
+        <translation>Включить {field} для интервала {number}</translation>
+    </message>
+    <message>
+        <source>{field} for interval {number}</source>
+        <extracomment>Screen reader name of a field; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
+        <translation>{field}, интервал {number}</translation>
+    </message>
+    <message>
+        <source>Decrease {field} for interval {number}</source>
+        <extracomment>Screen reader name of the - button; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
+        <translation>Уменьшить {field} для интервала {number}</translation>
+    </message>
+    <message>
+        <source>Increase {field} for interval {number}</source>
+        <extracomment>Screen reader name of the + button; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
+        <translation>Увеличить {field} для интервала {number}</translation>
+    </message>
+    <message>
+        <source>{name} preview chart. {count} intervals. Total duration {duration}.</source>
+        <extracomment>Screen reader description of the chart; {name} is the workout name, {count} the number of intervals, {duration} like 0:45:00</extracomment>
+        <translation>{name}: график предпросмотра. Интервалов: {count}. Общая длительность: {duration}.</translation>
+    </message>
+    <message>
+        <source>Dialog input</source>
+        <translation>Поле ввода диалога</translation>
+    </message>
+    <message>
         <source>Training Programs Browser</source>
         <translation>Обзор программ тренировок</translation>
     </message>
@@ -2643,6 +2809,10 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>Нажмите кнопку ниже, чтобы подключить учётную запись Peloton</translation>
     </message>
     <message>
+        <source>Opens the Peloton login page</source>
+        <translation>Открывает страницу входа в Peloton</translation>
+    </message>
+    <message>
         <source>Peloton Difficulty</source>
         <translation>Сложность Peloton</translation>
     </message>
@@ -2667,6 +2837,14 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>среднее</translation>
     </message>
     <message>
+        <source>Peloton difficulty level</source>
+        <translation>Уровень сложности Peloton</translation>
+    </message>
+    <message>
+        <source>Choose whether QZ targets the lower, upper or average of the instructor&apos;s range</source>
+        <translation>Выберите, на что из диапазона инструктора ориентируется QZ: на нижнюю границу, верхнюю границу или среднее</translation>
+    </message>
+    <message>
         <source>Finish</source>
         <translation>Готово</translation>
     </message>
@@ -2677,6 +2855,14 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <source>What resistance level feels like a flat road on your bike?</source>
         <translation>Какой уровень сопротивления на вашем велотренажёре ощущается как ровная дорога?</translation>
+    </message>
+    <message>
+        <source>Resistance level for flat road</source>
+        <translation>Уровень сопротивления для ровной дороги</translation>
+    </message>
+    <message>
+        <source>Resistance level that feels like riding on flat ground. Range 0 to 100.</source>
+        <translation>Уровень сопротивления, при котором ощущается езда по ровной дороге. Диапазон от 0 до 100.</translation>
     </message>
     <message>
         <source>Next</source>
@@ -2735,8 +2921,16 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>Имя пользователя</translation>
     </message>
     <message>
+        <source>Zwift username</source>
+        <translation>Имя пользователя Zwift</translation>
+    </message>
+    <message>
         <source>Password</source>
         <translation>Пароль</translation>
+    </message>
+    <message>
+        <source>Zwift password</source>
+        <translation>Пароль Zwift</translation>
     </message>
     <message>
         <source>Zwift Play and Click</source>
@@ -2749,6 +2943,10 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <source>Zwift Click</source>
         <translation>Zwift Click</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Включено</translation>
     </message>
     <message>
         <source>Zwift Play</source>
@@ -2787,6 +2985,10 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>Если у вас есть вопросы или нужна помощь, пишите мне на roberto.viola83@gmail.com. Этот мастер можно запустить снова из меню на левой боковой панели. Чтобы некоторые изменения вступили в силу, может потребоваться перезапуск приложения.</translation>
     </message>
     <message>
+        <source>Email support</source>
+        <translation>Написать в поддержку</translation>
+    </message>
+    <message>
         <source>Close</source>
         <translation>Закрыть</translation>
     </message>
@@ -2797,6 +2999,14 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <source>Disabled</source>
         <translation>Отключено</translation>
+    </message>
+    <message>
+        <source>Fitness device</source>
+        <translation>Тренажёр</translation>
+    </message>
+    <message>
+        <source>Select your fitness device from the list of nearby Bluetooth devices. Tap Refresh to scan again.</source>
+        <translation>Выберите свой тренажёр в списке ближайших Bluetooth-устройств. Нажмите «Обновить», чтобы искать снова.</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -2819,6 +3029,14 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>Имперская</translation>
     </message>
     <message>
+        <source>Unit system</source>
+        <translation>Система единиц</translation>
+    </message>
+    <message>
+        <source>Metric uses kilometers and kilograms. Imperial uses miles and pounds.</source>
+        <translation>В метрической системе – километры и килограммы, в имперской – мили и фунты.</translation>
+    </message>
+    <message>
         <source>User Information</source>
         <translation>Данные пользователя</translation>
     </message>
@@ -2835,8 +3053,24 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>кг</translation>
     </message>
     <message>
+        <source>Body weight</source>
+        <translation>Вес тела</translation>
+    </message>
+    <message>
+        <source>Your weight in pounds</source>
+        <translation>Ваш вес в фунтах</translation>
+    </message>
+    <message>
+        <source>Your weight in kilograms</source>
+        <translation>Ваш вес в килограммах</translation>
+    </message>
+    <message>
         <source>Age</source>
         <translation>Возраст</translation>
+    </message>
+    <message>
+        <source>Your age in years. Used for heart rate zone calculations.</source>
+        <translation>Ваш возраст в годах. Используется для расчёта пульсовых зон.</translation>
     </message>
     <message>
         <source>Gender</source>
@@ -2851,12 +3085,24 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>Женский</translation>
     </message>
     <message>
+        <source>Used for calorie calculations</source>
+        <translation>Используется для расчёта калорий</translation>
+    </message>
+    <message>
         <source>Select Your Heart Rate Device</source>
         <translation>Выберите пульсометр</translation>
     </message>
     <message>
         <source>Choose your heart rate belt or select a smartwatch option:</source>
         <translation>Выберите нагрудный пульсометр или вариант со смарт-часами:</translation>
+    </message>
+    <message>
+        <source>Heart rate belt</source>
+        <translation>Нагрудный пульсометр</translation>
+    </message>
+    <message>
+        <source>Select your Bluetooth heart rate belt from the list. Tap Refresh to scan again. Choose Disabled if using a smartwatch.</source>
+        <translation>Выберите свой Bluetooth-пульсометр в списке. Нажмите «Обновить», чтобы искать снова. Если пользуетесь смарт-часами, выберите «Отключено».</translation>
     </message>
     <message>
         <source>Or select a smartwatch option:</source>
@@ -2884,6 +3130,14 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <source>Workout Editor</source>
         <translation>Редактор тренировок</translation>
+    </message>
+    <message>
+        <source>Loading workout editor</source>
+        <translation>Загрузка редактора тренировок</translation>
+    </message>
+    <message>
+        <source>The workout editor is loading</source>
+        <translation>Редактор тренировок загружается</translation>
     </message>
 </context>
 <context>
@@ -3646,6 +3900,22 @@ This may take a few moments on first startup.</source>
     <message>
         <source>T.Pace(m/500m)</source>
         <translation>Ц.темп (мин/500 м)</translation>
+    </message>
+    <message>
+        <source>Speed %1 kilometers per hour</source>
+        <translation>Скорость %1 километра в час</translation>
+    </message>
+    <message>
+        <source>Speed %1 miles per hour</source>
+        <translation>Скорость %1 мили в час</translation>
+    </message>
+    <message>
+        <source>Inclination %1 percent</source>
+        <translation>Наклон %1 процента</translation>
+    </message>
+    <message>
+        <source>Resistance %1</source>
+        <translation>Сопротивление %1</translation>
     </message>
     <message>
         <source>Stop</source>
@@ -4555,8 +4825,20 @@ In the next window, allow access to the QZ folder.</source>
         <translation>Главное меню</translation>
     </message>
     <message>
+        <source>Return to the previous screen</source>
+        <translation>Вернуться на предыдущий экран</translation>
+    </message>
+    <message>
+        <source>Open the main navigation menu</source>
+        <translation>Открыть главное меню</translation>
+    </message>
+    <message>
         <source>Floating window</source>
         <translation>Плавающее окно</translation>
+    </message>
+    <message>
+        <source>Open the floating workout display</source>
+        <translation>Открыть плавающее окно тренировки</translation>
     </message>
     <message>
         <source>Auto Resistance enabled</source>
@@ -4579,6 +4861,10 @@ In the next window, allow access to the QZ folder.</source>
         <translation>Загрузить настройки</translation>
     </message>
     <message>
+        <source>Open the saved settings list</source>
+        <translation>Открыть список сохранённых настроек</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>Поиск настроек</translation>
     </message>
@@ -4587,16 +4873,32 @@ In the next window, allow access to the QZ folder.</source>
         <translation>Сохранить настройки</translation>
     </message>
     <message>
+        <source>Save the current settings profile</source>
+        <translation>Сохранить текущий профиль настроек</translation>
+    </message>
+    <message>
         <source>Map</source>
         <translation>Карта</translation>
+    </message>
+    <message>
+        <source>Open the route map</source>
+        <translation>Открыть карту маршрута</translation>
     </message>
     <message>
         <source>Video</source>
         <translation>Видео</translation>
     </message>
     <message>
+        <source>Show or hide the workout video</source>
+        <translation>Показать или скрыть видео тренировки</translation>
+    </message>
+    <message>
         <source>Chart</source>
         <translation>График</translation>
+    </message>
+    <message>
+        <source>Show or hide the workout chart</source>
+        <translation>Показать или скрыть график тренировки</translation>
     </message>
     <message>
         <source>Share FIT file</source>
@@ -4611,12 +4913,24 @@ In the next window, allow access to the QZ folder.</source>
         <translation>Закрепить плитки</translation>
     </message>
     <message>
+        <source>Prevent workout tiles from being moved</source>
+        <translation>Запретить перемещение плиток</translation>
+    </message>
+    <message>
+        <source>Allow workout tiles to be moved</source>
+        <translation>Разрешить перемещение плиток</translation>
+    </message>
+    <message>
         <source>Disable auto resistance</source>
         <translation>Выключить автосопротивление</translation>
     </message>
     <message>
         <source>Enable auto resistance</source>
         <translation>Включить автосопротивление</translation>
+    </message>
+    <message>
+        <source>Toggle automatic resistance control</source>
+        <translation>Включить или выключить автосопротивление</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4677,6 +4991,34 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>Quit</source>
         <translation>Выход</translation>
+    </message>
+    <message>
+        <source>Tap to log out of Strava</source>
+        <translation>Нажмите, чтобы выйти из Strava</translation>
+    </message>
+    <message>
+        <source>Tap to connect your Strava account</source>
+        <translation>Нажмите, чтобы подключить учётную запись Strava</translation>
+    </message>
+    <message>
+        <source>Tap to log out of Peloton</source>
+        <translation>Нажмите, чтобы выйти из Peloton</translation>
+    </message>
+    <message>
+        <source>Tap to connect your Peloton account</source>
+        <translation>Нажмите, чтобы подключить учётную запись Peloton</translation>
+    </message>
+    <message>
+        <source>Open Garmin Connect integration settings</source>
+        <translation>Открыть настройки интеграции с Garmin Connect</translation>
+    </message>
+    <message>
+        <source>Tap to log out of Intervals.icu</source>
+        <translation>Нажмите, чтобы выйти из Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Tap to connect your Intervals.icu account</source>
+        <translation>Нажмите, чтобы подключить учётную запись Intervals.icu</translation>
     </message>
     <message>
         <source>Please choose a file</source>
@@ -5126,6 +5468,10 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Вес</translation>
     </message>
     <message>
+        <source>Save Player Weight</source>
+        <translation>Сохранить вес</translation>
+    </message>
+    <message>
         <source>Enter your weight in kilograms so QZ can more accurately calculate calories burned. NOTE: If you choose to use miles as the unit for distance traveled, you will be asked to enter your weight in pounds (lbs) unless you enable &apos;Use kg for weight&apos;.</source>
         <translation>Введите свой вес в килограммах, чтобы QZ точнее рассчитывал сожжённые калории. ПРИМЕЧАНИЕ: если для дистанции выбраны мили, вес нужно будет вводить в фунтах, если не включена настройка «Вес в килограммах».</translation>
     </message>
@@ -5138,12 +5484,24 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Неверный формат! Используйте футы&apos;дюймы (например, 6&apos;2&quot;)</translation>
     </message>
     <message>
+        <source>Save Player Height</source>
+        <translation>Сохранить рост</translation>
+    </message>
+    <message>
         <source>Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet&apos;inches&quot; format (e.g., 5&apos;10&quot;) for imperial units.</source>
         <translation>Укажите рост для более точного расчёта BMR и активных калорий. Для метрической системы – в сантиметрах, для имперской – в формате футы&apos;дюймы&quot; (например, 5&apos;10&quot;).</translation>
     </message>
     <message>
         <source>Player Age:</source>
         <translation>Возраст:</translation>
+    </message>
+    <message>
+        <source>Player Age</source>
+        <translation>Возраст</translation>
+    </message>
+    <message>
+        <source>Save Player Age</source>
+        <translation>Сохранить возраст</translation>
     </message>
     <message>
         <source>Enter your age so that calories burned can be more accurately calculated.</source>
@@ -5162,12 +5520,28 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Женский</translation>
     </message>
     <message>
+        <source>Gender</source>
+        <translation>Пол</translation>
+    </message>
+    <message>
+        <source>Save Gender</source>
+        <translation>Сохранить пол</translation>
+    </message>
+    <message>
         <source>Select your gender so that calories burned can be more accurately calculated.</source>
         <translation>Укажите пол, чтобы точнее рассчитывать сожжённые калории.</translation>
     </message>
     <message>
         <source>FTP value:</source>
         <translation>Значение FTP:</translation>
+    </message>
+    <message>
+        <source>FTP value</source>
+        <translation>Значение FTP</translation>
+    </message>
+    <message>
+        <source>Save FTP value</source>
+        <translation>Сохранить значение FTP</translation>
     </message>
     <message>
         <source>If you train to specific output (or watts) levels, for example in Peloton Power Zone classes,and have taken an FTP test (Functional Threshold Power), enter your FTP here. This number is used to calculate your Power Zones (Zones 1 to 7 for Peloton and 1 to 6 for Zwift).</source>
@@ -5178,6 +5552,14 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Критическая мощность в беге:</translation>
     </message>
     <message>
+        <source>Critical Power Run value</source>
+        <translation>Критическая мощность в беге</translation>
+    </message>
+    <message>
+        <source>Save Critical Power Run value</source>
+        <translation>Сохранить критическую мощность в беге</translation>
+    </message>
+    <message>
         <source>If you train to specific output (or watts) levels, for example with Stryd,and have taken an CP test (Critical Power Test), enter your CP here. This number is used to calculate your RSS.</source>
         <translation>Если вы тренируетесь по уровням мощности (в ваттах), например со Stryd, и прошли тест CP (критическая мощность), введите здесь свою CP. По ней рассчитывается RSS.</translation>
     </message>
@@ -5186,12 +5568,28 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Никнейм:</translation>
     </message>
     <message>
+        <source>Nickname</source>
+        <translation>Никнейм</translation>
+    </message>
+    <message>
+        <source>Save Nickname</source>
+        <translation>Сохранить никнейм</translation>
+    </message>
+    <message>
         <source>No need to enter data here. It is for a possible future QZ feature.</source>
         <translation>Заполнять не нужно. Поле зарезервировано для возможной будущей функции QZ.</translation>
     </message>
     <message>
         <source>Email:</source>
         <translation>Эл. почта:</translation>
+    </message>
+    <message>
+        <source>Email</source>
+        <translation>Эл. почта</translation>
+    </message>
+    <message>
+        <source>Save Email</source>
+        <translation>Сохранить эл. почту</translation>
     </message>
     <message>
         <source>Enter your email address to receive an automated email with stats and charts when you hit STOP at the end of each workout. Make sure there are no spaces before or after the email address; this is the most common reason the automated email is not sent. Privacy Note: Email addresses are not collected by the developer and are only saved locally on your device.</source>
@@ -5298,16 +5696,48 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Зона 1, %:</translation>
     </message>
     <message>
+        <source>Zone 1 %</source>
+        <translation>Зона 1, %</translation>
+    </message>
+    <message>
+        <source>Save Zone 1 %</source>
+        <translation>Сохранить зону 1, %</translation>
+    </message>
+    <message>
         <source>Zone 2 %:</source>
         <translation>Зона 2, %:</translation>
+    </message>
+    <message>
+        <source>Zone 2 %</source>
+        <translation>Зона 2, %</translation>
+    </message>
+    <message>
+        <source>Save Zone 2 %</source>
+        <translation>Сохранить зону 2, %</translation>
     </message>
     <message>
         <source>Zone 3 %:</source>
         <translation>Зона 3, %:</translation>
     </message>
     <message>
+        <source>Zone 3 %</source>
+        <translation>Зона 3, %</translation>
+    </message>
+    <message>
+        <source>Save Zone 3 %</source>
+        <translation>Сохранить зону 3, %</translation>
+    </message>
+    <message>
         <source>Zone 4 %:</source>
         <translation>Зона 4, %:</translation>
+    </message>
+    <message>
+        <source>Zone 4 %</source>
+        <translation>Зона 4, %</translation>
+    </message>
+    <message>
+        <source>Save Zone 4 %</source>
+        <translation>Сохранить зону 4, %</translation>
     </message>
     <message>
         <source>Zone 5 will be calculated automatically based on Zone 4 end percentage and max HR.</source>
@@ -5330,12 +5760,20 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Макс. пульс</translation>
     </message>
     <message>
+        <source>Save Max Heart Rate</source>
+        <translation>Сохранить макс. пульс</translation>
+    </message>
+    <message>
         <source>QZ uses a standard age-based calculation for maximum heart rate and then sets the heart rate zones based on that max heart rate. If you know your actual max heart rate (the highest your heart rate is known to reach), turn this option on and enter your actual max heart rate. Then click OK.</source>
         <translation>QZ рассчитывает максимальный пульс по стандартной формуле от возраста и по нему задаёт пульсовые зоны. Если вы знаете свой реальный максимальный пульс (самое высокое значение, до которого поднимается ваш пульс), включите эту опцию и введите его. Затем нажмите OK.</translation>
     </message>
     <message>
         <source>Resting Heart Rate</source>
         <translation>Пульс в покое</translation>
+    </message>
+    <message>
+        <source>Save Resting Heart Rate</source>
+        <translation>Сохранить пульс в покое</translation>
     </message>
     <message>
         <source>Enter your resting heart rate (the lowest your heart rate reaches when fully rested). This is used for accurate training load calculations. Default is 60 bpm.</source>
@@ -5350,16 +5788,48 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Замер 1, мощность:</translation>
     </message>
     <message>
+        <source>Session 1 Watt</source>
+        <translation>Замер 1, мощность</translation>
+    </message>
+    <message>
+        <source>Save Session 1 Watt</source>
+        <translation>Сохранить мощность, замер 1</translation>
+    </message>
+    <message>
         <source>Session 1 HR:</source>
         <translation>Замер 1, пульс:</translation>
+    </message>
+    <message>
+        <source>Session 1 HR</source>
+        <translation>Замер 1, пульс</translation>
+    </message>
+    <message>
+        <source>Save Session 1 HR</source>
+        <translation>Сохранить пульс, замер 1</translation>
     </message>
     <message>
         <source>Session 2 Watt:</source>
         <translation>Замер 2, мощность:</translation>
     </message>
     <message>
+        <source>Session 2 Watt</source>
+        <translation>Замер 2, мощность</translation>
+    </message>
+    <message>
+        <source>Save Session 2 Watt</source>
+        <translation>Сохранить мощность, замер 2</translation>
+    </message>
+    <message>
         <source>Session 2 HR:</source>
         <translation>Замер 2, пульс:</translation>
+    </message>
+    <message>
+        <source>Session 2 HR</source>
+        <translation>Замер 2, пульс</translation>
+    </message>
+    <message>
+        <source>Save Session 2 HR</source>
+        <translation>Сохранить пульс, замер 2</translation>
     </message>
     <message>
         <source>Expand the bars to the right to display the options under this setting. These settings are used to calculate power (watts) for bikes that do not have power meters. Instead QZ estimates power from your cadence and heart rate. You can calibrate how QZ calculates your power from heart rate as follows: If you know that at a stable pace you produce 100W of power at a heart rate of 150 BPM and 150W at 170 BPM, you can add these values under Sessions 1 and 2 Watt and HR and QZ will calculate your power based on that trend line.</source>
@@ -5394,12 +5864,24 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Передача:</translation>
     </message>
     <message>
+        <source>Gear Value</source>
+        <translation>Передача</translation>
+    </message>
+    <message>
+        <source>Save Gear Value</source>
+        <translation>Сохранить передачу</translation>
+    </message>
+    <message>
         <source>Specify a particular gear value to be restored at startup. This will override the &apos;Restore Gears on Startup&apos; setting.</source>
         <translation>Укажите передачу, которая будет установлена при запуске. Эта настройка имеет приоритет над «Восстанавливать передачу при запуске».</translation>
     </message>
     <message>
         <source>Rolling Resistance Factor</source>
         <translation>Коэффициент сопротивления качению</translation>
+    </message>
+    <message>
+        <source>Save Rolling Resistance Factor</source>
+        <translation>Сохранить коэффициент сопротивления качению</translation>
     </message>
     <message>
         <source>0.005 = Clinchers
@@ -5410,6 +5892,14 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
 0.012 = MTB</translation>
     </message>
     <message>
+        <source>Bike Weight</source>
+        <translation>Вес велосипеда</translation>
+    </message>
+    <message>
+        <source>Save Bike Weight</source>
+        <translation>Сохранить вес велосипеда</translation>
+    </message>
+    <message>
         <source>Enables QZ to include the weight of your bike when calculating speed. For example, if you are competing against yourself on VZfit, adding bike weight will &apos;level the playing field&apos; against your virtual self. If you have set QZ to calculate distance in miles, enter the bike weight in pounds (lbs) unless you enable &apos;Use kg for weight&apos;. Default unit is kilograms (kgs).</source>
         <translation>Позволяет QZ учитывать вес велосипеда при расчёте скорости. Например, если вы соревнуетесь сами с собой в VZfit, вес велосипеда «уравняет шансы» с вашим виртуальным соперником. Если в QZ дистанция считается в милях, вводите вес велосипеда в фунтах, если только не включена настройка «Вес в килограммах». Единица по умолчанию – килограммы.</translation>
     </message>
@@ -5418,8 +5908,16 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Коэф. сопр. качению</translation>
     </message>
     <message>
+        <source>Save Rolling Res. Gain</source>
+        <translation>Сохранить коэф. сопр. качению</translation>
+    </message>
+    <message>
         <source>Wind Res. Gain</source>
         <translation>Коэф. сопр. воздуха</translation>
+    </message>
+    <message>
+        <source>Save Wind Res. Gain</source>
+        <translation>Сохранить коэф. сопр. воздуха</translation>
     </message>
     <message>
         <source>Zwift Workout/Erg Mode</source>
@@ -5434,12 +5932,28 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Смещение сопротивления Zwift:</translation>
     </message>
     <message>
+        <source>Zwift Resistance Offset</source>
+        <translation>Смещение сопротивления Zwift</translation>
+    </message>
+    <message>
+        <source>Save Zwift Resistance Offset</source>
+        <translation>Сохранить смещение сопротивления Zwift</translation>
+    </message>
+    <message>
         <source>This setting sets your “flat road” in Zwift. All communicated resistance changes will be based on this setting. The value entered is personal preference and will be dependent on your level of fitness. The suggested value for Echelon bikes is between 18 and 20. Default is 4.</source>
         <translation>Эта настройка задаёт «ровную дорогу» в Zwift. От неё отсчитываются все передаваемые изменения сопротивления. Значение подбирается по вкусу и зависит от вашей физической формы. Для велотренажёров Echelon рекомендуется значение от 18 до 20. По умолчанию – 4.</translation>
     </message>
     <message>
         <source>Zwift Power Offset (W):</source>
         <translation>Смещение мощности Zwift (Вт):</translation>
+    </message>
+    <message>
+        <source>Zwift Power Offset (W)</source>
+        <translation>Смещение мощности Zwift (Вт)</translation>
+    </message>
+    <message>
+        <source>Save Zwift Power Offset (W)</source>
+        <translation>Сохранить смещение мощности Zwift (Вт)</translation>
     </message>
     <message>
         <source>Add an offset in watts to the requested power from apps like Zwift. Positive values increase power, negative values decrease it. Default is 0.</source>
@@ -5450,12 +5964,28 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Коэффициент сопротивления Zwift:</translation>
     </message>
     <message>
+        <source>Zwift Resistance Gain</source>
+        <translation>Коэффициент сопротивления Zwift</translation>
+    </message>
+    <message>
+        <source>Save Zwift Resistance Gain</source>
+        <translation>Сохранить коэффициент сопротивления Zwift</translation>
+    </message>
+    <message>
         <source>(for bikes and treadmills when using “treadmill as a bike” setting). This setting scales the resistance from your bike or the speed from your treadmill before sending it to Zwift. Default is 1.</source>
         <translation>(для велотренажёров, а также для беговых дорожек с настройкой «Дорожка как велотренажёр»). Масштабирует сопротивление велотренажёра или скорость беговой дорожки перед отправкой в Zwift. По умолчанию – 1.</translation>
     </message>
     <message>
         <source>Zwift ERG Watt Up Filter:</source>
         <translation>Zwift ERG: фильтр увеличения мощности:</translation>
+    </message>
+    <message>
+        <source>Zwift ERG Watt Up Filter</source>
+        <translation>Zwift ERG: фильтр увеличения мощности</translation>
+    </message>
+    <message>
+        <source>Save Zwift ERG Watt Up Filter</source>
+        <translation>Сохранить фильтр увеличения мощности Zwift ERG</translation>
     </message>
     <message>
         <source>In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 watts or more than 110 watts. Default is 10.</source>
@@ -5466,12 +5996,28 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Zwift ERG: фильтр уменьшения мощности:</translation>
     </message>
     <message>
+        <source>Zwift ERG Watt Down Filter</source>
+        <translation>Zwift ERG: фильтр уменьшения мощности</translation>
+    </message>
+    <message>
+        <source>Save Zwift ERG Watt Down Filter</source>
+        <translation>Сохранить фильтр уменьшения мощности Zwift ERG</translation>
+    </message>
+    <message>
         <source>See above. Default is 10.</source>
         <translation>См. выше. По умолчанию – 10.</translation>
     </message>
     <message>
         <source>Min. Resistance:</source>
         <translation>Мин. сопротивление:</translation>
+    </message>
+    <message>
+        <source>Min. Resistance</source>
+        <translation>Мин. сопротивление</translation>
+    </message>
+    <message>
+        <source>Save Min. Resistance</source>
+        <translation>Сохранить мин. сопротивление</translation>
     </message>
     <message>
         <source>Use this setting to set a minimum target resistance. For example, if you do not want to ride at a resistance below 25, enter a value of 25 and QZ will not set a target resistance below 25. Default is 0.</source>
@@ -5482,6 +6028,14 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Макс. сопротивление:</translation>
     </message>
     <message>
+        <source>Max. Resistance</source>
+        <translation>Макс. сопротивление</translation>
+    </message>
+    <message>
+        <source>Save Max. Resistance</source>
+        <translation>Сохранить макс. сопротивление</translation>
+    </message>
+    <message>
         <source>Similar to the above, but sets a maximum target resistance. Default is 999.</source>
         <translation>То же, что выше, но задаёт максимальное целевое сопротивление. По умолчанию – 999.</translation>
     </message>
@@ -5490,12 +6044,28 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Сопротивление при запуске:</translation>
     </message>
     <message>
+        <source>Resistance at Startup</source>
+        <translation>Сопротивление при запуске</translation>
+    </message>
+    <message>
+        <source>Save Resistance at Startup</source>
+        <translation>Сохранить сопротивление при запуске</translation>
+    </message>
+    <message>
         <source>(only for bikes with electronically-controlled resistance): Enter the resistance level you want QZ to set at startup. Default is 1.</source>
         <translation>(только для велотренажёров с электронным управлением сопротивлением): введите уровень сопротивления, который QZ установит при запуске. По умолчанию – 1.</translation>
     </message>
     <message>
         <source>Gears Gain:</source>
         <translation>Коэффициент передач:</translation>
+    </message>
+    <message>
+        <source>Gears Gain</source>
+        <translation>Коэффициент передач</translation>
+    </message>
+    <message>
+        <source>Save Gears Gain</source>
+        <translation>Сохранить коэффициент передач</translation>
     </message>
     <message>
         <source>Applies a multiplier to the gears. Default is 1.</source>
@@ -5508,6 +6078,14 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     <message>
         <source>Gears Offset:</source>
         <translation>Смещение передач:</translation>
+    </message>
+    <message>
+        <source>Gears Offset</source>
+        <translation>Смещение передач</translation>
+    </message>
+    <message>
+        <source>Save Gears Offset</source>
+        <translation>Сохранить смещение передач</translation>
     </message>
     <message>
         <source>Applies an offset to the gears. Default is 0.</source>
@@ -5530,6 +6108,10 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Профиль:</translation>
     </message>
     <message>
+        <source>Profile</source>
+        <translation>Профиль</translation>
+    </message>
+    <message>
         <source>Cruise Profile Settings</source>
         <translation>Настройки профиля «Круиз»</translation>
     </message>
@@ -5538,16 +6120,48 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Круиз – каденс для повышения передачи (об/мин):</translation>
     </message>
     <message>
+        <source>Cruise - Gear Up Cadence (RPM)</source>
+        <translation>Круиз – каденс для повышения передачи (об/мин)</translation>
+    </message>
+    <message>
+        <source>Save Cruise - Gear Up Cadence (RPM)</source>
+        <translation>Сохранить круиз – каденс для повышения передачи (об/мин)</translation>
+    </message>
+    <message>
         <source>Cruise - Gear Up Time (seconds):</source>
         <translation>Круиз – время до повышения передачи (с):</translation>
+    </message>
+    <message>
+        <source>Cruise - Gear Up Time (seconds)</source>
+        <translation>Круиз – время до повышения передачи (с)</translation>
+    </message>
+    <message>
+        <source>Save Cruise - Gear Up Time (seconds)</source>
+        <translation>Сохранить круиз – время до повышения передачи (с)</translation>
     </message>
     <message>
         <source>Cruise - Gear Down Cadence (RPM):</source>
         <translation>Круиз – каденс для понижения передачи (об/мин):</translation>
     </message>
     <message>
+        <source>Cruise - Gear Down Cadence (RPM)</source>
+        <translation>Круиз – каденс для понижения передачи (об/мин)</translation>
+    </message>
+    <message>
+        <source>Save Cruise - Gear Down Cadence (RPM)</source>
+        <translation>Сохранить круиз – каденс для понижения передачи (об/мин)</translation>
+    </message>
+    <message>
         <source>Cruise - Gear Down Time (seconds):</source>
         <translation>Круиз – время до понижения передачи (с):</translation>
+    </message>
+    <message>
+        <source>Cruise - Gear Down Time (seconds)</source>
+        <translation>Круиз – время до понижения передачи (с)</translation>
+    </message>
+    <message>
+        <source>Save Cruise - Gear Down Time (seconds)</source>
+        <translation>Сохранить круиз – время до понижения передачи (с)</translation>
     </message>
     <message>
         <source>Climb Profile Settings</source>
@@ -5558,16 +6172,48 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Подъём – каденс для повышения передачи (об/мин):</translation>
     </message>
     <message>
+        <source>Climb - Gear Up Cadence (RPM)</source>
+        <translation>Подъём – каденс для повышения передачи (об/мин)</translation>
+    </message>
+    <message>
+        <source>Save Climb - Gear Up Cadence (RPM)</source>
+        <translation>Сохранить подъём – каденс для повышения передачи (об/мин)</translation>
+    </message>
+    <message>
         <source>Climb - Gear Up Time (seconds):</source>
         <translation>Подъём – время до повышения передачи (с):</translation>
+    </message>
+    <message>
+        <source>Climb - Gear Up Time (seconds)</source>
+        <translation>Подъём – время до повышения передачи (с)</translation>
+    </message>
+    <message>
+        <source>Save Climb - Gear Up Time (seconds)</source>
+        <translation>Сохранить подъём – время до повышения передачи (с)</translation>
     </message>
     <message>
         <source>Climb - Gear Down Cadence (RPM):</source>
         <translation>Подъём – каденс для понижения передачи (об/мин):</translation>
     </message>
     <message>
+        <source>Climb - Gear Down Cadence (RPM)</source>
+        <translation>Подъём – каденс для понижения передачи (об/мин)</translation>
+    </message>
+    <message>
+        <source>Save Climb - Gear Down Cadence (RPM)</source>
+        <translation>Сохранить подъём – каденс для понижения передачи (об/мин)</translation>
+    </message>
+    <message>
         <source>Climb - Gear Down Time (seconds):</source>
         <translation>Подъём – время до понижения передачи (с):</translation>
+    </message>
+    <message>
+        <source>Climb - Gear Down Time (seconds)</source>
+        <translation>Подъём – время до понижения передачи (с)</translation>
+    </message>
+    <message>
+        <source>Save Climb - Gear Down Time (seconds)</source>
+        <translation>Сохранить подъём – время до понижения передачи (с)</translation>
     </message>
     <message>
         <source>Sprint Profile Settings</source>
@@ -5578,16 +6224,48 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Спринт – каденс для повышения передачи (об/мин):</translation>
     </message>
     <message>
+        <source>Sprint - Gear Up Cadence (RPM)</source>
+        <translation>Спринт – каденс для повышения передачи (об/мин)</translation>
+    </message>
+    <message>
+        <source>Save Sprint - Gear Up Cadence (RPM)</source>
+        <translation>Сохранить спринт – каденс для повышения передачи (об/мин)</translation>
+    </message>
+    <message>
         <source>Sprint - Gear Up Time (seconds):</source>
         <translation>Спринт – время до повышения передачи (с):</translation>
+    </message>
+    <message>
+        <source>Sprint - Gear Up Time (seconds)</source>
+        <translation>Спринт – время до повышения передачи (с)</translation>
+    </message>
+    <message>
+        <source>Save Sprint - Gear Up Time (seconds)</source>
+        <translation>Сохранить спринт – время до повышения передачи (с)</translation>
     </message>
     <message>
         <source>Sprint - Gear Down Cadence (RPM):</source>
         <translation>Спринт – каденс для понижения передачи (об/мин):</translation>
     </message>
     <message>
+        <source>Sprint - Gear Down Cadence (RPM)</source>
+        <translation>Спринт – каденс для понижения передачи (об/мин)</translation>
+    </message>
+    <message>
+        <source>Save Sprint - Gear Down Cadence (RPM)</source>
+        <translation>Сохранить спринт – каденс для понижения передачи (об/мин)</translation>
+    </message>
+    <message>
         <source>Sprint - Gear Down Time (seconds):</source>
         <translation>Спринт – время до понижения передачи (с):</translation>
+    </message>
+    <message>
+        <source>Sprint - Gear Down Time (seconds)</source>
+        <translation>Спринт – время до понижения передачи (с)</translation>
+    </message>
+    <message>
+        <source>Save Sprint - Gear Down Time (seconds)</source>
+        <translation>Сохранить спринт – время до понижения передачи (с)</translation>
     </message>
     <message>
         <source>FTMS Bike:</source>
@@ -5626,6 +6304,14 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Сглаживание сопротивления:</translation>
     </message>
     <message>
+        <source>Resistance Smoothing</source>
+        <translation>Сглаживание сопротивления</translation>
+    </message>
+    <message>
+        <source>Save Resistance Smoothing</source>
+        <translation>Сохранить сглаживание сопротивления</translation>
+    </message>
+    <message>
         <source>Since this bike doesn&apos;t send resistance over Bluetooth, QZ is calculating it using cadence and wattage. The result could be a little &apos;jumpy&apos; and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.</source>
         <translation>Этот велотренажёр не передаёт сопротивление по Bluetooth, поэтому QZ вычисляет его по каденсу и мощности. Результат может «скакать», и эта настройка позволяет сгладить значение в плитке сопротивления. Единица – уровень сопротивления: значение 5 означает, что сопротивление на экране изменится, только когда оно изменится на 5 уровней.</translation>
     </message>
@@ -5638,6 +6324,14 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Множитель каденса GR7:</translation>
     </message>
     <message>
+        <source>GR7 Cadence Multiplier</source>
+        <translation>Множитель каденса GR7</translation>
+    </message>
+    <message>
+        <source>Save GR7 Cadence Multiplier</source>
+        <translation>Сохранить множитель каденса GR7</translation>
+    </message>
+    <message>
         <source>Echelon Bike Options</source>
         <translation>Параметры велотренажёра Echelon</translation>
     </message>
@@ -5646,12 +6340,36 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Профиль мощности:</translation>
     </message>
     <message>
+        <source>Watt Profile</source>
+        <translation>Профиль мощности</translation>
+    </message>
+    <message>
+        <source>Save Watt Profile</source>
+        <translation>Сохранить профиль мощности</translation>
+    </message>
+    <message>
         <source>Resistance Gain:</source>
         <translation>Коэффициент сопротивления:</translation>
     </message>
     <message>
+        <source>Resistance Gain</source>
+        <translation>Коэффициент сопротивления</translation>
+    </message>
+    <message>
+        <source>Save Resistance Gain</source>
+        <translation>Сохранить коэффициент сопротивления</translation>
+    </message>
+    <message>
         <source>Resistance Offset:</source>
         <translation>Смещение сопротивления:</translation>
+    </message>
+    <message>
+        <source>Resistance Offset</source>
+        <translation>Смещение сопротивления</translation>
+    </message>
+    <message>
+        <source>Save Resistance Offset</source>
+        <translation>Сохранить смещение сопротивления</translation>
     </message>
     <message>
         <source>Change gears using knob (Experimental)</source>
@@ -5750,12 +6468,28 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Фильтр нулевых показаний:</translation>
     </message>
     <message>
+        <source>Samples Filter</source>
+        <translation>Фильтр нулевых показаний</translation>
+    </message>
+    <message>
+        <source>Save Samples Filter</source>
+        <translation>Сохранить фильтр нулевых показаний</translation>
+    </message>
+    <message>
         <source>Domyos Bike Options</source>
         <translation>Параметры велотренажёра Domyos</translation>
     </message>
     <message>
         <source>Cadence Filter:</source>
         <translation>Фильтр каденса:</translation>
+    </message>
+    <message>
+        <source>Cadence Filter</source>
+        <translation>Фильтр каденса</translation>
+    </message>
+    <message>
+        <source>Save Cadence Filter</source>
+        <translation>Сохранить фильтр каденса</translation>
     </message>
     <message>
         <source>Ignore FTMS</source>
@@ -5799,6 +6533,14 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Коэффициент колеса:</translation>
     </message>
     <message>
+        <source>Wheel Ratio</source>
+        <translation>Коэффициент колеса</translation>
+    </message>
+    <message>
+        <source>Save Wheel Ratio</source>
+        <translation>Сохранить коэффициент колеса</translation>
+    </message>
+    <message>
         <source>Specific Model:</source>
         <translation>Модель:</translation>
     </message>
@@ -5807,8 +6549,32 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Таблица мощности TDF CBC Jonseed</translation>
     </message>
     <message>
+        <source>TDF1 IP</source>
+        <translation>IP-адрес TDF1</translation>
+    </message>
+    <message>
+        <source>Save TDF1 IP</source>
+        <translation>Сохранить IP-адрес TDF1</translation>
+    </message>
+    <message>
+        <source>TDF4 IP</source>
+        <translation>IP-адрес TDF4</translation>
+    </message>
+    <message>
+        <source>Save TDF4 IP</source>
+        <translation>Сохранить IP-адрес TDF4</translation>
+    </message>
+    <message>
         <source>TDF Companion IP:</source>
         <translation>IP-адрес TDF Companion:</translation>
+    </message>
+    <message>
+        <source>TDF Companion IP</source>
+        <translation>IP-адрес TDF Companion</translation>
+    </message>
+    <message>
+        <source>Save TDF Companion IP</source>
+        <translation>Сохранить IP-адрес TDF Companion</translation>
     </message>
     <message>
         <source>ADB Remote</source>
@@ -5827,8 +6593,24 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Последовательный порт:</translation>
     </message>
     <message>
+        <source>Serial Port</source>
+        <translation>Последовательный порт</translation>
+    </message>
+    <message>
+        <source>Save Serial Port</source>
+        <translation>Сохранить последовательный порт</translation>
+    </message>
+    <message>
         <source>Kettler USB Bike Options</source>
         <translation>Параметры USB-велотренажёра Kettler</translation>
+    </message>
+    <message>
+        <source>Baudrate</source>
+        <translation>Скорость порта</translation>
+    </message>
+    <message>
+        <source>Save Baudrate</source>
+        <translation>Сохранить скорость порта</translation>
     </message>
     <message>
         <source>M3i Bike Options</source>
@@ -5843,8 +6625,24 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>ID велотренажёра:</translation>
     </message>
     <message>
+        <source>Bike ID</source>
+        <translation>ID велотренажёра</translation>
+    </message>
+    <message>
+        <source>Save Bike ID</source>
+        <translation>Сохранить ID велотренажёра</translation>
+    </message>
+    <message>
         <source>Speed Buffer Size:</source>
         <translation>Сглаживание скорости (кол-во показаний):</translation>
+    </message>
+    <message>
+        <source>Speed Buffer Size</source>
+        <translation>Сглаживание скорости</translation>
+    </message>
+    <message>
+        <source>Save Speed Buffer Size</source>
+        <translation>Сохранить сглаживание скорости</translation>
     </message>
     <message>
         <source>Use KCal from the Bike</source>
@@ -7142,8 +7940,40 @@ Please enter it below:</source>
         <translation>Номер этого графика в истории тренировок. Порядок меняется кнопками вверх и вниз в разделе «Общие параметры интерфейса».</translation>
     </message>
     <message>
+        <source>ANT+ Bike Device Number (0=Auto)</source>
+        <translation>Номер ANT+ устройства велотренажёра (0=авто)</translation>
+    </message>
+    <message>
+        <source>Save ANT+ Bike Device Number (0=Auto)</source>
+        <translation>Сохранить номер ANT+ устройства велотренажёра (0=авто)</translation>
+    </message>
+    <message>
+        <source>Save ANT+ Speed Offset</source>
+        <translation>Сохранить смещение скорости ANT+</translation>
+    </message>
+    <message>
+        <source>ANT+ Speed Gain</source>
+        <translation>Коэффициент скорости ANT+</translation>
+    </message>
+    <message>
+        <source>Save ANT+ Speed Gain</source>
+        <translation>Сохранить коэффициент скорости ANT+</translation>
+    </message>
+    <message>
+        <source>ANT+ Heart Device Number (0=Auto)</source>
+        <translation>Номер ANT+ пульсометра (0=авто)</translation>
+    </message>
+    <message>
+        <source>Save ANT+ Heart Device Number (0=Auto)</source>
+        <translation>Сохранить номер ANT+ пульсометра (0=авто)</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Размер плиток:</translation>
+    </message>
+    <message>
+        <source>Save Tile Size</source>
+        <translation>Сохранить размер плиток</translation>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
@@ -7166,8 +7996,472 @@ Please enter it below:</source>
         <translation>Размер текста приложения (настройки, меню, диалоги) в процентах, от 80 до 170. По умолчанию – 100. У плиток своя настройка размера.</translation>
     </message>
     <message>
+        <source>Floating Window Type</source>
+        <translation>Тип плавающего окна</translation>
+    </message>
+    <message>
+        <source>Save Floating Window Type</source>
+        <translation>Сохранить тип плавающего окна</translation>
+    </message>
+    <message>
+        <source>Floating Window Width</source>
+        <translation>Ширина плавающего окна</translation>
+    </message>
+    <message>
+        <source>Save Floating Window Width</source>
+        <translation>Сохранить ширину плавающего окна</translation>
+    </message>
+    <message>
+        <source>Floating Window Height</source>
+        <translation>Высота плавающего окна</translation>
+    </message>
+    <message>
+        <source>Save Floating Window Height</source>
+        <translation>Сохранить высоту плавающего окна</translation>
+    </message>
+    <message>
+        <source>Floating Window % Transparency</source>
+        <translation>Прозрачность плавающего окна, %</translation>
+    </message>
+    <message>
+        <source>Save Floating Window % Transparency</source>
+        <translation>Сохранить прозрачность плавающего окна, %</translation>
+    </message>
+    <message>
+        <source>Chart Display Mode</source>
+        <translation>Режим графиков</translation>
+    </message>
+    <message>
+        <source>Save Chart Display Mode</source>
+        <translation>Сохранить режим графиков</translation>
+    </message>
+    <message>
+        <source>iOS Live Activity Left Metric</source>
+        <translation>Левый показатель Live Activity (iOS)</translation>
+    </message>
+    <message>
+        <source>Save iOS Live Activity Left Metric</source>
+        <translation>Сохранить левый показатель Live Activity (iOS)</translation>
+    </message>
+    <message>
+        <source>iOS Live Activity Right Metric</source>
+        <translation>Правый показатель Live Activity (iOS)</translation>
+    </message>
+    <message>
+        <source>Save iOS Live Activity Right Metric</source>
+        <translation>Сохранить правый показатель Live Activity (iOS)</translation>
+    </message>
+    <message>
+        <source>Background Color</source>
+        <translation>Цвет фона</translation>
+    </message>
+    <message>
+        <source>Save Background Color</source>
+        <translation>Сохранить цвет фона</translation>
+    </message>
+    <message>
+        <source>Tiles Background Color</source>
+        <translation>Цвет фона плиток</translation>
+    </message>
+    <message>
+        <source>Save Tiles Background Color</source>
+        <translation>Сохранить цвет фона плиток</translation>
+    </message>
+    <message>
+        <source>Tiles Shadow Color</source>
+        <translation>Цвет тени плиток</translation>
+    </message>
+    <message>
+        <source>Save Tiles Shadow Color</source>
+        <translation>Сохранить цвет тени плиток</translation>
+    </message>
+    <message>
+        <source>Statusbar Background Color</source>
+        <translation>Цвет фона строки состояния</translation>
+    </message>
+    <message>
+        <source>Save Statusbar Background Color</source>
+        <translation>Сохранить цвет фона строки состояния</translation>
+    </message>
+    <message>
+        <source>2nd line tile text size</source>
+        <translation>Размер текста 2-й строки плитки</translation>
+    </message>
+    <message>
+        <source>Save 2nd line tile text size</source>
+        <translation>Сохранить размер текста 2-й строки плитки</translation>
+    </message>
+    <message>
+        <source>Connect to Peloton</source>
+        <translation>Подключить Peloton</translation>
+    </message>
+    <message>
+        <source>Opens the Peloton login page</source>
+        <translation>Открывает страницу входа в Peloton</translation>
+    </message>
+    <message>
+        <source>Difficulty</source>
+        <translation>Сложность</translation>
+    </message>
+    <message>
+        <source>Save Difficulty</source>
+        <translation>Сохранить сложность</translation>
+    </message>
+    <message>
+        <source>Treadmill Level</source>
+        <translation>Уровень для дорожки</translation>
+    </message>
+    <message>
+        <source>Save Treadmill Level</source>
+        <translation>Сохранить уровень для дорожки</translation>
+    </message>
+    <message>
+        <source>Treadmill Walk Level</source>
+        <translation>Уровень ходьбы на дорожке</translation>
+    </message>
+    <message>
+        <source>Save Treadmill Walk Level</source>
+        <translation>Сохранить уровень ходьбы на дорожке</translation>
+    </message>
+    <message>
+        <source>Walking Min Speed</source>
+        <translation>Мин. скорость ходьбы</translation>
+    </message>
+    <message>
+        <source>Save Walking Min Speed</source>
+        <translation>Сохранить мин. скорость ходьбы</translation>
+    </message>
+    <message>
+        <source>Running Min Speed</source>
+        <translation>Мин. скорость бега</translation>
+    </message>
+    <message>
+        <source>Save Running Min Speed</source>
+        <translation>Сохранить мин. скорость бега</translation>
+    </message>
+    <message>
+        <source>Rower Level</source>
+        <translation>Уровень для гребного тренажёра</translation>
+    </message>
+    <message>
+        <source>Save Rower Level</source>
+        <translation>Сохранить уровень для гребного тренажёра</translation>
+    </message>
+    <message>
+        <source>PZP Username</source>
+        <translation>Имя пользователя PZP</translation>
+    </message>
+    <message>
+        <source>Save PZP Username</source>
+        <translation>Сохранить имя пользователя PZP</translation>
+    </message>
+    <message>
+        <source>PZP Password</source>
+        <translation>Пароль PZP</translation>
+    </message>
+    <message>
+        <source>Save PZP Password</source>
+        <translation>Сохранить пароль PZP</translation>
+    </message>
+    <message>
+        <source>Conversion Gain</source>
+        <translation>Коэффициент пересчёта</translation>
+    </message>
+    <message>
+        <source>Save Conversion Gain</source>
+        <translation>Сохранить коэффициент пересчёта</translation>
+    </message>
+    <message>
+        <source>Conversion Offset</source>
+        <translation>Смещение пересчёта</translation>
+    </message>
+    <message>
+        <source>Save Conversion Offset</source>
+        <translation>Сохранить смещение пересчёта</translation>
+    </message>
+    <message>
+        <source>Override HR Metric</source>
+        <translation>Вместо пульса передавать</translation>
+    </message>
+    <message>
+        <source>Save Override HR Metric</source>
+        <translation>Сохранить показатель вместо пульса</translation>
+    </message>
+    <message>
+        <source>Date on Strava</source>
+        <translation>Дата в Strava</translation>
+    </message>
+    <message>
+        <source>Save Date on Strava</source>
+        <translation>Сохранить дату в Strava</translation>
+    </message>
+    <message>
+        <source>Date Format</source>
+        <translation>Формат даты</translation>
+    </message>
+    <message>
+        <source>Save Date Format</source>
+        <translation>Сохранить формат даты</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Имя пользователя</translation>
+    </message>
+    <message>
+        <source>Save Username</source>
+        <translation>Сохранить имя пользователя</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Пароль</translation>
+    </message>
+    <message>
+        <source>Save Password</source>
+        <translation>Сохранить пароль</translation>
+    </message>
+    <message>
+        <source>Poll Time</source>
+        <translation>Интервал обновления данных</translation>
+    </message>
+    <message>
+        <source>Save Poll Time</source>
+        <translation>Сохранить интервал обновления данных</translation>
+    </message>
+    <message>
+        <source>Garmin Email</source>
+        <translation>Почта Garmin</translation>
+    </message>
+    <message>
+        <source>Save Garmin Email</source>
+        <translation>Сохранить почту Garmin</translation>
+    </message>
+    <message>
+        <source>Garmin Password</source>
+        <translation>Пароль Garmin</translation>
+    </message>
+    <message>
+        <source>Save Garmin Password</source>
+        <translation>Сохранить пароль Garmin</translation>
+    </message>
+    <message>
+        <source>Garmin Server</source>
+        <translation>Сервер Garmin</translation>
+    </message>
+    <message>
+        <source>PID on Heart Zone</source>
+        <translation>Удерживать пульсовую зону</translation>
+    </message>
+    <message>
+        <source>Save PID on Heart Zone</source>
+        <translation>Сохранить удержание пульсовой зоны</translation>
+    </message>
+    <message>
         <source>Speed</source>
         <translation>Скорость</translation>
+    </message>
+    <message>
+        <source>Save PID HR actuator</source>
+        <translation>Сохранить параметр, который меняет удержание пульса</translation>
+    </message>
+    <message>
+        <source>PID on HR min</source>
+        <translation>Удержание пульса, мин.</translation>
+    </message>
+    <message>
+        <source>Save PID on HR min</source>
+        <translation>Сохранить удержание пульса, мин.</translation>
+    </message>
+    <message>
+        <source>PID on HR max</source>
+        <translation>Удержание пульса, макс.</translation>
+    </message>
+    <message>
+        <source>Save PID on HR max</source>
+        <translation>Сохранить удержание пульса, макс.</translation>
+    </message>
+    <message>
+        <source>1 mile pace (total time)</source>
+        <translation>Темп на 1 милю (общее время)</translation>
+    </message>
+    <message>
+        <source>Save 1 mile pace (total time)</source>
+        <translation>Сохранить темп на 1 милю (общее время)</translation>
+    </message>
+    <message>
+        <source>5 km pace (total time)</source>
+        <translation>Темп на 5 км (общее время)</translation>
+    </message>
+    <message>
+        <source>Save 5 km pace (total time)</source>
+        <translation>Сохранить темп на 5 км (общее время)</translation>
+    </message>
+    <message>
+        <source>10 km pace (total time)</source>
+        <translation>Темп на 10 км (общее время)</translation>
+    </message>
+    <message>
+        <source>Save 10 km pace (total time)</source>
+        <translation>Сохранить темп на 10 км (общее время)</translation>
+    </message>
+    <message>
+        <source>Half Marathon pace (total time)</source>
+        <translation>Темп на полумарафон (общее время)</translation>
+    </message>
+    <message>
+        <source>Save Half Marathon pace (total time)</source>
+        <translation>Сохранить темп на полумарафон (общее время)</translation>
+    </message>
+    <message>
+        <source>Marathon pace (total time)</source>
+        <translation>Темп на марафон (общее время)</translation>
+    </message>
+    <message>
+        <source>Save Marathon pace (total time)</source>
+        <translation>Сохранить темп на марафон (общее время)</translation>
+    </message>
+    <message>
+        <source>Default Pace</source>
+        <translation>Темп по умолчанию</translation>
+    </message>
+    <message>
+        <source>Save Default Pace</source>
+        <translation>Сохранить темп по умолчанию</translation>
+    </message>
+    <message>
+        <source>ERG Mode Watt Step</source>
+        <translation>Шаг мощности в режиме ERG</translation>
+    </message>
+    <message>
+        <source>Save ERG Mode Watt Step</source>
+        <translation>Сохранить шаг мощности в режиме ERG</translation>
+    </message>
+    <message>
+        <source>Duration (minutes)</source>
+        <translation>Длительность (минуты)</translation>
+    </message>
+    <message>
+        <source>Save Duration (minutes)</source>
+        <translation>Сохранить длительность (минуты)</translation>
+    </message>
+    <message>
+        <source>Period (seconds)</source>
+        <translation>Период (секунды)</translation>
+    </message>
+    <message>
+        <source>Save Period (seconds)</source>
+        <translation>Сохранить период (секунды)</translation>
+    </message>
+    <message>
+        <source>Speed min.</source>
+        <translation>Скорость, мин.</translation>
+    </message>
+    <message>
+        <source>Save Speed min.</source>
+        <translation>Сохранить скорость, мин.</translation>
+    </message>
+    <message>
+        <source>Speed max.</source>
+        <translation>Скорость, макс.</translation>
+    </message>
+    <message>
+        <source>Save Speed max.</source>
+        <translation>Сохранить скорость, макс.</translation>
+    </message>
+    <message>
+        <source>Incline min.</source>
+        <translation>Наклон, мин.</translation>
+    </message>
+    <message>
+        <source>Save Incline min.</source>
+        <translation>Сохранить наклон, мин.</translation>
+    </message>
+    <message>
+        <source>Incline max.</source>
+        <translation>Наклон, макс.</translation>
+    </message>
+    <message>
+        <source>Save Incline max.</source>
+        <translation>Сохранить наклон, макс.</translation>
+    </message>
+    <message>
+        <source>Resistance min.</source>
+        <translation>Сопротивление, мин.</translation>
+    </message>
+    <message>
+        <source>Save Resistance min.</source>
+        <translation>Сохранить сопротивление, мин.</translation>
+    </message>
+    <message>
+        <source>Resistance max.</source>
+        <translation>Сопротивление, макс.</translation>
+    </message>
+    <message>
+        <source>Save Resistance max.</source>
+        <translation>Сохранить сопротивление, макс.</translation>
+    </message>
+    <message>
+        <source>Speed Step</source>
+        <translation>Шаг скорости</translation>
+    </message>
+    <message>
+        <source>Save Speed Step</source>
+        <translation>Сохранить шаг скорости</translation>
+    </message>
+    <message>
+        <source>Min. Inclination</source>
+        <translation>Мин. наклон</translation>
+    </message>
+    <message>
+        <source>Save Min. Inclination</source>
+        <translation>Сохранить мин. наклон</translation>
+    </message>
+    <message>
+        <source>Max. Inclination</source>
+        <translation>Макс. наклон</translation>
+    </message>
+    <message>
+        <source>Save Max. Inclination</source>
+        <translation>Сохранить макс. наклон</translation>
+    </message>
+    <message>
+        <source>Max. Speed</source>
+        <translation>Макс. скорость</translation>
+    </message>
+    <message>
+        <source>Save Max. Speed</source>
+        <translation>Сохранить макс. скорость</translation>
+    </message>
+    <message>
+        <source>Min. Speed</source>
+        <translation>Мин. скорость</translation>
+    </message>
+    <message>
+        <source>Save Min. Speed</source>
+        <translation>Сохранить мин. скорость</translation>
+    </message>
+    <message>
+        <source>Step Count Gain</source>
+        <translation>Коэффициент шагов</translation>
+    </message>
+    <message>
+        <source>Save Step Count Gain</source>
+        <translation>Сохранить коэффициент шагов</translation>
+    </message>
+    <message>
+        <source>Proform IP</source>
+        <translation>IP-адрес Proform</translation>
+    </message>
+    <message>
+        <source>Save Proform IP</source>
+        <translation>Сохранить IP-адрес Proform</translation>
+    </message>
+    <message>
+        <source>Nordictrack 2950 IP</source>
+        <translation>IP-адрес Nordictrack 2950</translation>
+    </message>
+    <message>
+        <source>Save Nordictrack 2950 IP</source>
+        <translation>Сохранить IP-адрес Nordictrack 2950</translation>
     </message>
     <message>
         <source>Echelon Options</source>
@@ -7184,6 +8478,22 @@ Please enter it below:</source>
     <message>
         <source>Enable handling of physical Start/Pause/Stop buttons on the treadmill hardware</source>
         <translation>Обрабатывать нажатия физических кнопок «Старт», «Пауза» и «Стоп» на корпусе беговой дорожки</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email</source>
+        <translation>Имя пользователя или эл. почта Life Fitness</translation>
+    </message>
+    <message>
+        <source>Save Life Fitness username/email</source>
+        <translation>Сохранить имя пользователя или эл. почту Life Fitness</translation>
+    </message>
+    <message>
+        <source>Life Fitness password</source>
+        <translation>Пароль Life Fitness</translation>
+    </message>
+    <message>
+        <source>Save Life Fitness password</source>
+        <translation>Сохранить пароль Life Fitness</translation>
     </message>
     <message>
         <source>RunnerT Options</source>
@@ -7222,20 +8532,60 @@ Please enter it below:</source>
         <translation>Переназначить кнопку 5 км/ч:</translation>
     </message>
     <message>
+        <source>Remap 5 km/h button</source>
+        <translation>Переназначить кнопку 5 км/ч</translation>
+    </message>
+    <message>
+        <source>Save Remap 5 km/h button</source>
+        <translation>Сохранить переназначение кнопки 5 км/ч</translation>
+    </message>
+    <message>
         <source>Remap 10 km/h button:</source>
         <translation>Переназначить кнопку 10 км/ч:</translation>
+    </message>
+    <message>
+        <source>Remap 10 km/h button</source>
+        <translation>Переназначить кнопку 10 км/ч</translation>
+    </message>
+    <message>
+        <source>Save Remap 10 km/h button</source>
+        <translation>Сохранить переназначение кнопки 10 км/ч</translation>
     </message>
     <message>
         <source>Remap 16 km/h button:</source>
         <translation>Переназначить кнопку 16 км/ч:</translation>
     </message>
     <message>
+        <source>Remap 16 km/h button</source>
+        <translation>Переназначить кнопку 16 км/ч</translation>
+    </message>
+    <message>
+        <source>Save Remap 16 km/h button</source>
+        <translation>Сохранить переназначение кнопки 16 км/ч</translation>
+    </message>
+    <message>
         <source>Remap 22 km/h button:</source>
         <translation>Переназначить кнопку 22 км/ч:</translation>
     </message>
     <message>
+        <source>Remap 22 km/h button</source>
+        <translation>Переназначить кнопку 22 км/ч</translation>
+    </message>
+    <message>
+        <source>Save Remap 22 km/h button</source>
+        <translation>Сохранить переназначение кнопки 22 км/ч</translation>
+    </message>
+    <message>
         <source>Pool time (ms):</source>
         <translation>Интервал обновления данных (мс):</translation>
+    </message>
+    <message>
+        <source>Pool time (ms)</source>
+        <translation>Интервал обновления данных (мс)</translation>
+    </message>
+    <message>
+        <source>Save Pool time (ms)</source>
+        <translation>Сохранить интервал обновления данных (мс)</translation>
     </message>
     <message>
         <source>Default: 200. Change this only if you have random issues with speed or inclination (try to put 300)</source>
@@ -7272,6 +8622,14 @@ Please enter it below:</source>
     <message>
         <source>User ID:</source>
         <translation>ID пользователя:</translation>
+    </message>
+    <message>
+        <source>User ID</source>
+        <translation>ID пользователя</translation>
+    </message>
+    <message>
+        <source>Save User ID</source>
+        <translation>Сохранить ID пользователя</translation>
     </message>
     <message>
         <source>ESLinker Treadmill Options</source>
@@ -7314,20 +8672,60 @@ Please enter it below:</source>
         <translation>Пользователь 1:</translation>
     </message>
     <message>
+        <source>User 1</source>
+        <translation>Пользователь 1</translation>
+    </message>
+    <message>
+        <source>Save User 1</source>
+        <translation>Сохранить пользователя 1</translation>
+    </message>
+    <message>
         <source>User 2:</source>
         <translation>Пользователь 2:</translation>
+    </message>
+    <message>
+        <source>User 2</source>
+        <translation>Пользователь 2</translation>
+    </message>
+    <message>
+        <source>Save User 2</source>
+        <translation>Сохранить пользователя 2</translation>
     </message>
     <message>
         <source>User 3:</source>
         <translation>Пользователь 3:</translation>
     </message>
     <message>
+        <source>User 3</source>
+        <translation>Пользователь 3</translation>
+    </message>
+    <message>
+        <source>Save User 3</source>
+        <translation>Сохранить пользователя 3</translation>
+    </message>
+    <message>
         <source>User 4:</source>
         <translation>Пользователь 4:</translation>
     </message>
     <message>
+        <source>User 4</source>
+        <translation>Пользователь 4</translation>
+    </message>
+    <message>
+        <source>Save User 4</source>
+        <translation>Сохранить пользователя 4</translation>
+    </message>
+    <message>
         <source>User 5:</source>
         <translation>Пользователь 5:</translation>
+    </message>
+    <message>
+        <source>User 5</source>
+        <translation>Пользователь 5</translation>
+    </message>
+    <message>
+        <source>Save User 5</source>
+        <translation>Сохранить пользователя 5</translation>
     </message>
     <message>
         <source>Bodytone Treadmill Options</source>
@@ -7434,6 +8832,14 @@ Please enter it below:</source>
         <translation>IP-адрес ProForm Rower:</translation>
     </message>
     <message>
+        <source>ProForm Rower IP</source>
+        <translation>IP-адрес ProForm Rower</translation>
+    </message>
+    <message>
+        <source>Save ProForm Rower IP</source>
+        <translation>Сохранить IP-адрес ProForm Rower</translation>
+    </message>
+    <message>
         <source>Elliptical Options</source>
         <translation>Параметры эллиптического тренажёра</translation>
     </message>
@@ -7444,6 +8850,10 @@ Please enter it below:</source>
     <message>
         <source>Speed Ratio:</source>
         <translation>Коэффициент скорости:</translation>
+    </message>
+    <message>
+        <source>Save Domyos Elliptical Speed Ratio</source>
+        <translation>Сохранить коэффициент скорости эллипса Domyos</translation>
     </message>
     <message>
         <source>Inclination Supported</source>
@@ -7468,6 +8878,14 @@ Please enter it below:</source>
     <message>
         <source>Companion IP:</source>
         <translation>IP-адрес Companion:</translation>
+    </message>
+    <message>
+        <source>Companion IP</source>
+        <translation>IP-адрес Companion</translation>
+    </message>
+    <message>
+        <source>Save Companion IP</source>
+        <translation>Сохранить IP-адрес Companion</translation>
     </message>
     <message>
         <source>Sole Elliptical Options</source>
@@ -7510,12 +8928,28 @@ Please enter it below:</source>
         <translation>Смещение мощности:</translation>
     </message>
     <message>
+        <source>Watt Offset</source>
+        <translation>Смещение мощности</translation>
+    </message>
+    <message>
+        <source>Save Watt Offset</source>
+        <translation>Сохранить смещение мощности</translation>
+    </message>
+    <message>
         <source>You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. The number you enter as an Offset adds that amount to your watts.</source>
         <translation>Можно увеличить или уменьшить выдаваемую мощность, чтобы аватар двигался быстрее или медленнее в Zwift и похожих приложениях, – так калибруется тренажёр. Введённое смещение прибавляется к вашей мощности.</translation>
     </message>
     <message>
         <source>Watt Gain:</source>
         <translation>Коэффициент мощности:</translation>
+    </message>
+    <message>
+        <source>Watt Gain</source>
+        <translation>Коэффициент мощности</translation>
+    </message>
+    <message>
+        <source>Save Watt Gain</source>
+        <translation>Сохранить коэффициент мощности</translation>
     </message>
     <message>
         <source>You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. For example, to use a rower to cycle in Zwift, you could double your watt output to better match your cycling speed by entering 2. The number you enter is a multiplier applied to your actual watts.</source>
@@ -7534,12 +8968,24 @@ Please enter it below:</source>
         <translation>Смещение скорости</translation>
     </message>
     <message>
+        <source>Save Speed Offset</source>
+        <translation>Сохранить смещение скорости</translation>
+    </message>
+    <message>
         <source>You can increase/decrease your speed for moving your avatar faster/slower in Zwift if your equipment outputs speed but not watts. The number you enter as an Offset adds that amount to your speed.</source>
         <translation>Можно увеличить или уменьшить скорость, чтобы аватар двигался быстрее или медленнее в Zwift, если тренажёр передаёт скорость, но не мощность. Введённое смещение прибавляется к вашей скорости.</translation>
     </message>
     <message>
         <source>Speed Gain:</source>
         <translation>Коэффициент скорости:</translation>
+    </message>
+    <message>
+        <source>Speed Gain</source>
+        <translation>Коэффициент скорости</translation>
+    </message>
+    <message>
+        <source>Save Speed Gain</source>
+        <translation>Сохранить коэффициент скорости</translation>
     </message>
     <message>
         <source>You can increase/decrease your speed output for moving your avatar faster/slower in Zwift or other apps as a way of calibrating your equipment if your equipment outputs speed but not watts. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.</source>
@@ -7550,12 +8996,20 @@ Please enter it below:</source>
         <translation>Смещение каденса</translation>
     </message>
     <message>
+        <source>Save Cadence Offset</source>
+        <translation>Сохранить смещение каденса</translation>
+    </message>
+    <message>
         <source>You can increase/decrease your cadence output. The number you enter as an Offset adds that amount to your cadence.</source>
         <translation>Можно увеличить или уменьшить выдаваемый каденс. Введённое смещение прибавляется к вашему каденсу.</translation>
     </message>
     <message>
         <source>Cadence Gain:</source>
         <translation>Коэффициент каденса:</translation>
+    </message>
+    <message>
+        <source>Save Cadence Gain</source>
+        <translation>Сохранить коэффициент каденса</translation>
     </message>
     <message>
         <source>You can increase/decrease your cadence output as a way of calibrating your equipment if your equipment outputs cadence but not watts. The number you enter is a multiplier applied to your actual cadence.</source>
@@ -7578,8 +9032,24 @@ Please enter it below:</source>
         <translation>Спрашивать</translation>
     </message>
     <message>
+        <source>Strava Upload</source>
+        <translation>Загрузка в Strava</translation>
+    </message>
+    <message>
+        <source>Save Strava Upload</source>
+        <translation>Сохранить загрузку в Strava</translation>
+    </message>
+    <message>
         <source>Suffix activity:</source>
         <translation>Суффикс активности:</translation>
+    </message>
+    <message>
+        <source>Suffix activity</source>
+        <translation>Суффикс активности</translation>
+    </message>
+    <message>
+        <source>Save Suffix activity</source>
+        <translation>Сохранить суффикс активности</translation>
     </message>
     <message>
         <source>Default is “QZ.” Please leave this set to default so that other Strava users will see the QZ; a tiny bit of advertising that helps promote the app and support its development. If you choose to remove it, please consider contributing to the developer’s Patreon or Buy Me a Coffee accounts or just subscribe to the Swag bag in the left side bar to allow me to continue developing and supporting the app.</source>
@@ -8058,16 +9528,176 @@ Default: A = -0.96, B = 1.33</source>
         <translation>Мощность</translation>
     </message>
     <message>
+        <source>Power Averaging Mode</source>
+        <translation>Режим усреднения мощности</translation>
+    </message>
+    <message>
+        <source>Zwift Inclination Offset</source>
+        <translation>Смещение наклона Zwift</translation>
+    </message>
+    <message>
+        <source>Save Zwift Inclination Offset</source>
+        <translation>Сохранить смещение наклона Zwift</translation>
+    </message>
+    <message>
+        <source>Zwift Inclination Gain</source>
+        <translation>Коэффициент наклона Zwift</translation>
+    </message>
+    <message>
+        <source>Save Zwift Inclination Gain</source>
+        <translation>Сохранить коэффициент наклона Zwift</translation>
+    </message>
+    <message>
+        <source>Minimum Inclination</source>
+        <translation>Минимальный наклон</translation>
+    </message>
+    <message>
+        <source>Save Minimum Inclination</source>
+        <translation>Сохранить минимальный наклон</translation>
+    </message>
+    <message>
+        <source>Inclination Step</source>
+        <translation>Шаг наклона</translation>
+    </message>
+    <message>
+        <source>Save Inclination Step</source>
+        <translation>Сохранить шаг наклона</translation>
+    </message>
+    <message>
+        <source>AutoLap on Distance</source>
+        <translation>Автокруг по дистанции</translation>
+    </message>
+    <message>
+        <source>Save AutoLap on Distance</source>
+        <translation>Сохранить автокруг по дистанции</translation>
+    </message>
+    <message>
+        <source>Inclination Delay</source>
+        <translation>Задержка наклона</translation>
+    </message>
+    <message>
+        <source>Save Inclination Delay</source>
+        <translation>Сохранить задержку наклона</translation>
+    </message>
+    <message>
+        <source>Resistance Level 1</source>
+        <translation>Уровень сопротивления 1</translation>
+    </message>
+    <message>
+        <source>Save Resistance Level 1</source>
+        <translation>Сохранить уровень сопротивления 1</translation>
+    </message>
+    <message>
+        <source>Watt 1</source>
+        <translation>Мощность 1</translation>
+    </message>
+    <message>
+        <source>Save Watt 1</source>
+        <translation>Сохранить мощность 1</translation>
+    </message>
+    <message>
+        <source>Resistance Level 2</source>
+        <translation>Уровень сопротивления 2</translation>
+    </message>
+    <message>
+        <source>Save Resistance Level 2</source>
+        <translation>Сохранить уровень сопротивления 2</translation>
+    </message>
+    <message>
+        <source>Watt 2</source>
+        <translation>Мощность 2</translation>
+    </message>
+    <message>
+        <source>Save Watt 2</source>
+        <translation>Сохранить мощность 2</translation>
+    </message>
+    <message>
+        <source>Difficulty/Gain</source>
+        <translation>Сложность/коэффициент</translation>
+    </message>
+    <message>
+        <source>Save Difficulty/Gain</source>
+        <translation>Сохранить сложность/коэффициент</translation>
+    </message>
+    <message>
+        <source>Save Shift Step</source>
+        <translation>Сохранить шаг переключения</translation>
+    </message>
+    <message>
+        <source>Save Max Resistance</source>
+        <translation>Сохранить макс. сопротивление</translation>
+    </message>
+    <message>
+        <source>Save Min Resistance</source>
+        <translation>Сохранить мин. сопротивление</translation>
+    </message>
+    <message>
+        <source>Save Resistance Sample 1</source>
+        <translation>Сохранить сопротивление, замер 1</translation>
+    </message>
+    <message>
+        <source>Save Shift Step Sample 1</source>
+        <translation>Сохранить шаг переключения, замер 1</translation>
+    </message>
+    <message>
+        <source>Save Resistance Sample 2</source>
+        <translation>Сохранить сопротивление, замер 2</translation>
+    </message>
+    <message>
+        <source>Save Shift Step Sample 2</source>
+        <translation>Сохранить шаг переключения, замер 2</translation>
+    </message>
+    <message>
+        <source>Save Resistance Sample 3</source>
+        <translation>Сохранить сопротивление, замер 3</translation>
+    </message>
+    <message>
+        <source>Save Shift Step Sample 3</source>
+        <translation>Сохранить шаг переключения, замер 3</translation>
+    </message>
+    <message>
+        <source>Save Resistance Sample 4</source>
+        <translation>Сохранить сопротивление, замер 4</translation>
+    </message>
+    <message>
+        <source>Save Shift Step Sample 4</source>
+        <translation>Сохранить шаг переключения, замер 4</translation>
+    </message>
+    <message>
         <source>Manual</source>
         <translation>Вручную</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>Режим</translation>
+    </message>
+    <message>
+        <source>Save Mode</source>
+        <translation>Сохранить режим</translation>
     </message>
     <message>
         <source>Min. value (0-100):</source>
         <translation>Мин. значение (0-100):</translation>
     </message>
     <message>
+        <source>Min. value (0-100)</source>
+        <translation>Мин. значение (0-100)</translation>
+    </message>
+    <message>
+        <source>Save Min. value (0-100)</source>
+        <translation>Сохранить мин. значение (0-100)</translation>
+    </message>
+    <message>
         <source>Max value (0-100):</source>
         <translation>Макс. значение (0-100):</translation>
+    </message>
+    <message>
+        <source>Max value (0-100)</source>
+        <translation>Макс. значение (0-100)</translation>
+    </message>
+    <message>
+        <source>Save Max value (0-100)</source>
+        <translation>Сохранить макс. значение (0-100)</translation>
     </message>
     <message>
         <source>Wahoo Kickr HeadWind Options</source>
@@ -8206,6 +9836,14 @@ Default: A = -0.96, B = 1.33</source>
         <translation>Тип карты:</translation>
     </message>
     <message>
+        <source>Maps Type</source>
+        <translation>Тип карты</translation>
+    </message>
+    <message>
+        <source>Save Maps Type</source>
+        <translation>Сохранить тип карты</translation>
+    </message>
+    <message>
         <source>Loop Start-End-Start</source>
         <translation>Петля старт-финиш-старт</translation>
     </message>
@@ -8342,12 +9980,36 @@ Default: A = -0.96, B = 1.33</source>
         <translation>ID:</translation>
     </message>
     <message>
+        <source>Wahoo device ID</source>
+        <translation>ID устройства Wahoo</translation>
+    </message>
+    <message>
+        <source>Virtual Wahoo device ID. Change if you have multiple QZ instances. Default: 0</source>
+        <translation>ID виртуального устройства Wahoo. Измените, если у вас запущено несколько экземпляров QZ. По умолчанию: 0</translation>
+    </message>
+    <message>
+        <source>Save Wahoo device ID</source>
+        <translation>Сохранить ID устройства Wahoo</translation>
+    </message>
+    <message>
         <source>If you have multiple QZ instances, you can change the id of the virtual wahoo device. Default: 0</source>
         <translation>Если у вас несколько экземпляров QZ, можно изменить ID виртуального устройства Wahoo. По умолчанию: 0</translation>
     </message>
     <message>
         <source>Server Port:</source>
         <translation>Порт сервера:</translation>
+    </message>
+    <message>
+        <source>Wahoo direct connect server port</source>
+        <translation>Порт сервера прямого подключения Wahoo</translation>
+    </message>
+    <message>
+        <source>TCP port for the Wahoo direct connect server. Default: 36866</source>
+        <translation>TCP-порт сервера прямого подключения Wahoo. По умолчанию: 36866</translation>
+    </message>
+    <message>
+        <source>Save server port</source>
+        <translation>Сохранить порт сервера</translation>
     </message>
     <message>
         <source>MQTT Settings</source>
@@ -8358,12 +10020,28 @@ Default: A = -0.96, B = 1.33</source>
         <translation>Хост MQTT:</translation>
     </message>
     <message>
+        <source>MQTT Host</source>
+        <translation>Хост MQTT</translation>
+    </message>
+    <message>
+        <source>Save MQTT Host</source>
+        <translation>Сохранить хост MQTT</translation>
+    </message>
+    <message>
         <source>Enter the MQTT broker hostname or IP address</source>
         <translation>Введите имя хоста или IP-адрес MQTT-брокера</translation>
     </message>
     <message>
         <source>MQTT Port:</source>
         <translation>Порт MQTT:</translation>
+    </message>
+    <message>
+        <source>MQTT Port</source>
+        <translation>Порт MQTT</translation>
+    </message>
+    <message>
+        <source>Save MQTT Port</source>
+        <translation>Сохранить порт MQTT</translation>
     </message>
     <message>
         <source>Enter the MQTT broker port (default: 1883)</source>
@@ -8382,6 +10060,14 @@ Default: A = -0.96, B = 1.33</source>
         <translation>ID устройства:</translation>
     </message>
     <message>
+        <source>Device ID</source>
+        <translation>ID устройства</translation>
+    </message>
+    <message>
+        <source>Save Device ID</source>
+        <translation>Сохранить ID устройства</translation>
+    </message>
+    <message>
         <source>Enter a unique device identifier for MQTT client</source>
         <translation>Введите уникальный идентификатор устройства для MQTT-клиента</translation>
     </message>
@@ -8394,8 +10080,24 @@ Default: A = -0.96, B = 1.33</source>
         <translation>IP-адрес OSC:</translation>
     </message>
     <message>
+        <source>OSC IP</source>
+        <translation>IP-адрес OSC</translation>
+    </message>
+    <message>
+        <source>Save OSC IP</source>
+        <translation>Сохранить IP-адрес OSC</translation>
+    </message>
+    <message>
         <source>OSC Port:</source>
         <translation>Порт OSC:</translation>
+    </message>
+    <message>
+        <source>OSC Port</source>
+        <translation>Порт OSC</translation>
+    </message>
+    <message>
+        <source>Save OSC Port</source>
+        <translation>Сохранить порт OSC</translation>
     </message>
     <message>
         <source>Race Mode</source>
@@ -9696,12 +11398,24 @@ Default: A = -0.96, B = 1.33</source>
         <translation>Сводка каждые N секунд:</translation>
     </message>
     <message>
+        <source>Announcement interval in seconds</source>
+        <translation>Интервал озвучки в секундах</translation>
+    </message>
+    <message>
+        <source>How often workout metrics are read aloud. Default: 120 seconds</source>
+        <translation>Как часто зачитываются показатели тренировки. По умолчанию: 120 секунд</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>ОК</translation>
     </message>
     <message>
         <source>Setting saved!</source>
         <translation>Настройка сохранена!</translation>
+    </message>
+    <message>
+        <source>Save announcement interval</source>
+        <translation>Сохранить интервал озвучки</translation>
     </message>
     <message>
         <source>TTS Description Enabled</source>

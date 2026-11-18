@@ -325,6 +325,14 @@ Wil je de vereiste voorzieningen inschakelen?</translation>
         <translation>Wil je de volgende keer herinnerd worden aan het inschakelen van Bluetooth of locatievoorzieningen?</translation>
     </message>
     <message>
+        <source>, current value </source>
+        <translation>, huidige waarde </translation>
+    </message>
+    <message>
+        <source>. Current value </source>
+        <translation>. Huidige waarde </translation>
+    </message>
+    <message>
         <source>Return to app</source>
         <translation>Terug naar app</translation>
     </message>
@@ -368,8 +376,44 @@ Wil je de vereiste voorzieningen inschakelen?</translation>
         <translation>Nieuwe ronde vastleggen</translation>
     </message>
     <message>
+        <source>This app should automatically connect to your bike, treadmill, or rower.
+
+If it doesn&apos;t, check that:
+- the Echelon/Domyos app is closed while QZ is running
+- Bluetooth and Bluetooth permissions are enabled
+- your equipment is turned on before starting QZ
+- you have restarted your device
+
+If your bike or treadmill disconnects every 30 seconds, disable the Virtual Device setting in the left bar.
+
+For help, contact roberto.viola83@gmail.com.
+
+Have a nice ride!
+
+QZ disclaims liability for incidental or consequential damages and assumes no responsibility for any loss or damage caused by use or misuse of the app.
+
+Roberto Viola</source>
+        <translation>Deze app zou automatisch verbinding moeten maken met je fiets, loopband of roeitrainer.
+
+Lukt dat niet, controleer dan of:
+- de Echelon/Domyos-app gesloten is zolang QZ draait
+- Bluetooth en de Bluetooth-machtigingen ingeschakeld zijn
+- je trainingsapparaat aanstaat voordat je QZ start
+- je je apparaat opnieuw hebt opgestart
+
+Verbreekt je fiets of loopband elke 30 seconden de verbinding, schakel dan de instelling ‘Virtueel apparaat’ in de linkerbalk uit.
+
+Voor hulp kun je contact opnemen via roberto.viola83@gmail.com.
+
+Veel trainingsplezier!
+
+QZ wijst elke aansprakelijkheid af voor incidentele schade of gevolgschade en is niet verantwoordelijk voor verlies of schade door gebruik of misbruik van de app.
+
+Roberto Viola</translation>
+    </message>
+    <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
-        <translation>Deze app zou automatisch verbinding moeten maken met je fiets, loopband of roeitrainer. &lt;b&gt;Lukt dat niet, controleer dan het volgende&lt;/b&gt;:&lt;br&gt;1) je Echelon/Domyos-app MOET gesloten zijn zolang qdomyos-zwift draait;&lt;br&gt;2) Bluetooth en de Bluetooth-machtigingen MOETEN ingeschakeld zijn&lt;br&gt;3) je fiets, loopband of roeitrainer moet aanstaan VOORDAT je deze app start&lt;br&gt;4) probeer je apparaat opnieuw op te starten&lt;br&gt;&lt;br&gt;Verbreekt je fiets of loopband elke 30 seconden de verbinding, schakel dan de instelling ‘virtueel apparaat’ in de linkerbalk uit.&lt;br&gt;&lt;br&gt;Heb je problemen, neem dan gerust contact met me op via roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Veel trainingsplezier!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ wijst uitdrukkelijk elke aansprakelijkheid af voor&lt;br&gt;incidentele schade of gevolgschade en aanvaardt&lt;br&gt;geen verantwoordelijkheid of aansprakelijkheid voor verlies&lt;br&gt;of schade die iemand lijdt als gevolg van&lt;br&gt;het gebruik of misbruik van de app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+        <translation type="vanished">Deze app zou automatisch verbinding moeten maken met je fiets, loopband of roeitrainer. &lt;b&gt;Lukt dat niet, controleer dan het volgende&lt;/b&gt;:&lt;br&gt;1) je Echelon/Domyos-app MOET gesloten zijn zolang qdomyos-zwift draait;&lt;br&gt;2) Bluetooth en de Bluetooth-machtigingen MOETEN ingeschakeld zijn&lt;br&gt;3) je fiets, loopband of roeitrainer moet aanstaan VOORDAT je deze app start&lt;br&gt;4) probeer je apparaat opnieuw op te starten&lt;br&gt;&lt;br&gt;Verbreekt je fiets of loopband elke 30 seconden de verbinding, schakel dan de instelling ‘virtueel apparaat’ in de linkerbalk uit.&lt;br&gt;&lt;br&gt;Heb je problemen, neem dan gerust contact met me op via roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Veel trainingsplezier!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ wijst uitdrukkelijk elke aansprakelijkheid af voor&lt;br&gt;incidentele schade of gevolgschade en aanvaardt&lt;br&gt;geen verantwoordelijkheid of aansprakelijkheid voor verlies&lt;br&gt;of schade die iemand lijdt als gevolg van&lt;br&gt;het gebruik of misbruik van de app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
     </message>
     <message>
         <source>Looking for your equipment…</source>
@@ -2047,6 +2091,128 @@ Wil je de QZ-instellingen bijwerken?</translation>
         <translation>Fout bij herhalen van selectie: {message}</translation>
     </message>
     <message>
+        <source>Workout name</source>
+        <translation>Trainingsnaam</translation>
+    </message>
+    <message>
+        <source>Workout device type</source>
+        <translation>Apparaattype van de training</translation>
+    </message>
+    <message>
+        <source>Create a new workout</source>
+        <translation>Nieuwe training maken</translation>
+    </message>
+    <message>
+        <source>Paste XML from the Clipboard to the Workout Editor</source>
+        <translation>XML van het klembord in de trainingseditor plakken</translation>
+    </message>
+    <message>
+        <source>Save workout</source>
+        <translation>Training opslaan</translation>
+    </message>
+    <message>
+        <source>Save workout and start it</source>
+        <translation>Training opslaan en starten</translation>
+    </message>
+    <message>
+        <source>Show advanced interval fields</source>
+        <translation>Geavanceerde intervalvelden tonen</translation>
+    </message>
+    <message>
+        <source>Workout editor controls</source>
+        <translation>Bediening van de trainingseditor</translation>
+    </message>
+    <message>
+        <source>Add interval</source>
+        <translation>Interval toevoegen</translation>
+    </message>
+    <message>
+        <source>Repeat selected intervals</source>
+        <translation>Geselecteerde intervallen herhalen</translation>
+    </message>
+    <message>
+        <source>Clear all intervals</source>
+        <translation>Alle intervallen wissen</translation>
+    </message>
+    <message>
+        <source>Workout preview chart</source>
+        <translation>Voorbeeldgrafiek van de training</translation>
+    </message>
+    <message>
+        <source>Chart legend</source>
+        <translation>Legenda van de grafiek</translation>
+    </message>
+    <message>
+        <source>Saved workout programs</source>
+        <translation>Opgeslagen trainingsprogramma’s</translation>
+    </message>
+    <message>
+        <source>Load selected workout program</source>
+        <translation>Geselecteerd trainingsprogramma laden</translation>
+    </message>
+    <message>
+        <source>Delete selected workout program</source>
+        <translation>Geselecteerd trainingsprogramma verwijderen</translation>
+    </message>
+    <message>
+        <source>Refresh workout program list</source>
+        <translation>Lijst met trainingsprogramma’s vernieuwen</translation>
+    </message>
+    <message>
+        <source>Select interval {number}</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation>Interval {number} selecteren</translation>
+    </message>
+    <message>
+        <source>Move interval {number} up</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation>Interval {number} omhoog verplaatsen</translation>
+    </message>
+    <message>
+        <source>Move interval {number} down</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation>Interval {number} omlaag verplaatsen</translation>
+    </message>
+    <message>
+        <source>Copy interval {number}</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation>Interval {number} kopiëren</translation>
+    </message>
+    <message>
+        <source>Delete interval {number}</source>
+        <extracomment>Screen reader name; {number} is the interval number (1, 2, ...)</extracomment>
+        <translation>Interval {number} verwijderen</translation>
+    </message>
+    <message>
+        <source>Enable {field} for interval {number}</source>
+        <extracomment>Screen reader name of a field checkbox; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
+        <translation>{field} inschakelen voor interval {number}</translation>
+    </message>
+    <message>
+        <source>{field} for interval {number}</source>
+        <extracomment>Screen reader name of a field; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
+        <translation>{field} voor interval {number}</translation>
+    </message>
+    <message>
+        <source>Decrease {field} for interval {number}</source>
+        <extracomment>Screen reader name of the - button; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
+        <translation>{field} verlagen voor interval {number}</translation>
+    </message>
+    <message>
+        <source>Increase {field} for interval {number}</source>
+        <extracomment>Screen reader name of the + button; {field} is the field name (Duration, Power (W)...), {number} the interval number</extracomment>
+        <translation>{field} verhogen voor interval {number}</translation>
+    </message>
+    <message>
+        <source>{name} preview chart. {count} intervals. Total duration {duration}.</source>
+        <extracomment>Screen reader description of the chart; {name} is the workout name, {count} the number of intervals, {duration} like 0:45:00</extracomment>
+        <translation>Voorbeeldgrafiek van {name}. {count} intervallen. Totale duur {duration}.</translation>
+    </message>
+    <message>
+        <source>Dialog input</source>
+        <translation>Invoerveld van dialoogvenster</translation>
+    </message>
+    <message>
         <source>Training Programs Browser</source>
         <translation>Overzicht trainingsprogramma&apos;s</translation>
     </message>
@@ -2619,6 +2785,10 @@ Met de volgende vragen stem je QZ af op je apparatuur en doelen.</translation>
         <translation>Klik op de knop hieronder om je Peloton-account te verbinden</translation>
     </message>
     <message>
+        <source>Opens the Peloton login page</source>
+        <translation>Opent de inlogpagina van Peloton</translation>
+    </message>
+    <message>
         <source>Peloton Difficulty</source>
         <translation>Peloton-moeilijkheidsgraad</translation>
     </message>
@@ -2631,6 +2801,14 @@ Met de volgende vragen stem je QZ af op je apparatuur en doelen.</translation>
         <translation>Moeilijkheidsgraad</translation>
     </message>
     <message>
+        <source>Peloton difficulty level</source>
+        <translation>Peloton-moeilijkheidsgraad</translation>
+    </message>
+    <message>
+        <source>Choose whether QZ targets the lower, upper or average of the instructor&apos;s range</source>
+        <translation>Kies of QZ mikt op de onderkant, de bovenkant of het gemiddelde van het bereik van de instructeur</translation>
+    </message>
+    <message>
         <source>Finish</source>
         <translation>Voltooien</translation>
     </message>
@@ -2641,6 +2819,14 @@ Met de volgende vragen stem je QZ af op je apparatuur en doelen.</translation>
     <message>
         <source>What resistance level feels like a flat road on your bike?</source>
         <translation>Welk weerstandsniveau voelt op je fiets als een vlakke weg?</translation>
+    </message>
+    <message>
+        <source>Resistance level for flat road</source>
+        <translation>Weerstandsniveau voor een vlakke weg</translation>
+    </message>
+    <message>
+        <source>Resistance level that feels like riding on flat ground. Range 0 to 100.</source>
+        <translation>Weerstandsniveau dat aanvoelt als fietsen op een vlakke weg. Bereik 0 tot 100.</translation>
     </message>
     <message>
         <source>Next</source>
@@ -2699,8 +2885,16 @@ Met de volgende vragen stem je QZ af op je apparatuur en doelen.</translation>
         <translation>Gebruikersnaam</translation>
     </message>
     <message>
+        <source>Zwift username</source>
+        <translation>Zwift-gebruikersnaam</translation>
+    </message>
+    <message>
         <source>Password</source>
         <translation>Wachtwoord</translation>
+    </message>
+    <message>
+        <source>Zwift password</source>
+        <translation>Zwift-wachtwoord</translation>
     </message>
     <message>
         <source>Zwift Play and Click</source>
@@ -2713,6 +2907,10 @@ Met de volgende vragen stem je QZ af op je apparatuur en doelen.</translation>
     <message>
         <source>Zwift Click</source>
         <translation>Zwift Click</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Ingeschakeld</translation>
     </message>
     <message>
         <source>Zwift Play</source>
@@ -2751,12 +2949,24 @@ Met de volgende vragen stem je QZ af op je apparatuur en doelen.</translation>
         <translation>Heb je vragen of meer hulp nodig, schrijf me dan gerust op roberto.viola83@gmail.com. Je kunt deze wizard ook opnieuw starten via het menu in de linkerzijbalk. Voor sommige wijzigingen moet je de app mogelijk opnieuw starten.</translation>
     </message>
     <message>
+        <source>Email support</source>
+        <translation>Support e-mailen</translation>
+    </message>
+    <message>
         <source>Close</source>
         <translation>Sluiten</translation>
     </message>
     <message>
         <source>Select Your Fitness Device</source>
         <translation>Kies je fitnessapparaat</translation>
+    </message>
+    <message>
+        <source>Fitness device</source>
+        <translation>Fitnessapparaat</translation>
+    </message>
+    <message>
+        <source>Select your fitness device from the list of nearby Bluetooth devices. Tap Refresh to scan again.</source>
+        <translation>Kies je fitnessapparaat in de lijst met Bluetooth-apparaten in de buurt. Tik op ‘Vernieuwen’ om opnieuw te zoeken.</translation>
     </message>
     <message>
         <source>Unit System</source>
@@ -2767,16 +2977,44 @@ Met de volgende vragen stem je QZ af op je apparatuur en doelen.</translation>
         <translation>Kies het eenhedenstelsel dat je wilt gebruiken</translation>
     </message>
     <message>
+        <source>Unit system</source>
+        <translation>Eenhedenstelsel</translation>
+    </message>
+    <message>
+        <source>Metric uses kilometers and kilograms. Imperial uses miles and pounds.</source>
+        <translation>Metrisch gebruikt kilometers en kilogrammen. Imperiaal gebruikt mijlen en ponden.</translation>
+    </message>
+    <message>
         <source>User Information</source>
         <translation>Gebruikersgegevens</translation>
+    </message>
+    <message>
+        <source>Body weight</source>
+        <translation>Lichaamsgewicht</translation>
+    </message>
+    <message>
+        <source>Your weight in pounds</source>
+        <translation>Je gewicht in ponden</translation>
+    </message>
+    <message>
+        <source>Your weight in kilograms</source>
+        <translation>Je gewicht in kilogrammen</translation>
     </message>
     <message>
         <source>Age</source>
         <translation>Leeftijd</translation>
     </message>
     <message>
+        <source>Your age in years. Used for heart rate zone calculations.</source>
+        <translation>Je leeftijd in jaren. Wordt gebruikt om de hartslagzones te berekenen.</translation>
+    </message>
+    <message>
         <source>Gender</source>
         <translation>Geslacht</translation>
+    </message>
+    <message>
+        <source>Used for calorie calculations</source>
+        <translation>Wordt gebruikt om calorieën te berekenen</translation>
     </message>
     <message>
         <source>Select Your Heart Rate Device</source>
@@ -2785,6 +3023,14 @@ Met de volgende vragen stem je QZ af op je apparatuur en doelen.</translation>
     <message>
         <source>Choose your heart rate belt or select a smartwatch option:</source>
         <translation>Kies je borstband of een optie met een smartwatch:</translation>
+    </message>
+    <message>
+        <source>Heart rate belt</source>
+        <translation>Hartslagband</translation>
+    </message>
+    <message>
+        <source>Select your Bluetooth heart rate belt from the list. Tap Refresh to scan again. Choose Disabled if using a smartwatch.</source>
+        <translation>Kies je Bluetooth-hartslagband in de lijst. Tik op ‘Vernieuwen’ om opnieuw te zoeken. Kies ‘Uitgeschakeld’ als je een smartwatch gebruikt.</translation>
     </message>
     <message>
         <source>Or select a smartwatch option:</source>
@@ -2884,6 +3130,14 @@ Met de volgende vragen stem je QZ af op je apparatuur en doelen.</translation>
     <message>
         <source>Workout Editor</source>
         <translation>Trainingseditor</translation>
+    </message>
+    <message>
+        <source>Loading workout editor</source>
+        <translation>Trainingseditor wordt geladen</translation>
+    </message>
+    <message>
+        <source>The workout editor is loading</source>
+        <translation>De trainingseditor wordt geladen</translation>
     </message>
 </context>
 <context>
@@ -3580,6 +3834,22 @@ Bij de eerste start kan dit even duren.</translation>
     <message>
         <source>Step Count</source>
         <translation>Stappen</translation>
+    </message>
+    <message>
+        <source>Speed %1 kilometers per hour</source>
+        <translation>Snelheid %1 kilometer per uur</translation>
+    </message>
+    <message>
+        <source>Speed %1 miles per hour</source>
+        <translation>Snelheid %1 mijl per uur</translation>
+    </message>
+    <message>
+        <source>Inclination %1 percent</source>
+        <translation>Helling %1 procent</translation>
+    </message>
+    <message>
+        <source>Resistance %1</source>
+        <translation>Weerstand %1</translation>
     </message>
     <message>
         <source>Stop</source>
@@ -4461,8 +4731,20 @@ Geef in het volgende venster toegang tot de QZ-map.</translation>
         <translation>Hoofdmenu</translation>
     </message>
     <message>
+        <source>Return to the previous screen</source>
+        <translation>Terug naar het vorige scherm</translation>
+    </message>
+    <message>
+        <source>Open the main navigation menu</source>
+        <translation>Hoofdmenu openen</translation>
+    </message>
+    <message>
         <source>Floating window</source>
         <translation>Zwevend venster</translation>
+    </message>
+    <message>
+        <source>Open the floating workout display</source>
+        <translation>Zwevende trainingsweergave openen</translation>
     </message>
     <message>
         <source>You can move the tiles!</source>
@@ -4477,6 +4759,10 @@ Geef in het volgende venster toegang tot de QZ-map.</translation>
         <translation>Instellingen laden</translation>
     </message>
     <message>
+        <source>Open the saved settings list</source>
+        <translation>Lijst met opgeslagen instellingen openen</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>Instellingen zoeken</translation>
     </message>
@@ -4485,16 +4771,32 @@ Geef in het volgende venster toegang tot de QZ-map.</translation>
         <translation>Instellingen opslaan</translation>
     </message>
     <message>
+        <source>Save the current settings profile</source>
+        <translation>Huidig instellingenprofiel opslaan</translation>
+    </message>
+    <message>
         <source>Map</source>
         <translation>Kaart</translation>
+    </message>
+    <message>
+        <source>Open the route map</source>
+        <translation>Routekaart openen</translation>
     </message>
     <message>
         <source>Video</source>
         <translation>Video</translation>
     </message>
     <message>
+        <source>Show or hide the workout video</source>
+        <translation>Trainingsvideo tonen of verbergen</translation>
+    </message>
+    <message>
         <source>Chart</source>
         <translation>Grafiek</translation>
+    </message>
+    <message>
+        <source>Show or hide the workout chart</source>
+        <translation>Trainingsgrafiek tonen of verbergen</translation>
     </message>
     <message>
         <source>Share FIT file</source>
@@ -4509,12 +4811,24 @@ Geef in het volgende venster toegang tot de QZ-map.</translation>
         <translation>Tegels vergrendelen</translation>
     </message>
     <message>
+        <source>Prevent workout tiles from being moved</source>
+        <translation>Voorkomt dat de trainingstegels worden verplaatst</translation>
+    </message>
+    <message>
+        <source>Allow workout tiles to be moved</source>
+        <translation>Staat toe dat de trainingstegels worden verplaatst</translation>
+    </message>
+    <message>
         <source>Disable auto resistance</source>
         <translation>Automatische weerstand uitschakelen</translation>
     </message>
     <message>
         <source>Enable auto resistance</source>
         <translation>Automatische weerstand inschakelen</translation>
+    </message>
+    <message>
+        <source>Toggle automatic resistance control</source>
+        <translation>Automatische weerstandsregeling in- of uitschakelen</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4585,6 +4899,14 @@ Geef in het volgende venster toegang tot de QZ-map.</translation>
         <translation>Verbinden met Strava</translation>
     </message>
     <message>
+        <source>Tap to log out of Strava</source>
+        <translation>Tik om uit te loggen bij Strava</translation>
+    </message>
+    <message>
+        <source>Tap to connect your Strava account</source>
+        <translation>Tik om je Strava-account te koppelen</translation>
+    </message>
+    <message>
         <source>Disconnect from Peloton</source>
         <translation>Verbinding met Peloton verbreken</translation>
     </message>
@@ -4593,8 +4915,20 @@ Geef in het volgende venster toegang tot de QZ-map.</translation>
         <translation>Verbinden met Peloton</translation>
     </message>
     <message>
+        <source>Tap to log out of Peloton</source>
+        <translation>Tik om uit te loggen bij Peloton</translation>
+    </message>
+    <message>
+        <source>Tap to connect your Peloton account</source>
+        <translation>Tik om je Peloton-account te koppelen</translation>
+    </message>
+    <message>
         <source>Garmin Connect settings</source>
         <translation>Garmin Connect-instellingen</translation>
+    </message>
+    <message>
+        <source>Open Garmin Connect integration settings</source>
+        <translation>Instellingen voor de Garmin Connect-koppeling openen</translation>
     </message>
     <message>
         <source>Disconnect from Intervals.icu</source>
@@ -4603,6 +4937,14 @@ Geef in het volgende venster toegang tot de QZ-map.</translation>
     <message>
         <source>Connect with Intervals.icu</source>
         <translation>Verbinden met Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Tap to log out of Intervals.icu</source>
+        <translation>Tik om uit te loggen bij Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Tap to connect your Intervals.icu account</source>
+        <translation>Tik om je Intervals.icu-account te koppelen</translation>
     </message>
     <message>
         <source>Workout</source>
@@ -5194,6 +5536,10 @@ Mag QZ deze waarde wijzigen?
         <translation>Gewicht</translation>
     </message>
     <message>
+        <source>Save Player Weight</source>
+        <translation>Gewicht opslaan</translation>
+    </message>
+    <message>
         <source>Enter your weight in kilograms so QZ can more accurately calculate calories burned. NOTE: If you choose to use miles as the unit for distance traveled, you will be asked to enter your weight in pounds (lbs) unless you enable &apos;Use kg for weight&apos;.</source>
         <translation>Vul je gewicht in kilogram in, zodat QZ de verbrande calorieën nauwkeuriger kan berekenen. LET OP: als je mijlen kiest als eenheid voor afstand, moet je je gewicht in pond (lbs) invullen, tenzij je ‘Kg gebruiken voor gewicht’ inschakelt.</translation>
     </message>
@@ -5206,12 +5552,24 @@ Mag QZ deze waarde wijzigen?
         <translation>Ongeldige notatie! Gebruik voet&apos;inch (bijv. 6&apos;2&quot;)</translation>
     </message>
     <message>
+        <source>Save Player Height</source>
+        <translation>Lengte opslaan</translation>
+    </message>
+    <message>
         <source>Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet&apos;inches&quot; format (e.g., 5&apos;10&quot;) for imperial units.</source>
         <translation>Vul je lengte in voor een nauwkeurigere berekening van BMR en actieve calorieën. Gebruik centimeters voor het metrische stelsel of de notatie voet&apos;inch&quot; (bijv. 5&apos;10&quot;) voor Engelse eenheden.</translation>
     </message>
     <message>
         <source>Player Age:</source>
         <translation>Leeftijd:</translation>
+    </message>
+    <message>
+        <source>Player Age</source>
+        <translation>Leeftijd</translation>
+    </message>
+    <message>
+        <source>Save Player Age</source>
+        <translation>Leeftijd opslaan</translation>
     </message>
     <message>
         <source>Enter your age so that calories burned can be more accurately calculated.</source>
@@ -5222,12 +5580,28 @@ Mag QZ deze waarde wijzigen?
         <translation>Geslacht:</translation>
     </message>
     <message>
+        <source>Gender</source>
+        <translation>Geslacht</translation>
+    </message>
+    <message>
+        <source>Save Gender</source>
+        <translation>Geslacht opslaan</translation>
+    </message>
+    <message>
         <source>Select your gender so that calories burned can be more accurately calculated.</source>
         <translation>Kies je geslacht, zodat de verbrande calorieën nauwkeuriger kunnen worden berekend.</translation>
     </message>
     <message>
         <source>FTP value:</source>
         <translation>FTP-waarde:</translation>
+    </message>
+    <message>
+        <source>FTP value</source>
+        <translation>FTP-waarde</translation>
+    </message>
+    <message>
+        <source>Save FTP value</source>
+        <translation>FTP-waarde opslaan</translation>
     </message>
     <message>
         <source>If you train to specific output (or watts) levels, for example in Peloton Power Zone classes,and have taken an FTP test (Functional Threshold Power), enter your FTP here. This number is used to calculate your Power Zones (Zones 1 to 7 for Peloton and 1 to 6 for Zwift).</source>
@@ -5238,6 +5612,14 @@ Mag QZ deze waarde wijzigen?
         <translation>Critical Power bij hardlopen:</translation>
     </message>
     <message>
+        <source>Critical Power Run value</source>
+        <translation>Critical Power bij hardlopen</translation>
+    </message>
+    <message>
+        <source>Save Critical Power Run value</source>
+        <translation>Critical Power bij hardlopen opslaan</translation>
+    </message>
+    <message>
         <source>If you train to specific output (or watts) levels, for example with Stryd,and have taken an CP test (Critical Power Test), enter your CP here. This number is used to calculate your RSS.</source>
         <translation>Als je traint op specifieke vermogensniveaus (in watt), bijvoorbeeld met Stryd, en een CP-test (Critical Power) hebt gedaan, vul je CP dan hier in. Met dit getal wordt je RSS berekend.</translation>
     </message>
@@ -5246,12 +5628,28 @@ Mag QZ deze waarde wijzigen?
         <translation>Bijnaam:</translation>
     </message>
     <message>
+        <source>Nickname</source>
+        <translation>Bijnaam</translation>
+    </message>
+    <message>
+        <source>Save Nickname</source>
+        <translation>Bijnaam opslaan</translation>
+    </message>
+    <message>
         <source>No need to enter data here. It is for a possible future QZ feature.</source>
         <translation>Hier hoef je niets in te vullen. Het veld is bedoeld voor een mogelijke toekomstige functie van QZ.</translation>
     </message>
     <message>
         <source>Email:</source>
         <translation>E-mail:</translation>
+    </message>
+    <message>
+        <source>Email</source>
+        <translation>E-mail</translation>
+    </message>
+    <message>
+        <source>Save Email</source>
+        <translation>E-mail opslaan</translation>
     </message>
     <message>
         <source>Enter your email address to receive an automated email with stats and charts when you hit STOP at the end of each workout. Make sure there are no spaces before or after the email address; this is the most common reason the automated email is not sent. Privacy Note: Email addresses are not collected by the developer and are only saved locally on your device.</source>
@@ -5362,16 +5760,48 @@ Mag QZ deze waarde wijzigen?
         <translation>Zone 1 %:</translation>
     </message>
     <message>
+        <source>Zone 1 %</source>
+        <translation>Zone 1 %</translation>
+    </message>
+    <message>
+        <source>Save Zone 1 %</source>
+        <translation>Zone 1 % opslaan</translation>
+    </message>
+    <message>
         <source>Zone 2 %:</source>
         <translation>Zone 2 %:</translation>
+    </message>
+    <message>
+        <source>Zone 2 %</source>
+        <translation>Zone 2 %</translation>
+    </message>
+    <message>
+        <source>Save Zone 2 %</source>
+        <translation>Zone 2 % opslaan</translation>
     </message>
     <message>
         <source>Zone 3 %:</source>
         <translation>Zone 3 %:</translation>
     </message>
     <message>
+        <source>Zone 3 %</source>
+        <translation>Zone 3 %</translation>
+    </message>
+    <message>
+        <source>Save Zone 3 %</source>
+        <translation>Zone 3 % opslaan</translation>
+    </message>
+    <message>
         <source>Zone 4 %:</source>
         <translation>Zone 4 %:</translation>
+    </message>
+    <message>
+        <source>Zone 4 %</source>
+        <translation>Zone 4 %</translation>
+    </message>
+    <message>
+        <source>Save Zone 4 %</source>
+        <translation>Zone 4 % opslaan</translation>
     </message>
     <message>
         <source>Zone 5 will be calculated automatically based on Zone 4 end percentage and max HR.</source>
@@ -5394,12 +5824,20 @@ Mag QZ deze waarde wijzigen?
         <translation>Max. hartslag</translation>
     </message>
     <message>
+        <source>Save Max Heart Rate</source>
+        <translation>Max. hartslag opslaan</translation>
+    </message>
+    <message>
         <source>QZ uses a standard age-based calculation for maximum heart rate and then sets the heart rate zones based on that max heart rate. If you know your actual max heart rate (the highest your heart rate is known to reach), turn this option on and enter your actual max heart rate. Then click OK.</source>
         <translation>QZ berekent je maximale hartslag met een standaardformule op basis van je leeftijd en stelt daarmee de hartslagzones in. Als je je werkelijke maximale hartslag kent (de hoogste waarde die je hartslag bereikt), schakel deze optie dan in en voer je werkelijke maximale hartslag in. Klik daarna op OK.</translation>
     </message>
     <message>
         <source>Resting Heart Rate</source>
         <translation>Rusthartslag</translation>
+    </message>
+    <message>
+        <source>Save Resting Heart Rate</source>
+        <translation>Rusthartslag opslaan</translation>
     </message>
     <message>
         <source>Enter your resting heart rate (the lowest your heart rate reaches when fully rested). This is used for accurate training load calculations. Default is 60 bpm.</source>
@@ -5414,16 +5852,48 @@ Mag QZ deze waarde wijzigen?
         <translation>Meting 1, vermogen:</translation>
     </message>
     <message>
+        <source>Session 1 Watt</source>
+        <translation>Meting 1, vermogen</translation>
+    </message>
+    <message>
+        <source>Save Session 1 Watt</source>
+        <translation>Meting 1, vermogen opslaan</translation>
+    </message>
+    <message>
         <source>Session 1 HR:</source>
         <translation>Meting 1, hartslag:</translation>
+    </message>
+    <message>
+        <source>Session 1 HR</source>
+        <translation>Meting 1, hartslag</translation>
+    </message>
+    <message>
+        <source>Save Session 1 HR</source>
+        <translation>Meting 1, hartslag opslaan</translation>
     </message>
     <message>
         <source>Session 2 Watt:</source>
         <translation>Meting 2, vermogen:</translation>
     </message>
     <message>
+        <source>Session 2 Watt</source>
+        <translation>Meting 2, vermogen</translation>
+    </message>
+    <message>
+        <source>Save Session 2 Watt</source>
+        <translation>Meting 2, vermogen opslaan</translation>
+    </message>
+    <message>
         <source>Session 2 HR:</source>
         <translation>Meting 2, hartslag:</translation>
+    </message>
+    <message>
+        <source>Session 2 HR</source>
+        <translation>Meting 2, hartslag</translation>
+    </message>
+    <message>
+        <source>Save Session 2 HR</source>
+        <translation>Meting 2, hartslag opslaan</translation>
     </message>
     <message>
         <source>Expand the bars to the right to display the options under this setting. These settings are used to calculate power (watts) for bikes that do not have power meters. Instead QZ estimates power from your cadence and heart rate. You can calibrate how QZ calculates your power from heart rate as follows: If you know that at a stable pace you produce 100W of power at a heart rate of 150 BPM and 150W at 170 BPM, you can add these values under Sessions 1 and 2 Watt and HR and QZ will calculate your power based on that trend line.</source>
@@ -5458,12 +5928,24 @@ Mag QZ deze waarde wijzigen?
         <translation>Versnelling:</translation>
     </message>
     <message>
+        <source>Gear Value</source>
+        <translation>Versnelling</translation>
+    </message>
+    <message>
+        <source>Save Gear Value</source>
+        <translation>Versnelling opslaan</translation>
+    </message>
+    <message>
         <source>Specify a particular gear value to be restored at startup. This will override the &apos;Restore Gears on Startup&apos; setting.</source>
         <translation>Geef een specifieke versnelling op die bij het opstarten wordt ingesteld. Dit gaat voor op de instelling ‘Versnelling herstellen bij opstarten’.</translation>
     </message>
     <message>
         <source>Rolling Resistance Factor</source>
         <translation>Rolweerstandscoëfficiënt</translation>
+    </message>
+    <message>
+        <source>Save Rolling Resistance Factor</source>
+        <translation>Rolweerstandscoëfficiënt opslaan</translation>
     </message>
     <message>
         <source>0.005 = Clinchers
@@ -5474,6 +5956,14 @@ Mag QZ deze waarde wijzigen?
 0.012 = MTB</translation>
     </message>
     <message>
+        <source>Bike Weight</source>
+        <translation>Gewicht van de fiets</translation>
+    </message>
+    <message>
+        <source>Save Bike Weight</source>
+        <translation>Gewicht van de fiets opslaan</translation>
+    </message>
+    <message>
         <source>Enables QZ to include the weight of your bike when calculating speed. For example, if you are competing against yourself on VZfit, adding bike weight will &apos;level the playing field&apos; against your virtual self. If you have set QZ to calculate distance in miles, enter the bike weight in pounds (lbs) unless you enable &apos;Use kg for weight&apos;. Default unit is kilograms (kgs).</source>
         <translation>Laat QZ het gewicht van je fiets meenemen bij het berekenen van de snelheid. Als je bijvoorbeeld op VZfit tegen jezelf rijdt, zorgt het fietsgewicht voor gelijke kansen tegenover je virtuele zelf. Als QZ de afstand in mijlen berekent, voer het fietsgewicht dan in pond (lbs) in, tenzij je ‘Kg gebruiken voor gewicht’ hebt ingeschakeld. Standaardeenheid: kilogram (kg).</translation>
     </message>
@@ -5482,8 +5972,16 @@ Mag QZ deze waarde wijzigen?
         <translation>Factor rolweerstand</translation>
     </message>
     <message>
+        <source>Save Rolling Res. Gain</source>
+        <translation>Factor rolweerstand opslaan</translation>
+    </message>
+    <message>
         <source>Wind Res. Gain</source>
         <translation>Factor luchtweerstand</translation>
+    </message>
+    <message>
+        <source>Save Wind Res. Gain</source>
+        <translation>Factor luchtweerstand opslaan</translation>
     </message>
     <message>
         <source>Zwift Workout/Erg Mode</source>
@@ -5498,12 +5996,28 @@ Mag QZ deze waarde wijzigen?
         <translation>Zwift-weerstandscorrectie:</translation>
     </message>
     <message>
+        <source>Zwift Resistance Offset</source>
+        <translation>Zwift-weerstandscorrectie</translation>
+    </message>
+    <message>
+        <source>Save Zwift Resistance Offset</source>
+        <translation>Zwift-weerstandscorrectie opslaan</translation>
+    </message>
+    <message>
         <source>This setting sets your “flat road” in Zwift. All communicated resistance changes will be based on this setting. The value entered is personal preference and will be dependent on your level of fitness. The suggested value for Echelon bikes is between 18 and 20. Default is 4.</source>
         <translation>Met deze instelling bepaal je je ‘vlakke weg’ in Zwift. Alle doorgegeven weerstandswijzigingen gaan uit van deze instelling. De waarde is een persoonlijke voorkeur en hangt af van je conditie. Voor Echelon-fietsen wordt een waarde tussen 18 en 20 aanbevolen. Standaard: 4.</translation>
     </message>
     <message>
         <source>Zwift Power Offset (W):</source>
         <translation>Zwift-vermogenscorrectie (W):</translation>
+    </message>
+    <message>
+        <source>Zwift Power Offset (W)</source>
+        <translation>Zwift-vermogenscorrectie (W)</translation>
+    </message>
+    <message>
+        <source>Save Zwift Power Offset (W)</source>
+        <translation>Zwift-vermogenscorrectie (W) opslaan</translation>
     </message>
     <message>
         <source>Add an offset in watts to the requested power from apps like Zwift. Positive values increase power, negative values decrease it. Default is 0.</source>
@@ -5514,12 +6028,28 @@ Mag QZ deze waarde wijzigen?
         <translation>Zwift-weerstandsfactor:</translation>
     </message>
     <message>
+        <source>Zwift Resistance Gain</source>
+        <translation>Zwift-weerstandsfactor</translation>
+    </message>
+    <message>
+        <source>Save Zwift Resistance Gain</source>
+        <translation>Zwift-weerstandsfactor opslaan</translation>
+    </message>
+    <message>
         <source>(for bikes and treadmills when using “treadmill as a bike” setting). This setting scales the resistance from your bike or the speed from your treadmill before sending it to Zwift. Default is 1.</source>
         <translation>(voor fietsen, en voor loopbanden met de instelling ‘Loopband als fiets’). Deze instelling schaalt de weerstand van je fiets of de snelheid van je loopband voordat die naar Zwift wordt gestuurd. Standaard: 1.</translation>
     </message>
     <message>
         <source>Zwift ERG Watt Up Filter:</source>
         <translation>Zwift ERG-filter vermogen omhoog:</translation>
+    </message>
+    <message>
+        <source>Zwift ERG Watt Up Filter</source>
+        <translation>Zwift ERG-filter vermogen omhoog</translation>
+    </message>
+    <message>
+        <source>Save Zwift ERG Watt Up Filter</source>
+        <translation>Zwift ERG-filter vermogen omhoog opslaan</translation>
     </message>
     <message>
         <source>In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 watts or more than 110 watts. Default is 10.</source>
@@ -5530,12 +6060,28 @@ Mag QZ deze waarde wijzigen?
         <translation>Zwift ERG-filter vermogen omlaag:</translation>
     </message>
     <message>
+        <source>Zwift ERG Watt Down Filter</source>
+        <translation>Zwift ERG-filter vermogen omlaag</translation>
+    </message>
+    <message>
+        <source>Save Zwift ERG Watt Down Filter</source>
+        <translation>Zwift ERG-filter vermogen omlaag opslaan</translation>
+    </message>
+    <message>
         <source>See above. Default is 10.</source>
         <translation>Zie hierboven. Standaard: 10.</translation>
     </message>
     <message>
         <source>Min. Resistance:</source>
         <translation>Min. weerstand:</translation>
+    </message>
+    <message>
+        <source>Min. Resistance</source>
+        <translation>Min. weerstand</translation>
+    </message>
+    <message>
+        <source>Save Min. Resistance</source>
+        <translation>Min. weerstand opslaan</translation>
     </message>
     <message>
         <source>Use this setting to set a minimum target resistance. For example, if you do not want to ride at a resistance below 25, enter a value of 25 and QZ will not set a target resistance below 25. Default is 0.</source>
@@ -5546,6 +6092,14 @@ Mag QZ deze waarde wijzigen?
         <translation>Max. weerstand:</translation>
     </message>
     <message>
+        <source>Max. Resistance</source>
+        <translation>Max. weerstand</translation>
+    </message>
+    <message>
+        <source>Save Max. Resistance</source>
+        <translation>Max. weerstand opslaan</translation>
+    </message>
+    <message>
         <source>Similar to the above, but sets a maximum target resistance. Default is 999.</source>
         <translation>Net als hierboven, maar stelt een maximale doelweerstand in. Standaard: 999.</translation>
     </message>
@@ -5554,12 +6108,28 @@ Mag QZ deze waarde wijzigen?
         <translation>Weerstand bij opstarten:</translation>
     </message>
     <message>
+        <source>Resistance at Startup</source>
+        <translation>Weerstand bij opstarten</translation>
+    </message>
+    <message>
+        <source>Save Resistance at Startup</source>
+        <translation>Weerstand bij opstarten opslaan</translation>
+    </message>
+    <message>
         <source>(only for bikes with electronically-controlled resistance): Enter the resistance level you want QZ to set at startup. Default is 1.</source>
         <translation>(alleen voor fietsen met elektronisch geregelde weerstand): voer het weerstandsniveau in dat QZ bij het opstarten moet instellen. Standaard: 1.</translation>
     </message>
     <message>
         <source>Gears Gain:</source>
         <translation>Versnellingsfactor:</translation>
+    </message>
+    <message>
+        <source>Gears Gain</source>
+        <translation>Versnellingsfactor</translation>
+    </message>
+    <message>
+        <source>Save Gears Gain</source>
+        <translation>Versnellingsfactor opslaan</translation>
     </message>
     <message>
         <source>Applies a multiplier to the gears. Default is 1.</source>
@@ -5572,6 +6142,14 @@ Mag QZ deze waarde wijzigen?
     <message>
         <source>Gears Offset:</source>
         <translation>Versnellingscorrectie:</translation>
+    </message>
+    <message>
+        <source>Gears Offset</source>
+        <translation>Versnellingscorrectie</translation>
+    </message>
+    <message>
+        <source>Save Gears Offset</source>
+        <translation>Versnellingscorrectie opslaan</translation>
     </message>
     <message>
         <source>Applies an offset to the gears. Default is 0.</source>
@@ -5594,6 +6172,10 @@ Mag QZ deze waarde wijzigen?
         <translation>Profiel:</translation>
     </message>
     <message>
+        <source>Profile</source>
+        <translation>Profiel</translation>
+    </message>
+    <message>
         <source>Cruise Profile Settings</source>
         <translation>Instellingen profiel ‘Toeren’</translation>
     </message>
@@ -5602,16 +6184,48 @@ Mag QZ deze waarde wijzigen?
         <translation>Toeren – cadans voor opschakelen (RPM):</translation>
     </message>
     <message>
+        <source>Cruise - Gear Up Cadence (RPM)</source>
+        <translation>Toeren – cadans voor opschakelen (RPM)</translation>
+    </message>
+    <message>
+        <source>Save Cruise - Gear Up Cadence (RPM)</source>
+        <translation>Toeren – cadans voor opschakelen (RPM) opslaan</translation>
+    </message>
+    <message>
         <source>Cruise - Gear Up Time (seconds):</source>
         <translation>Toeren – tijd voor opschakelen (seconden):</translation>
+    </message>
+    <message>
+        <source>Cruise - Gear Up Time (seconds)</source>
+        <translation>Toeren – tijd voor opschakelen (seconden)</translation>
+    </message>
+    <message>
+        <source>Save Cruise - Gear Up Time (seconds)</source>
+        <translation>Toeren – tijd voor opschakelen (seconden) opslaan</translation>
     </message>
     <message>
         <source>Cruise - Gear Down Cadence (RPM):</source>
         <translation>Toeren – cadans voor terugschakelen (RPM):</translation>
     </message>
     <message>
+        <source>Cruise - Gear Down Cadence (RPM)</source>
+        <translation>Toeren – cadans voor terugschakelen (RPM)</translation>
+    </message>
+    <message>
+        <source>Save Cruise - Gear Down Cadence (RPM)</source>
+        <translation>Toeren – cadans voor terugschakelen (RPM) opslaan</translation>
+    </message>
+    <message>
         <source>Cruise - Gear Down Time (seconds):</source>
         <translation>Toeren – tijd voor terugschakelen (seconden):</translation>
+    </message>
+    <message>
+        <source>Cruise - Gear Down Time (seconds)</source>
+        <translation>Toeren – tijd voor terugschakelen (seconden)</translation>
+    </message>
+    <message>
+        <source>Save Cruise - Gear Down Time (seconds)</source>
+        <translation>Toeren – tijd voor terugschakelen (seconden) opslaan</translation>
     </message>
     <message>
         <source>Climb Profile Settings</source>
@@ -5622,16 +6236,48 @@ Mag QZ deze waarde wijzigen?
         <translation>Klimmen – cadans voor opschakelen (RPM):</translation>
     </message>
     <message>
+        <source>Climb - Gear Up Cadence (RPM)</source>
+        <translation>Klimmen – cadans voor opschakelen (RPM)</translation>
+    </message>
+    <message>
+        <source>Save Climb - Gear Up Cadence (RPM)</source>
+        <translation>Klimmen – cadans voor opschakelen (RPM) opslaan</translation>
+    </message>
+    <message>
         <source>Climb - Gear Up Time (seconds):</source>
         <translation>Klimmen – tijd voor opschakelen (seconden):</translation>
+    </message>
+    <message>
+        <source>Climb - Gear Up Time (seconds)</source>
+        <translation>Klimmen – tijd voor opschakelen (seconden)</translation>
+    </message>
+    <message>
+        <source>Save Climb - Gear Up Time (seconds)</source>
+        <translation>Klimmen – tijd voor opschakelen (seconden) opslaan</translation>
     </message>
     <message>
         <source>Climb - Gear Down Cadence (RPM):</source>
         <translation>Klimmen – cadans voor terugschakelen (RPM):</translation>
     </message>
     <message>
+        <source>Climb - Gear Down Cadence (RPM)</source>
+        <translation>Klimmen – cadans voor terugschakelen (RPM)</translation>
+    </message>
+    <message>
+        <source>Save Climb - Gear Down Cadence (RPM)</source>
+        <translation>Klimmen – cadans voor terugschakelen (RPM) opslaan</translation>
+    </message>
+    <message>
         <source>Climb - Gear Down Time (seconds):</source>
         <translation>Klimmen – tijd voor terugschakelen (seconden):</translation>
+    </message>
+    <message>
+        <source>Climb - Gear Down Time (seconds)</source>
+        <translation>Klimmen – tijd voor terugschakelen (seconden)</translation>
+    </message>
+    <message>
+        <source>Save Climb - Gear Down Time (seconds)</source>
+        <translation>Klimmen – tijd voor terugschakelen (seconden) opslaan</translation>
     </message>
     <message>
         <source>Sprint Profile Settings</source>
@@ -5642,16 +6288,48 @@ Mag QZ deze waarde wijzigen?
         <translation>Sprinten – cadans voor opschakelen (RPM):</translation>
     </message>
     <message>
+        <source>Sprint - Gear Up Cadence (RPM)</source>
+        <translation>Sprinten – cadans voor opschakelen (RPM)</translation>
+    </message>
+    <message>
+        <source>Save Sprint - Gear Up Cadence (RPM)</source>
+        <translation>Sprinten – cadans voor opschakelen (RPM) opslaan</translation>
+    </message>
+    <message>
         <source>Sprint - Gear Up Time (seconds):</source>
         <translation>Sprinten – tijd voor opschakelen (seconden):</translation>
+    </message>
+    <message>
+        <source>Sprint - Gear Up Time (seconds)</source>
+        <translation>Sprinten – tijd voor opschakelen (seconden)</translation>
+    </message>
+    <message>
+        <source>Save Sprint - Gear Up Time (seconds)</source>
+        <translation>Sprinten – tijd voor opschakelen (seconden) opslaan</translation>
     </message>
     <message>
         <source>Sprint - Gear Down Cadence (RPM):</source>
         <translation>Sprinten – cadans voor terugschakelen (RPM):</translation>
     </message>
     <message>
+        <source>Sprint - Gear Down Cadence (RPM)</source>
+        <translation>Sprinten – cadans voor terugschakelen (RPM)</translation>
+    </message>
+    <message>
+        <source>Save Sprint - Gear Down Cadence (RPM)</source>
+        <translation>Sprinten – cadans voor terugschakelen (RPM) opslaan</translation>
+    </message>
+    <message>
         <source>Sprint - Gear Down Time (seconds):</source>
         <translation>Sprinten – tijd voor terugschakelen (seconden):</translation>
+    </message>
+    <message>
+        <source>Sprint - Gear Down Time (seconds)</source>
+        <translation>Sprinten – tijd voor terugschakelen (seconden)</translation>
+    </message>
+    <message>
+        <source>Save Sprint - Gear Down Time (seconds)</source>
+        <translation>Sprinten – tijd voor terugschakelen (seconden) opslaan</translation>
     </message>
     <message>
         <source>FTMS Bike:</source>
@@ -5690,6 +6368,14 @@ Mag QZ deze waarde wijzigen?
         <translation>Weerstand afvlakken:</translation>
     </message>
     <message>
+        <source>Resistance Smoothing</source>
+        <translation>Weerstand afvlakken</translation>
+    </message>
+    <message>
+        <source>Save Resistance Smoothing</source>
+        <translation>Afvlakking weerstand opslaan</translation>
+    </message>
+    <message>
         <source>Since this bike doesn&apos;t send resistance over Bluetooth, QZ is calculating it using cadence and wattage. The result could be a little &apos;jumpy&apos; and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.</source>
         <translation>Omdat deze fiets de weerstand niet via Bluetooth doorgeeft, berekent QZ die uit cadans en vermogen. Het resultaat kan wat schommelen; met deze instelling kun je de waarde in de weerstandstegel filteren. De eenheid is een weerstandsniveau: met 5 zie je de weerstand pas veranderen als die 5 niveaus verandert.</translation>
     </message>
@@ -5702,6 +6388,14 @@ Mag QZ deze waarde wijzigen?
         <translation>Cadansvermenigvuldiger GR7:</translation>
     </message>
     <message>
+        <source>GR7 Cadence Multiplier</source>
+        <translation>Cadansvermenigvuldiger GR7</translation>
+    </message>
+    <message>
+        <source>Save GR7 Cadence Multiplier</source>
+        <translation>Cadansvermenigvuldiger GR7 opslaan</translation>
+    </message>
+    <message>
         <source>Echelon Bike Options</source>
         <translation>Echelon-fietsopties</translation>
     </message>
@@ -5710,12 +6404,36 @@ Mag QZ deze waarde wijzigen?
         <translation>Vermogensprofiel:</translation>
     </message>
     <message>
+        <source>Watt Profile</source>
+        <translation>Vermogensprofiel</translation>
+    </message>
+    <message>
+        <source>Save Watt Profile</source>
+        <translation>Vermogensprofiel opslaan</translation>
+    </message>
+    <message>
         <source>Resistance Gain:</source>
         <translation>Weerstandsfactor:</translation>
     </message>
     <message>
+        <source>Resistance Gain</source>
+        <translation>Weerstandsfactor</translation>
+    </message>
+    <message>
+        <source>Save Resistance Gain</source>
+        <translation>Weerstandsfactor opslaan</translation>
+    </message>
+    <message>
         <source>Resistance Offset:</source>
         <translation>Weerstandscorrectie:</translation>
+    </message>
+    <message>
+        <source>Resistance Offset</source>
+        <translation>Weerstandscorrectie</translation>
+    </message>
+    <message>
+        <source>Save Resistance Offset</source>
+        <translation>Weerstandscorrectie opslaan</translation>
     </message>
     <message>
         <source>Change gears using knob (Experimental)</source>
@@ -5818,12 +6536,28 @@ Mag QZ deze waarde wijzigen?
         <translation>Filter op nulwaarden:</translation>
     </message>
     <message>
+        <source>Samples Filter</source>
+        <translation>Filter op nulwaarden</translation>
+    </message>
+    <message>
+        <source>Save Samples Filter</source>
+        <translation>Filter op nulwaarden opslaan</translation>
+    </message>
+    <message>
         <source>Domyos Bike Options</source>
         <translation>Domyos-fietsopties</translation>
     </message>
     <message>
         <source>Cadence Filter:</source>
         <translation>Cadansfilter:</translation>
+    </message>
+    <message>
+        <source>Cadence Filter</source>
+        <translation>Cadansfilter</translation>
+    </message>
+    <message>
+        <source>Save Cadence Filter</source>
+        <translation>Cadansfilter opslaan</translation>
     </message>
     <message>
         <source>Ignore FTMS</source>
@@ -5867,6 +6601,14 @@ Mag QZ deze waarde wijzigen?
         <translation>Wielverhouding:</translation>
     </message>
     <message>
+        <source>Wheel Ratio</source>
+        <translation>Wielverhouding</translation>
+    </message>
+    <message>
+        <source>Save Wheel Ratio</source>
+        <translation>Wielverhouding opslaan</translation>
+    </message>
+    <message>
         <source>Specific Model:</source>
         <translation>Specifiek model:</translation>
     </message>
@@ -5879,12 +6621,36 @@ Mag QZ deze waarde wijzigen?
         <translation>IP van TDF1:</translation>
     </message>
     <message>
+        <source>TDF1 IP</source>
+        <translation>IP van TDF1</translation>
+    </message>
+    <message>
+        <source>Save TDF1 IP</source>
+        <translation>IP van TDF1 opslaan</translation>
+    </message>
+    <message>
         <source>TDF4 IP:</source>
         <translation>IP van TDF4:</translation>
     </message>
     <message>
+        <source>TDF4 IP</source>
+        <translation>IP van TDF4</translation>
+    </message>
+    <message>
+        <source>Save TDF4 IP</source>
+        <translation>IP van TDF4 opslaan</translation>
+    </message>
+    <message>
         <source>TDF Companion IP:</source>
         <translation>IP van TDF Companion:</translation>
+    </message>
+    <message>
+        <source>TDF Companion IP</source>
+        <translation>IP van TDF Companion</translation>
+    </message>
+    <message>
+        <source>Save TDF Companion IP</source>
+        <translation>IP van TDF Companion opslaan</translation>
     </message>
     <message>
         <source>ADB Remote</source>
@@ -5903,8 +6669,24 @@ Mag QZ deze waarde wijzigen?
         <translation>Seriële poort:</translation>
     </message>
     <message>
+        <source>Serial Port</source>
+        <translation>Seriële poort</translation>
+    </message>
+    <message>
+        <source>Save Serial Port</source>
+        <translation>Seriële poort opslaan</translation>
+    </message>
+    <message>
         <source>Kettler USB Bike Options</source>
         <translation>Opties voor Kettler USB-fiets</translation>
+    </message>
+    <message>
+        <source>Baudrate</source>
+        <translation>Baudrate</translation>
+    </message>
+    <message>
+        <source>Save Baudrate</source>
+        <translation>Baudrate opslaan</translation>
     </message>
     <message>
         <source>M3i Bike Options</source>
@@ -5919,8 +6701,24 @@ Mag QZ deze waarde wijzigen?
         <translation>Fiets-ID:</translation>
     </message>
     <message>
+        <source>Bike ID</source>
+        <translation>Fiets-ID</translation>
+    </message>
+    <message>
+        <source>Save Bike ID</source>
+        <translation>Fiets-ID opslaan</translation>
+    </message>
+    <message>
         <source>Speed Buffer Size:</source>
         <translation>Snelheidsbuffer (aantal metingen):</translation>
+    </message>
+    <message>
+        <source>Speed Buffer Size</source>
+        <translation>Snelheidsbuffer (aantal metingen)</translation>
+    </message>
+    <message>
+        <source>Save Speed Buffer Size</source>
+        <translation>Snelheidsbuffer (aantal metingen) opslaan</translation>
     </message>
     <message>
         <source>Use KCal from the Bike</source>
@@ -5951,6 +6749,14 @@ Mag QZ deze waarde wijzigen?
         <translation>ANT+-apparaatnummer fiets (0=auto):</translation>
     </message>
     <message>
+        <source>ANT+ Bike Device Number (0=Auto)</source>
+        <translation>ANT+-apparaatnummer fiets (0=auto)</translation>
+    </message>
+    <message>
+        <source>Save ANT+ Bike Device Number (0=Auto)</source>
+        <translation>ANT+-apparaatnummer fiets (0=auto) opslaan</translation>
+    </message>
+    <message>
         <source>Toputure Bikes</source>
         <translation>Toputure-fietsen</translation>
     </message>
@@ -5979,12 +6785,24 @@ Mag QZ deze waarde wijzigen?
         <translation>ANT+-snelheidscorrectie</translation>
     </message>
     <message>
+        <source>Save ANT+ Speed Offset</source>
+        <translation>ANT+-snelheidscorrectie opslaan</translation>
+    </message>
+    <message>
         <source>You can increase/decrease your speed sent over ANT+. The number you enter as an Offset adds that amount to your speed.</source>
         <translation>Je kunt de snelheid die via ANT+ wordt verzonden verhogen of verlagen. Het getal dat je als correctie invoert, wordt bij je snelheid opgeteld.</translation>
     </message>
     <message>
         <source>ANT+ Speed Gain:</source>
         <translation>ANT+-snelheidsfactor:</translation>
+    </message>
+    <message>
+        <source>ANT+ Speed Gain</source>
+        <translation>ANT+-snelheidsfactor</translation>
+    </message>
+    <message>
+        <source>Save ANT+ Speed Gain</source>
+        <translation>ANT+-snelheidsfactor opslaan</translation>
     </message>
     <message>
         <source>You can increase/decrease your speed output sent over ANT+. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.</source>
@@ -5997,6 +6815,14 @@ Mag QZ deze waarde wijzigen?
     <message>
         <source>ANT+ Heart Device Number (0=Auto):</source>
         <translation>ANT+-apparaatnummer hartslagmeter (0=auto):</translation>
+    </message>
+    <message>
+        <source>ANT+ Heart Device Number (0=Auto)</source>
+        <translation>ANT+-apparaatnummer hartslagmeter (0=auto)</translation>
+    </message>
+    <message>
+        <source>Save ANT+ Heart Device Number (0=Auto)</source>
+        <translation>ANT+-apparaatnummer hartslagmeter (0=auto) opslaan</translation>
     </message>
     <message>
         <source>This setting enables receiving the heart rate from an external HRM over ANT+ instead of from QZ.</source>
@@ -6017,6 +6843,10 @@ Mag QZ deze waarde wijzigen?
     <message>
         <source>General UI Options</source>
         <translation>Algemene interface-opties</translation>
+    </message>
+    <message>
+        <source>Save Tile Size</source>
+        <translation>Tegelgrootte opslaan</translation>
     </message>
     <message>
         <source>Use System Text Size</source>
@@ -6043,6 +6873,14 @@ Mag QZ deze waarde wijzigen?
         <translation>Type zwevend venster:</translation>
     </message>
     <message>
+        <source>Floating Window Type</source>
+        <translation>Type zwevend venster</translation>
+    </message>
+    <message>
+        <source>Save Floating Window Type</source>
+        <translation>Type zwevend venster opslaan</translation>
+    </message>
+    <message>
         <source>Choose the floating window layout type. Classic uses the standard floating.htm file, while Horizontal uses the hfloating.htm file for horizontal layout.</source>
         <translation>Kies de indeling van het zwevende venster. ‘Klassiek’ gebruikt het standaardbestand floating.htm, ‘Horizontaal’ gebruikt het bestand hfloating.htm voor een horizontale indeling.</translation>
     </message>
@@ -6055,6 +6893,14 @@ Mag QZ deze waarde wijzigen?
         <translation>Breedte zwevend venster:</translation>
     </message>
     <message>
+        <source>Floating Window Width</source>
+        <translation>Breedte zwevend venster</translation>
+    </message>
+    <message>
+        <source>Save Floating Window Width</source>
+        <translation>Breedte zwevend venster opslaan</translation>
+    </message>
+    <message>
         <source>Android Only: width of the floating window.</source>
         <translation>Alleen Android: breedte van het zwevende venster.</translation>
     </message>
@@ -6063,12 +6909,28 @@ Mag QZ deze waarde wijzigen?
         <translation>Hoogte zwevend venster:</translation>
     </message>
     <message>
+        <source>Floating Window Height</source>
+        <translation>Hoogte zwevend venster</translation>
+    </message>
+    <message>
+        <source>Save Floating Window Height</source>
+        <translation>Hoogte zwevend venster opslaan</translation>
+    </message>
+    <message>
         <source>Android Only: height of the floating window.</source>
         <translation>Alleen Android: hoogte van het zwevende venster.</translation>
     </message>
     <message>
         <source>Floating Window % Transparency:</source>
         <translation>Transparantie zwevend venster (%):</translation>
+    </message>
+    <message>
+        <source>Floating Window % Transparency</source>
+        <translation>Transparantie zwevend venster (%)</translation>
+    </message>
+    <message>
+        <source>Save Floating Window % Transparency</source>
+        <translation>Transparantie zwevend venster (%) opslaan</translation>
     </message>
     <message>
         <source>Android Only: transparency percentage of the floating window.</source>
@@ -6091,6 +6953,14 @@ Mag QZ deze waarde wijzigen?
         <translation>Weergave grafieken:</translation>
     </message>
     <message>
+        <source>Chart Display Mode</source>
+        <translation>Weergave grafieken</translation>
+    </message>
+    <message>
+        <source>Save Chart Display Mode</source>
+        <translation>Weergave grafieken opslaan</translation>
+    </message>
+    <message>
         <source>Choose which charts to display in the footer: both heart rate and power charts, only heart rate chart, or only power chart.</source>
         <translation>Kies welke grafieken onderaan worden getoond: hartslag en vermogen, alleen hartslag of alleen vermogen.</translation>
     </message>
@@ -6099,8 +6969,24 @@ Mag QZ deze waarde wijzigen?
         <translation>Linker waarde Live Activity (iOS):</translation>
     </message>
     <message>
+        <source>iOS Live Activity Left Metric</source>
+        <translation>Linker waarde Live Activity (iOS)</translation>
+    </message>
+    <message>
+        <source>Save iOS Live Activity Left Metric</source>
+        <translation>Linker waarde Live Activity (iOS) opslaan</translation>
+    </message>
+    <message>
         <source>iOS Live Activity Right Metric:</source>
         <translation>Rechter waarde Live Activity (iOS):</translation>
+    </message>
+    <message>
+        <source>iOS Live Activity Right Metric</source>
+        <translation>Rechter waarde Live Activity (iOS)</translation>
+    </message>
+    <message>
+        <source>Save iOS Live Activity Right Metric</source>
+        <translation>Rechter waarde Live Activity (iOS) opslaan</translation>
     </message>
     <message>
         <source>iOS only: choose which two metrics are shown in the compact Dynamic Island bar for Live Activities. Default is Heart Rate on the left and Watt on the right.</source>
@@ -6119,12 +7005,28 @@ Mag QZ deze waarde wijzigen?
         <translation>Achtergrondkleur:</translation>
     </message>
     <message>
+        <source>Background Color</source>
+        <translation>Achtergrondkleur</translation>
+    </message>
+    <message>
+        <source>Save Background Color</source>
+        <translation>Achtergrondkleur opslaan</translation>
+    </message>
+    <message>
         <source>Please choose a color</source>
         <translation>Kies een kleur</translation>
     </message>
     <message>
         <source>Tiles Background Color:</source>
         <translation>Achtergrondkleur tegels:</translation>
+    </message>
+    <message>
+        <source>Tiles Background Color</source>
+        <translation>Achtergrondkleur tegels</translation>
+    </message>
+    <message>
+        <source>Save Tiles Background Color</source>
+        <translation>Achtergrondkleur tegels opslaan</translation>
     </message>
     <message>
         <source>Tiles Shadow</source>
@@ -6135,20 +7037,60 @@ Mag QZ deze waarde wijzigen?
         <translation>Kleur tegelschaduw:</translation>
     </message>
     <message>
+        <source>Tiles Shadow Color</source>
+        <translation>Kleur tegelschaduw</translation>
+    </message>
+    <message>
+        <source>Save Tiles Shadow Color</source>
+        <translation>Kleur tegelschaduw opslaan</translation>
+    </message>
+    <message>
         <source>Statusbar Background Color:</source>
         <translation>Achtergrondkleur statusbalk:</translation>
+    </message>
+    <message>
+        <source>Statusbar Background Color</source>
+        <translation>Achtergrondkleur statusbalk</translation>
+    </message>
+    <message>
+        <source>Save Statusbar Background Color</source>
+        <translation>Achtergrondkleur statusbalk opslaan</translation>
     </message>
     <message>
         <source>2nd line tile text size:</source>
         <translation>Tekstgrootte 2e regel tegel:</translation>
     </message>
     <message>
+        <source>2nd line tile text size</source>
+        <translation>Tekstgrootte 2e regel tegel</translation>
+    </message>
+    <message>
+        <source>Save 2nd line tile text size</source>
+        <translation>Tekstgrootte 2e regel tegel opslaan</translation>
+    </message>
+    <message>
         <source>Peloton Options</source>
         <translation>Peloton-opties</translation>
     </message>
     <message>
+        <source>Connect to Peloton</source>
+        <translation>Verbinden met Peloton</translation>
+    </message>
+    <message>
+        <source>Opens the Peloton login page</source>
+        <translation>Opent de inlogpagina van Peloton</translation>
+    </message>
+    <message>
         <source>Difficulty:</source>
         <translation>Moeilijkheid:</translation>
+    </message>
+    <message>
+        <source>Difficulty</source>
+        <translation>Moeilijkheidsgraad</translation>
+    </message>
+    <message>
+        <source>Save Difficulty</source>
+        <translation>Moeilijkheidsgraad opslaan</translation>
     </message>
     <message>
         <source>Typically, Peloton coaches call out a range for target incline, resistance and/or speed. Use this setting to choose the difficulty of the target QZ communicates. Difficulty level can be set to lower, upper or average. Click OK.</source>
@@ -6159,12 +7101,28 @@ Mag QZ deze waarde wijzigen?
         <translation>Niveau loopband:</translation>
     </message>
     <message>
+        <source>Treadmill Level</source>
+        <translation>Niveau loopband</translation>
+    </message>
+    <message>
+        <source>Save Treadmill Level</source>
+        <translation>Niveau loopband opslaan</translation>
+    </message>
+    <message>
         <source>Difficulty level for Peloton treadmill classes. 1 is easy 10 is hard.</source>
         <translation>Moeilijkheidsniveau voor Peloton-loopbandlessen. 1 is makkelijk, 10 is zwaar.</translation>
     </message>
     <message>
         <source>Treadmill Walk Level:</source>
         <translation>Niveau wandelen op loopband:</translation>
+    </message>
+    <message>
+        <source>Treadmill Walk Level</source>
+        <translation>Niveau wandelen op loopband</translation>
+    </message>
+    <message>
+        <source>Save Treadmill Walk Level</source>
+        <translation>Niveau wandelen op loopband opslaan</translation>
     </message>
     <message>
         <source>Difficulty level for Peloton treadmill walking classes. 1 is easy 10 is hard.</source>
@@ -6175,12 +7133,28 @@ Mag QZ deze waarde wijzigen?
         <translation>Min. wandelsnelheid:</translation>
     </message>
     <message>
+        <source>Walking Min Speed</source>
+        <translation>Min. wandelsnelheid</translation>
+    </message>
+    <message>
+        <source>Save Walking Min Speed</source>
+        <translation>Min. wandelsnelheid opslaan</translation>
+    </message>
+    <message>
         <source>Minimum speed for Peloton walking sessions. Set to 0 to disable. Applied to all speed targets in walking workouts.</source>
         <translation>Minimumsnelheid voor Peloton-wandellessen. Zet op 0 om uit te schakelen. Geldt voor alle doelsnelheden in wandeltrainingen.</translation>
     </message>
     <message>
         <source>Running Min Speed:</source>
         <translation>Min. hardloopsnelheid:</translation>
+    </message>
+    <message>
+        <source>Running Min Speed</source>
+        <translation>Min. hardloopsnelheid</translation>
+    </message>
+    <message>
+        <source>Save Running Min Speed</source>
+        <translation>Min. hardloopsnelheid opslaan</translation>
     </message>
     <message>
         <source>Minimum speed for Peloton running sessions. Set to 0 to disable. Applied to all speed targets in running workouts.</source>
@@ -6191,12 +7165,28 @@ Mag QZ deze waarde wijzigen?
         <translation>Niveau roeitrainer:</translation>
     </message>
     <message>
+        <source>Rower Level</source>
+        <translation>Niveau roeitrainer</translation>
+    </message>
+    <message>
+        <source>Save Rower Level</source>
+        <translation>Niveau roeitrainer opslaan</translation>
+    </message>
+    <message>
         <source>Difficulty level for Peloton rower classes. 1 is easy 10 is hard.</source>
         <translation>Moeilijkheidsniveau voor Peloton-roeilessen. 1 is makkelijk, 10 is zwaar.</translation>
     </message>
     <message>
         <source>PZP Username:</source>
         <translation>PZP-gebruikersnaam:</translation>
+    </message>
+    <message>
+        <source>PZP Username</source>
+        <translation>PZP-gebruikersnaam</translation>
+    </message>
+    <message>
+        <source>Save PZP Username</source>
+        <translation>PZP-gebruikersnaam opslaan</translation>
     </message>
     <message>
         <source>As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave (or change back to) the default of “username” (without quotation marks, all lowercase and all one word) until further notice.</source>
@@ -6207,6 +7197,14 @@ Mag QZ deze waarde wijzigen?
         <translation>PZP-wachtwoord:</translation>
     </message>
     <message>
+        <source>PZP Password</source>
+        <translation>PZP-wachtwoord</translation>
+    </message>
+    <message>
+        <source>Save PZP Password</source>
+        <translation>PZP-wachtwoord opslaan</translation>
+    </message>
+    <message>
         <source>As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave this setting blank until further notice.</source>
         <translation>Sinds 1 april 2022 werkt deze functie niet meer door een wijziging op de website van Power Zone Pack (PZP). Laat deze instelling tot nader bericht leeg.</translation>
     </message>
@@ -6215,12 +7213,28 @@ Mag QZ deze waarde wijzigen?
         <translation>Omrekenfactor:</translation>
     </message>
     <message>
+        <source>Conversion Gain</source>
+        <translation>Omrekenfactor</translation>
+    </message>
+    <message>
+        <source>Save Conversion Gain</source>
+        <translation>Omrekenfactor opslaan</translation>
+    </message>
+    <message>
         <source>Conversion gain is a multiplier. Use this setting to align the Peloton resistance calculated by QZ with the relative effort required by your bike. In most cases the default values will be correct.</source>
         <translation>De omrekenfactor is een vermenigvuldiger. Met deze instelling stem je de Peloton-weerstand die QZ berekent af op de werkelijke inspanning op je fiets. Meestal kloppen de standaardwaarden.</translation>
     </message>
     <message>
         <source>Conversion Offset:</source>
         <translation>Omrekencorrectie:</translation>
+    </message>
+    <message>
+        <source>Conversion Offset</source>
+        <translation>Omrekencorrectie</translation>
+    </message>
+    <message>
+        <source>Save Conversion Offset</source>
+        <translation>Omrekencorrectie opslaan</translation>
     </message>
     <message>
         <source>Increases the resistance that QZ displays in the Peloton Resistance tile. If QZ’s calculated conversion from your bike’s resistance scale to Peloton’s seems too low, the number you enter here will be added to the calculated resistance without increasing your effort or actual resistance. (Example: If QZ displays Peloton resistance of 30 and you enter 5, QZ will display 35.)</source>
@@ -6255,6 +7269,14 @@ Mag QZ deze waarde wijzigen?
         <translation>In plaats van hartslag sturen:</translation>
     </message>
     <message>
+        <source>Override HR Metric</source>
+        <translation>In plaats van hartslag sturen</translation>
+    </message>
+    <message>
+        <source>Save Override HR Metric</source>
+        <translation>Keuze ‘In plaats van hartslag sturen’ opslaan</translation>
+    </message>
+    <message>
         <source>By default, QZ communicates heart rate to Peloton. Use this setting to change the metric that appears on the Peloton screen.</source>
         <translation>QZ stuurt standaard je hartslag naar Peloton. Met deze instelling kies je een andere waarde voor het Peloton-scherm.</translation>
     </message>
@@ -6263,12 +7285,28 @@ Mag QZ deze waarde wijzigen?
         <translation>Datum op Strava:</translation>
     </message>
     <message>
+        <source>Date on Strava</source>
+        <translation>Datum op Strava</translation>
+    </message>
+    <message>
+        <source>Save Date on Strava</source>
+        <translation>Datum op Strava opslaan</translation>
+    </message>
+    <message>
         <source>Allows you to choose whether you would like the Peloton class air date to display before or after the class title on Strava.</source>
         <translation>Hiermee kies je of de uitzenddatum van de Peloton-les vóór of na de titel van de les op Strava wordt getoond.</translation>
     </message>
     <message>
         <source>Date Format:</source>
         <translation>Datumnotatie:</translation>
+    </message>
+    <message>
+        <source>Date Format</source>
+        <translation>Datumnotatie</translation>
+    </message>
+    <message>
+        <source>Save Date Format</source>
+        <translation>Datumnotatie opslaan</translation>
     </message>
     <message>
         <source>Activity Link in Strava</source>
@@ -6311,12 +7349,28 @@ Mag QZ deze waarde wijzigen?
         <translation>Gebruikersnaam:</translation>
     </message>
     <message>
+        <source>Username</source>
+        <translation>Gebruikersnaam</translation>
+    </message>
+    <message>
+        <source>Save Username</source>
+        <translation>Gebruikersnaam opslaan</translation>
+    </message>
+    <message>
         <source>Enter the email address you use to login to Zwift. Ensure there are no spaces before or after your email. Click OK.</source>
         <translation>Voer het e-mailadres in waarmee je inlogt bij Zwift. Zorg dat er geen spaties voor of na je e-mailadres staan. Klik op OK.</translation>
     </message>
     <message>
         <source>Password:</source>
         <translation>Wachtwoord:</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Wachtwoord</translation>
+    </message>
+    <message>
+        <source>Save Password</source>
+        <translation>Wachtwoord opslaan</translation>
     </message>
     <message>
         <source>Enter the password you use to login to Zwift. Click OK.</source>
@@ -6349,6 +7403,14 @@ Mag QZ deze waarde wijzigen?
     <message>
         <source>Poll Time:</source>
         <translation>Update-interval:</translation>
+    </message>
+    <message>
+        <source>Poll Time</source>
+        <translation>Update-interval</translation>
+    </message>
+    <message>
+        <source>Save Poll Time</source>
+        <translation>Update-interval opslaan</translation>
     </message>
     <message>
         <source>Define the number of delay seconds between each inclination change from Zwift. This value can&apos;t be less than 5. Default: 5</source>
@@ -6437,6 +7499,26 @@ Mag QZ deze waarde wijzigen?
     <message>
         <source>Garmin Email:</source>
         <translation>Garmin-e-mailadres:</translation>
+    </message>
+    <message>
+        <source>Garmin Email</source>
+        <translation>Garmin-e-mailadres</translation>
+    </message>
+    <message>
+        <source>Save Garmin Email</source>
+        <translation>Garmin-e-mailadres opslaan</translation>
+    </message>
+    <message>
+        <source>Garmin Password</source>
+        <translation>Garmin-wachtwoord</translation>
+    </message>
+    <message>
+        <source>Save Garmin Password</source>
+        <translation>Garmin-wachtwoord opslaan</translation>
+    </message>
+    <message>
+        <source>Garmin Server</source>
+        <translation>Garmin-server</translation>
     </message>
     <message>
         <source>Test Garmin Login</source>
@@ -6810,6 +7892,218 @@ Voer de code hieronder in:</translation>
         <translation>Helling</translation>
     </message>
     <message>
+        <source>PID on Heart Zone</source>
+        <translation>Hartslagzone vasthouden</translation>
+    </message>
+    <message>
+        <source>Save PID on Heart Zone</source>
+        <translation>Hartslagzone voor vasthouden opslaan</translation>
+    </message>
+    <message>
+        <source>Save PID HR actuator</source>
+        <translation>Keuze ‘Hartslag vasthouden via’ opslaan</translation>
+    </message>
+    <message>
+        <source>PID on HR min</source>
+        <translation>Hartslag vasthouden, min.</translation>
+    </message>
+    <message>
+        <source>Save PID on HR min</source>
+        <translation>Min. hartslag voor vasthouden opslaan</translation>
+    </message>
+    <message>
+        <source>PID on HR max</source>
+        <translation>Hartslag vasthouden, max.</translation>
+    </message>
+    <message>
+        <source>Save PID on HR max</source>
+        <translation>Max. hartslag voor vasthouden opslaan</translation>
+    </message>
+    <message>
+        <source>1 mile pace (total time)</source>
+        <translation>Tempo op 1 mijl (totale tijd)</translation>
+    </message>
+    <message>
+        <source>Save 1 mile pace (total time)</source>
+        <translation>Tempo op 1 mijl (totale tijd) opslaan</translation>
+    </message>
+    <message>
+        <source>5 km pace (total time)</source>
+        <translation>Tempo op 5 km (totale tijd)</translation>
+    </message>
+    <message>
+        <source>Save 5 km pace (total time)</source>
+        <translation>Tempo op 5 km (totale tijd) opslaan</translation>
+    </message>
+    <message>
+        <source>10 km pace (total time)</source>
+        <translation>Tempo op 10 km (totale tijd)</translation>
+    </message>
+    <message>
+        <source>Save 10 km pace (total time)</source>
+        <translation>Tempo op 10 km (totale tijd) opslaan</translation>
+    </message>
+    <message>
+        <source>Half Marathon pace (total time)</source>
+        <translation>Tempo op halve marathon (totale tijd)</translation>
+    </message>
+    <message>
+        <source>Save Half Marathon pace (total time)</source>
+        <translation>Tempo op halve marathon (totale tijd) opslaan</translation>
+    </message>
+    <message>
+        <source>Marathon pace (total time)</source>
+        <translation>Tempo op marathon (totale tijd)</translation>
+    </message>
+    <message>
+        <source>Save Marathon pace (total time)</source>
+        <translation>Tempo op marathon (totale tijd) opslaan</translation>
+    </message>
+    <message>
+        <source>Default Pace</source>
+        <translation>Standaardtempo</translation>
+    </message>
+    <message>
+        <source>Save Default Pace</source>
+        <translation>Standaardtempo opslaan</translation>
+    </message>
+    <message>
+        <source>ERG Mode Watt Step</source>
+        <translation>Vermogensstap in ERG-modus</translation>
+    </message>
+    <message>
+        <source>Save ERG Mode Watt Step</source>
+        <translation>Vermogensstap in ERG-modus opslaan</translation>
+    </message>
+    <message>
+        <source>Duration (minutes)</source>
+        <translation>Duur (minuten)</translation>
+    </message>
+    <message>
+        <source>Save Duration (minutes)</source>
+        <translation>Duur (minuten) opslaan</translation>
+    </message>
+    <message>
+        <source>Period (seconds)</source>
+        <translation>Periode (seconden)</translation>
+    </message>
+    <message>
+        <source>Save Period (seconds)</source>
+        <translation>Periode (seconden) opslaan</translation>
+    </message>
+    <message>
+        <source>Speed min.</source>
+        <translation>Snelheid, min.</translation>
+    </message>
+    <message>
+        <source>Save Speed min.</source>
+        <translation>Snelheid, min. opslaan</translation>
+    </message>
+    <message>
+        <source>Speed max.</source>
+        <translation>Snelheid, max.</translation>
+    </message>
+    <message>
+        <source>Save Speed max.</source>
+        <translation>Snelheid, max. opslaan</translation>
+    </message>
+    <message>
+        <source>Incline min.</source>
+        <translation>Helling, min.</translation>
+    </message>
+    <message>
+        <source>Save Incline min.</source>
+        <translation>Helling, min. opslaan</translation>
+    </message>
+    <message>
+        <source>Incline max.</source>
+        <translation>Helling, max.</translation>
+    </message>
+    <message>
+        <source>Save Incline max.</source>
+        <translation>Helling, max. opslaan</translation>
+    </message>
+    <message>
+        <source>Resistance min.</source>
+        <translation>Weerstand, min.</translation>
+    </message>
+    <message>
+        <source>Save Resistance min.</source>
+        <translation>Weerstand, min. opslaan</translation>
+    </message>
+    <message>
+        <source>Resistance max.</source>
+        <translation>Weerstand, max.</translation>
+    </message>
+    <message>
+        <source>Save Resistance max.</source>
+        <translation>Weerstand, max. opslaan</translation>
+    </message>
+    <message>
+        <source>Speed Step</source>
+        <translation>Snelheidsstap</translation>
+    </message>
+    <message>
+        <source>Save Speed Step</source>
+        <translation>Snelheidsstap opslaan</translation>
+    </message>
+    <message>
+        <source>Min. Inclination</source>
+        <translation>Min. helling</translation>
+    </message>
+    <message>
+        <source>Save Min. Inclination</source>
+        <translation>Min. helling opslaan</translation>
+    </message>
+    <message>
+        <source>Max. Inclination</source>
+        <translation>Max. helling</translation>
+    </message>
+    <message>
+        <source>Save Max. Inclination</source>
+        <translation>Max. helling opslaan</translation>
+    </message>
+    <message>
+        <source>Max. Speed</source>
+        <translation>Max. snelheid</translation>
+    </message>
+    <message>
+        <source>Save Max. Speed</source>
+        <translation>Max. snelheid opslaan</translation>
+    </message>
+    <message>
+        <source>Min. Speed</source>
+        <translation>Min. snelheid</translation>
+    </message>
+    <message>
+        <source>Save Min. Speed</source>
+        <translation>Min. snelheid opslaan</translation>
+    </message>
+    <message>
+        <source>Step Count Gain</source>
+        <translation>Factor aantal stappen</translation>
+    </message>
+    <message>
+        <source>Save Step Count Gain</source>
+        <translation>Factor aantal stappen opslaan</translation>
+    </message>
+    <message>
+        <source>Proform IP</source>
+        <translation>IP van Proform</translation>
+    </message>
+    <message>
+        <source>Save Proform IP</source>
+        <translation>IP van Proform opslaan</translation>
+    </message>
+    <message>
+        <source>Nordictrack 2950 IP</source>
+        <translation>IP van Nordictrack 2950</translation>
+    </message>
+    <message>
+        <source>Save Nordictrack 2950 IP</source>
+        <translation>IP van Nordictrack 2950 opslaan</translation>
+    </message>
+    <message>
         <source>Echelon Options</source>
         <translation>Echelon-opties</translation>
     </message>
@@ -6824,6 +8118,22 @@ Voer de code hieronder in:</translation>
     <message>
         <source>Enable handling of physical Start/Pause/Stop buttons on the treadmill hardware</source>
         <translation>Fysieke knoppen Start/Pauze/Stop op de loopband verwerken</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email</source>
+        <translation>Life Fitness-gebruikersnaam/e-mail</translation>
+    </message>
+    <message>
+        <source>Save Life Fitness username/email</source>
+        <translation>Life Fitness-gebruikersnaam/e-mail opslaan</translation>
+    </message>
+    <message>
+        <source>Life Fitness password</source>
+        <translation>Life Fitness-wachtwoord</translation>
+    </message>
+    <message>
+        <source>Save Life Fitness password</source>
+        <translation>Life Fitness-wachtwoord opslaan</translation>
     </message>
     <message>
         <source>RunnerT Options</source>
@@ -6862,20 +8172,60 @@ Voer de code hieronder in:</translation>
         <translation>Knop 5 km/h anders toewijzen:</translation>
     </message>
     <message>
+        <source>Remap 5 km/h button</source>
+        <translation>Knop 5 km/h anders toewijzen</translation>
+    </message>
+    <message>
+        <source>Save Remap 5 km/h button</source>
+        <translation>Toewijzing knop 5 km/h opslaan</translation>
+    </message>
+    <message>
         <source>Remap 10 km/h button:</source>
         <translation>Knop 10 km/h anders toewijzen:</translation>
+    </message>
+    <message>
+        <source>Remap 10 km/h button</source>
+        <translation>Knop 10 km/h anders toewijzen</translation>
+    </message>
+    <message>
+        <source>Save Remap 10 km/h button</source>
+        <translation>Toewijzing knop 10 km/h opslaan</translation>
     </message>
     <message>
         <source>Remap 16 km/h button:</source>
         <translation>Knop 16 km/h anders toewijzen:</translation>
     </message>
     <message>
+        <source>Remap 16 km/h button</source>
+        <translation>Knop 16 km/h anders toewijzen</translation>
+    </message>
+    <message>
+        <source>Save Remap 16 km/h button</source>
+        <translation>Toewijzing knop 16 km/h opslaan</translation>
+    </message>
+    <message>
         <source>Remap 22 km/h button:</source>
         <translation>Knop 22 km/h anders toewijzen:</translation>
     </message>
     <message>
+        <source>Remap 22 km/h button</source>
+        <translation>Knop 22 km/h anders toewijzen</translation>
+    </message>
+    <message>
+        <source>Save Remap 22 km/h button</source>
+        <translation>Toewijzing knop 22 km/h opslaan</translation>
+    </message>
+    <message>
         <source>Pool time (ms):</source>
         <translation>Update-interval (ms):</translation>
+    </message>
+    <message>
+        <source>Pool time (ms)</source>
+        <translation>Update-interval (ms)</translation>
+    </message>
+    <message>
+        <source>Save Pool time (ms)</source>
+        <translation>Update-interval (ms) opslaan</translation>
     </message>
     <message>
         <source>Default: 200. Change this only if you have random issues with speed or inclination (try to put 300)</source>
@@ -6912,6 +8262,14 @@ Voer de code hieronder in:</translation>
     <message>
         <source>User ID:</source>
         <translation>Gebruikers-ID:</translation>
+    </message>
+    <message>
+        <source>User ID</source>
+        <translation>Gebruikers-ID</translation>
+    </message>
+    <message>
+        <source>Save User ID</source>
+        <translation>Gebruikers-ID opslaan</translation>
     </message>
     <message>
         <source>ESLinker Treadmill Options</source>
@@ -6954,20 +8312,60 @@ Voer de code hieronder in:</translation>
         <translation>Gebruiker 1:</translation>
     </message>
     <message>
+        <source>User 1</source>
+        <translation>Gebruiker 1</translation>
+    </message>
+    <message>
+        <source>Save User 1</source>
+        <translation>Gebruiker 1 opslaan</translation>
+    </message>
+    <message>
         <source>User 2:</source>
         <translation>Gebruiker 2:</translation>
+    </message>
+    <message>
+        <source>User 2</source>
+        <translation>Gebruiker 2</translation>
+    </message>
+    <message>
+        <source>Save User 2</source>
+        <translation>Gebruiker 2 opslaan</translation>
     </message>
     <message>
         <source>User 3:</source>
         <translation>Gebruiker 3:</translation>
     </message>
     <message>
+        <source>User 3</source>
+        <translation>Gebruiker 3</translation>
+    </message>
+    <message>
+        <source>Save User 3</source>
+        <translation>Gebruiker 3 opslaan</translation>
+    </message>
+    <message>
         <source>User 4:</source>
         <translation>Gebruiker 4:</translation>
     </message>
     <message>
+        <source>User 4</source>
+        <translation>Gebruiker 4</translation>
+    </message>
+    <message>
+        <source>Save User 4</source>
+        <translation>Gebruiker 4 opslaan</translation>
+    </message>
+    <message>
         <source>User 5:</source>
         <translation>Gebruiker 5:</translation>
+    </message>
+    <message>
+        <source>User 5</source>
+        <translation>Gebruiker 5</translation>
+    </message>
+    <message>
+        <source>Save User 5</source>
+        <translation>Gebruiker 5 opslaan</translation>
     </message>
     <message>
         <source>Bodytone Treadmill Options</source>
@@ -7066,6 +8464,14 @@ Voer de code hieronder in:</translation>
         <translation>IP van ProForm-roeitrainer:</translation>
     </message>
     <message>
+        <source>ProForm Rower IP</source>
+        <translation>IP van ProForm-roeitrainer</translation>
+    </message>
+    <message>
+        <source>Save ProForm Rower IP</source>
+        <translation>IP van ProForm-roeitrainer opslaan</translation>
+    </message>
+    <message>
         <source>Elliptical Options</source>
         <translation>Crosstraineropties</translation>
     </message>
@@ -7076,6 +8482,10 @@ Voer de code hieronder in:</translation>
     <message>
         <source>Speed Ratio:</source>
         <translation>Snelheidsverhouding:</translation>
+    </message>
+    <message>
+        <source>Save Domyos Elliptical Speed Ratio</source>
+        <translation>Snelheidsverhouding Domyos-crosstrainer opslaan</translation>
     </message>
     <message>
         <source>Inclination Supported</source>
@@ -7100,6 +8510,14 @@ Voer de code hieronder in:</translation>
     <message>
         <source>Companion IP:</source>
         <translation>IP van Companion:</translation>
+    </message>
+    <message>
+        <source>Companion IP</source>
+        <translation>IP van Companion</translation>
+    </message>
+    <message>
+        <source>Save Companion IP</source>
+        <translation>IP van Companion opslaan</translation>
     </message>
     <message>
         <source>Sole Elliptical Options</source>
@@ -7142,12 +8560,28 @@ Voer de code hieronder in:</translation>
         <translation>Vermogenscorrectie:</translation>
     </message>
     <message>
+        <source>Watt Offset</source>
+        <translation>Vermogenscorrectie</translation>
+    </message>
+    <message>
+        <source>Save Watt Offset</source>
+        <translation>Vermogenscorrectie opslaan</translation>
+    </message>
+    <message>
         <source>You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. The number you enter as an Offset adds that amount to your watts.</source>
         <translation>Je kunt het doorgegeven vermogen verhogen of verlagen, zodat je avatar in Zwift of vergelijkbare apps sneller of langzamer gaat; zo kalibreer je je apparaat. Het getal dat je als correctie invoert, wordt bij je vermogen opgeteld.</translation>
     </message>
     <message>
         <source>Watt Gain:</source>
         <translation>Vermogensfactor:</translation>
+    </message>
+    <message>
+        <source>Watt Gain</source>
+        <translation>Vermogensfactor</translation>
+    </message>
+    <message>
+        <source>Save Watt Gain</source>
+        <translation>Vermogensfactor opslaan</translation>
     </message>
     <message>
         <source>You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. For example, to use a rower to cycle in Zwift, you could double your watt output to better match your cycling speed by entering 2. The number you enter is a multiplier applied to your actual watts.</source>
@@ -7158,12 +8592,24 @@ Voer de code hieronder in:</translation>
         <translation>Snelheidscorrectie</translation>
     </message>
     <message>
+        <source>Save Speed Offset</source>
+        <translation>Snelheidscorrectie opslaan</translation>
+    </message>
+    <message>
         <source>You can increase/decrease your speed for moving your avatar faster/slower in Zwift if your equipment outputs speed but not watts. The number you enter as an Offset adds that amount to your speed.</source>
         <translation>Je kunt je snelheid verhogen of verlagen, zodat je avatar in Zwift sneller of langzamer gaat, als je apparaat wel snelheid maar geen vermogen doorgeeft. Het getal dat je als correctie invoert, wordt bij je snelheid opgeteld.</translation>
     </message>
     <message>
         <source>Speed Gain:</source>
         <translation>Snelheidsfactor:</translation>
+    </message>
+    <message>
+        <source>Speed Gain</source>
+        <translation>Snelheidsfactor</translation>
+    </message>
+    <message>
+        <source>Save Speed Gain</source>
+        <translation>Snelheidsfactor opslaan</translation>
     </message>
     <message>
         <source>You can increase/decrease your speed output for moving your avatar faster/slower in Zwift or other apps as a way of calibrating your equipment if your equipment outputs speed but not watts. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.</source>
@@ -7174,12 +8620,20 @@ Voer de code hieronder in:</translation>
         <translation>Cadanscorrectie</translation>
     </message>
     <message>
+        <source>Save Cadence Offset</source>
+        <translation>Cadanscorrectie opslaan</translation>
+    </message>
+    <message>
         <source>You can increase/decrease your cadence output. The number you enter as an Offset adds that amount to your cadence.</source>
         <translation>Je kunt de doorgegeven cadans verhogen of verlagen. Het getal dat je als correctie invoert, wordt bij je cadans opgeteld.</translation>
     </message>
     <message>
         <source>Cadence Gain:</source>
         <translation>Cadansfactor:</translation>
+    </message>
+    <message>
+        <source>Save Cadence Gain</source>
+        <translation>Cadansfactor opslaan</translation>
     </message>
     <message>
         <source>You can increase/decrease your cadence output as a way of calibrating your equipment if your equipment outputs cadence but not watts. The number you enter is a multiplier applied to your actual cadence.</source>
@@ -7194,8 +8648,24 @@ Voer de code hieronder in:</translation>
         <translation>Uploaden naar Strava:</translation>
     </message>
     <message>
+        <source>Strava Upload</source>
+        <translation>Uploaden naar Strava</translation>
+    </message>
+    <message>
+        <source>Save Strava Upload</source>
+        <translation>Keuze ‘Uploaden naar Strava’ opslaan</translation>
+    </message>
+    <message>
         <source>Suffix activity:</source>
         <translation>Achtervoegsel activiteit:</translation>
+    </message>
+    <message>
+        <source>Suffix activity</source>
+        <translation>Achtervoegsel activiteit</translation>
+    </message>
+    <message>
+        <source>Save Suffix activity</source>
+        <translation>Achtervoegsel activiteit opslaan</translation>
     </message>
     <message>
         <source>Default is “QZ.” Please leave this set to default so that other Strava users will see the QZ; a tiny bit of advertising that helps promote the app and support its development. If you choose to remove it, please consider contributing to the developer’s Patreon or Buy Me a Coffee accounts or just subscribe to the Swag bag in the left side bar to allow me to continue developing and supporting the app.</source>
@@ -7254,6 +8724,10 @@ Voer de code hieronder in:</translation>
         <translation>Middelingsmodus vermogen:</translation>
     </message>
     <message>
+        <source>Power Averaging Mode</source>
+        <translation>Middelingsmodus vermogen</translation>
+    </message>
+    <message>
         <source>If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. Uses harmonic averaging which smooths power spikes better than arithmetic averaging. If any reading is 0, power immediately becomes 0. Default is Off.
 
 IMPORTANT NOTES:
@@ -7290,12 +8764,28 @@ BELANGRIJK:
         <translation>Hellingscorrectie Zwift:</translation>
     </message>
     <message>
+        <source>Zwift Inclination Offset</source>
+        <translation>Hellingscorrectie Zwift</translation>
+    </message>
+    <message>
+        <source>Save Zwift Inclination Offset</source>
+        <translation>Hellingscorrectie Zwift opslaan</translation>
+    </message>
+    <message>
         <source>Inclination Offset and Gain are used to adjust the incline set by Zwift instead of, or in addition to, using the QZ Zwift Gain setting. For example, when Zwift changes the incline to 1%, you can have your treadmill change to 2%. The number you enter as an offset adds to the inclination sent from Zwift or any other 3rd party app. Default is 0.</source>
         <translation>Met hellingscorrectie en -factor pas je de helling aan die Zwift instelt, in plaats van of naast de QZ-instelling ‘Zwift-weerstandsfactor’. Als Zwift de helling bijvoorbeeld op 1% zet, kan je loopband naar 2% gaan. Het getal dat je als correctie invoert, wordt opgeteld bij de helling die Zwift of een andere app van derden stuurt. Standaard: 0.</translation>
     </message>
     <message>
         <source>Zwift Inclination Gain:</source>
         <translation>Hellingsfactor Zwift:</translation>
+    </message>
+    <message>
+        <source>Zwift Inclination Gain</source>
+        <translation>Hellingsfactor Zwift</translation>
+    </message>
+    <message>
+        <source>Save Zwift Inclination Gain</source>
+        <translation>Hellingsfactor Zwift opslaan</translation>
     </message>
     <message>
         <source>The number you enter as a Gain is a multiplier applied to the inclination sent from Zwift or any other 3rd party app. Default is 1.</source>
@@ -7306,12 +8796,28 @@ BELANGRIJK:
         <translation>Minimale helling:</translation>
     </message>
     <message>
+        <source>Minimum Inclination</source>
+        <translation>Minimale helling</translation>
+    </message>
+    <message>
+        <source>Save Minimum Inclination</source>
+        <translation>Minimale helling opslaan</translation>
+    </message>
+    <message>
         <source>If you don&apos;t want to go below a certain inclination value for bikes and treadmill set the min. value here. Default: -999.</source>
         <translation>Wil je op de fiets of de loopband niet onder een bepaalde helling komen, stel dan hier de minimumwaarde in. Standaard: -999.</translation>
     </message>
     <message>
         <source>Inclination Step:</source>
         <translation>Hellingsstap:</translation>
+    </message>
+    <message>
+        <source>Inclination Step</source>
+        <translation>Hellingsstap</translation>
+    </message>
+    <message>
+        <source>Save Inclination Step</source>
+        <translation>Hellingsstap opslaan</translation>
     </message>
     <message>
         <source>(Incline Tile) This controls the amount of the increase or decrease in the inclination when you press the plus or minus button in the Incline Tile for both treadmills and bikes. Default is 0.5.</source>
@@ -7354,8 +8860,24 @@ BELANGRIJK:
         <translation>Automatische ronde op afstand:</translation>
     </message>
     <message>
+        <source>AutoLap on Distance</source>
+        <translation>Automatische ronde op afstand</translation>
+    </message>
+    <message>
+        <source>Save AutoLap on Distance</source>
+        <translation>Automatische ronde op afstand opslaan</translation>
+    </message>
+    <message>
         <source>Inclination Delay:</source>
         <translation>Hellingsvertraging:</translation>
+    </message>
+    <message>
+        <source>Inclination Delay</source>
+        <translation>Hellingsvertraging</translation>
+    </message>
+    <message>
+        <source>Save Inclination Delay</source>
+        <translation>Hellingsvertraging opslaan</translation>
     </message>
     <message>
         <source>This slow down the inclination changes adding a delay between each change. This is not applied to all the model of treadmill/bike. Default is 0.</source>
@@ -7414,16 +8936,48 @@ BELANGRIJK:
         <translation>Weerstandsniveau 1:</translation>
     </message>
     <message>
+        <source>Resistance Level 1</source>
+        <translation>Weerstandsniveau 1</translation>
+    </message>
+    <message>
+        <source>Save Resistance Level 1</source>
+        <translation>Weerstandsniveau 1 opslaan</translation>
+    </message>
+    <message>
         <source>Watt 1:</source>
         <translation>Vermogen 1:</translation>
+    </message>
+    <message>
+        <source>Watt 1</source>
+        <translation>Vermogen 1</translation>
+    </message>
+    <message>
+        <source>Save Watt 1</source>
+        <translation>Vermogen 1 opslaan</translation>
     </message>
     <message>
         <source>Resistance Level 2:</source>
         <translation>Weerstandsniveau 2:</translation>
     </message>
     <message>
+        <source>Resistance Level 2</source>
+        <translation>Weerstandsniveau 2</translation>
+    </message>
+    <message>
+        <source>Save Resistance Level 2</source>
+        <translation>Weerstandsniveau 2 opslaan</translation>
+    </message>
+    <message>
         <source>Watt 2:</source>
         <translation>Vermogen 2:</translation>
+    </message>
+    <message>
+        <source>Watt 2</source>
+        <translation>Vermogen 2</translation>
+    </message>
+    <message>
+        <source>Save Watt 2</source>
+        <translation>Vermogen 2 opslaan</translation>
     </message>
     <message>
         <source>QZ will build a linear equation from the two resistance/watt points and clamp the effective resistance using the existing Min. Resistance and Max. Resistance settings.</source>
@@ -7550,6 +9104,14 @@ Standaard: A = -0.96, B = 1.33</translation>
         <translation>Moeilijkheid/factor:</translation>
     </message>
     <message>
+        <source>Difficulty/Gain</source>
+        <translation>Moeilijkheid/factor</translation>
+    </message>
+    <message>
+        <source>Save Difficulty/Gain</source>
+        <translation>Moeilijkheid/factor opslaan</translation>
+    </message>
+    <message>
         <source>Elite Sterzo Smart Options</source>
         <translation>Elite Sterzo Smart-opties</translation>
     </message>
@@ -7570,12 +9132,24 @@ Standaard: A = -0.96, B = 1.33</translation>
         <translation>Schakelstap</translation>
     </message>
     <message>
+        <source>Save Shift Step</source>
+        <translation>Schakelstap opslaan</translation>
+    </message>
+    <message>
         <source>Max Resistance</source>
         <translation>Max. weerstand</translation>
     </message>
     <message>
+        <source>Save Max Resistance</source>
+        <translation>Max. weerstand opslaan</translation>
+    </message>
+    <message>
         <source>Min Resistance</source>
         <translation>Min. weerstand</translation>
+    </message>
+    <message>
+        <source>Save Min Resistance</source>
+        <translation>Min. weerstand opslaan</translation>
     </message>
     <message>
         <source>Advanced SmartSpin2k Calibration</source>
@@ -7586,32 +9160,64 @@ Standaard: A = -0.96, B = 1.33</translation>
         <translation>Weerstand, meting 1</translation>
     </message>
     <message>
+        <source>Save Resistance Sample 1</source>
+        <translation>Weerstand, meting 1 opslaan</translation>
+    </message>
+    <message>
         <source>Shift Step Sample 1</source>
         <translation>Schakelstap, meting 1</translation>
+    </message>
+    <message>
+        <source>Save Shift Step Sample 1</source>
+        <translation>Schakelstap, meting 1 opslaan</translation>
     </message>
     <message>
         <source>Resistance Sample 2</source>
         <translation>Weerstand, meting 2</translation>
     </message>
     <message>
+        <source>Save Resistance Sample 2</source>
+        <translation>Weerstand, meting 2 opslaan</translation>
+    </message>
+    <message>
         <source>Shift Step Sample 2</source>
         <translation>Schakelstap, meting 2</translation>
+    </message>
+    <message>
+        <source>Save Shift Step Sample 2</source>
+        <translation>Schakelstap, meting 2 opslaan</translation>
     </message>
     <message>
         <source>Resistance Sample 3</source>
         <translation>Weerstand, meting 3</translation>
     </message>
     <message>
+        <source>Save Resistance Sample 3</source>
+        <translation>Weerstand, meting 3 opslaan</translation>
+    </message>
+    <message>
         <source>Shift Step Sample 3</source>
         <translation>Schakelstap, meting 3</translation>
+    </message>
+    <message>
+        <source>Save Shift Step Sample 3</source>
+        <translation>Schakelstap, meting 3 opslaan</translation>
     </message>
     <message>
         <source>Resistance Sample 4</source>
         <translation>Weerstand, meting 4</translation>
     </message>
     <message>
+        <source>Save Resistance Sample 4</source>
+        <translation>Weerstand, meting 4 opslaan</translation>
+    </message>
+    <message>
         <source>Shift Step Sample 4</source>
         <translation>Schakelstap, meting 4</translation>
+    </message>
+    <message>
+        <source>Save Shift Step Sample 4</source>
+        <translation>Schakelstap, meting 4 opslaan</translation>
     </message>
     <message>
         <source>Fitmetria Fitfan™ Options</source>
@@ -7626,12 +9232,36 @@ Standaard: A = -0.96, B = 1.33</translation>
         <translation>Modus:</translation>
     </message>
     <message>
+        <source>Mode</source>
+        <translation>Modus</translation>
+    </message>
+    <message>
+        <source>Save Mode</source>
+        <translation>Modus opslaan</translation>
+    </message>
+    <message>
         <source>Min. value (0-100):</source>
         <translation>Min. waarde (0-100):</translation>
     </message>
     <message>
+        <source>Min. value (0-100)</source>
+        <translation>Min. waarde (0-100)</translation>
+    </message>
+    <message>
+        <source>Save Min. value (0-100)</source>
+        <translation>Min. waarde (0-100) opslaan</translation>
+    </message>
+    <message>
         <source>Max value (0-100):</source>
         <translation>Max. waarde (0-100):</translation>
+    </message>
+    <message>
+        <source>Max value (0-100)</source>
+        <translation>Max. waarde (0-100)</translation>
+    </message>
+    <message>
+        <source>Save Max value (0-100)</source>
+        <translation>Max. waarde (0-100) opslaan</translation>
     </message>
     <message>
         <source>Wahoo Kickr HeadWind Options</source>
@@ -7728,6 +9358,14 @@ Standaard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Maps Type:</source>
         <translation>Kaarttype:</translation>
+    </message>
+    <message>
+        <source>Maps Type</source>
+        <translation>Kaarttype</translation>
+    </message>
+    <message>
+        <source>Save Maps Type</source>
+        <translation>Kaarttype opslaan</translation>
     </message>
     <message>
         <source>Loop Start-End-Start</source>
@@ -7858,12 +9496,36 @@ Standaard: A = -0.96, B = 1.33</translation>
         <translation>ID:</translation>
     </message>
     <message>
+        <source>Wahoo device ID</source>
+        <translation>Wahoo-apparaat-ID</translation>
+    </message>
+    <message>
+        <source>Virtual Wahoo device ID. Change if you have multiple QZ instances. Default: 0</source>
+        <translation>Virtuele Wahoo-apparaat-ID. Wijzig deze als je meerdere QZ-instanties gebruikt. Standaard: 0</translation>
+    </message>
+    <message>
+        <source>Save Wahoo device ID</source>
+        <translation>Wahoo-apparaat-ID opslaan</translation>
+    </message>
+    <message>
         <source>If you have multiple QZ instances, you can change the id of the virtual wahoo device. Default: 0</source>
         <translation>Als je meerdere exemplaren van QZ gebruikt, kun je de ID van het virtuele Wahoo-apparaat wijzigen. Standaard: 0</translation>
     </message>
     <message>
         <source>Server Port:</source>
         <translation>Serverpoort:</translation>
+    </message>
+    <message>
+        <source>Wahoo direct connect server port</source>
+        <translation>Serverpoort voor Wahoo Direct Connect</translation>
+    </message>
+    <message>
+        <source>TCP port for the Wahoo direct connect server. Default: 36866</source>
+        <translation>TCP-poort van de Wahoo Direct Connect-server. Standaard: 36866</translation>
+    </message>
+    <message>
+        <source>Save server port</source>
+        <translation>Serverpoort opslaan</translation>
     </message>
     <message>
         <source>MQTT Settings</source>
@@ -7874,12 +9536,28 @@ Standaard: A = -0.96, B = 1.33</translation>
         <translation>MQTT-host:</translation>
     </message>
     <message>
+        <source>MQTT Host</source>
+        <translation>MQTT-host</translation>
+    </message>
+    <message>
+        <source>Save MQTT Host</source>
+        <translation>MQTT-host opslaan</translation>
+    </message>
+    <message>
         <source>Enter the MQTT broker hostname or IP address</source>
         <translation>Voer de hostnaam of het IP-adres van de MQTT-broker in</translation>
     </message>
     <message>
         <source>MQTT Port:</source>
         <translation>MQTT-poort:</translation>
+    </message>
+    <message>
+        <source>MQTT Port</source>
+        <translation>MQTT-poort</translation>
+    </message>
+    <message>
+        <source>Save MQTT Port</source>
+        <translation>MQTT-poort opslaan</translation>
     </message>
     <message>
         <source>Enter the MQTT broker port (default: 1883)</source>
@@ -7898,6 +9576,14 @@ Standaard: A = -0.96, B = 1.33</translation>
         <translation>Apparaat-ID:</translation>
     </message>
     <message>
+        <source>Device ID</source>
+        <translation>Apparaat-ID</translation>
+    </message>
+    <message>
+        <source>Save Device ID</source>
+        <translation>Apparaat-ID opslaan</translation>
+    </message>
+    <message>
         <source>Enter a unique device identifier for MQTT client</source>
         <translation>Voer een unieke apparaat-ID in voor de MQTT-client</translation>
     </message>
@@ -7910,8 +9596,24 @@ Standaard: A = -0.96, B = 1.33</translation>
         <translation>OSC-IP:</translation>
     </message>
     <message>
+        <source>OSC IP</source>
+        <translation>OSC-IP</translation>
+    </message>
+    <message>
+        <source>Save OSC IP</source>
+        <translation>OSC-IP opslaan</translation>
+    </message>
+    <message>
         <source>OSC Port:</source>
         <translation>OSC-poort:</translation>
+    </message>
+    <message>
+        <source>OSC Port</source>
+        <translation>OSC-poort</translation>
+    </message>
+    <message>
+        <source>Save OSC Port</source>
+        <translation>OSC-poort opslaan</translation>
     </message>
     <message>
         <source>Race Mode</source>
@@ -9692,12 +11394,24 @@ Standaard: A = -0.96, B = 1.33</translation>
         <translation>Samenvatting elke (seconden):</translation>
     </message>
     <message>
+        <source>Announcement interval in seconds</source>
+        <translation>Voorleesinterval in seconden</translation>
+    </message>
+    <message>
+        <source>How often workout metrics are read aloud. Default: 120 seconds</source>
+        <translation>Hoe vaak de trainingsgegevens worden voorgelezen. Standaard: 120 seconden</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
         <source>Setting saved!</source>
         <translation>Instelling opgeslagen!</translation>
+    </message>
+    <message>
+        <source>Save announcement interval</source>
+        <translation>Voorleesinterval opslaan</translation>
     </message>
     <message>
         <source>TTS Description Enabled</source>
