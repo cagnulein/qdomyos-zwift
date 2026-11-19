@@ -4016,8 +4016,50 @@ void bluetooth::connectedAndDiscovered() {
     }
 
     if(settings.value(QZSettings::zwift_click, QZSettings::default_zwift_click).toBool() &&
-            this->device() && this->device()->deviceType() == BIKE) {
+            this->device() && (this->device()->deviceType() == BIKE || this->device()->deviceType() == TREADMILL)) {
+        const bool treadmillClick = this->device()->deviceType() == TREADMILL;
         bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
+
+        // Preserve bicycle gearing; only Zwift Click on a treadmill controls speed
+        // (and, for Click v2, incline using the direction pad).
+        const auto connectClickButtons = [this, treadmillClick](ZwiftPlayDevice *controller, bool clickV2) {
+            if (!treadmillClick) {
+                connect(controller, &ZwiftPlayDevice::plus, this, &bluetooth::controllerGearUpWithMyWhoosh);
+                connect(controller, &ZwiftPlayDevice::minus, this, &bluetooth::controllerGearDownWithMyWhoosh);
+                return;
+            }
+
+            // Avoid automatic repeats of a held speed button on a moving belt.
+            controller->setAutoRepeatEnabled(false);
+            connect(controller, &ZwiftPlayDevice::plus, this, [this]() {
+                if (this->device() && this->device()->deviceType() == TREADMILL) {
+                    if (auto *form = homeform::singleton())
+                        form->speedPlus();
+                }
+            });
+            connect(controller, &ZwiftPlayDevice::minus, this, [this]() {
+                if (this->device() && this->device()->deviceType() == TREADMILL) {
+                    if (auto *form = homeform::singleton())
+                        form->speedMinus();
+                }
+            });
+
+            if (clickV2) {
+                // Press only; release notifications must not change the incline.
+                connect(controller, &AbstractZapDevice::leftUp, this, [this](bool pressed) {
+                    if (pressed && this->device() && this->device()->deviceType() == TREADMILL) {
+                        if (auto *form = homeform::singleton())
+                            form->inclinationPlus();
+                    }
+                });
+                connect(controller, &AbstractZapDevice::leftDown, this, [this](bool pressed) {
+                    if (pressed && this->device() && this->device()->deviceType() == TREADMILL) {
+                        if (auto *form = homeform::singleton())
+                            form->inclinationMinus();
+                    }
+                });
+            }
+        };
 
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
             if (!b.name().toUpper().startsWith("ZWIFT CLICK"))
@@ -4037,10 +4079,7 @@ void bluetooth::connectedAndDiscovered() {
                 if (!zwiftClickRemote) {
                     zwiftClickRemote = new zwiftclickremote(this->device(), AbstractZapDevice::ZWIFT_PLAY_TYPE::NONE);
                     connect(zwiftClickRemote, &zwiftclickremote::debug, this, &bluetooth::debug);
-                    connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::plus, this,
-                            &bluetooth::controllerGearUpWithMyWhoosh);
-                    connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::minus, this,
-                            &bluetooth::controllerGearDownWithMyWhoosh);
+                    connectClickButtons(zwiftClickRemote->playDevice, false);
                     zwiftClickRemote->deviceDiscovered(b);
                     if(homeform::singleton())
                         homeform::singleton()->setToastRequested(QObject::tr("Zwift Click Connected!"));
@@ -4080,11 +4119,8 @@ void bluetooth::connectedAndDiscovered() {
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightPower, this, &bluetooth::zwiftRideRightPower);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightPowerUp, this, &bluetooth::zwiftRideRightPowerUp);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightOnOff, this, &bluetooth::zwiftRideRightOnOff);
-                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, this,
-                        &bluetooth::controllerGearUpWithMyWhoosh);
-                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::minus, this,
-                        &bluetooth::controllerGearDownWithMyWhoosh);
-                if (MyWhooshLink::instance() && MyWhooshLink::instance()->isEnabled()) {
+                connectClickButtons(zwiftPlayDevice.last()->playDevice, true);
+                if (!treadmillClick && MyWhooshLink::instance() && MyWhooshLink::instance()->isEnabled()) {
                     auto *myWhoosh = MyWhooshLink::instance();
                     connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftUp, myWhoosh, &MyWhooshLink::handleLeftUp);
                     connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftDown, myWhoosh, &MyWhooshLink::handleLeftDown);
@@ -4104,13 +4140,15 @@ void bluetooth::connectedAndDiscovered() {
                     connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPaddle, myWhoosh, &MyWhooshLink::handleRightPaddle);
                     connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightPower, myWhoosh, &MyWhooshLink::handleRightPower);
                 }
-                if((zwiftPlayDevice.last()->typeZap == AbstractZapDevice::LEFT && !zwiftplay_swap) ||
-                   (zwiftPlayDevice.last()->typeZap == AbstractZapDevice::RIGHT && zwiftplay_swap)) {
-                    connect((bike*)this->device(), &bike::gearOkUp, this, &bluetooth::gearUp);
-                    connect((bike*)this->device(), &bike::gearFailedUp, this, &bluetooth::gearFailedUp);
-                } else {
-                    connect((bike*)this->device(), &bike::gearOkDown, this, &bluetooth::gearDown);
-                    connect((bike*)this->device(), &bike::gearFailedDown, this, &bluetooth::gearFailedDown);
+                if (!treadmillClick) {
+                    if((zwiftPlayDevice.last()->typeZap == AbstractZapDevice::LEFT && !zwiftplay_swap) ||
+                       (zwiftPlayDevice.last()->typeZap == AbstractZapDevice::RIGHT && zwiftplay_swap)) {
+                        connect((bike*)this->device(), &bike::gearOkUp, this, &bluetooth::gearUp);
+                        connect((bike*)this->device(), &bike::gearFailedUp, this, &bluetooth::gearFailedUp);
+                    } else {
+                        connect((bike*)this->device(), &bike::gearOkDown, this, &bluetooth::gearDown);
+                        connect((bike*)this->device(), &bike::gearFailedDown, this, &bluetooth::gearFailedDown);
+                    }
                 }
                 zwiftPlayDevice.last()->deviceDiscovered(b);
                 if(homeform::singleton())
