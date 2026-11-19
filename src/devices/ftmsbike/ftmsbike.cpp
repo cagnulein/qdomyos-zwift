@@ -612,6 +612,16 @@ void ftmsbike::update() {
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
+        if (TC_BIKE) {
+            const QDateTime now = QDateTime::currentDateTime();
+            const qint64 powerAge = m_rawWatt.lastChanged().msecsTo(now);
+            const qint64 resistanceAge = Resistance.valueChanged().msecsTo(now);
+            _ergTable.setCollectingEnabled(
+                tcPowerSampleValid && powerAge >= 0 && powerAge <= 2000 &&
+                !paused && Cadence.value() > 0 && m_watt.value() > 0 &&
+                Resistance.value() >= 1 && Resistance.value() <= max_resistance &&
+                resistanceAge >= 3000);
+        }
         update_metrics(false, watts());
 
         // updating the treadmill console every second
@@ -2375,6 +2385,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("TC-prefix FTMS bike found - using acknowledged resistance for software ERG");
             TC_BIKE = true;
             tcPowerSampleValid = false;
+            _ergTable.setCollectingEnabled(false);
             tcFtmsOverlay = TcFtmsOverlay();
             resistance_lvl_mode = true;
             ergModeSupported = false;
