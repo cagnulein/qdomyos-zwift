@@ -55,7 +55,16 @@ public class AccessibilityTest {
         Object connection = Class.forName("android.app.UiAutomationConnection").getConstructor().newInstance();
         Constructor<UiAutomation> constructor = UiAutomation.class.getConstructor(Looper.class, connectionInterface);
         automation = constructor.newInstance(thread.getLooper(), connection);
-        UiAutomation.class.getMethod("connect").invoke(automation);
+        // A real TalkBack probe must keep the accessibility service running
+        // while UiAutomation reads its focus. Default connect() suppresses it.
+        boolean keepServices = args.length > 0 && "--keep-services".equals(args[0]);
+        if (keepServices) {
+            args = Arrays.copyOfRange(args, 1, args.length);
+            UiAutomation.class.getMethod("connect", int.class).invoke(automation,
+                    UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES);
+        } else {
+            UiAutomation.class.getMethod("connect").invoke(automation);
+        }
         try {
             run(args);
         } finally {

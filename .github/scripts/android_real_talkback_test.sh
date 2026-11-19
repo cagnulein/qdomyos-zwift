@@ -23,8 +23,33 @@ foreground() {
     focus=$(adb shell dumpsys window | grep -m1 mCurrentFocus || true)
     case "$focus" in *"$PKG"*) return 0;; *) fail "QZ lost foreground to: $focus";; esac
 }
+# Health Connect can show a permissions activity on first QZ startup (API 35+).
+# Dismiss ONLY that known onboarding activity. Once QZ has focus, never
+# auto-dismiss external apps: an unexpected Chrome launch is a test failure.
+recover_startup_window() {
+    i=0
+    while [ "$i" -lt 5 ]; do
+        focus=$(adb shell dumpsys window | grep -m1 mCurrentFocus || true)
+        case "$focus" in
+            *"$PKG"*) note "PASS QZ foreground after startup"; return 0 ;;
+            *com.google.android.healthconnect.controller/*PermissionsActivity*|*com.android.healthconnect.controller/*PermissionsActivity*)
+                note "INFO closing first-run Health Connect permission screen ($((i + 1))/5): $focus"
+                adb shell input keyevent KEYCODE_BACK
+                ;;
+            *"=null"*)
+                note "INFO waiting for startup window ($((i + 1))/5)"
+                ;;
+            *) fail "Unexpected window on QZ startup (not dismissed): $focus" ;;
+        esac
+        sleep 4
+        i=$((i + 1))
+    done
+    fail "QZ did not regain foreground after startup: $focus"
+}
 peek() {
-    adb shell "CLASSPATH=/data/local/tmp/a11y-test.jar app_process / AccessibilityTest $*" 2>&1 | tr -d '\r'
+    # This flag is essential. Default UiAutomation.connect() temporarily
+    # suppresses real accessibility services, creating false TalkBack tests.
+    adb shell "CLASSPATH=/data/local/tmp/a11y-test.jar app_process / AccessibilityTest --keep-services $*" 2>&1 | tr -d '\r'
 }
 focus_name() {
     # The helper is strictly read-only; the preceding swipe must move the focus.
@@ -73,7 +98,7 @@ adb shell "run-as $PKG mkdir -p 'files/.config/Roberto Viola'"
 adb shell "run-as $PKG cp /data/local/tmp/qz-talkback.conf 'files/.config/Roberto Viola/qDomyos-Zwift.conf'"
 adb shell monkey -p "$PKG" -c android.intent.category.LAUNCHER 1 >/dev/null
 sleep 25
-foreground
+recover_startup_window
 adb push a11y-test.jar /data/local/tmp/a11y-test.jar >/dev/null
 
 # Prove TalkBack is changing accessibility focus when finger swipes are injected.
