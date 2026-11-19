@@ -71,7 +71,10 @@ class MobileControlHapticsTests(unittest.TestCase):
         self.assertIn('press.startsWith("focus:")', java)
         self.assertIn("assert_qz_foreground", script)
         self.assertIn("assert_haptics 0", script)
-        self.assertIn("assert_haptics 6", script)
+        self.assertIn("run_a11y Start=Pause", script)
+        self.assertIn("run_a11y Lap", script)
+        self.assertIn("configure treadmill true modern", script)
+        self.assertIn("assert_haptics 7", script)
 
 
 if __name__ == "__main__":

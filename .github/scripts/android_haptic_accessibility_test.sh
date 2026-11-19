@@ -110,9 +110,28 @@ run_a11y Increase_Inclination
 assert_haptics 3
 run_a11y Decrease_Inclination
 assert_haptics 4
-run_a11y Start
+# Start must become Pause, not accidentally Start again (double activation).
+run_a11y Start=Pause
 assert_haptics 5
-run_a11y Stop
+run_a11y Lap
 assert_haptics 6
+run_a11y Stop
+assert_haptics 7
+
+# Also exercise actual treadmill controls and workout buttons in the modern look.
+configure treadmill true modern
+run_a11y see:Increase_Speed see:Increase_Inclination
+run_a11y focus:Increase_Speed
+assert_haptics 0
+run_a11y Increase_Speed
+assert_haptics 1
+run_a11y Increase_Inclination
+assert_haptics 2
+run_a11y Start=Pause
+assert_haptics 3
+run_a11y Lap
+assert_haptics 4
+run_a11y Stop
+assert_haptics 5
 
 say "PASS mobile haptic accessibility (Android API $(adb shell getprop ro.build.version.sdk | tr -d '\r'))"
