@@ -189,7 +189,7 @@ public class CustomQtActivity extends QtActivity {
 
     // A screen reader (TalkBack) is on: it turns touch exploration on. isEnabled() is true with any
     // accessibility service (a password manager, a launcher, a screen time app), which moves no focus
-    // and reads nothing
+    // and says nothing
     private boolean screenReaderOn() {
         AccessibilityManager manager = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
         return manager != null && manager.isEnabled() && manager.isTouchExplorationEnabled();
