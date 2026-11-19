@@ -8,6 +8,25 @@ Run it from **Actions → Release iOS to TestFlight → Run workflow** on `maste
 
 To **check the signed archive without uploading**, add the `ios-archive-check` label to a same-repository pull request. This runs the complete signed device archive/export and bundled-target verification, and retains the IPA as an Actions artifact. Once the archive is validated, add the `testflight-upload` label to build and upload a TestFlight beta. Both labels apply only to same-repository pull requests targeting `master`; fork pull requests cannot use App Store Connect secrets. Other pull request updates do not upload automatically.
 
+## April 2027 iOS requirements
+
+The TestFlight release workflow uses the GitHub-hosted `xcode-27` Apple silicon
+runner and selects a stable Xcode 27 release. Before signing, it fails if the
+selected Xcode or the installed iPhoneOS SDK is not version 27.x.
+
+QZ's iOS app deployment target is **iOS 15.0**, aligned in the qmake
+configuration, the committed Xcode project (Debug and Release), the Xcode Cloud
+pre-build script, and the patched Qt iOS QPA build helper. The iOS widget keeps
+its own iOS 26.0 deployment target; watchOS targets are unchanged.
+
+`tools/check_ios_release_requirements.py` enforces these release settings
+in regular pull-request CI and again in the TestFlight workflow. This static
+regression check does **not** prove runtime compatibility: use
+`ios-archive-check` first to build and validate a signed archive, then
+verify iOS 15 installation and the Apple Watch/widget pairing paths before
+publishing a TestFlight build. The standard `testflight-upload` label still
+uploads automatically; do not apply it just to validate this migration.
+
 ## GitHub Actions secrets
 
 The workflow uses these App Store Connect API key secrets:

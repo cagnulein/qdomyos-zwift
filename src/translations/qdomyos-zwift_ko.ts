@@ -7234,6 +7234,14 @@ Please enter it below:</source>
         <translation>Strava 가상 활동 태그</translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Strava 합성 GPS 경로</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>GPS가 없는 가상 활동에 합성 GPS 경로를 기록합니다. Strava에 누적 상승고도가 표시될 수 있지만 실제 경로는 아닙니다.</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation>Strava 활동에 가상 태그 추가</translation>
     </message>

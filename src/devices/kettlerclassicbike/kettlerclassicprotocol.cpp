@@ -2,6 +2,8 @@
 
 #include <QCryptographicHash>
 
+#include <cmath>
+
 namespace kettlerclassicprotocol {
 namespace {
 constexpr quint8 STX = 0x02;
@@ -132,6 +134,27 @@ quint16 CoachSStrokePowerSmoother::addSample(quint16 strokeCounter,
         lastCompletedStrokeMs = nowMs;
     }
     return value(nowMs);
+}
+
+void CoachSPowerBasedPace::reset(double initialMeters) {
+    sessionMeters = qMax(0.0, initialMeters);
+    strokeSpeedKmh = 0.0;
+}
+
+void CoachSPowerBasedPace::completedStroke(quint16 consoleWatts, qint64 elapsedMs,
+                                          bool previousStrokeActive) {
+    // QZ and virtual PM5 use km/h. Concept2 rowing power is W = 2.8 * v^3,
+    // with v in m/s; unlike physical flywheel distance it is independent of
+    // the Coach S resistance level.
+    const double speedMetersPerSecond = consoleWatts > 0
+        ? std::cbrt(static_cast<double>(consoleWatts) / 2.8) : 0.0;
+    strokeSpeedKmh = qMin(30.0, speedMetersPerSecond * 3.6);
+
+    // No completed stroke => caller never invokes us. Only credit a stroke
+    // interval with an active preceding stroke: no reconnect/nudge/idle
+    // distance and no large jump after the adaptive inactivity timeout.
+    if (previousStrokeActive && elapsedMs >= 300 && elapsedMs <= 6500)
+        sessionMeters += (strokeSpeedKmh / 3.6) * (elapsedMs / 1000.0);
 }
 
 void CoachSSessionCounters::reset() {

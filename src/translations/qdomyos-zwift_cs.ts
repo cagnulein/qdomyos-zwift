@@ -7234,6 +7234,14 @@ Zadejte ho níže:</translation>
         <translation>Štítek virtuální aktivity Strava</translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Syntetická GPS trasa pro Stravu</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Přidá syntetickou GPS trasu k virtuálním aktivitám bez GPS. Strava pak může zobrazit nastoupané metry, ale trasa není skutečná.</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation>Přidat k aktivitě Strava štítek virtuální aktivity</translation>
     </message>

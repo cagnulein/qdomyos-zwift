@@ -7234,6 +7234,14 @@ Voer de code hieronder in:</translation>
         <translation>Strava-label virtuele activiteit</translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Synthetisch GPS-traject voor Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Voegt een synthetisch GPS-traject toe aan virtuele activiteiten zonder GPS. Strava kan dan hoogtemeters tonen, maar de route is niet echt.</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation>Voegt het label voor virtuele activiteit toe aan de Strava-activiteit</translation>
     </message>

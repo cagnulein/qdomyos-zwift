@@ -7186,6 +7186,14 @@ Please enter it below:</source>
         <translation>Strava-címke virtuális tevékenységhez</translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Szintetikus GPS-útvonal Stravához</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Szintetikus GPS-nyomvonalat ad a GPS nélküli virtuális tevékenységekhez. A Strava így megjelenítheti a szintemelkedést, de az útvonal nem valós.</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation>Hozzáadja a virtuális címkét a Strava-tevékenységhez.</translation>
     </message>
