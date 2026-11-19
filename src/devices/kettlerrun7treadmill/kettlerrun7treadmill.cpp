@@ -5,6 +5,8 @@
 #include <QDebug>
 #include <QSettings>
 #include "qzsettings.h"
+#include "virtualdevices/virtualbike.h"
+#include "virtualdevices/virtualtreadmill.h"
 
 namespace {
 // RUN 71 advertises a BLE GATT serial service at UUID 0x1101, with
@@ -32,7 +34,8 @@ constexpr int HandshakeRetryBaseDelayMs = 350;
 constexpr int MaxHandshakeAttempts = 3; // One initial attempt and two same-GATT-link retries.
 }
 
-kettlerrun7treadmill::kettlerrun7treadmill() {
+kettlerrun7treadmill::kettlerrun7treadmill(bool noHeartService)
+    : noHeartService(noHeartService) {
     m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     requestTimer.setSingleShot(true);
@@ -301,6 +304,32 @@ void kettlerrun7treadmill::handleFrame(const kettlerclassicprotocol::Frame &fram
         }
         ready = true;
         emit debug(QStringLiteral("Kettler RUN 7 BLE IRMP ready (read only)"));
+        // Match the other QZ treadmill drivers: advertise to Zwift only after
+        // the physical RUN 71 handshake succeeds. No motor commands are sent.
+        if (!hasVirtualDevice()) {
+            QSettings settings;
+            const bool virtualEnabled =
+                settings.value(QZSettings::virtual_device_enabled,
+                               QZSettings::default_virtual_device_enabled).toBool();
+            const bool forceBike =
+                settings.value(QZSettings::virtual_device_force_bike,
+                               QZSettings::default_virtual_device_force_bike).toBool();
+            if (virtualEnabled) {
+                if (!forceBike) {
+                    emit debug(QStringLiteral("Kettler RUN 7: creating virtual FTMS treadmill for Zwift"));
+                    auto *virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                    connect(virtualTreadmill, &virtualtreadmill::debug,
+                            this, &kettlerrun7treadmill::debug);
+                    setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
+                } else {
+                    emit debug(QStringLiteral("Kettler RUN 7: creating forced virtual bike"));
+                    auto *virtualBike = new virtualbike(this);
+                    setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
+                }
+            } else {
+                emit debug(QStringLiteral("Kettler RUN 7: virtual device disabled in QZ settings"));
+            }
+        }
         emit connectedAndDiscovered();
         enqueueRead(DeviceName);
         refresh.start();
