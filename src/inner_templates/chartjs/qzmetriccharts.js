@@ -47,6 +47,9 @@
         + '.qzmc-list{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}'
         + '.qzmc-box{position:relative;flex:1 1 0;min-height:' + BOX_MIN + 'px}'
         + '.qzmc-box+.qzmc-box{margin-top:' + BOX_GAP + 'px}'
+        // a single chart (one metric, or all of them shared) takes the view however low it is,
+        // as the one chart did before (a phone held sideways leaves less than 140px)
+        + '.qzmc-single .qzmc-box{min-height:0}'
         + '.qzmc-box canvas{width:100%!important;height:100%!important}';
 
     function injectStyle() {
