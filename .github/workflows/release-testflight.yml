@@ -76,7 +76,10 @@ jobs:
           ruby-version: '3.3'
 
       - name: Install Fastlane
-        run: gem install fastlane --version 2.230.0 --no-document
+        run: # Fastlane >= 2.240.0 fixes altool reporting an upload failure after
+          # Apple's output already says 'UPLOAD SUCCEEDED with no errors'.
+          # See fastlane/fastlane#30196.
+          gem install fastlane --version 2.241.2 --no-document
 
       - name: Prepare App Store Connect API key
         env:
