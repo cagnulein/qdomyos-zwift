@@ -37,10 +37,17 @@
 
 #include "hostname_p.h"
 #include "qzsettings.h"
+#ifdef Q_OS_ANDROID
+#include "localipaddress.h"
+#endif
 
 using namespace QMdnsEngine;
 
 namespace {
+
+#ifdef Q_OS_ANDROID
+QList<QHostAddress> androidIPv4Addresses();
+#endif
 
 // True if the address is one this machine actually holds. Used to recognise our
 // own A/AAAA records coming back at us so they are not mistaken for a competing
@@ -55,8 +62,31 @@ bool isOwnAddress(const QHostAddress &address) {
             return true;
         }
     }
+#ifdef Q_OS_ANDROID
+    if (address.protocol() == QAbstractSocket::IPv4Protocol) {
+        for (const QHostAddress &local : androidIPv4Addresses()) {
+            if (local == address)
+                return true;
+        }
+    }
+#endif
     return false;
 }
+
+#ifdef Q_OS_ANDROID
+QList<QHostAddress> androidIPv4Addresses() {
+    QList<QHostAddress> result;
+    for (const QHostAddress &address : localipaddress::allIPv4()) {
+        if (address.protocol() != QAbstractSocket::IPv4Protocol || address.isNull() ||
+            address.isLoopback() || address.isLinkLocal() || address.isMulticast() ||
+            address.toIPv4Address() == 0 || address.toIPv4Address() == 0xffffffff ||
+            result.contains(address))
+            continue;
+        result.append(address);
+    }
+    return result;
+}
+#endif
 
 } // namespace
 
@@ -142,9 +172,17 @@ bool HostnamePrivate::generateRecord(const QHostAddress &srcAddress, quint16 typ
     // address and determine this device's address from the interface
 
     const auto interfaces = QNetworkInterface::allInterfaces();
+#ifdef Q_OS_ANDROID
+    bool qtHasIPv4 = false;
+#endif
     for (const QNetworkInterface &networkInterface : interfaces) {
         const auto entries = networkInterface.addressEntries();
         for (const QNetworkAddressEntry &entry : entries) {
+#ifdef Q_OS_ANDROID
+            if (entry.ip().protocol() == QAbstractSocket::IPv4Protocol &&
+                !entry.ip().isNull() && !entry.ip().isLoopback() && !entry.ip().isLinkLocal())
+                qtHasIPv4 = true;
+#endif
             if (srcAddress.isInSubnet(entry.ip(), entry.prefixLength())) {
                 for (const QNetworkAddressEntry &newEntry : entries) {
                     QHostAddress address = newEntry.ip();
@@ -159,6 +197,17 @@ bool HostnamePrivate::generateRecord(const QHostAddress &srcAddress, quint16 typ
             }
         }
     }
+#ifdef Q_OS_ANDROID
+    if (type == A && !qtHasIPv4) {
+        const auto addresses = androidIPv4Addresses(); // Java returns Wi-Fi before other interfaces.
+        if (!addresses.isEmpty()) {
+            record.setName(hostname);
+            record.setType(A);
+            record.setAddress(addresses.first());
+            return true;
+        }
+    }
+#endif
     return false;
 }
 

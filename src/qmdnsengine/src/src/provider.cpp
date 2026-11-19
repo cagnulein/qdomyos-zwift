@@ -37,6 +37,30 @@
 #include "provider_p.h"
 #include "localipaddress.h"
 
+#ifdef Q_OS_ANDROID
+namespace {
+
+bool usableIPv4(const QHostAddress &address) {
+    return address.protocol() == QAbstractSocket::IPv4Protocol && !address.isNull() &&
+           !address.isLoopback() && !address.isLinkLocal() && !address.isMulticast() &&
+           address.toIPv4Address() != 0 && address.toIPv4Address() != 0xffffffff;
+}
+
+QHostAddress publicationAddress(const QHostAddress &source) {
+    const QHostAddress current = localipaddress::getIP(source);
+    if (usableIPv4(current))
+        return current;
+    // allIPv4() returns the available Wi-Fi addresses first.
+    for (const QHostAddress &address : localipaddress::allIPv4()) {
+        if (usableIPv4(address))
+            return address;
+    }
+    return QHostAddress();
+}
+
+} // namespace
+#endif
+
 using namespace QMdnsEngine;
 
 ProviderPrivate::ProviderPrivate(QObject *parent, AbstractServer *server, Hostname *hostname)
@@ -88,7 +112,12 @@ void ProviderPrivate::announce() {
     message.setResponse(true);
     message.addRecord(ptrRecord);
     message.addRecord(srvRecord);
+#ifdef Q_OS_ANDROID
+    if (usableIPv4(ARecord.address()))
+        message.addRecord(ARecord);
+#else
     message.addRecord(ARecord);
+#endif
     message.addRecord(txtRecord);
     server->sendMessageToAll(message);
 }
@@ -159,10 +188,16 @@ void ProviderPrivate::publish() {
     // set directly when we receive a message
     //ARecord.setAddress(QHostAddress("172.31.100.161"));
 
+#ifdef Q_OS_ANDROID
+    const QHostAddress address = publicationAddress(QHostAddress());
+    qDebug() << "ProviderPrivate::publish" << address;
+    ARecord.setAddress(address);
+#else
     QHostAddress r = localipaddress::getIP(QHostAddress());
     qDebug() << "ProviderPrivate::publish" << r;
     if(!r.isNull())
         ARecord.setAddress(r);
+#endif
 
     announce();
 
@@ -199,7 +234,11 @@ void ProviderPrivate::onMessageReceived(const Message &message) {
     bool sendSrv = false;
     bool sendTxt = false;
 
+#ifdef Q_OS_ANDROID
+    ARecord.setAddress(publicationAddress(message.address()));
+#else
     ARecord.setAddress(localipaddress::getIP(message.address()));
+#endif
 
     // Determine which records to send based on the queries
     const auto queries = message.queries();
@@ -246,7 +285,12 @@ void ProviderPrivate::onMessageReceived(const Message &message) {
             reply.addRecord(srvRecord);
 
             // zwift need it
+#ifdef Q_OS_ANDROID
+            if (usableIPv4(ARecord.address()))
+                reply.addRecord(ARecord);
+#else
             reply.addRecord(ARecord);
+#endif
         }
         if (sendTxt) {
             reply.addRecord(txtRecord);

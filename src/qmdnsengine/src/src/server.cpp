@@ -39,6 +39,9 @@
 #include <qmdnsengine/server.h>
 
 #include "server_p.h"
+#ifdef Q_OS_ANDROID
+#include "android_multicast_wifi.h"
+#endif
 
 using namespace QMdnsEngine;
 
@@ -99,6 +102,9 @@ void ServerPrivate::writeToAllInterfaces(QUdpSocket &socket, const QByteArray &p
     // interface, so do that.
 
     const bool wantIPv4 = group.protocol() == QAbstractSocket::IPv4Protocol;
+#ifdef Q_OS_ANDROID
+    if (wantIPv4 && !AndroidMulticast::canSend(socket)) return;
+#endif
     const QNetworkInterface previous = socket.multicastInterface();
     bool sent = false;
 
@@ -143,6 +149,12 @@ void ServerPrivate::writeToAllInterfaces(QUdpSocket &socket, const QByteArray &p
     // If no interface looked usable, fall back to the old behaviour rather
     // than silently sending nothing.
     if (!sent) {
+#ifdef Q_OS_ANDROID
+        if (wantIPv4) {
+            AndroidMulticast::sendWifi(socket, packet, group, port);
+            return;
+        }
+#endif
         socket.writeDatagram(packet, group, port);
     }
 }
@@ -155,14 +167,34 @@ void ServerPrivate::onTimeout()
     // interface supports multicast, the socket will join the mDNS multicast
     // groups
 
+#ifdef Q_OS_ANDROID
+    // A new socket needs a fresh membership; retry a failed join on the next timer tick.
+    if (ipv4Socket.state() != QAbstractSocket::BoundState)
+        ipv4FallbackJoined = false;
+#endif
     bool ipv4Bound = bindSocket(ipv4Socket, QHostAddress::AnyIPv4);
     bool ipv6Bound = bindSocket(ipv6Socket, QHostAddress::AnyIPv6);
 
     if (ipv4Bound || ipv6Bound) {
         const auto interfaces = QNetworkInterface::allInterfaces();
+#ifdef Q_OS_ANDROID
+        bool usableQtIPv4 = false;
+#endif
         for (const QNetworkInterface &networkInterface : interfaces) {
             if (networkInterface.flags() & QNetworkInterface::CanMulticast) {
                 if (ipv4Bound) {
+#ifdef Q_OS_ANDROID
+                    const auto flags = networkInterface.flags();
+                    if (flags.testFlag(QNetworkInterface::IsUp) &&
+                        flags.testFlag(QNetworkInterface::IsRunning)) {
+                        for (const QNetworkAddressEntry &entry : networkInterface.addressEntries()) {
+                            if (entry.ip().protocol() == QAbstractSocket::IPv4Protocol) {
+                                usableQtIPv4 = true;
+                                break;
+                            }
+                        }
+                    }
+#endif
                     ipv4Socket.joinMulticastGroup(MdnsIpv4Address, networkInterface);
                 }
                 if (ipv6Bound) {
@@ -170,6 +202,12 @@ void ServerPrivate::onTimeout()
                 }
             }
         }
+#ifdef Q_OS_ANDROID
+        if (ipv4Bound && !usableQtIPv4 && !ipv4FallbackJoined) {
+            const bool joined = ipv4Socket.joinMulticastGroup(MdnsIpv4Address);
+            ipv4FallbackJoined = joined;
+        }
+#endif
     }
 
     timer.start();
