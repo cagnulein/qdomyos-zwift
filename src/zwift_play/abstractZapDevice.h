@@ -65,7 +65,7 @@ class AbstractZapDevice: public QObject {
 
         qDebug() << zapType << characteristicName << bytes.toHex() << zwiftplay_swap << gears_volume_debouncing << risingEdge << lastFrame;
 
-#define DEBOUNCE (!gears_volume_debouncing || risingEdge <= 0)
+#define DEBOUNCE (m_autoRepeatEnabled ? (!gears_volume_debouncing || risingEdge <= 0) : risingEdge <= 0)
 
         switch(bytes[0]) {
         case 0x37:
@@ -100,10 +100,15 @@ class AbstractZapDevice: public QObject {
                         }
                     }
                 } else {
-                    risingEdge--;
-                    if(risingEdge < 0)
+                    // A treadmill button must be released before a new change.
+                    if (!m_autoRepeatEnabled)
                         risingEdge = 0;
-                    if(risingEdge == 0)
+                    else {
+                        risingEdge--;
+                        if (risingEdge < 0)
+                            risingEdge = 0;
+                    }
+                    if (risingEdge == 0)
                         autoRepeatTimer->stop();
                 }
             }
@@ -175,10 +180,15 @@ class AbstractZapDevice: public QObject {
                     }
                 }
             } else {
-                risingEdge--;
-                if(risingEdge < 0)
+                // A treadmill button must be released before a new change.
+                if (!m_autoRepeatEnabled)
                     risingEdge = 0;
-                if(risingEdge == 0)
+                else {
+                    risingEdge--;
+                    if (risingEdge < 0)
+                        risingEdge = 0;
+                }
+                if (risingEdge == 0)
                     autoRepeatTimer->stop();
             }
             break;
