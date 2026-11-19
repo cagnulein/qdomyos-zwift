@@ -1695,7 +1695,7 @@ void DeviceTestDataIndex::Initialize() {
 
         try {
             auto exclusions = deviceTestData->Exclusions();
-        } catch(std::domain_error&) {
+        } catch(const std::domain_error&) {
             qDebug() << "Device: " << deviceTestData->Name() << " specifies at least 1 exclusion for which no test data was found.";
         }
 
