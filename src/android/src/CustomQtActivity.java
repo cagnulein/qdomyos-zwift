@@ -259,7 +259,8 @@ public class CustomQtActivity extends QtActivity {
     // wherever the keyboard focus is when the popup closes. The node TalkBack had focused when a popup
     // showed is kept, and once the popup hid, if the focused node went with it, the focus is put back
     // there (when it is still on the screen), as a dialog of Android does. A modal popup that opens
-    // takes the focus to its first stop, as TalkBack does with a dialog of Android.
+    // takes the focus to its first stop, as TalkBack does with a dialog of Android. Both only with a
+    // screen reader on (onAccessibilityProvider).
     private static final class ScrollToFocusProvider extends AccessibilityNodeProvider {
         private static final long VALUE_ANNOUNCE_DELAY_MS = 150;
         // Qt never gives an object this id (-1: QAccessibleCache::acquireId skips it,
