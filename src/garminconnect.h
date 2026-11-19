@@ -15,6 +15,8 @@
 #include <QHttpMultiPart>
 #include <QMap>
 
+#include "profiletokenstore.h"
+
 /**
  * @brief GarminConnect class handles authentication and file upload to Garmin Connect
  *
@@ -61,6 +63,7 @@ public:
      * @return true if valid OAuth2 token exists, false otherwise
      */
     bool isAuthenticated() const;
+    bool matchesCurrentUser() const;
 
     /**
      * @brief Logout and clear all stored tokens
@@ -181,6 +184,7 @@ private:
     QNetworkAccessManager *m_manager;
     QString m_lastError;
     QString m_domain;
+    QString m_userId;
     QString m_csrfToken;
     QList<QNetworkCookie> m_cookies;
 
@@ -255,6 +259,8 @@ private:
     void loadTokensFromSettings();
     void saveTokensToSettings();
     void clearTokens();
+    QString currentUserIdFromSettings() const;
+    void mirrorTokensToBaseSettings(QSettings &settings) const;
 
     QNetworkReply* makeRequest(const QString &url, const QByteArray &data,
                                const QString &contentType, const QList<QNetworkCookie> &cookies = QList<QNetworkCookie>());

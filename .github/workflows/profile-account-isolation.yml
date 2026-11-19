@@ -1,0 +1,27 @@
+name: Profile account isolation
+
+on:
+  pull_request:
+    paths:
+      - 'src/garminconnect.*'
+      - 'src/homeform.*'
+      - 'src/profiletokenstore.h'
+      - 'src/authutils.h'
+      - 'tst/ToolTests/profile*'
+      - 'tools/run_profile_account_isolation_tests.py'
+      - '.github/workflows/profile-account-isolation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  account-regressions:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install focused test dependencies
+        run: sudo apt-get update && sudo apt-get install -y qtbase5-dev libgtest-dev pkg-config
+      - name: Run production account isolation regressions
+        run: python3 tools/run_profile_account_isolation_tests.py

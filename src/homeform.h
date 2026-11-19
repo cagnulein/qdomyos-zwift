@@ -9,6 +9,7 @@
 #include "OAuth2.h"
 #include "peloton.h"
 #include "garminconnect.h"
+#include "profiletokenstore.h"
 #include "qmdnsengine/browser.h"
 #include "qmdnsengine/cache.h"
 #include "qmdnsengine/resolver.h"
@@ -1086,6 +1087,7 @@ public:
     QThread *fitBackupThread;
     FitBackupWriter *fitBackupWriter;
 
+    quint64 stravaProfileGeneration = 0;
     QString strava_code;
     QOAuth2AuthorizationCodeFlow *strava_connect();
     void strava_refreshtoken();
@@ -1093,6 +1095,19 @@ public:
     QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunction(const QUrl &clientIdentifier,
                                                                            const QUrl &clientIdentifierSharedKey);
     bool strava_upload_file(const QByteArray &data, const QString &remotename);
+    void saveStravaTokensForAthlete(const QString &accessToken, const QString &refreshToken,
+                                    const QVariant &expiresAt, bool showPopup);
+
+    // Strava per-user token management helper functions
+    void saveStravaTokenForUser(const QString& baseKey, const QVariant& value, const QString& userId) {
+        QSettings settings;
+        ProfileTokenStore::save(settings, baseKey, value, userId, true);
+    }
+    QVariant getStravaTokenForUser(const QString& baseKey, const QString& userId, const QVariant& defaultValue = "") {
+        QSettings settings;
+        return ProfileTokenStore::value(settings, baseKey, userId, defaultValue);
+    }
+
     QString stravaAuthUrl;
     bool stravaAuthWebVisible;
 
