@@ -744,7 +744,7 @@ void DeviceTestDataIndex::Initialize() {
     // These prefixes take priority over Horizon's broader YPTM- match.
     RegisterNewDeviceTestData(DeviceIndex::YpooTreadmill)
         ->expectDevice<ypootreadmill>()
-        ->acceptDeviceNames({"YPTM-U0", "YP-M1552-"}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceNames({"YPTM-U", "YP-M1552-"}, DeviceNameComparison::StartsWithIgnoreCase)
         ->excluding<horizontreadmill>();
 
     // Horizon Treadmill
@@ -755,7 +755,7 @@ void DeviceTestDataIndex::Initialize() {
             // FTMS
             {"T318_", "T218_", "TRX3500", "JFTMPARAGON", "PARAGON X", "JFTM", "CT800",
              "MOBVOI TM", "DK202000725", "CTM780102C6BB32D62", "MX-TM ", "MATRIXTF50", "MOBVOI TM",
-             "KETTLER TREADMILL", "ASSAULTRUNNER", "TM55-", "YPTM-U1", "YPOO-MINI PRO-"}, DeviceNameComparison::StartsWithIgnoreCase);
+             "KETTLER TREADMILL", "ASSAULTRUNNER", "TM55-", "YPTM-", "YPOO-MINI PRO-"}, DeviceNameComparison::StartsWithIgnoreCase);
 
 
     // Adidas treadmills explicitly configured for FTMS must use Horizon, not AppGate USB.
