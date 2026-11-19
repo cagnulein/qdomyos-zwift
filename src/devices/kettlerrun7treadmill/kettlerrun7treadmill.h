@@ -21,8 +21,10 @@ class kettlerrun7treadmill : public treadmill {
     Q_OBJECT
 
   public:
-    kettlerrun7treadmill();
+    explicit kettlerrun7treadmill(bool noHeartService = false);
     bool connected() override;
+    // Advertise FTMS telemetry without forwarding physical treadmill control.
+    VirtualTreadmillControl virtualTreadmillControl() const override { return {}; }
     bool canStartStop() override { return false; }
     bool canHandleSpeedChange() override { return false; }
     bool canHandleInclineChange() override { return false; }
@@ -81,6 +83,7 @@ class kettlerrun7treadmill : public treadmill {
     bool handshaken = false;
     bool ready = false;
     bool disconnectedReported = false;
+    bool noHeartService = false;
     bool handshakeScheduled = false;
     quint32 connectionGeneration = 0;
     int handshakeAttempts = 0;
