@@ -87,6 +87,17 @@ public class AccessibilityTest {
         // Unlike the regular UiAutomation regression tests, do not set focus,
         // scroll, or invoke any control action here.
         if (presses[0].equals("--peek-focused")) {
+            AccessibilityNodeInfo root = automation.getRootInActiveWindow();
+            AccessibilityNodeInfo focused = root == null ? null
+                    : root.findFocus(AccessibilityNodeInfo.FOCUS_ACCESSIBILITY);
+            if (focused != null && focused.getPackageName() != null
+                    && PACKAGE.equals(focused.getPackageName().toString())) {
+                System.out.println("TALKBACK_FOCUS " + describe(focused));
+                return;
+            }
+            // Older Android providers can expose the focused bit in the
+            // returned tree even when findFocus() is unavailable. Keep that
+            // compatibility fallback for non-QZ providers.
             for (AccessibilityNodeInfo node : waitForAppNodes()) {
                 if (node.isAccessibilityFocused()) {
                     System.out.println("TALKBACK_FOCUS " + describe(node));

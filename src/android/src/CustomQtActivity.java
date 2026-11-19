@@ -286,6 +286,18 @@ public class CustomQtActivity extends QtActivity {
 
         @Override
         public AccessibilityNodeInfo findFocus(int focus) {
+            // Qt 5.15 accepts ACTION_ACCESSIBILITY_FOCUS but does not return
+            // that virtual node from findFocus(). Keep the id supplied by
+            // TalkBack in performAction() so Android services can read back
+            // their current focus.
+            if (focus == AccessibilityNodeInfo.FOCUS_ACCESSIBILITY && focusedId != NO_FOCUS) {
+                AccessibilityNodeInfo node = qt.createAccessibilityNodeInfo(focusedId);
+                if (node != null) {
+                    return node;
+                }
+                // The item can disappear after a page/pop-up transition.
+                focusedId = NO_FOCUS;
+            }
             return qt.findFocus(focus);
         }
 
