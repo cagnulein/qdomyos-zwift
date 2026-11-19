@@ -1311,10 +1311,14 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             } else {
                 double ftms_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)newValue.at(index))));
-                if (TC_BIKE && ftms_watt > 1000.0) {
+                if (TC_BIKE && !tcFtmsOverlay.acceptPower(ftms_watt, Cadence.value(),
+                                                              Resistance.value(), RequestedPower.value())) {
+                    tcPowerSampleValid = false;
                     qDebug() << "TC FTMS: ignoring implausible power:" << ftms_watt
                              << "- keeping last valid power";
                 } else {
+                    if (TC_BIKE)
+                        tcPowerSampleValid = true;
                     m_rawWatt = ftms_watt;  // Always update rawWatt from FTMS bike data
                     if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                             .toString()
@@ -1785,10 +1789,14 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             } else {
                 double ftms_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                        (uint16_t)((uint8_t)newValue.at(index))));
-                if (TC_BIKE && ftms_watt > 1000.0) {
+                if (TC_BIKE && !tcFtmsOverlay.acceptPower(ftms_watt, Cadence.value(),
+                                                              Resistance.value(), RequestedPower.value())) {
+                    tcPowerSampleValid = false;
                     qDebug() << "TC FTMS: ignoring implausible 0x2ACE power:" << ftms_watt
                              << "- keeping last valid power";
                 } else {
+                    if (TC_BIKE)
+                        tcPowerSampleValid = true;
                     m_rawWatt = ftms_watt;
                     if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                             .toString()
@@ -2366,6 +2374,8 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().startsWith(QStringLiteral("TC"), Qt::CaseInsensitive)) {
             qDebug() << QStringLiteral("TC-prefix FTMS bike found - using acknowledged resistance for software ERG");
             TC_BIKE = true;
+            tcPowerSampleValid = false;
+            tcFtmsOverlay = TcFtmsOverlay();
             resistance_lvl_mode = true;
             ergModeSupported = false;
             max_resistance = 41;
