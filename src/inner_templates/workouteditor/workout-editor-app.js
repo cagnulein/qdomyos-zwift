@@ -1958,6 +1958,15 @@
         if (window.QZ_OFFLINE) {
             return Promise.resolve(null);
         }
+        if (!replyMsg) {
+            // Nothing answers these (open a workout, start it): one try. With 3 the queue sent
+            // the message again 15 and 30 s later, waiting for a reply that never comes, so the
+            // action itself repeated - with the editor page kept, Save & Start started the workout
+            // again and closed the editor on its next opening. The queue drops the element 15 s
+            // after its one try; nobody waits for it (enqueue() is not called)
+            main_ws_enqueue(new MainWSQueueElement({ msg, content }, function () { return null; }, 15000, 1));
+            return Promise.resolve(null);
+        }
         const el = new MainWSQueueElement({ msg, content }, function (response) {
             if (response.msg === replyMsg) {
                 return response.content;
