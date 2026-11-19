@@ -80,8 +80,10 @@ int main(int argc, char *argv[])
             return runSettingsLabelLayoutProbe(argc, argv);
     }
 
-    QCoreApplication app{argc, argv};    
-    DeviceTestDataIndex::Initialize();    
+    QCoreApplication app{argc, argv};
+
+    DeviceTestDataIndex::Initialize();
+
     QTimer::singleShot(0, [&]()
                        {
                            ::testing::InitGoogleTest(&argc, argv);
