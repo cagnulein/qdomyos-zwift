@@ -203,6 +203,8 @@ class ftmsbike : public bike {
     TcFtmsOverlay tcFtmsOverlay;
 
     bool DU30_bike = false;
+    bool TC_BIKE = false;
+    bool tcPowerSampleValid = false;
     bool ICSE = false;
     bool DOMYOS = false;
     bool D500V2 = false;
