@@ -4646,6 +4646,26 @@ Não: o QZ ativa Without Wheel Diameter Protocol (Configurações &gt; Opções 
         <source>Services</source>
         <translation>Serviços</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>O dispositivo simulado (%1) está ativo. Se não foi intencional, desative-o nas Configurações.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Bicicleta</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Esteira</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Elíptico</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Máquina de remo</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -6931,6 +6951,14 @@ Please enter it below:</source>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Trajeto GPS sintético no Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Adiciona um trajeto GPS sintético às atividades virtuais sem GPS. O Strava pode mostrar o ganho de elevação, mas a rota não é real.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

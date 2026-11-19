@@ -1372,6 +1372,8 @@ const QString QZSettings::wahoo_wheel_question_answered = QStringLiteral("wahoo_
 
 const QString QZSettings::resistance_compatibility = QStringLiteral("resistance_compatibility");
 
+const QString QZSettings::strava_synthetic_gps_track = QStringLiteral("strava_synthetic_gps_track");
+
 QVariant allSettings[][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -2454,6 +2456,7 @@ QVariant allSettings[][2] = {
     {QZSettings::wahoo_wheel_question_answered, QZSettings::default_wahoo_wheel_question_answered},
     {QZSettings::proform_use_console_gears, QZSettings::default_proform_use_console_gears},
     {QZSettings::resistance_compatibility, QZSettings::default_resistance_compatibility},
+    {QZSettings::strava_synthetic_gps_track, QZSettings::default_strava_synthetic_gps_track},
     {QZSettings::zwift_right_controller_only, QZSettings::default_zwift_right_controller_only},
 };
 

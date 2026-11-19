@@ -4796,6 +4796,26 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
 
 „Nem”: a QZ bekapcsolja a „Kerékátmérő-protokoll nélkül” lehetőséget (Beállítások &gt; Kerékpár beállításai &gt; Wahoo beállításai), és a virtuális fokozatok a meredekségen keresztül működnek. „Igen” esetén ezt később ugyanott visszavonhatja: kapcsolja be ezt a lehetőséget, majd csatlakoztatott edzőgép mellett koppintson az „Alapértelmezett beállítás visszaállítása az edzőgépen” gombra.</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>A szimulált eszköz (%1) aktív. Ha ez nem volt szándékos, kapcsold ki a Beállításokban.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Kerékpár</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Futópad</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Elliptikus tréner</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Evezőpad</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -7164,6 +7184,14 @@ Please enter it below:</source>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation>Strava-címke virtuális tevékenységhez</translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Szintetikus GPS-útvonal Stravához</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Szintetikus GPS-nyomvonalat ad a GPS nélküli virtuális tevékenységekhez. A Strava így megjelenítheti a szintemelkedést, de az útvonal nem valós.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

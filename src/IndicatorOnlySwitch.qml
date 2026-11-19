@@ -95,7 +95,12 @@ SwitchDelegate {
     MouseArea {
         anchors.fill: parent
         onClicked: {
-            if (mouse.x > parent.width - parent.indicator.width) {
+            // With a right-to-left system language (Hebrew, Arabic) Qt 5 mirrors the control and
+            // draws the switch on the left (QQuickControl::isMirrored() follows the locale), while
+            // the touch position here is not mirrored: count the touch on the side it is drawn
+            var onIndicator = root.mirrored ? mouse.x < root.indicator.width
+                                            : mouse.x > root.width - root.indicator.width
+            if (onIndicator) {
                 root.checked = !root.checked
                 root.clicked()
             }

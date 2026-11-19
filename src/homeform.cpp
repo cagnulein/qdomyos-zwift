@@ -1367,7 +1367,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         }
     });
 
-    bluetoothManager->homeformLoaded = true;
+    // The Bluetooth manager exists before this object. Start any deferred
+    // discovery/direct SPP connection only now that UI slots are connected.
+    bluetoothManager->onHomeformReady();
 }
 
 #ifdef Q_OS_ANDROID

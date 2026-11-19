@@ -4646,6 +4646,26 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <source>Services</source>
         <translation>שירותים</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>המכשיר המדומה (%1) פעיל. אם לא התכוונת לכך, השבת אותו בהגדרות.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>אופניים</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>הליכון</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>אליפטיקל</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>מכשיר חתירה</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -6931,6 +6951,14 @@ Please enter it below:</source>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>מסלול GPS סינתטי עבור Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>מוסיף מסלול GPS סינתטי לפעילויות וירטואליות ללא GPS. ייתכן ש-Strava יציג טיפוס מצטבר, אך המסלול אינו אמיתי.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

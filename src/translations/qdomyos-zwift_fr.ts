@@ -4820,6 +4820,26 @@ Autoriser QZ à modifier cette valeur ?
 
 « Non » : QZ active « Sans protocole de diamètre de roue » (Paramètres &gt; Options de vélo &gt; Options Wahoo) et les vitesses virtuelles passent par la pente. Avec « Oui », vous pourrez l&apos;annuler plus tard au même endroit : activez cette option puis, avec le home trainer connecté, appuyez sur « Restaurer les réglages par défaut du home trainer ».</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>L'appareil simulé (%1) est actif. Si ce n'était pas voulu, désactivez-le dans les paramètres.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Vélo</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Tapis de course</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Vélo elliptique</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Rameur</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -7628,6 +7648,14 @@ Veuillez le saisir ci-dessous :</translation>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation>Étiquette d&apos;activité virtuelle Strava</translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Tracé GPS synthétique Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Ajoute un tracé GPS synthétique aux activités virtuelles sans GPS. Strava peut alors afficher le dénivelé, mais l&apos;itinéraire est fictif.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

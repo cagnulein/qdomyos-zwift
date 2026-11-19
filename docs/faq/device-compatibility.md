@@ -194,3 +194,9 @@ A **Trinfit T5 Pro** owner confirmed that QZ connected and communicated with the
 If QZ does not discover the treadmill, close Kinomap and any other app using its Bluetooth connection, check that the treadmill is advertising, and retry QZ's scan. To use QZ as a bridge, connect the treadmill to QZ first, then pair QZ's **virtual treadmill** in Kinomap on a **second device**.
 
 **Scope of confirmation:** QZ communication and direct Kinomap incline control were reported; automatic incline control *through the QZ-to-Kinomap bridge*, and Garmin export for this model, were not separately confirmed.
+
+## My NordicTrack T 6.5 S appears as a ProForm 525 CT and QZ cannot find it. Which Bluetooth device should I look for?
+
+On a **NordicTrack T 6.5 S / ProForm 525 CT with a basic console**, the Bluetooth device can advertise as **I_TL** rather than using the treadmill's retail model name. Turn on the treadmill and Bluetooth on the phone, close any other app connected to the treadmill, and look for **I_TL** in QZ's device discovery. Check that live treadmill metrics appear in QZ before pairing any other fitness app.
+
+An Android rider whose treadmill appeared as a ProForm 525 CT in iFIT explicitly confirmed that the treadmill connected after being directed to the **I_TL** Bluetooth name. This confirms connectivity for that basic-console variant, not every T 6.5 S revision or automatic incline-control behavior.

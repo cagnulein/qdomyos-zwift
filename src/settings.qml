@@ -2505,6 +2505,8 @@ import AndroidStatusBar 1.0
             property bool proform_treadmill_cst_505_pftl59420_2026: false
             property bool proform_use_console_gears: false
             property bool resistance_compatibility: false
+            // Keep newly added properties at the end to preserve settings order on iOS.
+            property bool strava_synthetic_gps_track: false
             property bool zwift_right_controller_only: false
 
         }
@@ -9719,7 +9721,11 @@ import AndroidStatusBar 1.0
                         modal: true
                         focus: true
                         closePolicy: Popup.CloseOnEscape
-                        anchors.centerIn: Overlay.overlay
+                        // In the overlay, like the other popups: centred in Overlay.overlay from inside a
+                        // StackView page, Qt 5.15.0 (Android) crashes on exit while the popup is open -
+                        // it repositions against the overlay already destroyed (QTBUG-84579, fixed in 5.15.1)
+                        parent: Overlay.overlay
+                        anchors.centerIn: parent
                         width: Math.min(parent.width * 0.9, 400)
 
                         visible: rootItem.garminMfaRequested
@@ -15183,6 +15189,36 @@ import AndroidStatusBar 1.0
 
                     Label {
                         text: qsTr("Append the Virtual Tag to the Strava Activity")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: stravaSyntheticGpsTrackDelegate
+                        text: qsTr("Strava Synthetic GPS Track")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.strava_synthetic_gps_track
+                        enabled: settings.strava_virtual_activity
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.strava_synthetic_gps_track = checked
+                    }
+
+                    Label {
+                        text: qsTr("Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint

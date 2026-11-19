@@ -4646,6 +4646,26 @@ Nếu chọn Không, QZ sẽ bật Without Wheel Diameter Protocol (Cài đặt 
         <source>Services</source>
         <translation>Dịch vụ</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Thiết bị mô phỏng (%1) đang hoạt động. Nếu không cố ý bật, hãy tắt trong Cài đặt.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Xe đạp</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Máy chạy bộ</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Máy tập toàn thân</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Máy chèo thuyền</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -6931,6 +6951,14 @@ Please enter it below:</source>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Lộ trình GPS giả lập cho Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Thêm lộ trình GPS giả lập vào hoạt động ảo không có GPS. Strava có thể hiển thị độ cao tăng thêm, nhưng lộ trình này không có thật.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

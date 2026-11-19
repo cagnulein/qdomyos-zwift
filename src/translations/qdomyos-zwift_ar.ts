@@ -4646,6 +4646,26 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <source>Services</source>
         <translation>الخدمات</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>الجهاز المُحاكى (%1) نشط. إذا لم يكن ذلك مقصودًا، عطّله من الإعدادات.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>دراجة</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>جهاز المشي</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>جهاز التمارين البيضاوي</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>جهاز التجديف</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -6931,6 +6951,14 @@ Please enter it below:</source>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>مسار GPS اصطناعي لـ Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>يضيف مسار GPS اصطناعيًا إلى الأنشطة الافتراضية التي لا تحتوي على GPS. قد يعرض Strava الارتفاع المكتسب، لكن المسار غير حقيقي.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

@@ -4812,6 +4812,26 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
 
 [아니요]: QZ가 [휠 지름 없는 프로토콜]을 켜고([설정] &gt; [자전거 옵션] &gt; [Wahoo 옵션]), 가상 기어는 경사를 통해 작동합니다. [예]를 선택하면 나중에 같은 곳에서 되돌릴 수 있습니다. 이 옵션을 켜고 트레이너가 연결된 상태에서 [트레이너 기본 설정 복원]을 누르세요.</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>가상 기기(%1)가 활성화되었습니다. 의도한 설정이 아니라면 설정에서 비활성화하세요.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>자전거</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>러닝머신</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>일립티컬</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>로잉머신</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -7212,6 +7232,14 @@ Please enter it below:</source>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation>Strava 가상 활동 태그</translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Strava 합성 GPS 경로</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>GPS가 없는 가상 활동에 합성 GPS 경로를 기록합니다. Strava에 누적 상승고도가 표시될 수 있지만 실제 경로는 아닙니다.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

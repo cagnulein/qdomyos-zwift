@@ -1,0 +1,31 @@
+/* Shared by the web pages of the app in the modern look: the charts (chartjs/chart.htm) and
+   the workout from the history (previewchart/chart.htm).
+   The card corners of the QML components, so the pages do not read as something else;
+   the colours come from qz-theme-bridge.js. Only rules under html.modern: the
+   classic look is untouched. An old WebView (Android 5 consoles) skips what it does not know,
+   nothing here is required for the page to work. */
+
+html.modern {
+    /* The same values as window.ui and the Ui* components of the QML pages */
+    --qz-radius-card: 16px;
+    font-family: Roboto, "Segoe UI", sans-serif;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+/* No glow at the ends of a scroll and no blue flash on a tap: habits of the WebView that the
+   QML pages do not have */
+html.modern,
+html.modern body {
+    overscroll-behavior: none;
+}
+
+html.modern * {
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Text selection by a long press belongs to text fields, not to the charts */
+html.modern canvas {
+    -webkit-user-select: none;
+    user-select: none;
+}

@@ -60,6 +60,7 @@ SOURCES += \
         Devices/TestXcxBikeParser.cpp \
         Devices/TestFtmsBikeParser.cpp \
         Devices/TestRowerTargetResistance.cpp \
+        Devices/TestBkoolStandaloneResistance.cpp \
         Devices/TestPafersRowerRouting.cpp \
         Devices/TestHeartRateSensorOffer.cpp \
         Devices/TestFreebeatBoomBikeParser.cpp \
