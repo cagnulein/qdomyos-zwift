@@ -78,15 +78,21 @@ T.ComboBox {
     // a word. The box keeps the width of its text (at most half the window); 0 is the default
     Layout.minimumWidth: window.textScale !== 1 ? Math.min(implicitWidth, window.width / 2) : 0
 
+    // Width of the widest item for the list width (#5236), measured when the list opens;
+    // DeviceComboBox calls it too: its items change while the list is open
+    function measureItems() {
+        var widest = 0
+        for (var i = 0; i < control.count; ++i) {
+            itemMetrics.text = control.labelFor(control.textAt(i))
+            widest = Math.max(widest, itemMetrics.advanceWidth)
+        }
+        control.widestItem = Math.ceil(widest)
+    }
+
     Connections {
         target: control.popup
         function onAboutToShow() {
-            var widest = 0
-            for (var i = 0; i < control.count; ++i) {
-                itemMetrics.text = control.labelFor(control.textAt(i))
-                widest = Math.max(widest, itemMetrics.advanceWidth)
-            }
-            control.widestItem = Math.ceil(widest)
+            control.measureItems()
         }
     }
 

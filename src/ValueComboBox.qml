@@ -17,7 +17,9 @@ UiComboBox {
     itemLabels: labels
 
     displayText: labelFor(value)
-    onActivated: value = currentValue
+    // Enter on an open list with no row highlighted gives -1 (DeviceComboBox: the saved device is not
+    // in the list): there is no value to take
+    onActivated: if (index >= 0) value = currentValue
 
     // savedText (see UiComboBox) is the raw saved value: shown through `value`, compared raw
     dirty: savedText !== undefined && value !== String(savedText)

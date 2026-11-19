@@ -145,6 +145,7 @@
         <file>custominclinationresistance.qml</file>
         <file>IndicatorOnlySwitch.qml</file>
         <file>ValueComboBox.qml</file>
+        <file>DeviceComboBox.qml</file>
         <file>UiComboBox.qml</file>
         <file>UiDrawerItem.qml</file>
         <file>UiSectionHeader.qml</file>
