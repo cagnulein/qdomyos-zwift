@@ -220,7 +220,8 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        // a new size can change the width of the scales
+                        // a new size can change the width of the scales; Chart.js calls onResize
+                        // before it lays the chart out again, so the new chartArea is read after it
                         onResize: function () { setTimeout(align, 0); },
                         animation: false,
                         interaction: { mode: 'index', intersect: false },
