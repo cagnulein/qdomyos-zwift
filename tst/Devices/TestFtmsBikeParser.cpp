@@ -2,6 +2,7 @@
 
 #include "devices/ftmsbike/ftmsbike.h"
 #include "devices/daumbike/daumbike.h"
+#include "Tools/testsettings.h"
 
 TEST(FtmsBikeParserTest, DecodesFsIb50Resistance) {
     resistance_t resistance = -1;
@@ -130,4 +131,21 @@ TEST(TcFtmsOverlayTest, DoesNotUseWorkoutTargetAsHardCap) {
     TcFtmsOverlay filter;
     EXPECT_TRUE(filter.acceptPower(35, 80, 12, 30));
     EXPECT_TRUE(filter.acceptPower(120, 85, 12, 30));
+}
+
+TEST(ErgTableCollectionTest, DisabledCollectionPreservesEmptyTableAndCanResume) {
+    TestSettings settings("Roberto Viola", "QDomyos-Zwift Testing");
+    settings.activate();
+    settings.qsettings.remove("ergDataPoints");
+
+    ergTable table;
+    table.setCollectingEnabled(false);
+    for (int i = 0; i < 12; ++i)
+        table.collectData(75, 90, 18, true);
+    EXPECT_EQ(0, table.estimateWattage(75, 18));
+
+    table.setCollectingEnabled(true);
+    for (int i = 0; i < 12; ++i)
+        table.collectData(75, 90, 18, true);
+    EXPECT_EQ(90, table.estimateWattage(75, 18));
 }
