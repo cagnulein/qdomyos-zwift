@@ -79,9 +79,11 @@ class IOSReleaseRequirementsTests(unittest.TestCase):
         # Fastlane 2.240.0 includes fastlane/fastlane#30196. Older
         # versions reject a completed upload if altool prints a diagnostic.
         workflow = self.read(".github/workflows/release-testflight.yml")
-        versions = re.findall(
-            r"gem install fastlane --version (\\d+\\.\\d+\\.\\d+)", workflow
-        )
+        versions = [
+            line.strip().split(" --version ", 1)[1].split()[0]
+            for line in workflow.splitlines()
+            if line.strip().startswith("gem install fastlane --version ")
+        ]
         self.assertEqual(len(versions), 1)
         version = tuple(int(part) for part in versions[0].split("."))
         self.assertGreaterEqual(version, (2, 240, 0))
