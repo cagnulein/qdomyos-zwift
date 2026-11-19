@@ -11243,6 +11243,9 @@ void homeform::loadSettings(const QUrl &filename) {
     if (garminDomain.isEmpty()) {
         garminDomain = QZSettings::default_garmin_domain;
     }
+    settings.setValue(QZSettings::garmin_email, garminEmail);
+    settings.setValue(QZSettings::garmin_domain, garminDomain);
+    settings.remove(QZSettings::garmin_password);
     QString garminUserId;
     if (!garminEmail.isEmpty()) {
         garminUserId = garminDomain + QStringLiteral("_") + garminEmail;
@@ -11289,8 +11292,10 @@ void homeform::loadSettings(const QUrl &filename) {
                 if (!garminUserId.isEmpty()) {
                     for (const QString &baseKey : garminTokenKeys) {
                         if (s == baseKey + QStringLiteral("_") + garminUserId) {
-                            const QVariant tokenValue = readProfileValue(s);
-                            settings.setValue(s, tokenValue);
+                            // The device store may have newer tokens than this saved profile snapshot.
+                            if (!settings.contains(s))
+                                settings.setValue(s, readProfileValue(s));
+                            const QVariant tokenValue = settings.value(s);
                             if (isGarminCredentialKey(baseKey) && !tokenValue.toString().isEmpty()) {
                                 importedGarminTokenForProfile = true;
                             }
@@ -11303,7 +11308,8 @@ void homeform::loadSettings(const QUrl &filename) {
                 for (const QString &key : stravaTokenKeys) {
                     if (s == key || s.startsWith(key + QStringLiteral("_"))) {
                         isStravaToken = true;
-                        if (!stravaUserId.isEmpty() && s == key + QStringLiteral("_") + stravaUserId)
+                        if (!stravaUserId.isEmpty() && s == key + QStringLiteral("_") + stravaUserId &&
+                            !settings.contains(s))
                             settings.setValue(s, readProfileValue(s));
                         break;
                     }
@@ -11320,7 +11326,7 @@ void homeform::loadSettings(const QUrl &filename) {
             }
         }
     }
-    if (!garminUserId.isEmpty() && !importedGarminTokenForProfile) {
+    if (!importedGarminTokenForProfile) {
         for (const QString &baseKey : garminTokenKeys) {
             settings.remove(baseKey);
         }

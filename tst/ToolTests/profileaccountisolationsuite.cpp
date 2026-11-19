@@ -195,4 +195,46 @@ TEST_F(ProfileAccountIsolationTestSuite, StravaProfileImportsOnlyItsOwnScopedAcc
     EXPECT_TRUE(ProfileTokenStore::value(settings, QZSettings::strava_accesstoken, QStringLiteral("jay")).toString().isEmpty());
     EXPECT_TRUE(settings.value(QZSettings::strava_accesstoken).toString().isEmpty());
 }
+
+TEST_F(ProfileAccountIsolationTestSuite, LoadingAnOlderProfileKeepsTheFreshDeviceSessions) {
+    session(jan, QStringLiteral("fresh-garmin-token"));
+    QSettings settings;
+    ProfileTokenStore::save(settings, QZSettings::strava_accesstoken, QStringLiteral("fresh-strava-token"), QStringLiteral("jan"), false);
+    ProfileTokenStore::save(settings, QZSettings::strava_refreshtoken, QStringLiteral("rotated-strava-refresh"), QStringLiteral("jan"), false);
+    const QString path = directory.filePath(QStringLiteral("old-snapshot.qzs"));
+    {
+        QSettings profile(path, QSettings::IniFormat);
+        profile.setValue(QZSettings::garmin_email, QStringLiteral("jan@example.com"));
+        encrypted(profile, QZSettings::garmin_access_token + QStringLiteral("_") + jan, QStringLiteral("old-garmin-token"));
+        profile.setValue(QZSettings::garmin_expires_at + QStringLiteral("_") + jan, 1);
+        profile.setValue(QZSettings::strava_current_user_id, QStringLiteral("jan"));
+        encrypted(profile, QZSettings::strava_accesstoken + QStringLiteral("_jan"), QStringLiteral("old-strava-token"));
+        encrypted(profile, QZSettings::strava_refreshtoken + QStringLiteral("_jan"), QStringLiteral("old-strava-refresh"));
+    }
+    homeform::loadSettings(QUrl::fromLocalFile(path));
+    GarminConnect client;
+    EXPECT_TRUE(client.isAuthenticated());
+    EXPECT_EQ(settings.value(QZSettings::garmin_access_token).toString(), QStringLiteral("fresh-garmin-token"));
+    EXPECT_EQ(ProfileTokenStore::value(settings, QZSettings::strava_accesstoken, QStringLiteral("jan")).toString(), QStringLiteral("fresh-strava-token"));
+    EXPECT_EQ(ProfileTokenStore::value(settings, QZSettings::strava_refreshtoken, QStringLiteral("jan")).toString(), QStringLiteral("rotated-strava-refresh"));
+}
+
+TEST_F(ProfileAccountIsolationTestSuite, ProfileWithoutGarminCredentialsDoesNotInheritThePreviousRider) {
+    session(jay, QStringLiteral("jay-token"));
+    session(QString(), QStringLiteral("jay-token"));
+    select(QStringLiteral("jay@example.com"));
+    QSettings settings;
+    settings.setValue(QZSettings::garmin_password, QStringLiteral("jay-password"));
+    const QString path = directory.filePath(QStringLiteral("unlinked.qzs"));
+    {
+        QSettings profile(path, QSettings::IniFormat);
+        profile.setValue(QZSettings::profile_name, QStringLiteral("Unlinked"));
+    }
+    homeform::loadSettings(QUrl::fromLocalFile(path));
+    EXPECT_TRUE(settings.value(QZSettings::garmin_email).toString().isEmpty());
+    EXPECT_TRUE(settings.value(QZSettings::garmin_password).toString().isEmpty());
+    GarminConnect client;
+    EXPECT_FALSE(client.isAuthenticated());
+    EXPECT_EQ(ProfileTokenStore::value(settings, QZSettings::garmin_access_token, jay).toString(), QStringLiteral("jay-token"));
+}
 }
