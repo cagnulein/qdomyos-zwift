@@ -48,6 +48,20 @@ private:
     quint16 completedWatts = 0;
 };
 
+// Concept2-equivalent pace/distance for Coach S when speed_power_based is enabled.
+// Distance is committed at completed-stroke boundaries, never on flywheel coast.
+// The optional initial distance allows a seamless settings-mode transition.
+class CoachSPowerBasedPace {
+public:
+    void reset(double initialMeters = 0.0);
+    void completedStroke(quint16 consoleWatts, qint64 elapsedMs, bool previousStrokeActive);
+    double speedKmh() const { return strokeSpeedKmh; }
+    double meters() const { return sessionMeters; }
+private:
+    double sessionMeters = 0.0;
+    double strokeSpeedKmh = 0.0;
+};
+
 // The console retains raw counters across app sessions. Credit distance only
 // at completed stroke boundaries, dropping handle nudges and idle coasting.
 class CoachSSessionCounters {

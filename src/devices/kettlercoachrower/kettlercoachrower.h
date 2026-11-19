@@ -93,6 +93,9 @@ class kettlercoachrower : public rower {
     QElapsedTimer powerClock;
     kettlerclassicprotocol::CoachSStrokePowerSmoother strokePower;
     kettlerclassicprotocol::CoachSSessionCounters sessionCounters;
+    kettlerclassicprotocol::CoachSPowerBasedPace powerBasedPace;
+    bool lastPowerBasedMode = false;
+    double rawDistanceOffsetMeters = 0.0;
     int pendingResistanceLevel = -1;
     int lastReportedResistanceLevel = -1;
     quint16 lastStrokes = 0;
