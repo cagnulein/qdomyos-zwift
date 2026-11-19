@@ -74,6 +74,33 @@ public class AccessibilityTest {
             System.out.println("FAIL no button to press given");
             return;
         }
+        // Read-only inspection for tests using a *real* TalkBack service.
+        // Unlike the regular UiAutomation regression tests, do not set focus,
+        // scroll, or invoke any control action here.
+        if (presses[0].equals("--peek-focused")) {
+            for (AccessibilityNodeInfo node : waitForAppNodes()) {
+                if (node.isAccessibilityFocused()) {
+                    System.out.println("TALKBACK_FOCUS " + describe(node));
+                    return;
+                }
+            }
+            System.out.println("FAIL no accessibility-focused node");
+            return;
+        }
+        if (presses[0].equals("--peek-node")) {
+            if (presses.length != 2) {
+                System.out.println("FAIL --peek-node requires one name");
+                return;
+            }
+            String name = presses[1].replace('_', ' ');
+            AccessibilityNodeInfo node = find(name, false);
+            if (node == null || !node.isFocusable()) {
+                System.out.println("FAIL missing focusable node: " + name);
+            } else {
+                System.out.println("TALKBACK_NODE " + describe(node));
+            }
+            return;
+        }
         List<AccessibilityNodeInfo> nodes = waitForAppNodes();
         if (nodes.isEmpty()) {
             AccessibilityNodeInfo root = automation.getRootInActiveWindow();

@@ -3276,3 +3276,71 @@ jobs:
             peloton-bike-android-trial/android-debug-peloton-bike.apk
             raspberry-pi-binary-armv6hf/qdomyos-zwift-armv6hf
             raspberry-pi-binary-aarch64/qdomyos-zwift-aar
+  # Experimental, non-blocking until installation + real-gesture assertions pass
+  # on the PR head. It is NOT evidence that the fix is ready for a blind user.
+  android-real-talkback-experimental:
+    runs-on: ubuntu-latest
+    needs: android-build
+    timeout-minutes: 60
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: actions/download-artifact@v4
+        with:
+          name: fdroid-android-trial
+          path: apk-debug
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Compile Google's open-source TalkBack (pinned revision)
+        run: |
+          git clone https://github.com/google/talkback.git /tmp/qz-google-talkback
+          cd /tmp/qz-google-talkback
+          git checkout 229212fdf5842191d0a93fc95d9ca1423b346866
+          export ANDROID_SDK=${ANDROID_SDK_ROOT:-$ANDROID_HOME}
+          echo "sdk.dir=$ANDROID_SDK" > local.properties
+          gradle --no-daemon --stacktrace assemblePhoneDebug
+          APK=$(find . -path '*/build/outputs/apk/phone/debug/*.apk' -print -quit)
+          test -n "$APK" && test -s "$APK"
+          cp "$APK" "$GITHUB_WORKSPACE/talkback-open-source.apk"
+      - name: Compile read-only accessibility focus probe
+        run: |
+          SDK=${ANDROID_SDK_ROOT:-$ANDROID_HOME}
+          echo y | $SDK/cmdline-tools/latest/bin/sdkmanager "platforms;android-35" "build-tools;35.0.0"
+          JAR=$SDK/platforms/android-35/android.jar
+          mkdir -p a11y-test-classes
+          javac -source 8 -target 8 -bootclasspath "$JAR" -d a11y-test-classes .github/scripts/AccessibilityTest.java
+          $SDK/build-tools/35.0.0/d8 --min-api 24 --lib "$JAR" --output a11y-test.jar a11y-test-classes/*.class
+      - name: Run Pixel-class emulator with real TalkBack (Android 17)
+        uses: ReactiveCircus/android-emulator-runner@v2
+        timeout-minutes: 25
+        with:
+          api-level: '37.0'
+          target: google_apis
+          arch: x86_64
+          profile: pixel_7_pro
+          disable-animations: true
+          script: |
+            adb install apk-debug/android-debug.apk
+            adb install talkback-open-source.apk
+            sh .github/scripts/android_real_talkback_test.sh
+      - name: Upload TalkBack test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-real-talkback-experimental
+          path: |
+            talkback_real_probe.txt
+            accessibility_dumpsys.txt
+            talkback_logcat.txt
+            talkback-failure.png
+          if-no-files-found: warn
