@@ -86,13 +86,26 @@ note "Starting experimental REAL TalkBack gesture check"
 # This test MUST fail if the official open-source TalkBack APK did not install.
 adb shell pm path "$TB_PKG" | grep -q 'package:' || fail "TalkBack is not installed"
 SERVICE="$TB_PKG/$TB_SERVICE"
-adb shell settings put secure enabled_accessibility_services "$SERVICE"
-adb shell settings put secure accessibility_enabled 1
-sleep 12
-adb shell settings get secure enabled_accessibility_services | grep -F "$SERVICE" ||
-    fail "TalkBack not in enabled accessibility services"
-adb shell pidof "$TB_PKG" >/dev/null ||
-    fail "TalkBack service process is not running"
+# On a fresh API 37 boot, AccessibilityManager can still be initializing
+# after package installation. Retry the *actual* enable operation, not the
+# assertion; never report success without the service and process checks.
+enabled=0
+attempt=1
+while [ "$attempt" -le 5 ]; do
+    adb shell settings put secure enabled_accessibility_services "$SERVICE"
+    adb shell settings put secure accessibility_enabled 1
+    sleep 6
+    configured=$(adb shell settings get secure enabled_accessibility_services | tr -d '\r')
+    running=$(adb shell pidof "$TB_PKG" || true)
+    note "INFO TalkBack activation attempt $attempt/5 configured=$configured pid=$running"
+    if [ "$configured" = "$SERVICE" ] && [ -n "$running" ]; then
+        enabled=1
+        break
+    fi
+    attempt=$((attempt + 1))
+done
+[ "$enabled" -eq 1 ] ||
+    fail "TalkBack did not remain enabled and running after 5 attempts"
 adb shell dumpsys accessibility > accessibility_dumpsys.txt
 grep -F "$TB_SERVICE" accessibility_dumpsys.txt >/dev/null ||
     fail "TalkBack service not registered in AccessibilityManager"
