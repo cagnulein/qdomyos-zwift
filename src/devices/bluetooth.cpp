@@ -1923,7 +1923,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                      !kettlerRun7Treadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
-                kettlerRun7Treadmill = new kettlerrun7treadmill();
+                kettlerRun7Treadmill = new kettlerrun7treadmill(noHeartService);
                 emit deviceConnected(b);
                 connect(kettlerRun7Treadmill, &bluetoothdevice::connectedAndDiscovered,
                         this, &bluetooth::connectedAndDiscovered);
