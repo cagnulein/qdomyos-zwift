@@ -563,3 +563,68 @@ TEST(ZwiftRideControllerTest, HeldRidePaddlesRepeatGearActionsOnlyWithDebouncing
 
     settings.remove(QZSettings::gears_volume_debouncing);
 }
+
+
+// Click v1 has only +/-; the treadmill mapping must never depend on
+// directional buttons that this controller does not provide.
+TEST(ZwiftClickTreadmillTest, V1UsesDiscreteSpeedPressesWithoutRepeats) {
+    QSettings settings;
+    settings.setValue(QZSettings::gears_volume_debouncing, false);
+
+    ZwiftPlayDevice device;
+    ButtonEvents events;
+    connectButtonEvents(device, events);
+    device.setAutoRepeatEnabled(false);
+
+    const QByteArray neutral = QByteArray::fromHex("3701010101");
+    const QByteArray plus = QByteArray::fromHex("3701000101");
+    const QByteArray minus = QByteArray::fromHex("3701010100");
+
+    device.processCharacteristic(QStringLiteral("Async"), neutral, AbstractZapDevice::NONE);
+    device.processCharacteristic(QStringLiteral("Async"), plus, AbstractZapDevice::NONE);
+    device.processCharacteristic(QStringLiteral("Async"), plus, AbstractZapDevice::NONE);
+    EXPECT_EQ(events.gearPlus, 1);
+
+    // The physical treadmill must not accelerate via timer-based repeat.
+    EXPECT_TRUE(QMetaObject::invokeMethod(&device, "handleAutoRepeat", Qt::DirectConnection));
+    EXPECT_EQ(events.gearPlus, 1);
+
+    // Another direction is accepted only after release.
+    device.processCharacteristic(QStringLiteral("Async"), minus, AbstractZapDevice::NONE);
+    EXPECT_EQ(events.gearMinus, 0);
+    device.processCharacteristic(QStringLiteral("Async"), neutral, AbstractZapDevice::NONE);
+    device.processCharacteristic(QStringLiteral("Async"), minus, AbstractZapDevice::NONE);
+    device.processCharacteristic(QStringLiteral("Async"), minus, AbstractZapDevice::NONE);
+    EXPECT_EQ(events.gearMinus, 1);
+
+    EXPECT_EQ(events.leftUpPressed, 0);
+    EXPECT_EQ(events.leftDownPressed, 0);
+    settings.remove(QZSettings::gears_volume_debouncing);
+}
+
+TEST(ZwiftClickTreadmillTest, V2DirectionalButtonsEmitOnlyPressAndReleaseEdges) {
+    ZwiftPlayDevice device;
+    ButtonEvents events;
+    connectButtonEvents(device, events);
+
+    const auto send = [&device](const char *hex) {
+        device.processCharacteristic(QStringLiteral("Async"),
+                                     QByteArray::fromHex(QByteArray(hex)), AbstractZapDevice::LEFT);
+    };
+
+    // Click v2: left controller's up/down directional buttons (0x07).
+    send("0708011001180120012801"); // All released
+    send("0708011000180120012801"); // Up pressed
+    send("0708011000180120012801"); // Repeated press notification
+    send("0708011001180120012801"); // Up released
+    send("0708011001180120012800"); // Down pressed
+    send("0708011001180120012800"); // Repeated press notification
+    send("0708011001180120012801"); // Down released
+
+    EXPECT_EQ(events.leftUpPressed, 1);
+    EXPECT_EQ(events.leftUpReleased, 1);
+    EXPECT_EQ(events.leftDownPressed, 1);
+    EXPECT_EQ(events.leftDownReleased, 1);
+    EXPECT_EQ(events.gearPlus, 0);
+    EXPECT_EQ(events.gearMinus, 0);
+}
