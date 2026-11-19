@@ -45,6 +45,7 @@
         <file>inner_templates/chartjs/globals.js</file>
         <file>inner_templates/chartjs/qzcharttheme.js</file>
         <file>inner_templates/chartjs/qz-theme-bridge.js</file>
+        <file>inner_templates/chartjs/qzmetriccharts.js</file>
         <file>inner_templates/chartjs/qz-modern.css</file>
         <file>inner_templates/chartjs/qz-modern-charts.css</file>
         <file>inner_templates/chartjs/jquery-3.6.0.min.js</file>

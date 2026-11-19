@@ -328,34 +328,35 @@ button.small {
     min-height: 0;
 }
 
-canvas {
-    width: 100% !important;
-    height: 360px !important;
+/* The charts of qzmetriccharts.js: one metric as tall as the single chart was, several a
+   lower chart each; the chips name the metrics instead of the legend */
+.chart-wrapper .qzmc-box {
+    min-height: 180px;
 }
 
-.legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    font-size: 0.75rem;
+.chart-wrapper.qzmc-single .qzmc-box {
+    min-height: 360px;
+}
+
+.qzmc-bar {
     color: var(--muted-color);
 }
 
-.legend-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+/* the chips read in the text colour; only the caption before them is muted (two classes: the
+   chart script adds its own styles after this file, and its .qzmc-chip would win a tie) */
+.qzmc-bar .qzmc-chip {
+    color: var(--text-color);
+}
+
+/* the muted colour is dim enough on this dark page; the chart script's opacity on top of it
+   would take the caption below 4.5:1 */
+.qzmc-bar .qzmc-caption {
+    opacity: 1;
 }
 
 .interval-card.selected {
     border-color: var(--accent-color);
     box-shadow: 0 0 0 1px rgba(53, 186, 246, 0.35);
-}
-
-.legend-swatch {
-    width: 14px;
-    height: 14px;
-    border-radius: 4px;
 }
 
 .status-strip {
@@ -400,8 +401,8 @@ canvas {
 }
 
 @media (min-width: 1080px) {
-    canvas {
-        height: 420px !important;
+    .chart-wrapper.qzmc-single .qzmc-box {
+        min-height: 420px;
     }
 }
 

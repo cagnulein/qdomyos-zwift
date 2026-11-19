@@ -25,6 +25,7 @@
         }
     </script>
     <script src="../chartjs/main_ws_manager.js"></script>
+    <script src="../chartjs/qzmetriccharts.js"></script>
     <script src="workout-editor.js"></script>
     <script src="workout-editor-app.js" defer></script>
 </head>
@@ -78,10 +79,7 @@
                         <div class="chart-title" id="chartTitle" data-i18n="workoutEditor.workoutPreview">Workout Preview</div>
                         <div class="chart-meta" id="chartMeta"></div>
                     </header>
-                    <div class="chart-wrapper">
-                        <canvas id="workoutChart"></canvas>
-                    </div>
-                    <div class="legend" id="legend"></div>
+                    <div class="chart-wrapper"></div>
                 </div>
                 <div class="status-strip">
                     <div><span data-i18n="workoutEditor.total">Total:</span> <span id="statusDuration">0:00</span></div>

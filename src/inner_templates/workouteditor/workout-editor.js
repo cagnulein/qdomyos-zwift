@@ -21,19 +21,17 @@
     }
 
     const state = {
-        chart: null,
-        axisTemplate: {
-            type: 'linear',
-            grid: {
-                color: 'rgba(255,255,255,0.04)'
-            },
-            ticks: {
-                color: 'rgba(255,255,255,0.65)'
-            },
-            border: {
-                color: 'rgba(255,255,255,0.16)'
-            }
-        }
+        charts: null
+    };
+
+    // Axis colours over the dark page of the editor (the same as the single chart had before),
+    // and the chips: a light outline, the accent of the editor as the fill of a selected one
+    const AXIS_COLORS = {
+        tick: 'rgba(255,255,255,0.65)',
+        grid: 'rgba(255,255,255,0.04)',
+        title: 'rgba(255,255,255,0.75)',
+        outline: 'rgba(255,255,255,0.38)',
+        tonal: 'rgba(53,186,246,0.24)'
     };
 
     function formatSeconds(total) {
@@ -45,131 +43,23 @@
         return minutes + ':' + seconds.toString().padStart(2, '0');
     }
 
-    function ensureChart() {
-        if (state.chart) {
-            return state.chart;
+    // Each metric on its own chart, the ticked ones together (qzmetriccharts.js, shared with
+    // the workout preview); before, all of them were on one chart with an axis each
+    function ensureCharts() {
+        if (state.charts) {
+            return state.charts;
         }
-        const canvas = document.getElementById('workoutChart');
-        if (!canvas) {
+        const host = document.querySelector('.chart-wrapper');
+        if (!host) {
             return null;
         }
-        const ctx = canvas.getContext('2d');
-        state.chart = new Chart(ctx, {
-            type: 'line',
-            data: { datasets: [] },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        intersect: false,
-                        mode: 'index',
-                        backgroundColor: 'rgba(15,21,30,0.92)',
-                        borderWidth: 0,
-                        callbacks: {
-                            title: (items) => items.length ? formatSeconds(items[0].parsed.x) : '',
-                            label: (item) => {
-                                const dataset = item.dataset;
-                                const unit = dataset.unit ? ' ' + dataset.unit : '';
-                                return dataset.label + ': ' + item.formattedValue + unit;
-                            }
-                        }
-                    },
-                    title: {
-                        display: false
-                    }
-                },
-                scales: {
-                    x: buildTimeAxis()
-                },
-                elements: {
-                    point: {
-                        radius: 0
-                    },
-                    line: {
-                        tension: 0,
-                        borderWidth: 2
-                    }
-                }
-            }
+        state.charts = QzMetricCharts.create(host, {
+            storageKey: 'qz.workouteditor.together',
+            colors: () => AXIS_COLORS,
+            timeTitle: () => t('workoutEditor.time', 'Time'),
+            caption: () => t('chart.onOneChart', 'On one chart:')
         });
-        return state.chart;
-    }
-
-    // A fresh object every time: putting the chart's own (proxied) x scale back into its options
-    // recurses in Chart.js 3.4.1, and the translated title would not be picked up
-    function buildTimeAxis(suggestedMax) {
-        const axis = {
-            type: 'linear',
-            grid: {
-                color: 'rgba(255,255,255,0.04)'
-            },
-            border: {
-                color: 'rgba(255,255,255,0.16)'
-            },
-            ticks: {
-                color: 'rgba(255,255,255,0.65)',
-                callback: (value) => formatSeconds(value)
-            },
-            title: {
-                display: true,
-                text: t('workoutEditor.time', 'Time'),
-                color: 'rgba(255,255,255,0.75)'
-            }
-        };
-        if (typeof suggestedMax === 'number') {
-            axis.suggestedMax = suggestedMax;
-        }
-        return axis;
-    }
-
-    function buildAxes(seriesList) {
-        const axes = {};
-        seriesList.forEach((series) => {
-            const axisId = series.axis || 'y';
-            if (!axes[axisId]) {
-                axes[axisId] = JSON.parse(JSON.stringify(state.axisTemplate));
-                axes[axisId].position = series.axisPosition || 'left';
-                axes[axisId].id = axisId;
-                axes[axisId].title = {
-                    display: !!series.axisLabel,
-                    text: series.axisLabel || '',
-                    color: 'rgba(255,255,255,0.75)'
-                };
-                if (typeof series.min === 'number') {
-                    axes[axisId].min = series.min;
-                }
-                if (typeof series.max === 'number') {
-                    axes[axisId].max = series.max;
-                }
-                if (series.stacked) {
-                    axes[axisId].stacked = true;
-                }
-            }
-        });
-        return axes;
-    }
-
-    function updateLegend(seriesList) {
-        const legendRoot = document.getElementById('legend');
-        if (!legendRoot) {
-            return;
-        }
-        legendRoot.innerHTML = '';
-        seriesList.forEach((series) => {
-            const item = document.createElement('div');
-            item.className = 'legend-item';
-            const swatch = document.createElement('div');
-            swatch.className = 'legend-swatch';
-            swatch.style.backgroundColor = series.color || '#35baf6';
-            const label = document.createElement('div');
-            label.textContent = series.label + (series.unit ? ' (' + series.unit + ')' : '');
-            item.appendChild(swatch);
-            item.appendChild(label);
-            legendRoot.appendChild(item);
-        });
+        return state.charts;
     }
 
     function updateMeta(payload) {
@@ -194,43 +84,36 @@
     }
 
     function updateChart(payload) {
-        const chart = ensureChart();
-        if (!chart) {
+        const charts = ensureCharts();
+        if (!charts) {
             return;
         }
         const seriesList = Array.isArray(payload.series) ? payload.series : [];
-        const axes = buildAxes(seriesList);
-        chart.options.scales = Object.assign({ x: buildTimeAxis(payload.totalSeconds) }, axes);
-        chart.data.datasets = seriesList.map((series) => {
-            const color = String(series.color || '#35baf6');
-            const fillColor = String(series.fillColor || color) + '33';
-            return ({
+        charts.update({
+            totalSeconds: payload.totalSeconds,
+            series: seriesList.map((series) => ({
+                key: series.key,
                 label: series.label || series.key || 'Series',
-                data: Array.isArray(series.points) ? series.points : [],
-                borderColor: color,
-                backgroundColor: fillColor,
                 unit: series.unit || '',
-                yAxisID: series.axis || 'y',
+                color: String(series.color || '#35baf6'),
+                points: Array.isArray(series.points) ? series.points : [],
                 stepped: series.stepped !== false,
-                borderWidth: series.lineWidth || 2,
-                fill: Boolean(series.fill),
-                tension: 0,
-                spanGaps: true
-            });
+                floor: series.key === 'inclination' ? -50 : 0,
+                // The scale titles and ranges as the single chart had them: the translated axis
+                // label of the series and a scale fitted to the values, not from zero
+                axisTitle: series.axisLabel || '',
+                beginAtZero: false
+            }))
         });
-        chart.update();
-        updateLegend(seriesList);
         updateMeta(payload);
     }
 
     function reset() {
-        const chart = ensureChart();
-        if (!chart) {
+        const charts = ensureCharts();
+        if (!charts) {
             return;
         }
-        chart.data.datasets = [];
-        chart.update();
-        updateLegend([]);
+        charts.update({ series: [] });
     }
 
     window.WorkoutEditorApp = {
@@ -238,5 +121,5 @@
         reset
     };
 
-    window.addEventListener('DOMContentLoaded', ensureChart);
+    window.addEventListener('DOMContentLoaded', ensureCharts);
 })();

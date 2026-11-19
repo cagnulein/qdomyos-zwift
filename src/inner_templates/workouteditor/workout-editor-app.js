@@ -65,22 +65,22 @@
 
     const SERIES_DEFS = {
         treadmill: [
-            { key: 'speed', label: () => t('workoutEditor.speed', 'Speed'), color: '#42a5f5', unit: () => state.miles ? 'mph' : 'km/h', axis: 'speedAxis', axisLabel: () => state.miles ? t('workoutEditor.speedMph', 'Speed (mph)') : t('workoutEditor.speedKmh', 'Speed (km/h)'), axisPosition: 'left' },
-            { key: 'inclination', label: () => t('workoutEditor.incline', 'Incline'), color: '#26c6da', unit: () => '%', axis: 'inclineAxis', axisLabel: () => t('workoutEditor.inclinePercent', 'Incline (%)'), axisPosition: 'right' }
+            { key: 'speed', label: () => t('workoutEditor.speed', 'Speed'), color: '#42a5f5', unit: () => state.miles ? 'mph' : 'km/h', axisLabel: () => state.miles ? t('workoutEditor.speedMph', 'Speed (mph)') : t('workoutEditor.speedKmh', 'Speed (km/h)') },
+            { key: 'inclination', label: () => t('workoutEditor.incline', 'Incline'), color: '#26c6da', unit: () => '%', axisLabel: () => t('workoutEditor.inclinePercent', 'Incline (%)') }
         ],
         bike: [
-            { key: 'resistance', label: () => t('workoutEditor.resistance', 'Resistance'), color: '#ab47bc', unit: () => 'lvl', axis: 'resistanceAxis', axisLabel: () => t('workoutEditor.resistance', 'Resistance'), axisPosition: 'left' },
-            { key: 'cadence', label: () => t('workoutEditor.cadence', 'Cadence'), color: '#29b6f6', unit: () => 'rpm', axis: 'cadenceAxis', axisLabel: () => t('workoutEditor.cadenceRpm', 'Cadence (rpm)'), axisPosition: 'right' },
-            { key: 'power', label: () => t('workoutEditor.power', 'Power'), color: '#ef6c00', unit: () => 'W', axis: 'powerAxis', axisLabel: () => t('workoutEditor.powerW', 'Power (W)'), axisPosition: 'left', stepped: false }
+            { key: 'resistance', label: () => t('workoutEditor.resistance', 'Resistance'), color: '#ab47bc', unit: () => 'lvl', axisLabel: () => t('workoutEditor.resistance', 'Resistance') },
+            { key: 'cadence', label: () => t('workoutEditor.cadence', 'Cadence'), color: '#29b6f6', unit: () => 'rpm', axisLabel: () => t('workoutEditor.cadenceRpm', 'Cadence (rpm)') },
+            { key: 'power', label: () => t('workoutEditor.power', 'Power'), color: '#ef6c00', unit: () => 'W', axisLabel: () => t('workoutEditor.powerW', 'Power (W)'), stepped: false }
         ],
         elliptical: [
-            { key: 'resistance', label: () => t('workoutEditor.resistance', 'Resistance'), color: '#7e57c2', unit: () => 'lvl', axis: 'resistanceAxis', axisLabel: () => t('workoutEditor.resistance', 'Resistance'), axisPosition: 'left' },
-            { key: 'inclination', label: () => t('workoutEditor.ramp', 'Ramp'), color: '#66bb6a', unit: () => '%', axis: 'inclineAxis', axisLabel: () => t('workoutEditor.rampPercent', 'Ramp (%)'), axisPosition: 'right' }
+            { key: 'resistance', label: () => t('workoutEditor.resistance', 'Resistance'), color: '#7e57c2', unit: () => 'lvl', axisLabel: () => t('workoutEditor.resistance', 'Resistance') },
+            { key: 'inclination', label: () => t('workoutEditor.ramp', 'Ramp'), color: '#66bb6a', unit: () => '%', axisLabel: () => t('workoutEditor.rampPercent', 'Ramp (%)') }
         ],
         rower: [
-            { key: 'resistance', label: () => t('workoutEditor.resistance', 'Resistance'), color: '#7e57c2', unit: () => 'lvl', axis: 'resistanceAxis', axisLabel: () => t('workoutEditor.resistance', 'Resistance'), axisPosition: 'left' },
-            { key: 'power', label: () => t('workoutEditor.power', 'Power'), color: '#fb8c00', unit: () => 'W', axis: 'powerAxis', axisLabel: () => t('workoutEditor.powerW', 'Power (W)'), axisPosition: 'left', stepped: false },
-            { key: 'cadence', label: () => t('workoutEditor.strokeRate', 'Stroke Rate'), color: '#26a69a', unit: () => 'spm', axis: 'cadenceAxis', axisLabel: () => t('workoutEditor.strokesPerMinute', 'Strokes/min'), axisPosition: 'right' }
+            { key: 'resistance', label: () => t('workoutEditor.resistance', 'Resistance'), color: '#7e57c2', unit: () => 'lvl', axisLabel: () => t('workoutEditor.resistance', 'Resistance') },
+            { key: 'power', label: () => t('workoutEditor.power', 'Power'), color: '#fb8c00', unit: () => 'W', axisLabel: () => t('workoutEditor.powerW', 'Power (W)'), stepped: false },
+            { key: 'cadence', label: () => t('workoutEditor.strokeRate', 'Stroke Rate'), color: '#26a69a', unit: () => 'spm', axisLabel: () => t('workoutEditor.strokesPerMinute', 'Strokes/min') }
         ],
         jumprope: [],
         stairclimber: []
@@ -216,7 +216,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         cacheDom();
         bindEvents();
-        // The interval fields and the chart legend are built in JavaScript, and the translations
+        // The interval fields and the chart labels are built in JavaScript, and the translations
         // usually arrive after the first render: rebuild them once they are here
         document.addEventListener('qz-translations-updated', () => {
             renderIntervals();
@@ -255,6 +255,8 @@
     }
 
     function bindEvents() {
+        // The chart card is titled with the workout name: follow it while it is typed
+        selectors.name.addEventListener('input', updateChart);
         selectors.device.addEventListener('change', () => {
             if (window.QZ_OFFLINE) {
                 state.device = selectors.device.value;
@@ -538,6 +540,7 @@
                     if (state.lastSaved === name) {
                         state.lastSaved = '';
                         selectors.name.value = '';
+                        updateChart();
                     }
                     // Refresh the program list
                     return refreshProgramList();
@@ -1412,6 +1415,7 @@
             }
             state.lastSaved = payload.name;
             selectors.name.value = payload.name;
+            updateChart();
             announce(t('workoutEditor.savedName', 'Saved {name}').replace('{name}', payload.name));
 
             console.log('[saveWorkflow] Refreshing program list...');
@@ -1680,9 +1684,7 @@
             label: def.label(),
             color: def.color,
             unit: unitLabel(typeof def.unit === 'function' ? def.unit() : def.unit),
-            axis: def.axis,
             axisLabel: typeof def.axisLabel === 'function' ? def.axisLabel() : def.axisLabel,
-            axisPosition: def.axisPosition,
             stepped: def.stepped !== false,
             points: []
         }));

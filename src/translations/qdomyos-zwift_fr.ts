@@ -2147,6 +2147,11 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
         <translation>Pente (%)</translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>Sur un graphique :</translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation>Puissance moyenne</translation>

@@ -2095,6 +2095,11 @@ QZ 설정을 업데이트하시겠습니까?</translation>
         <translation>경사도 (%)</translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>한 차트에:</translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation>평균 파워</translation>
