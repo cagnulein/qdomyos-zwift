@@ -103,7 +103,12 @@ class ergTable : public QObject {
         settings.sync();
     }
 
+    // Generic per-device collection gate; defaults to enabled for every device.
+    void setCollectingEnabled(bool enabled) { collectingEnabled = enabled; }
+
     void collectData(uint16_t cadence, uint16_t wattage, uint16_t resistance, bool ignoreResistanceTiming = false) {
+        if (!collectingEnabled)
+            return;
         if (resistance != lastResistanceValue) {
             qDebug() << "resistance changed";
             lastResistanceTime = QDateTime::currentDateTime();
@@ -269,6 +274,7 @@ class ergTable : public QObject {
     }
 
   private:
+    bool collectingEnabled = true;
     QMap<CadenceResistancePair, WattageStats> wattageData;
     QList<ergDataPoint> consolidatedData;
     uint16_t lastResistanceValue = 0xFFFF;
