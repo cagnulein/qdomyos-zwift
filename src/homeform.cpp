@@ -9607,6 +9607,7 @@ homeform::buildModifyParametersFunction(const QUrl &clientIdentifier, const QUrl
 
 void homeform::strava_refreshtoken() {
 
+    const quint64 profileGeneration = stravaProfileGeneration;
     QSettings settings;
     // QUrlQuery params; //NOTE: clazy-unuse-non-tirial-variable
 
@@ -9653,6 +9654,10 @@ void homeform::strava_refreshtoken() {
     QEventLoop loop;
     connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();
+    if (profileGeneration != stravaProfileGeneration) {
+        setToastRequested("Strava profile changed; please retry from the selected profile");
+        return;
+    }
 
     int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
     qDebug() << QStringLiteral("HTTP response code: ") << statusCode;
@@ -9706,7 +9711,10 @@ void homeform::strava_refreshtoken() {
 
 bool homeform::strava_upload_file(const QByteArray &data, const QString &remotename) {
 
+    const quint64 profileGeneration = stravaProfileGeneration;
     strava_refreshtoken();
+    if (profileGeneration != stravaProfileGeneration)
+        return false;
 
     QSettings settings;
 
@@ -9893,8 +9901,14 @@ void homeform::saveStravaTokensForAthlete(const QString &accessToken, const QStr
     athleteRequest.setRawHeader("Authorization", (QStringLiteral("Bearer ") + accessToken).toUtf8());
     QNetworkReply *athleteReply = athleteManager->get(athleteRequest);
 
+    const quint64 profileGeneration = stravaProfileGeneration;
     connect(athleteReply, &QNetworkReply::finished, this,
-            [this, athleteReply, athleteManager, accessToken, refreshToken, expiresAt, showPopup]() {
+            [this, athleteReply, athleteManager, accessToken, refreshToken, expiresAt, showPopup, profileGeneration]() {
+        if (profileGeneration != stravaProfileGeneration) {
+            athleteReply->deleteLater();
+            athleteManager->deleteLater();
+            return;
+        }
         QSettings settings;
         bool saved = false;
 
@@ -9915,17 +9929,7 @@ void homeform::saveStravaTokensForAthlete(const QString &accessToken, const QStr
         }
 
         if (!saved) {
-            const QString currentUserId = settings.value(QZSettings::strava_current_user_id,
-                                                          QZSettings::default_strava_current_user_id).toString();
             qDebug() << "Unable to identify the Strava athlete:" << athleteReply->errorString();
-            // Only use legacy storage when there is no active profile account. Never overwrite
-            // the active account with a token whose athlete ID could not be verified.
-            if (currentUserId.isEmpty()) {
-                settings.setValue(QZSettings::strava_accesstoken, accessToken);
-                settings.setValue(QZSettings::strava_refreshtoken, refreshToken);
-                settings.setValue(QZSettings::strava_lastrefresh, QDateTime::currentDateTime());
-                settings.setValue(QZSettings::strava_expires, expiresAt);
-            }
             setToastRequested("Strava Auth Failed!");
         }
 
@@ -10093,7 +10097,11 @@ void homeform::strava_connect_clicked() {
 
     strava_connect();
     connect(strava, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser, this, &homeform::onStravaAuthorizeWithBrowser);
-    connect(strava, &QOAuth2AuthorizationCodeFlow::granted, this, &homeform::onStravaGranted);
+    const quint64 profileGeneration = stravaProfileGeneration;
+    connect(strava, &QOAuth2AuthorizationCodeFlow::granted, this, [this, profileGeneration]() {
+        if (profileGeneration == stravaProfileGeneration)
+            onStravaGranted();
+    });
 
     strava->grant();
     // qDebug() <<
@@ -10112,6 +10120,11 @@ void homeform::garmin_connect_login() {
         return;
     }
 
+    // A cached client must belong to the selected email/domain before any refresh or upload.
+    if (garminConnect && !garminConnect->matchesCurrentUser()) {
+        garminConnect->deleteLater();
+        garminConnect = nullptr;
+    }
     // Initialize GarminConnect if not already done
     if (!garminConnect) {
         garminConnect = new GarminConnect(this);
@@ -10431,12 +10444,8 @@ void homeform::echelon_dismiss_enable_prompt() {
 bool homeform::isStravaLoggedIn() {
     QSettings settings;
     QString userId = settings.value(QZSettings::strava_current_user_id, QZSettings::default_strava_current_user_id).toString();
-    if (!userId.isEmpty()) {
-        QString key = QStringLiteral("strava_accesstoken_") + userId;
-        if (!settings.value(key).toString().isEmpty())
-            return true;
-    }
-    return !settings.value(QZSettings::strava_accesstoken, QZSettings::default_strava_accesstoken).toString().isEmpty();
+    return !getStravaTokenForUser(QZSettings::strava_accesstoken, userId,
+                                  QZSettings::default_strava_accesstoken).toString().isEmpty();
 }
 
 bool homeform::isGarminUploadConfigured() {
@@ -10516,6 +10525,7 @@ void homeform::uploadHistoricalWorkoutToIntervalsICU(const QString &filePath) {
 }
 
 void homeform::strava_logout() {
+    ++stravaProfileGeneration;
     qDebug() << "Strava logout requested";
     QSettings settings;
     QString userId = settings.value(QZSettings::strava_current_user_id, QZSettings::default_strava_current_user_id).toString();
@@ -11217,6 +11227,14 @@ void homeform::loadSettings(const QUrl &filename) {
     // A legacy profile has no Strava account ID. Clear the previous active ID first,
     // otherwise loading it after another profile could silently reuse that account.
     settings.remove(QZSettings::strava_current_user_id);
+    const QString stravaUserId = settings2Load.value(QZSettings::strava_current_user_id).toString();
+    const QStringList stravaTokenKeys = {
+        QZSettings::strava_accesstoken, QZSettings::strava_refreshtoken,
+        QZSettings::strava_lastrefresh, QZSettings::strava_expires
+    };
+    // Legacy mirrors do not identify their owner. Never reuse them across loaded profiles.
+    for (const QString &key : stravaTokenKeys)
+        settings.remove(key);
     auto settings2LoadAllKeys = settings2Load.allKeys();
     const QString garminEmail =
         settings2Load.value(QZSettings::garmin_email, QZSettings::default_garmin_email).toString().trimmed().toLower();
@@ -11270,14 +11288,6 @@ void homeform::loadSettings(const QUrl &filename) {
             if (isGarminTokenKey(s)) {
                 if (!garminUserId.isEmpty()) {
                     for (const QString &baseKey : garminTokenKeys) {
-                        if (s == baseKey) {
-                            const QVariant tokenValue = readProfileValue(s);
-                            settings.setValue(baseKey + QStringLiteral("_") + garminUserId, tokenValue);
-                            if (isGarminCredentialKey(baseKey) && !tokenValue.toString().isEmpty()) {
-                                importedGarminTokenForProfile = true;
-                            }
-                            break;
-                        }
                         if (s == baseKey + QStringLiteral("_") + garminUserId) {
                             const QVariant tokenValue = readProfileValue(s);
                             settings.setValue(s, tokenValue);
@@ -11288,7 +11298,18 @@ void homeform::loadSettings(const QUrl &filename) {
                         }
                     }
                 }
-            } else if(!s.contains(QStringLiteral("peloton_refreshtoken")) && !s.contains(QStringLiteral("strava_refreshtoken"))) {
+            } else {
+                bool isStravaToken = false;
+                for (const QString &key : stravaTokenKeys) {
+                    if (s == key || s.startsWith(key + QStringLiteral("_"))) {
+                        isStravaToken = true;
+                        if (!stravaUserId.isEmpty() && s == key + QStringLiteral("_") + stravaUserId)
+                            settings.setValue(s, readProfileValue(s));
+                        break;
+                    }
+                }
+                if (isStravaToken || s.contains(QStringLiteral("peloton_refreshtoken")))
+                    continue;
                 if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
                     settings.setValue(s, settings2Load.value(s));
                 } else {
@@ -11307,6 +11328,7 @@ void homeform::loadSettings(const QUrl &filename) {
     
     // Emit signal when settings are loaded as they might contain user profile changes
     if (homeform::singleton()) {
+        ++homeform::singleton()->stravaProfileGeneration;
         if (homeform::singleton()->garminConnect) {
             homeform::singleton()->garminConnect->deleteLater();
             homeform::singleton()->garminConnect = nullptr;
@@ -11317,6 +11339,7 @@ void homeform::loadSettings(const QUrl &filename) {
 
 void homeform::deleteSettings(const QUrl &filename) { QFile(filename.toLocalFile()).remove(); }
 void homeform::restoreSettings() { 
+    ++stravaProfileGeneration;
     QZSettings::restoreAll(); 
     if (garminConnect) {
         garminConnect->deleteLater();

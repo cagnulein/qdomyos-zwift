@@ -39,7 +39,12 @@ GarminConnect::~GarminConnect()
 
 bool GarminConnect::isAuthenticated() const
 {
-    return !m_oauth2Token.access_token.isEmpty() && !m_oauth2Token.isExpired();
+    return matchesCurrentUser() && !m_oauth2Token.access_token.isEmpty() && !m_oauth2Token.isExpired();
+}
+
+bool GarminConnect::matchesCurrentUser() const
+{
+    return m_userId == currentUserIdFromSettings();
 }
 
 void GarminConnect::logout()
@@ -158,6 +163,11 @@ void GarminConnect::checkFtpUpdates()
 
 bool GarminConnect::uploadFitFile(const QString &fitFilePath)
 {
+    if (!matchesCurrentUser()) {
+        m_lastError = QStringLiteral("Garmin account changed; please authenticate the selected profile");
+        return false;
+    }
+
     qDebug() << "GarminConnect: Uploading FIT file:" << fitFilePath;
     m_lastError.clear();
 
@@ -298,6 +308,11 @@ bool GarminConnect::uploadFitFile(const QString &fitFilePath)
 
 bool GarminConnect::login(const QString &email, const QString &password, const QString &mfaCode)
 {
+    if (!matchesCurrentUser()) {
+        m_lastError = QStringLiteral("Garmin account changed; please authenticate the selected profile");
+        return false;
+    }
+
     qDebug() << "GarminConnect: Starting login process...";
     m_lastError.clear();
 
@@ -364,6 +379,11 @@ void GarminConnect::submitMfaCode(const QString &mfaCode)
 
 bool GarminConnect::tryRefreshToken()
 {
+    if (!matchesCurrentUser()) {
+        m_lastError = QStringLiteral("Garmin account changed; please authenticate the selected profile");
+        return false;
+    }
+
     // Already authenticated and not expired - no need to refresh
     if (isAuthenticated()) {
         qDebug() << "GarminConnect: Token is still valid, no refresh needed";
@@ -1442,6 +1462,7 @@ bool GarminConnect::refreshOAuth2Token()
     bool success = exchangeForOAuth2Token();
 
     if (success) {
+        saveTokensToSettings();
         qDebug() << "GarminConnect: OAuth2 token refreshed successfully using OAuth1!";
     } else {
         qDebug() << "GarminConnect: OAuth2 refresh failed:" << m_lastError;
@@ -1453,6 +1474,11 @@ bool GarminConnect::refreshOAuth2Token()
 
 bool GarminConnect::uploadActivity(const QByteArray &fitData, const QString &fileName)
 {
+    if (!matchesCurrentUser()) {
+        m_lastError = QStringLiteral("Garmin account changed; please authenticate the selected profile");
+        return false;
+    }
+
     qDebug() << "GarminConnect: Uploading activity to Garmin Connect...";
     qDebug() << "File size:" << fitData.size() << "bytes";
     qDebug() << "Filename:" << fileName;
@@ -1543,22 +1569,10 @@ void GarminConnect::loadTokensFromSettings()
 {
     QSettings settings;
     m_domain = settings.value(QZSettings::garmin_domain, QZSettings::default_garmin_domain).toString();
-    const QString userId = currentUserIdFromSettings();
-    bool hasUserGarminTokens = false;
-    if (!userId.isEmpty()) {
-        hasUserGarminTokens = ProfileTokenStore::hasAnyValue(
-            settings,
-            QStringList() << QZSettings::garmin_access_token
-                          << QZSettings::garmin_refresh_token
-                          << QZSettings::garmin_oauth1_token,
-            userId);
-    }
-
-    auto valueForUser = [&settings, &userId, hasUserGarminTokens](const QString &baseKey, const QVariant &defaultValue) {
-        if (!userId.isEmpty() && hasUserGarminTokens) {
-            return ProfileTokenStore::value(settings, baseKey, userId, defaultValue);
-        }
-        return settings.value(baseKey, defaultValue);
+    m_userId = currentUserIdFromSettings();
+    auto valueForUser = [&settings, this](const QString &baseKey, const QVariant &defaultValue) {
+        // An account with no saved session must log in, never adopt another account's legacy tokens.
+        return ProfileTokenStore::value(settings, baseKey, m_userId, defaultValue);
     };
 
     m_oauth2Token.access_token = valueForUser(QZSettings::garmin_access_token, QZSettings::default_garmin_access_token).toString();
@@ -1569,12 +1583,7 @@ void GarminConnect::loadTokensFromSettings()
     m_oauth1Token.oauth_token = valueForUser(QZSettings::garmin_oauth1_token, QZSettings::default_garmin_oauth1_token).toString();
     m_oauth1Token.oauth_token_secret = valueForUser(QZSettings::garmin_oauth1_token_secret, QZSettings::default_garmin_oauth1_token_secret).toString();
 
-    const bool loadedAnyGarminToken = !m_oauth2Token.access_token.isEmpty() ||
-                                      !m_oauth2Token.refresh_token.isEmpty() ||
-                                      !m_oauth1Token.oauth_token.isEmpty();
-    if (!userId.isEmpty() && !hasUserGarminTokens && loadedAnyGarminToken) {
-        saveTokensToSettings();
-    } else if (!userId.isEmpty()) {
+    if (!m_userId.isEmpty()) {
         mirrorTokensToBaseSettings(settings);
     }
 
@@ -1601,7 +1610,7 @@ void GarminConnect::loadTokensFromSettings()
 void GarminConnect::saveTokensToSettings()
 {
     QSettings settings;
-    const QString userId = currentUserIdFromSettings();
+    const QString userId = m_userId;
     if (!userId.isEmpty()) {
         ProfileTokenStore::save(settings, QZSettings::garmin_access_token, m_oauth2Token.access_token, userId, false);
         ProfileTokenStore::save(settings, QZSettings::garmin_refresh_token, m_oauth2Token.refresh_token, userId, false);
@@ -1615,9 +1624,11 @@ void GarminConnect::saveTokensToSettings()
         ProfileTokenStore::save(settings, QZSettings::garmin_last_refresh,
                                 QDateTime::currentDateTime(), userId, false);
     }
-    mirrorTokensToBaseSettings(settings);
-    settings.setValue(QZSettings::garmin_domain, m_domain);
-    settings.setValue(QZSettings::garmin_last_refresh, QDateTime::currentDateTime());
+    if (matchesCurrentUser()) {
+        mirrorTokensToBaseSettings(settings);
+        settings.setValue(QZSettings::garmin_domain, m_domain);
+        settings.setValue(QZSettings::garmin_last_refresh, QDateTime::currentDateTime());
+    }
 
     qDebug() << "GarminConnect: Tokens saved to settings (OAuth1 + OAuth2)";
 }
@@ -1625,15 +1636,17 @@ void GarminConnect::saveTokensToSettings()
 void GarminConnect::clearTokens()
 {
     QSettings settings;
-    const QString userId = currentUserIdFromSettings();
-    settings.remove(QZSettings::garmin_access_token);
-    settings.remove(QZSettings::garmin_refresh_token);
-    settings.remove(QZSettings::garmin_token_type);
-    settings.remove(QZSettings::garmin_expires_at);
-    settings.remove(QZSettings::garmin_refresh_token_expires_at);
-    settings.remove(QZSettings::garmin_oauth1_token);
-    settings.remove(QZSettings::garmin_oauth1_token_secret);
-    settings.remove(QZSettings::garmin_last_refresh);
+    const QString userId = m_userId;
+    if (matchesCurrentUser()) {
+        settings.remove(QZSettings::garmin_access_token);
+        settings.remove(QZSettings::garmin_refresh_token);
+        settings.remove(QZSettings::garmin_token_type);
+        settings.remove(QZSettings::garmin_expires_at);
+        settings.remove(QZSettings::garmin_refresh_token_expires_at);
+        settings.remove(QZSettings::garmin_oauth1_token);
+        settings.remove(QZSettings::garmin_oauth1_token_secret);
+        settings.remove(QZSettings::garmin_last_refresh);
+    }
     if (!userId.isEmpty()) {
         ProfileTokenStore::remove(settings, QZSettings::garmin_access_token, userId, false);
         ProfileTokenStore::remove(settings, QZSettings::garmin_refresh_token, userId, false);

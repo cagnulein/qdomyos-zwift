@@ -27,6 +27,7 @@ SOURCES += \
         ToolTests/testtrainingloadtestsuite.cpp \
         ToolTests/zwiftworkouttestsuite.cpp \
         ToolTests/profiletokenstoresuite.cpp \
+        ToolTests/profileaccountisolationsuite.cpp \
         Tools/testsettings.cpp \
         Tools/typeidgenerator.cpp \
         Devices/TestSchwinn411510EParser.cpp \

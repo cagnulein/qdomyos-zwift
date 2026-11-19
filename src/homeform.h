@@ -1087,6 +1087,7 @@ public:
     QThread *fitBackupThread;
     FitBackupWriter *fitBackupWriter;
 
+    quint64 stravaProfileGeneration = 0;
     QString strava_code;
     QOAuth2AuthorizationCodeFlow *strava_connect();
     void strava_refreshtoken();
