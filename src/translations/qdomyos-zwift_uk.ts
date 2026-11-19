@@ -2147,6 +2147,11 @@ Do you want to update QZ settings?</source>
         <translation>Нахил (%)</translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>На одному графіку:</translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation>Сер. потужність</translation>
@@ -4811,6 +4816,26 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
 Дозволити QZ змінювати це значення?
 
 «Ні»: QZ увімкне «Без протоколу діаметра колеса» (Налаштування &gt; Параметри велотренажера &gt; Параметри Wahoo), і віртуальні передачі працюватимуть через ухил. Якщо обрати «Так», це можна згодом скасувати там само: увімкніть цей параметр і за підключеного тренажера натисніть «Відновити типові налаштування тренажера».</translation>
+    </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Віртуальний пристрій (%1) активний. Якщо це сталося ненавмисно, вимкніть його в налаштуваннях.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Велотренажер</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Бігова доріжка</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Еліптичний тренажер</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Гребний тренажер</translation>
     </message>
 </context>
 <context>
@@ -7596,6 +7621,14 @@ Please enter it below:</source>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation>Мітка віртуальної активності Strava</translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Синтетичний GPS-трек Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Додає синтетичний GPS-трек до віртуальних тренувань без GPS. Strava може показати набір висоти, але маршрут несправжній.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

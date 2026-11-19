@@ -2147,6 +2147,11 @@ Do you want to update QZ settings?</source>
         <translation>坡度 (%)</translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>合并到一张图表：</translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation>平均输出</translation>
@@ -4827,6 +4832,26 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
 是否允许 QZ 更改该值？
 
 “否”：QZ 将开启“无车轮直径协议”（设置 &gt; 自行车选项 &gt; Wahoo 选项），虚拟变速通过坡度实现。选择“是”后，以后可在同一位置撤销：开启该选项，然后在骑行台已连接时点按“将骑行台恢复为默认设置”。</translation>
+    </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>模拟设备（%1）已启用。如果并非有意启用，请在设置中关闭。</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>健身车</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>跑步机</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>椭圆机</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>划船机</translation>
     </message>
 </context>
 <context>
@@ -7572,6 +7597,14 @@ Please enter it below:</source>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation>Strava 虚拟活动标签</translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Strava 模拟 GPS 轨迹</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>为没有 GPS 的虚拟活动写入模拟 GPS 轨迹。Strava 可能因此显示爬升高度，但路线并非真实路线。</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

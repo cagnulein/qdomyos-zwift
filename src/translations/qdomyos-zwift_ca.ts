@@ -2034,6 +2034,11 @@ Do you want to update QZ settings?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation type="unfinished"></translation>
@@ -4646,6 +4651,26 @@ Si tries No, QZ activa Without Wheel Diameter Protocol (Configuració &gt; Opcio
         <source>Services</source>
         <translation>Serveis</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>El dispositiu simulat (%1) està actiu. Si no era intencionat, desactiva'l a Configuració.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Bicicleta</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Cinta de córrer</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>El·líptica</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Rem</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -6931,6 +6956,14 @@ Please enter it below:</source>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Traçat GPS sintètic per a Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Afegeix un traçat GPS sintètic a les activitats virtuals sense GPS. Strava podria mostrar el desnivell positiu, però la ruta no és real.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

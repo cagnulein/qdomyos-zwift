@@ -3525,6 +3525,10 @@ class QZSettings {
     static const QString wahoo_wheel_question_answered;
     static constexpr bool default_wahoo_wheel_question_answered = false;
 
+    // Optional synthetic coordinates for virtual FIT activities (no real GPS).
+    static const QString strava_synthetic_gps_track;
+    static constexpr bool default_strava_synthetic_gps_track = false;
+
     // Use FTMS 16-bit resistance levels multiplied by 10 for compatible trainers.
     static const QString resistance_compatibility;
     static constexpr bool default_resistance_compatibility = false;

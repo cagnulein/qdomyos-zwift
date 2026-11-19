@@ -199,6 +199,9 @@ class bluetooth : public QObject, public SignalHandler {
     QList<DirconDeviceInfo> dirconDevices() const;
     bool onlyDiscover = false;
     volatile bool homeformLoaded = false;
+    // Notifies the Bluetooth manager when UI slots have been installed.
+    // Defers only bonded Coach S direct SPP; fake devices retain normal startup.
+    void onHomeformReady();
 
     // Search for the equipment, for the status line on the home page
     bool isSearching() const;
@@ -211,6 +214,12 @@ class bluetooth : public QObject, public SignalHandler {
      * already running), otherwise the seconds until the scheduled search.
      */
     int searchNow();
+    /**
+     * @brief searchForDeviceList Searches for the devices of an opened list of devices. With a device connected the
+     * search only fills the list and connects nothing, and it is skipped near the Android limit; without one it is
+     * searchNow(). Does nothing if a search is running or discovery is off.
+     */
+    void searchForDeviceList();
 
     // True when the advertised services include one of a fitness machine (FTMS, Cycling Power, Cycling Speed and
     // Cadence, the Concept2 PM5 or Echelon service), as QZ's own virtual devices and most machines advertise next
@@ -227,6 +236,15 @@ class bluetooth : public QObject, public SignalHandler {
 
   private:
     bool useDiscovery = false;
+#ifdef Q_OS_ANDROID
+    // Only the already-bonded Coach S direct SPP path is deferred.
+    // Do not delay normal Bluetooth discovery, fake equipment, or DirCon.
+    bool coachSDirectPendingHomeform = false;
+    // Try the selected, previously bonded Coach S directly once before
+    // falling back to the existing Bluetooth discovery/reconnect loop.
+    bool coachSDirectAttempted = false;
+    bool coachSDirectInProgress = false;
+#endif
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
     QBluetoothDeviceDiscoveryAgent *hrmDiscoveryAgent = nullptr;
@@ -400,6 +418,9 @@ class bluetooth : public QObject, public SignalHandler {
      * @brief Start the Bluetooth discovery agent.
      */
     void startDiscovery();
+#ifdef Q_OS_ANDROID
+    bool tryConnectBondedCoachS();
+#endif
 
     /**
      * @brief Stop the Bluetooth discovery agent.
@@ -460,6 +481,8 @@ class bluetooth : public QObject, public SignalHandler {
     static constexpr qint64 scanStartWindowMs = 30000;
     QList<qint64> scanStartsMs;
     void pruneScanStarts(qint64 now);
+    // The search of searchForDeviceList() with a device connected: what it finds is not connected
+    bool deviceListScan = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = nullptr;

@@ -2147,6 +2147,11 @@ QZの設定を更新しますか?</translation>
         <translation>傾斜度 (%)</translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>1つのグラフに:</translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation>平均出力</translation>
@@ -4823,6 +4828,26 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
 QZ がこの値を変更することを許可しますか？
 
 「いいえ」：QZ が「簡易Wahoo互換プロトコルを使用」をオンにし（設定 &gt; バイク設定 &gt; Wahooスマートトレーナー連携設定）、バーチャルギアは勾配を通じて動作します。「はい」を選んだ場合は、後で同じ場所で元に戻せます：この設定をオンにし、トレーナーを接続した状態で「トレーナーをデフォルト設定に戻す」をタップしてください。</translation>
+    </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>仮想デバイス（%1）が有効です。意図した設定でない場合は、設定から無効にしてください。</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>バイク</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>トレッドミル</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>エリプティカル</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>ローイングマシン</translation>
     </message>
 </context>
 <context>
@@ -7648,6 +7673,14 @@ Please enter it below:</source>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation>Strava バーチャルアクティビティタグ</translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Strava 用の合成 GPS トラック</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>GPS のないバーチャルアクティビティに合成 GPS トラックを書き込みます。Strava で獲得標高が表示される可能性がありますが、ルートは実在しません。</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

@@ -2034,6 +2034,11 @@ Do you want to update QZ settings?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation type="unfinished"></translation>
@@ -4646,6 +4651,26 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <source>Services</source>
         <translation>सेवाएँ</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>सिम्युलेट किया गया डिवाइस (%1) सक्रिय है। यदि यह जानबूझकर नहीं किया गया, तो इसे सेटिंग्स में बंद करें।</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>साइकिल</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>ट्रेडमिल</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>एलिप्टिकल</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>रोइंग मशीन</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -6931,6 +6956,14 @@ Please enter it below:</source>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Strava सिंथेटिक GPS ट्रैक</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>GPS रहित वर्चुअल गतिविधियों में सिंथेटिक GPS ट्रैक जोड़ता है। इससे Strava चढ़ाई की ऊँचाई दिखा सकता है, लेकिन यह मार्ग वास्तविक नहीं है।</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

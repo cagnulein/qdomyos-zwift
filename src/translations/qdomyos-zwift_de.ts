@@ -2147,6 +2147,11 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
         <translation>Neigung (%)</translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>In einem Diagramm:</translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation>Durchschnittsleistung</translation>
@@ -4819,6 +4824,26 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
 Darf QZ diesen Wert ändern?
 
 „Nein“: QZ schaltet „Ohne Laufrad-Durchmesser-Protokoll“ ein (Einstellungen &gt; Fahrradoptionen &gt; Wahoo Optionen), und virtuelle Gänge laufen über die Steigung. Bei „Ja“ lässt sich das später dort rückgängig machen: diese Option einschalten und bei verbundenem Trainer auf „Standardeinstellung des Trainers wiederherstellen“ tippen.</translation>
+    </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Das simulierte Gerät (%1) ist aktiv. Falls dies unbeabsichtigt ist, deaktiviere es in den Einstellungen.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Fahrrad</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Laufband</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Crosstrainer</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Rudergerät</translation>
     </message>
 </context>
 <context>
@@ -7612,6 +7637,14 @@ Bitte geben Sie ihn unten ein:</translation>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation>Strava-Tag für virtuelle Aktivitäten</translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Synthetische GPS-Strecke für Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Fügt virtuellen Aktivitäten ohne GPS eine synthetische GPS-Strecke hinzu. Strava zeigt dadurch möglicherweise den Höhengewinn an, die Route ist jedoch nicht real.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

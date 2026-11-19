@@ -161,13 +161,23 @@ ScrollView {
         return points
     }
 
+    // Fills the rows in place, not with clear() + append(): an emptied table made the page shorter for
+    // a moment and scrolled it back to the top (Reset Example at the end of the page). The fields
+    // follow the model - their handlers keep the text bindings - so a row given another point shows it
     function setPoints(points) {
-        pointListModel.clear()
+        while (pointListModel.count > points.length) {
+            pointListModel.remove(pointListModel.count - 1)
+        }
         for (var i = 0; i < points.length; i++) {
-            pointListModel.append({
+            var row = {
                 inclination: points[i].inclination,
                 resistance: points[i].resistance
-            })
+            }
+            if (i < pointListModel.count) {
+                pointListModel.set(i, row)
+            } else {
+                pointListModel.append(row)
+            }
         }
     }
 
@@ -193,20 +203,22 @@ ScrollView {
         settings.custom_inclination_resistance_table = pointsToString()
     }
 
+    // Sorts the rows with move(), not with setPoints(): the number of rows does not change, so the
+    // page keeps its scroll, and a moved row keeps its delegate - the field being edited goes with its
+    // point instead of showing another one, and is not destroyed (a destroyed field finished its
+    // editing from a row that was gone, index -1)
     function sortPointsAndSave() {
-        var points = []
-        for (var i = 0; i < pointListModel.count; i++) {
-            var point = pointListModel.get(i)
-            points.push({
-                inclination: parseNumber(point.inclination),
-                resistance: normalizeResistance(point.resistance)
-            })
+        for (var i = 0; i < pointListModel.count - 1; i++) {
+            var lowest = i
+            for (var j = i + 1; j < pointListModel.count; j++) {
+                if (parseNumber(pointListModel.get(j).inclination) < parseNumber(pointListModel.get(lowest).inclination)) {
+                    lowest = j
+                }
+            }
+            if (lowest !== i) {
+                pointListModel.move(lowest, i, 1)
+            }
         }
-
-        points.sort(function(a, b) {
-            return a.inclination - b.inclination
-        })
-        setPoints(points)
         savePoints()
     }
 
@@ -221,7 +233,6 @@ ScrollView {
         }
         pointListModel.setProperty(index, role, parsed)
         savePoints()
-        return formatNumber(parsed)
     }
 
     function adjustPoint(index, role, delta) {
@@ -233,7 +244,6 @@ ScrollView {
         }
         pointListModel.setProperty(index, role, updated)
         savePoints()
-        return formatNumber(updated)
     }
 
     function addPoint() {
@@ -400,16 +410,22 @@ ScrollView {
                         Layout.fillHeight: true
                         label: qsTr("Inclination (%)")
                         text: formatNumber(inclination)
+                        // After each change the text is bound to the model again, not set to a
+                        // number: a set text drops the binding and keeps an old number when
+                        // setPoints() gives the row another point; the new binding also replaces
+                        // what was typed (5,0 -> 5)
                         onStep: {
-                            text = adjustPoint(index, "inclination", delta)
+                            adjustPoint(index, "inclination", delta)
+                            text = Qt.binding(function() { return formatNumber(inclination) })
                             Qt.callLater(sortPointsAndSave)
                         }
-                        // index -1: the row is going away - sortPointsAndSave rebuilds the model,
-                        // and the field that had the focus finishes its editing once more
+                        // index -1: the row is going away - its remove button is a MouseArea that
+                        // does not take the focus, so the field finishes its editing afterwards
                         onEdited: {
                             if (index < 0)
                                 return
-                            text = updatePoint(index, "inclination", value)
+                            updatePoint(index, "inclination", value)
+                            text = Qt.binding(function() { return formatNumber(inclination) })
                             Qt.callLater(sortPointsAndSave)
                         }
                     }
@@ -420,8 +436,16 @@ ScrollView {
                         Layout.fillHeight: true
                         label: qsTr("Resistance")
                         text: formatNumber(resistance)
-                        onStep: text = adjustPoint(index, "resistance", delta)
-                        onEdited: if (index >= 0) text = updatePoint(index, "resistance", value)
+                        onStep: {
+                            adjustPoint(index, "resistance", delta)
+                            text = Qt.binding(function() { return formatNumber(resistance) })
+                        }
+                        onEdited: {
+                            if (index < 0)
+                                return
+                            updatePoint(index, "resistance", value)
+                            text = Qt.binding(function() { return formatNumber(resistance) })
+                        }
                     }
 
                     MouseArea {
@@ -474,8 +498,10 @@ ScrollView {
                                 text: "-"
                                 Layout.preferredWidth: 34
                                 Layout.fillHeight: true
+                                // The text bound to the model again, as in the modern Stepper
                                 onClicked: {
-                                    inclinationField.text = adjustPoint(index, "inclination", -0.5)
+                                    adjustPoint(index, "inclination", -0.5)
+                                    inclinationField.text = Qt.binding(function() { return formatNumber(inclination) })
                                     Qt.callLater(sortPointsAndSave)
                                 }
                             }
@@ -496,7 +522,8 @@ ScrollView {
                                     radius: 2
                                 }
                                 function applyValue() {
-                                    text = updatePoint(index, "inclination", text)
+                                    updatePoint(index, "inclination", text)
+                                    text = Qt.binding(function() { return formatNumber(inclination) })
                                     Qt.callLater(sortPointsAndSave)
                                 }
                                 onAccepted: applyValue()
@@ -508,7 +535,8 @@ ScrollView {
                                 Layout.preferredWidth: 34
                                 Layout.fillHeight: true
                                 onClicked: {
-                                    inclinationField.text = adjustPoint(index, "inclination", 0.5)
+                                    adjustPoint(index, "inclination", 0.5)
+                                    inclinationField.text = Qt.binding(function() { return formatNumber(inclination) })
                                     Qt.callLater(sortPointsAndSave)
                                 }
                             }
@@ -532,7 +560,10 @@ ScrollView {
                                 text: "-"
                                 Layout.preferredWidth: 34
                                 Layout.fillHeight: true
-                                onClicked: resistanceField.text = adjustPoint(index, "resistance", -0.5)
+                                onClicked: {
+                                    adjustPoint(index, "resistance", -0.5)
+                                    resistanceField.text = Qt.binding(function() { return formatNumber(resistance) })
+                                }
                             }
 
                             TextField {
@@ -551,7 +582,8 @@ ScrollView {
                                     radius: 2
                                 }
                                 function applyValue() {
-                                    text = updatePoint(index, "resistance", text)
+                                    updatePoint(index, "resistance", text)
+                                    text = Qt.binding(function() { return formatNumber(resistance) })
                                 }
                                 onAccepted: applyValue()
                                 onEditingFinished: applyValue()
@@ -561,7 +593,10 @@ ScrollView {
                                 text: "+"
                                 Layout.preferredWidth: 34
                                 Layout.fillHeight: true
-                                onClicked: resistanceField.text = adjustPoint(index, "resistance", 0.5)
+                                onClicked: {
+                                    adjustPoint(index, "resistance", 0.5)
+                                    resistanceField.text = Qt.binding(function() { return formatNumber(resistance) })
+                                }
                             }
                         }
                     }

@@ -151,6 +151,8 @@ const WebTranslationEntry entries[] = {
     {"chart.value", QT_TRANSLATE_NOOP("WebTranslations", "Value")},
     {"chart.cadenceRpmUpper", QT_TRANSLATE_NOOP("WebTranslations", "Cadence (RPM)")},
     {"chart.inclinationPercent", QT_TRANSLATE_NOOP("WebTranslations", "Inclination (%)")},
+    //: Workout charts: before the chips that put the selected metrics together on one chart.
+    {"chart.onOneChart", QT_TRANSLATE_NOOP("WebTranslations", "On one chart:")},
     //: Chart summary: average power during the workout, in watts.
     {"chart.avgOutput", QT_TRANSLATE_NOOP("WebTranslations", "Avg Output")},
     //: Chart summary: maximum power during the workout, in watts.

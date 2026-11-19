@@ -2095,6 +2095,11 @@ Aktualizovat nastavení QZ?</translation>
         <translation>Sklon (%)</translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>Na jednom grafu:</translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation>Prům. výkon</translation>
@@ -4812,6 +4817,26 @@ Povolit QZ tuto hodnotu měnit?
 
 „Ne“: QZ zapne „Bez protokolu průměru kola“ (Nastavení &gt; Možnosti kola &gt; Možnosti Wahoo) a virtuální převody budou fungovat přes stoupání. Při volbě „Ano“ to můžete později vrátit tamtéž: zapněte tuto možnost a při připojeném trenažéru klepněte na „Obnovit výchozí nastavení trenažéru“.</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Simulované zařízení (%1) je aktivní. Pokud to nebylo záměrné, vypněte ho v Nastavení.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Kolo</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Běžecký pás</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Eliptický trenažér</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Veslovací trenažér</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -7212,6 +7237,14 @@ Zadejte ho níže:</translation>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation>Štítek virtuální aktivity Strava</translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Syntetická GPS trasa pro Stravu</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Přidá syntetickou GPS trasu k virtuálním aktivitám bez GPS. Strava pak může zobrazit nastoupané metry, ale trasa není skutečná.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

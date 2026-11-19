@@ -2079,6 +2079,11 @@ Vil du oppdatere QZ-innstillingene?</translation>
         <translation>Stigning (%)</translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>I ett diagram:</translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation>Snitteffekt</translation>
@@ -4796,6 +4801,26 @@ Skal QZ få endre denne verdien?
 
 «Nei»: QZ slår på «Uten hjuldiameterprotokoll» (Innstillinger &gt; Sykkelalternativer &gt; Alternativer for Wahoo), og virtuelle gir virker via stigningen. Med «Ja» kan du angre dette senere samme sted: slå på dette alternativet og trykk på «Gjenopprett standardinnstilling på sykkelrullen» mens sykkelrullen er tilkoblet.</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Den simulerte enheten (%1) er aktiv. Hvis dette ikke var tilsiktet, deaktiver den i Innstillinger.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Sykkel</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Tredemølle</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Ellipsemaskin</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Romaskin</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -7164,6 +7189,14 @@ Skriv den inn nedenfor:</translation>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation>Strava-merke for virtuell aktivitet</translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Syntetisk GPS-spor for Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Legger til et syntetisk GPS-spor i virtuelle aktiviteter uten GPS. Strava kan da vise høydestigning, men ruten er ikke ekte.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

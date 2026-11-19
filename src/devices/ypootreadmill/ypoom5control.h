@@ -15,7 +15,13 @@ class YpooM5Control {
         double value;
     };
 
-    void reset() { *this = YpooM5Control(); }
+    void reset() {
+        const double keptMaxIncline = maxIncline; // The model does not change on a reconnection.
+        *this = YpooM5Control();
+        maxIncline = keptMaxIncline;
+    }
+    // 15 % on the M5; the M3 MAX console inclines up to 42 %.
+    void setMaxIncline(double value) { maxIncline = value; }
     bool running() const { return speed > 0; }
     bool hasFreshTelemetry(int64_t now) const { return lastTelemetry >= 0 && now - lastTelemetry <= 2000; }
     bool canResumeRecording(int64_t now) const {
@@ -77,7 +83,7 @@ class YpooM5Control {
     }
 
     bool requestIncline(double value) {
-        if (!std::isfinite(value) || value < -6.0 || value > 15.0)
+        if (!std::isfinite(value) || value < -6.0 || value > maxIncline)
             return false;
         double target = std::round(value);
         if (value == std::floor(value) + 0.5) {
@@ -248,6 +254,7 @@ class YpooM5Control {
     int64_t zeroSpeedSince = -1;
     double speed = 0;
     double incline = 0;
+    double maxIncline = 15.0;
     Action failure = Action::None;
 };
 

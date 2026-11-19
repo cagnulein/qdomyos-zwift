@@ -2034,6 +2034,11 @@ Do you want to update QZ settings?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation type="unfinished"></translation>
@@ -4646,6 +4651,26 @@ Jika memilih Tidak, QZ mengaktifkan Without Wheel Diameter Protocol (Pengaturan 
         <source>Services</source>
         <translation>Layanan</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Perangkat simulasi (%1) aktif. Jika tidak disengaja, nonaktifkan di Pengaturan.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Sepeda</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Treadmill</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Eliptikal</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Mesin dayung</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -6931,6 +6956,14 @@ Please enter it below:</source>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Jejak GPS sintetis Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Menambahkan jejak GPS sintetis ke aktivitas virtual tanpa GPS. Strava mungkin menampilkan kenaikan elevasi, tetapi rutenya tidak nyata.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

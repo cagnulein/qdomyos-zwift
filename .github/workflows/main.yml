@@ -23,6 +23,15 @@ concurrency:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  ios-release-requirements:
+    name: Validate Xcode 27 and iOS 15 release settings
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check iOS release configuration and regressions
+        run: python3 tools/check_ios_release_requirements.py
+
   window-build:
     runs-on: windows-2022
     strategy:

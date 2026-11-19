@@ -39,3 +39,21 @@ These checks identify whether a control is discoverable, can be activated throug
 
 - VoiceOver navigation, scrolling a QML settings view, and activating a checkbox/text field are distinct interactions.
 - Identifying which step fails is more useful for reproducing an accessibility defect than collecting unrelated fitness-machine logs.
+
+## Android settings switches appear disabled or do not respond in right-to-left layouts
+
+### Provide first
+
+- QZ build, Android version, device model, and the **system display language and layout direction** (left-to-right or right-to-left).
+- Identify the exact settings page and switch that cannot be changed. Describe whether the switch itself is unresponsive or only the surrounding row/label does not respond; include a screenshot without account details.
+- Check whether other switches on the same page respond, and whether the problem appeared after changing phones or language. Do not assume a purchase or license problem based on an icon beside a setting.
+
+### If still unclear
+
+- Without changing other QZ options, compare the same switch with Android's system language temporarily set to English (left-to-right), then restore the original language. Report whether tapping the **switch thumb/track itself** works in each layout.
+- If the difference is repeatable, provide a short screen recording showing the exact tap location and resulting switch state in both layouts. Record QZ and Android versions; a Bluetooth debug log is not the first diagnostic for a UI hit-target issue.
+
+### Why it matters
+
+- Android right-to-left layout can mirror the position of a switch, so its visual position and touch target must be distinguished from an unavailable setting or failed license restoration.
+- In a confirmed support comparison, a setting that seemed inaccessible after changing phones became usable when the system language was switched to English. That isolates a possible layout/touch interaction; it does **not** establish which QML component causes it.

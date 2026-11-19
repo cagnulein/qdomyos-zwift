@@ -313,3 +313,37 @@ TEST_P(MerachT12PriorityTestSuite, FitShowTakesPriorityOverFitPlus) {
 
 INSTANTIATE_TEST_SUITE_P(MerachT12Priority, MerachT12PriorityTestSuite,
                          testing::Values(DeviceIndex::FitShowMerachT12));
+
+// Every "YPTM-U" name uses the YPOO driver, whatever follows the U. The YPOO treadmill has no enabling
+// configuration, so the valid-name test above never tries its names: check the rule here.
+class YpooTreadmillNameTestSuite : public BluetoothDeviceTestSuite {};
+
+TEST_P(YpooTreadmillNameTestSuite, YptmUNameUsesTheYpooDriver) {
+    const auto *horizonData = DeviceTestDataIndex::GetTestData(DeviceIndex::HorizonTreadmill);
+    ASSERT_NE(nullptr, horizonData);
+
+    bluetooth bt(this->defaultDiscoveryOptions);
+
+    for (const QString &name : {QStringLiteral("YPTM-UA1B2C3"), QStringLiteral("yptm-ua1b2c3"),
+                                QStringLiteral("YPTM-U0A1B2C"), QStringLiteral("YPTM-U1")}) {
+        auto configs = this->getConfigurations(this->testParam, name, true);
+        ASSERT_FALSE(configs.empty());
+        this->testSettings.loadFrom(configs[0]);
+        this->applyCiSafeRuntimeSettings();
+        this->testDeviceDetection(this->testParam, bt, *configs[0].DeviceInfo(), true, true,
+                                  QStringLiteral("A YPTM-U name should use the YPOO driver, got a {typeName}"));
+    }
+
+    // A YPTM- name without the U keeps the Horizon driver's YPTM- match.
+    for (const QString &name : {QStringLiteral("YPTM-A1B2C3"), QStringLiteral("yptm-a1b2c3")}) {
+        auto configs = this->getConfigurations(horizonData, name, true);
+        ASSERT_FALSE(configs.empty());
+        this->testSettings.loadFrom(configs[0]);
+        this->applyCiSafeRuntimeSettings();
+        this->testDeviceDetection(horizonData, bt, *configs[0].DeviceInfo(), true, true,
+                                  QStringLiteral("Other YPTM- names should stay with Horizon, got a {typeName}"));
+    }
+}
+
+INSTANTIATE_TEST_SUITE_P(YpooTreadmillName, YpooTreadmillNameTestSuite,
+                         testing::Values(DeviceIndex::YpooTreadmill));

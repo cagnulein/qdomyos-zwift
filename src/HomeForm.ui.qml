@@ -519,11 +519,21 @@ Page {
             // Made only in the modern look before the first connection
             active: window.ui.modern && rootItem.labelHelp
             visible: active
-            anchors.top: row1.bottom
-            anchors.topMargin: 24
+            // The scroll area starts 8 dp under the place of the two lines of the search status, as
+            // the status starts 8 dp under the buttons: the scrolled checklist is cut under the
+            // status, not in the middle of the empty space. Over this state the status changes
+            // with every search: two lines ("<device> found" and the countdown, the second 0.8 of
+            // a line lower), one line, or none (e.g. searching with nothing found yet, Bluetooth off).
+            // The place of the two lines is kept in all of them, so the page does not move; with
+            // one line or none the cut is further below what is shown. 1.8 lines + 5: 5 and the
+            // room under the letters of the second line make the 8 dp, as 13 makes 16 in
+            // modernTilesTop. With the top bar off - 24 dp under row1
+            readonly property real edgeTop: page.modernControlsShown ? modernInfo.y + 1.8 * statusLine.height + 5
+                                                                     : row1.y + row1.height + 24
+            y: edgeTop
             anchors.horizontalCenter: parent.horizontalCenter
             width: Math.min(parent.width - 2 * window.contentSideMargin, 560)
-            height: page.height - (row1.y + row1.height) - 24
+            height: page.height - edgeTop
             sourceComponent: Flickable {
                 contentHeight: emptyColumn.height + 24
                 // The support button "?" shows mostly in this state ("No device connected"): room for
@@ -553,7 +563,11 @@ Page {
 
                     Label {
                         width: parent.width
-                        topPadding: 4
+                        // At rest the heading letters are about 24 dp under the place of the two
+                        // status lines (8 dp inside a group, 24 between sections): 8 dp from the
+                        // status to the edge of the area, this padding and the room above the
+                        // capitals make the 24. It scrolls with the heading
+                        topPadding: page.modernControlsShown ? 11 : 4
                         text: qsTranslate("HomeForm.ui", "Looking for your equipment…")
                         horizontalAlignment: Text.AlignHCenter
                         wrapMode: Text.WordWrap

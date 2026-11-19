@@ -2,10 +2,18 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/css/ol.css" type="text/css">
+    <!-- OpenLayers 6.14.1 pinned to a commit of openlayers.github.io: the site's master branch no longer has it.
+         Newer full builds need a newer WebView (Chrome 60+) than the rest of this page (Chrome 49+). -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@8babde6bd1f6b85d26e7db1fe710e9887bec18ea/en/v6.14.1/css/ol.css" type="text/css">
     <style>
+      /* The map fills the web view: no default 8 px body margin, the height of the view
+         instead of a fixed 1000 px that ran below the screen */
+      html, body {
+        height: 100%;
+        margin: 0;
+      }
       .map {
-        height: 1000px;
+        height: 100%;
         width: 100%;
       }
     </style>
@@ -13,7 +21,7 @@
     <script src="globals.js"></script>
      <script src="main_ws_manager.js"></script>
     <script src="../i18n/i18n.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/build/ol.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@8babde6bd1f6b85d26e7db1fe710e9887bec18ea/en/v6.14.1/build/ol.js"></script>
     <title>OpenLayers example</title>
   </head>
   <body>

@@ -2034,6 +2034,11 @@ Do you want to update QZ settings?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation type="unfinished"></translation>
@@ -4646,6 +4651,26 @@ Dacă alegi Nu, QZ activează Without Wheel Diameter Protocol (Setări &gt; Opț
         <source>Services</source>
         <translation>Servicii</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Dispozitivul simulat (%1) este activ. Dacă acest lucru nu a fost intenționat, dezactivează-l din Setări.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Bicicletă</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Bandă de alergare</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Eliptică</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Aparat de vâslit</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -6931,6 +6956,14 @@ Please enter it below:</source>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Traseu GPS sintetic Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Adaugă un traseu GPS sintetic activităților virtuale fără GPS. Strava poate afișa diferența de nivel, dar traseul nu este real.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

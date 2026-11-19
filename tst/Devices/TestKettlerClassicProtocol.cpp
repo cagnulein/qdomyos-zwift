@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <QByteArray>
+#include <cmath>
 
 #include "devices/kettlerclassicbike/kettlerclassicprotocol.h"
 
@@ -214,6 +215,30 @@ TEST(KettlerClassicProtocol, CoachSDecodesCandidatePowerFromRealE0Telemetry) {
     EXPECT_EQ(kettlerclassicprotocol::coachSCandidateWatts(w170.left(20)), 0);
 }
 
+TEST(KettlerClassicProtocol, CoachSConsoleWattsUseE0BytesSixSeven) {
+    // Physical Coach S, 2026-11-18. Values matched console readings at
+    // completed stroke boundaries; bytes 18-19 do not contain those watts.
+    const struct { const char *payload; quint16 watts; } captures[] = {
+        {"000400280018009100c4046d0000000001ae000000000004", 145}, // old workout
+        {"000400290006000c001001e8120200f401b8005013130004", 12},
+        {"0004002b008c0011001704b11f8500b601d000500a740004", 17}
+    };
+    for (const auto &entry : captures) {
+        const QByteArray e0 = QByteArray::fromHex(entry.payload);
+        ASSERT_EQ(e0.size(), 24);
+        EXPECT_EQ(kettlerclassicprotocol::coachSStrokeWatts(e0), entry.watts);
+    }
+    QByteArray invalid(24, char(0));
+    invalid[0] = char(0);
+    invalid[1] = char(4);
+    invalid[6] = char(0);
+    invalid[7] = char(0xc5);
+    EXPECT_EQ(kettlerclassicprotocol::coachSStrokeWatts(invalid), 197);
+    invalid[1] = char(5);
+    EXPECT_EQ(kettlerclassicprotocol::coachSStrokeWatts(invalid), 0);
+    EXPECT_EQ(kettlerclassicprotocol::coachSStrokeWatts(invalid.left(20)), 0);
+}
+
 TEST(KettlerClassicProtocol, CoachSResistanceWritesMatchKinomapHciCapture) {
     // Kinomap's confirmed physical-load sequence was L4 -> L6 -> L5 ->
     // L3 -> L4. The C0/02 writes have a one-byte resistance-level payload.
@@ -268,4 +293,220 @@ TEST(KettlerClassicProtocol, CoachSE0LastByteReportsResistance) {
     capturedTelemetry[23] = char(11);
     EXPECT_EQ(kettlerclassicprotocol::coachSReportedResistance(capturedTelemetry), 0);
     EXPECT_EQ(kettlerclassicprotocol::coachSReportedResistance(capturedTelemetry.left(23)), 0);
+}
+
+TEST(KettlerClassicProtocol, CoachSPowerPublishesOnlyOnCompletedStrokes) {
+    kettlerclassicprotocol::CoachSStrokePowerSmoother smoothing;
+    // Old session's 145 W must not leak into a new QZ workout.
+    EXPECT_EQ(smoothing.addSample(40, 145, 0), 0);
+    EXPECT_EQ(smoothing.addSample(40, 212, 100), 0); // handle nudge
+    EXPECT_EQ(smoothing.addSample(40, 231, 300), 0); // no completed stroke
+    EXPECT_EQ(smoothing.addSample(40, 145, 500), 0);
+    EXPECT_EQ(smoothing.addSample(41, 12, 5200), 12);
+    EXPECT_EQ(smoothing.addSample(41, 145, 5400), 12);
+    EXPECT_EQ(smoothing.addSample(42, 12, 7200), 12);
+    EXPECT_EQ(smoothing.addSample(43, 17, 9200), 17);
+    EXPECT_EQ(smoothing.addSample(44, 142, 11200), 142);
+    EXPECT_EQ(smoothing.addSample(45, 186, 13200), 186);
+    EXPECT_EQ(smoothing.addSample(46, 197, 15200), 197);
+    EXPECT_EQ(smoothing.addSample(47, 167, 17200), 167);
+}
+
+TEST(KettlerClassicProtocol, CoachSCoastingSamplesCannotKeepPowerAlive) {
+    kettlerclassicprotocol::CoachSStrokePowerSmoother smoothing;
+    EXPECT_EQ(smoothing.addSample(69, 145, 0), 0);
+    EXPECT_EQ(smoothing.addSample(70, 186, 1000), 186);
+    EXPECT_EQ(smoothing.addSample(70, 999, 2000), 186);
+    EXPECT_EQ(smoothing.addSample(71, 167, 3000), 167);
+    EXPECT_EQ(smoothing.addSample(71, 999, 4500), 167);
+    EXPECT_TRUE(smoothing.active(6000));
+    EXPECT_EQ(smoothing.addSample(71, 999, 6100), 0);
+    EXPECT_FALSE(smoothing.active(6100));
+    for (int ms = 6500; ms <= 20000; ms += 500)
+        EXPECT_EQ(smoothing.addSample(71, 999, ms), 0);
+    EXPECT_EQ(smoothing.value(20500), 0);
+    EXPECT_EQ(smoothing.addSample(72, 12, 21000), 12);
+    EXPECT_TRUE(smoothing.active(21000));
+}
+
+TEST(KettlerClassicProtocol, CoachSShortStrokeDoesNotTruncateNextSlowerRecovery) {
+    kettlerclassicprotocol::CoachSStrokePowerSmoother smoothing;
+    EXPECT_EQ(smoothing.addSample(60, 50, 0), 0);
+    EXPECT_EQ(smoothing.addSample(61, 100, 1000), 100);
+    EXPECT_EQ(smoothing.addSample(62, 200, 2470), 200);
+    // Captured adjacent periods: 1.47 s then 2.57 s. Keep the minimum
+    // 3-second inactivity window, not 1.5 seconds.
+    EXPECT_EQ(smoothing.value(5030), 200);
+    EXPECT_EQ(smoothing.addSample(63, 80, 5040), 80);
+}
+
+TEST(KettlerClassicProtocol, CoachSStrokePowerAdaptiveStopAndReset) {
+    kettlerclassicprotocol::CoachSStrokePowerSmoother smoothing;
+    EXPECT_EQ(smoothing.addSample(1, 160, 0), 0);
+    EXPECT_EQ(smoothing.addSample(2, 20, 1000), 20);
+    EXPECT_EQ(smoothing.addSample(2, 999, 4000), 20);
+    EXPECT_EQ(smoothing.addSample(3, 30, 5000), 30);
+    EXPECT_EQ(smoothing.value(10000), 30);
+    EXPECT_EQ(smoothing.value(11001), 0);
+    EXPECT_EQ(smoothing.addSample(0, 240, 12000), 0);
+    EXPECT_EQ(smoothing.addSample(1, 9, 14000), 9);
+    smoothing.reset();
+    EXPECT_FALSE(smoothing.active(15000));
+    EXPECT_EQ(smoothing.value(15000), 0);
+}
+
+TEST(KettlerClassicProtocol, CoachSDefaultL4UsesConfirmedC0Write) {
+    // Default L4 is the same real Kinomap write proven in the hardware test.
+    const QByteArray initialL4 =
+        kettlerclassicprotocol::encodeFrameWithEscapedPayloadLength(
+            0x00c0, 0x02, QByteArray(1, char(4)));
+    EXPECT_EQ(initialL4, QByteArray::fromHex("0200c01022000104032dfd"));
+}
+
+TEST(KettlerClassicProtocol, CoachSCounterResetDuringActiveRowClearsPreviousStroke) {
+    kettlerclassicprotocol::CoachSStrokePowerSmoother smoothing;
+    EXPECT_EQ(smoothing.addSample(20, 120, 0), 0);
+    EXPECT_EQ(smoothing.addSample(20, 180, 200), 0);
+    EXPECT_EQ(smoothing.addSample(21, 180, 800), 180);
+    EXPECT_EQ(smoothing.addSample(0, 300, 1200), 0);
+    EXPECT_EQ(smoothing.addSample(0, 300, 1400), 0);
+    EXPECT_EQ(smoothing.addSample(1, 10, 2600), 10);
+    EXPECT_EQ(smoothing.value(5701), 0);
+}
+
+TEST(KettlerClassicProtocol, CoachSSessionCountersStartAtZeroAndRebase) {
+    kettlerclassicprotocol::CoachSSessionCounters counters;
+    EXPECT_TRUE(counters.addSample(71, 653, false));
+    EXPECT_EQ(counters.strokes(), 0u);
+    EXPECT_EQ(counters.meters(), 0u);
+    EXPECT_FALSE(counters.addSample(71, 660, false)); // idle flywheel
+    EXPECT_EQ(counters.meters(), 0u);
+    EXPECT_FALSE(counters.addSample(72, 663, true)); // first fresh stroke
+    EXPECT_EQ(counters.strokes(), 1u);
+    EXPECT_EQ(counters.meters(), 3u);
+    EXPECT_FALSE(counters.addSample(72, 666, true)); // no new stroke
+    EXPECT_EQ(counters.meters(), 3u);
+    EXPECT_FALSE(counters.addSample(72, 671, false)); // idle rebase
+    EXPECT_FALSE(counters.addSample(73, 675, true));
+    EXPECT_EQ(counters.strokes(), 2u);
+    EXPECT_EQ(counters.meters(), 7u);
+    counters.clearWorkout();
+    EXPECT_EQ(counters.strokes(), 0u);
+    EXPECT_EQ(counters.meters(), 0u);
+    EXPECT_FALSE(counters.addSample(73, 677, false));
+    EXPECT_FALSE(counters.addSample(74, 682, true));
+    EXPECT_EQ(counters.strokes(), 1u);
+    EXPECT_EQ(counters.meters(), 5u);
+    EXPECT_TRUE(counters.addSample(0, 0, false)); // console reset
+    EXPECT_EQ(counters.strokes(), 1u);
+    EXPECT_EQ(counters.meters(), 5u);
+    EXPECT_FALSE(counters.addSample(1, 9, true));
+    EXPECT_EQ(counters.strokes(), 2u);
+    EXPECT_EQ(counters.meters(), 14u);
+    counters.reset();
+    EXPECT_TRUE(counters.addSample(71, 653, false));
+    EXPECT_EQ(counters.strokes(), 0u);
+    EXPECT_EQ(counters.meters(), 0u);
+}
+
+TEST(KettlerClassicProtocol, CoachSConcept2PaceUsesWattsNotFlywheelDistance) {
+    kettlerclassicprotocol::CoachSPowerBasedPace pace;
+    // 2026-11-18, 20:35:50 (L4, 185 W) and 20:35:58 (L5, 338 W):
+    // raw Coach S flywheel distance remained about 8 m/stroke despite
+    // almost doubled real power. Concept2-equivalent speed must increase.
+    pace.completedStroke(185, -1, false); // first stroke: no interval yet
+    const double lowSpeed = pace.speedKmh();
+    EXPECT_NEAR(lowSpeed, std::cbrt(185.0 / 2.8) * 3.6, 0.001);
+    EXPECT_NEAR(500.0 / (lowSpeed / 3.6), 123.7, 0.5); // s/500 m
+    EXPECT_DOUBLE_EQ(pace.meters(), 0.0);
+
+    pace.completedStroke(185, 1981, true);
+    const double firstDistance = pace.meters();
+    EXPECT_NEAR(firstDistance, (lowSpeed / 3.6) * 1.981, 0.001);
+
+    pace.completedStroke(338, 1981, true);
+    const double highSpeed = pace.speedKmh();
+    EXPECT_NEAR(highSpeed, std::cbrt(338.0 / 2.8) * 3.6, 0.001);
+    EXPECT_NEAR(500.0 / (highSpeed / 3.6), 101.2, 0.5); // s/500 m
+    EXPECT_GT(highSpeed, lowSpeed);
+    EXPECT_NEAR(pace.meters() - firstDistance,
+                (highSpeed / 3.6) * 1.981, 0.001);
+}
+
+TEST(KettlerClassicProtocol, CoachSConcept2NoGhostMetersAndStopsCleanly) {
+    kettlerclassicprotocol::CoachSPowerBasedPace pace;
+    pace.completedStroke(145, -1, false); // old initial console watt is ignored
+    // A fresh QZ session has no committed distance before a second stroke.
+    EXPECT_DOUBLE_EQ(pace.meters(), 0.0);
+    pace.reset();
+    EXPECT_DOUBLE_EQ(pace.speedKmh(), 0.0);
+    pace.completedStroke(12, -1, false);
+    EXPECT_DOUBLE_EQ(pace.meters(), 0.0);
+    pace.completedStroke(17, 2000, true);
+    const double lastStrokeDistance = pace.meters();
+    EXPECT_GT(lastStrokeDistance, 0.0);
+    // Idle E0 telemetry from a coasting flywheel does not invoke
+    // completedStroke(): both speed and session distance stay unchanged
+    // until the caller's existing adaptive timeout zeros the speed.
+    EXPECT_DOUBLE_EQ(pace.meters(), lastStrokeDistance);
+
+    pace.completedStroke(142, 8000, false); // first stroke after long stop
+    EXPECT_DOUBLE_EQ(pace.meters(), lastStrokeDistance);
+    EXPECT_GT(pace.speedKmh(), 0.0);
+    pace.completedStroke(186, 2000, true);
+    EXPECT_GT(pace.meters(), lastStrokeDistance);
+
+    const double latest = pace.meters();
+    pace.completedStroke(0, 2000, true);
+    EXPECT_DOUBLE_EQ(pace.speedKmh(), 0.0);
+    EXPECT_DOUBLE_EQ(pace.meters(), latest);
+    pace.reset();
+    EXPECT_DOUBLE_EQ(pace.speedKmh(), 0.0);
+    EXPECT_DOUBLE_EQ(pace.meters(), 0.0);
+}
+
+TEST(KettlerClassicProtocol, CoachSConcept2ModeTogglePreservesDistance) {
+    kettlerclassicprotocol::CoachSPowerBasedPace pace;
+    pace.reset(87.5); // existing raw-counter workout when setting enabled
+    pace.completedStroke(185, -1, false);
+    EXPECT_DOUBLE_EQ(pace.meters(), 87.5);
+    pace.completedStroke(185, 2000, true);
+    EXPECT_GT(pace.meters(), 87.5);
+    const double beforeSwitch = pace.meters();
+    pace.reset(beforeSwitch); // re-enable power-based mode mid-session
+    EXPECT_DOUBLE_EQ(pace.meters(), beforeSwitch);
+    EXPECT_DOUBLE_EQ(pace.speedKmh(), 0.0);
+    pace.completedStroke(185, 2000, false);
+    EXPECT_DOUBLE_EQ(pace.meters(), beforeSwitch);
+}
+
+TEST(KettlerClassicProtocol, CoachSNovember18NudgeAndCoastCannotCreditDistance) {
+    kettlerclassicprotocol::CoachSSessionCounters counters;
+    EXPECT_TRUE(counters.addSample(40, 430, false));
+    for (quint16 meters = 431; meters <= 439; ++meters)
+        EXPECT_FALSE(counters.addSample(40, meters, false));
+    EXPECT_EQ(counters.strokes(), 0u);
+    EXPECT_EQ(counters.meters(), 0u);
+    EXPECT_FALSE(counters.addSample(41, 440, true));
+    EXPECT_EQ(counters.meters(), 1u);
+    EXPECT_FALSE(counters.addSample(41, 449, true));
+    EXPECT_EQ(counters.meters(), 1u);
+    EXPECT_FALSE(counters.addSample(41, 450, false));
+    EXPECT_FALSE(counters.addSample(42, 450, true));
+    EXPECT_EQ(counters.meters(), 1u);
+    EXPECT_FALSE(counters.addSample(42, 463, false));
+    EXPECT_FALSE(counters.addSample(43, 464, true));
+    EXPECT_FALSE(counters.addSample(44, 474, true));
+    EXPECT_FALSE(counters.addSample(45, 480, true));
+    EXPECT_FALSE(counters.addSample(46, 487, true));
+    EXPECT_FALSE(counters.addSample(47, 495, true));
+    const quint64 distanceAtStop = counters.meters();
+    EXPECT_FALSE(counters.addSample(47, 507, true));
+    EXPECT_FALSE(counters.addSample(47, 518, false));
+    EXPECT_EQ(counters.strokes(), 7u);
+    EXPECT_EQ(counters.meters(), distanceAtStop);
+    counters.reset();
+    EXPECT_TRUE(counters.addSample(47, 518, false));
+    EXPECT_EQ(counters.strokes(), 0u);
+    EXPECT_EQ(counters.meters(), 0u);
 }

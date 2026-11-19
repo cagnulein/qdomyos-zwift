@@ -2095,6 +2095,11 @@ QZ ayarları güncellensin mi?</translation>
         <translation>Eğim (%)</translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>Tek grafikte:</translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation>Ort. güç</translation>
@@ -4812,6 +4817,26 @@ QZ&apos;nin bu değeri değiştirmesine izin verilsin mi?
 
 “Hayır”: QZ, “Tekerlek çapı protokolü olmadan” seçeneğini açar (Ayarlar &gt; Bisiklet seçenekleri &gt; Wahoo seçenekleri) ve sanal vitesler eğim üzerinden çalışır. “Evet” derseniz bunu daha sonra aynı yerden geri alabilirsiniz: bu seçeneği açın ve cihaz bağlıyken “Antrenman cihazının varsayılan ayarını geri yükle” düğmesine dokunun.</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Sanal cihaz (%1) etkin. Bunu istemediyseniz Ayarlar'dan devre dışı bırakın.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Bisiklet</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Koşu bandı</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Eliptik bisiklet</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Kürek makinesi</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -7212,6 +7237,14 @@ Kodu aşağıya girin:</translation>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation>Strava sanal aktivite etiketi</translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Strava Sentetik GPS Rotası</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>GPS verisi olmayan sanal etkinliklere sentetik bir GPS rotası ekler. Strava irtifa kazanımını gösterebilir, ancak rota gerçek değildir.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

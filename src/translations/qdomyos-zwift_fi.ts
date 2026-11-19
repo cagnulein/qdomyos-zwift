@@ -2034,6 +2034,11 @@ Do you want to update QZ settings?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation type="unfinished"></translation>
@@ -4646,6 +4651,26 @@ Jos valitset Ei, QZ ottaa käyttöön asetuksen Without Wheel Diameter Protocol 
         <source>Services</source>
         <translation>Palvelut</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Simuloitu laite (%1) on käytössä. Jos tämä ei ollut tarkoitus, poista se käytöstä asetuksissa.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Kuntopyörä</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Juoksumatto</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Crosstrainer</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Soutulaite</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -6931,6 +6956,14 @@ Please enter it below:</source>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Stravan synteettinen GPS-reitti</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Lisää synteettisen GPS-reitin virtuaaliharjoituksiin, joissa ei ole GPS-tietoja. Strava voi näyttää nousumetrit, mutta reitti ei ole todellinen.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

@@ -374,6 +374,38 @@ ApplicationWindow {
         function ink(classic) { return modern ? textMain : classic }
         // Zone colours of the tiles are made for a dark page: darker ones on a light page
         function zoneInk(c) { return dark ? c : Qt.darker(c, 1.7) }
+
+        // Theme of the web pages in a WebView (charts, workout history, maps): their
+        // qz-theme-bridge.js maps these onto CSS variables. Null in the classic look, so the pages
+        // keep their own palette. All tokens are opaque: toString() gives "#rrggbb", which CSS
+        // reads; a translucent one would come out as "#aarrggbb", which CSS misreads.
+        readonly property var webTheme: !modern ? null : ({
+            modern: "1",
+            dark: dark,
+            bg: bg.toString(),
+            surface: surface.toString(),
+            surfaceHigh: surfaceHigh.toString(),
+            outline: outline.toString(),
+            text: textMain.toString(),
+            muted: textMuted.toString(),
+            accent: accent.toString()
+        })
+        // The theme as a URL fragment for the first load of such a page ("" in the classic look)
+        function webThemeFragment() {
+            if (!webTheme)
+                return ""
+            var parts = []
+            for (var key in webTheme) {
+                var value = key === "dark" ? (webTheme.dark ? "1" : "0") : webTheme[key]
+                parts.push(key + "=" + encodeURIComponent(value))
+            }
+            return "#" + parts.join("&")
+        }
+        // Script that applies the current theme to an open page, for WebView.runJavaScript():
+        // qzApplyTheme(null) takes it off when the modern look is switched off
+        function webThemeScript() {
+            return "window.qzApplyTheme && window.qzApplyTheme(" + JSON.stringify(webTheme) + ")"
+        }
     }
 
     // Classic look: undefined resets them to the style (qtquickcontrols2.conf), as without these lines
@@ -744,7 +776,11 @@ ApplicationWindow {
         modal: true
         focus: true
         closePolicy: Popup.NoAutoClose
-        onOpened: refresh_bluetooth_devices_clicked()
+        onOpened: {
+            // opened again after a disconnection: nothing picked yet in this window
+            gymModeDeviceComboBox.value = ""
+            refresh_bluetooth_devices_clicked()
+        }
 
         Column {
             id: gymModeColumn
@@ -768,16 +804,20 @@ ApplicationWindow {
                 horizontalAlignment: Text.AlignHCenter
             }
 
-            ValueComboBox {
+            // A pick connects at once, and the search goes on every 10 seconds: the rows of the open
+            // list must stay where they are (DeviceComboBox). The shown text follows the picked
+            // value, not currentIndex: the list is filled again on every opening
+            DeviceComboBox {
                 id: gymModeDeviceComboBox
                 width: parent.width
-                model: rootItem.bluetoothDevices
                 labels: ({ "Disabled": qsTr("Disabled") })
-                displayText: currentIndex >= 0 ? labelFor(currentValue) : qsTr("Select a device")
-                currentIndex: -1
+                displayText: value !== "" ? labelFor(value) : qsTr("Select a device")
                 font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 8)
 
                 onActivated: {
+                    // Enter with no row highlighted: nothing picked yet
+                    if (index < 0)
+                        return
                     var selectedDevice = stripBluetoothDeviceName(currentValue)
                     if (selectedDevice === "Disabled" || selectedDevice === "Wifi" || selectedDevice.length === 0) {
                         return

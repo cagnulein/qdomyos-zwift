@@ -2034,6 +2034,11 @@ Do you want to update QZ settings?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation type="unfinished"></translation>
@@ -4646,6 +4651,26 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <source>Services</source>
         <translation>บริการ</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>อุปกรณ์จำลอง (%1) เปิดใช้งานอยู่ หากไม่ได้ตั้งใจ ให้ปิดใช้งานในการตั้งค่า</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>จักรยาน</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>ลู่วิ่ง</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>เครื่องเดินวงรี</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>เครื่องกรรเชียงบก</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -6931,6 +6956,14 @@ Please enter it below:</source>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>เส้นทาง GPS จำลองสำหรับ Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>เพิ่มเส้นทาง GPS จำลองให้กิจกรรมเสมือนที่ไม่มี GPS Strava อาจแสดงความสูงสะสมได้ แต่เส้นทางนี้ไม่ใช่เส้นทางจริง</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
