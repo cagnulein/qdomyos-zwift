@@ -48,6 +48,14 @@ class AbstractZapDevice: public QObject {
         }
     }
 
+    // Bike controllers keep their normal repeat behavior. Treadmills use
+    // one command per press rather than accelerating on a held key.
+    void setAutoRepeatEnabled(bool enabled) {
+        m_autoRepeatEnabled = enabled;
+        if (!enabled && autoRepeatTimer)
+            autoRepeatTimer->stop();
+    }
+
     int processCharacteristic(const QString& characteristicName, const QByteArray& bytes, ZWIFT_PLAY_TYPE zapType) {
         if (bytes.isEmpty()) return 0;
 
@@ -726,6 +734,7 @@ class AbstractZapDevice: public QObject {
         return true;
     }
 
+    bool m_autoRepeatEnabled = true;
     static volatile int8_t risingEdge;
     static QTimer* autoRepeatTimer;    // Static timer for auto-repeat
     static bool lastButtonPlus;  // Static track of which button was last pressed
@@ -743,6 +752,10 @@ class AbstractZapDevice: public QObject {
 
   private slots:
     void handleAutoRepeat() {
+        if (!m_autoRepeatEnabled) {
+            autoRepeatTimer->stop();
+            return;
+        }
         uint64_t delta = lastFrame.msecsTo(QDateTime::currentDateTime());
         qDebug() << "gear auto repeat" << lastButtonPlus << lastFrame << delta;
         if(delta > 400) {
