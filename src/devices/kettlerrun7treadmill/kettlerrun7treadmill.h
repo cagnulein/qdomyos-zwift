@@ -2,6 +2,7 @@
 #define KETTLERRUN7TREADMILL_H
 
 #include <QByteArray>
+#include <QElapsedTimer>
 #include <QQueue>
 #include <QTimer>
 #include <QtBluetooth/qlowenergycharacteristic.h>
@@ -20,8 +21,10 @@ class kettlerrun7treadmill : public treadmill {
     Q_OBJECT
 
   public:
-    kettlerrun7treadmill();
+    explicit kettlerrun7treadmill(bool noHeartService = false);
     bool connected() override;
+    // Advertise FTMS telemetry without forwarding physical treadmill control.
+    VirtualTreadmillControl virtualTreadmillControl() const override { return {}; }
     bool canStartStop() override { return false; }
     bool canHandleSpeedChange() override { return false; }
     bool canHandleInclineChange() override { return false; }
@@ -72,6 +75,7 @@ class kettlerrun7treadmill : public treadmill {
     QQueue<quint16> requests;
     QTimer requestTimer;
     QTimer refresh;
+    QElapsedTimer handshakeAttemptTimer;
     quint16 activeFunction = 0;
     bool requestInFlight = false;
     bool waitingForWrite = false;
@@ -79,6 +83,12 @@ class kettlerrun7treadmill : public treadmill {
     bool handshaken = false;
     bool ready = false;
     bool disconnectedReported = false;
+    bool noHeartService = false;
+    bool handshakeScheduled = false;
+    quint32 connectionGeneration = 0;
+    int handshakeAttempts = 0;
+    int handshakeRxChunks = 0;
+    int handshakeRxBytes = 0;
     int telemetryTimeouts = 0;
 };
 

@@ -5,6 +5,8 @@
 #include <QDebug>
 #include <QSettings>
 #include "qzsettings.h"
+#include "virtualdevices/virtualbike.h"
+#include "virtualdevices/virtualtreadmill.h"
 
 namespace {
 // RUN 71 advertises a BLE GATT serial service at UUID 0x1101, with
@@ -26,9 +28,14 @@ const QBluetoothUuid IsscNotify(QStringLiteral("49535343-1e4d-4bd9-ba61-23c64724
 const QByteArray KdriHandshake = QByteArray::fromHex("2d24f22496a4ff9829f921be9daa9e4d0117");
 constexpr int ChunkSize = 20; // Safe without negotiated MTU: ATT MTU 23 - 3.
 constexpr int RequestTimeoutMs = 2500;
+constexpr int NotificationSettleDelayMs = 500;
+constexpr int HandshakeChunkSpacingMs = 180;
+constexpr int HandshakeRetryBaseDelayMs = 350;
+constexpr int MaxHandshakeAttempts = 3; // One initial attempt and two same-GATT-link retries.
 }
 
-kettlerrun7treadmill::kettlerrun7treadmill() {
+kettlerrun7treadmill::kettlerrun7treadmill(bool noHeartService)
+    : noHeartService(noHeartService) {
     m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     requestTimer.setSingleShot(true);
@@ -42,6 +49,13 @@ bool kettlerrun7treadmill::connected() {
 }
 
 void kettlerrun7treadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
+    // Invalidate any delayed handshake/retry callbacks from an older connection.
+    ++connectionGeneration;
+    handshakeScheduled = false;
+    handshakeAttempts = 0;
+    handshakeRxChunks = 0;
+    handshakeRxBytes = 0;
+    disconnectedReported = false;
     bluetoothDevice = device;
     emit debug(QStringLiteral("Kettler RUN 7 BLE: connecting to ") + device.name());
     m_control = QLowEnergyController::createCentral(device, this);
@@ -126,9 +140,23 @@ void kettlerrun7treadmill::descriptorWritten(const QLowEnergyDescriptor &descrip
         value != QByteArray::fromHex("0100"))
         return;
     requestTimer.stop();
-    emit debug(QStringLiteral("Kettler RUN 7 BLE: notifications enabled, sending IRMP handshake"));
-    enqueueRead(Handshake);
-    sendNextRequest();
+    if (handshakeScheduled || requestInFlight || handshaken || ready)
+        return;
+    handshakeScheduled = true;
+    const quint32 generation = connectionGeneration;
+    emit debug(QStringLiteral("Kettler RUN 7 BLE: notifications enabled; waiting ") +
+               QString::number(NotificationSettleDelayMs) +
+               QStringLiteral(" ms before initial IRMP handshake"));
+    QTimer::singleShot(NotificationSettleDelayMs, this, [this, generation]() {
+        if (generation != connectionGeneration)
+            return;
+        handshakeScheduled = false;
+        if (!m_control || m_control->state() != QLowEnergyController::DiscoveredState ||
+            !service || handshaken || ready || requestInFlight)
+            return;
+        enqueueRead(Handshake);
+        sendNextRequest();
+    });
 }
 
 void kettlerrun7treadmill::enqueueRead(quint16 function) {
@@ -143,6 +171,16 @@ void kettlerrun7treadmill::sendNextRequest() {
 
     activeFunction = requests.dequeue();
     requestInFlight = true;
+    if (activeFunction == Handshake) {
+        ++handshakeAttempts;
+        handshakeRxChunks = 0;
+        handshakeRxBytes = 0;
+        handshakeAttemptTimer.restart();
+        emit debug(QStringLiteral("Kettler RUN 7 BLE: handshake attempt ") +
+                   QString::number(handshakeAttempts) + '/' +
+                   QString::number(MaxHandshakeAttempts) +
+                   QStringLiteral(" on current GATT connection"));
+    }
     const QByteArray payload = activeFunction == Handshake ? KdriHandshake : QByteArray();
     pendingWrite = kettlerclassicprotocol::encodeFrame(activeFunction, Read, payload);
     emit debug(QStringLiteral("Kettler RUN 7 BLE TX IRMP read 0x") +
@@ -167,7 +205,11 @@ void kettlerrun7treadmill::sendNextChunk() {
     if (!writeWithResponse) {
         // QLowEnergyService may not emit characteristicWritten for unacknowledged writes.
         // Pace ATT writes instead of sending back-to-back fragments.
-        QTimer::singleShot(50, this, &kettlerrun7treadmill::chunkWritten);
+        // Only the fragmented handshake needs conservative inter-chunk pacing.
+        // Keep subsequent read requests at their original rate.
+        const int delayMs = activeFunction == Handshake && !pendingWrite.isEmpty()
+                                ? HandshakeChunkSpacingMs : 50;
+        QTimer::singleShot(delayMs, this, &kettlerrun7treadmill::chunkWritten);
     }
 }
 
@@ -193,6 +235,15 @@ void kettlerrun7treadmill::characteristicChanged(const QLowEnergyCharacteristic 
                                                  const QByteArray &value) {
     if (characteristic.uuid() != rxCharacteristic.uuid())
         return;
+    if (requestInFlight && activeFunction == Handshake) {
+        if (handshakeRxChunks == 0) {
+            emit debug(QStringLiteral("Kettler RUN 7 BLE: first handshake RX after ") +
+                       QString::number(handshakeAttemptTimer.elapsed()) +
+                       QStringLiteral(" ms (attempt ") + QString::number(handshakeAttempts) + ')');
+        }
+        ++handshakeRxChunks;
+        handshakeRxBytes += value.size();
+    }
     emit debug(QStringLiteral("Kettler RUN 7 BLE RX chunk: ") + value.toHex(' '));
     receiveBuffer.append(value);
     for (const auto &frame : kettlerclassicprotocol::consumeFrames(receiveBuffer))
@@ -240,6 +291,9 @@ void kettlerrun7treadmill::handleFrame(const kettlerclassicprotocol::Frame &fram
             fail(QStringLiteral("invalid IRMP handshake response"));
             return;
         }
+        emit debug(QStringLiteral("Kettler RUN 7 BLE: handshake accepted on attempt ") +
+                   QString::number(handshakeAttempts) + QStringLiteral(" after ") +
+                   QString::number(handshakeAttemptTimer.elapsed()) + QStringLiteral(" ms"));
         handshaken = true;
         enqueueRead(DeviceType);
     } else if (frame.function == DeviceType) {
@@ -250,6 +304,32 @@ void kettlerrun7treadmill::handleFrame(const kettlerclassicprotocol::Frame &fram
         }
         ready = true;
         emit debug(QStringLiteral("Kettler RUN 7 BLE IRMP ready (read only)"));
+        // Match the other QZ treadmill drivers: advertise to Zwift only after
+        // the physical RUN 71 handshake succeeds. No motor commands are sent.
+        if (!hasVirtualDevice()) {
+            QSettings settings;
+            const bool virtualEnabled =
+                settings.value(QZSettings::virtual_device_enabled,
+                               QZSettings::default_virtual_device_enabled).toBool();
+            const bool forceBike =
+                settings.value(QZSettings::virtual_device_force_bike,
+                               QZSettings::default_virtual_device_force_bike).toBool();
+            if (virtualEnabled) {
+                if (!forceBike) {
+                    emit debug(QStringLiteral("Kettler RUN 7: creating virtual FTMS treadmill for Zwift"));
+                    auto *virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                    connect(virtualTreadmill, &virtualtreadmill::debug,
+                            this, &kettlerrun7treadmill::debug);
+                    setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
+                } else {
+                    emit debug(QStringLiteral("Kettler RUN 7: creating forced virtual bike"));
+                    auto *virtualBike = new virtualbike(this);
+                    setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
+                }
+            } else {
+                emit debug(QStringLiteral("Kettler RUN 7: virtual device disabled in QZ settings"));
+            }
+        }
         emit connectedAndDiscovered();
         enqueueRead(DeviceName);
         refresh.start();
@@ -272,12 +352,37 @@ void kettlerrun7treadmill::requestTimedOut() {
             fail(QStringLiteral("BLE connection/notification setup timeout"));
         return;
     }
+    const bool handshakeTimedOut = !ready && activeFunction == Handshake;
     emit debug(QStringLiteral("Kettler RUN 7 BLE IRMP timeout id=0x") +
-               QString::number(activeFunction, 16));
+               QString::number(activeFunction, 16) +
+               (handshakeTimedOut
+                    ? QStringLiteral(" attempt=") + QString::number(handshakeAttempts) +
+                          QStringLiteral(" rxChunks=") + QString::number(handshakeRxChunks) +
+                          QStringLiteral(" rxBytes=") + QString::number(handshakeRxBytes) +
+                          QStringLiteral(" bufferedBytes=") + QString::number(receiveBuffer.size())
+                    : QString()));
     requestInFlight = false;
     waitingForWrite = false;
     pendingWrite.clear();
     requests.clear();
+    if (handshakeTimedOut && handshakeAttempts < MaxHandshakeAttempts) {
+        // A GATT connection can be up while the UART endpoint is not yet
+        // receptive. Retry on the same link before restarting BLE discovery.
+        receiveBuffer.clear(); // Do not mix a partial old response with the retry.
+        const int delayMs = HandshakeRetryBaseDelayMs * handshakeAttempts;
+        const quint32 generation = connectionGeneration;
+        emit debug(QStringLiteral("Kettler RUN 7 BLE: retrying IRMP handshake on same GATT link in ") +
+                   QString::number(delayMs) + QStringLiteral(" ms"));
+        QTimer::singleShot(delayMs, this, [this, generation]() {
+            if (generation != connectionGeneration || ready || handshaken ||
+                !m_control || m_control->state() != QLowEnergyController::DiscoveredState ||
+                !service || requestInFlight)
+                return;
+            enqueueRead(Handshake);
+            sendNextRequest();
+        });
+        return;
+    }
     if (!ready || ++telemetryTimeouts >= 3) {
         fail(QStringLiteral("IRMP request timeout"));
         return;
@@ -286,6 +391,8 @@ void kettlerrun7treadmill::requestTimedOut() {
 
 void kettlerrun7treadmill::fail(const QString &reason) {
     emit debug(QStringLiteral("Kettler RUN 7 BLE failure: ") + reason);
+    ++connectionGeneration;
+    handshakeScheduled = false;
     ready = false;
     refresh.stop();
     requestTimer.stop();
@@ -301,6 +408,8 @@ void kettlerrun7treadmill::fail(const QString &reason) {
 }
 
 void kettlerrun7treadmill::controllerDisconnected() {
+    ++connectionGeneration;
+    handshakeScheduled = false;
     ready = false;
     handshaken = false;
     requestInFlight = false;
