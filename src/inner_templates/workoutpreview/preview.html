@@ -32,8 +32,9 @@
         }
 
         /* The charts fill the view (the body padding off). One metric takes the whole height;
-           several share it, each chart no lower than 140px (qzmetriccharts.js), and the page
-           scrolls when they do not fit (held sideways, two metrics already do) */
+           several share it, each chart no lower than 140px (qzmetriccharts.js); when they do not
+           fit (a phone held sideways), all of them start on one shared chart, and the page
+           scrolls only after the chips split them */
         #chart-container {
             width: 100%;
             min-height: calc(100vh - 20px);
@@ -130,7 +131,11 @@
                 charts = QzMetricCharts.create(document.getElementById('chart-container'), {
                     storageKey: 'qz.workoutpreview.together',
                     timeTitle: function () { return tq('workoutEditor.time', 'Time'); },
-                    caption: function () { return tq('chart.onOneChart', 'On one chart:'); }
+                    caption: function () { return tq('chart.onOneChart', 'On one chart:'); },
+                    // the view less the padding of the body (classic look) and of the card
+                    fitHeight: function () {
+                        return window.innerHeight - (document.body.classList.contains('modern') ? 0 : 20) - 20;
+                    }
                 });
             }
             let total = 0;

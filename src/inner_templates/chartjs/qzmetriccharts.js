@@ -17,8 +17,12 @@
 // server a new port at every start, so the choice lasts while the app runs); colors() - {tick,
 // grid, title} of the axes and {outline, tonal} of the chips (neutral greys for
 // a light page by default; the workout editor gives light ones for its dark page); timeTitle() -
-// the title of the time axis under the last chart; caption() - the words before the chips.
+// the title of the time axis under the last chart; caption() - the words before the chips;
+// fitHeight() - the height in px the charts and the chips have to fit in: when the charts, each
+// no lower than BOX_MIN, do not fit, every metric is drawn on one shared chart until a chip is
+// tapped (a phone held sideways); without it the page scrolls.
 (function () {
+    var BOX_MIN = 140, BOX_GAP = 8, BAR_HEIGHT = 40;
     // Spacing by margins, not the flex gap: the WebView of the older Android consoles predates
     // Chrome 84, which brought gap to flex (the API 30 emulator has WebView 83)
     var STYLE = ''
@@ -41,8 +45,8 @@
         + '.qzmc-chip[aria-pressed="true"] .qzmc-dot{display:none}'
         + '.qzmc-chip[aria-pressed="true"] .qzmc-check{display:block}'
         + '.qzmc-list{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}'
-        + '.qzmc-box{position:relative;flex:1 1 0;min-height:140px}'
-        + '.qzmc-box+.qzmc-box{margin-top:8px}'
+        + '.qzmc-box{position:relative;flex:1 1 0;min-height:' + BOX_MIN + 'px}'
+        + '.qzmc-box+.qzmc-box{margin-top:' + BOX_GAP + 'px}'
         + '.qzmc-box canvas{width:100%!important;height:100%!important}';
 
     function injectStyle() {
@@ -131,8 +135,11 @@
 
             var together = readTogether(options.storageKey);
             var payload = null;
-            var charts = []; // {group: [keys], chart, box}
+            var charts = []; // {chart} for each group of the plan, in its order
             var layout = '';
+            // a chip tapped since the page opened: the shared chart of a short view is no longer
+            // forced, the choice stands even if the page has to scroll
+            var touched = false;
 
             function colors() {
                 return Object.assign({ tick: '#666', grid: 'rgba(0, 0, 0, 0.05)', title: '#666',
@@ -243,8 +250,8 @@
 
             // The shared chart first (the ticked metrics, when two or more are drawn), then
             // each other metric alone
-            function groups(seriesList) {
-                var ticked = seriesList.filter(function (s) { return together.indexOf(s.key) >= 0; });
+            function groups(seriesList, keys) {
+                var ticked = seriesList.filter(function (s) { return keys.indexOf(s.key) >= 0; });
                 var result = [];
                 if (ticked.length > 1) {
                     result.push(ticked);
@@ -257,10 +264,24 @@
                 return result;
             }
 
+            // The metrics drawn together: the chosen ones, or all of them while the charts of the
+            // choice do not fit in fitHeight() and no chip has been tapped
+            function shownTogether(seriesList) {
+                var count = groups(seriesList, together).length;
+                if (!options.fitHeight || touched || count < 2) {
+                    return together;
+                }
+                var room = options.fitHeight() - (bar.offsetHeight || BAR_HEIGHT);
+                if (count * BOX_MIN + (count - 1) * BOX_GAP <= room) {
+                    return together;
+                }
+                return seriesList.map(function (s) { return s.key; });
+            }
+
             var CHECK = '<svg class="qzmc-check" viewBox="0 0 24 24" aria-hidden="true">'
                 + '<path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>';
 
-            function drawBar(seriesList) {
+            function drawBar(seriesList, shown) {
                 bar.innerHTML = '';
                 if (seriesList.length < 2) {
                     return;
@@ -273,7 +294,7 @@
                 caption.textContent = options.caption ? options.caption() : 'On one chart:';
                 bar.appendChild(caption);
                 seriesList.forEach(function (series) {
-                    var on = together.indexOf(series.key) >= 0;
+                    var on = shown.indexOf(series.key) >= 0;
                     var chip = document.createElement('button');
                     chip.type = 'button';
                     chip.className = 'qzmc-chip';
@@ -288,7 +309,9 @@
                     chip.lastChild.style.color = series.color;
                     chip.appendChild(text);
                     chip.addEventListener('click', function () {
-                        together = together.filter(function (k) { return k !== series.key; });
+                        // from what the chips show: on a short view that is every metric
+                        together = shown.filter(function (k) { return k !== series.key; });
+                        touched = true;
                         if (!on) {
                             together.push(series.key);
                         }
@@ -309,14 +332,15 @@
             // redraws on every keystroke); otherwise the charts are made anew
             function draw(force) {
                 var seriesList = clean(payload ? payload.series : []);
-                var plan = groups(seriesList);
+                var shown = shownTogether(seriesList);
+                var plan = groups(seriesList, shown);
                 var key = plan.map(function (g) { return g.map(function (s) { return s.key; }).join('+'); }).join('|')
                           + '#' + seriesList.map(function (s) { return s.label + s.unit + s.color; }).join(',');
                 host.classList.toggle('qzmc-single', plan.length === 1);
                 if (force || key !== layout) {
                     layout = key;
                     clear();
-                    drawBar(seriesList);
+                    drawBar(seriesList, shown);
                     plan.forEach(function (group, i) {
                         var box = document.createElement('div');
                         box.className = 'qzmc-box';
@@ -324,7 +348,7 @@
                         box.appendChild(canvas);
                         list.appendChild(box);
                         var chart = new Chart(canvas.getContext('2d'), config(group, i === plan.length - 1));
-                        charts.push({ chart: chart, box: box });
+                        charts.push({ chart: chart });
                     });
                     return;
                 }
@@ -334,6 +358,15 @@
                     chart.config.data.datasets = fresh.data.datasets;
                     chart.config.options.scales = fresh.options.scales;
                     chart.update('none');
+                });
+            }
+
+            // turning the phone changes the room: the shared chart of a short view comes and goes
+            if (options.fitHeight) {
+                window.addEventListener('resize', function () {
+                    if (payload) {
+                        draw(false);
+                    }
                 });
             }
 
