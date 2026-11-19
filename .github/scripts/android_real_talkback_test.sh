@@ -36,6 +36,14 @@ recover_startup_window() {
                 note "INFO closing first-run Health Connect permission screen ($((i + 1))/5): $focus"
                 adb shell input keyevent KEYCODE_BACK
                 ;;
+            *com.google.android.permissioncontroller/*GrantPermissionsActivity*|*com.android.permissioncontroller/*GrantPermissionsActivity*)
+                # Runtime permissions are granted where possible by the normal
+                # Android CI setup. The OS can still show a permission dialog
+                # when the fake device initializes. Dismiss it only here,
+                # before TalkBack gesture testing; never mask navigation issues.
+                note "INFO closing first-run Android runtime permission screen ($((i + 1))/5): $focus"
+                adb shell input keyevent KEYCODE_BACK
+                ;;
             *"=null"*)
                 note "INFO waiting for startup window ($((i + 1))/5)"
                 ;;
