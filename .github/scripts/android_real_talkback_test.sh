@@ -134,6 +134,8 @@ recover_startup_window
 adb push a11y-test.jar /data/local/tmp/a11y-test.jar >/dev/null
 
 # Prove TalkBack is changing accessibility focus when finger swipes are injected.
+# Keep only focus routing diagnostics from this probe in the failure artifact.
+adb logcat -c
 before=$(focus_name)
 note "initial focus: $before"
 adb shell input swipe 780 850 270 850 160

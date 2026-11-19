@@ -286,6 +286,8 @@ public class CustomQtActivity extends QtActivity {
 
         @Override
         public AccessibilityNodeInfo findFocus(int focus) {
+            Log.d(TAG, "a11y findFocus=" + focus + " trackedId=" + focusedId
+                    + " provider=" + System.identityHashCode(this));
             // Qt 5.15 accepts ACTION_ACCESSIBILITY_FOCUS but does not return
             // that virtual node from findFocus(). Keep the id supplied by
             // TalkBack in performAction() so Android services can read back
@@ -318,6 +320,8 @@ public class CustomQtActivity extends QtActivity {
             }
             boolean handled = qt.performAction(virtualViewId, action, arguments);
             if (action == AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS) {
+                Log.d(TAG, "a11y focus action id=" + virtualViewId + " handled=" + handled
+                        + " provider=" + System.identityHashCode(this));
                 focusedId = virtualViewId;
             } else if (action == AccessibilityNodeInfo.ACTION_CLEAR_ACCESSIBILITY_FOCUS && focusedId == virtualViewId) {
                 focusedId = NO_FOCUS;
