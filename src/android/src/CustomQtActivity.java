@@ -187,6 +187,14 @@ public class CustomQtActivity extends QtActivity {
         return manager != null && manager.isEnabled();
     }
 
+    // A screen reader (TalkBack) is on: it turns touch exploration on. isEnabled() is true with any
+    // accessibility service (a password manager, a launcher, a screen time app), which moves no focus
+    // and reads nothing
+    private boolean screenReaderOn() {
+        AccessibilityManager manager = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
+        return manager != null && manager.isEnabled() && manager.isTouchExplorationEnabled();
+    }
+
     private void sendAccessibilityTreeChanged() {
         if (!accessibilityEnabled()) {
             return;
@@ -511,7 +519,10 @@ public class CustomQtActivity extends QtActivity {
         void run(ScrollToFocusProvider provider);
     }
 
-    // The call on the Android UI thread, with the provider that wraps Qt's (none while accessibility is off)
+    // The call on the Android UI thread, with the provider that wraps Qt's (none while accessibility is off),
+    // and only with a screen reader on: with another service the focus moved into a popup still scrolled
+    // the item into view (nativeScrollToAccessibleObject), and a long list opened at its current item
+    // jumped back to its top a moment later
     private static void onAccessibilityProvider(final ProviderCall call) {
         final CustomQtActivity activity = accessibilityActivity;
         if (activity == null) {
@@ -520,7 +531,7 @@ public class CustomQtActivity extends QtActivity {
         activity.accessibilityHandler.post(new Runnable() {
             @Override
             public void run() {
-                if (!activity.accessibilityEnabled()) {
+                if (!activity.screenReaderOn()) {
                     return;
                 }
                 View view = activity.qtAccessibilityView();
