@@ -222,6 +222,9 @@
             renderIntervals();
             updateChart();
         });
+        // The interval buttons are icons in the modern look and text in the classic one: build
+        // them again when the app switches the look while the editor is open
+        window.addEventListener('qzthemechange', renderIntervals);
         bootstrap();
         if (window.QZ_OFFLINE) {
             announce(t('workoutEditor.offlineLoadSaveStartDisabled', 'Offline mode: load/save/start disabled'), true);
@@ -839,10 +842,10 @@
 
             const actions = document.createElement('div');
             actions.className = 'card-actions';
-            actions.appendChild(actionButton('↑', () => moveInterval(index, -1), index === 0));
-            actions.appendChild(actionButton('↓', () => moveInterval(index, 1), index === state.intervals.length - 1));
-            actions.appendChild(actionButton(t('common.copy', 'Copy'), () => duplicateInterval(index)));
-            actions.appendChild(actionButton(t('common.del', 'Del'), () => removeInterval(index), state.intervals.length === 1));
+            actions.appendChild(actionButton('↑', () => moveInterval(index, -1), index === 0, 'keyboard_arrow_up'));
+            actions.appendChild(actionButton('↓', () => moveInterval(index, 1), index === state.intervals.length - 1, 'keyboard_arrow_down'));
+            actions.appendChild(actionButton(t('common.copy', 'Copy'), () => duplicateInterval(index), false, 'content_copy'));
+            actions.appendChild(actionButton(t('common.del', 'Del'), () => removeInterval(index), state.intervals.length === 1, 'delete'));
             header.appendChild(actions);
             card.appendChild(header);
 
@@ -951,6 +954,8 @@
                         renderIntervals();
                     });
                     fieldWrap.appendChild(sel);
+                    // the box of a list takes the taps for it (workout-editor.css)
+                    fieldWrap.classList.add('field-has-select');
                 } else {
                     const inputWrapper = document.createElement('div');
                     inputWrapper.className = 'field-with-buttons';
@@ -997,7 +1002,8 @@
                     // Add +/- buttons for duration, number, and pace fields
                     if (field.type === 'duration' || field.type === 'number' || field.type === 'pace') {
                         const decreaseBtn = document.createElement('button');
-                        decreaseBtn.textContent = '-';
+                        // Modern look: a real minus sign, as wide as the plus
+                        decreaseBtn.textContent = isModernLook() ? '\u2212' : '-';
                         decreaseBtn.type = 'button';
                         decreaseBtn.title = t('common.decrease', 'Decrease');
                         decreaseBtn.addEventListener('click', () => handleIncrement(input, field, -1));
@@ -1069,10 +1075,38 @@
         return label;
     }
 
-    function actionButton(text, handler, disabled) {
+    // Material Symbols Rounded (the same set as the app's UiIcons.js) for the modern look
+    const MODERN_ICONS = {
+        keyboard_arrow_up: 'M480-528 324-372q-11 11-28 11t-28-11q-11-11-11-28t11-28l184-184q12-12 28-12t28 12l184 184q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-528Z',
+        keyboard_arrow_down: 'M480-361q-8 0-15-2.5t-13-8.5L268-556q-11-11-11-28t11-28q11-11 28-11t28 11l156 156 156-156q11-11 28-11t28 11q11 11 11 28t-11 28L508-372q-6 6-13 8.5t-15 2.5Z',
+        content_copy: 'M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-520q0-17 11.5-28.5T160-720q17 0 28.5 11.5T200-680v520h400q17 0 28.5 11.5T640-120q0 17-11.5 28.5T600-80H200Zm160-240v-480 480Z',
+        delete: 'M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM400-280q17 0 28.5-11.5T440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280Zm160 0q17 0 28.5-11.5T600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280ZM280-720v520-520Z'
+    };
+
+    function isModernLook() {
+        return document.documentElement.classList.contains('modern');
+    }
+
+    // Modern look: an icon button with the text as its tooltip and accessible name;
+    // classic look: the text button, as before
+    function actionButton(text, handler, disabled, iconName) {
         const btn = document.createElement('button');
         btn.className = 'small';
-        btn.textContent = text;
+        if (iconName && MODERN_ICONS[iconName] && isModernLook()) {
+            btn.classList.add('icon-button');
+            btn.title = text;
+            btn.setAttribute('aria-label', text);
+            btn.innerHTML = '<svg viewBox="0 -960 960 960" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="'
+                + MODERN_ICONS[iconName] + '"/></svg>';
+            if (iconName === 'delete') {
+                btn.classList.add('icon-danger');
+            }
+            if (iconName.indexOf('keyboard_arrow_') === 0) {
+                btn.classList.add('icon-move');
+            }
+        } else {
+            btn.textContent = text;
+        }
         if (disabled) {
             btn.disabled = true;
         }
