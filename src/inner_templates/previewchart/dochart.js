@@ -197,6 +197,19 @@ function process_arr(arr) {
     $('.summary_cadence_avg').text(Math.floor(cadence_avg) + ' ' + t('unit.rpm', 'rpm'));
     $('.summary_cadence_max').text(Math.floor(cadence_max) + ' ' + t('unit.rpm', 'rpm'));
     $('.summary_resistance_avg').text(avgResistance + ' ' + t('unit.level', 'lvl'));
+    // No resistance samples (e.g. a treadmill workout): hide the cell instead of "0 lvl"
+    $('.summary_resistance_avg, td[data-i18n="chart.avgResistance"]').css('visibility', validResistance > 0 ? '' : 'hidden');
+    // Same for the resistance charts: hide a chart without a single value above zero.
+    // The saved workout carries no Peloton resistance, so that chart was always empty here.
+    var hasPelotonResistance = false;
+    for (var r = 0; r < arr.length; r++) {
+        if (arr[r].peloton_resistance > 0)
+            hasPelotonResistance = true;
+    }
+    // Height 0, not display: none: a chart in a display: none box gets a zero size,
+    // and its resize then loops until "Maximum call stack size exceeded"
+    $('[data-history-chart="resistance"]').css({ height: validResistance > 0 ? '' : '0', overflow: 'hidden' });
+    $('[data-history-chart="pelotonResistance"]').css({ height: hasPelotonResistance ? '' : '0', overflow: 'hidden' });
     $('.summary_heart_avg').text(Math.floor(heart_avg) + ' ' + t('unit.bpm', 'bpm'));
     $('.summary_heart_max').text(Math.floor(heart_max) + ' ' + t('unit.bpm', 'bpm'));
     $('.summary_speed_avg').text((speed_avg * miles).toFixed(1) + ' ' + (miles === 1 ? t('unit.kmh', 'km/h') : t('unit.mph', 'mph')));
