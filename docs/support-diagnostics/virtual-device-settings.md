@@ -98,6 +98,14 @@
 - Confirm the network path separately from Bluetooth pairing; check whether the receiving app has a remembered/old trainer entry before interpreting a rejected connection.
 - Collect a QZ debug log spanning virtual-device startup and the network pairing attempt, with the approximate failure time and the receiving app's message. Avoid changing trainer resistance or gear settings during this comparison.
 
+### If discovery succeeds but the network connection still fails
+
+- **Provide first:** record whether the receiving app lists QZ's Wi-Fi trainer but returns to search, hangs at connecting, or connects without metrics. Identify the QZ phone/tablet, receiving computer, OS versions, and whether they use the same Wi-Fi LAN. On iOS, confirm QZ's Local Network permission; note whether the phone has cellular data or a VPN active.
+- **Controlled comparison:** keep the physical trainer connected to QZ, QZ foregrounded, and the same receiving-app pairing role. Restart the receiving app and compare one attempt with the phone's cellular data and any VPN temporarily disabled (Wi-Fi and Bluetooth stay on). Restore the normal network settings afterward. Report both results; do not assume this will fix every case.
+- **If still unclear:** on a Windows receiver, verify the phone's **current Wi-Fi IPv4 address**, then ask for a screenshot of `Test-NetConnection <phone-Wi-Fi-IP> -Port 36866` in PowerShell, provided QZ is using the default DIRCON server port. Record `TcpTestSucceeded` and any non-default configured port. Do not reuse an IP address copied from an older log.
+- Check firewall/security-software status and, if a short reversible test is appropriate, compare with the network filter temporarily disabled. If the trainer is discovered but TCP cannot connect, investigate local-network reachability before changing power, cadence, or gear settings. If TCP succeeds but pairing fails, collect a QZ debug log of one failed attempt with its approximate time.
+- **Why it matters:** mDNS discovery, TCP reachability, and successful trainer pairing are different stages. Multiple active interfaces can make a discovered service point at an unsuitable address; current QZ code attempts to prefer the peer's subnet and active Wi-Fi/Ethernet interfaces. A confirmed iPhone-to-Windows ROUVY case connected after disabling cellular data, while a separate MyWhoosh case did not, so the A/B result is evidence rather than a universal workaround. See the [network-trainer FAQ](../faq/integrations.md) for confirmed solutions.
+
 ### Why it matters
 
 - QZ's DIRCON manager is conditional on the **Wahoo DIRCON** setting; a working Bluetooth virtual trainer does not prove that the Wi-Fi trainer service is active.

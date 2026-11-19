@@ -210,6 +210,14 @@ public class CustomQtActivity extends QtActivity {
         return manager != null && manager.isEnabled();
     }
 
+    // A screen reader (TalkBack) is on: it turns touch exploration on. isEnabled() is true with any
+    // accessibility service (a password manager, a launcher, a screen time app), which moves no focus
+    // and says nothing
+    private boolean screenReaderOn() {
+        AccessibilityManager manager = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
+        return manager != null && manager.isEnabled() && manager.isTouchExplorationEnabled();
+    }
+
     private void sendAccessibilityTreeChanged() {
         if (!accessibilityEnabled()) {
             return;
@@ -274,7 +282,8 @@ public class CustomQtActivity extends QtActivity {
     // wherever the keyboard focus is when the popup closes. The node TalkBack had focused when a popup
     // showed is kept, and once the popup hid, if the focused node went with it, the focus is put back
     // there (when it is still on the screen), as a dialog of Android does. A modal popup that opens
-    // takes the focus to its first stop, as TalkBack does with a dialog of Android.
+    // takes the focus to its first stop, as TalkBack does with a dialog of Android. Both only with a
+    // screen reader on (onAccessibilityProvider).
     private static final class ScrollToFocusProvider extends AccessibilityNodeProvider {
         private static final long VALUE_ANNOUNCE_DELAY_MS = 150;
         // Qt never gives an object this id (-1: QAccessibleCache::acquireId skips it,
@@ -534,7 +543,10 @@ public class CustomQtActivity extends QtActivity {
         void run(ScrollToFocusProvider provider);
     }
 
-    // The call on the Android UI thread, with the provider that wraps Qt's (none while accessibility is off)
+    // The call on the Android UI thread, with the provider that wraps Qt's (none while accessibility is off),
+    // and only with a screen reader on: with another service the focus moved into a popup still scrolled
+    // the item into view (nativeScrollToAccessibleObject), and a long list opened at its current item
+    // jumped back to its top a moment later
     private static void onAccessibilityProvider(final ProviderCall call) {
         final CustomQtActivity activity = accessibilityActivity;
         if (activity == null) {
@@ -543,7 +555,7 @@ public class CustomQtActivity extends QtActivity {
         activity.accessibilityHandler.post(new Runnable() {
             @Override
             public void run() {
-                if (!activity.accessibilityEnabled()) {
+                if (!activity.screenReaderOn()) {
                     return;
                 }
                 View view = activity.qtAccessibilityView();

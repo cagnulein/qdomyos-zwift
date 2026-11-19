@@ -3574,9 +3574,8 @@ import AndroidStatusBar 1.0
                     }
                     RowLayout {
                         spacing: 10
-                        ValueComboBox {
+                        DeviceComboBox {
                             id: heartBeltNameTextField
-                            model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.heart_rate_belt_name
                             Layout.fillHeight: false
@@ -5451,9 +5450,8 @@ import AndroidStatusBar 1.0
                     }
                     RowLayout {
                         spacing: 10
-                        ValueComboBox {
+                        DeviceComboBox {
                             id: ftmsBikeTextField
-                            model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.ftms_bike
                             Layout.fillHeight: false
@@ -12197,9 +12195,8 @@ import AndroidStatusBar 1.0
                     }
                     RowLayout {
                         spacing: 10
-                        ValueComboBox {
+                        DeviceComboBox {
                             id: ftmsTreadmillTextField
-                            model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.ftms_treadmill
                             Layout.fillHeight: false
@@ -14219,9 +14216,8 @@ import AndroidStatusBar 1.0
                     }
                     RowLayout {
                         spacing: 10
-                        ValueComboBox {
+                        DeviceComboBox {
                             id: ftmsRowerTextField
-                            model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.ftms_rower
                             Layout.fillHeight: false
@@ -14456,9 +14452,8 @@ import AndroidStatusBar 1.0
                     }
                     RowLayout {
                         spacing: 10
-                        ValueComboBox {
+                        DeviceComboBox {
                             id: ftmsEllipticalTextField
-                            model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.ftms_elliptical
                             Layout.fillHeight: false
@@ -14707,9 +14702,8 @@ import AndroidStatusBar 1.0
                     }
                     RowLayout {
                         spacing: 10
-                        ValueComboBox {
+                        DeviceComboBox {
                             id: filterDeviceTextField
-                            model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             savedText: settings.filter_device
                             Layout.fillHeight: false
@@ -15901,9 +15895,8 @@ import AndroidStatusBar 1.0
                             }
                             RowLayout {
                                 spacing: 10
-                                ValueComboBox {
+                                DeviceComboBox {
                                     id: cadenceSensorNameTextField
-                                    model: rootItem.bluetoothDevices
                                     labels: ({ "Disabled": qsTr("Disabled") })
                                     savedText: settings.cadence_sensor_name
                                     Layout.fillHeight: false
@@ -16530,9 +16523,8 @@ import AndroidStatusBar 1.0
                             }
                             RowLayout {
                                 spacing: 10
-                                ValueComboBox {
+                                DeviceComboBox {
                                     id: powerSensorNameTextField
-                                    model: rootItem.bluetoothDevices
                                     labels: ({ "Disabled": qsTr("Disabled") })
                                     savedText: settings.power_sensor_name
                                     Layout.fillHeight: false
@@ -16598,9 +16590,8 @@ import AndroidStatusBar 1.0
                                     }
                                     RowLayout {
                                         spacing: 10
-                                        ValueComboBox {
+                                        DeviceComboBox {
                                             id: eliteRizerNameTextField
-                                            model: rootItem.bluetoothDevices
                                             labels: ({ "Disabled": qsTr("Disabled") })
                                             savedText: settings.elite_rizer_name
                                             Layout.fillHeight: false
@@ -16669,9 +16660,8 @@ import AndroidStatusBar 1.0
                                     }
                                     RowLayout {
                                         spacing: 10
-                                        ValueComboBox {
+                                        DeviceComboBox {
                                             id: eliteSterzoSmartNameTextField
-                                            model: rootItem.bluetoothDevices
                                             labels: ({ "Disabled": qsTr("Disabled") })
                                             savedText: settings.elite_sterzo_smart_name
                                             Layout.fillHeight: false
@@ -16718,9 +16708,8 @@ import AndroidStatusBar 1.0
                             }
                             RowLayout {
                                 spacing: 10
-                                ValueComboBox {
+                                DeviceComboBox {
                                     id: ftmsAccessoryNameTextField
-                                    model: rootItem.bluetoothDevices
                                     labels: ({ "Disabled": qsTr("Disabled") })
                                     savedText: settings.ftms_accessory_name
                                     Layout.fillHeight: false

@@ -275,3 +275,9 @@ On iOS, QZ can advertise a Bluetooth **Running Speed and Cadence (RSC)** sensor 
 5. Re-enable the watch's Phone Connection afterward to restore syncing.
 
 A Garmin fēnix 8 user confirmed that disabling the watch's Bluetooth phone connection resolved the pairing timeout and the setup worked with QZ controlling a Hammer Fly Run 4.0 treadmill. Do not disable Bluetooth on the iPhone.
+
+## ROUVY sees QZ's virtual Wi-Fi trainer but cannot connect from a computer. Could cellular data on the phone interfere?
+
+Yes. If QZ is running on an **iPhone** and ROUVY on a computer detects its virtual **ELITE AVANTI** Wi-Fi/DirCon trainer but fails to connect, temporarily turn **Cellular Data** off on the iPhone. Leave **Wi-Fi and Bluetooth on**, ensure the computer and phone are on the same local network, and keep QZ open in the foreground. Fully close and reopen ROUVY, then retry pairing the QZ-advertised Wi-Fi trainer. Also disable any active VPN during this test. You can restore cellular data afterward.
+
+In a confirmed BKOOL Smart Bike v1 / iPhone / Windows ROUVY setup, switching off iPhone cellular data restored the Wi-Fi trainer connection after other troubleshooting had failed. This only confirms the **connection**: the rider separately reported abnormal cadence and power values that still needed investigation. If the connection still fails, check the local network, firewall, and QZ DirCon settings rather than assuming cellular data is always the cause.
