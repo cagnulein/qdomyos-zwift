@@ -137,8 +137,8 @@
             var payload = null;
             var charts = []; // {chart} for each group of the plan, in its order
             var layout = '';
-            // a chip tapped since the page opened: the shared chart of a short view is no longer
-            // forced, the choice stands even if the page has to scroll
+            // a chip tapped on the forced shared chart of a short view: it is not forced again
+            // while the page is open, the choice stands even if the page has to scroll
             var touched = false;
 
             function colors() {
@@ -265,7 +265,7 @@
             }
 
             // The metrics drawn together: the chosen ones, or all of them while the charts of the
-            // choice do not fit in fitHeight() and no chip has been tapped
+            // choice do not fit in fitHeight() and no chip has been tapped on that forced chart
             function shownTogether(seriesList) {
                 var count = groups(seriesList, together).length;
                 if (!options.fitHeight || touched || count < 2) {
@@ -309,9 +309,16 @@
                     chip.lastChild.style.color = series.color;
                     chip.appendChild(text);
                     chip.addEventListener('click', function () {
-                        // from what the chips show: on a short view that is every metric
-                        together = shown.filter(function (k) { return k !== series.key; });
-                        touched = true;
+                        // a tap on the forced shared chart of a short view: from now on the
+                        // choice stands; it starts from what the chips show (every metric),
+                        // keeping the saved keys of metrics this workout does not have
+                        if (shown !== together) {
+                            touched = true;
+                            together = together.concat(shown.filter(function (k) {
+                                return together.indexOf(k) < 0;
+                            }));
+                        }
+                        together = together.filter(function (k) { return k !== series.key; });
                         if (!on) {
                             together.push(series.key);
                         }
@@ -330,7 +337,8 @@
 
             // Same metrics in the same charts: the data and scales change in place (the editor
             // redraws on every keystroke); otherwise the charts are made anew
-            function draw(force) {
+            // layoutOnly: a resize - Chart.js fits its canvases itself, only a new plan is drawn
+            function draw(force, layoutOnly) {
                 var seriesList = clean(payload ? payload.series : []);
                 var shown = shownTogether(seriesList);
                 var plan = groups(seriesList, shown);
@@ -352,6 +360,9 @@
                     });
                     return;
                 }
+                if (layoutOnly) {
+                    return;
+                }
                 plan.forEach(function (group, i) {
                     var chart = charts[i].chart;
                     var fresh = config(group, i === plan.length - 1);
@@ -365,7 +376,7 @@
             if (options.fitHeight) {
                 window.addEventListener('resize', function () {
                     if (payload) {
-                        draw(false);
+                        draw(false, true);
                     }
                 });
             }
