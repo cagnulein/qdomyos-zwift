@@ -233,6 +233,22 @@ public class AccessibilityTest {
     }
 
     private static boolean press(String press) throws Exception {
+        // Focus navigation must not change workout values or produce a haptic pulse.
+        if (press.startsWith("focus:")) {
+            String name = press.substring("focus:".length()).replace('_', ' ');
+            AccessibilityNodeInfo target = find(name, true);
+            for (int i = 0; target == null && i < 20; ++i) {
+                Thread.sleep(500);
+                target = find(name, true);
+            }
+            if (target == null || !target.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS)) {
+                System.out.println("FAIL could not focus '" + name + "' without activation");
+                return false;
+            }
+            Thread.sleep(350);
+            System.out.println("OK focus only '" + name + "'");
+            return true;
+        }
         if (press.startsWith("see:")) {
             return see(press.substring("see:".length()).replace('_', ' '));
         }

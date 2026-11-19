@@ -1306,6 +1306,11 @@ jobs:
             # Accessibility stress test: the tile settings page opened and closed 40 times while the
             # tree is read without pause, then accessibility turned on and off 20 times
             sh .github/scripts/android_accessibility_stress_test.sh 40 20
+            # Haptic control regression on two Android API levels (older fallback + current).
+            # Verifies native request count, accessible activation, opt-in/off and fake treadmill.
+            if [ "${{ matrix.api-level }}" = "29" ] || [ "${{ matrix.api-level }}" = "36" ]; then
+              sh .github/scripts/android_haptic_accessibility_test.sh
+            fi
 
             # Keep the email integration test LAST: it intentionally opens an
             # Android resolver / fake mail Activity and should not leave QZ's
@@ -1338,6 +1343,7 @@ jobs:
             process_list.txt
             accessibility_test.txt
             accessibility_stress_test.txt
+            haptic_accessibility_test.txt
             full_logcat.txt
             qdomyos_logcat.txt
             support_email_evidence/**

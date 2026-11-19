@@ -7,6 +7,8 @@ on:
       - 'tools/check_accessibility.py'
       - 'tools/check_accessibility_exceptions.json'
       - 'tests/test_check_accessibility.py'
+      - 'tests/test_mobile_control_haptics.py'
+      - '.github/scripts/AccessibilityTest.java'
       - '.github/workflows/accessibility.yml'
   workflow_dispatch:
 
@@ -25,6 +27,9 @@ jobs:
 
       - name: Test the checker
         run: python3 -m unittest tests/test_check_accessibility.py
+
+      - name: Verify mobile haptic wiring and regression coverage
+        run: python3 -m unittest tests/test_mobile_control_haptics.py
 
       - name: Fetch pull request base
         if: github.event_name == 'pull_request'

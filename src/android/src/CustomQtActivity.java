@@ -50,7 +50,9 @@ public class CustomQtActivity extends QtActivity {
                     int kind = Build.VERSION.SDK_INT >= 30
                             ? HapticFeedbackConstants.CONFIRM
                             : HapticFeedbackConstants.VIRTUAL_KEY;
-                    root.performHapticFeedback(kind);
+                    boolean performed = root.performHapticFeedback(kind);
+                    // Trace the UI-thread request, not physical vibration: emulators have no motor.
+                    Log.d(TAG, "QZ_HAPTIC_EVENT performed=" + performed);
                 }
             }
         });
