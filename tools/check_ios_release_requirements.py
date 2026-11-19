@@ -75,6 +75,17 @@ class IOSReleaseRequirementsTests(unittest.TestCase):
         self.assertIn('"$IOS_SDK_VERSION" != 27.*', workflow)
         self.assertIn('"$XCODE_VERSION" != 27.*', workflow)
 
+    def test_fastlane_has_altool_false_failure_fix(self) -> None:
+        # Fastlane 2.240.0 includes fastlane/fastlane#30196. Older
+        # versions reject a completed upload if altool prints a diagnostic.
+        workflow = self.read(".github/workflows/release-testflight.yml")
+        versions = re.findall(
+            r"gem install fastlane --version (\\d+\\.\\d+\\.\\d+)", workflow
+        )
+        self.assertEqual(len(versions), 1)
+        version = tuple(int(part) for part in versions[0].split("."))
+        self.assertGreaterEqual(version, (2, 240, 0))
+
     def test_qt_bundle_is_the_xcode27_uiscene_build(self) -> None:
         setup = self.read(
             "build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/"
