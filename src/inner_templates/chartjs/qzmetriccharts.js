@@ -138,7 +138,9 @@
 
             var together = readTogether(options.storageKey);
             var payload = null;
-            var charts = []; // {chart} for each group of the plan, in its order
+            // {chart, left, right} for each group of the plan, in its order; left and right - the
+            // padding that lines its plot area up with the others (align)
+            var charts = [];
             var layout = '';
             // a chip tapped on the forced shared chart of a short view: it is not forced again
             // while the page is open, the choice stands even if the page has to scroll
@@ -218,6 +220,8 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        // a new size can change the width of the scales
+                        onResize: function () { setTimeout(align, 0); },
                         animation: false,
                         interaction: { mode: 'index', intersect: false },
                         plugins: {
@@ -332,6 +336,31 @@
                 });
             }
 
+            // The charts one under another share the time axis: their plot areas start and end
+            // at the same x, whatever the width of their scales ("95" against "200", a shared
+            // chart with a scale on the right)
+            function align() {
+                var areas = charts.map(function (c) {
+                    var area = c.chart.chartArea;
+                    return area ? { left: area.left - c.left, right: c.chart.width - area.right - c.right } : null;
+                });
+                if (charts.length < 2 || areas.indexOf(null) >= 0) {
+                    return;
+                }
+                var left = Math.max.apply(null, areas.map(function (a) { return a.left; }));
+                var right = Math.max.apply(null, areas.map(function (a) { return a.right; }));
+                charts.forEach(function (c, i) {
+                    var padLeft = left - areas[i].left;
+                    var padRight = right - areas[i].right;
+                    if (padLeft !== c.left || padRight !== c.right) {
+                        c.left = padLeft;
+                        c.right = padRight;
+                        c.chart.config.options.layout = { padding: { left: padLeft, right: padRight } };
+                        c.chart.update('none');
+                    }
+                });
+            }
+
             function clear() {
                 charts.forEach(function (c) { c.chart.destroy(); });
                 charts = [];
@@ -359,8 +388,9 @@
                         box.appendChild(canvas);
                         list.appendChild(box);
                         var chart = new Chart(canvas.getContext('2d'), config(group, i === plan.length - 1));
-                        charts.push({ chart: chart });
+                        charts.push({ chart: chart, left: 0, right: 0 });
                     });
+                    align();
                     return;
                 }
                 if (layoutOnly) {
@@ -373,6 +403,7 @@
                     chart.config.options.scales = fresh.options.scales;
                     chart.update('none');
                 });
+                align();
             }
 
             // turning the phone changes the room: the shared chart of a short view comes and goes
