@@ -895,8 +895,6 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(bluetoothManager, &bluetooth::bluetoothDeviceConnected, this, &homeform::bluetoothDeviceConnected);
     connect(bluetoothManager, &bluetooth::bluetoothDeviceDisconnected, this, &homeform::bluetoothDeviceDisconnected);
     connect(bluetoothManager, &bluetooth::deviceFound, this, &homeform::deviceFound);
-    connect(bluetoothManager, &bluetooth::lostDevicesChanged, this,
-            [this]() { emit bluetoothDevicesChanged(bluetoothDevices()); });
     connect(bluetoothManager, &bluetooth::manualDeviceNotFound, this, [this](const QString &name) {
         setToastRequested(
             QObject::tr("QZ is looking for %1. Please wake it up or change this device under the Manual Device "
@@ -10773,7 +10771,7 @@ QStringList homeform::bluetoothDevices() {
     // Collect named devices and sort by RSSI descending (strongest signal first)
     QList<QBluetoothDeviceInfo> sorted;
     for (const QBluetoothDeviceInfo &b : qAsConst(bluetoothManager->devices)) {
-        if (!b.name().trimmed().isEmpty() && !bluetoothManager->isLostDevice(b.name())) {
+        if (!b.name().trimmed().isEmpty()) {
             sorted.append(b);
         }
     }

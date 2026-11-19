@@ -4,7 +4,7 @@ import QtQuick 2.15
 // search, so a device just switched on no longer needs "Refresh Devices List" and a second opening.
 // rootItem.bluetoothDevices is sorted by signal, so while the list is open the devices found are
 // added at the end and the rows stay where they are: a row must not move away from under the finger.
-// The list is made again, sorted and without the devices switched off, at the next opening.
+// The list is made again, sorted, at the next opening.
 ValueComboBox {
     id: control
 
