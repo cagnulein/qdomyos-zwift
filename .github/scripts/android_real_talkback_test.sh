@@ -111,16 +111,16 @@ grep -F "$TB_SERVICE" accessibility_dumpsys.txt >/dev/null ||
     fail "TalkBack service not registered in AccessibilityManager"
 note "PASS real TalkBack package=$TB_PKG service=$SERVICE enabled and running"
 
-# Android 17 launches a notification runtime permission dialog after Health
-# Connect. Pressing BACK makes QZ request it again, preventing any real
-# TalkBack gestures from starting. As in the standard emulator matrix,
-# pre-grant only this known QZ permission on the test emulator. Fail if it
-# cannot be granted: do not dismiss or whitelist unexpected foreground apps.
-adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS ||
-    fail "Could not grant POST_NOTIFICATIONS in emulator setup"
-adb shell dumpsys package "$PKG" | grep -F 'android.permission.POST_NOTIFICATIONS: granted=true' >/dev/null ||
-    fail "POST_NOTIFICATIONS did not remain granted after setup"
-note "PASS emulator POST_NOTIFICATIONS granted before QZ launch"
+# Pre-grant the runtime permissions needed by the simulated-device startup.
+# Qt's Android Bluetooth adapter queries BluetoothAdapter.getName() while
+# starting; API 37 aborts the process if BLUETOOTH_CONNECT is not granted.
+for permission in android.permission.BLUETOOTH_CONNECT android.permission.POST_NOTIFICATIONS; do
+    adb shell pm grant "$PKG" "$permission" ||
+        fail "Could not grant $permission in emulator setup"
+    adb shell dumpsys package "$PKG" | grep -F "$permission: granted=true" >/dev/null ||
+        fail "$permission did not remain granted after setup"
+    note "PASS emulator $permission granted before QZ launch"
+done
 
 # Use simulated bike; no physical exercise equipment is ever attached to this CI.
 adb shell am force-stop "$PKG"
