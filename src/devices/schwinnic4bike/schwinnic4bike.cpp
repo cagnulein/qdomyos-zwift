@@ -335,7 +335,12 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     }
 
     if(ResistanceFromFTMSAccessory.value() == 0) {
-        if (qFabs(resistance - Resistance.value()) >=
+        if (shouldUseBikeFtmsResistance(bluetoothDevice.name(), Flags.resistanceLvl, Resistance.value())) {
+            // Bowflex C7: preserve the actual FTMS resistance instead of inferring it
+            // from cadence and watts (which drifts at low cadence).
+            m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
+            emit resistanceRead(Resistance.value());
+        } else if (qFabs(resistance - Resistance.value()) >=
             (double)settings.value(QZSettings::schwinn_resistance_smooth, QZSettings::default_schwinn_resistance_smooth)
                 .toInt()) {
             Resistance = resistance;
