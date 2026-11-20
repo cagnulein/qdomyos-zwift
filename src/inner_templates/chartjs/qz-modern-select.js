@@ -74,6 +74,22 @@
             menu.style.maxHeight = cut + 'px';
     }
 
+    // The selected item brought into view ends the menu on a whole item again: half an item
+    // further, so the next one shows cut as well (not past the end of the list)
+    function keepCut(menu) {
+        var range = menu.scrollHeight - menu.clientHeight;
+        if (range <= 0 || menu.scrollTop >= range)
+            return;
+        var bottom = menu.scrollTop + menu.clientHeight;
+        for (var i = 1; i < menu.children.length; i++) {
+            var item = menu.children[i];
+            if (Math.abs(item.offsetTop - bottom) < 2) {
+                menu.scrollTop = Math.min(range, menu.scrollTop + item.offsetHeight / 2);
+                return;
+            }
+        }
+    }
+
     // A scroll bar while the menu is open and the list does not fit: Android shows its own only
     // while the list moves. Over the menu, so the menu's scroll keeps it in place
     function addBar(menu) {
@@ -145,8 +161,10 @@
         var top = Math.min(Math.max(margin, r.top), window.innerHeight - margin - height);
         menu.style.top = top + 'px';
         var current = menu.querySelector('.selected');
-        if (current)
+        if (current) {
             current.scrollIntoView({ block: 'nearest' });
+            keepCut(menu);
+        }
         addBar(menu);
     }
 
