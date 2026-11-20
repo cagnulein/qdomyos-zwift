@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Experimental TX90 duration test: twenty 30-second slots, 3-5 km/h, 0-1% incline. Requires the updated test build. -->
+<rows>
+    <row duration="00:00:30" speed="3" inclination="0" forcespeed="1"/>
+    <row duration="00:00:30" speed="4" inclination="0" forcespeed="1"/>
+    <row duration="00:00:30" speed="5" inclination="1" forcespeed="1"/>
+    <row duration="00:00:30" speed="4" inclination="1" forcespeed="1"/>
+    <row duration="00:00:30" speed="3" inclination="0" forcespeed="1"/>
+    <row duration="00:00:30" speed="3" inclination="0" forcespeed="1"/>
+    <row duration="00:00:30" speed="4" inclination="0" forcespeed="1"/>
+    <row duration="00:00:30" speed="5" inclination="1" forcespeed="1"/>
+    <row duration="00:00:30" speed="4" inclination="1" forcespeed="1"/>
+    <row duration="00:00:30" speed="3" inclination="0" forcespeed="1"/>
+    <row duration="00:00:30" speed="3" inclination="0" forcespeed="1"/>
+    <row duration="00:00:30" speed="4" inclination="0" forcespeed="1"/>
+    <row duration="00:00:30" speed="5" inclination="1" forcespeed="1"/>
+    <row duration="00:00:30" speed="4" inclination="1" forcespeed="1"/>
+    <row duration="00:00:30" speed="3" inclination="0" forcespeed="1"/>
+    <row duration="00:00:30" speed="3" inclination="0" forcespeed="1"/>
+    <row duration="00:00:30" speed="4" inclination="0" forcespeed="1"/>
+    <row duration="00:00:30" speed="5" inclination="1" forcespeed="1"/>
+    <row duration="00:00:30" speed="4" inclination="1" forcespeed="1"/>
+    <row duration="00:00:30" speed="3" inclination="0" forcespeed="1"/>
+</rows>
