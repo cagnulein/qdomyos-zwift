@@ -84,13 +84,35 @@ public class AccessibilityTest {
             return;
         }
         if (presses[0].equals("--double-tap")) {
+            // TalkBack's double tap activates the focused item wherever it is
+            // on screen; use its current bounds instead of fixed coordinates.
+            AccessibilityNodeInfo focused = null;
+            for (int retry = 0; retry < 20 && focused == null; retry++) {
+                AccessibilityNodeInfo root = automation.getRootInActiveWindow();
+                focused = root == null ? null : root.findFocus(AccessibilityNodeInfo.FOCUS_ACCESSIBILITY);
+                if (focused == null) Thread.sleep(250);
+            }
+            if (focused == null || focused.getPackageName() == null
+                    || !PACKAGE.equals(focused.getPackageName().toString())) {
+                System.out.println("FAIL no QZ accessibility focus for double tap");
+                return;
+            }
+            Rect bounds = new Rect();
+            focused.getBoundsInScreen(bounds);
+            if (bounds.isEmpty()) {
+                System.out.println("FAIL focused QZ node has no bounds: " + describe(focused));
+                return;
+            }
+            int x = bounds.centerX();
+            int y = bounds.centerY();
+            System.out.println("INFO double tap focused " + describe(focused) + " at " + x + "," + y);
             // Two complete touchscreen taps in one process keep the interval
             // within Android's double-tap timeout, even on a slow emulator.
             boolean injected = true;
             for (int tap = 0; tap < 2; tap++) {
                 long down = SystemClock.uptimeMillis();
                 for (int action : new int[] {MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP}) {
-                    MotionEvent event = MotionEvent.obtain(down, SystemClock.uptimeMillis(), action, 500, 900, 0);
+                    MotionEvent event = MotionEvent.obtain(down, SystemClock.uptimeMillis(), action, x, y, 0);
                     event.setSource(InputDevice.SOURCE_TOUCHSCREEN);
                     injected &= automation.injectInputEvent(event, true);
                     event.recycle();
@@ -104,22 +126,24 @@ public class AccessibilityTest {
         // Unlike the regular UiAutomation regression tests, do not set focus,
         // scroll, or invoke any control action here.
         if (presses[0].equals("--peek-focused")) {
-            AccessibilityNodeInfo root = automation.getRootInActiveWindow();
-            AccessibilityNodeInfo focused = root == null ? null
-                    : root.findFocus(AccessibilityNodeInfo.FOCUS_ACCESSIBILITY);
-            if (focused != null && focused.getPackageName() != null
-                    && PACKAGE.equals(focused.getPackageName().toString())) {
-                System.out.println("TALKBACK_FOCUS " + describe(focused));
-                return;
-            }
-            // Older Android providers can expose the focused bit in the
-            // returned tree even when findFocus() is unavailable. Keep that
-            // compatibility fallback for non-QZ providers.
-            for (AccessibilityNodeInfo node : waitForAppNodes()) {
-                if (node.isAccessibilityFocused()) {
-                    System.out.println("TALKBACK_FOCUS " + describe(node));
+            for (int retry = 0; retry < 20; retry++) {
+                AccessibilityNodeInfo root = automation.getRootInActiveWindow();
+                AccessibilityNodeInfo focused = root == null ? null
+                        : root.findFocus(AccessibilityNodeInfo.FOCUS_ACCESSIBILITY);
+                if (focused != null && focused.getPackageName() != null
+                        && PACKAGE.equals(focused.getPackageName().toString())) {
+                    System.out.println("TALKBACK_FOCUS " + describe(focused));
                     return;
                 }
+                // Older Android providers can expose the focused bit in the
+                // returned tree even when findFocus() is unavailable.
+                for (AccessibilityNodeInfo node : appNodes()) {
+                    if (node.isAccessibilityFocused()) {
+                        System.out.println("TALKBACK_FOCUS " + describe(node));
+                        return;
+                    }
+                }
+                Thread.sleep(250);
             }
             System.out.println("FAIL no accessibility-focused node");
             return;
