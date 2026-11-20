@@ -14256,8 +14256,8 @@ import AndroidStatusBar 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    CheckBox {
-                        id: waterrowerUSBCheckBox
+                    IndicatorOnlySwitch {
+                        id: waterrowerUSBDelegate
                         text: qsTr("WaterRower USB")
                         spacing: 0
                         bottomPadding: 0
@@ -14268,6 +14268,9 @@ import AndroidStatusBar 1.0
                         checked: settings.waterrower_usb
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
+                        // in Qt 5.15 the role of a SwitchDelegate has no action: a double tap of the
+                        // screen reader did nothing
+                        Accessible.onPressAction: { toggle(); clicked(); }
                         onClicked: { settings.waterrower_usb = checked; window.settings_restart_to_apply = true; }
                     }
 
