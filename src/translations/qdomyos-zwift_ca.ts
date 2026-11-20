@@ -1098,6 +1098,10 @@ Do you want to update QZ settings?</source>
         <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
         <translation>No s&apos;ha trobat cap sensor de freqüència cardíaca a prop. Comprova que estigui encès i transmetent.</translation>
     </message>
+    <message>
+        <source>Kingsmith treadmill Bluetooth service unavailable. Retrying connection; if the problem persists, restart the treadmill.</source>
+        <translation>El servei Bluetooth de la cinta de córrer Kingsmith no està disponible. Es torna a intentar la connexió; si el problema continua, reinicia la cinta de córrer.</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>

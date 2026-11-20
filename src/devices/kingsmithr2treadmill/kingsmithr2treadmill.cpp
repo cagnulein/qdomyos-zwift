@@ -1,4 +1,5 @@
 #include "kingsmithr2treadmill.h"
+#include "homeform.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
@@ -523,6 +524,7 @@ void kingsmithr2treadmill::stateChanged(QLowEnergyService::ServiceState state) {
 void kingsmithr2treadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
+    missingCommunicationServiceCount = 0;
     initRequest = true;
     emit connectedAndDiscovered();
 }
@@ -568,6 +570,17 @@ void kingsmithr2treadmill::serviceScanDone(void) {
         _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("00021234-0000-1000-8000-00805f9b34fb"));
         gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     }
+    if (!gattCommunicationChannelService) {
+        emit debug(QStringLiteral("Kingsmith BLE communication service not found; disconnecting and retrying"));
+        if (missingCommunicationServiceCount < 3 && ++missingCommunicationServiceCount == 3 &&
+            homeform::singleton()) {
+            homeform::singleton()->setToastRequested(
+                QObject::tr("Kingsmith treadmill Bluetooth service unavailable. Retrying connection; if the problem persists, restart the treadmill."));
+        }
+        m_control->disconnectFromDevice();
+        return;
+    }
+
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
             &kingsmithr2treadmill::stateChanged);
     gattCommunicationChannelService->discoverDetails();

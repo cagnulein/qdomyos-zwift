@@ -1129,6 +1129,10 @@ Szeretné frissíteni a QZ beállításait?</translation>
         <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
         <translation>%1 (pulzusérzékelő) nem található. Ellenőrizd, hogy be van-e kapcsolva és sugározza-e a pulzusadatokat.</translation>
     </message>
+    <message>
+        <source>Kingsmith treadmill Bluetooth service unavailable. Retrying connection; if the problem persists, restart the treadmill.</source>
+        <translation>A Kingsmith futópad Bluetooth-szolgáltatása nem érhető el. Újrapróbáljuk a csatlakozást; ha a probléma továbbra is fennáll, indítsa újra a futópadot.</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>

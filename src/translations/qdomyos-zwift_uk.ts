@@ -1145,6 +1145,10 @@ Do you want to update QZ settings?</source>
         <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
         <translation>Пульсометр поруч не знайдено. Перевірте, що він увімкнений і транслює пульс.</translation>
     </message>
+    <message>
+        <source>Kingsmith treadmill Bluetooth service unavailable. Retrying connection; if the problem persists, restart the treadmill.</source>
+        <translation>Служба Bluetooth бігової доріжки Kingsmith недоступна. Виконується повторна спроба підключення; якщо проблема не зникає, перезапустіть доріжку.</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>

@@ -1098,6 +1098,10 @@ Do you want to update QZ settings?</source>
         <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
         <translation>Nenhum sensor de frequência cardíaca encontrado por perto. Verifique se está ligado e transmitindo.</translation>
     </message>
+    <message>
+        <source>Kingsmith treadmill Bluetooth service unavailable. Retrying connection; if the problem persists, restart the treadmill.</source>
+        <translation>O serviço Bluetooth da esteira Kingsmith está indisponível. Tentando conectar novamente; se o problema persistir, reinicie a esteira.</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
