@@ -11,6 +11,11 @@
         translations: {}
     };
 
+    // The units the speed and distance of the intervals are in now (null before the first answer
+    // of the app): a reopening converts from these, not from the units seen when it was asked -
+    // two reopenings before the replies would convert twice (qzEditorReopened)
+    let intervalsMiles = null;
+
     const selectors = {};
     const DEVICE_KEYS = ['bike', 'treadmill', 'elliptical', 'rower', 'jumprope', 'stairclimber'];
 
@@ -356,11 +361,58 @@
 
         // Then fetch environment and programs in background
         Promise.allSettled([fetchEnvironment(), refreshProgramList()]).then(() => {
+            intervalsMiles = state.miles;
             // Re-render after fetching environment (in case device changed)
             renderIntervals();
             updateChart();
             updateStatus();
             updateControls();
+        });
+    }
+
+    // The page shown again without a reload (the modern look keeps it between openings,
+    // main.qml): ask again for what may have changed meanwhile - the connected machine, FTP, the
+    // units, the saved workouts. The intervals stay as typed: speed and distance follow a change of
+    // the units; the machine chosen in the list stays unless the connected one changed
+    window.qzEditorReopened = function () {
+        if (window.QZ_OFFLINE) {
+            return;
+        }
+        const device = state.device;
+        const envDevice = state.envDevice;
+        Promise.allSettled([fetchEnvironment(), refreshProgramList()]).then(() => {
+            if (state.envDevice === envDevice && state.device !== device) {
+                state.device = device;
+                selectors.device.value = device;
+            }
+            if (intervalsMiles !== null && state.miles !== intervalsMiles) {
+                convertIntervalUnits(state.miles ? 1 / 1.60934 : 1.60934);
+                intervalsMiles = state.miles;
+            }
+            renderIntervals();
+            updateChart();
+            updateStatus();
+            updateControls();
+        });
+    };
+
+    // Speed and distance of every interval in the other units (factor: new units per old one);
+    // the "off" values (-1) stay
+    function convertIntervalUnits(factor) {
+        state.intervals.forEach(interval => {
+            FIELD_DEFS.forEach(def => {
+                if (def.unitKey !== 'distance' && def.unitKey !== 'speed') {
+                    return;
+                }
+                const value = interval[def.key];
+                if (value === undefined || value === null || value === ''
+                        || Number(value) === DEFAULT_DISABLED_VALUES[def.key] || isNaN(Number(value))) {
+                    return;
+                }
+                const next = Number(value) * factor;
+                interval[def.key] = def.unitKey === 'speed'
+                    ? Math.round(next * 10) / 10 : Math.round(next * 100) / 100;
+            });
         });
     }
 
@@ -381,6 +433,8 @@
                 window.qzSetTranslations(state.translations);
             }
             const envDevice = normalizeDevice(content.device);
+            // the connected machine, apart from the one chosen in the list (qzEditorReopened)
+            state.envDevice = envDevice;
             if (envDevice) {
                 state.device = envDevice;
             }
@@ -472,6 +526,10 @@
 
     function applyLoadedRows(rows, name, message, deviceHint) {
         state.intervals = rows.map((row, idx) => convertRow(row, idx));
+        // convertRow took the units the app gave last
+        if (intervalsMiles !== null) {
+            intervalsMiles = state.miles;
+        }
         state.device = deviceHint || detectDevice(state.intervals) || state.device;
         selectors.device.value = state.device;
         selectors.name.value = name;

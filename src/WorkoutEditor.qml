@@ -88,6 +88,14 @@ Item {
         }
     }
 
+    // Shown again without a reload (the modern look keeps the page, main.qml; any look when a page
+    // above it is closed): the page asks again for the connected machine, FTP, the units and the
+    // saved workouts. Not at the first opening: the page is still loading and asks itself
+    StackView.onActivated: {
+        if (root.pageLoaded)
+            webView.runJavaScript("window.qzEditorReopened && window.qzEditorReopened()")
+    }
+
     // a new app language: the page asks for its texts again (a reload would lose the edits)
     Connections {
         target: rootItem
