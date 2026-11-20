@@ -87,6 +87,7 @@ class horizontreadmill : public treadmill {
     double lastHorizonForceSpeed = 0;
     double minInclination = 0.0;
     double maxInclination = 15.0;
+    bool zipro_shred_treadmill = false;
 
     bool initDone = false;
     bool initRequest = false;

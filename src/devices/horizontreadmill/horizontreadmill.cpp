@@ -1014,7 +1014,10 @@ void horizontreadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
-            if (!adidas_treadmill && (!FS_TREADMILL || !areInclinationSettingsDefault())) {
+            // The generic override table only covers 0..15%. Do not clamp ZIPRO Shred's
+            // higher FTMS grades through the reverse lookup.
+            if (!adidas_treadmill && (!FS_TREADMILL || !areInclinationSettingsDefault()) &&
+                !(zipro_shred_treadmill && requestInclination > 15.0)) {
                 requestInclination = treadmillInclinationOverrideReverse(requestInclination);
             }
 
@@ -2787,6 +2790,10 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             minInclination = -6.0;
             maxInclination = 40.0;
             qDebug() << QStringLiteral("ADIDAS TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("SHRED"))) {
+            zipro_shred_treadmill = true;
+            maxInclination = 40.0;
+            qDebug() << QStringLiteral("ZIPRO SHRED TREADMILL 40% inclination enabled");
         } else if (device.name().toUpper().startsWith(QStringLiteral("S77"))) {
             sole_s77_treadmill = true;
             qDebug() << QStringLiteral("SOLE S77 TREADMILL workaround ON!");
