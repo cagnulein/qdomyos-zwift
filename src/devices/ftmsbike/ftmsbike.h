@@ -78,6 +78,18 @@ class ftmsbike : public bike {
                                            qint64 msecsSinceInclinationCommand,
                                            qint64 msecsSinceInclinationMetricChange, resistance_t *delta);
     static double applyFsIb50GearGain(resistance_t gearDelta, double gearsGain);
+    // Reusable classifier; currently enabled only for the H9110 BI9200.
+    struct PhysicalResistanceGearLimits {
+        resistance_t minimumLevel;
+        resistance_t maximumLevel;
+        resistance_t maximumStep;
+        qint64 controlEchoGuardMs;
+    };
+    static bool physicalResistanceGearsEnabled(const QString &deviceName, bool optionEnabled);
+    static bool physicalResistanceGearDelta(resistance_t previousResistance, resistance_t currentResistance,
+                                            qint64 millisecondsSinceControlCommand,
+                                            const PhysicalResistanceGearLimits &limits, resistance_t *delta);
+    static bool shouldReplayPhysicalGearChange(bool featureEnabled, bool physicalShiftPending);
     bool connected() override;
 
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
@@ -192,6 +204,11 @@ class ftmsbike : public bike {
     resistance_t lastFsIb50Resistance = -1;
     QDateTime lastFsIb50InclinationCommand;
     bool fsIb50PhysicalGearChangePending = false;
+
+    // BI9200 FTMS resistance notifications can represent physical handlebar shifts.
+    resistance_t lastPhysicalGearResistance = -1;
+    QDateTime lastPhysicalGearControlCommand;
+    bool physicalGearChangePending = false;
 
     inclinationResistanceTable _inclinationResistanceTable;
 

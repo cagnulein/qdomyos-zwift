@@ -76,6 +76,85 @@ TEST(FtmsBikeParserTest, KeepsFullFsIb50GearDeltaWithDefaultGain) {
     EXPECT_DOUBLE_EQ(5.0, ftmsbike::applyFsIb50GearGain(5, 1.0));
 }
 
+
+TEST(FtmsBikeParserTest, PhysicalResistanceGearDetectionIsExplicitlyOptedInAndModelGated) {
+    EXPECT_TRUE(ftmsbike::physicalResistanceGearsEnabled(QStringLiteral("H9110 BI9200"), true));
+    EXPECT_TRUE(ftmsbike::physicalResistanceGearsEnabled(QStringLiteral("h9110 bi9200"), true));
+    EXPECT_FALSE(ftmsbike::physicalResistanceGearsEnabled(QStringLiteral("H9110 BI9200"), false));
+    for (const QString &name : {QStringLiteral("H9110 OSAKA"), QStringLiteral("H9110 BI9200 OTHER"),
+                                QStringLiteral("Wahoo KICKR"), QStringLiteral("FS-IB50")}) {
+        EXPECT_FALSE(ftmsbike::physicalResistanceGearsEnabled(name, true));
+    }
+}
+
+TEST(FtmsBikeParserTest, PhysicalResistanceGearDeltaCoversRecordedNormalShifts) {
+    const ftmsbike::PhysicalResistanceGearLimits limits{1, 32, 5, 3000};
+    // Full BI9200 QZ-only recorded sequence 1->6->1.
+    const int levels[] = {1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
+    resistance_t delta = 99;
+    for (int i = 1; i < 11; ++i) {
+        ASSERT_TRUE(ftmsbike::physicalResistanceGearDelta(
+            levels[i - 1], levels[i], -1, limits, &delta));
+        EXPECT_EQ(i <= 5 ? 1 : -1, delta);
+    }
+}
+
+TEST(FtmsBikeParserTest, PhysicalResistanceGearDeltaCoversRecordedFastShifts) {
+    const ftmsbike::PhysicalResistanceGearLimits limits{1, 32, 5, 3000};
+    // FTMS 0x2ACE from the BI9200 build 1684 log on 2026-11-17.
+    const int transitions[][3] = {{23, 25, 2}, {32, 27, -5}, {26, 24, -2},
+                                  {24, 21, -3}, {20, 18, -2}, {18, 16, -2}};
+    resistance_t delta = 99;
+    for (const auto &transition : transitions) {
+        ASSERT_TRUE(ftmsbike::physicalResistanceGearDelta(
+            transition[0], transition[1], -1, limits, &delta));
+        EXPECT_EQ(transition[2], delta);
+    }
+}
+
+TEST(FtmsBikeParserTest, PhysicalResistanceGearDeltaRejectsUnreliableChanges) {
+    const ftmsbike::PhysicalResistanceGearLimits limits{1, 32, 5, 3000};
+    resistance_t delta = 99;
+    const auto expectIgnored = [&delta, &limits](resistance_t before, resistance_t after, qint64 since) {
+        EXPECT_FALSE(ftmsbike::physicalResistanceGearDelta(before, after, since, limits, &delta));
+        EXPECT_EQ(0, delta);
+    };
+    expectIgnored(-1, 1, -1);
+    expectIgnored(0, 1, -1);
+    expectIgnored(1, 1, -1);
+    expectIgnored(1, 7, -1); // Greater than the allowlisted device's maximum 5-step jump.
+    expectIgnored(27, 20, -1);
+    expectIgnored(31, 33, -1);
+    expectIgnored(32, 33, -1);
+    expectIgnored(2, 3, 0);
+    expectIgnored(2, 3, 2999);
+    expectIgnored(23, 25, 100);
+    expectIgnored(32, 27, 2999);
+    EXPECT_TRUE(ftmsbike::physicalResistanceGearDelta(32, 27, 3000, limits, &delta));
+    EXPECT_EQ(-5, delta);
+    EXPECT_FALSE(ftmsbike::physicalResistanceGearDelta(2, 3, -1, limits, nullptr));
+}
+
+TEST(FtmsBikeParserTest, PhysicalResistanceGearDeltaHasReusablePerModelLimits) {
+    const ftmsbike::PhysicalResistanceGearLimits futureProfile{1, 40, 2, 1500};
+    resistance_t delta = 99;
+    EXPECT_TRUE(ftmsbike::physicalResistanceGearDelta(32, 34, -1, futureProfile, &delta));
+    EXPECT_EQ(2, delta);
+    EXPECT_FALSE(ftmsbike::physicalResistanceGearDelta(32, 35, -1, futureProfile, &delta));
+    EXPECT_EQ(0, delta);
+    EXPECT_TRUE(ftmsbike::physicalResistanceGearDelta(32, 34, 1500, futureProfile, &delta));
+    EXPECT_EQ(2, delta);
+    EXPECT_FALSE(ftmsbike::physicalResistanceGearDelta(32, 34, 1499, futureProfile, &delta));
+}
+
+TEST(FtmsBikeParserTest, PhysicalResistanceGearReplayIsUnchangedWhenFeatureDisabled) {
+    EXPECT_TRUE(ftmsbike::shouldReplayPhysicalGearChange(false, false));
+    EXPECT_TRUE(ftmsbike::shouldReplayPhysicalGearChange(false, true));
+    EXPECT_TRUE(ftmsbike::shouldReplayPhysicalGearChange(true, false));
+    // Prevent the regression in 1683: native shift must not trigger a second FTMS write.
+    EXPECT_FALSE(ftmsbike::shouldReplayPhysicalGearChange(true, true));
+}
+
 TEST(DaumBikeControlTest, AllowsZeroPowerFallbackWithConnectedVirtualFtmsBike) {
     EXPECT_TRUE(daumbike::shouldWriteResistanceToDaum(true, true, 0));
 }
