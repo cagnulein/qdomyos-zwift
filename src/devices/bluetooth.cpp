@@ -2389,6 +2389,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith("HS-5000L") ||
                         (b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) && toorx_ftms ) ||
                         (b.name().toUpper().startsWith("DI") && b.name().length() == 2) || // Elite smart trainer #1682
+                        (b.name().toUpper().startsWith("AS6-")) ||                         // ART.IS Cross AS6 (ChangYow SM5081E BLE)
                         (b.name().toUpper().startsWith("DHZ-")) ||                         // JK fitness 577
                         (b.name().toUpper().startsWith("MKSM")) ||                         // MKSM3600036
                         (b.name().toUpper().startsWith("YS_C1_")) ||                       // Yesoul C1H
