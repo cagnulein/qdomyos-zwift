@@ -43,9 +43,15 @@ ApplicationWindow {
     // full screen window). The paddings take only the part of it inside the window. The classic look
     // keeps its window in the safe area and its paddings as before: none
     property var iosSafeArea: ({ top: 0, bottom: 0, left: 0, right: 0, width: 0, height: 0 })
+    // rootItem.iPadMultiWindowMode has no NOTIFY signal: read in a binding, it gives the warning
+    // "depends on non-NOTIFYable properties" each time the binding is evaluated again, so it is
+    // read here, at the same moments as the safe area, and the paddings read this copy
+    property bool iosMultiWindowMode: false
     function refreshIosSafeArea() {
-        if (Qt.platform.os === "ios")
-            iosSafeArea = AndroidStatusBar.safeAreaInsets()
+        if (Qt.platform.os !== "ios")
+            return
+        iosMultiWindowMode = typeof rootItem !== "undefined" && rootItem && rootItem.iPadMultiWindowMode ? true : false
+        iosSafeArea = AndroidStatusBar.safeAreaInsets()
     }
     onWidthChanged: refreshIosSafeArea()
     onHeightChanged: refreshIosSafeArea()
@@ -70,7 +76,7 @@ ApplicationWindow {
         // to avoid overlap with window control buttons (red/yellow/green)
         // Check both the native detection and window size comparison for reactivity
         if (Qt.platform.os === "ios") {
-            var isMultiWindow = (typeof rootItem !== "undefined" && rootItem && rootItem.iPadMultiWindowMode) ||
+            var isMultiWindow = window.iosMultiWindowMode ||
                                 (window.width < Screen.width - 10);  // Window smaller than screen = multi-window
             if (isMultiWindow) {
                 // Space for window control buttons, below the status bar in the modern look,
