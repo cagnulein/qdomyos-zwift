@@ -41,6 +41,7 @@
 #include "server_p.h"
 #ifdef Q_OS_ANDROID
 #include "android_multicast_wifi.h"
+#include "localipaddress.h"
 #endif
 
 using namespace QMdnsEngine;
@@ -107,6 +108,10 @@ void ServerPrivate::writeToAllInterfaces(QUdpSocket &socket, const QByteArray &p
 #endif
     const QNetworkInterface previous = socket.multicastInterface();
     bool sent = false;
+#ifdef Q_OS_ANDROID
+    const QList<QHostAddress> wifiAddresses = wantIPv4 ? localipaddress::wifiIPv4() : QList<QHostAddress>();
+    bool sentOnWifi = false;
+#endif
 
     const auto interfaces = QNetworkInterface::allInterfaces();
     for (const QNetworkInterface &networkInterface : interfaces) {
@@ -141,6 +146,16 @@ void ServerPrivate::writeToAllInterfaces(QUdpSocket &socket, const QByteArray &p
         socket.setMulticastInterface(networkInterface);
         if (socket.writeDatagram(packet, group, port) != -1) {
             sent = true;
+#ifdef Q_OS_ANDROID
+            if (wantIPv4) {
+                for (const QNetworkAddressEntry &entry : entries) {
+                    if (wifiAddresses.contains(entry.ip())) {
+                        sentOnWifi = true;
+                        break;
+                    }
+                }
+            }
+#endif
         }
     }
 
@@ -148,6 +163,13 @@ void ServerPrivate::writeToAllInterfaces(QUdpSocket &socket, const QByteArray &p
 
     // If no interface looked usable, fall back to the old behaviour rather
     // than silently sending nothing.
+#ifdef Q_OS_ANDROID
+    // A successful Qt send on cellular does not deliver the packet to Wi-Fi.
+    if (wantIPv4 && !wifiAddresses.isEmpty() && !sentOnWifi) {
+        AndroidMulticast::sendWifi(socket, packet, group, port);
+        return;
+    }
+#endif
     if (!sent) {
 #ifdef Q_OS_ANDROID
         if (wantIPv4) {

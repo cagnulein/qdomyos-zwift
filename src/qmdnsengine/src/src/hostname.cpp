@@ -198,12 +198,24 @@ bool HostnamePrivate::generateRecord(const QHostAddress &srcAddress, quint16 typ
         }
     }
 #ifdef Q_OS_ANDROID
-    if (type == A && !qtHasIPv4) {
-        const auto addresses = androidIPv4Addresses(); // Java returns Wi-Fi before other interfaces.
-        if (!addresses.isEmpty()) {
+    if (type == A) {
+        // Qt may see cellular IPv4 but miss the Wi-Fi interface entirely.
+        const auto wifi = localipaddress::wifiIPv4();
+        QHostAddress selected;
+        const auto usable = androidIPv4Addresses();
+        for (const QHostAddress &address : wifi) {
+            if (!usable.contains(address)) continue;
+            if (!selected.isNull() && selected != address) return false;
+            selected = address;
+        }
+        if (selected.isNull() && !qtHasIPv4) {
+            const auto addresses = androidIPv4Addresses();
+            if (!addresses.isEmpty()) selected = addresses.first();
+        }
+        if (!selected.isNull()) {
             record.setName(hostname);
             record.setType(A);
-            record.setAddress(addresses.first());
+            record.setAddress(selected);
             return true;
         }
     }

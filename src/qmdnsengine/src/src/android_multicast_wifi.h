@@ -1,8 +1,6 @@
 #ifndef QZ_ANDROID_MULTICAST_WIFI_H
 #define QZ_ANDROID_MULTICAST_WIFI_H
 #ifdef Q_OS_ANDROID
-#include <QtAndroidExtras/QAndroidJniObject>
-#include <QtAndroidExtras/QAndroidJniEnvironment>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <cerrno>
@@ -10,18 +8,12 @@
 #include <limits>
 #include <QThread>
 #include <QVariant>
-#include <QSet>
+#include "localipaddress.h"
 #include <QUdpSocket>
 #include <QHostAddress>
 #include <QDebug>
 
 namespace AndroidMulticast {
-inline bool failed(QAndroidJniEnvironment &env) {
-    if (!env->ExceptionCheck()) return false;
-    env->ExceptionClear();
-    qWarning() << "Android mDNS JNI_ERROR; no default-route fallback";
-    return true;
-}
 inline bool valid(const QHostAddress &address) {
     const quint32 ip = address.toIPv4Address();
     return address.protocol() == QAbstractSocket::IPv4Protocol &&
@@ -30,45 +22,18 @@ inline bool valid(const QHostAddress &address) {
            !address.isMulticast() && (ip >> 28) != 0xf;
 }
 inline QHostAddress wifiAddress() {
-    QAndroidJniEnvironment env;
-    QAndroidJniObject name = QAndroidJniObject::fromString(QStringLiteral("wlan0"));
-    if (failed(env) || !name.isValid()) return QHostAddress();
-    QAndroidJniObject iface = QAndroidJniObject::callStaticObjectMethod(
-        "java/net/NetworkInterface", "getByName",
-        "(Ljava/lang/String;)Ljava/net/NetworkInterface;", name.object<jstring>());
-    if (failed(env) || !iface.isValid()) {
-        qWarning() << "Android mDNS WIFI_ABSENT wlan0; IPv4 send skipped";
-        return QHostAddress();
-    }
-    const bool up = iface.callMethod<jboolean>("isUp");
-    if (failed(env) || !up) {
-        qWarning() << "Android mDNS WIFI_DOWN wlan0; IPv4 send skipped";
-        return QHostAddress();
-    }
-    QAndroidJniObject addresses = iface.callObjectMethod("getInetAddresses", "()Ljava/util/Enumeration;");
-    if (failed(env) || !addresses.isValid()) return QHostAddress();
     QHostAddress selected;
-    QSet<quint32> unique;
-    for (unsigned i = 0; i < 64; ++i) {
-        const bool more = addresses.callMethod<jboolean>("hasMoreElements");
-        if (failed(env)) return QHostAddress();
-        if (!more) {
-            if (unique.size() == 1) {
-                return selected;
-            }
-            qWarning() << "Android mDNS WIFI_INVALID_OR_AMBIGUOUS wlan0" << unique.size() << "send skipped";
+    for (const QHostAddress &address : localipaddress::wifiIPv4()) {
+        if (!valid(address)) continue;
+        if (!selected.isNull() && selected != address) {
+            qWarning() << "Android mDNS WIFI_AMBIGUOUS; IPv4 send skipped";
             return QHostAddress();
         }
-        QAndroidJniObject item = addresses.callObjectMethod("nextElement", "()Ljava/lang/Object;");
-        if (failed(env) || !item.isValid()) return QHostAddress();
-        QAndroidJniObject host = item.callObjectMethod("getHostAddress", "()Ljava/lang/String;");
-        if (failed(env) || !host.isValid()) return QHostAddress();
-        const QHostAddress address(host.toString());
-        if (failed(env)) return QHostAddress();
-        if (valid(address)) { selected = address; unique.insert(address.toIPv4Address()); }
+        selected = address;
     }
-    qWarning() << "Android mDNS ENUMERATION_LIMIT; send skipped";
-    return QHostAddress();
+    if (selected.isNull())
+        qWarning() << "Android mDNS WIFI_ABSENT; IPv4 send skipped";
+    return selected;
 }
 inline bool canSend(QUdpSocket &socket) {
     if (QThread::currentThread() != socket.thread()) {
@@ -142,7 +107,7 @@ inline void sendWifi(QUdpSocket &socket, const QByteArray &packet,
     restore.armed = true; // Restore the prior setting even when the attempted change fails.
     if (::setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, &chosen, sizeof(chosen)) != 0) {
         const int error = errno;
-        qWarning() << "Android mDNS SET_IF_FAILED wlan0" << address << error << strerror(error)
+        qWarning() << "Android mDNS SET_IF_FAILED" << address << error << strerror(error)
                    << "no default-route fallback";
         return;
     }
