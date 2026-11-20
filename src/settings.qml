@@ -7832,7 +7832,7 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Move the charts up or down to choose their order in Workout History. Changes are saved automatically.")
                                 wrapMode: Text.WordWrap
                                 Layout.fillWidth: true
-                                color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
+                                color: Material.color(Material.Lime)
                             }
 
                             Repeater {
