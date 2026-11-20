@@ -277,6 +277,10 @@ function process_arr(arr) {
         options: {
             animation: {
               onComplete: function() {
+                // Treadmill summaries replace the legacy power chart and badge
+                // after the final layout/data update. Do not enqueue stale captures.
+                if (Number(deviceType) === 1)
+                    return;
                 if(saveScreenshot[7] === false) {
                     // before withLight(): its redraw calls this onComplete again
                     saveScreenshot[7] = true;
@@ -1121,6 +1125,10 @@ function process_arr(arr) {
         options: {
             animation: {
               onComplete: function() {
+                  // treadmill_summary.js exports the corrected chart after it
+                  // patches the datasets; the legacy capture would be stale.
+                  if (Number(deviceType) === 1)
+                      return;
                   if(saveScreenshot[6])
                       return;
                   saveScreenshot[6] = true;
