@@ -85,6 +85,23 @@ note "Starting experimental REAL TalkBack gesture check"
 
 # This test MUST fail if the official open-source TalkBack APK did not install.
 adb shell pm path "$TB_PKG" | grep -q 'package:' || fail "TalkBack is not installed"
+# A clean TalkBack install launches its welcome/onboarding window the first time
+# the service starts. QZ is launched over that window below, leaving TalkBack's
+# accessibility focus in onboarding instead of QZ. Seed the two first-run
+# flags so this probe starts directly in the same service used for navigation.
+cat > talkback-default-prefs.xml <<'EOF'
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <boolean name="pref_update_welcome_16_2_shown_key" value="true" />
+    <boolean name="pref_update_multi_finger_gestures_shown_key" value="true" />
+</map>
+EOF
+adb push talkback-default-prefs.xml /data/local/tmp/talkback-default-prefs.xml >/dev/null
+adb shell "run-as $TB_PKG mkdir -p /data/user_de/0/$TB_PKG/shared_prefs"
+adb shell "run-as $TB_PKG cp /data/local/tmp/talkback-default-prefs.xml /data/user_de/0/$TB_PKG/shared_prefs/${TB_PKG}_preferences.xml"
+adb shell "run-as $TB_PKG cat /data/user_de/0/$TB_PKG/shared_prefs/${TB_PKG}_preferences.xml" | grep -F 'pref_update_welcome_16_2_shown_key' >/dev/null ||
+    fail "Could not suppress TalkBack's first-run welcome screen"
+note "PASS skipped TalkBack first-run welcome screen"
 SERVICE="$TB_PKG/$TB_SERVICE"
 # On a fresh API 37 boot, AccessibilityManager can still be initializing
 # after package installation. Retry the *actual* enable operation, not the
