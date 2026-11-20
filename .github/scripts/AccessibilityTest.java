@@ -163,9 +163,19 @@ public class AccessibilityTest {
                 return;
             }
             String name = presses[1].replace('_', ' ');
-            AccessibilityNodeInfo target = find(name, false);
+            // A real accessibility service can make Qt publish its first tree
+            // later than the shell's first root-window read on a cold emulator.
+            AccessibilityNodeInfo target = null;
+            for (int retry = 0; retry < FOCUS_RETRIES; retry++) {
+                target = find(name, false);
+                if (target != null && target.isFocusable()) break;
+                Thread.sleep(250);
+            }
             if (target == null || !target.isFocusable()) {
                 System.out.println("FAIL missing focusable node: " + name);
+                for (AccessibilityNodeInfo node : appNodes()) {
+                    System.out.println("INFO available node " + describe(node));
+                }
                 return;
             }
             if (!target.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS)) {
