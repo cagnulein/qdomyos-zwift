@@ -2170,7 +2170,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("3G PRO ")) ||
                         (b.name().toUpper().startsWith("3G ELITE ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("AB300S-")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("TF04-S001-")) ||                           // Sport Synology Z5 Treadmill #2415
                         (b.name().toUpper().startsWith(QStringLiteral("TRUE TREADMILL ")) &&
                          b.name().length() > QStringLiteral("TRUE TREADMILL ").length() &&
                          QRegularExpression(QStringLiteral("TRUE TREADMILL \\d{3,}$")).match(b.name().toUpper()).hasMatch()) ||  // TRUE TREADMILL followed by digits
@@ -3572,6 +3571,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if (((b.name().startsWith(QStringLiteral("FS-")) && !horizonTreadmill && !snode_bike && !fitplus_bike && !ftmsBike && !iconsole_elliptical) ||
                         (b.name().toUpper().startsWith(QStringLiteral("TR510-T"))) ||
                         b.name().toUpper().startsWith(QStringLiteral("MRK-T12-")) || // Merach T12 Pro uses FitShow control
+                        b.name().toUpper().startsWith(QStringLiteral("TF04-S001-")) || // FTMS override is handled by Horizon above
                         (b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // FTMS
                         (b.name().startsWith(QStringLiteral("SW")) && b.name().length() == 14 &&
                          !b.name().contains('(') && !b.name().contains(')') && !deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
