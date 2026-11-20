@@ -777,8 +777,7 @@ void DeviceTestDataIndex::Initialize() {
             info.setValue(QZSettings::ftms_treadmill,
                           enable ? info.DeviceName().toLower() : QZSettings::default_ftms_treadmill);
             info.includeBluetoothService(QBluetoothUuid((quint16)0x1826), true);
-        })
-        ->excluding<fitshowtreadmill>();
+        });
 
     // Adidas treadmills explicitly configured for FTMS must use Horizon, not AppGate USB.
     RegisterNewDeviceTestData(DeviceIndex::HorizonTreadmill_AdidasFTMS)
