@@ -57,6 +57,45 @@
         return sel;
     }
 
+    // A list longer than the room: the bottom at the middle of an item, so the cut item shows
+    // that the list goes on (a whole item at the edge looked like its end)
+    function fitLong(menu, room) {
+        if (menu.scrollHeight <= room)
+            return;
+        var cut = 0;
+        for (var i = 0; i < menu.children.length; i++) {
+            var item = menu.children[i];
+            var middle = item.offsetTop + item.offsetHeight / 2;
+            if (middle > room)
+                break;
+            cut = middle;
+        }
+        if (cut > 0)
+            menu.style.maxHeight = cut + 'px';
+    }
+
+    // A scroll bar while the menu is open and the list does not fit: Android shows its own only
+    // while the list moves. Over the menu, so the menu's scroll keeps it in place
+    function addBar(menu) {
+        if (menu.scrollHeight <= menu.clientHeight)
+            return;
+        var bar = document.createElement('div');
+        bar.className = 'qz-menu-bar';
+        backdrop.appendChild(bar);
+        var inset = 4;
+        function place() {
+            var r = menu.getBoundingClientRect();
+            var track = r.height - 2 * inset;
+            var length = Math.max(24, track * menu.clientHeight / menu.scrollHeight);
+            var range = menu.scrollHeight - menu.clientHeight;
+            bar.style.left = (r.right - inset - bar.offsetWidth) + 'px';
+            bar.style.top = (r.top + inset + (track - length) * (range > 0 ? menu.scrollTop / range : 0)) + 'px';
+            bar.style.height = length + 'px';
+        }
+        menu.addEventListener('scroll', place);
+        place();
+    }
+
     function open(sel) {
         close();
         backdrop = document.createElement('div');
@@ -101,12 +140,14 @@
         menu.style.width = width + 'px';
         var room = window.innerHeight - 2 * margin;
         menu.style.maxHeight = room + 'px';
+        fitLong(menu, room);
         var height = Math.min(menu.offsetHeight, room);
         var top = Math.min(Math.max(margin, r.top), window.innerHeight - margin - height);
         menu.style.top = top + 'px';
         var current = menu.querySelector('.selected');
         if (current)
             current.scrollIntoView({ block: 'nearest' });
+        addBar(menu);
     }
 
     document.addEventListener('click', function (e) {
