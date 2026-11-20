@@ -17,13 +17,15 @@ An active Zwift subscription is not required for this handshake procedure; a Zwi
 On iPhone, **initial discovery** of QZ's virtual trainer can behave differently from keeping an **already-paired** connection alive. If Zwift's pairing screen does not list **QZ** (Bluetooth) or **Wahoo KICKR 0000** (Wahoo Direct Connect / Wi-Fi), try this confirmed workaround:
 
 1. Open QZ on the iPhone and make sure it has connected to the physical trainer. Enable the virtual-device transport you want to use.
-2. **Leave QZ in the foreground** while opening Zwift's pairing screen on the other device.
+2. For a **two-device setup**, **leave QZ in the foreground** while opening Zwift's pairing screen on the receiving device.
 3. When QZ / Wahoo KICKR 0000 appears, pair it to Zwift as the appropriate **Power Source** and **Controllable** device (and cadence if offered).
 4. Only after pairing succeeds, put QZ in the background. With **iOS Background Keep Alive** enabled under **Experimental Settings**, check that power, resistance control and any virtual shifting still work during a short test.
 
 **Why:** iOS does not advertise a Bluetooth peripheral's local name when its app is in the background, and background service UUID discovery is restricted. Wahoo Direct Connect uses **Bonjour/mDNS over Wi-Fi**, not BLE advertising, but its discovery responses also depend on QZ being allowed to execute and access the local network. **iOS Background Keep Alive may help keep an established session running; it is not a guarantee that Zwift can discover a new virtual trainer in the background.** In a confirmed support report, existing Zwift pairing worked with QZ backgrounded, but first-time discovery required returning QZ to the foreground, even with Keep Alive enabled.
 
 This concerns the **virtual trainer's discovery**, not the separate Zwift Click v2 controller keepalive/handshake.
+
+For the **newer QZ iOS beta**, QZ and Zwift can also run **on the same iPhone or iPad** by enabling **Experimental Settings > iOS Background Keep Alive**. See the [iOS same-device FAQ](ios.md); the initial-discovery caution above still applies.
 
 ## QZ and Zwift show different virtual gear numbers. How can I keep them aligned?
 
