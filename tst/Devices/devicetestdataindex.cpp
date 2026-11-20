@@ -411,6 +411,16 @@ void DeviceTestDataIndex::Initialize() {
         ->excluding<fitplusrower>()
         ->excluding<snodebike>();
 
+    // FINNLO Performance ANPLUS-00541: use proprietary FitShow only when FTMS treadmill is not selected.
+    RegisterNewDeviceTestData(DeviceIndex::FitShowFinnloANPLUS)
+        ->expectDevice<fitshowtreadmill>()
+        ->acceptDeviceName("ANPLUS-00541", DeviceNameComparison::IgnoreCase)
+        ->configureSettingsWith([](DeviceDiscoveryInfo &info, bool enable) {
+            info.setValue(QZSettings::ftms_treadmill,
+                          enable ? QZSettings::default_ftms_treadmill : info.DeviceName());
+        })
+        ->excluding<horizontreadmill>();
+
     // FitShow FS
     RegisterNewDeviceTestData(DeviceIndex::FitShowFS)
         ->expectDevice<fitshowtreadmill>()        
@@ -746,6 +756,16 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<ypootreadmill>()
         ->acceptDeviceNames({"YPTM-U", "YP-M1552-"}, DeviceNameComparison::StartsWithIgnoreCase)
         ->excluding<horizontreadmill>();
+
+    // Explicit FTMS Treadmill selection must override the experimental FINNLO FitShow path.
+    RegisterNewDeviceTestData(DeviceIndex::HorizonTreadmill_FinnloANPLUSFTMS)
+        ->expectDevice<horizontreadmill>()
+        ->acceptDeviceName("ANPLUS-00541", DeviceNameComparison::IgnoreCase)
+        ->configureSettingsWith([](DeviceDiscoveryInfo &info, bool enable) {
+            info.setValue(QZSettings::ftms_treadmill,
+                          enable ? info.DeviceName() : QZSettings::default_ftms_treadmill);
+        })
+        ->excluding<fitshowtreadmill>();
 
     // Horizon Treadmill
     RegisterNewDeviceTestData(DeviceIndex::HorizonTreadmill)

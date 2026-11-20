@@ -1051,6 +1051,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QString ftms_rower = settings.value(QZSettings::ftms_rower, QZSettings::default_ftms_rower).toString();
     QString ftms_bike = settings.value(QZSettings::ftms_bike, QZSettings::default_ftms_bike).toString();
     QString ftms_treadmill = settings.value(QZSettings::ftms_treadmill, QZSettings::default_ftms_treadmill).toString();
+    const bool ftmsTreadmillNotSelected = ftms_treadmill.trimmed().isEmpty() ||
+                                            !ftms_treadmill.compare(QZSettings::default_ftms_treadmill,
+                                                                   Qt::CaseInsensitive);
     QString ftms_elliptical = settings.value(QZSettings::ftms_elliptical, QZSettings::default_ftms_elliptical).toString();
     bool saris_trainer = settings.value(QZSettings::saris_trainer, QZSettings::default_saris_trainer).toBool();
     bool iconsole_elliptical = settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();
@@ -2215,7 +2218,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("S77")) && !sole_inclination) ||       // FMTS
                         (b.name().toUpper().startsWith(QStringLiteral("F89")) && !sole_inclination) ||       // FMTS
                         (b.name().toUpper().startsWith(QStringLiteral("F80")) && !sole_inclination) ||       // FMTS
-                        (b.name().toUpper().startsWith(QStringLiteral("ANPLUS-"))) ||                        // FTMS
+                        (b.name().toUpper().startsWith(QStringLiteral("ANPLUS-")) &&
+                         (b.name().compare(QStringLiteral("ANPLUS-00541"), Qt::CaseInsensitive) ||
+                          !ftmsTreadmillNotSelected)) || // FINNLO ANPLUS-00541 uses FitShow unless FTMS selected
 						(b.name().toUpper().startsWith(QStringLiteral("RUN BT-"))) ||                        // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("X-T"))) ||                            // FTMS (X-T421)
 						(b.name().toUpper().startsWith(QStringLiteral("ToputureTP6"))) ||                    // FTMS (ToputureTP6)
@@ -3571,6 +3576,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(focusTreadmill);
             } else if (((b.name().startsWith(QStringLiteral("FS-")) && !horizonTreadmill && !snode_bike && !fitplus_bike && !ftmsBike && !iconsole_elliptical) ||
                         (b.name().toUpper().startsWith(QStringLiteral("TR510-T"))) ||
+                        (ftmsTreadmillNotSelected &&
+                         !b.name().compare(QStringLiteral("ANPLUS-00541"), Qt::CaseInsensitive)) || // #5736
                         b.name().toUpper().startsWith(QStringLiteral("MRK-T12-")) || // Merach T12 Pro uses FitShow control
                         (b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // FTMS
                         (b.name().startsWith(QStringLiteral("SW")) && b.name().length() == 14 &&
