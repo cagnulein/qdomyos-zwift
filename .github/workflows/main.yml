@@ -3312,7 +3312,7 @@ jobs:
           APK=$(find . -path '*/build/outputs/apk/phone/debug/*.apk' -print -quit)
           test -n "$APK" && test -s "$APK"
           cp "$APK" "$GITHUB_WORKSPACE/talkback-open-source.apk"
-      - name: Compile read-only accessibility focus probe
+      - name: Compile accessibility focus and gesture probe
         run: |
           SDK=${ANDROID_SDK_ROOT:-$ANDROID_HOME}
           echo y | $SDK/cmdline-tools/latest/bin/sdkmanager "platforms;android-35" "build-tools;35.0.0"
@@ -3343,4 +3343,6 @@ jobs:
             accessibility_dumpsys.txt
             talkback_logcat.txt
             talkback-failure.png
+            a11y-test.jar
+            talkback-open-source.apk
           if-no-files-found: warn

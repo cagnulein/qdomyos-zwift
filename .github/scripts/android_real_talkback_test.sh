@@ -71,9 +71,9 @@ swipe_to() {
         note "focus[$n]: $current"
         case "$current" in *"$name"*) note "PASS reached $name by TalkBack swipes"; return 0;; esac
         if [ "$direction" = backward ]; then
-            adb shell input swipe 270 850 780 850 160
-        else
             adb shell input swipe 780 850 270 850 160
+        else
+            adb shell input swipe 270 850 780 850 160
         fi
         sleep 1
         foreground
@@ -138,25 +138,28 @@ adb push a11y-test.jar /data/local/tmp/a11y-test.jar >/dev/null
 adb logcat -c
 before=$(focus_name)
 note "initial focus: $before"
-adb shell input swipe 780 850 270 850 160
+adb shell input swipe 270 850 780 850 160
 sleep 2
 after=$(focus_name)
 note "focus after swipe: $after"
-[ -n "$after" ] || fail "No TalkBack accessibility focus after swipe"
-[ "$before" != "$after" ] || fail "TalkBack swipe did not move accessibility focus"
+[ -n "$after" ] || { peek --peek-focused >> "$REPORT"; fail "No TalkBack accessibility focus after swipe"; }
+if [ -n "$before" ] && [ "$before" = "$after" ]; then
+    fail "TalkBack swipe did not move accessibility focus"
+fi
 foreground
 
-# The deterministic harness opens the drawer without altering QZ source code;
-# from here navigation to Settings is performed using REAL TalkBack swipes.
-result=$(peek 'Main_menu=Settings')
-echo "$result" >> "$REPORT"
-echo "$result" | grep -F 'OK pressed' >/dev/null ||
-    fail "Cannot open QZ drawer for TalkBack navigation"
+# Navigate using TalkBack gestures throughout, including opening the drawer.
+swipe_to "Main menu" backward
+result=$(peek --double-tap)
+note "$result"
+echo "$result" | grep -F 'OK double tap injected' >/dev/null || fail "Double-tap injection failed"
+sleep 4
 foreground
-swipe_to Settings backward
+swipe_to Settings forward
 
 # Physical double-tap is interpreted by running TalkBack, unlike ACTION_CLICK.
-adb shell 'input tap 530 1100; input tap 530 1100'
+result=$(peek --double-tap)
+echo "$result" | grep -F 'OK double tap injected' >/dev/null || fail "Double-tap injection failed"
 sleep 4
 foreground
 result=$(peek --peek-node General_Options)
@@ -168,10 +171,25 @@ note "$result"
 echo "$result" | grep -F TALKBACK_NODE >/dev/null ||
     fail "Experimental Features not accessible on settings page"
 
+swipe_to "General Options" forward
+result=$(peek --double-tap)
+echo "$result" | grep -F 'OK double tap injected' >/dev/null || fail "Double-tap injection failed"
+sleep 3
+result=$(peek --peek-node App_Language)
+note "$result"
+echo "$result" | grep -F TALKBACK_NODE >/dev/null || fail "General Options did not open"
+swipe_to "Experimental Features" forward
+result=$(peek --double-tap)
+echo "$result" | grep -F 'OK double tap injected' >/dev/null || fail "Double-tap injection failed"
+sleep 3
+result=$(peek --peek-node Gym_Mode)
+note "$result"
+echo "$result" | grep -F TALKBACK_NODE >/dev/null || fail "Experimental Features did not open"
+
 # Reproduce the user's unwanted Chrome launch after about 30 seconds.
 n=0
 while [ "$n" -lt 12 ]; do
-    adb shell input swipe 780 850 270 850 160
+    adb shell input swipe 270 850 780 850 160
     sleep 6
     foreground
     n=$((n + 1))

@@ -273,6 +273,12 @@ public class CustomQtActivity extends QtActivity {
         @Override
         public AccessibilityNodeInfo createAccessibilityNodeInfo(int virtualViewId) {
             AccessibilityNodeInfo node = qt.createAccessibilityNodeInfo(virtualViewId);
+            // Qt 5.15 does not consistently expose its virtual accessibility
+            // focus in nodes returned to Android. TalkBack must be able to read
+            // back the same focused node that it selected through this provider.
+            if (node != null && virtualViewId != View.NO_ID) {
+                node.setAccessibilityFocused(virtualViewId == focusedId);
+            }
             if (node != null && virtualViewId != View.NO_ID && node.isScrollable() && node.getChildCount() == 0) {
                 node.setClassName("android.widget.SeekBar");
             }
@@ -293,7 +299,7 @@ public class CustomQtActivity extends QtActivity {
             // TalkBack in performAction() so Android services can read back
             // their current focus.
             if (focus == AccessibilityNodeInfo.FOCUS_ACCESSIBILITY && focusedId != NO_FOCUS) {
-                AccessibilityNodeInfo node = qt.createAccessibilityNodeInfo(focusedId);
+                AccessibilityNodeInfo node = createAccessibilityNodeInfo(focusedId);
                 if (node != null) {
                     return node;
                 }
@@ -316,13 +322,22 @@ public class CustomQtActivity extends QtActivity {
                 if (pressed) {
                     afterClick(virtualViewId);
                 }
+                Log.d(TAG, "a11y click action id=" + virtualViewId + " handled=" + pressed);
                 return pressed;
+            }
+            // Set the id before Qt emits its focus event: a service may query
+            // the node as soon as it receives that event.
+            int previousFocus = focusedId;
+            if (action == AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS) {
+                focusedId = virtualViewId;
             }
             boolean handled = qt.performAction(virtualViewId, action, arguments);
             if (action == AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS) {
+                if (!handled) {
+                    focusedId = previousFocus;
+                }
                 Log.d(TAG, "a11y focus action id=" + virtualViewId + " handled=" + handled
                         + " provider=" + System.identityHashCode(this));
-                focusedId = virtualViewId;
             } else if (action == AccessibilityNodeInfo.ACTION_CLEAR_ACCESSIBILITY_FOCUS && focusedId == virtualViewId) {
                 focusedId = NO_FOCUS;
             }

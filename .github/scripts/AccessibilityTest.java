@@ -83,6 +83,23 @@ public class AccessibilityTest {
             System.out.println("FAIL no button to press given");
             return;
         }
+        if (presses[0].equals("--double-tap")) {
+            // Two complete touchscreen taps in one process keep the interval
+            // within Android's double-tap timeout, even on a slow emulator.
+            boolean injected = true;
+            for (int tap = 0; tap < 2; tap++) {
+                long down = SystemClock.uptimeMillis();
+                for (int action : new int[] {MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP}) {
+                    MotionEvent event = MotionEvent.obtain(down, SystemClock.uptimeMillis(), action, 500, 900, 0);
+                    event.setSource(InputDevice.SOURCE_TOUCHSCREEN);
+                    injected &= automation.injectInputEvent(event, true);
+                    event.recycle();
+                    Thread.sleep(50);
+                }
+            }
+            System.out.println(injected ? "OK double tap injected" : "FAIL double tap injection failed");
+            return;
+        }
         // Read-only inspection for tests using a *real* TalkBack service.
         // Unlike the regular UiAutomation regression tests, do not set focus,
         // scroll, or invoke any control action here.
