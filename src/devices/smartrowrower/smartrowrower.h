@@ -49,6 +49,7 @@ class smartrowrower : public rower {
     double GetDistanceFromPacket(const QByteArray &packet);
     QByteArray calculateSmartRowV3ChallengeResponse(const QByteArray &keylock) const;
     QByteArray decodeSmartRowPacket(const QByteArray &packet) const;
+    bool smartRowChecksumOk(const QByteArray &packet) const;
     uint16_t wattsFromResistance(double resistance);
     QTime GetElapsedFromPacket(QByteArray packet);
     void btinit();
