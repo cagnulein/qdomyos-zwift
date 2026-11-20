@@ -2838,7 +2838,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             if(domyos_treadmill_ts100) {
                 qDebug() << QStringLiteral("Domyos TS100 mode ON - Fixed 15° inclination");
             }
-        } else if ((device.name().toUpper().startsWith(QStringLiteral("BFX_T9_")))) {
+        } else if ((device.name().toUpper().startsWith(QStringLiteral("BFX_T9")))) {
             qDebug() << QStringLiteral("BOWFLEX T9 found");
             BOWFLEX_T9 = true;
         } else if ((device.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")))) {
