@@ -10,7 +10,7 @@ public:
     static bool supported();
     static void start();
     static void stop();
-    static void update(const QList<QPair<QString, QString>> &metrics);
+    static void update(const QList<QPair<QString, QString>> &metrics, const QString &emptyLabel);
     static bool running();
 };
 #endif

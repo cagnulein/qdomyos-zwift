@@ -3370,6 +3370,10 @@ Przy pierwszym uruchomieniu może to chwilę potrwać.</translation>
 <context>
     <name>homeform</name>
     <message>
+        <source>No enabled metrics</source>
+        <translation>Brak włączonych wskaźników</translation>
+    </message>
+    <message>
         <source>Speed (%1/h)</source>
         <translation>Prędkość (%1/h)</translation>
     </message>
@@ -4295,6 +4299,10 @@ Przy pierwszym uruchomieniu może to chwilę potrwać.</translation>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Pływające wskaźniki (obraz w obrazie)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>

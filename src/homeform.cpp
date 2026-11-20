@@ -2848,7 +2848,7 @@ void homeform::updateFloatingMetrics() {
         if (tile->visibleItem() && !tile->largeButton() && !tile->value().isEmpty())
             metrics.append(qMakePair(tile->name(), tile->value()));
     }
-    iosFloatingMetrics::update(metrics);
+    iosFloatingMetrics::update(metrics, tr("No enabled metrics"));
 #endif
 }
 

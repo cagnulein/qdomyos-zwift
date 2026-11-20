@@ -3262,6 +3262,10 @@ This may take a few moments on first startup.</source>
 <context>
     <name>homeform</name>
     <message>
+        <source>No enabled metrics</source>
+        <translation>कोई मेट्रिक सक्षम नहीं है</translation>
+    </message>
+    <message>
         <source>Speed (%1/h)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4179,6 +4183,10 @@ This may take a few moments on first startup.</source>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>फ़्लोटिंग मेट्रिक्स (पिक्चर-इन-पिक्चर)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation type="unfinished"></translation>

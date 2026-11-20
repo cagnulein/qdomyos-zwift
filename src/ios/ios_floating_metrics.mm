@@ -13,6 +13,7 @@ API_AVAILABLE(ios(15.0))
 @property(nonatomic, strong) UIView *preview;
 @property(nonatomic, copy) NSArray<NSArray<NSString *> *> *metrics;
 @property(nonatomic, copy) NSString *lastFrame;
+@property(nonatomic, copy) NSString *emptyLabel;
 @property(nonatomic) BOOL pending;
 @property(nonatomic) BOOL observing;
 + (instancetype)shared;
@@ -79,7 +80,7 @@ API_AVAILABLE(ios(15.0))
     NSUInteger page = ((NSUInteger)(NSDate.date.timeIntervalSince1970 / 6)) % pages;
     NSRange range = NSMakeRange(MIN(page * 6, all.count), MIN((NSUInteger)6, all.count - MIN(page * 6, all.count)));
     NSArray<NSArray<NSString *> *> *shown = [all subarrayWithRange:range];
-    NSString *signature = [NSString stringWithFormat:@"%@/%lu/%lu", shown, (unsigned long)page, (unsigned long)pages];
+    NSString *signature = [NSString stringWithFormat:@"%@/%lu/%lu/%@", shown, (unsigned long)page, (unsigned long)pages, self.emptyLabel ?: @""];
     if ([signature isEqualToString:self.lastFrame] && self.layer.status != AVQueuedSampleBufferRenderingStatusFailed) return;
     CVPixelBufferRef pixel = NULL;
     NSDictionary *attrs = @{(id)kCVPixelBufferCGImageCompatibilityKey:@YES, (id)kCVPixelBufferCGBitmapContextCompatibilityKey:@YES};
@@ -100,7 +101,7 @@ API_AVAILABLE(ios(15.0))
         [shown[i][0] drawInRect:CGRectMake(x + 5, y + 4, 230, 24) withAttributes:label];
         [shown[i][1] drawInRect:CGRectMake(x + 5, y + 27, 230, 48) withAttributes:value];
     }
-    if (shown.count == 0) [@"No enabled metrics" drawInRect:CGRectMake(0, 110, 480, 30) withAttributes:label];
+    if (shown.count == 0) [(self.emptyLabel ?: @"") drawInRect:CGRectMake(0, 110, 480, 30) withAttributes:label];
     if (pages > 1) [[NSString stringWithFormat:@"%lu / %lu", (unsigned long)page + 1, (unsigned long)pages] drawInRect:CGRectMake(0, 250, 480, 20) withAttributes:label];
     UIGraphicsPopContext(); CGContextRelease(ctx);
     CVPixelBufferUnlockBaseAddress(pixel, 0);
@@ -141,11 +142,12 @@ bool iosFloatingMetrics::supported() {
 void iosFloatingMetrics::start() { if (@available(iOS 15.0, *)) dispatch_async(dispatch_get_main_queue(), ^{ [[QZFloatingMetrics shared] start]; }); }
 void iosFloatingMetrics::stop() { if (@available(iOS 15.0, *)) dispatch_async(dispatch_get_main_queue(), ^{ QZFloatingMetrics *pip = [QZFloatingMetrics shared]; if (pip.controller.isPictureInPictureActive) [pip.controller stopPictureInPicture]; else [pip finish]; }); }
 bool iosFloatingMetrics::running() { if (@available(iOS 15.0, *)) return [QZFloatingMetrics shared].controller != nil; return false; }
-void iosFloatingMetrics::update(const QList<QPair<QString, QString>> &metrics) {
+void iosFloatingMetrics::update(const QList<QPair<QString, QString>> &metrics, const QString &emptyLabel) {
     if (@available(iOS 15.0, *)) {
         NSMutableArray *items = [NSMutableArray arrayWithCapacity:metrics.size()];
         for (const auto &metric : metrics) [items addObject:@[[NSString stringWithUTF8String:metric.first.toUtf8().constData()], [NSString stringWithUTF8String:metric.second.toUtf8().constData()]]];
-        dispatch_async(dispatch_get_main_queue(), ^{ [QZFloatingMetrics shared].metrics = items; [[QZFloatingMetrics shared] render]; });
+        NSString *emptyText = [NSString stringWithUTF8String:emptyLabel.toUtf8().constData()];
+        dispatch_async(dispatch_get_main_queue(), ^{ [QZFloatingMetrics shared].metrics = items; [QZFloatingMetrics shared].emptyLabel = emptyText; [[QZFloatingMetrics shared] render]; });
     }
 }
 #endif
