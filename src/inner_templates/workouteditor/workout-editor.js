@@ -24,15 +24,30 @@
         charts: null
     };
 
-    // Axis colours over the dark page of the editor (the same as the single chart had before),
-    // and the chips: a light outline, the accent of the editor as the fill of a selected one
-    const AXIS_COLORS = {
-        tick: 'rgba(255,255,255,0.65)',
-        grid: 'rgba(255,255,255,0.04)',
-        title: 'rgba(255,255,255,0.75)',
-        outline: 'rgba(255,255,255,0.38)',
-        tonal: 'rgba(53,186,246,0.24)'
-    };
+    // The light theme of the modern look (qz-theme-bridge.js marks it with the "light" class)
+    function light() {
+        return document.documentElement.classList.contains('light');
+    }
+
+    // Chart lines and labels over the page background: white over the dark page of the editor
+    // (the classic look and the dark theme), black over a light one
+    function ink(alpha) {
+        return (light() ? 'rgba(0,0,0,' : 'rgba(255,255,255,') + alpha + ')';
+    }
+
+    // Axis colours over the page (on the dark page the same as the single chart had before), and
+    // the chips: an outline in the ink of the page, the accent of the editor as the fill of a
+    // selected one
+    function axisColors() {
+        return {
+            tick: ink(0.65),
+            grid: ink(light() ? 0.08 : 0.04),
+            title: ink(0.75),
+            outline: ink(0.38),
+            // the accent of the theme in the modern look, the blue of the page in the classic one
+            tonal: (window.qzAccentTonal && window.qzAccentTonal(0.24)) || 'rgba(53,186,246,0.24)'
+        };
+    }
 
     function formatSeconds(total) {
         if (!isFinite(total)) {
@@ -55,7 +70,7 @@
         }
         state.charts = QzMetricCharts.create(host, {
             storageKey: 'qz.workouteditor.together',
-            colors: () => AXIS_COLORS,
+            colors: axisColors,
             timeTitle: () => t('workoutEditor.time', 'Time'),
             caption: () => t('chart.onOneChart', 'On one chart:')
         });
@@ -122,4 +137,10 @@
     };
 
     window.addEventListener('DOMContentLoaded', ensureCharts);
+    // The app switched its theme while the editor is open: the axes and chips in the new colours
+    window.addEventListener('qzthemechange', () => {
+        if (state.charts) {
+            state.charts.refresh();
+        }
+    });
 })();

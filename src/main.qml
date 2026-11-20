@@ -377,9 +377,9 @@ ApplicationWindow {
         // Zone colours of the tiles are made for a dark page: darker ones on a light page
         function zoneInk(c) { return dark ? c : Qt.darker(c, 1.7) }
 
-        // Theme of the web pages in a WebView (charts, workout history, maps): their
-        // qz-theme-bridge.js maps these onto CSS variables. Null in the classic look, so the pages
-        // keep their own palette. All tokens are opaque: toString() gives "#rrggbb", which CSS
+        // Theme of the web pages in a WebView (charts, workout history, maps, workout editor and
+        // preview): their qz-theme-bridge.js maps these onto CSS variables. Null in the classic
+        // look, so the pages keep their own palette. All tokens are opaque: toString() gives "#rrggbb", which CSS
         // reads; a translucent one would come out as "#aarrggbb", which CSS misreads.
         readonly property var webTheme: !modern ? null : ({
             modern: "1",
@@ -387,10 +387,13 @@ ApplicationWindow {
             bg: bg.toString(),
             surface: surface.toString(),
             surfaceHigh: surfaceHigh.toString(),
+            surfaceHighest: surfaceHighest.toString(),
             outline: outline.toString(),
             text: textMain.toString(),
             muted: textMuted.toString(),
-            accent: accent.toString()
+            accent: accent.toString(),
+            accentInk: accentInk.toString(),
+            danger: danger.toString()
         })
         // The theme as a URL fragment for the first load of such a page ("" in the classic look)
         function webThemeFragment() {

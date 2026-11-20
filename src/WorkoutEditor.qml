@@ -10,6 +10,31 @@ Item {
 
     signal closeRequested()
 
+    // Modern look: the page takes the app theme colours (qz-theme-bridge.js). They go in the URL
+    // fragment for the first load and through runJavaScript when the theme changes later, so an
+    // open workout is not reloaded. Null in the classic look: the page keeps its own dark palette;
+    // null sent to an open page (the modern look switched off) takes the theme off
+    readonly property var pageTheme: window.ui.webTheme
+
+    onPageThemeChanged: {
+        if (pageLoaded)
+            webView.runJavaScript(window.ui.webThemeScript())
+    }
+
+    // Back (main.qml, navigateBack): in the modern look a list of the page opens as a menu of the
+    // page (qz-modern-select.js), and Back closes it first, as it closes the system list. Only the
+    // page knows whether one is open, and it answers through the callback: Back is taken here and
+    // the page is left in the answer when no menu was open
+    function handleBack() {
+        if (!window.ui.modern || !root.pageLoaded)
+            return false
+        webView.runJavaScript("window.qzMenuBack ? window.qzMenuBack() : false", function(closed) {
+            if (!closed && root.StackView.view && root.StackView.view.currentItem === root)
+                window.navigateBack(false)
+        })
+        return true
+    }
+
     Settings {
         id: settings
     }
@@ -24,7 +49,7 @@ Item {
             if (!port) {
                 return
             }
-            var targetUrl = "http://localhost:" + port + "/workouteditor/index.html"
+            var targetUrl = "http://localhost:" + port + "/workouteditor/index.html" + window.ui.webThemeFragment()
             if (webView.url !== targetUrl) {
                 webView.url = targetUrl
             }
@@ -38,6 +63,9 @@ Item {
         onLoadingChanged: {
             if (loadRequest.status === WebView.LoadSucceededStatus) {
                 root.pageLoaded = true
+                // A theme change during the load only moved the fragment: apply the current one
+                if (root.pageTheme)
+                    webView.runJavaScript(window.ui.webThemeScript())
                 busy.visible = false
                 busy.running = false
                 portPoller.stop()

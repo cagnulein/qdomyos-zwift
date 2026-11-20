@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Workout Preview</title>
     <script src="../i18n/i18n.js"></script>
+    <!-- Modern look: the app theme from the URL fragment (TrainingProgramsListJS.qml); without it
+         the page keeps its own look -->
+    <script src="../chartjs/qz-theme-bridge.js"></script>
     <style>
         * {
             margin: 0;
@@ -25,12 +28,6 @@
             padding: 10px;
         }
 
-        /* modern look: the page colour around the chart (given in the address), so the frame merges
-           with the page, and only 8px at the sides */
-        body.modern {
-            padding: 0 8px;
-        }
-
         /* The charts fill the view (the body padding off). One metric takes the whole height;
            several share it, each chart no lower than 140px (qzmetriccharts.js); when they do not
            fit (a phone held sideways), all of them start on one shared chart, and the page
@@ -44,31 +41,36 @@
             padding: 10px;
         }
 
-        /* modern look: no padding above and below the card, so it takes the whole view */
-        body.modern #chart-container {
-            min-height: 100vh;
-        }
-
         canvas {
             width: 100% !important;
             height: 100% !important;
         }
+
+        /* Modern look (qz-theme-bridge.js): the page in the app theme, so the frame merges with
+           the page, and the chart on a surface card in every theme, as on the charts and the
+           workout editor; the page sets the 16 at the sides around the view (the margins of the
+           QML page), so the card takes the whole view */
+        html.modern body {
+            background: var(--qz-bg);
+            color: var(--qz-text);
+            padding: 0;
+            font-family: Roboto, 'Segoe UI', sans-serif;
+        }
+
+        html.modern #chart-container {
+            min-height: 100vh;
+            background: var(--qz-surface);
+            color: var(--qz-text);
+            border-radius: var(--qz-radius-card, 16px);
+            padding: 12px;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="../chartjs/qzcharttheme.js"></script>
     <script src="../chartjs/qzmetriccharts.js"></script>
 </head>
 <body>
-    <script>
-        // ?bg=<colour> - the modern look of the app: its page colour instead of the dark frame
-        (function () {
-            const bg = new URLSearchParams(window.location.search).get('bg');
-            if (bg) {
-                document.body.classList.add('modern');
-                document.body.style.background = bg;
-            }
-        })();
-    </script>
     <div id="chart-container"></div>
 
     <script>
@@ -132,11 +134,29 @@
                     storageKey: 'qz.workoutpreview.together',
                     timeTitle: function () { return tq('workoutEditor.time', 'Time'); },
                     caption: function () { return tq('chart.onOneChart', 'On one chart:'); },
-                    // the view less the padding of the body (classic look) and of the card
+                    // the axes in the theme of the page (qzChartTheme leaves the classic look as is)
+                    make: function (ctx, config) { return qzChartTheme.create(ctx, config); },
+                    restyle: function (chart, config) { qzChartTheme.restyle(chart, config); },
+                    // the chips of the modern look as in the workout editor: a selected one filled
+                    // with the accent of the theme; on the dark card a light outline
+                    colors: function () {
+                        var root = document.documentElement.classList;
+                        if (!root.contains('modern'))
+                            return {};
+                        var tonal = window.qzAccentTonal ? window.qzAccentTonal(0.24) : null;
+                        var out = root.contains('light') ? {} : { outline: 'rgba(255,255,255,0.38)', tonal: 'rgba(255,255,255,0.16)' };
+                        if (tonal)
+                            out.tonal = tonal;
+                        return out;
+                    },
+                    // the view less the padding of the body and of the card: classic 10 + 10 above
+                    // and below; modern - none on the body, 12 on the card
                     fitHeight: function () {
-                        return window.innerHeight - (document.body.classList.contains('modern') ? 0 : 20) - 20;
+                        return window.innerHeight - (document.documentElement.classList.contains('modern') ? 24 : 40);
                     }
                 });
+                // the chips take their colours when drawn: redraw them in a new theme
+                window.addEventListener('qzthemechange', function () { charts.refresh(); });
             }
             let total = 0;
             ['watts', 'speed', 'inclination', 'resistance', 'cadence'].forEach(function (key) {
