@@ -1712,6 +1712,77 @@ ApplicationWindow {
             width: visible ? implicitWidth : 0
         }
 
+        // Modern look, map page (GoogleMap.qml): 2D or 3D map without a trip to the settings. Two
+        // segments of 48 dp, 32 dp tall, the chosen one filled with the tone of the accent. Its text
+        // names it for the screen reader, checked tells which one is on
+        Row {
+            id: mapsTypeSwitch
+            readonly property var mapPage: stackView.currentItem && typeof stackView.currentItem.setMapsType === "function"
+                                           ? stackView.currentItem : null
+            visible: window.ui.modern && mapPage !== null
+            anchors.right: parent.right
+            anchors.rightMargin: 12
+            anchors.verticalCenter: parent.verticalCenter
+            Repeater {
+                model: ["2D", "3D"]
+                AbstractButton {
+                    id: mapsTypeSegment
+                    text: modelData
+                    checkable: true
+                    checked: mapsTypeSwitch.mapPage !== null && mapsTypeSwitch.mapPage.mapsType === modelData
+                    width: 48
+                    height: 48
+                    font: Qt.font({ family: headerToolbar.font.family, pixelSize: window.ui.fontPx(14),
+                                    weight: checked ? Font.DemiBold : Font.Medium,
+                                    hintingPreference: headerToolbar.font.hintingPreference })
+                    // A tap on the chosen one keeps it; the other one switches the page, which then
+                    // tells the new type back through checked
+                    onClicked: {
+                        if (mapsTypeSwitch.mapPage)
+                            mapsTypeSwitch.mapPage.setMapsType(modelData)
+                        checked = Qt.binding(function() {
+                            return mapsTypeSwitch.mapPage !== null && mapsTypeSwitch.mapPage.mapsType === modelData
+                        })
+                    }
+                    background: Item {
+                        // The pill as one outline: each half is a rounded rectangle twice its width,
+                        // clipped to its own half, so only the outer corners are round
+                        Item {
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: parent.width
+                            height: 32
+                            clip: true
+                            Rectangle {
+                                x: index === 0 ? 0 : -parent.width
+                                width: 2 * parent.width
+                                height: parent.height
+                                radius: height / 2
+                                color: mapsTypeSegment.checked ? Qt.tint(window.ui.surface, window.ui.alpha(window.ui.accent, 0.16))
+                                                               : "transparent"
+                                border.width: 1
+                                border.color: window.ui.outline
+                            }
+                        }
+                        // the line between the two halves
+                        Rectangle {
+                            visible: index === 1
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 1
+                            height: 32
+                            color: window.ui.outline
+                        }
+                    }
+                    contentItem: Text {
+                        text: mapsTypeSegment.text
+                        font: mapsTypeSegment.font
+                        color: window.ui.textMain
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+                }
+            }
+        }
+
         Label {
             id: toolbarTitle
             // Modern look, home page: more buttons on the right than on the left, and the title centred
@@ -1767,7 +1838,8 @@ ApplicationWindow {
                 var c = parent.width / 2, room = c
                 var left = [toolButton, toolButtonFloating]
                 var right = [toolButtonSettingsSearch, toolButtonLoadSettings, toolButtonSaveSettings, toolButtonMaps,
-                             toolButtonVideo, toolButtonChart, toolButtonShareFit, toolButtonLockTiles, toolButtonAutoResistance]
+                             toolButtonVideo, toolButtonChart, toolButtonShareFit, toolButtonLockTiles, toolButtonAutoResistance,
+                             mapsTypeSwitch]
                 for (var i = 0; i < left.length; i++)
                     if (left[i].visible && left[i].opacity > 0 && left[i].width > 0)
                         room = Math.min(room, c - (left[i].x + left[i].width))
