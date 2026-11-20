@@ -758,6 +758,28 @@ void DeviceTestDataIndex::Initialize() {
              "KETTLER TREADMILL", "ASSAULTRUNNER", "TM55-", "YPTM-", "YPOO-MINI PRO-"}, DeviceNameComparison::StartsWithIgnoreCase);
 
 
+    // TF04-S001 defaults to FitShow, including when it advertises FTMS.
+    RegisterNewDeviceTestData(DeviceIndex::FitShowTF04)
+        ->expectDevice<fitshowtreadmill>()
+        ->acceptDeviceName("TF04-S001-2880", DeviceNameComparison::IgnoreCase)
+        ->configureSettingsWith([](DeviceDiscoveryInfo &info, bool enable) {
+            info.setValue(QZSettings::ftms_treadmill,
+                          enable ? QZSettings::default_ftms_treadmill : info.DeviceName().toLower());
+            info.includeBluetoothService(QBluetoothUuid((quint16)0x1826), true);
+        })
+        ->excluding<horizontreadmill>();
+
+    // Explicitly selecting the device in FTMS treadmill restores the Horizon driver.
+    RegisterNewDeviceTestData(DeviceIndex::HorizonTF04FTMS)
+        ->expectDevice<horizontreadmill>()
+        ->acceptDeviceName("TF04-S001-2880", DeviceNameComparison::IgnoreCase)
+        ->configureSettingsWith([](DeviceDiscoveryInfo &info, bool enable) {
+            info.setValue(QZSettings::ftms_treadmill,
+                          enable ? info.DeviceName().toLower() : QZSettings::default_ftms_treadmill);
+            info.includeBluetoothService(QBluetoothUuid((quint16)0x1826), true);
+        })
+        ->excluding<fitshowtreadmill>();
+
     // Adidas treadmills explicitly configured for FTMS must use Horizon, not AppGate USB.
     RegisterNewDeviceTestData(DeviceIndex::HorizonTreadmill_AdidasFTMS)
         ->expectDevice<horizontreadmill>()
