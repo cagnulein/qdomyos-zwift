@@ -132,6 +132,9 @@ T.ComboBox {
     delegate: MenuItem {
         id: menuItem
         width: ListView.view.width
+        // Modern: the height the list is cut by (itemHeight). The items take the font of the
+        // window, a box with a font of its own (the gym mode device list) measured another height
+        height: control.modern ? control.itemHeight : implicitHeight
         text: control.labelFor(control.textRole ? (Array.isArray(control.model) ? modelData[control.textRole] : model[control.textRole]) : modelData)
         // Screen reader: Qt 5.15 gives a MenuItem no accessible action (Qt 6.5 does), so on
         // Android its node is not clickable and a TalkBack touch on an item went to the whole
@@ -375,12 +378,17 @@ T.ComboBox {
             T.ScrollBar.vertical: T.ScrollBar {
                 parent: listView.parent
                 z: 1
-                x: control.mirrored ? 4 : parent.width - width - 4
+                x: mirrored ? 4 : parent.width - width - 4
                 y: 4
                 width: 4
                 height: parent.height - 8
                 visible: control.modern && size < 1.0
                 interactive: false
+                // Qt 5.15.0 (Android): a bar that is not interactive still takes touches (fixed in
+                // 5.15.2, qtquickcontrols2 b6280dd207) - a touch at the edge of the menu went to the
+                // bar instead of the item. A disabled item gets no touches; the bar still follows
+                // the list
+                enabled: false
                 minimumSize: height > 0 ? Math.min(1.0, 24 / height) : 0
                 contentItem: Rectangle {
                     implicitWidth: 4
