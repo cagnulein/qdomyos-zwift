@@ -2003,11 +2003,12 @@ ApplicationWindow {
                 }
                 if (keptWorkoutEditor) {
                     // Already in the stack: back to it - pushing it again would only warn
-                    // "nothing to push"
+                    // "nothing to push". Page by page, as Back does, so a settings page above
+                    // still asks to restart or to save the profile
                     if (stackView.find(function(item) { return item === keptWorkoutEditor }) === null)
                         stackView.push(keptWorkoutEditor)
-                    else if (stackView.currentItem !== keptWorkoutEditor)
-                        stackView.pop(keptWorkoutEditor)
+                    else
+                        while (stackView.currentItem !== keptWorkoutEditor && navigateBack(false)) {}
                     break
                 }
             }
