@@ -1447,7 +1447,7 @@ ApplicationWindow {
             // The header is as tall as the back arrow, which grows with the text size (iOS):
             // the icon buttons stay in its middle, in line with the arrow and the title
             anchors.verticalCenter: parent.verticalCenter
-            // The iPad PiP displays workout metrics and is available on the home page.
+            // The iOS PiP displays workout metrics and is available on the home page.
             // Keep the existing Android visibility in both looks.
             visible: OS_VERSION === "Android" ? (!window.ui.modern || stackView.depth === 1)
                      : OS_VERSION === "iOS" && window.rootReady && stackView.depth === 1 && rootItem.floatingMetricsSupported()

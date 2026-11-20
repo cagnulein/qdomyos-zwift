@@ -136,7 +136,7 @@ API_AVAILABLE(ios(15.0))
 @end
 
 bool iosFloatingMetrics::supported() {
-    if (@available(iOS 15.0, *)) return UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad && [AVPictureInPictureController isPictureInPictureSupported];
+    if (@available(iOS 15.0, *)) return [AVPictureInPictureController isPictureInPictureSupported];
     return false;
 }
 void iosFloatingMetrics::start() { if (@available(iOS 15.0, *)) dispatch_async(dispatch_get_main_queue(), ^{ [[QZFloatingMetrics shared] start]; }); }
