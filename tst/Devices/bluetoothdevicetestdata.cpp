@@ -11,7 +11,6 @@ DeviceTypeId BluetoothDeviceTestData::ExpectedDeviceType() const {
 
 bool BluetoothDeviceTestData::IsEnabled() const { return this->enabled; }
 
-
 const QString BluetoothDeviceTestData::DisabledReason() const  { return this->disabledReason; }
 
 const QString BluetoothDeviceTestData::SkippedReason() const  { return this->skippedReason; }
@@ -76,6 +75,12 @@ std::vector<DeviceDiscoveryInfo> BluetoothDeviceTestData::ApplyConfigurations(co
     }
 
     return result;
+}
+
+void BluetoothDeviceTestData::InitializeDevice() const
+{
+    if(this->initializer!=nullptr)
+        this->initializer();
 }
 
 

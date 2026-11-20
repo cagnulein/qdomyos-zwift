@@ -1056,6 +1056,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool iconsole_elliptical = settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();
     bool iconsole_rower = settings.value(QZSettings::iconsole_rower, QZSettings::default_iconsole_rower).toBool();
     bool trx_route_key = settings.value(QZSettings::trx_route_key, QZSettings::default_trx_route_key).toBool();
+    bool trixter_xdream_bike = settings.value(QZSettings::trixter_xdream_bike_enabled, QZSettings::default_trixter_xdream_bike_enabled).toBool();
 
     if (!heartRateBeltFound) {
 
@@ -1103,6 +1104,18 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     if (!eliteSterzoSmartFound) {
 
         eliteSterzoSmartFound = eliteSterzoSmartAvaiable();
+    }
+
+
+    if(trixter_xdream_bike && !this->trixterXDreambike &&
+            (this->trixterXDreambike = trixterxdreambike::tryCreate(noWriteResistance, noHeartService, false))) {
+        emit deviceConnected(this->trixterXDreambike->bluetoothDevice);
+        connect(this->trixterXDreambike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+        if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+            emit searchingStop();
+        }
+        this->signalBluetoothDeviceConnected(this->trixterXDreambike);
+        return;
     }
 
 #ifdef Q_OS_IOS
@@ -5502,6 +5515,10 @@ void bluetooth::restart() {
         delete eliteSterzoSmart;
         eliteSterzoSmart = nullptr;
     }
+    if (trixterXDreambike) {
+        delete trixterXDreambike;
+        trixterXDreambike = nullptr;
+    }
     if (wahooDirconBike) {
         delete wahooDirconBike;
         wahooDirconBike = nullptr;
@@ -5782,6 +5799,8 @@ bluetoothdevice *bluetooth::device() {
 #endif
     } else if (freebeatBoomBike) {
         return freebeatBoomBike;
+    } else if (trixterXDreambike){
+        return trixterXDreambike;
     }
     return nullptr;
 }
