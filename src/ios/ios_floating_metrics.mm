@@ -5,6 +5,23 @@
 #include <QDebug>
 #include "ios/ios_floating_metrics.h"
 
+// Draw the complete text on one line, scaling it to fit rather than truncating it.
+static void QZDrawFittedText(NSString *text, CGRect rect, UIFont *font, UIColor *color) {
+    if (!text.length || rect.size.width <= 0 || rect.size.height <= 0) return;
+    NSString *singleLine = [[text componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]] componentsJoinedByString:@" "];
+    NSDictionary *attributes = @{NSFontAttributeName:font, NSForegroundColorAttributeName:color};
+    CGSize size = [singleLine sizeWithAttributes:attributes];
+    if (size.width <= 0 || size.height <= 0) return;
+    CGFloat scale = MIN(1.0, MIN(rect.size.width / size.width, rect.size.height / size.height));
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    CGContextSaveGState(ctx);
+    CGContextTranslateCTM(ctx, rect.origin.x + (rect.size.width - size.width * scale) / 2,
+                          rect.origin.y + (rect.size.height - size.height * scale) / 2);
+    CGContextScaleCTM(ctx, scale, scale);
+    [singleLine drawAtPoint:CGPointZero withAttributes:attributes];
+    CGContextRestoreGState(ctx);
+}
+
 // All AVKit and UIKit operations are performed on the main queue.
 API_AVAILABLE(ios(15.0))
 @interface QZFloatingMetrics : NSObject <AVPictureInPictureControllerDelegate, AVPictureInPictureSampleBufferPlaybackDelegate>
@@ -106,9 +123,9 @@ API_AVAILABLE(ios(15.0))
 - (void)render {
     if (!self.layer) return;
     NSArray<NSArray<NSString *> *> *all = self.metrics ?: @[];
-    NSUInteger pages = MAX((NSUInteger)1, (all.count + 5) / 6);
+    NSUInteger pages = MAX((NSUInteger)1, (all.count + 8) / 9);
     NSUInteger page = ((NSUInteger)(NSDate.date.timeIntervalSince1970 / 6)) % pages;
-    NSRange range = NSMakeRange(MIN(page * 6, all.count), MIN((NSUInteger)6, all.count - MIN(page * 6, all.count)));
+    NSRange range = NSMakeRange(MIN(page * 9, all.count), MIN((NSUInteger)9, all.count - MIN(page * 9, all.count)));
     NSArray<NSArray<NSString *> *> *shown = [all subarrayWithRange:range];
     NSString *signature = [NSString stringWithFormat:@"%@/%lu/%lu/%@", shown, (unsigned long)page, (unsigned long)pages, self.emptyLabel ?: @""];
     if ([signature isEqualToString:self.lastFrame] && self.layer.status != AVQueuedSampleBufferRenderingStatusFailed) return;
@@ -124,16 +141,16 @@ API_AVAILABLE(ios(15.0))
     CGContextTranslateCTM(ctx, 0, 270); CGContextScaleCTM(ctx, 1, -1);
     UIGraphicsPushContext(ctx);
     [[UIColor colorWithWhite:0.06 alpha:1] setFill]; UIRectFill(CGRectMake(0, 0, 480, 270));
-    NSMutableParagraphStyle *style = [NSMutableParagraphStyle new]; style.alignment = NSTextAlignmentCenter; style.lineBreakMode = NSLineBreakByTruncatingTail;
-    NSDictionary *label = @{NSFontAttributeName:[UIFont systemFontOfSize:18 weight:UIFontWeightMedium], NSForegroundColorAttributeName:UIColor.lightGrayColor, NSParagraphStyleAttributeName:style};
-    NSDictionary *value = @{NSFontAttributeName:[UIFont monospacedDigitSystemFontOfSize:35 weight:UIFontWeightBold], NSForegroundColorAttributeName:UIColor.whiteColor, NSParagraphStyleAttributeName:style};
+    UIFont *labelFont = [UIFont systemFontOfSize:17 weight:UIFontWeightMedium];
+    UIFont *valueFont = [UIFont monospacedDigitSystemFontOfSize:31 weight:UIFontWeightBold];
+    // Nine metrics: 3 columns and 3 rows. Reserve a separate footer for the page number.
     for (NSUInteger i = 0; i < shown.count; ++i) {
-        CGFloat x = (i % 2) * 240, y = (i / 2) * 87;
-        [shown[i][0] drawInRect:CGRectMake(x + 5, y + 4, 230, 24) withAttributes:label];
-        [shown[i][1] drawInRect:CGRectMake(x + 5, y + 27, 230, 48) withAttributes:value];
+        CGFloat x = (i % 3) * 160, y = 9 + (i / 3) * 80;
+        QZDrawFittedText(shown[i][0], CGRectMake(x + 7, y, 146, 22), labelFont, UIColor.lightGrayColor);
+        QZDrawFittedText(shown[i][1], CGRectMake(x + 7, y + 23, 146, 45), valueFont, UIColor.whiteColor);
     }
-    if (shown.count == 0) [(self.emptyLabel ?: @"") drawInRect:CGRectMake(0, 110, 480, 30) withAttributes:label];
-    if (pages > 1) [[NSString stringWithFormat:@"%lu / %lu", (unsigned long)page + 1, (unsigned long)pages] drawInRect:CGRectMake(0, 250, 480, 20) withAttributes:label];
+    if (shown.count == 0) QZDrawFittedText(self.emptyLabel ?: @"", CGRectMake(10, 110, 460, 30), labelFont, UIColor.lightGrayColor);
+    if (pages > 1) QZDrawFittedText([NSString stringWithFormat:@"%lu / %lu", (unsigned long)page + 1, (unsigned long)pages], CGRectMake(10, 250, 460, 17), labelFont, UIColor.lightGrayColor);
     UIGraphicsPopContext(); CGContextRelease(ctx);
     CVPixelBufferUnlockBaseAddress(pixel, 0);
     CMVideoFormatDescriptionRef format = NULL; CMSampleBufferRef sample = NULL;
