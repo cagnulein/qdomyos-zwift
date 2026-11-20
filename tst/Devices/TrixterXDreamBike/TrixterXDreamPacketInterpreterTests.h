@@ -4,40 +4,12 @@
 #include "devices/trixterxdreambike/trixterxdreamclient.h"
 
 
-// The fixture for testing class Foo.
 class TrixterXDreamPacketInterpreterTests : public ::testing::Test {
 protected:
     uint8_t* packet;
     int packetLength;
 
-	// You can remove any or all of the following functions if their bodies would
-	// be empty.
-
-    TrixterXDreamPacketInterpreterTests() {
-		// You can do set-up work for each test here.
-	}
-
-    ~TrixterXDreamPacketInterpreterTests() override {
-		// You can do clean-up work that doesn't throw exceptions here.
-	}
-
     static uint32_t getTime();
-
-	// If the constructor and destructor are not enough for setting up
-	// and cleaning up each test, you can define the following methods:
-
-	void SetUp() override {
-		// Code here will be called immediately after the constructor (right
-		// before each test).
-	}
-
-	void TearDown() override {
-		// Code here will be called immediately after each test (right
-		// before the destructor).
-	}
-
-	// Class members declared here can be used by all tests in the test suite
-	// for Foo.
 
     void TestInput(std::string input, uint8_t expectedHR, uint8_t expectedSteering);
 
