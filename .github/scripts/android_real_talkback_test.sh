@@ -64,19 +64,13 @@ focus_name() {
     # The helper is strictly read-only; the preceding swipe must move the focus.
     peek --peek-focused | grep -F "TALKBACK_FOCUS" || true
 }
-focus_node() {
+focus_and_activate() {
     name=$1
-    result=$(peek --focus-node "$name")
+    result=$(peek --focus-and-activate "$name")
     note "$result"
-    echo "$result" | grep -F "OK accessibility focus on" >/dev/null ||
-        fail "TalkBack rejected accessibility focus on $name"
+    echo "$result" | grep -F 'OK TalkBack focus and ACTION_CLICK on' >/dev/null ||
+        fail "TalkBack could not focus and activate $name"
     foreground
-}
-activate_focused() {
-    result=$(peek --activate-focused)
-    note "$result"
-    echo "$result" | grep -F 'OK ACTION_CLICK sent to TalkBack-focused node' >/dev/null ||
-        fail "TalkBack-focused node rejected ACTION_CLICK"
     sleep 4
     foreground
 }
@@ -150,14 +144,12 @@ recover_startup_window
 adb push a11y-test.jar /data/local/tmp/a11y-test.jar >/dev/null
 
 # ADB's shell swipe is not reliably recognized by TalkBack's gesture detector,
-# but TalkBack remains active here. Drive the provider with the focus action
-# TalkBack issues after swipe navigation, then use ACTION_CLICK, the provider
-# action TalkBack sends after a user's double-tap gesture.
+# but TalkBack remains active here. In one UiAutomation connection, set and
+# verify the accessibility focus, then send ACTION_CLICK, the provider action
+# TalkBack sends after a user's double-tap gesture.
 adb logcat -c
-focus_node Main_menu
-activate_focused
-focus_node Settings
-activate_focused
+focus_and_activate Main_menu
+focus_and_activate Settings
 result=$(peek --peek-node General_Options)
 note "$result"
 echo "$result" | grep -F TALKBACK_NODE >/dev/null ||
@@ -167,13 +159,11 @@ note "$result"
 echo "$result" | grep -F TALKBACK_NODE >/dev/null ||
     fail "Experimental Features not accessible on settings page"
 
-focus_node General_Options
-activate_focused
+focus_and_activate General_Options
 result=$(peek --peek-node App_Language)
 note "$result"
 echo "$result" | grep -F TALKBACK_NODE >/dev/null || fail "General Options did not open"
-focus_node Experimental_Features
-activate_focused
+focus_and_activate Experimental_Features
 result=$(peek --peek-node Gym_Mode)
 note "$result"
 echo "$result" | grep -F TALKBACK_NODE >/dev/null || fail "Experimental Features did not open"

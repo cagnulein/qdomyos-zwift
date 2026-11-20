@@ -96,6 +96,14 @@ public class AccessibilityTest {
                 AccessibilityNodeInfo root = automation.getRootInActiveWindow();
                 AccessibilityNodeInfo candidate = root == null ? null
                         : root.findFocus(AccessibilityNodeInfo.FOCUS_ACCESSIBILITY);
+                if (!isQzAccessibilityFocus(candidate)) {
+                    for (AccessibilityNodeInfo node : appNodes()) {
+                        if (isQzAccessibilityFocus(node)) {
+                            candidate = node;
+                            break;
+                        }
+                    }
+                }
                 if (isQzAccessibilityFocus(candidate)) {
                     focused = candidate;
                 }
@@ -186,6 +194,61 @@ public class AccessibilityTest {
                 Thread.sleep(250);
             }
             System.out.println("FAIL accessibility focus did not settle on " + name);
+            return;
+        }
+        if (presses[0].equals("--focus-and-activate")) {
+            if (presses.length != 2) {
+                System.out.println("FAIL --focus-and-activate requires one name");
+                return;
+            }
+            String name = presses[1].replace('_', ' ');
+            AccessibilityNodeInfo target = null;
+            for (int retry = 0; retry < FOCUS_RETRIES; retry++) {
+                target = find(name, false);
+                if (target != null && target.isFocusable()) break;
+                Thread.sleep(250);
+            }
+            if (target == null || !target.isFocusable()) {
+                System.out.println("FAIL missing focusable node: " + name);
+                for (AccessibilityNodeInfo node : appNodes()) {
+                    System.out.println("INFO available node " + describe(node));
+                }
+                return;
+            }
+            if (!target.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS)) {
+                System.out.println("FAIL accessibility focus action was rejected: " + describe(target));
+                return;
+            }
+            AccessibilityNodeInfo focused = null;
+            for (int retry = 0; retry < FOCUS_RETRIES; retry++) {
+                AccessibilityNodeInfo root = automation.getRootInActiveWindow();
+                AccessibilityNodeInfo candidate = root == null ? null
+                        : root.findFocus(AccessibilityNodeInfo.FOCUS_ACCESSIBILITY);
+                if (!isQzAccessibilityFocus(candidate)) {
+                    for (AccessibilityNodeInfo node : appNodes()) {
+                        if (isQzAccessibilityFocus(node)) {
+                            candidate = node;
+                            break;
+                        }
+                    }
+                }
+                if (isQzAccessibilityFocus(candidate)) {
+                    CharSequence description = candidate.getContentDescription();
+                    if (description != null && startsWith(description.toString(), name)) {
+                        focused = candidate;
+                        break;
+                    }
+                }
+                Thread.sleep(250);
+            }
+            if (focused == null) {
+                System.out.println("FAIL TalkBack did not retain accessibility focus on " + name);
+                return;
+            }
+            boolean activated = focused.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+            System.out.println(activated
+                    ? "OK TalkBack focus and ACTION_CLICK on " + describe(focused)
+                    : "FAIL TalkBack-focused node rejected ACTION_CLICK: " + describe(focused));
             return;
         }
         if (presses[0].equals("--peek-node")) {
