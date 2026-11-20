@@ -30,12 +30,16 @@ API_AVAILABLE(ios(15.0))
     return instance;
 }
 - (void)start {
+    qDebug() << "Floating metrics: native start, controller exists" << (self.controller != nil)
+             << "supported" << [AVPictureInPictureController isPictureInPictureSupported]
+             << "application state" << (int)UIApplication.sharedApplication.applicationState;
     if (self.controller || ![AVPictureInPictureController isPictureInPictureSupported]) return;
     UIWindow *window = nil;
     for (UIWindow *candidate in UIApplication.sharedApplication.windows) {
         if (candidate.isKeyWindow) { window = candidate; break; }
     }
-    if (!window) return;
+    if (!window) { qWarning() << "Floating metrics: no key window, count" << (int)UIApplication.sharedApplication.windows.count; return; }
+    qDebug() << "Floating metrics: key window found" << window.bounds.size.width << window.bounds.size.height;
     NSError *error = nil;
     AVAudioSession *audio = AVAudioSession.sharedInstance;
     if (![audio setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error:&error] ||
@@ -43,6 +47,7 @@ API_AVAILABLE(ios(15.0))
         qWarning() << "Floating metrics: audio session failed" << error.localizedDescription.UTF8String;
         return;
     }
+    qDebug() << "Floating metrics: audio session activated; metric count" << (int)self.metrics.count;
     self.preview = [[UIView alloc] initWithFrame:CGRectMake(8, window.bounds.size.height - 100, 160, 90)];
     self.preview.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleRightMargin;
     self.preview.userInteractionEnabled = NO;
@@ -54,6 +59,7 @@ API_AVAILABLE(ios(15.0))
     AVPictureInPictureControllerContentSource *source = [[AVPictureInPictureControllerContentSource alloc]
         initWithSampleBufferDisplayLayer:self.layer playbackDelegate:self];
     self.controller = [[AVPictureInPictureController alloc] initWithContentSource:source];
+    if (!self.controller) { qWarning() << "Floating metrics: controller creation failed"; [self finish]; return; }
     self.controller.delegate = self;
     self.controller.requiresLinearPlayback = YES;
     self.controller.canStartPictureInPictureAutomaticallyFromInline = YES;
@@ -61,14 +67,18 @@ API_AVAILABLE(ios(15.0))
     [self render];
     [self.controller addObserver:self forKeyPath:@"pictureInPicturePossible" options:NSKeyValueObservingOptionNew context:NULL];
     self.observing = YES;
-    if (self.controller.isPictureInPicturePossible) { self.pending = NO; [self.controller startPictureInPicture]; }
+    qDebug() << "Floating metrics: controller ready; PiP possible" << self.controller.isPictureInPicturePossible << "layer status" << (int)self.layer.status;
+    if (self.controller.isPictureInPicturePossible) { qDebug() << "Floating metrics: requesting PiP immediately"; self.pending = NO; [self.controller startPictureInPicture]; }
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 8 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        if (self.pending) { qWarning() << "Floating metrics: PiP unavailable"; [self finish]; }
+        if (self.pending) { qWarning() << "Floating metrics: PiP unavailable after timeout; layer status" << (int)self.layer.status << "error" << (self.layer.error ? self.layer.error.localizedDescription.UTF8String : "none"); [self finish]; }
     });
 }
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     Q_UNUSED(change); Q_UNUSED(context);
+    if (object == self.controller && [keyPath isEqualToString:@"pictureInPicturePossible"])
+        qDebug() << "Floating metrics: PiP possible changed" << self.controller.isPictureInPicturePossible << "pending" << self.pending;
     if (object == self.controller && [keyPath isEqualToString:@"pictureInPicturePossible"] && self.pending && self.controller.isPictureInPicturePossible) {
+        qDebug() << "Floating metrics: requesting PiP after availability change";
         self.pending = NO;
         [self.controller startPictureInPicture];
     }
@@ -120,13 +130,14 @@ API_AVAILABLE(ios(15.0))
     CVPixelBufferRelease(pixel);
 }
 - (void)finish {
+    qDebug() << "Floating metrics: cleanup";
     self.pending = NO;
     if (self.observing) { [self.controller removeObserver:self forKeyPath:@"pictureInPicturePossible"]; self.observing = NO; }
     [self.preview removeFromSuperview]; self.preview = nil; self.layer = nil; self.controller = nil; self.lastFrame = nil;
 }
-- (void)pictureInPictureControllerDidStartPictureInPicture:(AVPictureInPictureController *)controller { Q_UNUSED(controller); self.preview.alpha = 0.01; }
+- (void)pictureInPictureControllerDidStartPictureInPicture:(AVPictureInPictureController *)controller { Q_UNUSED(controller); qDebug() << "Floating metrics: PiP started"; self.preview.alpha = 0.01; }
 - (void)pictureInPictureController:(AVPictureInPictureController *)controller restoreUserInterfaceForPictureInPictureStopWithCompletionHandler:(void (^)(BOOL))completion { Q_UNUSED(controller); completion(YES); }
-- (void)pictureInPictureControllerDidStopPictureInPicture:(AVPictureInPictureController *)controller { Q_UNUSED(controller); [self finish]; }
+- (void)pictureInPictureControllerDidStopPictureInPicture:(AVPictureInPictureController *)controller { Q_UNUSED(controller); qDebug() << "Floating metrics: PiP stopped"; [self finish]; }
 - (void)pictureInPictureController:(AVPictureInPictureController *)controller failedToStartPictureInPictureWithError:(NSError *)error { Q_UNUSED(controller); qWarning() << "Floating metrics: PiP start failed" << error.localizedDescription.UTF8String; [self finish]; }
 - (void)pictureInPictureController:(AVPictureInPictureController *)controller setPlaying:(BOOL)playing { Q_UNUSED(controller); Q_UNUSED(playing); }
 - (CMTimeRange)pictureInPictureControllerTimeRangeForPlayback:(AVPictureInPictureController *)controller { Q_UNUSED(controller); return CMTimeRangeMake(kCMTimeZero, kCMTimePositiveInfinity); }

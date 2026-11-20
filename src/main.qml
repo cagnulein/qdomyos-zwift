@@ -1437,8 +1437,10 @@ ApplicationWindow {
             icon.source: window.ui.modern ? "" : "icons/icons/mini-display.png"
             UiIcon { anchors.centerIn: parent; width: 24; height: 24; name: "picture_in_picture_alt"; color: window.ui.textMain; visible: window.ui.modern }
             function toggleFloating() {
-                if (OS_VERSION === "iOS")
+                if (OS_VERSION === "iOS") {
+                    console.log("Floating metrics: toolbar activated")
                     rootItem.toggleFloatingMetrics();
+                }
                 else { console.log("floating!"); floatingOpen(); }
             }
             onClicked: toggleFloating()

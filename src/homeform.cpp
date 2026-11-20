@@ -2831,9 +2831,12 @@ bool homeform::floatingMetricsSupported() {
 
 void homeform::toggleFloatingMetrics() {
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
-    if (iosFloatingMetrics::running()) {
+    const bool running = iosFloatingMetrics::running();
+    const bool supported = iosFloatingMetrics::supported();
+    qDebug() << "Floating metrics: toggle requested, running" << running << "supported" << supported;
+    if (running) {
         iosFloatingMetrics::stop();
-    } else if (iosFloatingMetrics::supported()) {
+    } else if (supported) {
         updateFloatingMetrics();
         iosFloatingMetrics::start();
     }
