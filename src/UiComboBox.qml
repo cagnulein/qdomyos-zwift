@@ -75,8 +75,8 @@ T.ComboBox {
 
     // Modern: the height of an item of the list - Material's 48, or more with a bigger text: the
     // item is its text and the vertical padding of Material's MenuItem (12 each side). Measured
-    // with the font of the list: the items take the font of the window, not the one of the box
-    // (the gym mode device box sets a bigger one)
+    // with the font of the list, not of the box (the gym mode device box sets a bigger one): with
+    // a text size set, the items take it from the window like the list; at 100 % the 48 holds
     FontMetrics {
         id: itemFontMetrics
         font: control.popup.font
@@ -390,8 +390,6 @@ T.ComboBox {
                 // bar instead of the item. A disabled item gets no touches; the bar still follows
                 // the list
                 enabled: false
-                // only a hint for the eye, a screen reader has the items
-                Accessible.ignored: true
                 minimumSize: height > 0 ? Math.min(1.0, 24 / height) : 0
                 contentItem: Rectangle {
                     implicitWidth: 4
