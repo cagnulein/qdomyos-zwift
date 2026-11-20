@@ -39,6 +39,12 @@ Item {
         id: settings
     }
 
+    // The page this item asked the WebView to load, kept as a string: webView.url reads back in
+    // script as an object, never === a string, so compared with it every tick set the URL again,
+    // and on Android each set starts the load over - a page slower than one tick never loaded.
+    // Cleared when a load fails, to try again
+    property string requestedPage: ""
+
     Timer {
         id: portPoller
         interval: 500
@@ -49,10 +55,13 @@ Item {
             if (!port) {
                 return
             }
-            var targetUrl = "http://localhost:" + port + "/workouteditor/index.html" + window.ui.webThemeFragment()
-            if (webView.url !== targetUrl) {
-                webView.url = targetUrl
+            var page = "http://localhost:" + port + "/workouteditor/index.html"
+            // Already loading this page: a theme change meanwhile is applied when it has loaded
+            if (root.requestedPage === page) {
+                return
             }
+            root.requestedPage = page
+            webView.url = page + window.ui.webThemeFragment()
         }
     }
 
@@ -71,6 +80,7 @@ Item {
                 portPoller.stop()
             } else if (loadRequest.status === WebView.LoadFailedStatus) {
                 root.pageLoaded = false
+                root.requestedPage = ""
                 busy.visible = true
                 busy.running = true
                 portPoller.start()
