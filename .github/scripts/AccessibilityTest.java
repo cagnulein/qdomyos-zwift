@@ -169,7 +169,8 @@ public class AccessibilityTest {
                 }
                 return;
             }
-            if (!target.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS)) {
+            if (!isQzAccessibilityFocus(target)
+                    && !target.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS)) {
                 System.out.println("FAIL accessibility focus action was rejected: " + describe(target));
                 return;
             }
@@ -215,7 +216,8 @@ public class AccessibilityTest {
                 }
                 return;
             }
-            if (!target.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS)) {
+            if (!isQzAccessibilityFocus(target)
+                    && !target.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS)) {
                 System.out.println("FAIL accessibility focus action was rejected: " + describe(target));
                 return;
             }
