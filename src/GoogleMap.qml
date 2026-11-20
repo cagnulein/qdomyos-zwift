@@ -54,8 +54,10 @@ ColumnLayout {
                       loadedPage + "/maps.htm" + window.ui.webThemeFragment()
     }
     // Another maps type: stored at once (setValue writes through, the property of the copy would
-    // be written only later), and the other page loaded
+    // be written only later), and the other page loaded. The property too: on a fresh install the
+    // copy still has its default to write, it would put 3D back over the type just chosen
     function setMapsType(type) {
+        settings.maps_type = type
         settings.setValue("maps_type", type)
         if (storedPage() !== loadedPage)
             loadPage()
@@ -79,6 +81,11 @@ ColumnLayout {
         onLoadingChanged: {
             if (loadRequest.errorString)
                 console.error(loadRequest.errorString);
+            // The end of the load of the other page, cut short by a new maps type: not this page
+            // (Android reports any page finished as succeeded). An event without an address is kept
+            var loadedUrl = loadRequest.url.toString()
+            if (loadedUrl !== "" && loadedUrl.indexOf("/" + column1.loadedPage + "/") < 0)
+                return
             if (loadRequest.status === WebView.LoadSucceededStatus) {
                 column1.pageLoaded = true
                 // A theme change during the load reached the page neither in the fragment nor in a
