@@ -153,6 +153,48 @@ public class AccessibilityTest {
             System.out.println("FAIL no accessibility-focused node");
             return;
         }
+        // Keep the real TalkBack service enabled, but set focus through the same
+        // accessibility action it sends to a node after swipe navigation. This
+        // is deterministic in CI, where adb shell input swipe is not recognized
+        // as a TalkBack gesture by every emulator image.
+        if (presses[0].equals("--focus-node")) {
+            if (presses.length != 2) {
+                System.out.println("FAIL --focus-node requires one name");
+                return;
+            }
+            String name = presses[1].replace('_', ' ');
+            AccessibilityNodeInfo target = find(name, false);
+            if (target == null || !target.isFocusable()) {
+                System.out.println("FAIL missing focusable node: " + name);
+                return;
+            }
+            if (!target.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS)) {
+                System.out.println("FAIL accessibility focus action was rejected: " + describe(target));
+                return;
+            }
+            for (int retry = 0; retry < FOCUS_RETRIES; retry++) {
+                AccessibilityNodeInfo root = automation.getRootInActiveWindow();
+                AccessibilityNodeInfo focused = root == null ? null
+                        : root.findFocus(AccessibilityNodeInfo.FOCUS_ACCESSIBILITY);
+                if (!isQzAccessibilityFocus(focused)) {
+                    for (AccessibilityNodeInfo node : appNodes()) {
+                        if (isQzAccessibilityFocus(node)) {
+                            focused = node;
+                            break;
+                        }
+                    }
+                }
+                CharSequence description = focused == null ? null : focused.getContentDescription();
+                if (isQzAccessibilityFocus(focused) && description != null
+                        && startsWith(description.toString(), name)) {
+                    System.out.println("OK accessibility focus on " + describe(focused));
+                    return;
+                }
+                Thread.sleep(250);
+            }
+            System.out.println("FAIL accessibility focus did not settle on " + name);
+            return;
+        }
         if (presses[0].equals("--peek-node")) {
             if (presses.length != 2) {
                 System.out.println("FAIL --peek-node requires one name");
