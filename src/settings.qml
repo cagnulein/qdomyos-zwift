@@ -2669,14 +2669,14 @@ import AndroidStatusBar 1.0
                     }
                 }
 
-                Button {
+                UiButton {
                     text: qsTr("Changed")
                     checkable: true
                     checked: settingsPane.changedOnly
                     onClicked: settingsPane.setChangedOnly(checked)
                 }
 
-                Button {
+                UiButton {
                     text: qsTr("Clear")
                     onClicked: settingsPane.hideSettingsSearch()
                 }
@@ -2893,7 +2893,9 @@ import AndroidStatusBar 1.0
                                 currentIndex = 0
                             }
                         }
-                        Button {
+                        UiButton {
+                            applyOnSelect: false
+                            saveGated: true
                             id: okAppLanguageButton
                             text: qsTr("OK")
                             // Grey while the saved language is chosen, as the OK of the fields
@@ -2941,7 +2943,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.weight = ((settings.miles_unit && !settings.weight_kg_unit)?value / 2.20462:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okWeightButton
                             text: qsTr("OK")
                             enabled: weightTextField.valid && weightTextField.dirty
@@ -2991,7 +2993,7 @@ import AndroidStatusBar 1.0
                             }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okHeightButton
                             text: qsTr("OK")
                             enabled: heightTextField.valid && heightTextField.dirty
@@ -3047,7 +3049,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.age = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okAgeButton
                             text: qsTr("OK")
                             enabled: ageTextField.valid && ageTextField.dirty
@@ -3090,7 +3092,7 @@ import AndroidStatusBar 1.0
                              }
 
                         }
-                        Button {
+                        UiButton {
                             id: okSex
                             text: qsTr("OK")
                             enabled: sexTextField.dirty
@@ -3134,7 +3136,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.ftp = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okFTPButton
                             text: qsTr("OK")
                             enabled: ftpTextField.valid && ftpTextField.dirty
@@ -3176,7 +3178,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.ftp_run = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: ftpRunTextField.valid && ftpRunTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3215,7 +3217,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.user_nickname = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okNicknameButton
                             text: qsTr("OK")
                             enabled: nicknameTextField.dirty
@@ -3257,7 +3259,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.user_email = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okEmailButton
                             text: qsTr("OK")
                             enabled: emailTextField.acceptableInput && emailTextField.dirty
@@ -3586,7 +3588,8 @@ import AndroidStatusBar 1.0
                              }
 
                         }
-                        Button {
+                        UiButton {
+                            applyOnSelect: false
                             id: okHeartBeltNameButton
                             text: qsTr("OK")
                             enabled: heartBeltNameTextField.dirty
@@ -3609,7 +3612,7 @@ import AndroidStatusBar 1.0
                         color: window.ui.modern ? window.ui.warning : Material.color(Material.Red)
                     }
 
-                    Button {
+                    UiButton {
                         id: refreshHeartBeltNameButton
                         text: qsTr("Refresh Devices List")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3677,7 +3680,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.heart_rate_zone1 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okHeartRateZone1Button
                                     text: qsTr("OK")
                                     enabled: heartRateZone1TextField.valid && heartRateZone1TextField.dirty
@@ -3705,7 +3708,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.heart_rate_zone2 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okHeartRateZone2Button
                                     text: qsTr("OK")
                                     enabled: heartRateZone2TextField.valid && heartRateZone2TextField.dirty
@@ -3733,7 +3736,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.heart_rate_zone3 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okHeartRateZone3Button
                                     text: qsTr("OK")
                                     enabled: heartRateZone3TextField.valid && heartRateZone3TextField.dirty
@@ -3761,7 +3764,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.heart_rate_zone4 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okHeartRateZone4Button
                                     text: qsTr("OK")
                                     enabled: heartRateZone4TextField.valid && heartRateZone4TextField.dirty
@@ -3841,7 +3844,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: if (valid) settings.heart_max_override_value = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
-                                        Button {
+                                        UiButton {
                                             id: okHeartRateMaxOverrideValue
                                             text: qsTr("OK")
                                             enabled: heartRateMaxOverrideValueTextField.valid && heartRateMaxOverrideValueTextField.dirty
@@ -3885,7 +3888,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: if (valid) settings.heart_rate_resting = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
-                                        Button {
+                                        UiButton {
                                             id: okHeartRateRestingValue
                                             text: qsTr("OK")
                                             enabled: heartRateRestingValueTextField.valid && heartRateRestingValueTextField.dirty
@@ -3938,7 +3941,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: if (valid) settings.power_hr_pwr1 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
-                                        Button {
+                                        UiButton {
                                             id: okPowerFromHeartPWR1
                                             text: qsTr("OK")
                                             enabled: powerFromHeartPWR1TextField.valid && powerFromHeartPWR1TextField.dirty
@@ -3967,7 +3970,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: if (valid) settings.power_hr_hr1 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
-                                        Button {
+                                        UiButton {
                                             id: okPowerFromHeartHR1
                                             text: qsTr("OK")
                                             enabled: powerFromHeartHR1TextField.valid && powerFromHeartHR1TextField.dirty
@@ -3996,7 +3999,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: if (valid) settings.power_hr_pwr2 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
-                                        Button {
+                                        UiButton {
                                             id: okPowerFromHeartPWR2
                                             text: qsTr("OK")
                                             enabled: powerFromHeartPWR2TextField.valid && powerFromHeartPWR2TextField.dirty
@@ -4025,7 +4028,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: if (valid) settings.power_hr_hr2 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
-                                        Button {
+                                        UiButton {
                                             id: okPowerFromHeartHR2
                                             text: qsTr("OK")
                                             enabled: powerFromHeartHR2TextField.valid && powerFromHeartHR2TextField.dirty
@@ -4166,7 +4169,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.gears_current_value_f = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             enabled: gearsRestoreValueDelegate.checked && specificGearValueField.valid && specificGearValueField.dirty
@@ -4208,7 +4211,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.rolling_resistance = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okRollingResistanceButton
                             text: qsTr("OK")
                             enabled: rollingreistanceTextField.valid && rollingreistanceTextField.dirty
@@ -4243,7 +4246,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.bike_weight = ((settings.miles_unit && !settings.weight_kg_unit)?value / 2.20462:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okBikeWeightButton
                             text: qsTr("OK")
                             enabled: bikeweightTextField.valid && bikeweightTextField.dirty
@@ -4284,7 +4287,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.crrGain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okCRRGainButton
                             text: qsTr("OK")
                             enabled: crrGainTextField.valid && crrGainTextField.dirty
@@ -4310,7 +4313,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.cwGain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okCWGainButton
                             text: qsTr("OK")
                             enabled: cwGainTextField.valid && cwGainTextField.dirty
@@ -4609,7 +4612,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.bike_resistance_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okBikeResistanceOffsetButton
                             text: qsTr("OK")
                             enabled: bikeResistanceOffsetTextField.valid && bikeResistanceOffsetTextField.dirty
@@ -4652,7 +4655,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.bike_power_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okBikePowerOffsetButton
                             text: qsTr("OK")
                             enabled: bikePowerOffsetTextField.valid && bikePowerOffsetTextField.dirty
@@ -4693,7 +4696,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.bike_resistance_gain_f = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okBikeResistanceGainButton
                             text: qsTr("OK")
                             enabled: bikeResistanceGainTextField.valid && bikeResistanceGainTextField.dirty
@@ -4734,7 +4737,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.zwift_erg_filter = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okzwiftErgFilterButton
                             text: qsTr("OK")
                             enabled: zwiftErgFilterTextField.valid && zwiftErgFilterTextField.dirty
@@ -4775,7 +4778,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.zwift_erg_filter_down = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okzwiftErgDownFilterButton
                             text: qsTr("OK")
                             enabled: zwiftErgDownFilterTextField.valid && zwiftErgDownFilterTextField.dirty
@@ -4816,7 +4819,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.zwift_erg_resistance_down = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okzwiftErgResistanceDownButton
                             text: qsTr("OK")
                             enabled: zwiftErgResistanceDownTextField.valid && zwiftErgResistanceDownTextField.dirty
@@ -4857,7 +4860,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.zwift_erg_resistance_up = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okzwiftErgResistanceUpButton
                             text: qsTr("OK")
                             enabled: zwiftErgResistanceUpTextField.valid && zwiftErgResistanceUpTextField.dirty
@@ -4899,7 +4902,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.bike_resistance_start = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okBikeResistanceStartButton
                             text: qsTr("OK")
                             enabled: bikeResistanceStartTextField.valid && bikeResistanceStartTextField.dirty
@@ -4939,7 +4942,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.gears_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: gearsGainTextField.valid && gearsGainTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4997,7 +5000,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.gears_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: gearsOffsetTextField.valid && gearsOffsetTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -5110,7 +5113,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_gear_up_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingGearUpCadenceTextField.valid && automaticVirtualShiftingGearUpCadenceTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -5136,7 +5139,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.automatic_virtual_shifting_gear_up_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingGearUpTimeTextField.valid && automaticVirtualShiftingGearUpTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -5165,7 +5168,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_gear_down_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingGearDownCadenceTextField.valid && automaticVirtualShiftingGearDownCadenceTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -5191,7 +5194,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.automatic_virtual_shifting_gear_down_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingGearDownTimeTextField.valid && automaticVirtualShiftingGearDownTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -5231,7 +5234,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_climb_gear_up_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingClimbGearUpCadenceTextField.valid && automaticVirtualShiftingClimbGearUpCadenceTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -5257,7 +5260,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.automatic_virtual_shifting_climb_gear_up_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingClimbGearUpTimeTextField.valid && automaticVirtualShiftingClimbGearUpTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -5286,7 +5289,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_climb_gear_down_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingClimbGearDownCadenceTextField.valid && automaticVirtualShiftingClimbGearDownCadenceTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -5312,7 +5315,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.automatic_virtual_shifting_climb_gear_down_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingClimbGearDownTimeTextField.valid && automaticVirtualShiftingClimbGearDownTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -5352,7 +5355,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_sprint_gear_up_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingSprintGearUpCadenceTextField.valid && automaticVirtualShiftingSprintGearUpCadenceTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -5378,7 +5381,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.automatic_virtual_shifting_sprint_gear_up_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingSprintGearUpTimeTextField.valid && automaticVirtualShiftingSprintGearUpTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -5407,7 +5410,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.automatic_virtual_shifting_sprint_gear_down_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingSprintGearDownCadenceTextField.valid && automaticVirtualShiftingSprintGearDownCadenceTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -5433,7 +5436,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.automatic_virtual_shifting_sprint_gear_down_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: automaticVirtualShiftingSprintGearDownTimeTextField.valid && automaticVirtualShiftingSprintGearDownTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -5462,7 +5465,8 @@ import AndroidStatusBar 1.0
                              }
 
                         }
-                        Button {
+                        UiButton {
+                            applyOnSelect: false
                             text: qsTr("OK")
                             enabled: ftmsBikeTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -5575,7 +5579,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.schwinn_resistance_smooth = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okschwinnResistanceSmoothButton
                                     text: qsTr("OK")
                                     enabled: scwhinnResistanceSmoothTextField.valid && scwhinnResistanceSmoothTextField.dirty
@@ -5622,7 +5626,7 @@ import AndroidStatusBar 1.0
                                 onAccepted: settings.horizon_gr7_cadence_multiplier = value
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
-                            Button {
+                            UiButton {
                                 id: okhorizonGr7CadenceMultiplierButton
                                 text: qsTr("OK")
                                 enabled: horizonGr7CadenceMultiplierTextField.valid && horizonGr7CadenceMultiplierTextField.dirty
@@ -5663,7 +5667,7 @@ import AndroidStatusBar 1.0
                                     }
 
                                 }
-                                Button {
+                                UiButton {
                                     id: okEchelonWattTable
                                     text: qsTr("OK")
                                     enabled: echelonWattTableTextField.dirty
@@ -5689,7 +5693,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.echelon_resistance_gain = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okechelonResistanceGainButton
                                     text: qsTr("OK")
                                     enabled: echelonResistanceGainTextField.valid && echelonResistanceGainTextField.dirty
@@ -5718,7 +5722,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.echelon_resistance_offset = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okechelonResistanceOffsetButton
                                     text: qsTr("OK")
                                     enabled: echelonResistanceOffsetTextField.valid && echelonResistanceOffsetTextField.dirty
@@ -6093,7 +6097,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.flywheel_filter = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okflywheelBikeFilterButton
                                     text: qsTr("OK")
                                     enabled: flywheelBikeFilterTextField.valid && flywheelBikeFilterTextField.dirty
@@ -6157,7 +6161,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.domyos_bike_cadence_filter = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okDomyosBikeCadenceFilter
                                     text: qsTr("OK")
                                     enabled: domyosBikeCadenceFilterTextField.valid && domyosBikeCadenceFilterTextField.dirty
@@ -6293,7 +6297,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.proform_wheel_ratio = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okproformBikeWheelRatioButton
                                     text: qsTr("OK")
                                     enabled: proformBikeWheelRatioTextField.valid && proformBikeWheelRatioTextField.dirty
@@ -6498,7 +6502,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.proformtdf1ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: proformTDF1IPTextField.valid && proformTDF1IPTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -6525,7 +6529,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.proformtdf4ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okproformTDF4IPButton
                                     text: qsTr("OK")
                                     enabled: proformTDF4IPTextField.valid && proformTDF4IPTextField.dirty
@@ -6552,7 +6556,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.tdf_10_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okproformTDFCompanionIPButton
                                     text: qsTr("OK")
                                     enabled: proformTDFCompanionIPTextField.valid && proformTDFCompanionIPTextField.dirty
@@ -6614,7 +6618,7 @@ import AndroidStatusBar 1.0
                                 onAccepted: { settings.computrainer_serialport = text; window.settings_restart_to_apply = true; }
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
-                            Button {
+                            UiButton {
                                 id: okcomputrainerSerialPortButton
                                 text: qsTr("OK")
                                 enabled: computrainerSerialPortTextField.dirty
@@ -6650,7 +6654,7 @@ import AndroidStatusBar 1.0
                                 onAccepted: { settings.kettler_usb_serialport = text; window.settings_restart_to_apply = true; }
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
-                            Button {
+                            UiButton {
                                 id: okKettlerUsbSerialPortButton
                                 text: qsTr("OK")
                                 enabled: kettlerUsbSerialPortTextField.dirty
@@ -6677,7 +6681,8 @@ import AndroidStatusBar 1.0
                                     displayText = kettlerUsbBaudrateComboBox.currentValue
                                 }
                             }
-                            Button {
+                            UiButton {
+                                applyOnSelect: false
                                 id: okKettlerUsbBaudrateButton
                                 text: qsTr("OK")
                                 enabled: kettlerUsbBaudrateComboBox.dirty
@@ -6718,7 +6723,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.daum_serialport = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okDaumSerialPortButton
                                     text: qsTr("OK")
                                     enabled: daumSerialPortTextField.dirty
@@ -6757,7 +6762,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.inclination_delay_seconds = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: daumResistanceDelayTextField.valid && daumResistanceDelayTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -6806,7 +6811,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.freebeat_serialport = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okFreebeatSerialPortButton
                                     text: qsTr("OK")
                                     enabled: freebeatSerialPortTextField.dirty
@@ -6863,7 +6868,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.m3i_bike_id = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okm3iBikeIdButton
                                     text: qsTr("OK")
                                     enabled: m3iBikeIdTextField.valid && m3iBikeIdTextField.dirty
@@ -6891,7 +6896,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.m3i_bike_speed_buffsize = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okm3iBikeSpeedBuffsizeButton
                                     text: qsTr("OK")
                                     enabled: m3iBikeSpeedBuffsizeTextField.valid && m3iBikeSpeedBuffsizeTextField.dirty
@@ -7004,7 +7009,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) { settings.ant_bike_device_number = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okAntBikeDeviceNumberButton
                                     text: qsTr("OK")
                                     enabled: antBikeDeviceNumberTextField.valid && antBikeDeviceNumberTextField.dirty
@@ -7129,7 +7134,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.ant_speed_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: antspeedOffsetTextField.valid && antspeedOffsetTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -7169,7 +7174,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.ant_speed_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: antspeedGainTextField.valid && antspeedGainTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -7226,7 +7231,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) { settings.ant_heart_device_number = value; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okAntHeartDeviceNumberButton
                             text: qsTr("OK")
                             enabled: antHeartDeviceNumberTextField.valid && antHeartDeviceNumberTextField.dirty
@@ -7335,7 +7340,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) { settings.ui_zoom = value; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okUiZoomButton
                             text: qsTr("OK")
                             enabled: uiZoomTextField.valid && uiZoomTextField.dirty
@@ -7427,7 +7432,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) { settings.ui_text_scale = Math.round(value); window.setTextScaleOption("ui_text_scale", Math.round(value)); }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okUiTextScaleButton
                             text: qsTr("OK")
                             enabled: uiTextScaleTextField.valid && uiTextScaleTextField.dirty && !uiTextScaleTextField.followsSystem
@@ -7513,7 +7518,7 @@ import AndroidStatusBar 1.0
                                 console.log("floatingwindow_type activated" + floatingWindowTypeComboBox.currentIndex)
                             }
                         }
-                        Button {
+                        UiButton {
                             id: okFloatingWindowTypeButton
                             text: qsTr("OK")
                             enabled: floatingWindowTypeComboBox.dirty
@@ -7569,7 +7574,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.floating_width = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okFloatingWidthButton
                             text: qsTr("OK")
                             enabled: floatingWidthField.valid && floatingWidthField.dirty
@@ -7611,7 +7616,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.floating_height = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okFloatingHeightButton
                             text: qsTr("OK")
                             enabled: floatingHeightField.valid && floatingHeightField.dirty
@@ -7653,7 +7658,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.floating_transparency = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okFloatingTransparencyButton
                             text: qsTr("OK")
                             enabled: floatingTransparencyField.valid && floatingTransparencyField.dirty
@@ -7705,7 +7710,7 @@ import AndroidStatusBar 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    Button {
+                    UiButton {
                         text: qsTr("Open Floating on a Browser")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: openFloatingWindowBrowser();
@@ -7729,7 +7734,7 @@ import AndroidStatusBar 1.0
                                 console.log("chart_display_mode activated" + chartDisplayModeComboBox.currentIndex)
                             }
                         }
-                        Button {
+                        UiButton {
                             id: okChartDisplayModeButton
                             text: qsTr("OK")
                             enabled: chartDisplayModeComboBox.dirty
@@ -7845,14 +7850,14 @@ import AndroidStatusBar 1.0
                                         elide: Text.ElideRight
                                         wrapMode: Text.NoWrap
                                     }
-                                    Button {
+                                    UiButton {
                                         text: "↑"
                                         enabled: index > 0
                                         Accessible.name: qsTr("Move up") + ": " +
                                                          historyChartOrderEditor.chartLabel(historyChartOrderEditor.chartOrder[index])
                                         onClicked: historyChartOrderEditor.moveChart(index, -1)
                                     }
-                                    Button {
+                                    UiButton {
                                         text: "↓"
                                         enabled: index < historyChartOrderEditor.chartOrder.length - 1
                                         Accessible.name: qsTr("Move down") + ": " +
@@ -7862,7 +7867,7 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            Button {
+                            UiButton {
                                 text: qsTr("Restore default order")
                                 Layout.alignment: Qt.AlignRight
                                 enabled: historyChartOrderEditor.chartOrder.join(",") !==
@@ -7891,7 +7896,7 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: displayText = currentValue
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: iosLiveActivityCompactLeadingMetricComboBox.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -7914,7 +7919,7 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: displayText = currentValue
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: iosLiveActivityCompactTrailingMetricComboBox.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -7976,7 +7981,7 @@ import AndroidStatusBar 1.0
                                           if(OS_VERSION !== "Android") backgroundColorDialog.visible = true
                                       }
                                 }
-                                Button {
+                                UiButton {
                                     id: okBackgroundColor
                                     text: qsTr("OK")
                                     enabled: backgroundColorTextField.dirty
@@ -8012,7 +8017,7 @@ import AndroidStatusBar 1.0
                                           if(OS_VERSION !== "Android") tilebackgroundColorDialog.visible = true
                                       }
                                 }
-                                Button {
+                                UiButton {
                                     id: oktileBackgroundColor
                                     text: qsTr("OK")
                                     enabled: tilebackgroundColorTextField.dirty
@@ -8061,7 +8066,7 @@ import AndroidStatusBar 1.0
                                           if(OS_VERSION !== "Android") tileShadowColorDialog.visible = true
                                       }
                                 }
-                                Button {
+                                UiButton {
                                     id: oktileShadowColor
                                     text: qsTr("OK")
                                     enabled: tileShadowColorTextField.dirty
@@ -8096,7 +8101,7 @@ import AndroidStatusBar 1.0
                                           if(OS_VERSION !== "Android") statusbarbackgroundColorDialog.visible = true
                                       }
                                 }
-                                Button {
+                                UiButton {
                                     id: okStatusbarBackgroundColor
                                     text: qsTr("OK")
                                     enabled: statusbarbackgroundColorTextField.dirty
@@ -8133,7 +8138,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) { settings.theme_tile_secondline_textsize = value; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: secondLineTextSizeField.valid && secondLineTextSizeField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -8171,7 +8176,7 @@ import AndroidStatusBar 1.0
                             onAccepted: { settings.peloton_username = text; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okPelotonUsernameButton
                             text: qsTr("OK")
                             enabled: pelotonUsernameTextField.dirty
@@ -8223,7 +8228,7 @@ import AndroidStatusBar 1.0
                             onAccepted: { settings.peloton_password = text; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okPelotonPasswordButton
                             text: qsTr("OK")
                             enabled: pelotonPasswordTextField.dirty
@@ -8282,7 +8287,7 @@ import AndroidStatusBar 1.0
                              }
 
                         }
-                        Button {
+                        UiButton {
                             id: okPelotonDifficultyButton
                             text: qsTr("OK")
                             enabled: pelotonDifficultyTextField.dirty
@@ -8324,7 +8329,7 @@ import AndroidStatusBar 1.0
                              }
 
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: pelotonTreadmillLevelTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -8365,7 +8370,7 @@ import AndroidStatusBar 1.0
                              }
 
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: pelotonTreadmillWalkLevelTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -8402,7 +8407,7 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: pelotonTreadmillWalkingMinSpeedTextField.valid && pelotonTreadmillWalkingMinSpeedTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -8439,7 +8444,7 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: pelotonTreadmillRunningMinSpeedTextField.valid && pelotonTreadmillRunningMinSpeedTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -8480,7 +8485,7 @@ import AndroidStatusBar 1.0
                              }
 
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: pelotonRowerLevelTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -8519,7 +8524,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.pzp_username = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okPZPUsernameButton
                             text: qsTr("OK")
                             enabled: pzpUsernameTextField.dirty
@@ -8570,7 +8575,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.pzp_password = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okPZPPasswordButton
                             text: qsTr("OK")
                             enabled: pzpPasswordTextField.dirty
@@ -8611,7 +8616,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.peloton_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okPelotonGainButton
                             text: qsTr("OK")
                             enabled: pelotonGainTextField.valid && pelotonGainTextField.dirty
@@ -8653,7 +8658,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.peloton_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okPelotonOffsetButton
                             text: qsTr("OK")
                             enabled: pelotonOffsetTextField.valid && pelotonOffsetTextField.dirty
@@ -8782,7 +8787,7 @@ import AndroidStatusBar 1.0
                              }
 
                         }
-                        Button {
+                        UiButton {
                             id: okPelotonCadenceMetric
                             text: qsTr("OK")
                             enabled: pelotonCadenceMetricTextField.dirty
@@ -8811,7 +8816,7 @@ import AndroidStatusBar 1.0
                              }
 
                         }
-                        Button {
+                        UiButton {
                             id: okPelotonHeartRateMetric
                             text: qsTr("OK")
                             enabled: pelotonHeartRateMetricTextField.dirty
@@ -8854,7 +8859,7 @@ import AndroidStatusBar 1.0
                             }
 
                         }
-                        Button {
+                        UiButton {
                             id: okPelotonDateOnStrava
                             text: qsTr("OK")
                             enabled: pelotonDateOnStravaTextField.dirty
@@ -8896,7 +8901,7 @@ import AndroidStatusBar 1.0
                             }
 
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: pelotonDateFormatTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -9073,7 +9078,7 @@ import AndroidStatusBar 1.0
                             onAccepted: { settings.zwift_username = text; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okZwiftUsernameButton
                             text: qsTr("OK")
                             enabled: zwiftUsernameTextField.dirty
@@ -9125,7 +9130,7 @@ import AndroidStatusBar 1.0
                             onAccepted: { settings.zwift_password = text; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okZwiftPasswordButton
                             text: qsTr("OK")
                             enabled: zwiftPasswordTextField.dirty
@@ -9275,7 +9280,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) { settings.zwift_api_poll = value; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: zwiftPollTimeTextField.valid && zwiftPollTimeTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -9639,7 +9644,7 @@ import AndroidStatusBar 1.0
                             onAccepted: { rootItem.garmin_connect_logout(); settings.garmin_email = text; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: garminEmailTextField.acceptableInput && garminEmailTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -9668,7 +9673,7 @@ import AndroidStatusBar 1.0
                             onAccepted: { rootItem.garmin_connect_logout(); settings.garmin_password = text; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: garminPasswordTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -9706,7 +9711,7 @@ import AndroidStatusBar 1.0
                         }
                     }
 
-                    Button {
+                    UiButton {
                         text: qsTr("Test Garmin Login")
                         Layout.alignment: Qt.AlignHCenter
                         onClicked: { rootItem.garmin_connect_login(); }
@@ -9776,7 +9781,8 @@ import AndroidStatusBar 1.0
                                 Layout.fillWidth: true
                                 spacing: 10
 
-                                Button {
+                                UiButton {
+                                    cardSurface: true
                                     text: qsTr("Cancel")
                                     Layout.fillWidth: true
                                     onClicked: {
@@ -9785,7 +9791,7 @@ import AndroidStatusBar 1.0
                                     }
                                 }
 
-                                Button {
+                                UiButton {
                                     text: qsTr("Submit")
                                     Layout.fillWidth: true
                                     highlighted: true
@@ -10776,7 +10782,7 @@ import AndroidStatusBar 1.0
                              }
 
                         }
-                        Button {
+                        UiButton {
                             id: okTreadmillPidHR
                             text: qsTr("OK")
                             enabled: treadmillPidHRTextField.dirty
@@ -10802,7 +10808,7 @@ import AndroidStatusBar 1.0
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: treadmillPidHRControlTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -10846,7 +10852,7 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: treadmillPidHRminTextField.valid && treadmillPidHRminTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -10873,7 +10879,7 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: treadmillPidHRmaxTextField.valid && treadmillPidHRmaxTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -10939,7 +10945,7 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: pidHrRecoveryZoneLimitTextField.valid && pidHrRecoveryZoneLimitTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -10976,7 +10982,7 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: pidHrPushyZoneLimitTextField.valid && pidHrPushyZoneLimitTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -11044,7 +11050,7 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okTrainProgramPace1Mile
                             text: qsTr("OK")
                             enabled: trainProgramPace1mileTextField.valid && trainProgramPace1mileTextField.dirty
@@ -11085,7 +11091,7 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okTrainProgramPace5km
                             text: qsTr("OK")
                             enabled: trainProgramPace5kmTextField.valid && trainProgramPace5kmTextField.dirty
@@ -11126,7 +11132,7 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okTrainProgramPace10KM
                             text: qsTr("OK")
                             enabled: trainProgramPace10kmTextField.valid && trainProgramPace10kmTextField.dirty
@@ -11167,7 +11173,7 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okTrainProgramPaceHalfMarathon
                             text: qsTr("OK")
                             enabled: trainProgramPaceHalfMarathonTextField.valid && trainProgramPaceHalfMarathonTextField.dirty
@@ -11208,7 +11214,7 @@ import AndroidStatusBar 1.0
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okTrainProgramPaceMarathon
                             text: qsTr("OK")
                             enabled: trainProgramPaceMarathonTextField.valid && trainProgramPaceMarathonTextField.dirty
@@ -11248,7 +11254,7 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okTrainProgramWarmupSpeed
                             text: qsTr("OK")
                             enabled: trainProgramWarmupSpeedTextField.valid && trainProgramWarmupSpeedTextField.dirty
@@ -11274,7 +11280,7 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okTrainProgramCooldownSpeed
                             text: qsTr("OK")
                             enabled: trainProgramCooldownSpeedTextField.valid && trainProgramCooldownSpeedTextField.dirty
@@ -11300,7 +11306,7 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okTrainProgramRestSpeed
                             text: qsTr("OK")
                             enabled: trainProgramRestSpeedTextField.valid && trainProgramRestSpeedTextField.dirty
@@ -11329,7 +11335,7 @@ import AndroidStatusBar 1.0
                              }
 
                         }
-                        Button {
+                        UiButton {
                             id: okTreadmillPaceDefault
                             text: qsTr("OK")
                             enabled: treadmillPaceDefaultTextField.dirty
@@ -11370,7 +11376,7 @@ import AndroidStatusBar 1.0
                             inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okPidHeartZoneErgModeWattStep
                             text: qsTr("OK")
                             enabled: pidHeartZoneErgModeWattStepTextField.valid && pidHeartZoneErgModeWattStepTextField.dirty
@@ -11424,7 +11430,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.trainprogram_total = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okTrainProgramRandomDuration
                             text: qsTr("OK")
                             enabled: trainProgramRandomDurationTextField.valid && trainProgramRandomDurationTextField.dirty
@@ -11452,7 +11458,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.trainprogram_period_seconds = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okTrainProgramRandomPeriod
                             text: qsTr("OK")
                             enabled: trainProgramRandomPeriodTextField.valid && trainProgramRandomPeriodTextField.dirty
@@ -11479,7 +11485,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.trainprogram_speed_min = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okTrainProgramRandomSpeedMin
                             text: qsTr("OK")
                             enabled: trainProgramRandomSpeedMinTextField.valid && trainProgramRandomSpeedMinTextField.dirty
@@ -11506,7 +11512,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.trainprogram_speed_max = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okTrainProgramRandomSpeedMax
                             text: qsTr("OK")
                             enabled: trainProgramRandomSpeedMaxTextField.valid && trainProgramRandomSpeedMaxTextField.dirty
@@ -11534,7 +11540,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.trainprogram_incline_min = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okTrainProgramRandomInclineMin
                             text: qsTr("OK")
                             enabled: trainProgramRandomInclineMinTextField.valid && trainProgramRandomInclineMinTextField.dirty
@@ -11561,7 +11567,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.trainprogram_incline_max = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okTrainProgramRandomInclineMax
                             text: qsTr("OK")
                             enabled: trainProgramRandomInclineMaxTextField.valid && trainProgramRandomInclineMaxTextField.dirty
@@ -11587,7 +11593,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.trainprogram_inclination_filter = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okTrainProgramInclinationFilter
                             text: qsTr("OK")
                             enabled: trainProgramInclinationFilterTextField.valid && trainProgramInclinationFilterTextField.dirty
@@ -11627,7 +11633,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.trainprogram_resistance_min = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okTrainProgramRandomResistanceMin
                             text: qsTr("OK")
                             enabled: trainProgramRandomResistanceMinTextField.valid && trainProgramRandomResistanceMinTextField.dirty
@@ -11654,7 +11660,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.trainprogram_resistance_max = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okTrainProgramRandomResistanceMax
                             text: qsTr("OK")
                             enabled: trainProgramRandomResistanceMaxTextField.valid && trainProgramRandomResistanceMaxTextField.dirty
@@ -11910,7 +11916,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.treadmill_step_speed = (settings.miles_unit?value * 1.60934:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okTreadmillSpeedStepButton
                             text: qsTr("OK")
                             enabled: treadmillSpeedStepTextField.valid && treadmillSpeedStepTextField.dirty
@@ -11954,7 +11960,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.treadmill_incline_min = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: treadmillInclinationMinTextField.valid && treadmillInclinationMinTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -11995,7 +12001,7 @@ import AndroidStatusBar 1.0
                             onAccepted: if (valid) settings.treadmill_incline_max = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: treadmillInclinationMaxTextField.valid && treadmillInclinationMaxTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -12034,7 +12040,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.treadmill_speed_max = (settings.miles_unit?value * 1.60934:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: treadmillSpeedMaxTextField.valid && treadmillSpeedMaxTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -12073,7 +12079,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.treadmill_speed_min = (settings.miles_unit?value * 1.60934:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: treadmillSpeedMinTextField.valid && treadmillSpeedMinTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -12113,7 +12119,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.step_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okStepGainButton
                             text: qsTr("OK")
                             enabled: stepGainTextField.valid && stepGainTextField.dirty
@@ -12207,7 +12213,8 @@ import AndroidStatusBar 1.0
                             }
 
                         }
-                        Button {
+                        UiButton {
+                            applyOnSelect: false
                             text: qsTr("OK")
                             enabled: ftmsTreadmillTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -12602,7 +12609,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.proformtreadmillip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okproformtreadmillIPButton
                                     text: qsTr("OK")
                                     enabled: proformtreadmillIPTextField.valid && proformtreadmillIPTextField.dirty
@@ -12629,7 +12636,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.nordictrack_2950_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: oknordictrack2950IPButton
                                     text: qsTr("OK")
                                     enabled: nordictrack2950IPTextField.valid && nordictrack2950IPTextField.dirty
@@ -12868,7 +12875,7 @@ import AndroidStatusBar 1.0
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: { settings.life_fitness_username = text; window.settings_restart_to_apply = true; }
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: lifeFitnessUsernameTextField.dirty
                                     onClicked: { settings.life_fitness_username = lifeFitnessUsernameTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
@@ -12884,7 +12891,7 @@ import AndroidStatusBar 1.0
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: { settings.life_fitness_password = text; window.settings_restart_to_apply = true; }
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: lifeFitnessPasswordTextField.dirty
                                     onClicked: { settings.life_fitness_password = lifeFitnessPasswordTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
@@ -13100,7 +13107,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.domyos_treadmill_button_5kmh = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: domyosTreadmillButton5KmhTimeTextField.valid && domyosTreadmillButton5KmhTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -13125,7 +13132,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.domyos_treadmill_button_10kmh = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: domyosTreadmillButton10KmhTimeTextField.valid && domyosTreadmillButton10KmhTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -13150,7 +13157,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.domyos_treadmill_button_16kmh = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: domyosTreadmillButton16KmhTimeTextField.valid && domyosTreadmillButton16KmhTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -13175,7 +13182,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.domyos_treadmill_button_22kmh = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: domyosTreadmillButton22KmhTimeTextField.valid && domyosTreadmillButton22KmhTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -13202,7 +13209,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) { settings.poll_device_time = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: pollDeviceTimeTextField.valid && pollDeviceTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -13425,7 +13432,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.fitshow_user_id = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okfitshowTreadmillUserIdButton
                                     text: qsTr("OK")
                                     enabled: fitshowTreadmillUserIdTextField.valid && fitshowTreadmillUserIdTextField.dirty
@@ -13599,7 +13606,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.horizon_treadmill_profile_user1 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okhorizonTreadmillProfile1Button
                                     text: qsTr("OK")
                                     enabled: horizonTreadmillProfile1TextField.dirty
@@ -13624,7 +13631,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.horizon_treadmill_profile_user2 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okhorizonTreadmillProfile2Button
                                     text: qsTr("OK")
                                     enabled: horizonTreadmillProfile2TextField.dirty
@@ -13649,7 +13656,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.horizon_treadmill_profile_user3 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okhorizonTreadmillProfile3Button
                                     text: qsTr("OK")
                                     enabled: horizonTreadmillProfile3TextField.dirty
@@ -13674,7 +13681,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.horizon_treadmill_profile_user4 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okhorizonTreadmillProfile4Button
                                     text: qsTr("OK")
                                     enabled: horizonTreadmillProfile4TextField.dirty
@@ -13699,7 +13706,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.horizon_treadmill_profile_user5 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okhorizonTreadmillProfile5Button
                                     text: qsTr("OK")
                                     enabled: horizonTreadmillProfile5TextField.dirty
@@ -14199,7 +14206,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.csafe_rower = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: csaferowerSerialPortTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -14228,7 +14235,8 @@ import AndroidStatusBar 1.0
                              }
 
                         }
-                        Button {
+                        UiButton {
+                            applyOnSelect: false
                             text: qsTr("OK")
                             enabled: ftmsRowerTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -14236,7 +14244,7 @@ import AndroidStatusBar 1.0
                         }
                     }                   
 
-                    Button {
+                    UiButton {
                         text: qsTr("Refresh Devices List")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: refresh_bluetooth_devices_clicked();
@@ -14344,7 +14352,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.proform_rower_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: proformRowerIPTextField.valid && proformRowerIPTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -14391,7 +14399,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.domyos_elliptical_speed_ratio = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okDomyosEllipticalRatioButton
                                     text: qsTr("OK")
                                     enabled: domyosEllipticalSpeedRatioTextField.valid && domyosEllipticalSpeedRatioTextField.dirty
@@ -14438,7 +14446,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.csafe_elliptical_port = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: csafeellipticalSerialPortTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -14467,7 +14475,8 @@ import AndroidStatusBar 1.0
                              }
 
                         }
-                        Button {
+                        UiButton {
+                            applyOnSelect: false
                             text: qsTr("OK")
                             enabled: ftmsEllipticalTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -14475,7 +14484,7 @@ import AndroidStatusBar 1.0
                         }
                     }
 
-                    Button {
+                    UiButton {
                         text: qsTr("Refresh Devices List")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: refresh_bluetooth_devices_clicked();
@@ -14601,7 +14610,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.proform_elliptical_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: proformEllipticalCompanionIPTextField.valid && proformEllipticalCompanionIPTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -14717,7 +14726,8 @@ import AndroidStatusBar 1.0
                              }
 
                         }
-                        Button {
+                        UiButton {
+                            applyOnSelect: false
                             id: okFilterDeviceButton
                             text: qsTr("OK")
                             enabled: filterDeviceTextField.dirty
@@ -14726,7 +14736,7 @@ import AndroidStatusBar 1.0
                         }
                     }
 
-                    Button {
+                    UiButton {
                         id: refreshFilterDeviceButton
                         text: qsTr("Refresh Devices List")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -14794,7 +14804,7 @@ import AndroidStatusBar 1.0
                             onAccepted: { settings.watt_offset = value; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okwattOffsetButton
                             text: qsTr("OK")
                             enabled: wattOffsetTextField.valid && wattOffsetTextField.dirty
@@ -14835,7 +14845,7 @@ import AndroidStatusBar 1.0
                             onAccepted: { settings.watt_gain = value; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okWattGainButton
                             text: qsTr("OK")
                             enabled: wattGainTextField.valid && wattGainTextField.dirty
@@ -14875,7 +14885,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.watt_max = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okWattMaxButton
                             text: qsTr("OK")
                             enabled: wattMaxTextField.valid && wattMaxTextField.dirty
@@ -14917,7 +14927,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.speed_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okspeedOffsetButton
                             text: qsTr("OK")
                             enabled: speedOffsetTextField.valid && speedOffsetTextField.dirty
@@ -14959,7 +14969,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.speed_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okSpeedGainButton
                             text: qsTr("OK")
                             enabled: speedGainTextField.valid && speedGainTextField.dirty
@@ -15001,7 +15011,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.cadence_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okcadenceOffsetButton
                             text: qsTr("OK")
                             enabled: cadenceOffsetTextField.valid && cadenceOffsetTextField.dirty
@@ -15042,7 +15052,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.cadence_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okCadenceGainButton
                             text: qsTr("OK")
                             enabled: cadenceGainTextField.valid && cadenceGainTextField.dirty
@@ -15092,7 +15102,7 @@ import AndroidStatusBar 1.0
                              }
 
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: stravaUploadMode.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -15117,7 +15127,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.strava_suffix = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okStravaSuffixButton
                             text: qsTr("OK")
                             enabled: stravaSuffixTextField.dirty
@@ -15464,7 +15474,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.zwift_inclination_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okTreadmillInclinationOffsetButton
                             text: qsTr("OK")
                             enabled: treadmillInclinationOffsetTextField.valid && treadmillInclinationOffsetTextField.dirty
@@ -15505,7 +15515,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.zwift_inclination_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okTreadmillInclinationGainButton
                             text: qsTr("OK")
                             enabled: treadmillInclinationGainTextField.valid && treadmillInclinationGainTextField.dirty
@@ -15546,7 +15556,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.min_inclination = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: minInclinationTextField.valid && minInclinationTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -15586,7 +15596,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.treadmill_step_incline = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okInclinationStepButton
                             text: qsTr("OK")
                             enabled: inclinationStepTextField.valid && inclinationStepTextField.dirty
@@ -15741,7 +15751,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.autolap_distance = (settings.miles_unit?value * 1.60934:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: autoLapOnDistanceTextField.valid && autoLapOnDistanceTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -15780,7 +15790,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.inclination_delay_seconds = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             text: qsTr("OK")
                             enabled: treadmillInclinationDelayTextField.valid && treadmillInclinationDelayTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -15910,7 +15920,8 @@ import AndroidStatusBar 1.0
                                     }
 
                                 }
-                                Button {
+                                UiButton {
+                                    applyOnSelect: false
                                     id: okCadenceSensorNameButton
                                     text: qsTr("OK")
                                     enabled: cadenceSensorNameTextField.dirty
@@ -15919,7 +15930,7 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            Button {
+                            UiButton {
                                 id: refreshCadenceSensorNameButton
                                 text: qsTr("Refresh Devices List")
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -15958,7 +15969,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.cadence_sensor_speed_ratio = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okCadenceSpeedRatio
                                     text: qsTr("OK")
                                     enabled: cadenceSpeedRatioTextField.valid && cadenceSpeedRatioTextField.dirty
@@ -16054,7 +16065,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.cscbike_custom_resistance_level_1 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: cscBikeCustomResistanceLevel1TextField.valid && cscBikeCustomResistanceLevel1TextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -16079,7 +16090,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.cscbike_custom_watt_1 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: cscBikeCustomWatt1TextField.valid && cscBikeCustomWatt1TextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -16104,7 +16115,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.cscbike_custom_resistance_level_2 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: cscBikeCustomResistanceLevel2TextField.valid && cscBikeCustomResistanceLevel2TextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -16129,7 +16140,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.cscbike_custom_watt_2 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: cscBikeCustomWatt2TextField.valid && cscBikeCustomWatt2TextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -16350,7 +16361,7 @@ import AndroidStatusBar 1.0
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: powerSensorSpeedCorrectionThresholdTextField.valid && powerSensorSpeedCorrectionThresholdTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -16472,7 +16483,7 @@ import AndroidStatusBar 1.0
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: powerSensorSpeedInclinationCoeffATextField.valid && powerSensorSpeedInclinationCoeffATextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -16496,7 +16507,7 @@ import AndroidStatusBar 1.0
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: powerSensorSpeedInclinationCoeffBTextField.valid && powerSensorSpeedInclinationCoeffBTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -16538,7 +16549,8 @@ import AndroidStatusBar 1.0
                                     }
 
                                 }
-                                Button {
+                                UiButton {
+                                    applyOnSelect: false
                                     id: okPowerSensorNameButton
                                     text: qsTr("OK")
                                     enabled: powerSensorNameTextField.dirty
@@ -16547,7 +16559,7 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            Button {
+                            UiButton {
                                 id: refreshPowerSensorNameButton
                                 text: qsTr("Refresh Devices List")
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -16605,7 +16617,8 @@ import AndroidStatusBar 1.0
                                             }
 
                                         }
-                                        Button {
+                                        UiButton {
+                                            applyOnSelect: false
                                             id: okEliteRizerNameButton
                                             text: qsTr("OK")
                                             enabled: eliteRizerNameTextField.dirty
@@ -16614,7 +16627,7 @@ import AndroidStatusBar 1.0
                                         }
                                     }
 
-                                    Button {
+                                    UiButton {
                                         id: refreshEliteRizerNameButton
                                         text: qsTr("Refresh Devices List")
                                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -16638,7 +16651,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: settings.elite_rizer_gain = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
-                                        Button {
+                                        UiButton {
                                             id: okEliteRizerGainButton
                                             text: qsTr("OK")
                                             enabled: eliteRizerGainTextField.valid && eliteRizerGainTextField.dirty
@@ -16675,7 +16688,8 @@ import AndroidStatusBar 1.0
                                             }
 
                                         }
-                                        Button {
+                                        UiButton {
+                                            applyOnSelect: false
                                             id: okEliteSterzoSmartNameButton
                                             text: qsTr("OK")
                                             enabled: eliteSterzoSmartNameTextField.dirty
@@ -16684,7 +16698,7 @@ import AndroidStatusBar 1.0
                                         }
                                     }
 
-                                    Button {
+                                    UiButton {
                                         id: refreshEliteSterzoSmartNameButton
                                         text: qsTr("Refresh Devices List")
                                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -16723,7 +16737,8 @@ import AndroidStatusBar 1.0
                                     }
 
                                 }
-                                Button {
+                                UiButton {
+                                    applyOnSelect: false
                                     id: okFTMSAccessoryNameButton
                                     text: qsTr("OK")
                                     enabled: ftmsAccessoryNameTextField.dirty
@@ -16732,7 +16747,7 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            Button {
+                            UiButton {
                                 id: refreshFTMSAccessoryNameButton
                                 text: qsTr("Refresh Devices List")
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -16772,7 +16787,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.ss2k_shift_step = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okSS2kShiftStep
                                     text: qsTr("OK")
                                     enabled: ss2kShiftStepTextField.valid && ss2kShiftStepTextField.dirty
@@ -16798,7 +16813,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.ss2k_max_resistance = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okSS2kMaxResistance
                                     text: qsTr("OK")
                                     enabled: ss2kMaxResistanceTextField.valid && ss2kMaxResistanceTextField.dirty
@@ -16824,7 +16839,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.ss2k_min_resistance = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okSS2kMinResistance
                                     text: qsTr("OK")
                                     enabled: ss2kMinResistanceTextField.valid && ss2kMinResistanceTextField.dirty
@@ -16859,7 +16874,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_resistance_sample_1 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
-                                        Button {
+                                        UiButton {
                                             id: okSS2kResistanceSample1
                                             text: qsTr("OK")
                                             enabled: ss2kResistanceSample1TextField.valid && ss2kResistanceSample1TextField.dirty
@@ -16884,7 +16899,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_shift_step_sample_1 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
-                                        Button {
+                                        UiButton {
                                             id: okSS2kShiftStepSample1
                                             text: qsTr("OK")
                                             enabled: ss2kShiftStepSample1TextField.valid && ss2kShiftStepSample1TextField.dirty
@@ -16910,7 +16925,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_resistance_sample_2 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
-                                        Button {
+                                        UiButton {
                                             id: okSS2kResistanceSample2
                                             text: qsTr("OK")
                                             enabled: ss2kResistanceSample2TextField.valid && ss2kResistanceSample2TextField.dirty
@@ -16935,7 +16950,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_shift_step_sample_2 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
-                                        Button {
+                                        UiButton {
                                             id: okSS2kShiftStepSample2
                                             text: qsTr("OK")
                                             enabled: ss2kShiftStepSample2TextField.valid && ss2kShiftStepSample2TextField.dirty
@@ -16961,7 +16976,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_resistance_sample_3 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
-                                        Button {
+                                        UiButton {
                                             id: okSS2kResistanceSample3
                                             text: qsTr("OK")
                                             enabled: ss2kResistanceSample3TextField.valid && ss2kResistanceSample3TextField.dirty
@@ -16986,7 +17001,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_shift_step_sample_3 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
-                                        Button {
+                                        UiButton {
                                             id: okSS2kShiftStepSample3
                                             text: qsTr("OK")
                                             enabled: ss2kShiftStepSample3TextField.valid && ss2kShiftStepSample3TextField.dirty
@@ -17012,7 +17027,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_resistance_sample_4 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
-                                        Button {
+                                        UiButton {
                                             id: okSS2kResistanceSample4
                                             text: qsTr("OK")
                                             enabled: ss2kResistanceSample4TextField.valid && ss2kResistanceSample4TextField.dirty
@@ -17037,7 +17052,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.ss2k_shift_step_sample_4 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
-                                        Button {
+                                        UiButton {
                                             id: okSS2kShiftStepSample4
                                             text: qsTr("OK")
                                             enabled: ss2kShiftStepSample4TextField.valid && ss2kShiftStepSample4TextField.dirty
@@ -17094,7 +17109,7 @@ import AndroidStatusBar 1.0
                                     }
 
                                 }
-                                Button {
+                                UiButton {
                                     id: okFitmetriaFanFitModeTextField
                                     text: qsTr("OK")
                                     enabled: fitmetriaFanFitModeTextField.dirty
@@ -17122,7 +17137,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.fitmetria_fanfit_min = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okFitmetriaFanFitMin
                                     text: qsTr("OK")
                                     enabled: fitmetriaFanFitMinTextField.valid && fitmetriaFanFitMinTextField.dirty
@@ -17150,7 +17165,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.fitmetria_fanfit_max = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     id: okFitmetriaFanFitMax
                                     text: qsTr("OK")
                                     enabled: fitmetriaFanFitMaxTextField.valid && fitmetriaFanFitMaxTextField.dirty
@@ -17202,7 +17217,7 @@ import AndroidStatusBar 1.0
                                     }
 
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: headWindModeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -17228,7 +17243,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.fitmetria_fanfit_min = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: headWindMinTextField.valid && headWindMinTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -17254,7 +17269,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.fitmetria_fanfit_max = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: headWindMaxTextField.valid && headWindMaxTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -17305,7 +17320,7 @@ import AndroidStatusBar 1.0
                                     }
 
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: eliteAriaModeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -17331,7 +17346,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.fitmetria_fanfit_min = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: eliteAriaMinTextField.valid && eliteAriaMinTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -17357,7 +17372,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.fitmetria_fanfit_max = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: eliteAriaMaxTextField.valid && eliteAriaMaxTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -17804,7 +17819,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) { settings.poll_device_time = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: zwiftDevPollTimeTextField.valid && zwiftDevPollTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -17870,7 +17885,7 @@ import AndroidStatusBar 1.0
                             }
 
                         }
-                        Button {
+                        UiButton {
                             id: okMapsType
                             text: qsTr("OK")
                             enabled: mapsTypeTextField.dirty
@@ -17926,7 +17941,7 @@ import AndroidStatusBar 1.0
                             onAccepted: settings.video_playback_window_s = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
-                        Button {
+                        UiButton {
                             id: okVideoWindow
                             text: qsTr("OK")
                             enabled: videoWindowTextField.valid && videoWindowTextField.dirty
@@ -18236,7 +18251,7 @@ import AndroidStatusBar 1.0
                                                     onAccepted: if (valid) { settings.virtual_device_rower_cadence_gain = value; window.settings_restart_to_apply = true; }
                                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                                 }
-                                                Button {
+                                                UiButton {
                                                     text: qsTr("OK")
                                                     enabled: virtualRowerCadenceGainTextField.valid && virtualRowerCadenceGainTextField.dirty
                                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -18274,7 +18289,7 @@ import AndroidStatusBar 1.0
                                                     onAccepted: if (valid) { settings.virtual_device_rower_cadence_offset = value; window.settings_restart_to_apply = true; }
                                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                                 }
-                                                Button {
+                                                UiButton {
                                                     text: qsTr("OK")
                                                     enabled: virtualRowerCadenceOffsetTextField.valid && virtualRowerCadenceOffsetTextField.dirty
                                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -18500,7 +18515,7 @@ import AndroidStatusBar 1.0
                                             onAccepted: { settings.dircon_id = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
-                                        Button {
+                                        UiButton {
                                             text: qsTr("OK")
                                             enabled: dirconIdTextField.valid && dirconIdTextField.dirty
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -18542,7 +18557,7 @@ import AndroidStatusBar 1.0
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: if (valid) settings.dircon_server_base_port = value
                                         }
-                                        Button {
+                                        UiButton {
                                             id: okDirconServerPort
                                             text: qsTr("OK")
                                             enabled: dirconServerPortTextField.valid && dirconServerPortTextField.dirty
@@ -18580,7 +18595,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.mqtt_host = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: mqttHostTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -18622,7 +18637,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) settings.mqtt_port = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: mqttPortTextField.valid && mqttPortTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -18661,7 +18676,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.mqtt_username = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: mqttUsernameTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -18701,7 +18716,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.mqtt_password = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: mqttPasswordTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -18740,7 +18755,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: settings.mqtt_deviceid = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: mqttDeviceIdTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -18791,7 +18806,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: { settings.osc_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: oscIPTextField.valid && oscIPTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -18820,7 +18835,7 @@ import AndroidStatusBar 1.0
                                     onAccepted: if (valid) { settings.osc_port = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
-                                Button {
+                                UiButton {
                                     text: qsTr("OK")
                                     enabled: oscPortTextField.valid && oscPortTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -19316,7 +19331,7 @@ import AndroidStatusBar 1.0
                         Layout.minimumWidth: 0
                         columns: width >= clearLogs.implicitWidth + showLogs.implicitWidth + columnSpacing ? 2 : 1
 
-                        Button {
+                        UiButton {
                             id: clearLogs
                             text: qsTr("Clear History")
                             Layout.fillWidth: true
@@ -19324,7 +19339,7 @@ import AndroidStatusBar 1.0
                             onClicked: rootItem.clearFiles();
                         }
 
-                        Button {
+                        UiButton {
                             id: showLogs
                             text: qsTr("Show Logs Folder")
                             Layout.fillWidth: true
