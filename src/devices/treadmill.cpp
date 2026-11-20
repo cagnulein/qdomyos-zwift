@@ -312,6 +312,8 @@ void treadmill::clearStats() {
     KCal.clear(true);
     Distance.clear(true);
     Distance1s.clear(true);
+    // Keep the raw accumulated steps but start the next QZ session from zero.
+    StepCount.clear(true);
     Heart.clear(false);
     m_jouls.clear(true);
     elevationAcc = 0;
