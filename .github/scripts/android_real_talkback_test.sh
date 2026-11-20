@@ -8,6 +8,9 @@ PKG=org.cagnulen.qdomyoszwift
 TB_PKG=com.android.talkback
 TB_SERVICE=com.google.android.marvin.talkback.TalkBackService
 REPORT=talkback_real_probe.txt
+SWIPE_LEFT=240
+SWIPE_RIGHT=1200
+SWIPE_Y=1560
 : > "$REPORT"
 
 note() { echo "$*" | tee -a "$REPORT"; }
@@ -63,6 +66,13 @@ focus_name() {
     # The helper is strictly read-only; the preceding swipe must move the focus.
     peek --peek-focused | grep -F "TALKBACK_FOCUS" || true
 }
+swipe() {
+    if [ "$1" = backward ]; then
+        adb shell input swipe "$SWIPE_RIGHT" "$SWIPE_Y" "$SWIPE_LEFT" "$SWIPE_Y" 250
+    else
+        adb shell input swipe "$SWIPE_LEFT" "$SWIPE_Y" "$SWIPE_RIGHT" "$SWIPE_Y" 250
+    fi
+}
 swipe_to() {
     name=$1; direction=$2
     n=0
@@ -70,11 +80,7 @@ swipe_to() {
         current=$(focus_name)
         note "focus[$n]: $current"
         case "$current" in *"$name"*) note "PASS reached $name by TalkBack swipes"; return 0;; esac
-        if [ "$direction" = backward ]; then
-            adb shell input swipe 780 850 270 850 160
-        else
-            adb shell input swipe 270 850 780 850 160
-        fi
+        swipe "$direction"
         sleep 1
         foreground
         n=$((n + 1))
@@ -155,7 +161,7 @@ adb push a11y-test.jar /data/local/tmp/a11y-test.jar >/dev/null
 adb logcat -c
 before=$(focus_name)
 note "initial focus: $before"
-adb shell input swipe 270 850 780 850 160
+swipe forward
 sleep 2
 after=$(focus_name)
 note "focus after swipe: $after"
@@ -206,7 +212,7 @@ echo "$result" | grep -F TALKBACK_NODE >/dev/null || fail "Experimental Features
 # Reproduce the user's unwanted Chrome launch after about 30 seconds.
 n=0
 while [ "$n" -lt 12 ]; do
-    adb shell input swipe 270 850 780 850 160
+    swipe forward
     sleep 6
     foreground
     n=$((n + 1))

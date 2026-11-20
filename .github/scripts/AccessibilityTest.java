@@ -92,11 +92,14 @@ public class AccessibilityTest {
             AccessibilityNodeInfo focused = null;
             for (int retry = 0; retry < FOCUS_RETRIES && focused == null; retry++) {
                 AccessibilityNodeInfo root = automation.getRootInActiveWindow();
-                focused = root == null ? null : root.findFocus(AccessibilityNodeInfo.FOCUS_ACCESSIBILITY);
+                AccessibilityNodeInfo candidate = root == null ? null
+                        : root.findFocus(AccessibilityNodeInfo.FOCUS_ACCESSIBILITY);
+                if (isQzAccessibilityFocus(candidate)) {
+                    focused = candidate;
+                }
                 if (focused == null) Thread.sleep(250);
             }
-            if (focused == null || focused.getPackageName() == null
-                    || !PACKAGE.equals(focused.getPackageName().toString())) {
+            if (focused == null) {
                 System.out.println("FAIL no QZ accessibility focus for double tap");
                 return;
             }
@@ -133,15 +136,14 @@ public class AccessibilityTest {
                 AccessibilityNodeInfo root = automation.getRootInActiveWindow();
                 AccessibilityNodeInfo focused = root == null ? null
                         : root.findFocus(AccessibilityNodeInfo.FOCUS_ACCESSIBILITY);
-                if (focused != null && focused.getPackageName() != null
-                        && PACKAGE.equals(focused.getPackageName().toString())) {
+                if (isQzAccessibilityFocus(focused)) {
                     System.out.println("TALKBACK_FOCUS " + describe(focused));
                     return;
                 }
                 // Older Android providers can expose the focused bit in the
                 // returned tree even when findFocus() is unavailable.
                 for (AccessibilityNodeInfo node : appNodes()) {
-                    if (node.isAccessibilityFocused()) {
+                    if (isQzAccessibilityFocus(node)) {
                         System.out.println("TALKBACK_FOCUS " + describe(node));
                         return;
                     }
@@ -658,5 +660,13 @@ public class AccessibilityTest {
         return "'" + node.getContentDescription() + "' class=" + node.getClassName()
                 + " clickable=" + node.isClickable() + " focusable=" + node.isFocusable()
                 + " scrollable=" + node.isScrollable();
+    }
+
+    private static boolean isQzAccessibilityFocus(AccessibilityNodeInfo node) {
+        CharSequence packageName = node == null ? null : node.getPackageName();
+        CharSequence description = node == null ? null : node.getContentDescription();
+        return node != null && packageName != null && PACKAGE.contentEquals(packageName)
+                && node.isAccessibilityFocused() && node.isFocusable()
+                && description != null && description.length() > 0;
     }
 }
