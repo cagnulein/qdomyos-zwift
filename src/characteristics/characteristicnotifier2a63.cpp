@@ -1,7 +1,7 @@
 #include "characteristicnotifier2a63.h"
 
 CharacteristicNotifier2A63::CharacteristicNotifier2A63(bluetoothdevice *Bike, QObject *parent)
-    : CharacteristicNotifier(0x2a63, parent), Bike(Bike) {}
+    : CharacteristicNotifier(0x2a63, Bike, parent) {}
 
 int CharacteristicNotifier2A63::notify(QByteArray &value) {
     double normalizeWattage = Bike->wattsMetricforUI();

@@ -4,8 +4,7 @@
 #include <QList>
 
 CharacteristicNotifier0002::CharacteristicNotifier0002(bluetoothdevice *bike, QObject *parent)
-    : CharacteristicNotifier(0x0002, parent) {
-    Bike = bike;
+    : CharacteristicNotifier(0x0002, bike, parent) {
     answerList = QList<QByteArray>();  // Initialize empty list
 }
 
