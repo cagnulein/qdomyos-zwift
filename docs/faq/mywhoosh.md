@@ -19,3 +19,39 @@ The trainer/data connection and OpenBikeControl have different jobs. MyWhoosh ca
 If the Click changes resistance in QZ but the gear shown inside MyWhoosh does not change, this usually means the Click is still operating QZ's **local virtual gear** instead of sending the gear command to MyWhoosh. Re-check **MyWhoosh Link / OpenBikeControl** and the **override local gear changes** option.
 
 If MyWhoosh does not discover the OpenBikeControl service at all, verify local-network permissions, that both devices are on the same network, and then restart both QZ and MyWhoosh before collecting a QZ debug log.
+
+## My Elite Rizer connects to QZ but does not follow hills in MyWhoosh. What should I check?
+
+**Check MyWhoosh's own Gradient / trainer difficulty setting before changing QZ's incline mapping.** If that setting is at **0%**, MyWhoosh may not send the route's actual grade changes to QZ, even though the course visibly climbs and descends.
+
+1. Confirm that the **Elite Rizer is connected to QZ** and that QZ is receiving live bike/trainer data.
+2. In MyWhoosh's device pairing, choose **QZ's virtual trainer as the controllable trainer**, not just as the power source.
+3. Find MyWhoosh's **Gradient** setting. If it is **0%**, raise it to the desired level; **100%** sends the full selected gradient effect.
+4. In QZ's **Elite Rizer Options**, set **Elite Rizer Gain** to its normal default of **1.0** while testing. Do not try to compensate for absent MyWhoosh grades by setting the Rizer gain very high.
+5. Test a short route with modest uphill and downhill changes. Compare the route's grade, QZ's incline tile, and the Rizer's response.
+
+**Confirmed result:** In one support case, QZ connected to the Rizer and could send incline commands, but the MyWhoosh log contained only nearly flat requests (0%, +0.2%, 0%) during much steeper route sections. The user found MyWhoosh **Gradient = 0%**, changed it to **100%**, and explicitly confirmed that QZ began following the course and the Rizer responded correctly.
+
+QZ's current Elite Rizer driver multiplies the requested incline by **Elite Rizer Gain**, whose default is **1.0**; it cannot reconstruct grades that MyWhoosh never sends. **Downhill range and steering** are separate features and were not validated by this fix.
+
+## Can QZ and MyWhoosh run on the same phone or tablet?
+
+**Yes, on iPhone and iPad with the newer QZ iOS beta.** In **QZ Settings > Experimental Settings**, enable **iOS Background Keep Alive** so QZ can continue running while MyWhoosh is in the foreground **on the same iOS device**. See the [iOS same-device setup FAQ](ios.md).
+
+1. Install a QZ iOS beta that includes **iOS Background Keep Alive**, then enable it.
+2. Connect the physical bike/trainer to QZ and check its live metrics. Configure QZ's virtual trainer as usual.
+3. Open MyWhoosh on the **same iPhone or iPad** and pair with **QZ's virtual trainer**, not the physical trainer.
+4. Test power/cadence, resistance control and virtual shifting while QZ runs in the background.
+
+**Older builds and other platforms:** A previous test on an older iPad build found that MyWhoosh discovered the physical KICKR CORE but not QZ's virtual trainer; a separate iPhone-plus-iPad setup worked. An Android same-phone support case also could not use that same-device bridge. If your installed build does not support the new iOS background workflow, use **QZ on one device and MyWhoosh on another**. Enable the appropriate QZ virtual-device transport and keep the devices on the same local network when using Wi-Fi/DIRCON or OpenBikeControl. Do not assume initial virtual-trainer discovery works identically to an already-established session.
+
+## MyWhoosh ERG mode changes effort when I shift gears through QZ and a Wahoo KICKR. What should I check?
+
+If **QZ is the bridge to your Wahoo KICKR** and changing QZ's virtual gears unexpectedly changes the effort during a MyWhoosh ERG interval, check for a second, direct connection to the physical KICKR in MyWhoosh.
+
+1. Keep the physical **KICKR connected to QZ** as usual.
+2. In **MyWhoosh's sensor pairing**, remove the **physical KICKR** if it is also selected separately as a **Power Source**.
+3. Pair **QZ's virtual trainer** as the power source and, where MyWhoosh offers the choice, as the controllable trainer. Do not mix QZ control with a separate direct KICKR power connection for this test.
+4. Start a short ERG interval, shift QZ's virtual gears and check whether the ERG target/effort remains stable.
+
+**Confirmed workaround:** A rider found that gear changes interfered with ERG mode while the KICKR was also paired directly as a power sensor in MyWhoosh. After removing that separate power-sensor pairing, the rider explicitly confirmed that gear changes no longer affected ERG mode. This does not establish that duplicate pairing is the cause of every ERG issue.

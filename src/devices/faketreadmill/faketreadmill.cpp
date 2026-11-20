@@ -1,6 +1,8 @@
 #include "faketreadmill.h"
 #include "virtualdevices/virtualbike.h"
+#include "homeform.h"
 #include <QBluetoothLocalDevice>
+#include <QCoreApplication>
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
@@ -26,6 +28,14 @@ faketreadmill::faketreadmill(bool noWriteResistance, bool noHeartService, bool n
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &faketreadmill::update);
     refresh->start(200ms);
+
+    QTimer::singleShot(5000, this, []() {
+        if (homeform::singleton()) {
+            homeform::singleton()->setToastRequested(
+                QCoreApplication::translate("main", "Fake device (%1) is active. If this was unintentional, disable it in Settings.")
+                    .arg(QCoreApplication::translate("main", "Treadmill")));
+        }
+    });
 }
 
 void faketreadmill::update() {
@@ -108,7 +118,9 @@ void faketreadmill::update() {
             settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
         bool ios_peloton_workaround =
             settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-        if (ios_peloton_workaround && cadence && h && firstStateChanged) {
+        bool virtual_device_echelon =
+            settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+        if (ios_peloton_workaround && cadence && h && firstStateChanged && !virtual_device_echelon) {
             h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
             h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
         }

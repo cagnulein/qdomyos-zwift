@@ -4,8 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Workout Editor</title>
+    <!-- Modern look: sizes shared with the QML pages and the chart pages -->
+    <link rel="stylesheet" href="../chartjs/qz-modern.css">
     <link rel="stylesheet" href="workout-editor.css">
+    <!-- Modern look: the app theme from the URL fragment (WorkoutEditor.qml); without it the page
+         keeps its own dark palette -->
+    <script src="../chartjs/qz-theme-bridge.js"></script>
     <script src="../i18n/i18n.js"></script>
+    <script src="../chartjs/qz-modern-select.js"></script>
     <script src="../chartjs/resize-observer.min.js"></script>
     <script src="../chartjs/chartjs.3.4.1.min.js"></script>
     <script src="../chartjs/globals.js"></script>
@@ -25,6 +31,7 @@
         }
     </script>
     <script src="../chartjs/main_ws_manager.js"></script>
+    <script src="../chartjs/qzmetriccharts.js"></script>
     <script src="workout-editor.js"></script>
     <script src="workout-editor-app.js" defer></script>
 </head>
@@ -78,10 +85,7 @@
                         <div class="chart-title" id="chartTitle" data-i18n="workoutEditor.workoutPreview">Workout Preview</div>
                         <div class="chart-meta" id="chartMeta"></div>
                     </header>
-                    <div class="chart-wrapper">
-                        <canvas id="workoutChart"></canvas>
-                    </div>
-                    <div class="legend" id="legend"></div>
+                    <div class="chart-wrapper"></div>
                 </div>
                 <div class="status-strip">
                     <div><span data-i18n="workoutEditor.total">Total:</span> <span id="statusDuration">0:00</span></div>

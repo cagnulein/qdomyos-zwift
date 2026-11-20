@@ -373,6 +373,6 @@ void wahookickrheadwind::controllerStateChanged(QLowEnergyController::Controller
         initRequest = false;
         initDone = false;
 
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

@@ -1,8 +1,10 @@
 #include "fakerower.h"
 #include "virtualdevices/virtualbike.h"
+#include "homeform.h"
 #include "virtualdevices/virtualrower.h"
 
 #include <QBluetoothLocalDevice>
+#include <QCoreApplication>
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
@@ -27,6 +29,14 @@ fakerower::fakerower(bool noWriteResistance, bool noHeartService, bool noVirtual
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &fakerower::update);
     refresh->start(200ms);
+
+    QTimer::singleShot(5000, this, []() {
+        if (homeform::singleton()) {
+            homeform::singleton()->setToastRequested(
+                QCoreApplication::translate("main", "Fake device (%1) is active. If this was unintentional, disable it in Settings.")
+                    .arg(QCoreApplication::translate("main", "Rower")));
+        }
+    });
 }
 
 void fakerower::update() {
@@ -81,7 +91,9 @@ void fakerower::update() {
             settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
         bool ios_peloton_workaround =
             settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-        if (ios_peloton_workaround && cadence && !virtual_device_rower) {
+        bool virtual_device_echelon =
+            settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+        if (ios_peloton_workaround && cadence && !virtual_device_rower && !virtual_device_echelon) {
             qDebug() << "ios_peloton_workaround activated!";
             h = new lockscreen();
             h->virtualbike_ios();
@@ -123,7 +135,9 @@ void fakerower::update() {
             settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
         bool ios_peloton_workaround =
             settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-        if (ios_peloton_workaround && cadence && h && firstStateChanged) {
+        bool virtual_device_echelon =
+            settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+        if (ios_peloton_workaround && cadence && h && firstStateChanged && !virtual_device_echelon) {
             h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
             h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
         }

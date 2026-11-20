@@ -23,3 +23,62 @@
 - Multi-purpose speed/cadence sensors can advertise similarly while being mounted in different modes, so the physical role of each sensor must be known before interpreting the settings.
 - A stale or different **Manual Device** selection can conflict with the accessory selection and is easy to miss when only the normal sensor page is checked.
 - Verifying that the sensor works directly in another app separates a basic sensor/Bluetooth problem from a QZ device-selection or startup problem.
+
+## Cadence intermittently drops to zero while power keeps updating
+
+### Provide first
+
+- Name the bike/trainer and external power meter (including model), plus the QZ version and platform.
+- State which device supplies **power** and which supplies **cadence** in QZ, and whether **Use cadence from the power sensor** is enabled.
+- Confirm whether cadence drops to zero **inside QZ** as well as in the training app, while power continues updating normally. Give the approximate duration and frequency of the drops.
+
+### If still unclear
+
+- Record a short QZ debug log containing two or three drops during steady pedaling, with approximate timestamps. A brief screen recording of the QZ power and cadence tiles can help align the events.
+- If the trainer also reports cadence, run a separate short comparison using the trainer's cadence source instead of the power meter; change only the cadence source between tests.
+
+### Why it matters
+
+- A zero already visible in QZ points to the sensor-to-QZ data path, not the receiving training application's pairing.
+- A power meter can continue reporting watts while its crank-revolution/cadence information is absent or not advancing. Recording both metrics distinguishes a cadence-specific dropout from a complete Bluetooth disconnect.
+- Comparing independent cadence sources identifies whether the issue follows the external power meter or QZ's broader device connection.
+
+## External power-match correction appears ineffective during ERG workouts
+
+### Provide first
+
+- Trainer and external power-meter models, QZ build, receiving app, and whether the external meter is connected **to QZ**, not solely to the receiving app.
+- Screenshot of QZ **Power Sensor Name** and live power values displayed in QZ before starting an ERG interval.
+- One ERG target and the observed QZ power values during the interval.
+
+### If still unclear
+
+- Confirm the exact test build includes the intended power-match behavior, restart QZ with the external power sensor selected, and repeat a short controlled ERG interval.
+- Send the QZ debug log and identify whether any separate trainer Bluetooth disconnects occurred.
+- If power still diverges, compare the external meter reading, trainer-reported power, and ERG target at the same timestamps.
+
+### Why it matters
+
+- An external meter paired only to ROUVY or another receiving app does not establish that QZ can use its data for power matching.
+- A reviewed test log showed **Power Sensor Name = Disabled**, meaning the intended correction path was not active; Bluetooth disconnects were a separate issue.
+
+## Bike tiles work with one external sensor but disappear when a second sensor is configured
+
+### Provide first
+
+- Identify the bike setup and the exact advertised names and physical roles of both external sensors (speed, cadence, or combined speed/cadence).
+- Provide screenshots of QZ's accessory sensor selections, **Cadence Sensor as a Bike**, **Power Sensor as a Bike** if present, and any **Manual Device** selection. Report any other option intended to make a sensor the primary bike.
+- State separately whether QZ displays workout tiles and live cadence/speed with the cadence sensor alone, the other sensor alone, and both together. Distinguish a missing dashboard from tiles showing zero.
+- Confirm that the expected primary sensor is awake and advertising before QZ starts.
+
+### If still unclear
+
+- Run two short, otherwise identical tests: first with **one** selected primary bike source, then with the second sensor added. Restart QZ between tests and record exactly which selections and options changed.
+- If the primary sensor is not discovered in one test, check its advertised name with nRF Connect before requesting logs.
+- Collect a short QZ debug log from the failing configuration and one from the working configuration, each starting before device discovery.
+
+### Why it matters
+
+- A Bluetooth sensor being visible is different from QZ selecting a primary bike source and creating workout tiles.
+- In a confirmed comparison, the cadence-only configuration produced working tiles while the two-sensor setup did not. Comparing the primary-source settings before investigating calculated speed or power isolates a discovery/configuration conflict.
+- A sleeping sensor can mimic a configuration problem; checking advertising first avoids interpreting missing data as an unsupported combination.

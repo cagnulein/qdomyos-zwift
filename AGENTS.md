@@ -7,6 +7,7 @@ QDomyos-Zwift is a Qt-based application that bridges fitness equipment (treadmil
 2. Simplest solution first and implement the minimum thing that works. No abstractions you didn't request.
 3. Dont touch unrelated code and if a file isnt part of the current task, leave it.
 4. Flag uncertainty explicitly or if you're not confident, say so before proceeding as confidence without certainty causes more damage than admitting a gap.
+5. Avoid regular expressions, they are hard for a human to read. Use plain string operations (split, startswith, find, a short loop) instead.
 
 ## Architecture Overview
 

@@ -181,6 +181,7 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::CSCBike)
         ->expectDevice<cscbike>()
         ->acceptDeviceName(QStringLiteral("JOROTO-BK-"), DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName(QStringLiteral("BGYM"), DeviceNameComparison::StartsWithIgnoreCase, 8) // 8-character BGYM CSC bike
         ->configureSettingsWith(
             [cscBikeName](const DeviceDiscoveryInfo &info, bool enable, std::vector<DeviceDiscoveryInfo> &configurations)->void
             {
@@ -259,8 +260,9 @@ void DeviceTestDataIndex::Initialize() {
     // DomyosElliptical
     RegisterNewDeviceTestData(DeviceIndex::DomyosElliptical)
         ->expectDevice<domyoselliptical>()        
-        ->acceptDeviceName("Domyos-EL", DeviceNameComparison::StartsWith)
-        ->rejectDeviceName("DomyosBridge",DeviceNameComparison::StartsWith);
+        ->acceptDeviceName("Domyos-EL", DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName("DOMYOS-EL-4071", DeviceNameComparison::Exact)
+        ->rejectDeviceName("DomyosBridge",DeviceNameComparison::StartsWithIgnoreCase);
 
 
     // Domyos rower
@@ -463,6 +465,13 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<fitshowtreadmill>()
         ->acceptDeviceName("TR510-T", DeviceNameComparison::StartsWithIgnoreCase);
 
+    // Merach T12 Pro: FTMS is advertised but control uses FitShow.
+    RegisterNewDeviceTestData(DeviceIndex::FitShowMerachT12)
+        ->expectDevice<fitshowtreadmill>()
+        ->acceptDeviceName("MRK-T12-1562", DeviceNameComparison::Exact)
+        ->acceptDeviceName("mrk-t12-1562", DeviceNameComparison::Exact)
+        ->excluding<horizontreadmill>();
+
 
     // FitShow SW
     RegisterNewDeviceTestData(DeviceIndex::FitShowSW)
@@ -567,12 +576,15 @@ void DeviceTestDataIndex::Initialize() {
 
     // FTMS Bike
     QStringList acceptableFTMSNames {
+        "AS6-", // ART.IS Cross AS6 (ChangYow SM5081E BLE, e.g. AS6-0185)
         "DHZ-", // JK fitness 577
         "MKSM", // MKSM3600036
         "YS_C1_", // Yesoul C1H
         "YS_G1_", // Yesoul S3
         "YS_G1MPLUS", // Yesoul G1M Plus
         "DS25-", // Bodytone DS25
+        "DFIT-L-B-", // DFIT FTMS bike (e.g. DFIT-L-B-02066)
+        "GB3.0-", // Gymstick GB3.0: generic FTMS bike using resistance levels
         "SCHWINN 510T",
         "3G CARDIO ",
         "ZWIFT HUB",
@@ -625,6 +637,10 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::FTMSBike)
         ->expectDevice<ftmsbike>()
         ->acceptDeviceNames(acceptableFTMSNames, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName("ZV-C47306", DeviceNameComparison::IgnoreCase) // Sportstech SX600 FTMS
+        ->acceptDeviceName("ZV-AB12CD", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("ZV-C4730", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("ZV-C473067", DeviceNameComparison::IgnoreCase)
         ->acceptDeviceName("DI", DeviceNameComparison::StartsWithIgnoreCase, 2) // Elite smart trainer #1682)
         ->acceptDeviceName("YSV", DeviceNameComparison::StartsWithIgnoreCase, 9) // YSV100783
         ->acceptDeviceName("URSB", DeviceNameComparison::StartsWithIgnoreCase, 7) // URSB005
@@ -638,6 +654,18 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("ICSE", DeviceNameComparison::StartsWithIgnoreCase, 4)
         ->acceptDeviceName("FLX", DeviceNameComparison::StartsWithIgnoreCase, 10)
         ->acceptDeviceName("CSRB", DeviceNameComparison::StartsWithIgnoreCase, 11)
+        ->acceptDeviceName("07250DrumFit", DeviceNameComparison::IgnoreCase)
+        ->acceptDeviceName("1234DrumFit", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("ABCDDrumFit", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("07250DrumFitX", DeviceNameComparison::IgnoreCase)
+        // Hammer Speed Race S (BLE): numeric prefix must not change plain Kettler RACER S routing.
+        ->acceptDeviceName("4864 RACER S", DeviceNameComparison::IgnoreCase)
+        ->acceptDeviceName("1234 racer s", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("4864RACER S", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("48645 RACER S", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("ABCD RACER S", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("123A RACER S", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("4864 RACER SX", DeviceNameComparison::IgnoreCase)
 
 
         // Starts with DT- and is 14+ characters long.
@@ -647,6 +675,7 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("DT-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", DeviceNameComparison::IgnoreCase) // Sole SB700
         ->rejectDeviceName("DT-0123456789", DeviceNameComparison::IgnoreCase) // too short for Sole SB700
         ->rejectDeviceName("DBF13", DeviceNameComparison::IgnoreCase) // too short for DBF135
+        ->rejectDeviceName("GB3.0X", DeviceNameComparison::IgnoreCase) // do not match unrelated names
         ->rejectDeviceName("DBF1355", DeviceNameComparison::IgnoreCase) // too long for DBF135
         ->rejectDeviceName("XQ020111814", DeviceNameComparison::IgnoreCase)
         ->rejectDeviceName("XQ02ABC18141", DeviceNameComparison::IgnoreCase)
@@ -702,7 +731,7 @@ void DeviceTestDataIndex::Initialize() {
     // FTMS Rower
     RegisterNewDeviceTestData(DeviceIndex::FTMSRower)
         ->expectDevice<ftmsrower>()        
-        ->acceptDeviceNames({"CR 00","KAYAKPRO","WHIPR", "KS-WLT", "I-ROWER", "S4 COMMS"}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceNames({"CR 00","KAYAKPRO","WHIPR", "KS-WLT", "I-ROWER", "S4 COMMS", "FIT-RW-"}, DeviceNameComparison::StartsWithIgnoreCase)
         ->acceptDeviceNames({"PM5ROW","PM5XROW","SF-RW"}, DeviceNameComparison::IgnoreCase);
 
     // Horizon GR7 Bike
@@ -713,6 +742,12 @@ void DeviceTestDataIndex::Initialize() {
 
     // TODO: revisit
 
+    // These prefixes take priority over Horizon's broader YPTM- match.
+    RegisterNewDeviceTestData(DeviceIndex::YpooTreadmill)
+        ->expectDevice<ypootreadmill>()
+        ->acceptDeviceNames({"YPTM-U", "YP-M1552-"}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->excluding<horizontreadmill>();
+
     // Horizon Treadmill
     RegisterNewDeviceTestData(DeviceIndex::HorizonTreadmill)
         ->expectDevice<horizontreadmill>()        
@@ -721,8 +756,19 @@ void DeviceTestDataIndex::Initialize() {
             // FTMS
             {"T318_", "T218_", "TRX3500", "JFTMPARAGON", "PARAGON X", "JFTM", "CT800",
              "MOBVOI TM", "DK202000725", "CTM780102C6BB32D62", "MX-TM ", "MATRIXTF50", "MOBVOI TM",
-             "KETTLER TREADMILL", "ASSAULTRUNNER"}, DeviceNameComparison::StartsWithIgnoreCase);
+             "KETTLER TREADMILL", "ASSAULTRUNNER", "TM55-", "YPTM-", "YPOO-MINI PRO-"}, DeviceNameComparison::StartsWithIgnoreCase);
 
+
+    // Adidas treadmills explicitly configured for FTMS must use Horizon, not AppGate USB.
+    RegisterNewDeviceTestData(DeviceIndex::HorizonTreadmill_AdidasFTMS)
+        ->expectDevice<horizontreadmill>()
+        ->acceptDeviceName("ADIDAS 0584", DeviceNameComparison::IgnoreCase)
+        ->configureSettingsWith([](DeviceDiscoveryInfo &info, bool enable) {
+            info.setValue(QZSettings::ftms_treadmill,
+                          enable ? info.DeviceName() : QZSettings::default_ftms_treadmill);
+            info.includeBluetoothService(QBluetoothUuid((quint16)0x1826), true);
+        })
+        ->excluding<trxappgateusbtreadmill>();
 
     // Horizon Treadmill (Toorx)
     RegisterNewDeviceTestData(DeviceIndex::HorizonTreadmill_Toorx)
@@ -796,6 +842,39 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<keepbike>()
         ->acceptDeviceName("KEEP_BIKE_", DeviceNameComparison::StartsWithIgnoreCase);
 
+    // The two Classic Bluetooth Kettler devices share framing, not driver or metrics.
+    RegisterNewDeviceTestData(DeviceIndex::KettlerClassicBike)
+        ->expectDevice<kettlerclassicbike>()
+        ->acceptDeviceName("RACER S", DeviceNameComparison::StartsWithIgnoreCase)
+        ->rejectDeviceName("COACH S 42FC38", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("RACER", DeviceNameComparison::IgnoreCase)
+        ->configureSettingsWith(QZSettings::bh_spada_2);
+
+    RegisterNewDeviceTestData(DeviceIndex::KettlerCoachRower)
+        ->expectDevice<kettlercoachrower>()
+        ->acceptDeviceName("COACH S 42FC38", DeviceNameComparison::IgnoreCase)
+        ->acceptDeviceName("coach s 42fc38", DeviceNameComparison::IgnoreCase)
+        ->acceptDeviceName("COACH S", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("XCOACH S 42FC38", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("COACH SX", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("RACER S", DeviceNameComparison::IgnoreCase)
+        ->configureSettingsWith(QZSettings::bh_spada_2);
+
+    // A DYNAMAX is an FTMS bike only when this specific device is selected as the FTMS bike.
+    RegisterNewDeviceTestData(DeviceIndex::DynamaxSprintFTMSBike)
+        ->expectDevice<ftmsbike>()
+        ->acceptDeviceName("DYNAMAX", DeviceNameComparison::StartsWithIgnoreCase)
+        ->configureSettingsWith([](DeviceDiscoveryInfo &info, bool enable) {
+            info.setValue(QZSettings::ftms_bike, enable ? info.DeviceName() : QStringLiteral("OTHER BIKE"));
+        });
+
+    // Selecting an unrelated FTMS bike must not stop a DYNAMAX treadmill from being detected.
+    RegisterNewDeviceTestData(DeviceIndex::DynamaxTreadmillOtherFTMSBike)
+        ->expectDevice<kingsmithr1protreadmill>()
+        ->acceptDeviceName("DYNAMAX", DeviceNameComparison::StartsWithIgnoreCase)
+        ->configureSettingsWith([](DeviceDiscoveryInfo &info, bool enable) {
+            info.setValue(QZSettings::ftms_bike, enable ? QStringLiteral("OTHER BIKE") : info.DeviceName());
+        });
 
     // Kingsmith R1 Pro Treadmill
     RegisterNewDeviceTestData(DeviceIndex::KingsmithR1ProTreadmill)
@@ -919,7 +998,9 @@ void DeviceTestDataIndex::Initialize() {
     // Nautilus Treadmill
     RegisterNewDeviceTestData(DeviceIndex::NautilusTreadmill)
         ->expectDevice<nautilustreadmill>()
-        ->acceptDeviceName("NAUTILUS T", DeviceNameComparison::StartsWithIgnoreCase);
+        ->acceptDeviceName("NAUTILUS T", DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName("SCHWINN T", DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName("SCHWINN 570T", DeviceNameComparison::StartsWithIgnoreCase);
 
 
     // Norditrack Elliptical
@@ -1162,7 +1243,7 @@ void DeviceTestDataIndex::Initialize() {
     // Sole Elliptical
     RegisterNewDeviceTestData(DeviceIndex::SoleElliptical)
         ->expectDevice<soleelliptical>()        
-        ->acceptDeviceNames({"E95S","E25","E55","E95","E98","XG400","E98S"}, DeviceNameComparison::StartsWithIgnoreCase);
+        ->acceptDeviceNames({"XE88","E95S","E25","E55","E95","E98","XG400","E98S"}, DeviceNameComparison::StartsWithIgnoreCase);
 
     // Sole Elliptical 2
     RegisterNewDeviceTestData(DeviceIndex::SoleElliptical2)
@@ -1195,7 +1276,8 @@ void DeviceTestDataIndex::Initialize() {
     // Sports Plus Bike
     RegisterNewDeviceTestData(DeviceIndex::SportsPlusBike)
         ->expectDevice<sportsplusbike>()        
-        ->acceptDeviceName("CARDIOFIT", DeviceNameComparison::StartsWithIgnoreCase);
+        ->acceptDeviceName("CARDIOFIT", DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName("CARE113770737", DeviceNameComparison::IgnoreCase);
 
     // Sports Plus Rower
     RegisterNewDeviceTestData(DeviceIndex::SportsPlusRower)
@@ -1214,7 +1296,7 @@ void DeviceTestDataIndex::Initialize() {
     // Stages Bike
     RegisterNewDeviceTestData(DeviceIndex::StagesBike)
         ->expectDevice<stagesbike>()        
-        ->acceptDeviceNames({"STAGES ", "TACX SATORI", "ELITETRAINER", "MISURO B+"}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceNames({"STAGES ", "TACX SATORI", "RACER S", "ELITETRAINER", "MISURO B+"}, DeviceNameComparison::StartsWithIgnoreCase)
         ->acceptDeviceNames({"QD","DFC", "KU"}, DeviceNameComparison::IgnoreCase)
         ->excluding(stagesBikeExclusions);
 
@@ -1358,10 +1440,16 @@ void DeviceTestDataIndex::Initialize() {
     // Toorx AppGate USB Bike General
     auto toorxAppGateUSBBikeExclusions ={ GetTypeId<trxappgateusbtreadmill>() };
 
+    // Body Sculpture BC7330G uses the proprietary iConsole+ protocol independently of Toorx settings.
+    RegisterNewDeviceTestData(DeviceIndex::BodySculpture203)
+        ->expectDevice<trxappgateusbbike>()
+        ->acceptDeviceName("BODYSCULPTURE", DeviceNameComparison::StartsWithIgnoreCase);
+
     // Toorx AppGate USB Bike
     RegisterNewDeviceTestData(DeviceIndex::ToorxAppGateUSBBike)
         ->expectDevice<trxappgateusbbike>()        
         ->acceptDeviceNames({"TUN ","PASYOU-","IBIKING+",}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceNames({"CARE11216+0505", "CARE11216+X"}, DeviceNameComparison::IgnoreCase)
         ->configureSettingsWith(
             [](const DeviceDiscoveryInfo &info, bool enable, std::vector<DeviceDiscoveryInfo> &configurations) -> void
             {

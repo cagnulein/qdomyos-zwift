@@ -35,6 +35,8 @@ class soleelliptical : public elliptical {
                    int8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~soleelliptical();
     bool connected() override;
+    resistance_t maxResistance() override;
+    bool inclinationAvailableByHardware() override;
     double minStepInclination() override { return 1; }
 
   private:
@@ -63,6 +65,7 @@ class soleelliptical : public elliptical {
     bool noWriteResistance = false;
     bool noHeartService = false;
     bool testResistance = false;
+    bool m_isXterraXe88 = false;
     int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     bool searchStopped = false;

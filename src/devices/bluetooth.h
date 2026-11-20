@@ -37,6 +37,7 @@
 #ifndef Q_OS_IOS
 #include "devices/computrainerbike/computrainerbike.h"
 #include "devices/kettlerusbbike/kettlerusbbike.h"
+#include "devices/daumbike/daumbike.h"
 #include "devices/freebeatbike/freebeatbike.h"
 #include "devices/csaferower/csaferower.h"
 #include "devices/csafeelliptical/csafeelliptical.h"
@@ -75,6 +76,7 @@
 #include "devices/heartratebelt/heartratebelt.h"
 #include "devices/horizongr7bike/horizongr7bike.h"
 #include "devices/horizontreadmill/horizontreadmill.h"
+#include "devices/ypootreadmill/ypootreadmill.h"
 #include "devices/iconceptbike/iconceptbike.h"
 #include "devices/iconceptelliptical/iconceptelliptical.h"
 #include "devices/inspirebike/inspirebike.h"
@@ -149,6 +151,8 @@
 #include "templateinfosenderbuilder.h"
 #include "technogymbike/technogymbike.h"
 #include "devices/toorxtreadmill/toorxtreadmill.h"
+#include "devices/kettlerclassicbike/kettlerclassicbike.h"
+#include "devices/kettlercoachrower/kettlercoachrower.h"
 #include "devices/iconsolebike/iconsolebike.h"
 #include "devices/treadmill.h"
 #include "devices/truetreadmill/truetreadmill.h"
@@ -160,6 +164,9 @@
 #include "devices/ultrasportbike/ultrasportbike.h"
 #include "devices/wahookickrheadwind/wahookickrheadwind.h"
 #include "devices/wahookickrsnapbike/wahookickrsnapbike.h"
+#include "devices/dircon/wahoodirconbike.h"
+#include "devices/dircon/wahoodircontreadmill.h"
+#include "devices/dircon/dircondiscovery.h"
 #include "devices/wahookickruntreadmill/wahookickruntreadmill.h"
 #include "devices/xcxbike/xcxbike.h"
 #include "devices/yesoulbike/yesoulbike.h"
@@ -189,13 +196,60 @@ class bluetooth : public QObject, public SignalHandler {
     bluetoothdevice *externalInclination() { return eliteRizer; }
     bluetoothdevice *heartRateDevice() { return heartRateBelt; }
     QList<QBluetoothDeviceInfo> devices;
+    QList<DirconDeviceInfo> dirconDevices() const;
     bool onlyDiscover = false;
     volatile bool homeformLoaded = false;
+    // Notifies the Bluetooth manager when UI slots have been installed.
+    // Defers only bonded Coach S direct SPP; fake devices retain normal startup.
+    void onHomeformReady();
+
+    // Search for the equipment, for the status line on the home page
+    bool isSearching() const;
+    qint64 nextSearchMs() const { return nextRescanMs; }
+    bool searchStopped() const { return rescanStopped; }
+    /**
+     * @brief searchNow Starts a search right away and resets the pause between the automatic ones.
+     * Android 7.0 and later ignore the 6th scan start in 30 s: then the search is scheduled for when it is allowed.
+     * @return 0 if the search started or there is nothing to do (a device is connected, discovery is off or
+     * already running), otherwise the seconds until the scheduled search.
+     */
+    int searchNow();
+    /**
+     * @brief searchForDeviceList Searches for the devices of an opened list of devices. With a device connected the
+     * search only fills the list and connects nothing, and it is skipped near the Android limit; without one it is
+     * searchNow(). Does nothing if a search is running or discovery is off.
+     */
+    void searchForDeviceList();
+
+    // True when the advertised services include one of a fitness machine (FTMS, Cycling Power, Cycling Speed and
+    // Cadence, the Concept2 PM5 or Echelon service), as QZ's own virtual devices and most machines advertise next
+    // to Heart Rate: such a device is not offered as a heart rate sensor (heartRateSensorScan()).
+    static bool advertisesFitnessMachine(const QList<QBluetoothUuid> &services);
+    // Whether a heart rate sensor found nearby goes on the bar (homeform::heartRateSensorFound()): none chosen
+    // (sensorChosen false), no heart rate, not hidden with Not now, and found by the search a tap on the heart rate
+    // tile or the Bluetooth icon started (onTap) or by the background one with it on (backgroundSearch:
+    // heart_rate_belt_suggest, off by default)
+    static bool heartRateSensorOffered(bool onTap, bool backgroundSearch, bool sensorChosen, bool heartRateComes,
+                                       bool dismissed) {
+        return !sensorChosen && !heartRateComes && !dismissed && (onTap || backgroundSearch);
+    }
 
   private:
     bool useDiscovery = false;
+#ifdef Q_OS_ANDROID
+    // Only the already-bonded Coach S direct SPP path is deferred.
+    // Do not delay normal Bluetooth discovery, fake equipment, or DirCon.
+    bool coachSDirectPendingHomeform = false;
+    // Try the selected, previously bonded Coach S directly once before
+    // falling back to the existing Bluetooth discovery/reconnect loop.
+    bool coachSDirectAttempted = false;
+    bool coachSDirectInProgress = false;
+#endif
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
+    QBluetoothDeviceDiscoveryAgent *hrmDiscoveryAgent = nullptr;
+    QString hrmDiscoveryName;    // the heart rate sensor hrmDiscoveryAgent looks for
+    QString hrmDiscoveryAddress; // and its address, when one sensor of that name is meant (empty: any)
     antbike *antBike = nullptr;
     android_antbike *android_antBike = nullptr;
     apexbike *apexBike = nullptr;
@@ -212,6 +266,7 @@ class bluetooth : public QObject, public SignalHandler {
 #ifndef Q_OS_IOS
     computrainerbike *computrainerBike = nullptr;
     kettlerusbbike *kettlerUsbBike = nullptr;
+    daumbike *daumBike = nullptr;
     freebeatbike *freebeatBike = nullptr;
     csaferower *csafeRower = nullptr;
     csafeelliptical *csafeElliptical = nullptr;
@@ -226,6 +281,8 @@ class bluetooth : public QObject, public SignalHandler {
     toorxtreadmill *toorx = nullptr;
     iconsolebike *iconsole = nullptr;
     iconceptbike *iConceptBike = nullptr;
+    kettlerclassicbike *kettlerClassicBike = nullptr;
+    kettlercoachrower *kettlerCoachRower = nullptr;
     iconceptelliptical *iConceptElliptical = nullptr;
     trxappgateusbtreadmill *trxappgateusb = nullptr;
     spirittreadmill *spiritTreadmill = nullptr;
@@ -258,6 +315,7 @@ class bluetooth : public QObject, public SignalHandler {
     proformellipticaltrainer *proformEllipticalTrainer = nullptr;
     proformtreadmill *proformTreadmill = nullptr;
     horizontreadmill *horizonTreadmill = nullptr;
+    ypootreadmill *ypooTreadmill = nullptr;
     technogymmyruntreadmill *technogymmyrunTreadmill = nullptr;
 #ifndef Q_OS_IOS
     technogymmyruntreadmillrfcomm *technogymmyrunrfcommTreadmill = nullptr;
@@ -319,6 +377,9 @@ class bluetooth : public QObject, public SignalHandler {
     stagesbike *powerBike = nullptr;
     ultrasportbike *ultraSportBike = nullptr;
     wahookickrsnapbike *wahooKickrSnapBike = nullptr;
+    wahoodirconbike *wahooDirconBike = nullptr;
+    wahoodircontreadmill *wahooDirconTreadmill = nullptr;
+    DirconDiscovery *dirconDiscovery = nullptr;
     wahookickruntreadmill *wahooKickRunTreadmill = nullptr;
     xcxbike *xcxBike = nullptr;
     ypooelliptical *ypooElliptical = nullptr;
@@ -357,6 +418,9 @@ class bluetooth : public QObject, public SignalHandler {
      * @brief Start the Bluetooth discovery agent.
      */
     void startDiscovery();
+#ifdef Q_OS_ANDROID
+    bool tryConnectBondedCoachS();
+#endif
 
     /**
      * @brief Stop the Bluetooth discovery agent.
@@ -378,14 +442,46 @@ class bluetooth : public QObject, public SignalHandler {
     bool sramDeviceAvaiable();
     bool cycplusBC2DeviceAvaiable();
     bool thinkriderDeviceAvaiable();
+    bool tryConnectSelectedDirconDevice();
+    void connectDirconDevice(const DirconDeviceInfo &deviceInfo);
     bool fitmetria_fanfit_isconnected(const QBluetoothDeviceInfo &device);
     bool gymModeEnabled() const;
     void handleControllerGearChange(bool increase, bool allowMyWhooshOverride);
+    void connectHeartRateBelt(const QBluetoothDeviceInfo &b);
+    void stopHeartRateBeltDiscovery();
+    void startHeartRateBeltScan(QBluetoothDeviceDiscoveryAgent *agent);
+    void heartRateSensorScan();
+    void heartRateSensorSearch();
+    void startHeartRateSensorScan(const QString &heartRateBeltName, bool onTap);
+    // the Bluetooth address; Apple platforms give none, the device UUID instead
+    static QString deviceAddress(const QBluetoothDeviceInfo &b);
+
+    // heartRateSensorScan() runs during the first 5 minutes after the fitness machine first connects, with
+    // heart_rate_belt_suggest on
+    QTimer heartRateSensorScanTimer;
+    qint64 heartRateSensorScanStartedMs = 0;
+    // weaker sensors are someone else's (another bike in the gym), not the user's own
+    static constexpr int heartRateSensorSuggestMinRssi = -80;
+    // hrmDiscoveryAgent is the scan a tap on the heart rate tile or the Bluetooth icon started
+    // (heartRateSensorSearch()), and how many sensors it offered
+    bool hrmDiscoveryOnTap = false;
+    int hrmDiscoveryOffered = 0;
 
     QTimer discoveryTimeout;
     bool discoveryFinishedHandled = false;
     int rescanCount = 0;
     qint64 rescanStartedMs = 0;
+    // Android: while Bluetooth is off, asks the adapter every 2 s whether it is on again
+    QTimer bluetoothOffPoll;
+    QTimer rescanTimer;
+    qint64 nextRescanMs = 0;
+    bool rescanStopped = false;
+    // Android 7.0 and later ignore the scan starts after the 5th one in this window
+    static constexpr qint64 scanStartWindowMs = 30000;
+    QList<qint64> scanStartsMs;
+    void pruneScanStarts(qint64 now);
+    // The search of searchForDeviceList() with a device connected: what it finds is not connected
+    bool deviceListScan = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = nullptr;
@@ -402,6 +498,10 @@ class bluetooth : public QObject, public SignalHandler {
     void deviceFound(QString name);
     void manualDeviceNotFound(QString name);
     void searchingStop();
+    // A heart rate sensor nearby while none is chosen and no heart rate comes (heartRateSensorScan()).
+    // address: the Bluetooth address, the device UUID on iOS; onTap: found by the search a tap started
+    // (heartRateSensorSearch()), not by the background one
+    void heartRateSensorFound(const QString &name, const QString &address, int rssi, bool onTap);
     void ftmsAccessoryConnected(smartspin2k *d);
 
     void bluetoothDeviceConnected(bluetoothdevice *b);
@@ -437,11 +537,17 @@ class bluetooth : public QObject, public SignalHandler {
     void zwiftRideRightOnOff(bool pressed);
   public slots:
     void restart();
+    // Connects the heart rate sensor without a restart. name: the one chosen (OK in Heart Rate Options, Connect on the
+    // offer bar); empty – a tap on the heart rate tile or the Bluetooth icon: the saved one, or with none chosen a
+    // search for one to offer.
+    // address: of the sensor shown on the bar, so another one with the same name is not connected; empty – any.
+    void reconnectHeartRateBelt(const QString &name = QString(), const QString &address = QString());
     void selectGymModeDevice(const QString &deviceName);
     void debug(const QString &string);
     void heartRate(uint8_t heart);
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
   private slots:
+    void onDirconDeviceDiscovered(const QString &displayName);
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
     void deviceUpdated(const QBluetoothDeviceInfo &device, QBluetoothDeviceInfo::Fields updateFields);
 #endif

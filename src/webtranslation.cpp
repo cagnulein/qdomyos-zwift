@@ -62,6 +62,12 @@ const WebTranslationEntry entries[] = {
     {"workoutEditor.cadence", QT_TRANSLATE_NOOP("WebTranslations", "Cadence")},
     {"workoutEditor.power", QT_TRANSLATE_NOOP("WebTranslations", "Power")},
     {"workoutEditor.forceSpeed", QT_TRANSLATE_NOOP("WebTranslations", "Force Speed")},
+    //: Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.
+    {"workoutEditor.pidHrMode", QT_TRANSLATE_NOOP("WebTranslations", "HR PID actuator")},
+    //: Workout editor, "HR PID actuator" option: use the global "PID HR actuator" setting.
+    {"workoutEditor.pidHrModeDefault", QT_TRANSLATE_NOOP("WebTranslations", "Default")},
+    {"workoutEditor.pidHrModeSpeed", QT_TRANSLATE_NOOP("WebTranslations", "Speed")},
+    {"workoutEditor.pidHrModeInclination", QT_TRANSLATE_NOOP("WebTranslations", "Inclination")},
     {"workoutEditor.fan", QT_TRANSLATE_NOOP("WebTranslations", "Fan")},
     {"workoutEditor.pelotonResistance", QT_TRANSLATE_NOOP("WebTranslations", "Peloton Res.")},
     //: Workout editor field: interval in seconds between heart-rate based adjustments of the machine (1-60 s). Avoid technical words like "loop".
@@ -71,6 +77,7 @@ const WebTranslationEntry entries[] = {
     {"workoutEditor.hrMax", QT_TRANSLATE_NOOP("WebTranslations", "HR Max")},
     {"workoutEditor.minSpeed", QT_TRANSLATE_NOOP("WebTranslations", "Min Speed")},
     {"workoutEditor.maxSpeed", QT_TRANSLATE_NOOP("WebTranslations", "Max Speed")},
+    {"workoutEditor.maxInclination", QT_TRANSLATE_NOOP("WebTranslations", "Max Incline")},
     {"workoutEditor.maxResistance", QT_TRANSLATE_NOOP("WebTranslations", "Max Resistance")},
     {"workoutEditor.ramp", QT_TRANSLATE_NOOP("WebTranslations", "Ramp")},
     {"workoutEditor.powerRampUnit", QT_TRANSLATE_NOOP("WebTranslations", "Ramp Unit")},
@@ -144,6 +151,8 @@ const WebTranslationEntry entries[] = {
     {"chart.value", QT_TRANSLATE_NOOP("WebTranslations", "Value")},
     {"chart.cadenceRpmUpper", QT_TRANSLATE_NOOP("WebTranslations", "Cadence (RPM)")},
     {"chart.inclinationPercent", QT_TRANSLATE_NOOP("WebTranslations", "Inclination (%)")},
+    //: Workout charts: before the chips that put the selected metrics together on one chart.
+    {"chart.onOneChart", QT_TRANSLATE_NOOP("WebTranslations", "On one chart:")},
     //: Chart summary: average power during the workout, in watts.
     {"chart.avgOutput", QT_TRANSLATE_NOOP("WebTranslations", "Avg Output")},
     //: Chart summary: maximum power during the workout, in watts.
@@ -180,6 +189,19 @@ const WebTranslationEntry entries[] = {
     {"chart.heartZoneShort", QT_TRANSLATE_NOOP("WebTranslations", "heart z{number}")},
     {"chart.hrAboveBpm", QT_TRANSLATE_NOOP("WebTranslations", "HR >{value} bpm")},
     {"chart.hrBelowBpm", QT_TRANSLATE_NOOP("WebTranslations", "HR <{value} bpm")},
+    {"unit.w", QT_TRANSLATE_NOOP("WebTranslations", "W")},
+    {"unit.kj", QT_TRANSLATE_NOOP("WebTranslations", "kJ")},
+    {"unit.kcal", QT_TRANSLATE_NOOP("WebTranslations", "kcal")},
+    {"unit.km", QT_TRANSLATE_NOOP("WebTranslations", "km")},
+    {"unit.mi", QT_TRANSLATE_NOOP("WebTranslations", "mi")},
+    {"unit.rpm", QT_TRANSLATE_NOOP("WebTranslations", "rpm")},
+    {"unit.bpm", QT_TRANSLATE_NOOP("WebTranslations", "bpm")},
+    {"unit.kmh", QT_TRANSLATE_NOOP("WebTranslations", "km/h")},
+    {"unit.mph", QT_TRANSLATE_NOOP("WebTranslations", "mph")},
+    {"unit.minPerKm", QT_TRANSLATE_NOOP("WebTranslations", "min/km")},
+    {"unit.minPerMi", QT_TRANSLATE_NOOP("WebTranslations", "min/mi")},
+    {"unit.level", QT_TRANSLATE_NOOP("WebTranslations", "lvl")},
+    {"unit.spm", QT_TRANSLATE_NOOP("WebTranslations", "spm")},
     {"chart.paceMarathon", QT_TRANSLATE_NOOP("WebTranslations", "Marathon")},
     {"chart.paceHalfMarathon", QT_TRANSLATE_NOOP("WebTranslations", "Half Marathon")},
     {"chart.pace10k", QT_TRANSLATE_NOOP("WebTranslations", "10K")},
@@ -237,6 +259,14 @@ const WebTranslationEntry entries[] = {
     {"metric.resistanceTitle", QT_TRANSLATE_NOOP("WebTranslations", "Resistance")},
     {"metric.altitude", QT_TRANSLATE_NOOP("WebTranslations", "Altitude")},
     {"metric.elevationTitle", QT_TRANSLATE_NOOP("WebTranslations", "Elevation")},
+    {"workoutEditor.enterNumber", QT_TRANSLATE_NOOP("WebTranslations", "Enter a number")},
+    {"workoutEditor.allowedRange", QT_TRANSLATE_NOOP("WebTranslations", "Allowed range: {min} to {max}")},
+    {"workoutEditor.minimum", QT_TRANSLATE_NOOP("WebTranslations", "Minimum: {min}")},
+    {"workoutEditor.maximum", QT_TRANSLATE_NOOP("WebTranslations", "Maximum: {max}")},
+    {"workoutEditor.durationFormat", QT_TRANSLATE_NOOP("WebTranslations", "Enter the duration as hh:mm:ss")},
+    {"workoutEditor.durationZero", QT_TRANSLATE_NOOP("WebTranslations", "The duration must be longer than 0")},
+    {"workoutEditor.paceFormat", QT_TRANSLATE_NOOP("WebTranslations", "Enter the pace as mm:ss, at least 1:00")},
+    {"workoutEditor.fixField", QT_TRANSLATE_NOOP("WebTranslations", "Interval {number}, {field}: {error}")},
 };
 } // namespace
 
