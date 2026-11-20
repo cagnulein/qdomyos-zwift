@@ -5029,6 +5029,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: gearsMaxTextField
+                            Accessible.name: qsTr("Gears Max:") + " " + text
                             minimum: 0
                             savedText: settings.gears_max
                             horizontalAlignment: Text.AlignRight
@@ -5066,6 +5067,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: gearsMinTextField
+                            Accessible.name: qsTr("Gears Min:") + " " + text
                             signed: true
                             maximum: settings.gears_max
                             savedText: settings.gears_min
