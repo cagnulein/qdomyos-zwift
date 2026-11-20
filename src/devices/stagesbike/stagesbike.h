@@ -81,6 +81,7 @@ class stagesbike : public bike {
     bool noVirtualDevice = false;
     bool DR = false;
 
+    bool tour600CscInitialized = false;
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;
 
