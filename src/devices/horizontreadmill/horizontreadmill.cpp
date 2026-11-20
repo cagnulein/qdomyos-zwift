@@ -87,6 +87,28 @@ void horizontreadmill::waitForAPacket() {
     loop.exec();
 }
 
+// The Horizon custom protocol uses a 10-byte frame header. The profile upload
+// progresses from 0x01/0x16, to 0x01/0x1a, then to control replies 0x03/0x00.
+// In particular, a repeated user5 profile must not complete the final stage.
+bool horizontreadmill::isExpectedInitPacket(const QByteArray &packet, uint8_t stage) {
+    if (packet.size() < 12 || static_cast<uint8_t>(packet.at(0)) != 0x55 ||
+        static_cast<uint8_t>(packet.at(1)) != 0xaa)
+        return false;
+
+    const uint8_t category = static_cast<uint8_t>(packet.at(4));
+    const uint8_t command = static_cast<uint8_t>(packet.at(5));
+    if (stage >= 1 && stage <= 5)
+        return category == 0x01 && command == 0x16 &&
+               static_cast<uint8_t>(packet.at(10)) == stage;
+    if (stage == 6 || stage == 7)
+        return category == 0x01 && command == 0x1a;
+    if (stage == 8)
+        return category == 0x03 && command == 0x00 &&
+               static_cast<uint8_t>(packet.at(10)) == 0x10 &&
+               static_cast<uint8_t>(packet.at(11)) == 0x00;
+    return false;
+}
+
 void horizontreadmill::btinit() {
     QSettings settings;
     QStringList horizon_treadmill_profile_users;
@@ -191,6 +213,34 @@ void horizontreadmill::btinit() {
 
     updateProfileCRC();
 
+    // The opt-in Horizon 7.8 start workaround uses the proprietary 7.4/7.8 AT
+    // handshake captured in Eric's iOS logs. Other Horizon/FTMS profiles keep
+    // their existing acknowledgement handling until validated on hardware.
+    validateHorizonInitResponse = gattCustomService &&
+        (settings.value(QZSettings::horizon_treadmill_7_8,
+                        QZSettings::default_horizon_treadmill_7_8).toBool() || horizon_treadmill_omega_z);
+    expectedHorizonInitStage = 0;
+    int initRetries[9] = {};
+    auto retryInitStage = [this, &initRetries](int stage) {
+        waitForAPacket();
+        // A delayed matching reply can arrive while waiting; do not resend.
+        if (initPacketRecv)
+            return false;
+        // Only the opt-in strict profile path changes retry behaviour.
+        // Preserve the original unlimited retry on other Horizon variants.
+        if (!validateHorizonInitResponse)
+            return true;
+        if (++initRetries[stage] < 3)
+            return true;
+        qWarning() << "Horizon initialization failed at stage" << stage
+                   << "after 3 attempts (expected reply missing)";
+        expectedHorizonInitStage = 0;
+        if (homeform::singleton())
+            homeform::singleton()->setToastRequested(
+                QObject::tr("Horizon initialization failed: no response from treadmill. Reconnect and try again."));
+        return false;
+    };
+
     if (gattCustomService) {
 
         if (horizon_paragon_x) {
@@ -215,6 +265,7 @@ void horizontreadmill::btinit() {
             }
 
         init1:
+            expectedHorizonInitStage = 1;
             initPacketRecv = false;
 
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7, sizeof(initData7),
@@ -299,8 +350,10 @@ void horizontreadmill::btinit() {
                     homeform::singleton()->setToastRequested(QObject::tr("Enable the 'Force Using FTMS' setting under the Settings->Treadmill Options->Horizon Treadmill options and restart the app"));
                 }
                 qDebug() << "init 1 not received";
-                waitForAPacket();
-                goto init1;
+                if (retryInitStage(1))
+                    goto init1;
+                if (!initPacketRecv)
+                    return;
             }
 
             if(homeform::singleton()) {
@@ -308,6 +361,7 @@ void horizontreadmill::btinit() {
             }        
 
         init2:
+            expectedHorizonInitStage = 2;
             initPacketRecv = false;
 
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_1, sizeof(initData7_1),
@@ -389,8 +443,10 @@ void horizontreadmill::btinit() {
 
             if (!initPacketRecv) {
                 qDebug() << "init 2 not received";
-                waitForAPacket();
-                goto init2;
+                if (retryInitStage(2))
+                    goto init2;
+                if (!initPacketRecv)
+                    return;
             }
 
             if(homeform::singleton()) {
@@ -398,6 +454,7 @@ void horizontreadmill::btinit() {
             }            
 
         init3:
+            expectedHorizonInitStage = 3;
             initPacketRecv = false;
 
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_2, sizeof(initData7_2),
@@ -479,8 +536,10 @@ void horizontreadmill::btinit() {
 
             if (!initPacketRecv) {
                 qDebug() << "init 3 not received";
-                waitForAPacket();
-                goto init3;
+                if (retryInitStage(3))
+                    goto init3;
+                if (!initPacketRecv)
+                    return;
             }
 
             if(homeform::singleton()) {
@@ -488,6 +547,7 @@ void horizontreadmill::btinit() {
             }
 
         init4:
+            expectedHorizonInitStage = 4;
             initPacketRecv = false;
 
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_3, sizeof(initData7_3),
@@ -569,8 +629,10 @@ void horizontreadmill::btinit() {
 
             if (!initPacketRecv) {
                 qDebug() << "init 4 not received";
-                waitForAPacket();
-                goto init4;
+                if (retryInitStage(4))
+                    goto init4;
+                if (!initPacketRecv)
+                    return;
             }
 
             if(homeform::singleton()) {
@@ -578,6 +640,7 @@ void horizontreadmill::btinit() {
             }            
 
         init5:
+            expectedHorizonInitStage = 5;
             initPacketRecv = false;
 
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_4, sizeof(initData7_4),
@@ -659,8 +722,10 @@ void horizontreadmill::btinit() {
 
             if (!initPacketRecv) {
                 qDebug() << "init 5 not received";
-                waitForAPacket();
-                goto init5;
+                if (retryInitStage(5))
+                    goto init5;
+                if (!initPacketRecv)
+                    return;
             }
 
             if(homeform::singleton()) {
@@ -668,6 +733,7 @@ void horizontreadmill::btinit() {
             }
 
         init6:
+            expectedHorizonInitStage = 6;
             initPacketRecv = false;
 
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_5, sizeof(initData7_5),
@@ -749,8 +815,10 @@ void horizontreadmill::btinit() {
 
             if (!initPacketRecv) {
                 qDebug() << "init 6 not received";
-                waitForAPacket();
-                goto init6;
+                if (retryInitStage(6))
+                    goto init6;
+                if (!initPacketRecv)
+                    return;
             }
 
             if(homeform::singleton()) {
@@ -758,6 +826,7 @@ void horizontreadmill::btinit() {
             }            
 
         init7:
+            expectedHorizonInitStage = 7;
             initPacketRecv = false;
 
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_6, sizeof(initData7_6),
@@ -839,8 +908,10 @@ void horizontreadmill::btinit() {
 
             if (!initPacketRecv) {
                 qDebug() << "init 7 not received";
-                waitForAPacket();
-                goto init7;
+                if (retryInitStage(7))
+                    goto init7;
+                if (!initPacketRecv)
+                    return;
             }
 
             if(homeform::singleton()) {
@@ -848,6 +919,7 @@ void horizontreadmill::btinit() {
             }
 
         init8:
+            expectedHorizonInitStage = 8;
             initPacketRecv = false;
 
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData02, sizeof(initData02),
@@ -869,14 +941,17 @@ void horizontreadmill::btinit() {
 
             if (!initPacketRecv) {
                 qDebug() << "init 8 not received";
-                waitForAPacket();
-                goto init8;
+                if (retryInitStage(8))
+                    goto init8;
+                if (!initPacketRecv)
+                    return;
             }
 
             if(homeform::singleton()) {
                 homeform::singleton()->setToastRequested(QObject::tr("Treadmill initialization completed!"));
             }            
         }
+        expectedHorizonInitStage = 0;
         messageID = 0x10;
     }
 
@@ -931,7 +1006,8 @@ void horizontreadmill::update() {
     if (initRequest && firstStateChanged) {
         btinit();
         initRequest = false;
-    } else if (bluetoothDevice.isValid() //&&
+    } else if (bluetoothDevice.isValid() &&
+               (!validateHorizonInitResponse || initDone) //&&
 
                // m_control->state() == QLowEnergyController::DiscoveredState //&&
                // gattCommunicationChannelService &&
@@ -1649,8 +1725,17 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         if (customRecv <= 0) {
             emit debug(QStringLiteral(" << FULL ") + " " + lastPacketComplete.toHex(' '));
             qDebug() << "full custom packet received";
-            initPacketRecv = true;
+            if (!validateHorizonInitResponse || expectedHorizonInitStage == 0 ||
+                isExpectedInitPacket(lastPacketComplete, expectedHorizonInitStage)) {
+                initPacketRecv = true;
+            } else {
+                qDebug() << "Ignoring stale/irrelevant Horizon init reply at stage"
+                         << expectedHorizonInitStage
+                         << lastPacketComplete.left(12).toHex(' ');
+            }
             customRecv = 0;
+            // Always wake existing BLE write waiters; stage progression is
+            // decided separately by the validated initPacketRecv flag.
             emit packetReceived();
         }
     }
