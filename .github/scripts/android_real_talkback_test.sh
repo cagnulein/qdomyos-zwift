@@ -153,7 +153,7 @@ adb push a11y-test.jar /data/local/tmp/a11y-test.jar >/dev/null
 # TalkBack issues after navigation, then activate by injecting a physical
 # double-tap (not ACTION_CLICK), which lets the running service handle it.
 adb logcat -c
-focus_node "Main menu"
+focus_node Main_menu
 double_tap
 focus_node Settings
 double_tap
@@ -166,7 +166,7 @@ note "$result"
 echo "$result" | grep -F TALKBACK_NODE >/dev/null ||
     fail "Experimental Features not accessible on settings page"
 
-focus_node "General Options"
+focus_node General_Options
 double_tap
 result=$(peek --peek-node App_Language)
 note "$result"
