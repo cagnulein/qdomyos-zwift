@@ -680,7 +680,7 @@ public class AccessibilityTest {
             System.out.println("FAIL tap not injected on " + describe(node));
             return false;
         }
-        System.out.println("INFO tapped " + describe(node) + " at " + bounds.centerX() + "," + bounds.centerY());
+        System.out.println("INFO tapped " + describe(node) + " at " + x + "," + y);
         return true;
     }
 
