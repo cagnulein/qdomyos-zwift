@@ -269,8 +269,8 @@ ColumnLayout {
     Label {
         visible: !rootElement.modernCard && rootElement.description.length > 0
         text: rootElement.description
-        font.bold: true
-        font.italic: true
+        font.bold: !window.ui.modern
+        font.italic: !window.ui.modern
         font.pixelSize: window.fontHint
         bottomPadding: window.hintGap
         textFormat: Text.PlainText
@@ -278,7 +278,7 @@ ColumnLayout {
         verticalAlignment: Text.AlignVCenter
         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
         Layout.fillWidth: true
-        color: Material.color(Material.Lime)
+        color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
     }
 
     // A tile card: its frame around the whole element. Laid out as the last row, 12 high - the room
