@@ -2673,6 +2673,8 @@ import AndroidStatusBar 1.0
                     text: qsTr("Changed")
                     checkable: true
                     checked: settingsPane.changedOnly
+                    // Modern look: UiButton draws no check bar, the accent pill shows the filter is on
+                    highlighted: window.ui.modern && settingsPane.changedOnly
                     onClicked: settingsPane.setChangedOnly(checked)
                 }
 
