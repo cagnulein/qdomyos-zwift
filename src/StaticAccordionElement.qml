@@ -64,6 +64,13 @@ ColumnLayout {
         height: window.textScale !== 1 ? Math.max(48, accordionText.y + accordionText.height + 13) : 48
         Layout.preferredHeight: height
 
+        // Static sections must be reachable and operable like AccordionElement sections.
+        // Without this, TalkBack cannot focus or expand Experimental Features.
+        Accessible.role: Accessible.Button
+        Accessible.name: rootElement.title
+        Accessible.description: rootElement.isOpen ? qsTr("Expanded") : qsTr("Collapsed")
+        Accessible.onPressAction: rootElement.isOpen = !rootElement.isOpen
+
         Rectangle{
            id:indicatRect
            // Centred on the first line of the title: a fixed y sat below it with a smaller or bigger font

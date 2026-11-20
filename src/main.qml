@@ -2041,6 +2041,7 @@ ApplicationWindow {
                     width: parent.width
                     Accessible.role: Accessible.Button
                     Accessible.name: qsTr("Settings")
+                    Accessible.onPressAction: drawerAction("settings")
                     onClicked: drawerAction("settings")
                 }
 

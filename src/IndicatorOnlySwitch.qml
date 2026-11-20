@@ -46,6 +46,13 @@ SwitchDelegate {
         return false
     }
 
+    // TalkBack normally activates a focused row through Accessible.onPressAction.
+    // Some Android/Qt combinations deliver the double tap as a positional click
+    // instead; in that case the whole focused row must behave as the switch.
+    function accessibilityActive() {
+        return typeof rootItem !== "undefined" && rootItem && rootItem.accessibilityActive()
+    }
+
     function configureContentItem() {
         configureTextItem(contentItem)
     }
@@ -104,7 +111,7 @@ SwitchDelegate {
     MouseArea {
         anchors.fill: parent
         onClicked: {
-            if (mouse.x > parent.width - parent.indicator.width) {
+            if (mouse.x > parent.width - parent.indicator.width || root.accessibilityActive()) {
                 root.checked = !root.checked
                 root.clicked()
             }
