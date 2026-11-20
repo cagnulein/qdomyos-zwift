@@ -4034,13 +4034,13 @@ void bluetooth::connectedAndDiscovered() {
             connect(controller, &ZwiftPlayDevice::plus, this, [this]() {
                 if (this->device() && this->device()->deviceType() == TREADMILL) {
                     if (auto *form = homeform::singleton())
-                        form->speedPlus();
+                        form->Plus(QStringLiteral("speed"));
                 }
             });
             connect(controller, &ZwiftPlayDevice::minus, this, [this]() {
                 if (this->device() && this->device()->deviceType() == TREADMILL) {
                     if (auto *form = homeform::singleton())
-                        form->speedMinus();
+                        form->Minus(QStringLiteral("speed"));
                 }
             });
 
@@ -4049,13 +4049,13 @@ void bluetooth::connectedAndDiscovered() {
                 connect(controller, &AbstractZapDevice::leftUp, this, [this](bool pressed) {
                     if (pressed && this->device() && this->device()->deviceType() == TREADMILL) {
                         if (auto *form = homeform::singleton())
-                            form->inclinationPlus();
+                            form->Plus(QStringLiteral("inclination"));
                     }
                 });
                 connect(controller, &AbstractZapDevice::leftDown, this, [this](bool pressed) {
                     if (pressed && this->device() && this->device()->deviceType() == TREADMILL) {
                         if (auto *form = homeform::singleton())
-                            form->inclinationMinus();
+                            form->Minus(QStringLiteral("inclination"));
                     }
                 });
             }
