@@ -16,6 +16,22 @@ TEST(FtmsBikeResistanceTest, MatrixR30XrUses16BitResistanceForAnyMxRbSuffix) {
     EXPECT_FALSE(ftmsbike::uses16BitResistanceForDevice(QStringLiteral("MX-RBXR 4D41")));
 }
 
+TEST(FtmsBikeResistanceTest, MatrixR30XrSuppressesOnlyAlreadyAcknowledgedOrPendingResistance) {
+    const QString deviceName = QStringLiteral("MX-RB 4D41");
+    // A confirmed unchanged level should not trigger a second FTMS write/beep.
+    EXPECT_FALSE(ftmsbike::shouldSendMatrixResistance(deviceName, 4, 4, -1));
+    // In-flight commands should not be duplicated before their ACK.
+    EXPECT_FALSE(ftmsbike::shouldSendMatrixResistance(deviceName, 4, -1, 4));
+    // Changes in cadence / target power must still be able to change resistance.
+    EXPECT_TRUE(ftmsbike::shouldSendMatrixResistance(deviceName, 5, 4, -1));
+    EXPECT_TRUE(ftmsbike::shouldSendMatrixResistance(deviceName, 3, 4, 5));
+    // Failed/expired ACKs clear both markers to allow a retry.
+    EXPECT_TRUE(ftmsbike::shouldSendMatrixResistance(deviceName, 4, -1, -1));
+    // The behavior applies to other MX-RB suffixes, but not unrelated bikes.
+    EXPECT_FALSE(ftmsbike::shouldSendMatrixResistance(QStringLiteral("MX-RB 4D42"), 2, 2, -1));
+    EXPECT_TRUE(ftmsbike::shouldSendMatrixResistance(QStringLiteral("FTMS BIKE"), 4, 4, 4));
+}
+
 TEST(FtmsBikeResistanceTest, MatrixR30XrOnlyAdvancesQueueForMatchingFtmsControlAck) {
     const QBluetoothUuid controlPoint((quint16)0x2AD9);
     const QBluetoothUuid indoorBikeData((quint16)0x2AD2);
