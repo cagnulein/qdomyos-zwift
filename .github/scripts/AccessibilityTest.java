@@ -86,9 +86,11 @@ public class AccessibilityTest {
             System.out.println("FAIL no button to press given");
             return;
         }
-        if (presses[0].equals("--double-tap")) {
-            // TalkBack's double tap activates the focused item wherever it is
-            // on screen; use its current bounds instead of fixed coordinates.
+        if (presses[0].equals("--activate-focused")) {
+            // TalkBack handles a user's double tap by issuing ACTION_CLICK on
+            // the accessibility-focused node. Invoke that same provider action
+            // with the real service left enabled; raw touchscreen taps are not
+            // TalkBack gestures and can hit a different view after UI changes.
             AccessibilityNodeInfo focused = null;
             for (int retry = 0; retry < FOCUS_RETRIES && focused == null; retry++) {
                 AccessibilityNodeInfo root = automation.getRootInActiveWindow();
@@ -100,32 +102,13 @@ public class AccessibilityTest {
                 if (focused == null) Thread.sleep(250);
             }
             if (focused == null) {
-                System.out.println("FAIL no QZ accessibility focus for double tap");
+                System.out.println("FAIL no QZ accessibility focus to activate");
                 return;
             }
-            Rect bounds = new Rect();
-            focused.getBoundsInScreen(bounds);
-            if (bounds.isEmpty()) {
-                System.out.println("FAIL focused QZ node has no bounds: " + describe(focused));
-                return;
-            }
-            int x = bounds.centerX();
-            int y = bounds.centerY();
-            System.out.println("INFO double tap focused " + describe(focused) + " at " + x + "," + y);
-            // Two complete touchscreen taps in one process keep the interval
-            // within Android's double-tap timeout, even on a slow emulator.
-            boolean injected = true;
-            for (int tap = 0; tap < 2; tap++) {
-                long down = SystemClock.uptimeMillis();
-                for (int action : new int[] {MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP}) {
-                    MotionEvent event = MotionEvent.obtain(down, SystemClock.uptimeMillis(), action, x, y, 0);
-                    event.setSource(InputDevice.SOURCE_TOUCHSCREEN);
-                    injected &= automation.injectInputEvent(event, true);
-                    event.recycle();
-                    Thread.sleep(50);
-                }
-            }
-            System.out.println(injected ? "OK double tap injected" : "FAIL double tap injection failed");
+            boolean activated = focused.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+            System.out.println(activated
+                    ? "OK ACTION_CLICK sent to TalkBack-focused node " + describe(focused)
+                    : "FAIL ACTION_CLICK rejected by TalkBack-focused node " + describe(focused));
             return;
         }
         // Read-only inspection for tests using a *real* TalkBack service.

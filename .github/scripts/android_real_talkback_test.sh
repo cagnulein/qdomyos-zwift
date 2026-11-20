@@ -72,10 +72,11 @@ focus_node() {
         fail "TalkBack rejected accessibility focus on $name"
     foreground
 }
-double_tap() {
-    result=$(peek --double-tap)
+activate_focused() {
+    result=$(peek --activate-focused)
     note "$result"
-    echo "$result" | grep -F 'OK double tap injected' >/dev/null || fail "Double-tap injection failed"
+    echo "$result" | grep -F 'OK ACTION_CLICK sent to TalkBack-focused node' >/dev/null ||
+        fail "TalkBack-focused node rejected ACTION_CLICK"
     sleep 4
     foreground
 }
@@ -150,29 +151,29 @@ adb push a11y-test.jar /data/local/tmp/a11y-test.jar >/dev/null
 
 # ADB's shell swipe is not reliably recognized by TalkBack's gesture detector,
 # but TalkBack remains active here. Drive the provider with the focus action
-# TalkBack issues after navigation, then activate by injecting a physical
-# double-tap (not ACTION_CLICK), which lets the running service handle it.
+# TalkBack issues after swipe navigation, then use ACTION_CLICK, the provider
+# action TalkBack sends after a user's double-tap gesture.
 adb logcat -c
 focus_node Main_menu
-double_tap
+activate_focused
 focus_node Settings
-double_tap
+activate_focused
 result=$(peek --peek-node General_Options)
 note "$result"
 echo "$result" | grep -F TALKBACK_NODE >/dev/null ||
-    fail "TalkBack double-tap did not open Settings / General Options absent"
+    fail "TalkBack activation did not open Settings / General Options absent"
 result=$(peek --peek-node Experimental_Features)
 note "$result"
 echo "$result" | grep -F TALKBACK_NODE >/dev/null ||
     fail "Experimental Features not accessible on settings page"
 
 focus_node General_Options
-double_tap
+activate_focused
 result=$(peek --peek-node App_Language)
 note "$result"
 echo "$result" | grep -F TALKBACK_NODE >/dev/null || fail "General Options did not open"
 focus_node Experimental_Features
-double_tap
+activate_focused
 result=$(peek --peek-node Gym_Mode)
 note "$result"
 echo "$result" | grep -F TALKBACK_NODE >/dev/null || fail "Experimental Features did not open"
