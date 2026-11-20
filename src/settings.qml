@@ -5027,20 +5027,21 @@ import AndroidStatusBar 1.0
                             text: qsTr("Gears Max:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: gearsMaxTextField
-                            text: settings.gears_max
+                            minimum: 0
+                            savedText: settings.gears_max
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.gears_max = text
-                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            onAccepted: if (valid) settings.gears_max = value
+                            onActiveFocusChanged: if (this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
+                            enabled: gearsMaxTextField.valid && gearsMaxTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.gears_max = gearsMaxTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.gears_max = gearsMaxTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -5063,20 +5064,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Gears Min:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: gearsMinTextField
-                            text: settings.gears_min
+                            signed: true
+                            maximum: settings.gears_max
+                            savedText: settings.gears_min
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.gears_min = text
-                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            onAccepted: if (valid) settings.gears_min = value
+                            onActiveFocusChanged: if (this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
+                            enabled: gearsMinTextField.valid && gearsMinTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.gears_min = gearsMinTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.gears_min = gearsMinTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
