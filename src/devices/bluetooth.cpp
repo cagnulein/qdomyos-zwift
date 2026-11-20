@@ -1960,7 +1960,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 npeCableBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(npeCableBike);
-            } else if (b.name().toUpper().startsWith("RACER S") && !kettlerRacerSBike && filter) {
+            } else if ((b.name().toUpper().startsWith("RACER S") ||
+                         (b.name().compare(QStringLiteral("RacerS"), Qt::CaseInsensitive) == 0 &&
+                          deviceHasService(b, QBluetoothUuid(QStringLiteral("638af000-7bde-3e25-ffc5-9de9b2a0197a"))))) &&
+                        !kettlerRacerSBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 kettlerRacerSBike = new kettlerracersbike(noWriteResistance, noHeartService);
