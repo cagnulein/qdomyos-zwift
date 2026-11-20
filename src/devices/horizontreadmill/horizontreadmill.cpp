@@ -1018,7 +1018,8 @@ void horizontreadmill::update() {
             // higher FTMS grades through the reverse lookup.
             if (!adidas_treadmill && (!FS_TREADMILL || !areInclinationSettingsDefault()) &&
                 !(zipro_shred_treadmill && requestInclination > 15.0)) {
-                requestInclination = treadmillInclinationOverrideReverse(requestInclination);
+                requestInclination = treadmillInclinationOverrideReverse(requestInclination,
+                                                                          ks_esp_treadmill ? maxInclination : 15.0);
             }
 
             // this treadmill doesn't send the incline, so i'm forcing it manually
@@ -2744,6 +2745,11 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     {
         QSettings settings;
         bluetoothDevice = device;
+        ks_esp_treadmill = device.name().toUpper().startsWith(QStringLiteral("KS-ESP-"));
+        if (ks_esp_treadmill) {
+            maxInclination = 25.0;
+            qDebug() << QStringLiteral("KS-ESP treadmill: 25% max inclination");
+        }
         JFTM_T202 = device.name().toUpper().startsWith(QStringLiteral("JFTM T202"));
         SW3925EAI_TREADMILL = device.name().toUpper().startsWith(QStringLiteral("SW3925EAI-"));
         if (SW3925EAI_TREADMILL) {
