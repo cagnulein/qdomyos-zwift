@@ -259,7 +259,18 @@ public class AccessibilityTest {
                 return;
             }
             String name = presses[1].replace('_', ' ');
-            AccessibilityNodeInfo node = find(name, false);
+            // On a cold Android 17 emulator, QZ can be foreground while Qt is
+            // still creating its virtual accessibility tree. Wait just as the
+            // focus-and-activate probe does instead of treating that startup
+            // window as a missing label.
+            AccessibilityNodeInfo node = null;
+            for (int retry = 0; retry < FOCUS_RETRIES; retry++) {
+                node = find(name, false);
+                if (node != null && node.isFocusable()) {
+                    break;
+                }
+                Thread.sleep(250);
+            }
             if (node == null || !node.isFocusable()) {
                 System.out.println("FAIL missing focusable node: " + name);
             } else {
