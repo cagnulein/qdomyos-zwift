@@ -31,19 +31,22 @@ Disable **Strava Virtual Activity** in QZ before recording the elliptical sessio
 
 On older QZ iPhone builds, if **1.20** is not saved, try **1,20** instead, press **OK**, restart and verify the value. A user confirmed this workaround. Current QZ builds accept both decimal separators. Watt Gain scales reported power, not actual physical effort.
 
-## Can I leave QZ running in the background on my iPhone while MyWhoosh runs on an iPad?
+## Can I run QZ together with Zwift or MyWhoosh on the same iPhone or iPad?
 
-**Yes, this was confirmed with an iOS QZ TestFlight build supporting background operation and a two-device setup.** Connect the physical trainer to QZ on the **iPhone** and run **MyWhoosh on a separate iPad**, pairing MyWhoosh with QZ's virtual trainer.
+**Yes, with the newer QZ iOS beta (TestFlight).** Enable **QZ Settings > Experimental Settings > iOS Background Keep Alive** to let QZ continue running when you switch to **Zwift or MyWhoosh on the same iPhone or iPad**. A separate iOS device is no longer required for this beta workflow.
 
-In the confirmed test, virtual shifting continued during the ride while QZ was put into the background on the iPhone; the user could listen to a radio app, read mail and use a web browser without interrupting the session.
+1. Install a QZ iOS beta that includes **iOS Background Keep Alive**.
+2. Enable that setting in **Experimental Settings**. Connect QZ to your physical bike/trainer and configure its virtual trainer as usual.
+3. Open **Zwift or MyWhoosh** on that same iPhone/iPad and connect the training app to QZ's virtual trainer rather than directly to the physical trainer.
+4. Verify that power, cadence, trainer control and (if used) virtual shifting continue updating while the training app is in the foreground.
 
-Keep in mind:
+**Important:** This is an **iOS beta feature**, not a guarantee for older stable versions or Android. iOS background execution and initial virtual-trainer discovery can behave differently from an established connection; test pairing and stability before a long workout. If Zwift cannot initially discover QZ when QZ is backgrounded, see the [Zwift background discovery FAQ](zwift.md).
 
-- The confirmation was for a **background-capable beta/TestFlight build**, not a guarantee that every older/stable iOS build will maintain every connection in the background. Use a build with the relevant background capability.
-- **MyWhoosh on the same iPad as QZ was not successful** in the user's comparison: MyWhoosh found the physical KICKR CORE but did not discover QZ. For that setup, use two devices; see [MyWhoosh device setup](mywhoosh.md).
-- iOS can still impose background execution limits. Verify power, cadence, virtual gears and connection stability on your own devices during a short test before relying on a long workout.
+## Can I also keep QZ on one iOS device and run MyWhoosh on another?
 
-QZ's iOS app declares Bluetooth background modes, but the successful real-world background test is the evidence for this particular QZ/MyWhoosh arrangement.
+**Yes.** The two-device arrangement still works: for example, QZ on an **iPhone** connected to the physical trainer, and **MyWhoosh on an iPad** paired with QZ's virtual trainer.
+
+A TestFlight background-operation support test confirmed that virtual shifting continued while QZ was in the background on the iPhone and other apps were being used. An earlier same-iPad MyWhoosh test had failed to discover QZ, which is why older guidance recommended two devices. **That earlier limitation should not be applied to the new same-device iOS beta workflow described above.**
 
 ## Apple Music or Siri audio stops when I open QZ on iOS. What can I try?
 

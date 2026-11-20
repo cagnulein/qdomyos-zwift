@@ -3370,6 +3370,10 @@ This may take a few moments on first startup.</source>
 <context>
     <name>homeform</name>
     <message>
+        <source>No enabled metrics</source>
+        <translation>Нет включённых показателей</translation>
+    </message>
+    <message>
         <source>Speed (%1/h)</source>
         <translation>Скорость (%1/ч)</translation>
     </message>
@@ -4295,6 +4299,10 @@ This may take a few moments on first startup.</source>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Плавающие показатели (картинка в картинке)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>

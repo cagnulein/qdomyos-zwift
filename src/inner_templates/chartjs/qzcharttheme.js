@@ -195,6 +195,23 @@
             return chart;
         },
 
+        // A chart made by create() takes the config of a redraw in place (new scales and
+        // datasets from qzmetriccharts.js): they get the chart's palette and become its patches,
+        // so refresh() and withLight() keep working on them. The rest of the options are the ones
+        // already themed: their patches keep the original values
+        restyle: function (chart, config) {
+            var kept = {};
+            (chart.$qzPatches || []).forEach(function (p) {
+                kept[p.path.join('/')] = p;
+            });
+            var list = patches(config).map(function (p) {
+                var fresh = p.path[0] === 'data' || p.path[1] === 'scales';
+                return !fresh && kept[p.path.join('/')] ? kept[p.path.join('/')] : p;
+            });
+            apply(config, list, chart.$qzPalette);
+            chart.$qzPatches = list;
+        },
+
         // The fill of the canvas, drawn by dochart.js under each chart: the card colour of the
         // theme, white in the classic look and in the images for the mail (withLight)
         background: function (chart) {

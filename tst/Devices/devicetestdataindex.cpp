@@ -576,6 +576,7 @@ void DeviceTestDataIndex::Initialize() {
 
     // FTMS Bike
     QStringList acceptableFTMSNames {
+        "AS6-", // ART.IS Cross AS6 (ChangYow SM5081E BLE, e.g. AS6-0185)
         "DHZ-", // JK fitness 577
         "MKSM", // MKSM3600036
         "YS_C1_", // Yesoul C1H
@@ -1448,6 +1449,7 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::ToorxAppGateUSBBike)
         ->expectDevice<trxappgateusbbike>()        
         ->acceptDeviceNames({"TUN ","PASYOU-","IBIKING+",}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceNames({"CARE11216+0505", "CARE11216+X"}, DeviceNameComparison::IgnoreCase)
         ->configureSettingsWith(
             [](const DeviceDiscoveryInfo &info, bool enable, std::vector<DeviceDiscoveryInfo> &configurations) -> void
             {

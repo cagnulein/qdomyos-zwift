@@ -136,6 +136,8 @@
 		870C72652E91565E00DC8A84 /* ios_liveactivity.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 870C72632E91565E00DC8A84 /* ios_liveactivity.mm */; };
 		87CA0A012F11000000C0FF01 /* support_email.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87CA0A022F11000000C0FF01 /* support_email.mm */; };
 		87BA10032F0000010000BA03 /* ios_background_keepalive.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BA10022F0000010000BA02 /* ios_background_keepalive.mm */; };
+		87BA10132F0000010000BA03 /* ios_floating_metrics.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BA10122F0000010000BA02 /* ios_floating_metrics.mm */; };
+		87BA10142F0000010000BA04 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87BA10152F0000010000BA05 /* AVKit.framework */; };
 		870F72D62FDEC0FD00181280 /* webtranslation.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 870F72D52FDEC0FD00181280 /* webtranslation.cpp */; };
 		8710706C29C48AEA0094D0F3 /* handleurl.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8710706B29C48AEA0094D0F3 /* handleurl.cpp */; };
 		8710706E29C48AF30094D0F3 /* moc_handleurl.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8710706D29C48AF30094D0F3 /* moc_handleurl.cpp */; };
@@ -1066,6 +1068,9 @@
 		87CA0A022F11000000C0FF01 /* support_email.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = support_email.mm; path = ../src/ios/support_email.mm; sourceTree = SOURCE_ROOT; };
 		87BA10012F0000010000BA01 /* ios_background_keepalive.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ios_background_keepalive.h; path = ../src/ios/ios_background_keepalive.h; sourceTree = SOURCE_ROOT; };
 		87BA10022F0000010000BA02 /* ios_background_keepalive.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_background_keepalive.mm; path = ../src/ios/ios_background_keepalive.mm; sourceTree = SOURCE_ROOT; };
+		87BA10112F0000010000BA01 /* ios_floating_metrics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ios_floating_metrics.h; path = ../src/ios/ios_floating_metrics.h; sourceTree = SOURCE_ROOT; };
+		87BA10122F0000010000BA02 /* ios_floating_metrics.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_floating_metrics.mm; path = ../src/ios/ios_floating_metrics.mm; sourceTree = SOURCE_ROOT; };
+		87BA10152F0000010000BA05 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
 		870F72D52FDEC0FD00181280 /* webtranslation.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = webtranslation.cpp; path = ../src/webtranslation.cpp; sourceTree = SOURCE_ROOT; };
 		8710706A29C48AE90094D0F3 /* handleurl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = handleurl.h; path = ../src/handleurl.h; sourceTree = "<group>"; };
 		8710706B29C48AEA0094D0F3 /* handleurl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = handleurl.cpp; path = ../src/handleurl.cpp; sourceTree = "<group>"; };
@@ -2174,6 +2179,7 @@
 				87540FAD2848FD70005E0D44 /* libqtexttospeech_speechios.a in Link Binary With Libraries */,
 				87DA76502848F98200A71B64 /* libQt5TextToSpeech.a in Link Binary With Libraries */,
 				877FE4EC27368F7D006FAB7B /* AVFoundation.framework in Link Binary With Libraries */,
+				87BA10142F0000010000BA04 /* AVKit.framework in Frameworks */,
 				87CA0A032F11000000C0FF01 /* MessageUI.framework in Link Binary With Libraries */,
 				87BB1776269E987100F46A1C /* libQt5HttpServer.a in Link Binary With Libraries */,
 				87420DF6269D770F000C5EC6 /* libQt5WebView.a in Link Binary With Libraries */,
@@ -2535,6 +2541,8 @@
 				87CA0A022F11000000C0FF01 /* support_email.mm */,
 				87BA10012F0000010000BA01 /* ios_background_keepalive.h */,
 				87BA10022F0000010000BA02 /* ios_background_keepalive.mm */,
+				87BA10112F0000010000BA01 /* ios_floating_metrics.h */,
+				87BA10122F0000010000BA02 /* ios_floating_metrics.mm */,
 				876C646E2E74139F00F1BEC0 /* fitbackupwriter.h */,
 				876C646F2E74139F00F1BEC0 /* fitbackupwriter.cpp */,
 				876C64702E74139F00F1BEC0 /* moc_fitbackupwriter.cpp */,
@@ -3331,6 +3339,7 @@
 				87DA764F2848F8F200A71B64 /* libQt5TextToSpeech.a */,
 				873CD22E27EF8EC1000131BC /* StoreKit.framework */,
 				877FE4EB27368F7D006FAB7B /* AVFoundation.framework */,
+				87BA10152F0000010000BA05 /* AVKit.framework */,
 				87CA0A042F11000000C0FF01 /* MessageUI.framework */,
 				87BB1775269E987000F46A1C /* libQt5HttpServer.a */,
 				877A7608269D8E9F0024DD2C /* WebKit.framework */,
@@ -3939,6 +3948,7 @@
 				870C72652E91565E00DC8A84 /* ios_liveactivity.mm in Compile Sources */,
 				87CA0A012F11000000C0FF01 /* support_email.mm in Compile Sources */,
 				87BA10032F0000010000BA03 /* ios_background_keepalive.mm in Compile Sources */,
+				87BA10132F0000010000BA03 /* ios_floating_metrics.mm in Compile Sources */,
 				8738249627E646E3004F1B46 /* characteristicnotifier2acd.cpp in Compile Sources */,
 				8738249127E646E3004F1B46 /* dirconpacket.cpp in Compile Sources */,
 				870A5DB52CEF8FD200839641 /* technogymbike.cpp in Compile Sources */,

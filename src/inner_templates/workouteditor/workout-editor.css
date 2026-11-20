@@ -519,3 +519,592 @@ button.small {
 .custom-dialog-footer button {
     min-width: 80px;
 }
+
+/* Modern look of the app (qz-theme-bridge.js adds the "modern" class and the theme colours from
+   WorkoutEditor.qml): flat filled cards, pill buttons and filled fields like the QML pages.
+   The classic look keeps the rules above untouched. */
+html.modern {
+    /* the palette of the page from the theme colours of the bridge */
+    --bg-color: var(--qz-bg);
+    --panel-color: var(--qz-surface);
+    --panel-elevated: var(--qz-surface-high);
+    --field-color: var(--qz-surface-highest);
+    --border-color: var(--qz-outline);
+    --text-color: var(--qz-text);
+    --muted-color: var(--qz-muted);
+    --accent-color: var(--qz-accent);
+    --accent-ink: var(--qz-accent-ink);
+    --danger-color: var(--qz-danger);
+    font-family: Roboto, "Segoe UI", sans-serif;
+}
+
+/* 16 at the sides of the page, 8 between its blocks (the web pages of the app) */
+html.modern #app {
+    padding: 12px 16px;
+}
+
+html.modern .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+/* The app bar above the page already shows "Workout Editor" */
+html.modern .toolbar-title {
+    display: none;
+}
+
+html.modern .toolbar-controls {
+    align-items: flex-end;
+}
+
+html.modern .toolbar-controls label {
+    font-size: 13px;
+    flex: 1 1 140px;
+}
+
+/* the row of the switch is the touch area: 48. The row aligns its items by the bottom, and a button
+   is 40 with 4 above and below (.toolbar-controls > *): the 8 of the switch row all above it put its
+   middle on the middle of the buttons, not 4 above (the same 56 in all, the rows around stay) */
+html.modern .toolbar-controls .checkbox-label {
+    flex: 0 0 auto;
+    flex-direction: row;
+    align-items: center;
+    min-height: 48px;
+    margin-top: 8px;
+    margin-bottom: 0;
+}
+
+/* the caption beside the switch: not the 4 under the caption of a field */
+html.modern .toolbar-controls .checkbox-label > * + * {
+    margin-top: 0;
+}
+
+html.modern input[type="text"],
+html.modern input[type="number"],
+html.modern select {
+    background: var(--field-color, var(--panel-elevated));
+    border: 2px solid transparent;
+    border-radius: var(--qz-radius-field, 12px);
+    min-height: 40px;
+    padding: 8px 12px;
+    font-size: 16px;
+    font-family: inherit;
+}
+
+html.modern input[type="text"]:focus,
+html.modern input[type="number"]:focus,
+html.modern select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+/* a wrong value: the red border of the classic look, which the transparent border above outranks */
+html.modern .field input.invalid {
+    border-color: var(--danger-color);
+}
+
+/* the pill buttons of the page; the filter chips of the charts (qzmetriccharts.js, buttons since
+   the Material 3 chips) keep their own look - an outlined chip of 32px, corner 8px */
+html.modern button:not(.qzmc-chip) {
+    background: var(--field-color, var(--panel-elevated));
+    border: none;
+    border-radius: 999px;
+    min-height: 40px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: var(--qz-weight-strong, 600);
+    font-family: inherit;
+    position: relative;
+}
+
+/* A touch area of 48 over a button of 40 (36 for the icons): 4 above and below, as the filter
+   chips of the charts reach 8 around their 32 */
+html.modern button:not(.qzmc-chip)::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc((100% - 48px) / 2);
+    bottom: calc((100% - 48px) / 2);
+}
+
+html.modern button.small {
+    padding: 8px 14px;
+    font-size: 14px;
+}
+
+html.modern button:not(.qzmc-chip):hover {
+    border-color: transparent;
+}
+
+html.modern button:not(.qzmc-chip):active {
+    filter: brightness(1.15);
+}
+
+html.modern.light button:not(.qzmc-chip):active {
+    filter: brightness(0.92);
+}
+
+/* a tapped button keeps the focus: no square ring around the pill (the WebView of Chrome 83
+   draws the outline without the corner); a keyboard still shows where the focus is */
+html.modern button:focus {
+    outline: none;
+}
+
+/* qz-webview: ok - Chrome 86; an older WebView drops this rule: no ring there, as after a tap */
+html.modern button:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+html.modern button:disabled {
+    opacity: 0.38;
+    cursor: default;
+}
+
+html.modern button.primary {
+    background: var(--accent-color);
+    color: var(--accent-ink, #0a111c);
+}
+
+html.modern button.danger {
+    background: transparent;
+    color: var(--danger-color);
+    box-shadow: inset 0 0 0 1px var(--danger-color);
+}
+
+html.modern input[type="checkbox"] {
+    /* qz-webview: ok - Chrome 93; an older WebView draws the checkbox in its own colour */
+    accent-color: var(--accent-color);
+    width: 18px;
+    height: 18px;
+}
+
+/* The chart is the one card of the page; the list of intervals and the saved workouts lie on
+   the page itself, as the Name and Device fields above - no card around cards, and the width
+   it took goes to the fields */
+html.modern .chart-card {
+    background: var(--panel-color);
+    border: none;
+    border-radius: var(--qz-radius-card, 16px);
+}
+
+html.modern .interval-panel,
+html.modern .program-bar {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+}
+
+/* A tap on a list lands on the box around it (the select takes no taps, qz-modern-select.js
+   opens the menu from a click on the document). WebKit of iOS sends that click only to an
+   element that can be clicked - a link, a field, a label or one with a pointer cursor. The
+   device list lies in a label, which can be clicked already */
+html.modern.qz-select-menus .field-has-select,
+html.modern.qz-select-menus .program-bar {
+    cursor: pointer;
+}
+
+/* Program list on its own full-width row, the three buttons share the row below */
+html.modern .program-bar select {
+    flex: 1 0 100%;
+    min-width: 0;
+}
+
+html.modern .program-bar button {
+    flex: 1 1 0;
+    min-width: 0;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+html.modern .interval-panel {
+    min-width: 0;
+}
+
+/* One row on a phone too: the buttons share the width, and a long label (Ukrainian,
+   Russian) breaks inside its own button instead of pushing Clear to a second row */
+html.modern .interval-panel-actions {
+    flex-wrap: nowrap;
+    align-items: stretch;
+}
+
+html.modern .interval-panel-actions button.small {
+    flex: 1 1 auto;
+    padding: 6px 10px;
+    white-space: normal;
+    line-height: 1.15;
+}
+
+/* A single word: kept whole, the other two give way */
+html.modern .interval-panel-actions #clearIntervals {
+    flex: none;
+}
+
+/* Labels and hints 13, the text of the fields 16, buttons 14, the chart title 16 */
+html.modern .interval-panel-hint,
+html.modern .field label,
+html.modern .field-label,
+html.modern .chart-meta,
+html.modern .status-strip {
+    font-size: 13px;
+}
+
+html.modern .chart-title {
+    font-size: 16px;
+}
+
+/* A surface card on the page; the 1px border of every card keeps the selected one the same size */
+html.modern .interval-card {
+    background: var(--panel-color);
+    border: 1px solid transparent;
+    border-radius: 16px;
+    padding: 13px;
+}
+
+/* Selected: the accent fill and border of the selected rows of the app */
+html.modern .interval-card.selected {
+    border-color: var(--accent-color);
+    box-shadow: none;
+}
+
+@supports (background: color-mix(in srgb, red 50%, blue)) {
+    html.modern .interval-card.selected {
+        border-color: color-mix(in srgb, var(--accent-color) 60%, transparent);
+        background: color-mix(in srgb, var(--accent-color) 14%, var(--panel-color));
+    }
+}
+
+html.modern .card-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+html.modern .card-actions button + button {
+    margin-left: 8px;
+}
+
+html.modern .card-actions button {
+    background: transparent;
+    min-height: 32px;
+    padding: 4px 10px;
+    color: var(--accent-color);
+}
+
+html.modern .card-actions button:disabled {
+    color: var(--muted-color);
+}
+
+/* One field with "-" and "+" at its ends, as the spin boxes of the settings: a phone gives the
+   field about 148px, and "00:05:00" must fit between two squares of 40 */
+html.modern .field-with-buttons {
+    background: var(--field-color, var(--panel-elevated));
+    border-radius: var(--qz-radius-field, 12px);
+    height: 40px;
+}
+
+html.modern .field-with-buttons button {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+    padding: 0;
+    border-radius: 12px;
+    background: transparent;
+    font-size: 18px;
+}
+
+/* pressed: a shade, as the pressed spin buttons of the settings (the brightness filter of the
+   other buttons shows nothing on a transparent one) */
+html.modern .field-with-buttons button:not(:disabled):active {
+    background: rgba(128, 128, 128, 0.18);
+}
+
+html.modern .field-with-buttons input {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 40px;
+    min-height: 40px;
+    padding: 0 2px;
+    border-radius: 0;
+    background: transparent;
+    text-align: center;
+}
+
+
+html.modern .status-strip {
+    flex-wrap: wrap;
+    padding: 0 4px;
+}
+
+html.modern .custom-dialog-overlay {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: none;
+}
+
+html.modern.light .custom-dialog-overlay {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+html.modern .custom-dialog-content {
+    background: var(--panel-elevated);
+    border: none;
+    border-radius: 28px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+html.modern .custom-dialog-header,
+html.modern .custom-dialog-footer {
+    border: none;
+}
+
+html.modern .custom-dialog-header {
+    padding: 24px 24px 8px;
+}
+
+html.modern .custom-dialog-body {
+    padding: 8px 24px 8px;
+}
+
+html.modern .custom-dialog-body input[type="text"] {
+    background: var(--field-color, var(--panel-color));
+    border: 2px solid transparent;
+    border-radius: 12px;
+}
+
+html.modern .custom-dialog-body input[type="text"]:focus {
+    border-color: var(--accent-color);
+    box-shadow: none;
+}
+
+html.modern .custom-dialog-footer {
+    padding: 8px 16px 20px;
+}
+
+html.modern .custom-dialog-footer button {
+    min-width: 72px;
+}
+
+html.modern .custom-dialog-footer button:not(.primary) {
+    background: transparent;
+    color: var(--accent-color);
+}
+
+/* One primary action in the toolbar: Save & Start. Save is a tonal button next to it. */
+html.modern #saveWorkout {
+    background: var(--field-color, var(--panel-elevated));
+    color: var(--text-color);
+}
+
+/* the tonal fills only where color-mix() is known: with var() inside, a line before it gives
+   no fallback - the browser drops the declaration only at computed-value time (WebView 83) */
+@supports (background: color-mix(in srgb, red 50%, blue)) {
+    html.modern #saveWorkout {
+        background: color-mix(in srgb, var(--accent-color) 22%, transparent);
+    }
+}
+
+/* Interval actions as round icon buttons (workout-editor-app.js, actionButton) */
+html.modern .card-actions button.icon-button {
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
+    padding: 0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted-color);
+}
+
+html.modern .card-actions button.icon-button:not(:disabled):active {
+    background: var(--field-color, var(--panel-color));
+}
+
+/* pressed: the state layer of the app - the colour of the text at 10 % over the fill (the
+   buttons of the QML pages); the shade and the brightness above stay for the WebView without
+   color-mix() */
+@supports (background: color-mix(in srgb, red 50%, blue)) {
+    html.modern button:not(.qzmc-chip):not(:disabled):active {
+        filter: none;
+        box-shadow: inset 0 0 0 100vmax color-mix(in srgb, currentColor 10%, transparent);
+    }
+
+    /* the outlined one keeps its outline */
+    html.modern button.danger:not(:disabled):active {
+        box-shadow: inset 0 0 0 1px var(--danger-color),
+            inset 0 0 0 100vmax color-mix(in srgb, currentColor 10%, transparent);
+    }
+
+    html.modern .field-with-buttons button:not(:disabled):active,
+    html.modern .card-actions button.icon-button:not(:disabled):active {
+        background: transparent;
+    }
+}
+
+html.modern .card-actions button.icon-button.icon-danger:not(:disabled) {
+    color: var(--danger-color);
+}
+
+html.modern .card-actions button.icon-button:disabled {
+    opacity: 0.3;
+    color: var(--muted-color);
+}
+
+/* Move up/down: chevrons in the accent colour on a tonal pair of buttons - bare thin arrows
+   in the muted colour were hard to see, and the disabled one all but vanished */
+html.modern .card-actions button.icon-button.icon-move {
+    width: 40px;
+    border-radius: 12px;
+    color: var(--accent-color);
+    background: var(--field-color, var(--panel-color));
+}
+
+@supports (background: color-mix(in srgb, red 50%, blue)) {
+    html.modern .card-actions button.icon-button.icon-move {
+        background: color-mix(in srgb, var(--accent-color) 16%, transparent);
+    }
+}
+
+html.modern .card-actions button.icon-move + button.icon-move {
+    margin-left: 2px;
+}
+
+html.modern .card-actions button.icon-button.icon-move svg {
+    width: 26px;
+    height: 26px;
+}
+
+html.modern .card-actions button.icon-button.icon-move:disabled {
+    opacity: 0.4;
+    color: var(--muted-color);
+}
+
+/* "Advanced" as a switch, like the switches of the settings pages */
+html.modern #advancedToggle {
+    -webkit-appearance: none;
+    appearance: none;
+    position: relative;
+    width: 44px;
+    height: 26px;
+    margin: 0 8px 0 0;
+    border-radius: 13px;
+    background: var(--field-color, var(--panel-elevated));
+    box-shadow: inset 0 0 0 2px var(--muted-color);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+html.modern #advancedToggle::after {
+    content: "";
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--muted-color);
+    transition: left 0.15s, width 0.15s, height 0.15s, top 0.15s;
+}
+
+html.modern #advancedToggle:checked {
+    background: var(--accent-color);
+    box-shadow: none;
+}
+
+html.modern #advancedToggle:checked::after {
+    top: 3px;
+    left: 21px;
+    width: 20px;
+    height: 20px;
+    background: var(--accent-ink, #0a111c);
+}
+
+/* Spacing by margins, not the flex gap: the WebView of the older Android devices predates
+   Chrome 84, which brought gap to flex, and there the fields and buttons touched. 16 at the
+   sides of the page, 8 between its blocks, cards and buttons */
+html.modern #app, html.modern .toolbar, html.modern .toolbar-controls,
+html.modern .toolbar-controls label, html.modern .checkbox-label, html.modern .content,
+html.modern .interval-panel, html.modern .interval-panel-header,
+html.modern .interval-panel-actions, html.modern .interval-list, html.modern .interval-card,
+html.modern .card-header, html.modern .card-header-left, html.modern .card-actions,
+html.modern .field, html.modern .field-label, html.modern .field-with-buttons,
+html.modern .preview-panel, html.modern .chart-card, html.modern .chart-card header,
+html.modern .status-strip, html.modern .program-bar, html.modern .custom-dialog-footer {
+    /* qz-webview: ok - only takes the gap of the classic look away; an older WebView has none */
+    gap: 0;
+}
+
+html.modern #app > * + *,
+html.modern .interval-panel > * + *,
+html.modern .interval-panel-header > * + *,
+html.modern .interval-list > * + *,
+html.modern .preview-panel > * + *,
+html.modern .chart-card > * + * {
+    margin-top: 8px;
+}
+
+html.modern .interval-card > * + * {
+    margin-top: 12px;
+}
+
+html.modern .toolbar-controls label > * + *,
+html.modern .field > * + *,
+html.modern .chart-card header > * + * {
+    margin-top: 4px;
+}
+
+html.modern .interval-panel-actions > * + *,
+html.modern .card-header-left > * + *,
+html.modern .custom-dialog-footer > * + * {
+    margin-left: 8px;
+}
+
+html.modern .card-header > * + * {
+    margin-left: 12px;
+}
+
+html.modern .field-label > * + * {
+    margin-left: 6px;
+}
+
+/* rows that wrap: half the space around each item, the row pulled out by as much */
+html.modern .toolbar-controls {
+    margin: -4px;
+}
+
+html.modern .toolbar-controls > * {
+    margin: 4px;
+}
+
+html.modern .status-strip > * {
+    margin: 2px 6px;
+}
+
+html.modern .status-strip {
+    margin-left: -6px;
+    margin-right: -6px;
+}
+
+/* the list of saved workouts on its own row, its three buttons on the row below */
+html.modern .program-bar > select {
+    margin-bottom: 8px;
+}
+
+html.modern .program-bar > button + button {
+    margin-left: 8px;
+}
+
+/* the two panels side by side on a wide screen, one under the other up to 1080 (the classic
+   breakpoint) */
+html.modern .content > * + * {
+    margin-left: 8px;
+}
+
+@media (max-width: 1080px) {
+    html.modern .content > * + * {
+        margin-left: 0;
+        margin-top: 8px;
+    }
+}

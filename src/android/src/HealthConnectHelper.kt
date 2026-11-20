@@ -108,6 +108,7 @@ class HealthConnectHelper {
                     }
 
                     val records = buildRecords(samples, title, deviceType, deviceName, granted)
+                    QLog.d(TAG, "Health Connect export: ${samples.length()} samples, calories first=${samples.getJSONObject(0).optDouble("calories", 0.0)}, last=${samples.getJSONObject(samples.length() - 1).optDouble("calories", 0.0)}")
                     if (records.isEmpty()) {
                         QLog.d(TAG, "Skipping Health Connect write: no records built")
                         return@launch

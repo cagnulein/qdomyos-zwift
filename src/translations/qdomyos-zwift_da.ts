@@ -3354,6 +3354,10 @@ Det kan tage et øjeblik ved første start.</translation>
 <context>
     <name>homeform</name>
     <message>
+        <source>No enabled metrics</source>
+        <translation>Ingen aktiverede målinger</translation>
+    </message>
+    <message>
         <source>Speed (%1/h)</source>
         <translation>Hastighed (%1/t)</translation>
     </message>
@@ -4279,6 +4283,10 @@ Det kan tage et øjeblik ved første start.</translation>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Flydende målinger (billede i billede)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>

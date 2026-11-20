@@ -3354,6 +3354,10 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
 <context>
     <name>homeform</name>
     <message>
+        <source>No enabled metrics</source>
+        <translation>Nincs engedélyezett mérőszám</translation>
+    </message>
+    <message>
         <source>Speed (%1/h)</source>
         <translation>Sebesség(%1/h)</translation>
     </message>
@@ -4279,6 +4283,10 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Lebegő mérőszámok (kép a képben)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
