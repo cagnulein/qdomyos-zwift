@@ -74,10 +74,12 @@ T.ComboBox {
     }
 
     // Modern: the height of an item of the list - Material's 48, or more with a bigger text: the
-    // item is its text and the vertical padding of Material's MenuItem (12 each side)
+    // item is its text and the vertical padding of Material's MenuItem (12 each side). Measured
+    // with the font of the list: the items take the font of the window, not the one of the box
+    // (the gym mode device box sets a bigger one)
     FontMetrics {
         id: itemFontMetrics
-        font: control.font
+        font: control.popup.font
     }
     readonly property real itemHeight: Math.max(control.Material.menuItemHeight,
                                                 Math.ceil(itemFontMetrics.height) + 2 * control.Material.menuItemVerticalPadding)
@@ -132,8 +134,7 @@ T.ComboBox {
     delegate: MenuItem {
         id: menuItem
         width: ListView.view.width
-        // Modern: the height the list is cut by (itemHeight). The items take the font of the
-        // window, a box with a font of its own (the gym mode device list) measured another height
+        // Modern: exactly the height the list is cut by (itemHeight, whole pixels of the text)
         height: control.modern ? control.itemHeight : implicitHeight
         text: control.labelFor(control.textRole ? (Array.isArray(control.model) ? modelData[control.textRole] : model[control.textRole]) : modelData)
         // Screen reader: Qt 5.15 gives a MenuItem no accessible action (Qt 6.5 does), so on
@@ -322,7 +323,7 @@ T.ComboBox {
             // Modern, a list longer than the window: the bottom at the middle of an item, so the
             // cut item shows that the list goes on (a whole item at the edge looked like its end)
             var whole = Math.max(0, Math.floor((room - topPadding - bottomPadding) / control.itemHeight - 0.5))
-            return (whole + 0.5) * control.itemHeight + topPadding + bottomPadding
+            return Math.min((whole + 0.5) * control.itemHeight + topPadding + bottomPadding, room)
         }
         transformOrigin: Item.Top
         // Modal, as the menus of the workout history, so a screen reader's touch on an item cannot
@@ -389,6 +390,8 @@ T.ComboBox {
                 // bar instead of the item. A disabled item gets no touches; the bar still follows
                 // the list
                 enabled: false
+                // only a hint for the eye, a screen reader has the items
+                Accessible.ignored: true
                 minimumSize: height > 0 ? Math.min(1.0, 24 / height) : 0
                 contentItem: Rectangle {
                     implicitWidth: 4
