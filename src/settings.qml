@@ -2507,6 +2507,8 @@ import AndroidStatusBar 1.0
             property bool resistance_compatibility: false
             // Keep newly added properties at the end to preserve settings order on iOS.
             property bool strava_synthetic_gps_track: false
+            property double gears_max: 999.0
+            property double gears_min: -999.0
 
         }
 
@@ -5011,6 +5013,83 @@ import AndroidStatusBar 1.0
                         font.italic: true
                         font.pixelSize: window.fontHint
                         bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Gears Max:")
+                            Layout.fillWidth: true
+                        }
+                        SettingsNumberField {
+                            id: gearsMaxTextField
+                            Accessible.name: qsTr("Gears Max:") + " " + text
+                            minimum: 0
+                            savedText: settings.gears_max
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: if (valid) settings.gears_max = value
+                            onActiveFocusChanged: if (this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            enabled: gearsMaxTextField.valid && gearsMaxTextField.dirty
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.gears_max = gearsMaxTextField.value; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Maximum gear value allowed. Default is 999.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Gears Min:")
+                            Layout.fillWidth: true
+                        }
+                        SettingsNumberField {
+                            id: gearsMinTextField
+                            Accessible.name: qsTr("Gears Min:") + " " + text
+                            signed: true
+                            maximum: settings.gears_max
+                            savedText: settings.gears_min
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: if (valid) settings.gears_min = value
+                            onActiveFocusChanged: if (this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            enabled: gearsMinTextField.valid && gearsMinTextField.dirty
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.gears_min = gearsMinTextField.value; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Minimum gear value allowed. Default is -999.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
