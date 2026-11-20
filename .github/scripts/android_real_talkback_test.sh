@@ -171,7 +171,7 @@ double_tap
 result=$(peek --peek-node App_Language)
 note "$result"
 echo "$result" | grep -F TALKBACK_NODE >/dev/null || fail "General Options did not open"
-focus_node "Experimental Features"
+focus_node Experimental_Features
 double_tap
 result=$(peek --peek-node Gym_Mode)
 note "$result"
