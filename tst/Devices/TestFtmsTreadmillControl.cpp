@@ -109,3 +109,21 @@ TEST_F(FtmsTreadmillControlTest, PreservesDeclineInVirtualTreadmillTelemetry) {
         EXPECT_DOUBLE_EQ(reportedIncline, incline);
     }
 }
+
+TEST_F(FtmsTreadmillControlTest, NewWorkoutStartsStepCountAtZero) {
+    treadmill.StepCount = 120.0;
+    EXPECT_DOUBLE_EQ(treadmill.currentStepCount().value(), 120.0);
+
+    // A new workout should start at zero even when the device stays connected.
+    treadmill.clearStats();
+    EXPECT_DOUBLE_EQ(treadmill.currentStepCount().value(), 0.0);
+
+    // Cadence-based steps must continue accumulating from the new session offset.
+    treadmill.StepCount += 15.0;
+    EXPECT_DOUBLE_EQ(treadmill.currentStepCount().value(), 15.0);
+
+    treadmill.clearStats();
+    EXPECT_DOUBLE_EQ(treadmill.currentStepCount().value(), 0.0);
+    treadmill.StepCount += 8.0;
+    EXPECT_DOUBLE_EQ(treadmill.currentStepCount().value(), 8.0);
+}

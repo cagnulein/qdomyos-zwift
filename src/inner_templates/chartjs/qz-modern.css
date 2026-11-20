@@ -1,13 +1,15 @@
-/* Shared by the web pages of the app in the modern look: the charts (chartjs/chart.htm) and
-   the workout from the history (previewchart/chart.htm).
-   The card corners of the QML components, so the pages do not read as something else;
-   the colours come from qz-theme-bridge.js. Only rules under html.modern: the
-   classic look is untouched. An old WebView (Android 5 consoles) skips what it does not know,
+/* Shared by the web pages of the app in the modern look: the charts (chartjs/chart.htm), the
+   history preview (previewchart/chart.htm) and the workout editor (workouteditor/index.html).
+   The sizes and weights of the QML components, so the pages do not read as something else;
+   the colours come from qz-theme-bridge.js. Only rules under html.modern (the .qz-menu
+   elements exist only in the modern look, qz-modern-select.js): the classic look is untouched. An old WebView (Android 5 consoles) skips what it does not know,
    nothing here is required for the page to work. */
 
 html.modern {
     /* The same values as window.ui and the Ui* components of the QML pages */
     --qz-radius-card: 16px;
+    --qz-radius-field: 12px;
+    --qz-weight-strong: 600;
     font-family: Roboto, "Segoe UI", sans-serif;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
@@ -24,8 +26,137 @@ html.modern * {
     -webkit-tap-highlight-color: transparent;
 }
 
-/* Text selection by a long press belongs to text fields, not to the charts */
+/* Text selection by a long press belongs to text fields, not to buttons and labels */
+html.modern button,
+html.modern label,
+html.modern .card-actions,
 html.modern canvas {
     -webkit-user-select: none;
     user-select: none;
+}
+
+/* ...but a field inside a label stays a field: WebKit of iOS inherits user-select into it and
+   then the field takes no caret, selection or paste */
+html.modern label input,
+html.modern label textarea {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+/* Drop-down lists (qz-modern-select.js): the select takes no taps, the page opens its own
+   menu instead of the white system list. Colours of the workout editor, with the chart
+   pages' names as the fallback. Only on the pages that load the script (it marks the page
+   with qz-select-menus): elsewhere a select keeps its system list */
+html.modern.qz-select-menus select {
+    pointer-events: none;
+}
+
+.qz-menu-backdrop {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+.qz-menu {
+    position: fixed;
+    /* the max-height of qz-modern-select.js is the whole box, the padding inside */
+    box-sizing: border-box;
+    overflow-y: auto;
+    padding: 8px 0;
+    /* the menus of the app (UiMenuBackground): corner 16, the shadow of level 2 */
+    border-radius: 16px;
+    background: var(--panel-elevated, var(--qz-surface, #2b3140));
+    color: var(--text-color, var(--qz-text, #fff));
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    font-size: 1rem;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* the scroll bar of the menu is its own (.qz-menu-bar): not a second one of the system beside
+   it while the list moves */
+.qz-menu::-webkit-scrollbar {
+    display: none;
+}
+
+html.modern.light .qz-menu {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+}
+
+/* a row 8 from the edges, corner 12; a thin line between the rows, as in the lists of the
+   settings (UiComboBox) */
+.qz-menu-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    margin: 0 8px;
+    padding: 0 8px;
+    border-radius: 12px;
+}
+
+.qz-menu-item + .qz-menu-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    border-top: 1px solid var(--border-color, rgba(128, 128, 128, 0.3));
+}
+
+.qz-menu-item.selected {
+    color: var(--accent-color, var(--qz-accent, #9c7cf4));
+}
+
+@supports (background: color-mix(in srgb, red 50%, blue)) {
+    .qz-menu-item + .qz-menu-item::before {
+        border-top-color: color-mix(in srgb, var(--border-color, #808080) 60%, transparent);
+    }
+
+    .qz-menu-item.selected {
+        background: color-mix(in srgb, var(--accent-color, var(--qz-accent, #9c7cf4)) 14%, transparent);
+    }
+}
+
+/* no line next to the selected row or the pressed one (UiComboBox) */
+.qz-menu-item.selected::before,
+.qz-menu-item.selected + .qz-menu-item::before,
+.qz-menu-item:active::before,
+.qz-menu-item:active + .qz-menu-item::before {
+    border-top-color: transparent;
+}
+
+.qz-menu-item:active {
+    background: rgba(128, 128, 128, 0.18);
+}
+
+/* pressed: the state layer of the app - the colour of the text at 10 %, over the fill of the
+   selected row too */
+@supports (background: color-mix(in srgb, red 50%, blue)) {
+    .qz-menu-item:active {
+        background: transparent;
+        box-shadow: inset 0 0 0 100vmax color-mix(in srgb, currentColor 10%, transparent);
+    }
+
+    .qz-menu-item.selected:active {
+        background: color-mix(in srgb, var(--accent-color, var(--qz-accent, #9c7cf4)) 14%, transparent);
+    }
+}
+
+.qz-menu-item.disabled {
+    opacity: 0.38;
+}
+
+/* The scroll bar of a list that does not fit (qz-modern-select.js places it): 4 wide, in the
+   ink of the menu as grey as a disabled item; taps go through to the menu */
+.qz-menu-bar {
+    position: fixed;
+    width: 4px;
+    border-radius: 2px;
+    background: var(--text-color, var(--qz-text, #fff));
+    opacity: 0.38;
+    pointer-events: none;
 }

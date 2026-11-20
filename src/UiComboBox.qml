@@ -73,6 +73,17 @@ T.ComboBox {
         font: control.font
     }
 
+    // Modern: the height of an item of the list - Material's 48, or more with a bigger text: the
+    // item is its text and the vertical padding of Material's MenuItem (12 each side). Measured
+    // with the font of the list, not of the box (the gym mode device box sets a bigger one): with
+    // a text size set, the items take it from the window like the list; at 100 % the 48 holds
+    FontMetrics {
+        id: itemFontMetrics
+        font: control.popup.font
+    }
+    readonly property real itemHeight: Math.max(control.Material.menuItemHeight,
+                                                Math.ceil(itemFontMetrics.height) + 2 * control.Material.menuItemVerticalPadding)
+
     // With a bigger text the label left of the box wraps, but the row still shared its width as
     // if the label were one line, and squeezed the box: the shown item was cut in the middle of
     // a word. The box keeps the width of its text (at most half the window); 0 is the default
@@ -123,6 +134,8 @@ T.ComboBox {
     delegate: MenuItem {
         id: menuItem
         width: ListView.view.width
+        // Modern: exactly the height the list is cut by (itemHeight, whole pixels of the text)
+        height: control.modern ? control.itemHeight : implicitHeight
         text: control.labelFor(control.textRole ? (Array.isArray(control.model) ? modelData[control.textRole] : model[control.textRole]) : modelData)
         // Screen reader: Qt 5.15 gives a MenuItem no accessible action (Qt 6.5 does), so on
         // Android its node is not clickable and a TalkBack touch on an item went to the whole
@@ -300,8 +313,18 @@ T.ComboBox {
         // items lazily (#5236)
         width: Math.min(Math.max(control.width, control.widestItem + 32 + leftPadding + rightPadding),
                         control.Window.width - leftMargin - rightMargin)
-        height: Math.min(control.count * control.Material.menuItemHeight + topPadding + bottomPadding,
-                         control.Window.height - topMargin - bottomMargin)
+        height: {
+            var room = control.Window.height - topMargin - bottomMargin
+            if (!control.modern)
+                return Math.min(control.count * control.Material.menuItemHeight + topPadding + bottomPadding, room)
+            var full = control.count * control.itemHeight + topPadding + bottomPadding
+            if (full <= room)
+                return full
+            // Modern, a list longer than the window: the bottom at the middle of an item, so the
+            // cut item shows that the list goes on (a whole item at the edge looked like its end)
+            var whole = Math.max(0, Math.floor((room - topPadding - bottomPadding) / control.itemHeight - 0.5))
+            return Math.min((whole + 0.5) * control.itemHeight + topPadding + bottomPadding, room)
+        }
         transformOrigin: Item.Top
         // Modal, as the menus of the workout history, so a screen reader's touch on an item cannot
         // reach the row under the list; no dim, so it looks as before
@@ -339,13 +362,41 @@ T.ComboBox {
         }
 
         contentItem: ListView {
+            id: listView
             clip: true
             implicitHeight: contentHeight
             model: control.delegateModel
             currentIndex: control.highlightedIndex
             highlightMoveDuration: 0
 
-            T.ScrollIndicator.vertical: ScrollIndicator { }
+            T.ScrollIndicator.vertical: ScrollIndicator { visible: !control.modern }
+
+            // Modern: a scroll bar while the list is open and does not fit - the indicator shows
+            // only while the list moves. As the menus of the web pages (qz-modern-select.js): 4 wide,
+            // 4 from the edges of the menu, the text colour at 38 %. A template bar, Material's one
+            // animates the opacity of its handle; over the menu, not in the clipped list, with
+            // another parent Qt does not place it (QQuickScrollBarAttachedPrivate::layoutVertical)
+            T.ScrollBar.vertical: T.ScrollBar {
+                parent: listView.parent
+                z: 1
+                x: mirrored ? 4 : parent.width - width - 4
+                y: 4
+                width: 4
+                height: parent.height - 8
+                visible: control.modern && size < 1.0
+                interactive: false
+                // Qt 5.15.0 (Android): a bar that is not interactive still takes touches (fixed in
+                // 5.15.2, qtquickcontrols2 b6280dd207) - a touch at the edge of the menu went to the
+                // bar instead of the item. A disabled item gets no touches; the bar still follows
+                // the list
+                enabled: false
+                minimumSize: height > 0 ? Math.min(1.0, 24 / height) : 0
+                contentItem: Rectangle {
+                    implicitWidth: 4
+                    radius: 2
+                    color: window.ui.alpha(window.ui.textMain, 0.38)
+                }
+            }
         }
 
         // Classic: Material's popup background as before. Modern: the Material 3 menu container

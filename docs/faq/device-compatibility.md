@@ -200,3 +200,9 @@ If QZ does not discover the treadmill, close Kinomap and any other app using its
 On a **NordicTrack T 6.5 S / ProForm 525 CT with a basic console**, the Bluetooth device can advertise as **I_TL** rather than using the treadmill's retail model name. Turn on the treadmill and Bluetooth on the phone, close any other app connected to the treadmill, and look for **I_TL** in QZ's device discovery. Check that live treadmill metrics appear in QZ before pairing any other fitness app.
 
 An Android rider whose treadmill appeared as a ProForm 525 CT in iFIT explicitly confirmed that the treadmill connected after being directed to the **I_TL** Bluetooth name. This confirms connectivity for that basic-console variant, not every T 6.5 S revision or automatic incline-control behavior.
+
+## My Skandika Morpheus ergometer connects to QZ but speed and power remain at zero. What should I try?
+
+In **QZ Settings > Bike Options > Skandika Bike Options**, turn **Skandika X-2000 Protocol** **OFF** if it is enabled, then reconnect the ergometer and pedal to check the Speed and Watt tiles. This option is intended for the X-2000 protocol and should not be assumed to suit every Skandika model.
+
+A Skandika Morpheus owner using QZ on an iPhone reported that the ergometer connected but both speed and watts stayed at zero. After being asked to toggle **Skandika X-2000 Protocol**, the owner confirmed that it worked. The Skandika driver supports distinct protocol variants, so this is a model-specific troubleshooting step; keep the setting enabled if your actual bike uses the X-2000 protocol.

@@ -12,7 +12,7 @@ The exact Android menu names vary by device and manufacturer. On some devices, t
 
 The QZ Android Notification setting helps keep QZ active while Zwift is in the foreground, but Android's own battery management can still suspend or stop QZ in the background. In a confirmed support case, QZ repeatedly disconnected after roughly 2 to 5 minutes until the user found the additional Android battery setting and changed QZ to unrestricted battery usage. See [issue #5034](https://github.com/cagnulein/qdomyos-zwift/issues/5034).
 
-This workaround is Android-specific. iOS does not provide QZ with the same background mechanism; if your iOS setup requires QZ and the training app to remain active at the same time, use separate devices.
+This workaround is Android-specific. **iOS uses a different background mechanism:** the newer QZ iOS beta supports running QZ with Zwift or MyWhoosh on the **same iPhone or iPad** when **Experimental Settings > iOS Background Keep Alive** is enabled. See the [iOS FAQ](ios.md).
 
 ## Debug logging is enabled, but QZ has stopped creating new log files. What should I try?
 

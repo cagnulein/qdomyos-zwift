@@ -3370,6 +3370,10 @@ Bij de eerste start kan dit even duren.</translation>
 <context>
     <name>homeform</name>
     <message>
+        <source>No enabled metrics</source>
+        <translation>Geen meetwaarden ingeschakeld</translation>
+    </message>
+    <message>
         <source>Speed (%1/h)</source>
         <translation>Snelheid (%1/h)</translation>
     </message>
@@ -4295,6 +4299,10 @@ Bij de eerste start kan dit even duren.</translation>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Zwevende meetwaarden (beeld-in-beeld)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>

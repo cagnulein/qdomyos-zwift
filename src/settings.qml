@@ -2699,7 +2699,7 @@ import AndroidStatusBar 1.0
             Label {
                 visible: settingsCatalogError.length > 0
                 text: settingsCatalogError
-                color: Material.color(Material.Red)
+                color: window.ui.modern ? window.ui.danger : Material.color(Material.Red)
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
             }
@@ -3620,7 +3620,7 @@ import AndroidStatusBar 1.0
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
                         Layout.fillWidth: true
-                        color: Material.color(Material.Red)
+                        color: window.ui.modern ? window.ui.warning : Material.color(Material.Red)
                     }
 
                     Button {
@@ -4596,7 +4596,7 @@ import AndroidStatusBar 1.0
                                 wrapMode: Text.WordWrap
                                 Layout.fillWidth: true
                                 Layout.topMargin: 10
-                                color: Material.color(Material.Orange)
+                                color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Orange)
                             }
                         }
                     }
@@ -7281,7 +7281,7 @@ import AndroidStatusBar 1.0
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
-                        color: Material.color(Material.Red)
+                        color: window.ui.modern ? window.ui.warning : Material.color(Material.Red)
                         Layout.fillWidth: true
                     }
 
@@ -8412,7 +8412,7 @@ import AndroidStatusBar 1.0
                                 anchors.verticalCenter: parent.verticalCenter
                                 name: rootItem.pelotonLogin === 1 ? "check_circle" : "cancel"
                                 size: 18
-                                color: rootItem.pelotonLogin === 1 ? "#4caf50" : "#f44336"
+                                color: window.ui.modern ? (rootItem.pelotonLogin === 1 ? window.ui.ok : window.ui.danger) : (rootItem.pelotonLogin === 1 ? "#4caf50" : "#f44336")
                             }
                         }
                         SettingsTextField {
@@ -8759,7 +8759,7 @@ import AndroidStatusBar 1.0
                                 anchors.verticalCenter: parent.verticalCenter
                                 name: rootItem.pzpLogin === 1 ? "check_circle" : "cancel"
                                 size: 18
-                                color: rootItem.pzpLogin === 1 ? "#4caf50" : "#f44336"
+                                color: window.ui.modern ? (rootItem.pzpLogin === 1 ? window.ui.ok : window.ui.danger) : (rootItem.pzpLogin === 1 ? "#4caf50" : "#f44336")
                             }
                         }
                         SettingsTextField {
@@ -9314,7 +9314,7 @@ import AndroidStatusBar 1.0
                                 anchors.verticalCenter: parent.verticalCenter
                                 name: rootItem.zwiftLogin === 1 ? "check_circle" : "cancel"
                                 size: 18
-                                color: rootItem.zwiftLogin === 1 ? "#4caf50" : "#f44336"
+                                color: window.ui.modern ? (rootItem.zwiftLogin === 1 ? window.ui.ok : window.ui.danger) : (rootItem.zwiftLogin === 1 ? "#4caf50" : "#f44336")
                             }
                         }
                         SettingsTextField {
@@ -10799,7 +10799,7 @@ import AndroidStatusBar 1.0
                         verticalAlignment: Text.AlignVCenter
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        color: Material.color(Material.Orange)
+                        color: window.ui.modern ? window.ui.warning : Material.color(Material.Orange)
                     }
                 }
             }
@@ -14459,8 +14459,8 @@ import AndroidStatusBar 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    CheckBox {
-                        id: waterrowerUSBCheckBox
+                    IndicatorOnlySwitch {
+                        id: waterrowerUSBDelegate
                         text: qsTr("WaterRower USB")
                         spacing: 0
                         bottomPadding: 0
@@ -14471,6 +14471,9 @@ import AndroidStatusBar 1.0
                         checked: settings.waterrower_usb
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
+                        // in Qt 5.15 the role of a SwitchDelegate has no action: a double tap of the
+                        // screen reader did nothing
+                        Accessible.onPressAction: { toggle(); clicked(); }
                         onClicked: { settings.waterrower_usb = checked; window.settings_restart_to_apply = true; }
                     }
 
@@ -16032,7 +16035,7 @@ import AndroidStatusBar 1.0
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
-                                color: Material.color(Material.Red)
+                                color: window.ui.modern ? window.ui.warning : Material.color(Material.Red)
                                 Layout.fillWidth: true
                             }
 

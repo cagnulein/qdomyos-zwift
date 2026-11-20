@@ -72,8 +72,7 @@ Popup {
     height: modern ? implicitHeight : 0
     x: Math.round((parent.width - width) / 2)
     // Centred between the system bars: the window goes under them (edge to edge). Read only for
-    // an open modern card: on iOS getTopPadding() reads a property with no notify signal, and every
-    // closed card of main.qml logged that warning at the start (54 lines, classic look too)
+    // an open modern card: a closed one has no position to keep, and main.qml has many of them
     readonly property real insetTop: modern && visible ? window.getTopPadding() : 0
     readonly property real insetBottom: modern && visible ? window.getBottomPadding() : 0
     y: Math.round(insetTop + (parent.height - insetTop - insetBottom - height) / 2)

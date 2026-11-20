@@ -16,6 +16,12 @@
         height: 100%;
         width: 100%;
       }
+      /* Two-finger zoom and rotation are for the map only: OpenLayers 6 sets no touch-action, so
+         the web view could take a pinch over and zoom the whole page (blurred marker, the zoom and
+         rotation buttons off the screen). OpenLayers 7.5 added the same rule to ol.css (PR 14906) */
+      .ol-viewport {
+        touch-action: none;
+      }
     </style>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="globals.js"></script>
@@ -23,6 +29,44 @@
     <script src="../i18n/i18n.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@8babde6bd1f6b85d26e7db1fe710e9887bec18ea/en/v6.14.1/build/ol.js"></script>
     <title>OpenLayers example</title>
+  <!-- Modern look of the app: GoogleMap.qml passes its theme in the URL fragment and calls
+       qzApplyTheme() when it changes (qz-theme-bridge.js). Without the fragment - the classic
+       look - the page keeps its own look. -->
+  <script src="../chartjs/qz-theme-bridge.js"></script>
+  <style>
+    /* The page behind the tiles while they load; the tiles keep their own colours */
+    html.modern, html.modern body { background: var(--qz-bg, #111); }
+    /* The zoom buttons and the reset-rotation one (shown after a two-finger rotation) as the small
+       floating buttons of the app instead of the blue of OpenLayers: 40 px, corner 12, the surface
+       with a 16 % accent tone (28 % pressed), the sign in the accent colour, a shadow that lifts them
+       off the tiles. The touch area is the button itself, 40 px: larger than the ~33 px of OpenLayers
+       on a touch screen, and there is nothing else to hit in that corner of the map. Only these two
+       groups: the OpenStreetMap attribution keeps its light strip, the text would be hard to read on
+       the tiles */
+    html.modern .ol-zoom, html.modern .ol-rotate { background: transparent; }
+    html.modern .ol-zoom button, html.modern .ol-rotate button {
+      position: relative; z-index: 0; width: 40px; height: 40px; font-size: 26px; border-radius: 12px;
+      background: var(--qz-surface); color: var(--qz-accent); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+    html.modern.light .ol-zoom button, html.modern.light .ol-rotate button { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); }
+    html.modern .ol-zoom .ol-zoom-in { margin-bottom: 8px; }
+    /* The accent tone over the surface: the variables are opaque "#rrggbb", so it is a layer with
+       opacity under the sign rather than a mixed colour */
+    html.modern .ol-zoom button::before, html.modern .ol-rotate button::before {
+      content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index: -1;
+      border-radius: inherit; background: var(--qz-accent); opacity: 0.16;
+    }
+    html.modern .ol-zoom button:active::before, html.modern .ol-rotate button:active::before { opacity: 0.28; }
+    /* The thin outline arrow of the reset-rotation button is hard to see on the tone: a filled
+       arrowhead instead (Material Icons "navigation") in the accent colour. It is drawn inside
+       .ol-compass, which OpenLayers turns with the map; without the line of the hidden sign
+       (line-height 0) the arrowhead sits on the centre of the turn */
+    html.modern .ol-rotate .ol-compass { font-size: 0; line-height: 0; }
+    html.modern .ol-rotate .ol-compass::after {
+      content: ""; display: block; margin: 0 auto; width: 22px; height: 22px; background: var(--qz-accent);
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z'/%3E%3C/svg%3E") center / contain no-repeat;
+    }
+  </style>
   </head>
   <body>
     <div id="map" class="map"></div>

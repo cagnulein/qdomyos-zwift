@@ -878,6 +878,9 @@ public:
     }
 
     Q_INVOKABLE void sortTiles();
+    Q_INVOKABLE bool floatingMetricsSupported();
+    Q_INVOKABLE void toggleFloatingMetrics();
+    void updateFloatingMetrics();
     // Applies the app language at once, without a restart: "auto", "en" or a translation code
     Q_INVOKABLE void setAppLanguage(const QString &language);
     static void loadAppTranslation(const QString &language);

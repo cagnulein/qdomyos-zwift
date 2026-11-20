@@ -1746,6 +1746,10 @@ public class CustomQtActivity extends QtActivity {
                     localPath = ContentHelper.importContentToAppDirKeepExisting(this, uri, "",
                                                                                 ContentHelper.getFileSize(this, uri),
                                                                                 destinationDir);
+                } else if (resultCode == RESULT_OK && requestCode == DOCUMENT_PICKER_GPX_REQUEST_CODE) {
+                    // OsmAnd shares every route as route.gpx: a new track must not replace the
+                    // previous one. Size -1: only a file with the same content is the same track
+                    localPath = ContentHelper.importContentToAppDirKeepExisting(this, uri, "", -1, destinationDir);
                 } else if (resultCode == RESULT_OK) {
                     localPath = ContentHelper.importContentToAppDir(this, uri, destinationDir);
                 }

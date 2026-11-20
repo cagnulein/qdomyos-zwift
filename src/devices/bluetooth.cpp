@@ -2402,6 +2402,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith("HS-5000L") ||
                         (b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) && toorx_ftms ) ||
                         (b.name().toUpper().startsWith("DI") && b.name().length() == 2) || // Elite smart trainer #1682
+                        (b.name().toUpper().startsWith("AS6-")) ||                         // ART.IS Cross AS6 (ChangYow SM5081E BLE)
                         (b.name().toUpper().startsWith("DHZ-")) ||                         // JK fitness 577
                         (b.name().toUpper().startsWith("MKSM")) ||                         // MKSM3600036
                         (b.name().toUpper().startsWith("YS_C1_")) ||                       // Yesoul C1H
@@ -3085,7 +3086,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         ((b.name().toUpper().startsWith(QStringLiteral("HT")) && b.name().length() == 10) &&
                          ftms_bike.contains(QZSettings::default_ftms_bike)) ||
                         (b.name().toUpper().contains(QStringLiteral("CARE")) &&
-                         b.name().length() == 11) ||
+                         b.name().length() == 11 &&
+                         !b.name().toUpper().startsWith(QStringLiteral("CARE11216+"))) ||
                         sportsplusbike::isCareSportsPlusBike13Name(b.name())) // CARE9040177, CARE113770737
                        && !sportsPlusBike && filter) {
                 this->setLastBluetoothDevice(b);
@@ -3103,7 +3105,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 sportsPlusBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(sportsPlusBike);
             } else if (((b.name().toUpper().contains(QStringLiteral("CARE")) && b.name().length() >= 12 &&
-                         !sportsplusbike::isCareSportsPlusBike13Name(b.name())) ||  // CARE968300122, CARE10692135
+                         !sportsplusbike::isCareSportsPlusBike13Name(b.name()) &&
+                         !b.name().toUpper().startsWith(QStringLiteral("CARE11216+"))) ||  // CARE968300122, CARE10692135
                        (b.name().toUpper().startsWith(QStringLiteral("VMAX"))))
                        && !sportsPlusRower && filter) {
                 this->setLastBluetoothDevice(b);
@@ -3421,6 +3424,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         upperDeviceName.startsWith(QStringLiteral("FITHIWAY")) ||
                         upperDeviceName.startsWith(QStringLiteral("FIT HI WAY")) ||
                         upperDeviceName.startsWith(QStringLiteral("BODYSCULPTURE")) ||
+                        upperDeviceName.startsWith(QStringLiteral("CARE11216+")) ||
                         upperDeviceName.startsWith(QStringLiteral("BIKZU_")) ||
                         upperDeviceName.startsWith(QStringLiteral("PASYOU-")) ||
                         upperDeviceName.startsWith(QStringLiteral("VIRTUFIT")) ||

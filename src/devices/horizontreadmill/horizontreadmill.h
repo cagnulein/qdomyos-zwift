@@ -87,6 +87,7 @@ class horizontreadmill : public treadmill {
     double lastHorizonForceSpeed = 0;
     double minInclination = 0.0;
     double maxInclination = 15.0;
+    bool zipro_shred_treadmill = false;
 
     bool initDone = false;
     bool initRequest = false;
@@ -102,6 +103,7 @@ class horizontreadmill : public treadmill {
     bool mobvoi_tmp_treadmill = false;
     bool kettler_treadmill = false;
     bool wellfit_treadmill = false;
+    bool ks_esp_treadmill = false;
     bool sole_tt8_treadmill = false;
     bool sole_s77_treadmill = false;
     bool anplus_treadmill = false;
