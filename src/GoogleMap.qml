@@ -33,6 +33,37 @@ ColumnLayout {
             applyTheme()
     }
 
+    // The page of the maps type: the 3D one (googlemaps) or the 2D one (maps2d). Read from the
+    // stored settings each time, not from the property of the copy below: that one is read once,
+    // when the map is first opened, and the map then stays in its Loader for the whole run
+    readonly property string mapsType: loadedPage === "googlemaps" ? "3D" : "2D"
+    property string loadedPage: ""
+    function storedPage() {
+        return settings.value("maps_type") === "3D" ? "googlemaps" : "maps2d"
+    }
+    function loadPage() {
+        loadedPage = storedPage()
+        // Set once, not bound: the fragment is for this load, a later theme goes through
+        // runJavaScript. The new page is off the screen again until it has drawn
+        sentTheme = JSON.stringify(pageTheme)
+        pageLoaded = false
+        pageShown = !window.ui.modern
+        webView.url = "http://localhost:" + settings.value("template_inner_QZWS_port") + "/" +
+                      loadedPage + "/maps.htm" + window.ui.webThemeFragment()
+    }
+    // Another maps type: stored at once (setValue writes through, the property of the copy would
+    // be written only later), and the other page loaded
+    function setMapsType(type) {
+        settings.setValue("maps_type", type)
+        if (storedPage() !== loadedPage)
+            loadPage()
+    }
+    // A maps type changed in the settings since the map was last shown: the other page
+    StackView.onActivating: {
+        if (storedPage() !== loadedPage)
+            loadPage()
+    }
+
     Settings {
         id: settings
         property string maps_type: "3D"
@@ -94,11 +125,6 @@ ColumnLayout {
     }
      Component.onCompleted: {
          headerToolbar.visible = true;
-         // Set once, not bound: the fragment is for the first load, a later theme goes
-         // through runJavaScript
-         sentTheme = JSON.stringify(pageTheme)
-         webView.url = "http://localhost:" + settings.value("template_inner_QZWS_port") + "/" +
-                       (settings.value("maps_type") === "3D" ? "googlemaps" : "maps2d") + "/maps.htm" +
-                       window.ui.webThemeFragment()
+         loadPage()
      }
 }
