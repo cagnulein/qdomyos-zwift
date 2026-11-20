@@ -38,8 +38,10 @@ ColumnLayout {
     // when the map is first opened, and the map then stays in its Loader for the whole run
     readonly property string mapsType: loadedPage === "googlemaps" ? "3D" : "2D"
     property string loadedPage: ""
+    // A fresh install has no maps_type stored yet: the default of the copy, 3D as in the settings,
+    // or the first map would be 2D and the next one 3D, once the copy has written its default
     function storedPage() {
-        return settings.value("maps_type") === "3D" ? "googlemaps" : "maps2d"
+        return settings.value("maps_type", settings.maps_type) === "3D" ? "googlemaps" : "maps2d"
     }
     function loadPage() {
         loadedPage = storedPage()
