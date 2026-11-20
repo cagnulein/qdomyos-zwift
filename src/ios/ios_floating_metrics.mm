@@ -19,6 +19,7 @@ API_AVAILABLE(ios(15.0))
 + (instancetype)shared;
 - (void)start;
 - (void)render;
+- (void)scheduleForegroundStart:(NSUInteger)attempt controller:(AVPictureInPictureController *)controller;
 - (void)finish;
 @end
 
@@ -63,25 +64,44 @@ API_AVAILABLE(ios(15.0))
     self.controller.delegate = self;
     self.controller.requiresLinearPlayback = YES;
     self.controller.canStartPictureInPictureAutomaticallyFromInline = YES;
-    self.pending = YES;
+    self.pending = UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad;
     [self render];
     [self.controller addObserver:self forKeyPath:@"pictureInPicturePossible" options:NSKeyValueObservingOptionNew context:NULL];
     self.observing = YES;
     qDebug() << "Floating metrics: controller ready; PiP possible" << self.controller.isPictureInPicturePossible << "layer status" << (int)self.layer.status;
-    if (self.controller.isPictureInPicturePossible) { qDebug() << "Floating metrics: requesting PiP immediately"; self.pending = NO; [self.controller startPictureInPicture]; }
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 8 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        if (self.pending) { qWarning() << "Floating metrics: PiP unavailable after timeout; layer status" << (int)self.layer.status << "error" << (self.layer.error ? self.layer.error.localizedDescription.UTF8String : "none"); [self finish]; }
+    if (self.pending) {
+        qDebug() << "Floating metrics: iPad foreground start scheduled";
+        [self scheduleForegroundStart:0 controller:self.controller];
+    } else {
+        qDebug() << "Floating metrics: iPhone armed for automatic start when leaving QZ";
+    }
+}
+- (void)scheduleForegroundStart:(NSUInteger)attempt controller:(AVPictureInPictureController *)controller {
+    if (attempt >= 8) {
+        if (self.controller == controller) {
+            self.pending = NO;
+            qWarning() << "Floating metrics: foreground PiP unavailable after 8 attempts; automatic background start remains armed";
+        }
+        return;
+    }
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        if (self.controller != controller || controller.isPictureInPictureActive) return;
+        qDebug() << "Floating metrics: foreground start check" << (int)attempt + 1
+                 << "possible" << controller.isPictureInPicturePossible << "layer status" << (int)self.layer.status
+                 << "ready" << self.layer.readyForMoreMediaData;
+        if (controller.isPictureInPicturePossible) {
+            self.pending = NO;
+            qDebug() << "Floating metrics: requesting foreground PiP";
+            [controller startPictureInPicture];
+        } else {
+            [self scheduleForegroundStart:attempt + 1 controller:controller];
+        }
     });
 }
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     Q_UNUSED(change); Q_UNUSED(context);
     if (object == self.controller && [keyPath isEqualToString:@"pictureInPicturePossible"])
         qDebug() << "Floating metrics: PiP possible changed" << self.controller.isPictureInPicturePossible << "pending" << self.pending;
-    if (object == self.controller && [keyPath isEqualToString:@"pictureInPicturePossible"] && self.pending && self.controller.isPictureInPicturePossible) {
-        qDebug() << "Floating metrics: requesting PiP after availability change";
-        self.pending = NO;
-        [self.controller startPictureInPicture];
-    }
 }
 - (void)render {
     if (!self.layer) return;
@@ -93,13 +113,14 @@ API_AVAILABLE(ios(15.0))
     NSString *signature = [NSString stringWithFormat:@"%@/%lu/%lu/%@", shown, (unsigned long)page, (unsigned long)pages, self.emptyLabel ?: @""];
     if ([signature isEqualToString:self.lastFrame] && self.layer.status != AVQueuedSampleBufferRenderingStatusFailed) return;
     CVPixelBufferRef pixel = NULL;
-    NSDictionary *attrs = @{(id)kCVPixelBufferCGImageCompatibilityKey:@YES, (id)kCVPixelBufferCGBitmapContextCompatibilityKey:@YES};
-    if (CVPixelBufferCreate(kCFAllocatorDefault, 480, 270, kCVPixelFormatType_32BGRA, (__bridge CFDictionaryRef)attrs, &pixel) != kCVReturnSuccess) return;
+    NSDictionary *attrs = @{(id)kCVPixelBufferCGImageCompatibilityKey:@YES, (id)kCVPixelBufferCGBitmapContextCompatibilityKey:@YES, (id)kCVPixelBufferIOSurfacePropertiesKey:@{}};
+    CVReturn pixelStatus = CVPixelBufferCreate(kCFAllocatorDefault, 480, 270, kCVPixelFormatType_32BGRA, (__bridge CFDictionaryRef)attrs, &pixel);
+    if (pixelStatus != kCVReturnSuccess || !pixel) { qWarning() << "Floating metrics: pixel buffer creation failed" << pixelStatus; return; }
     CVPixelBufferLockBaseAddress(pixel, 0);
     CGColorSpaceRef color = CGColorSpaceCreateDeviceRGB();
     CGContextRef ctx = CGBitmapContextCreate(CVPixelBufferGetBaseAddress(pixel), 480, 270, 8, CVPixelBufferGetBytesPerRow(pixel), color, kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst);
     CGColorSpaceRelease(color);
-    if (!ctx) { CVPixelBufferUnlockBaseAddress(pixel, 0); CVPixelBufferRelease(pixel); return; }
+    if (!ctx) { qWarning() << "Floating metrics: bitmap context creation failed"; CVPixelBufferUnlockBaseAddress(pixel, 0); CVPixelBufferRelease(pixel); return; }
     CGContextTranslateCTM(ctx, 0, 270); CGContextScaleCTM(ctx, 1, -1);
     UIGraphicsPushContext(ctx);
     [[UIColor colorWithWhite:0.06 alpha:1] setFill]; UIRectFill(CGRectMake(0, 0, 480, 270));
@@ -116,17 +137,24 @@ API_AVAILABLE(ios(15.0))
     UIGraphicsPopContext(); CGContextRelease(ctx);
     CVPixelBufferUnlockBaseAddress(pixel, 0);
     CMVideoFormatDescriptionRef format = NULL; CMSampleBufferRef sample = NULL;
-    if (CMVideoFormatDescriptionCreateForImageBuffer(kCFAllocatorDefault, pixel, &format) == noErr) {
+    OSStatus formatStatus = CMVideoFormatDescriptionCreateForImageBuffer(kCFAllocatorDefault, pixel, &format);
+    if (formatStatus == noErr) {
         CMSampleTimingInfo timing = {kCMTimeInvalid, CMClockGetTime(CMClockGetHostTimeClock()), kCMTimeInvalid};
-        if (CMSampleBufferCreateReadyWithImageBuffer(kCFAllocatorDefault, pixel, format, &timing, &sample) == noErr) {
+        OSStatus sampleStatus = CMSampleBufferCreateReadyWithImageBuffer(kCFAllocatorDefault, pixel, format, &timing, &sample);
+        if (sampleStatus == noErr) {
             CFArrayRef attachments = CMSampleBufferGetSampleAttachmentsArray(sample, true);
             if (attachments && CFArrayGetCount(attachments)) CFDictionarySetValue((CFMutableDictionaryRef)CFArrayGetValueAtIndex(attachments, 0), kCMSampleAttachmentKey_DisplayImmediately, kCFBooleanTrue);
             if (self.layer.status == AVQueuedSampleBufferRenderingStatusFailed) [self.layer flush];
-            if (self.layer.readyForMoreMediaData) { [self.layer enqueueSampleBuffer:sample]; self.lastFrame = signature; }
+            if (self.layer.readyForMoreMediaData) {
+                BOOL firstFrame = self.lastFrame == nil;
+                [self.layer enqueueSampleBuffer:sample]; self.lastFrame = signature;
+                if (firstFrame) qDebug() << "Floating metrics: first IOSurface frame enqueued, layer status" << (int)self.layer.status;
+            } else if (!self.lastFrame) qWarning() << "Floating metrics: layer not ready for first frame";
             CFRelease(sample);
-        }
+        } else qWarning() << "Floating metrics: sample buffer creation failed" << sampleStatus;
         CFRelease(format);
     }
+    else qWarning() << "Floating metrics: format description creation failed" << formatStatus;
     CVPixelBufferRelease(pixel);
 }
 - (void)finish {
@@ -135,6 +163,8 @@ API_AVAILABLE(ios(15.0))
     if (self.observing) { [self.controller removeObserver:self forKeyPath:@"pictureInPicturePossible"]; self.observing = NO; }
     [self.preview removeFromSuperview]; self.preview = nil; self.layer = nil; self.controller = nil; self.lastFrame = nil;
 }
+- (void)pictureInPictureControllerWillStartPictureInPicture:(AVPictureInPictureController *)controller { Q_UNUSED(controller); qDebug() << "Floating metrics: PiP will start"; }
+- (void)pictureInPictureControllerWillStopPictureInPicture:(AVPictureInPictureController *)controller { Q_UNUSED(controller); qDebug() << "Floating metrics: PiP will stop"; }
 - (void)pictureInPictureControllerDidStartPictureInPicture:(AVPictureInPictureController *)controller { Q_UNUSED(controller); qDebug() << "Floating metrics: PiP started"; self.preview.alpha = 0.01; }
 - (void)pictureInPictureController:(AVPictureInPictureController *)controller restoreUserInterfaceForPictureInPictureStopWithCompletionHandler:(void (^)(BOOL))completion { Q_UNUSED(controller); completion(YES); }
 - (void)pictureInPictureControllerDidStopPictureInPicture:(AVPictureInPictureController *)controller { Q_UNUSED(controller); qDebug() << "Floating metrics: PiP stopped"; [self finish]; }
