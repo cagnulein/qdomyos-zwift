@@ -4,11 +4,24 @@
 #include "devices/bluetoothdevice.h"
 #include <QObject>
 
+// Optional FTMS virtual-rower capabilities. Opt-in only: legacy driver behavior is unchanged.
+// The limits are physical resistance levels, not the 0.1-unit FTMS wire representation.
+struct FtmsRowerResistanceCapabilities {
+    bool hasTelemetry = false;
+    bool canControl = false;
+    int minLevel = 1;
+    int maxLevel = 15;
+    int stepLevel = 1;
+};
+
 class rower : public bluetoothdevice {
     Q_OBJECT
 
   public:
     rower();
+    // Additive capability hook; existing rowers are read-only/unsupported by default
+    // until the implementation explicitly advertises verified resistance handling.
+    virtual FtmsRowerResistanceCapabilities ftmsResistanceCapabilities() const { return {}; }
     metric lastRequestedResistance();
     metric lastRequestedPelotonResistance();
     metric lastRequestedCadence();
