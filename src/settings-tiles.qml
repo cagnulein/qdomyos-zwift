@@ -5097,9 +5097,26 @@ ScrollView {
             spacing: 10
             Layout.fillWidth: true
 
-            CheckBox {
-                id: hrTimeInZoneIndividualModeCheckBox
+            // IndicatorOnlySwitch, not a plain SwitchDelegate as the tile titles around it: this title
+            // is longer, and a plain SwitchDelegate keeps a title on one line (cut short on an iPhone),
+            // IndicatorOnlySwitch wraps it
+            IndicatorOnlySwitch {
+                id: hrTimeInZoneIndividualModeDelegate
                 text: qsTr("Show individual zone times (instead of cumulative)")
+                // Screen reader: the press action of the tile titles around it (AccordionCheckElement)
+                Accessible.name: text
+                Accessible.checkable: true
+                Accessible.checked: checked
+                Accessible.onPressAction: {
+                    checked = !checked
+                    clicked()
+                }
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
                 Layout.fillWidth: true
                 checked: settings.tile_hr_time_in_zone_individual_mode
                 onClicked: {
