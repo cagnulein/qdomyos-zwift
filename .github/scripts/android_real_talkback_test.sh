@@ -74,6 +74,34 @@ focus_and_activate() {
     sleep 4
     foreground
 }
+require_named_node() {
+    name=$1
+    result=$(peek --peek-node "$name")
+    note "$result"
+    echo "$result" | grep -F 'TALKBACK_NODE' >/dev/null ||
+        fail "Toolbar control has no accessible name: $name"
+}
+require_named_node_either() {
+    first=$1
+    second=$2
+    result=$(peek --peek-node "$first")
+    if echo "$result" | grep -F 'TALKBACK_NODE' >/dev/null; then
+        note "$result"
+        return 0
+    fi
+    result=$(peek --peek-node "$second")
+    note "$result"
+    echo "$result" | grep -F 'TALKBACK_NODE' >/dev/null ||
+        fail "Toolbar control has no accessible name: $first / $second"
+}
+focus_without_activate() {
+    name=$1
+    result=$(peek "focus:$name")
+    note "$result"
+    echo "$result" | grep -F "OK accessible focus reached '$name'" >/dev/null ||
+        fail "TalkBack could not focus $name without activation"
+    foreground
+}
 note "Starting experimental REAL TalkBack focus and activation check"
 
 # This test MUST fail if the official open-source TalkBack APK did not install.
@@ -143,12 +171,23 @@ sleep 25
 recover_startup_window
 adb push a11y-test.jar /data/local/tmp/a11y-test.jar >/dev/null
 
+# The reported issue includes unlabeled controls in QZ's top toolbar. Check
+# the labels a blind user needs to identify the visible toolbar buttons before
+# entering the drawer. The stateful buttons have two legitimate names.
+require_named_node Main_menu
+require_named_node Floating_window
+require_named_node_either Lock_tiles Unlock_tiles
+require_named_node_either Enable_auto_resistance Disable_auto_resistance
+
 # ADB's shell swipe is not reliably recognized by TalkBack's gesture detector,
 # but TalkBack remains active here. In one UiAutomation connection, set and
 # verify the accessibility focus, then send ACTION_CLICK, the provider action
 # TalkBack sends after a user's double-tap gesture.
 adb logcat -c
 focus_and_activate Main_menu
+# Community points outside QZ. Focusing it must leave QZ in the foreground and
+# must not activate the link or launch a browser during TalkBack exploration.
+focus_without_activate Community
 focus_and_activate Settings
 result=$(peek --peek-node General_Options)
 note "$result"
@@ -164,9 +203,9 @@ result=$(peek --peek-node App_Language)
 note "$result"
 echo "$result" | grep -F TALKBACK_NODE >/dev/null || fail "General Options did not open"
 focus_and_activate Experimental_Features
-result=$(peek --peek-node Gym_Mode)
-note "$result"
-echo "$result" | grep -F TALKBACK_NODE >/dev/null || fail "Experimental Features did not open"
+# Claudio needs the debug log for support. Focus it and scroll it into view,
+# but do not toggle it; accessibility focus alone must not change settings.
+focus_without_activate Debug_Log
 
 # Keep the real TalkBack service running through the delay in which the
 # unexpected Chrome launch was reported; any foreground change is a failure.
