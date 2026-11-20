@@ -3606,7 +3606,7 @@ import AndroidStatusBar 1.0
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
                         Layout.fillWidth: true
-                        color: window.ui.modern ? window.ui.danger : Material.color(Material.Red)
+                        color: window.ui.modern ? window.ui.warning : Material.color(Material.Red)
                     }
 
                     Button {
@@ -7078,7 +7078,7 @@ import AndroidStatusBar 1.0
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
-                        color: window.ui.modern ? window.ui.danger : Material.color(Material.Red)
+                        color: window.ui.modern ? window.ui.warning : Material.color(Material.Red)
                         Layout.fillWidth: true
                     }
 
@@ -10596,7 +10596,7 @@ import AndroidStatusBar 1.0
                         verticalAlignment: Text.AlignVCenter
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        color: window.ui.modern ? window.ui.danger : Material.color(Material.Orange)
+                        color: window.ui.modern ? window.ui.warning : Material.color(Material.Orange)
                     }
                 }
             }
@@ -15829,7 +15829,7 @@ import AndroidStatusBar 1.0
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
-                                color: window.ui.modern ? window.ui.danger : Material.color(Material.Red)
+                                color: window.ui.modern ? window.ui.warning : Material.color(Material.Red)
                                 Layout.fillWidth: true
                             }
 
