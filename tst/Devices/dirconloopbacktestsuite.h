@@ -10,6 +10,7 @@ public:
     void test_wahoodircontreadmill_creates_virtual_treadmill_when_enabled();
     void test_wahoodirconbike_creates_virtual_bike_when_enabled();
     void test_two_fakebike_dircon_servers_accept_two_wahoodirconbike_clients();
+    void test_dircon_bind_failure_diagnostics_and_recovery();
 };
 
 TEST_F(DirconLoopbackTestSuite, FakeBikeDirconServerAcceptsWahooDirconBikeClient) {
@@ -30,6 +31,10 @@ TEST_F(DirconLoopbackTestSuite, DirconBikeCreatesVirtualBikeWhenEnabled) {
 
 TEST_F(DirconLoopbackTestSuite, TwoFakeBikeDirconServersAcceptTwoWahooDirconBikeClients) {
     this->test_two_fakebike_dircon_servers_accept_two_wahoodirconbike_clients();
+}
+
+TEST_F(DirconLoopbackTestSuite, DirconBindFailureDiagnosticsAndRecovery) {
+    this->test_dircon_bind_failure_diagnostics_and_recovery();
 }
 
 #endif // DIRCONLOOPBACKTESTSUITE_H

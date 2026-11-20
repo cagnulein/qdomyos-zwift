@@ -7,8 +7,16 @@
 #include <QSettings>
 #include <QHostInfo>
 #include <QTimer>
+#include <QCoreApplication>
+#include <QSet>
 
 int DirconProcessor::networkLostGeneration = 0;
+
+namespace {
+// Suppress repeated UI warnings from retries and competing virtual devices on the same port.
+// A successful bind resets the warning for a future failure episode.
+QSet<quint16> warnedBindPorts;
+}
 
 DirconProcessor::DirconProcessor(const QList<DirconProcessorService *> &my_services, const QString &serv_name,
                                  quint16 serv_port, const QString &serv_sn, const QString &my_mac, QObject *parent)
@@ -153,12 +161,35 @@ void DirconProcessor::initAdvertising() {
 
 bool DirconProcessor::init() {
     qDebug() << "Dircon Processor init for" << serverName;
-    bool rv = initServer();
+    const bool rv = initServer();
     qDebug() << "Dircon TCP Server RV" << rv;
-    if (rv)
+    if (rv) {
+        warnedBindPorts.remove(serverPort);
         initAdvertising();
-    else
-        qDebug() << "Cannot init dircon TCP server at port" << serverPort;
+    } else {
+        const QAbstractSocket::SocketError socketError = server->serverError();
+        const QString reason = server->errorString();
+        qWarning().noquote() << "DirCon TCP bind failed for" << serverName << "port" << serverPort
+                             << "socket error" << static_cast<int>(socketError) << "reason:" << reason
+                             << "IPv4 only:" << rouvy_compatibility;
+        emit bindFailed(serverPort, socketError, reason);
+
+        if (!warnedBindPorts.contains(serverPort)) {
+            warnedBindPorts.insert(serverPort);
+            // Defer until the event loop runs: a virtual device can start before the QML
+            // homeform exists. This changes only diagnostics, never the server lifecycle.
+            QTimer::singleShot(0, QCoreApplication::instance(), [port = serverPort, socketError]() {
+                if (homeform *home = homeform::singleton()) {
+                    home->setToastRequested(
+                        socketError == QAbstractSocket::AddressInUseError
+                            ? QObject::tr("DirCon port %1 is already in use. Check Fake Device settings or other apps, then restart QZ.")
+                                  .arg(port)
+                            : QObject::tr("DirCon could not start on port %1. Check the QZ Debug Log for details.")
+                                  .arg(port));
+                }
+            });
+        }
+    }
     return rv;
 }
 

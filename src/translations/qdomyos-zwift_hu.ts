@@ -1129,6 +1129,14 @@ Szeretné frissíteni a QZ beállításait?</translation>
         <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
         <translation>%1 (pulzusérzékelő) nem található. Ellenőrizd, hogy be van-e kapcsolva és sugározza-e a pulzusadatokat.</translation>
     </message>
+    <message>
+        <source>DirCon port %1 is already in use. Check Fake Device settings or other apps, then restart QZ.</source>
+        <translation>A DirCon %1-es portja már használatban van. Ellenőrizze a szimulált eszközök beállításait vagy a többi alkalmazást, majd indítsa újra a QZ-t.</translation>
+    </message>
+    <message>
+        <source>DirCon could not start on port %1. Check the QZ Debug Log for details.</source>
+        <translation>A DirCon nem tudott elindulni a(z) %1-es porton. Részletekért nézze meg a QZ hibakeresési naplóját.</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>

@@ -1145,6 +1145,14 @@ Do you want to update QZ settings?</source>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>YPOO M5 初始化失败，需要重新连接</translation>
     </message>
+    <message>
+        <source>DirCon port %1 is already in use. Check Fake Device settings or other apps, then restart QZ.</source>
+        <translation>DirCon 端口 %1 已被占用。请检查模拟设备设置或其他应用，然后重启 QZ。</translation>
+    </message>
+    <message>
+        <source>DirCon could not start on port %1. Check the QZ Debug Log for details.</source>
+        <translation>DirCon 无法在端口 %1 启动。请查看 QZ 调试日志了解详情。</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>

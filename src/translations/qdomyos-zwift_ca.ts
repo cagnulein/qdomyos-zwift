@@ -1098,6 +1098,14 @@ Do you want to update QZ settings?</source>
         <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
         <translation>No s&apos;ha trobat cap sensor de freqüència cardíaca a prop. Comprova que estigui encès i transmetent.</translation>
     </message>
+    <message>
+        <source>DirCon port %1 is already in use. Check Fake Device settings or other apps, then restart QZ.</source>
+        <translation>El port %1 de DirCon ja està en ús. Comprova la configuració dels dispositius simulats o altres aplicacions i reinicia QZ.</translation>
+    </message>
+    <message>
+        <source>DirCon could not start on port %1. Check the QZ Debug Log for details.</source>
+        <translation>No s'ha pogut iniciar DirCon al port %1. Consulta el registre de depuració de QZ per obtenir-ne detalls.</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
