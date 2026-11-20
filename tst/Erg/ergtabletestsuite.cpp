@@ -610,3 +610,169 @@ void ErgTableTestSuite::test_resistanceCadenceBanding() {
     EXPECT_EQ(2, erg.resistanceFromPowerRequest(130, 84, 3));
     EXPECT_EQ(1, erg.resistanceFromPowerRequest(130, 85, 3));
 }
+
+void ErgTableTestSuite::test_pairedPowerTable() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+    testSettings.qsettings.remove("ergDataPoints");
+
+    ergTable erg;
+    for (int i = 0; i < WattageStats::MIN_SAMPLES_REQUIRED; ++i) {
+        erg.collectData(80, 150, 7, 170, true);
+    }
+
+    EXPECT_EQ(170, erg.trainerPowerForPedalTarget(150, 80, 7));
+    EXPECT_EQ(180, erg.trainerPowerForPedalTarget(160, 80, 7));
+}
+
+void ErgTableTestSuite::test_legacyPowerTableLoading() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+
+    testSettings.qsettings.setValue("ergDataPoints", "80|150|7");
+    testSettings.qsettings.sync();
+    ergTable legacyTable;
+    EXPECT_EQ(150, legacyTable.estimateWattage(80, 7));
+    EXPECT_EQ(0, legacyTable.trainerPowerForPedalTarget(150, 80, 7));
+
+    testSettings.qsettings.setValue("ergDataPoints", "80|150|7|170");
+    testSettings.qsettings.sync();
+    ergTable pairedTable;
+    EXPECT_EQ(170, pairedTable.trainerPowerForPedalTarget(150, 80, 7));
+}
+
+void ErgTableTestSuite::test_pairedPowerTableRejectsDistantResistance() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+    testSettings.qsettings.remove("ergDataPoints");
+
+    ergTable erg;
+    for (int i = 0; i < WattageStats::MIN_SAMPLES_REQUIRED; ++i) {
+        erg.collectData(80, 150, 7, 180, true);
+    }
+
+    EXPECT_EQ(0, erg.trainerPowerForPedalTarget(150, 80, 20));
+}
+
+void ErgTableTestSuite::test_pairedPowerTableUsesPairedDeltaMedian() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+    testSettings.qsettings.remove("ergDataPoints");
+
+    ergTable erg;
+    for (int i = 0; i < WattageStats::MIN_SAMPLES_REQUIRED; ++i) {
+        erg.collectData(80, 150, 7, i == 0 ? 185 : 170, true);
+    }
+
+    EXPECT_EQ(170, erg.trainerPowerForPedalTarget(150, 80, 7));
+}
+
+void ErgTableTestSuite::test_pairedPowerTableWaitsForStableTarget() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+    testSettings.qsettings.remove("ergDataPoints");
+
+    ergTable erg;
+    for (int i = 0; i < WattageStats::MIN_SAMPLES_REQUIRED; ++i) {
+        erg.collectData(80, 150, 7, 180, 150, true);
+    }
+
+    EXPECT_TRUE(erg.getConsolidatedData().isEmpty());
+}
+
+void ErgTableTestSuite::test_pairedPowerTableRejectsRudyInstability() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+    testSettings.qsettings.remove("ergDataPoints");
+
+    // Representative samples from Rudy's FI9117 C91/R42-R43 region while the pedal target was 168 W:
+    // pedal power was about 172 W, but trainer power oscillated between roughly 206 W and 241 W.
+    const QList<uint16_t> trainerSamples{209, 241, 209, 225, 241, 218, 206, 230, 213, 241};
+    ergTable erg;
+    for (const uint16_t trainerWattage : trainerSamples) {
+        erg.collectData(91, 172, 43, trainerWattage, true);
+    }
+
+    EXPECT_EQ(0, erg.trainerPowerForPedalTarget(168, 91, 43));
+}
+
+void ErgTableTestSuite::test_pairedPowerTableRejectsExcessiveStableDelta() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+    testSettings.qsettings.remove("ergDataPoints");
+
+    // Rudy's clean-session data included C93/R39: pedal 116 W, trainer 180 W (+64 W).
+    // The delta is stable, but still too large to use as a trainer correction.
+    ergTable erg;
+    for (int i = 0; i < WattageStats::MIN_SAMPLES_REQUIRED; ++i) {
+        erg.collectData(93, 116, 39, 180, true);
+    }
+
+    EXPECT_EQ(0, erg.trainerPowerForPedalTarget(168, 93, 39));
+}
+
+void ErgTableTestSuite::test_pairedPowerTableIgnoresPersistedExcessiveDelta() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+    testSettings.qsettings.setValue("ergDataPoints", "93|116|39|180");
+    testSettings.qsettings.sync();
+
+    // A four-field point can come from an older build and must not bypass the
+    // same safety limit applied to points learned during the current session.
+    ergTable erg;
+    EXPECT_EQ(0, erg.trainerPowerForPedalTarget(168, 93, 39));
+}
+
+// FI9117 ion + SPEEDPLAY power matching must not depend on calculated resistance.
+// The observed trainer/pedal difference was roughly 44 W at a 168 W interval.
+void ErgTableTestSuite::test_stableFtmsPowerMatchConvergesWithoutJumps() {
+    StableFtmsPowerMatch match;
+    int command = match.adjustedPower(168, 166, 122, 90, 0);
+    EXPECT_EQ(168, command);
+    for (int second = 1; second <= 30; ++second) {
+        const int lastCommand = command;
+        const double trainer = command <= 168 ? 166.0 : command - 2.0;
+        command = match.adjustedPower(168, trainer, trainer - 44.0, 90.0, second * 1000LL);
+        EXPECT_LE(command - lastCommand, StableFtmsPowerMatch::MAX_UP_WATTS_PER_SECOND);
+        EXPECT_GE(command, 168);
+        EXPECT_LE(command, 212);
+    }
+    EXPECT_GE(command, 208);
+    EXPECT_LE(command, 212);
+}
+
+void ErgTableTestSuite::test_stableFtmsPowerMatchRejectsUnstableSensors() {
+    StableFtmsPowerMatch match;
+    EXPECT_EQ(168, match.adjustedPower(168, 166, 122, 90, 0));
+    for (int second = 1; second <= 20; ++second) {
+        // Alternating 11/56 W offsets cannot form a stable window.
+        const double pedal = second % 2 ? 155.0 : 110.0;
+        EXPECT_EQ(168, match.adjustedPower(168, 166, pedal, 90, second * 1000LL));
+    }
+    match.reset();
+    EXPECT_EQ(168, match.adjustedPower(168, 166, 76, 90, 0));
+    for (int second = 1; second <= 15; ++second) {
+        // A 90 W mismatch is too large to adopt automatically.
+        EXPECT_EQ(168, match.adjustedPower(168, 166, 76, 90, second * 1000LL));
+    }
+}
+
+void ErgTableTestSuite::test_stableFtmsPowerMatchResetsOnTargetAndSensorLoss() {
+    StableFtmsPowerMatch match;
+    int command = match.adjustedPower(168, 166, 122, 90, 0);
+    for (int second = 1; second <= 25; ++second) {
+        const double trainer = command <= 168 ? 166.0 : command - 2.0;
+        command = match.adjustedPower(168, trainer, trainer - 44.0, 90, second * 1000LL);
+    }
+    EXPECT_GT(command, 168);
+    const int afterLoss = match.adjustedPower(168, 0, 0, 0, 26000);
+    EXPECT_LT(afterLoss, command);
+    EXPECT_GE(afterLoss, 168);
+    for (int second = 27; second <= 38; ++second)
+        command = match.adjustedPower(168, 0, 0, 0, second * 1000LL);
+    EXPECT_EQ(168, command);
+
+    EXPECT_EQ(190, match.adjustedPower(190, 185, 141, 90, 39000));
+    EXPECT_EQ(0, match.adjustedPower(0, 185, 141, 90, 40000));
+    EXPECT_EQ(130, match.adjustedPower(130, 126, 82, 90, 41000));
+}
