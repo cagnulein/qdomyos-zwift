@@ -43,6 +43,9 @@ import java.util.List;
 
 public class AccessibilityTest {
     private static final String PACKAGE = "org.cagnulen.qdomyoszwift";
+    // QZ can take several seconds to publish its first virtual accessibility
+    // focus after startup on a busy Android emulator.
+    private static final int FOCUS_RETRIES = 60;
     private static UiAutomation automation;
     private static boolean scrollRequired;
 
@@ -87,7 +90,7 @@ public class AccessibilityTest {
             // TalkBack's double tap activates the focused item wherever it is
             // on screen; use its current bounds instead of fixed coordinates.
             AccessibilityNodeInfo focused = null;
-            for (int retry = 0; retry < 20 && focused == null; retry++) {
+            for (int retry = 0; retry < FOCUS_RETRIES && focused == null; retry++) {
                 AccessibilityNodeInfo root = automation.getRootInActiveWindow();
                 focused = root == null ? null : root.findFocus(AccessibilityNodeInfo.FOCUS_ACCESSIBILITY);
                 if (focused == null) Thread.sleep(250);
@@ -126,7 +129,7 @@ public class AccessibilityTest {
         // Unlike the regular UiAutomation regression tests, do not set focus,
         // scroll, or invoke any control action here.
         if (presses[0].equals("--peek-focused")) {
-            for (int retry = 0; retry < 20; retry++) {
+            for (int retry = 0; retry < FOCUS_RETRIES; retry++) {
                 AccessibilityNodeInfo root = automation.getRootInActiveWindow();
                 AccessibilityNodeInfo focused = root == null ? null
                         : root.findFocus(AccessibilityNodeInfo.FOCUS_ACCESSIBILITY);
