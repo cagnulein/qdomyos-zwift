@@ -16,6 +16,12 @@
         height: 100%;
         width: 100%;
       }
+      /* Two-finger zoom and rotation are for the map only: OpenLayers 6 sets no touch-action, so
+         the web view could take a pinch over and zoom the whole page (blurred marker, the zoom and
+         rotation buttons off the screen). OpenLayers 7.5 added the same rule to ol.css (PR 14906) */
+      .ol-viewport {
+        touch-action: none;
+      }
     </style>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="globals.js"></script>
