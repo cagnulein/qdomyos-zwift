@@ -1792,6 +1792,9 @@ ApplicationWindow {
             toolButtonSaveSettings.visible = true;
             stackView.push("settings.qml")
             break
+        case "floatingMetrics":
+            rootItem.toggleFloatingMetrics()
+            break
         case "history":
             stackView.push("WorkoutsHistory.qml")
             stackView.currentItem.fitfile_preview_clicked.connect(fitfile_preview_clicked)
@@ -1961,6 +1964,12 @@ ApplicationWindow {
                     onClicked: drawerAction("settings")
                 }
 
+            ItemDelegate {
+                text: qsTr("Floating Metrics (Picture in Picture)")
+                width: parent.width
+                visible: window.rootReady && rootItem.floatingMetricsSupported()
+                onClicked: drawerAction("floatingMetrics")
+            }
             ItemDelegate {
                 text: qsTr("Workouts History")
                 width: parent.width
@@ -2292,6 +2301,7 @@ ApplicationWindow {
                 UiDrawerItem { text: qsTr("Workout Editor"); iconName: "edit_note"; onClicked: drawerAction("editor") }
                 UiDrawerItem { text: qsTr("Open GPX"); iconName: "route"; onClicked: drawerAction("opengpx") }
                 UiDrawerItem { text: qsTr("Charts"); iconName: "bar_chart"; onClicked: drawerAction("charts") }
+                UiDrawerItem { text: qsTr("Floating Metrics (Picture in Picture)"); iconName: "picture_in_picture"; visible: window.rootReady && rootItem.floatingMetricsSupported(); onClicked: drawerAction("floatingMetrics") }
                 UiDrawerItem { text: qsTr("Workouts History"); iconName: "history"; onClicked: drawerAction("history") }
                 UiDrawerItem { text: qsTr("Save FIT"); iconName: "download"; onClicked: drawerAction("savefit") }
                 UiDrawerItem { text: qsTr("Save GPX"); iconName: "download"; onClicked: drawerAction("savegpx") }
