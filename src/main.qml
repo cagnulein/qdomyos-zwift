@@ -579,20 +579,31 @@ ApplicationWindow {
         anchors.centerIn: parent
         width: Math.min(parent.width - 32, 520)
         height: Math.max(96, lapPromptLabel.implicitHeight + 44)
-        radius: 8
-        color: "#9C27B0"
+        // modern look: the accent of the theme with its ink, corner 28 and the shadow of an element over the
+        // content instead of the white border
+        radius: window.ui.modern ? 28 : 8
+        color: window.ui.modern ? window.ui.accent : "#9C27B0"
         border.color: "white"
-        border.width: 3
+        border.width: window.ui.modern ? 0 : 3
         opacity: visible ? 1 : 0
+        layer.enabled: window.ui.modern && visible
+        layer.effect: DropShadow {
+            transparentBorder: true
+            horizontalOffset: 0
+            verticalOffset: 2
+            radius: 8
+            samples: 17
+            color: Qt.rgba(0, 0, 0, window.ui.dark ? 0.5 : 0.25)
+        }
 
         Label {
             id: lapPromptLabel
             anchors.fill: parent
             anchors.margins: 16
             text: window.lapPromptText
-            color: "white"
+            color: window.ui.modern ? window.ui.accentInk : "white"
             font.bold: true
-            font.pixelSize: window.fontPx(26)
+            font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.fontPx(26)
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             wrapMode: Text.WordWrap
