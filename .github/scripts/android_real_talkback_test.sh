@@ -216,9 +216,21 @@ result=$(peek --peek-node App_Language)
 note "$result"
 echo "$result" | grep -F TALKBACK_NODE >/dev/null || fail "General Options did not open"
 focus_and_activate Experimental_Features
-# Claudio needs the debug log for support. Focus it and scroll it into view,
-# but do not toggle it; accessibility focus alone must not change settings.
+# Claudio needs the debug log for support. Confirm a positional tap on the
+# label side of the TalkBack-focused row toggles the setting, then restore OFF.
 focus_without_activate Debug_Log
+result=$(peek --peek-node Debug_Log)
+note "$result"
+echo "$result" | grep -F 'checkable=true checked=false' >/dev/null ||
+    fail "Debug Log was not OFF before the row tap"
+result=$(peek --double-tap-node-left Debug_Log)
+note "$result"
+echo "$result" | grep -F 'checkable=true checked=true' >/dev/null ||
+    fail "TalkBack double tap on the Debug Log label did not toggle the switch ON"
+result=$(peek --double-tap-node-left Debug_Log)
+note "$result"
+echo "$result" | grep -F 'checkable=true checked=false' >/dev/null ||
+    fail "TalkBack double tap on the Debug Log label did not toggle the switch OFF again"
 
 # Keep the real TalkBack service running through the delay in which the
 # unexpected Chrome launch was reported; any foreground change is a failure.

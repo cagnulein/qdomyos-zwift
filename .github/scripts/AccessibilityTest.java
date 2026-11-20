@@ -278,6 +278,34 @@ public class AccessibilityTest {
             }
             return;
         }
+        // Inject a TalkBack-style double tap on the label side of a full-row
+        // setting while the real accessibility service remains enabled.
+        if (presses[0].equals("--double-tap-node-left")) {
+            if (presses.length != 2) {
+                System.out.println("FAIL --double-tap-node-left requires one name");
+                return;
+            }
+            String name = presses[1].replace('_', ' ');
+            AccessibilityNodeInfo node = find(name, false);
+            if (node == null) {
+                System.out.println("FAIL missing node to tap: " + name);
+                return;
+            }
+            Rect bounds = new Rect();
+            node.getBoundsInScreen(bounds);
+            float x = bounds.left + bounds.width() / 5f;
+            float y = bounds.centerY();
+            if (!tapAt(node, x, y))
+                return;
+            Thread.sleep(80);
+            if (!tapAt(node, x, y))
+                return;
+            Thread.sleep(1000);
+            AccessibilityNodeInfo after = find(name, false);
+            System.out.println(after == null ? "FAIL node disappeared after double tap"
+                    : "OK label double tap " + describe(after));
+            return;
+        }
         List<AccessibilityNodeInfo> nodes = waitForAppNodes();
         if (nodes.isEmpty()) {
             AccessibilityNodeInfo root = automation.getRootInActiveWindow();
@@ -621,6 +649,20 @@ public class AccessibilityTest {
                     + bounds.toShortString() + ", screen " + screen.toShortString());
             return false;
         }
+        return tapAt(node, bounds.exactCenterX(), bounds.exactCenterY());
+    }
+
+    private static boolean tapAt(AccessibilityNodeInfo node, float x, float y) throws Exception {
+        AccessibilityNodeInfo root = automation.getRootInActiveWindow();
+        Rect screen = new Rect();
+        if (root != null) {
+            root.getBoundsInScreen(screen);
+        }
+        if (screen.isEmpty() || !screen.contains((int) x, (int) y)) {
+            System.out.println("FAIL cannot tap " + describe(node) + " at " + x + "," + y
+                    + ": screen " + screen.toShortString());
+            return false;
+        }
         long down = SystemClock.uptimeMillis();
         boolean injected = true;
         int[] actions = {MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP};
@@ -629,7 +671,7 @@ public class AccessibilityTest {
                 Thread.sleep(100);
             }
             MotionEvent event = MotionEvent.obtain(down, SystemClock.uptimeMillis(), action,
-                    bounds.exactCenterX(), bounds.exactCenterY(), 0);
+                    x, y, 0);
             event.setSource(InputDevice.SOURCE_TOUCHSCREEN);
             injected &= automation.injectInputEvent(event, true);
             event.recycle();
@@ -770,6 +812,7 @@ public class AccessibilityTest {
     private static String describe(AccessibilityNodeInfo node) {
         return "'" + node.getContentDescription() + "' class=" + node.getClassName()
                 + " clickable=" + node.isClickable() + " focusable=" + node.isFocusable()
+                + " checkable=" + node.isCheckable() + " checked=" + node.isChecked()
                 + " scrollable=" + node.isScrollable();
     }
 

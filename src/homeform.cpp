@@ -28,6 +28,7 @@
 
 #include <QAbstractOAuth2>
 #include <QApplication>
+#include <QAccessible>
 #include <QByteArray>
 #include <QClipboard>
 #include <QCryptographicHash>
@@ -2137,6 +2138,10 @@ bool homeform::startFirstSetupLog() {
 
 bool homeform::hasConnectedDevice() const {
     return bluetoothManager && bluetoothManager->device();
+}
+
+bool homeform::accessibilityActive() const {
+    return QAccessible::isActive();
 }
 
 bool homeform::supportDeviceConnected() const {
