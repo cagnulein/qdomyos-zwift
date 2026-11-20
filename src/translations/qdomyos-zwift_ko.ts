@@ -3370,6 +3370,10 @@ This may take a few moments on first startup.</source>
 <context>
     <name>homeform</name>
     <message>
+        <source>No enabled metrics</source>
+        <translation>활성화된 지표가 없습니다</translation>
+    </message>
+    <message>
         <source>Speed (%1/h)</source>
         <translation>속도 (%1/h)</translation>
     </message>
@@ -4295,6 +4299,10 @@ This may take a few moments on first startup.</source>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>플로팅 지표 (화면 속 화면)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>

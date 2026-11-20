@@ -1433,16 +1433,26 @@ ApplicationWindow {
 
         ToolButton {
             id: toolButtonFloating
-            Accessible.name: window.ui.modern ? qsTr("Floating window") : text
+            Accessible.name: OS_VERSION === "iOS" ? qsTr("Floating Metrics (Picture in Picture)") : (window.ui.modern ? qsTr("Floating window") : text)
             icon.source: window.ui.modern ? "" : "icons/icons/mini-display.png"
             UiIcon { anchors.centerIn: parent; width: 24; height: 24; name: "picture_in_picture_alt"; color: window.ui.textMain; visible: window.ui.modern }
-            onClicked: { console.log("floating!"); floatingOpen(); }
+            function toggleFloating() {
+                if (OS_VERSION === "iOS") {
+                    console.log("Floating metrics: toolbar activated")
+                    rootItem.toggleFloatingMetrics();
+                }
+                else { console.log("floating!"); floatingOpen(); }
+            }
+            onClicked: toggleFloating()
+            Accessible.onPressAction: toggleFloating()
             anchors.left: toolButton.right
             // The header is as tall as the back arrow, which grows with the text size (iOS):
             // the icon buttons stay in its middle, in line with the arrow and the title
             anchors.verticalCenter: parent.verticalCenter
-            // Modern look: on the home page only, the other pages have nothing to float
-            visible: OS_VERSION === "Android" ? (!window.ui.modern || stackView.depth === 1) : false
+            // The iOS PiP displays workout metrics and is available on the home page.
+            // Keep the existing Android visibility in both looks.
+            visible: OS_VERSION === "Android" ? (!window.ui.modern || stackView.depth === 1)
+                     : OS_VERSION === "iOS" && window.rootReady && stackView.depth === 1 && rootItem.floatingMetricsSupported()
         }
 
         UiNotice {
