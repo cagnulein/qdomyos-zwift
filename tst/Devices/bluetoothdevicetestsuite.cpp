@@ -81,6 +81,8 @@ void BluetoothDeviceTestSuite::testDeviceDetection(const BluetoothDeviceTestData
         EXPECT_EQ(device, signalReceiver.get_device()) << "Connection signal not received";
     } else {
         EXPECT_FALSE(testData->IsExpectedDevice(device)) << this->formatString(failMessage, device);
+        EXPECT_FALSE(testData->IsExpectedDevice(signalReceiver.get_device()))
+            << "Expected device emitted a connection signal despite the exclusion configuration";
     }
 
     if(restart) {
