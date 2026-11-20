@@ -576,6 +576,7 @@ void DeviceTestDataIndex::Initialize() {
 
     // FTMS Bike
     QStringList acceptableFTMSNames {
+        "AS6-", // ART.IS Cross AS6 (ChangYow SM5081E BLE, e.g. AS6-0185)
         "DHZ-", // JK fitness 577
         "MKSM", // MKSM3600036
         "YS_C1_", // Yesoul C1H
