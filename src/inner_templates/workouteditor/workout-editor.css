@@ -562,12 +562,21 @@ html.modern .toolbar-controls label {
     flex: 1 1 140px;
 }
 
-/* the row of the switch is the touch area: 48 */
+/* the row of the switch is the touch area: 48. The row aligns its items by the bottom, and a button
+   is 40 with 4 above and below (.toolbar-controls > *): the 8 of the switch row all above it put its
+   middle on the middle of the buttons, not 4 above (the same 56 in all, the rows around stay) */
 html.modern .toolbar-controls .checkbox-label {
     flex: 0 0 auto;
     flex-direction: row;
     align-items: center;
     min-height: 48px;
+    margin-top: 8px;
+    margin-bottom: 0;
+}
+
+/* the caption beside the switch: not the 4 under the caption of a field */
+html.modern .toolbar-controls .checkbox-label > * + * {
+    margin-top: 0;
 }
 
 html.modern input[type="text"],
