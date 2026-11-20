@@ -162,6 +162,27 @@ grep -F "$TB_SERVICE" accessibility_dumpsys.txt >/dev/null ||
     fail "TalkBack service not registered in AccessibilityManager"
 note "PASS real TalkBack package=$TB_PKG service=$SERVICE enabled and running"
 
+# A fresh TalkBack install can start its Android permission activity after the
+# service process is already running. Do not launch QZ until Android reports
+# that the service is bound and touch exploration is actually enabled; Qt can
+# miss the one accessibility-on notification if it arrives during app startup.
+talkback_ready=0
+attempt=1
+while [ "$attempt" -le 30 ]; do
+    accessibility_state=$(adb shell dumpsys accessibility)
+    if echo "$accessibility_state" | grep -F "$TB_SERVICE" >/dev/null &&
+        echo "$accessibility_state" | grep -F 'touchExplorationEnabled=true' >/dev/null; then
+        talkback_ready=1
+        note "PASS TalkBack touch exploration ready before QZ launch (attempt $attempt/30)"
+        break
+    fi
+    note "INFO waiting for TalkBack touch exploration ($attempt/30)"
+    sleep 2
+    attempt=$((attempt + 1))
+done
+[ "$talkback_ready" -eq 1 ] || fail "TalkBack touch exploration did not become ready before QZ launch"
+sleep 3
+
 # Pre-grant the runtime permissions needed by the simulated-device startup.
 # Qt's Android Bluetooth adapter queries BluetoothAdapter.getName() while
 # starting; API 37 aborts the process if BLUETOOTH_CONNECT is not granted.
