@@ -98,7 +98,8 @@ focus_without_activate() {
     name=$1
     result=$(peek "focus:$name")
     note "$result"
-    echo "$result" | grep -F "OK accessible focus reached '$name'" >/dev/null ||
+    expected_name=$(echo "$name" | tr '_' ' ')
+    echo "$result" | grep -F "OK accessible focus reached '$expected_name'" >/dev/null ||
         fail "TalkBack could not focus $name without activation"
     foreground
 }
