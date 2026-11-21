@@ -63,6 +63,9 @@ private Q_SLOTS:
 private:
 
     Server *const q;
+#ifdef Q_OS_ANDROID
+    bool ipv4FallbackJoined = false;
+#endif
 };
 
 }
