@@ -340,6 +340,7 @@ const QString QZSettings::sole_treadmill_f63 = QStringLiteral("sole_treadmill_f6
 const QString QZSettings::sole_treadmill_tt8 = QStringLiteral("sole_treadmill_tt8");
 const QString QZSettings::schwinn_bike_resistance = QStringLiteral("schwinn_bike_resistance");
 const QString QZSettings::schwinn_bike_resistance_v2 = QStringLiteral("schwinn_bike_resistance_v2");
+const QString QZSettings::keep_bike_c1_mini = QStringLiteral("keep_bike_c1_mini");
 const QString QZSettings::technogym_myrun_treadmill_experimental =
     QStringLiteral("technogym_myrun_treadmill_experimental");
 const QString QZSettings::gym_mode = QStringLiteral("gym_mode");
@@ -1372,7 +1373,7 @@ const QString QZSettings::resistance_compatibility = QStringLiteral("resistance_
 
 const QString QZSettings::strava_synthetic_gps_track = QStringLiteral("strava_synthetic_gps_track");
 
-const uint32_t allSettingsCount = 1058;
+const uint32_t allSettingsCount = 1059;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1631,6 +1632,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::sole_treadmill_tt8, QZSettings::default_sole_treadmill_tt8},
     {QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance},
     {QZSettings::schwinn_bike_resistance_v2, QZSettings::default_schwinn_bike_resistance_v2},
+    {QZSettings::keep_bike_c1_mini, QZSettings::default_keep_bike_c1_mini},
     {QZSettings::technogym_myrun_treadmill_experimental, QZSettings::default_technogym_myrun_treadmill_experimental},
     {QZSettings::gym_mode, QZSettings::default_gym_mode},
     {QZSettings::technogym_group_cycle, QZSettings::default_technogym_group_cycle},

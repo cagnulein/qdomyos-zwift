@@ -929,6 +929,9 @@ class QZSettings {
     static const QString schwinn_bike_resistance_v2;
     static constexpr bool default_schwinn_bike_resistance_v2 = false;
 
+    static const QString keep_bike_c1_mini;
+    static constexpr bool default_keep_bike_c1_mini = false;
+
     static const QString technogym_myrun_treadmill_experimental;
     static constexpr bool default_technogym_myrun_treadmill_experimental = false;
 
