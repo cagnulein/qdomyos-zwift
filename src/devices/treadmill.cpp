@@ -388,7 +388,9 @@ double treadmill::requestedInclination() { return requestInclination; }
 double treadmill::currentTargetSpeed() { return targetSpeed; }
 
 void treadmill::cadenceSensor(uint8_t cadence) {
-    if (Cadence.value() > 0 || cadence > 0) {
+    // An explicit zero from a footpod means the runner stopped, even when
+    // the belt is moving. Never accumulate steps from that notification.
+    if (Cadence.value() > 0 && cadence > 0) {
         evaluateStepCount();
     }
     lastCadenceSensorMs = QDateTime::currentMSecsSinceEpoch();
