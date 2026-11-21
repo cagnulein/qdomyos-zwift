@@ -226,7 +226,8 @@ void cscbike::update() {
             qDebug() << "no cadence for 5 secs, switching to reading method";
         }
 
-        if(readMethod && cadenceService) {
+        if (readMethod && cadenceService && cadenceChar.isValid() &&
+            (cadenceChar.properties() & QLowEnergyCharacteristic::Read)) {
             cadenceService->readCharacteristic(cadenceChar);
         }
 
@@ -272,7 +273,6 @@ void cscbike::serviceDiscovered(const QBluetoothUuid &gatt) {
 void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QDateTime now = QDateTime::currentDateTime();
     qDebug() << "characteristicChanged << " << characteristic.uuid() << newValue.toHex(' ') << newValue.length();
-    Q_UNUSED(characteristic);
     QSettings settings;
     // QString heartRateBeltName = //unused QString
     // settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
@@ -292,6 +292,32 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
                 homeform::singleton()->setToastRequested(QObject::tr("%1 Battery Level %2 %").arg(bluetoothDevice.name(), QString::number(battery)));
         battery_level = battery;
         qDebug() << QStringLiteral("battery: ") << battery;
+        return;
+    }
+
+    // Standard Running Speed and Cadence (0x1814 / 0x2A53) footpods report
+    // instantaneous cadence directly in byte 3. Do not interpret it as CSC
+    // crank revolution data, and do not require a valid RSC Feature (0x2A54).
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A53)) {
+        if (newValue.size() < 4) {
+            emit debug(QStringLiteral("Ignoring truncated RSC measurement"));
+            return;
+        }
+        lastPacket = newValue;
+        Cadence = static_cast<uint8_t>(newValue.at(3));
+        lastGoodCadence = now;
+        charNotified = true;
+        // Accessory footpods only forward cadence. In particular, the FTMS
+        // treadmill remains the source of belt speed and distance.
+        if (!noVirtualDevice) {
+            const uint16_t speedRaw = static_cast<uint8_t>(newValue.at(1)) |
+                                      (static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(2))) << 8);
+            Speed = (speedRaw / 256.0) * 3.6;
+            Distance += Speed.value() * lastRefreshCharacteristicChanged.msecsTo(now) / 3600000.0;
+            lastRefreshCharacteristicChanged = now;
+        }
+        emit cadenceChanged(static_cast<uint8_t>(Cadence.value()));
+        emit debug(QStringLiteral("RSC footpod cadence: %1 spm").arg(Cadence.value()));
         return;
     }
 
@@ -513,14 +539,15 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     QBluetoothUuid CyclingSpeedAndCadence(QBluetoothUuid::CyclingSpeedAndCadence);
+    QBluetoothUuid RunningSpeedAndCadence((quint16)0x1814);
     QBluetoothUuid CyclingPower(QBluetoothUuid::CyclingPower);
     QBluetoothUuid Battery(QBluetoothUuid::BatteryService);
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
 #ifdef Q_OS_WINDOWS
         qDebug() << "windows workaround, check only cycling sensor services"
-                 << (s->serviceUuid() == CyclingSpeedAndCadence || s->serviceUuid() == CyclingPower);
-        if (s->serviceUuid() == CyclingSpeedAndCadence || s->serviceUuid() == CyclingPower)
+                 << (s->serviceUuid() == CyclingSpeedAndCadence || s->serviceUuid() == RunningSpeedAndCadence || s->serviceUuid() == CyclingPower);
+        if (s->serviceUuid() == CyclingSpeedAndCadence || s->serviceUuid() == RunningSpeedAndCadence || s->serviceUuid() == CyclingPower)
 #endif
         {
             if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
@@ -535,13 +562,13 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         if (s->state() == QLowEnergyService::ServiceDiscovered) {
 
-            if (s->serviceUuid() == CyclingSpeedAndCadence || s->serviceUuid() == CyclingPower) {
+            if (s->serviceUuid() == CyclingSpeedAndCadence || s->serviceUuid() == RunningSpeedAndCadence || s->serviceUuid() == CyclingPower) {
                 qDebug() << "Cycling cadence service found" << s->serviceUuid();
                 cadenceService = s;
             }
 
-            if (s->serviceUuid() != CyclingSpeedAndCadence && s->serviceUuid() != CyclingPower &&
-                s->serviceUuid() != Battery) {
+            if (s->serviceUuid() != CyclingSpeedAndCadence && s->serviceUuid() != RunningSpeedAndCadence &&
+                s->serviceUuid() != CyclingPower && s->serviceUuid() != Battery) {
                 //  No data from sensors and avatar won’t move in Zwift (even when data showed on first try) (Issue
                 //  #2178)
                 qDebug() << "avoid unwaned service";
@@ -563,6 +590,7 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
             auto characteristics_list = s->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
                 if (c.uuid() == QBluetoothUuid((quint16)0x2A5B) ||
+                    c.uuid() == QBluetoothUuid((quint16)0x2A53) ||
                     c.uuid() == QBluetoothUuid::CyclingPowerMeasurement) {
                     qDebug() << "Cycling cadence characteristic found" << c.uuid();
                     cadenceChar = c;
@@ -690,10 +718,12 @@ void cscbike::serviceScanDone(void) {
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
 #ifdef Q_OS_WINDOWS
         QBluetoothUuid CyclingSpeedAndCadence(QBluetoothUuid::CyclingSpeedAndCadence);
+        QBluetoothUuid RunningSpeedAndCadence((quint16)0x1814);
         QBluetoothUuid CyclingPower(QBluetoothUuid::CyclingPower);
-        qDebug() << "windows workaround, check only cycling sensor services" << s << CyclingSpeedAndCadence
-                 << CyclingPower << (s == CyclingSpeedAndCadence || s == CyclingPower);
-        if (s == CyclingSpeedAndCadence || s == CyclingPower)
+        qDebug() << "windows workaround, check only cadence/power sensor services" << s << CyclingSpeedAndCadence
+                 << RunningSpeedAndCadence << CyclingPower
+                 << (s == CyclingSpeedAndCadence || s == RunningSpeedAndCadence || s == CyclingPower);
+        if (s == CyclingSpeedAndCadence || s == RunningSpeedAndCadence || s == CyclingPower)
 #endif
         {
             gattCommunicationChannelService.append(m_control->createServiceObject(s));
