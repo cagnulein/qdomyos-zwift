@@ -5,7 +5,14 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 
 ScrollView {
+    // Modern look: the rows Body Large, as on the settings page
+    font: window.ui.modern ? window.ui.rowFont : window.font
+    // Buttons and lists of this page take Label Large (window.ui.onTypeScalePage)
+    readonly property bool typeScalePage: true
     contentWidth: -1
+    // Modern look: with the column's top and bottom margins, not in its implicit height (the
+    // end of the page was cut off). The classic look keeps the height ScrollView takes itself
+    Binding on contentHeight { when: window.ui.modern; value: mainLayout.implicitHeight + 20; restoreMode: Binding.RestoreBindingOrValue }
     focus: true
     anchors.fill: parent
     id: settingsShortcutsPane
@@ -30,22 +37,38 @@ ScrollView {
 
     ColumnLayout {
         id: mainLayout
-        spacing: 10
+        // Modern look: 8 between the groups, as Material 3
+        spacing: window.ui.modern ? 8 : 10
         anchors.fill: parent
         anchors.margins: 10
-        anchors.leftMargin: window.contentSideMargin
-        anchors.rightMargin: window.contentSideMargin
+        // Modern look: inside the frames, which run framePadH (16) further out, on the page
+        // margin 16
+        anchors.leftMargin: window.ui.modern ? Math.max(16, window.contentSideMargin) + 16 : window.contentSideMargin
+        anchors.rightMargin: window.ui.modern ? Math.max(16, window.contentSideMargin) + 16 : window.contentSideMargin
 
-        Label {
-            text: qsTr("Keyboard Shortcuts")
-            font.pixelSize: window.fontPx(24)
-            font.bold: true
-            color: Material.color(Material.Red)
+        // Modern look: the switch and its description in a frame of their own; the title and the
+        // groups (framed by themselves) are left out
+        UiSettingFrames {
+            content: mainLayout
+            exclude: [shortcutsTitle, generalBox, metricsBox, targetBox, pelotonBox, presetBox,
+                      presetSpeedBox, presetInclinationBox, presetPowerZoneBox]
+            Layout.preferredHeight: 0
         }
 
-        SwitchDelegate {
+        Label {
+            id: shortcutsTitle
+            text: qsTr("Keyboard Shortcuts")
+            // Modern look: a page title like the TTS page instead of the red caption
+            font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.fontPx(24)
+            font.weight: window.ui.modern ? Font.DemiBold : Font.Bold
+            color: window.ui.ink(Material.color(Material.Red))
+            // The layout margin is 10: 2 more puts the title 12 from the top, as on Tiles and TTS
+            topPadding: window.ui.modern ? 2 : 0
+        }
+
+        UiSwitchDelegate {
             // on iOS the title of a switch kept the size of the style while the text around it grew: with a size other than 100 % it takes the one of the window font
-            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.rowScaledPx; restoreMode: Binding.RestoreBindingOrValue }
             id: shortcutsEnabledDelegate
             text: qsTr("Enable Keyboard Shortcuts")
             checked: settings.shortcuts_enabled
@@ -63,11 +86,20 @@ ScrollView {
             color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
         }
 
-        component ShortcutField : TextField {
+        component ShortcutField : UiTextField {
             property string settingName: ""
             placeholderText: qsTr("None")
-            horizontalAlignment: Text.AlignRight
-            Layout.preferredWidth: 100
+            // Modern: the letter and "None" in the middle, with room for the whole word
+            horizontalAlignment: window.ui.modern ? Text.AlignHCenter : Text.AlignRight
+            leftPadding: window.ui.modern ? 6 : padding
+            rightPadding: window.ui.modern ? 6 : padding
+            // Modern: one letter needs less than 100; three of them (the AVS row) left no
+            // room for the label on a phone
+            Layout.preferredWidth: window.ui.modern ? 76 : 100
+            // Modern look: the key in Body Medium 14 - Body Large of the page did not fit "None"
+            // in a field of a row of five. The page is made while the look is set, and the
+            // look is switched on the settings page under it
+            Binding on font.pixelSize { when: window.ui.modern; value: window.ui.fontLabelLarge; restoreMode: Binding.RestoreBindingOrValue }
             selectByMouse: false
             inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhSensitiveData | Qt.ImhNoAutoUppercase
 
@@ -107,14 +139,22 @@ ScrollView {
 
         component PresetShortcutField : ShortcutField {
             horizontalAlignment: Text.AlignHCenter
+            // Modern look: a field of a row of seven (power zones) has no room for "None" at 14:
+            // a dash there; the screen reader still reads the word
+            shownPlaceholder: window.ui.modern && parent && parent.children.length > 5 ? "–" : placeholderText
             Layout.fillWidth: true
             Layout.minimumWidth: 28
             Layout.preferredWidth: 56
             Layout.maximumWidth: 100
         }
 
-        GroupBox {
+        UiGroupBox {
+            id: generalBox
             title: qsTr("General Controls")
+            framed: true
+            // Out to the edges of the frames above it
+            Layout.leftMargin: window.ui.modern ? -16 : 0
+            Layout.rightMargin: window.ui.modern ? -16 : 0
             Layout.fillWidth: true
             ColumnLayout {
                 anchors.fill: parent
@@ -133,8 +173,13 @@ ScrollView {
             }
         }
 
-        GroupBox {
+        UiGroupBox {
+            id: metricsBox
             title: qsTr("Main Metrics")
+            framed: true
+            // Out to the edges of the frames above it
+            Layout.leftMargin: window.ui.modern ? -16 : 0
+            Layout.rightMargin: window.ui.modern ? -16 : 0
             Layout.fillWidth: true
             ColumnLayout {
                 anchors.fill: parent
@@ -166,8 +211,13 @@ ScrollView {
             }
         }
 
-        GroupBox {
+        UiGroupBox {
+            id: targetBox
             title: qsTr("Target Controls")
+            framed: true
+            // Out to the edges of the frames above it
+            Layout.leftMargin: window.ui.modern ? -16 : 0
+            Layout.rightMargin: window.ui.modern ? -16 : 0
             Layout.fillWidth: true
             ColumnLayout {
                 anchors.fill: parent
@@ -199,8 +249,13 @@ ScrollView {
             }
         }
 
-        GroupBox {
+        UiGroupBox {
+            id: pelotonBox
             title: qsTr("Peloton & Others")
+            framed: true
+            // Out to the edges of the frames above it
+            Layout.leftMargin: window.ui.modern ? -16 : 0
+            Layout.rightMargin: window.ui.modern ? -16 : 0
             Layout.fillWidth: true
             ColumnLayout {
                 anchors.fill: parent
@@ -260,8 +315,13 @@ ScrollView {
             }
         }
 
-        GroupBox {
+        UiGroupBox {
+            id: presetBox
             title: qsTr("Preset Resistance")
+            framed: true
+            // Out to the edges of the frames above it
+            Layout.leftMargin: window.ui.modern ? -16 : 0
+            Layout.rightMargin: window.ui.modern ? -16 : 0
             Layout.fillWidth: true
             RowLayout {
                 anchors.fill: parent
@@ -273,8 +333,14 @@ ScrollView {
             }
         }
 
-        GroupBox {
+        UiGroupBox {
+            id: presetSpeedBox
             title: qsTr("Preset Speed")
+            // Modern look: framed as the resistance presets above, not a filled card in a frame
+            // of UiSettingFrames
+            framed: true
+            Layout.leftMargin: window.ui.modern ? -16 : 0
+            Layout.rightMargin: window.ui.modern ? -16 : 0
             Layout.fillWidth: true
             RowLayout {
                 anchors.fill: parent
@@ -286,8 +352,14 @@ ScrollView {
             }
         }
 
-        GroupBox {
+        UiGroupBox {
+            id: presetInclinationBox
             title: qsTr("Preset Inclination")
+            // Modern look: framed as the resistance presets above, not a filled card in a frame
+            // of UiSettingFrames
+            framed: true
+            Layout.leftMargin: window.ui.modern ? -16 : 0
+            Layout.rightMargin: window.ui.modern ? -16 : 0
             Layout.fillWidth: true
             RowLayout {
                 anchors.fill: parent
@@ -299,8 +371,14 @@ ScrollView {
             }
         }
 
-        GroupBox {
+        UiGroupBox {
+            id: presetPowerZoneBox
             title: qsTr("Preset Power Zone")
+            // Modern look: framed as the resistance presets above, not a filled card in a frame
+            // of UiSettingFrames
+            framed: true
+            Layout.leftMargin: window.ui.modern ? -16 : 0
+            Layout.rightMargin: window.ui.modern ? -16 : 0
             Layout.fillWidth: true
             RowLayout {
                 anchors.fill: parent
