@@ -69,7 +69,10 @@ void npecablebike::update() {
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
-        update_metrics(false, watts());
+        // Watt gain/offset is already applied when BLE power is received.
+        // Keep the periodic zero-power reset when pedaling stops.
+        const uint16_t currentWatts = watts();
+        update_metrics(currentWatts == 0, currentWatts);
 
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
