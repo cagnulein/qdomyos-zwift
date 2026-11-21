@@ -395,10 +395,12 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         } else if (!echelon) {
             serviceFIT = leController->addService(serviceDataFIT);
             QThread::msleep(100); // give time to Android to add the service async.ly
-            serviceEXR = leController->addService(serviceDataEXR);
-            if (!serviceEXR)
-                qWarning() << "Failed to add QZ identity service for EXR";
-            QThread::msleep(100);
+            if (!serviceDataEXR.characteristics().isEmpty()) {
+                serviceEXR = leController->addService(serviceDataEXR);
+                if (!serviceEXR)
+                    qWarning() << "Failed to add QZ identity service for EXR";
+                QThread::msleep(100);
+            }
         }
 
         if (echelon) {
