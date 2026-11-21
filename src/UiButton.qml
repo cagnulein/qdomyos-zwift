@@ -30,9 +30,12 @@ T.Button {
     property bool saveGated: false
     readonly property bool gated: savedField !== null || saveGated
     readonly property bool savePending: modern && gated && enabled
-    // After the list's own onActivated (it sets displayText, which the OK handler reads)
+    // After the list's own onActivated (it sets displayText, which the OK handler reads).
+    // Only while the OK is enabled, that is the list holds a change: ComboBox emits activated
+    // again when the picked item is the current one, and clicked() from here would save it
+    // and show "Setting saved!" though nothing changed
     function applySelection() {
-        if (control.modern && control.applyOnSelect)
+        if (control.modern && control.applyOnSelect && control.enabled)
             control.clicked()
     }
     Component.onCompleted: {
