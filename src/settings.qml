@@ -2669,11 +2669,11 @@ import AndroidStatusBar 1.0
                     }
                 }
 
+                // Classic look: a toggle as in master; modern look: the filled pill when on
                 UiButton {
                     text: qsTr("Changed")
                     checkable: true
                     checked: settingsPane.changedOnly
-                    // Modern look: UiButton draws no check bar, the accent pill shows the filter is on
                     highlighted: window.ui.modern && settingsPane.changedOnly
                     onClicked: settingsPane.setChangedOnly(checked)
                 }
@@ -2897,10 +2897,10 @@ import AndroidStatusBar 1.0
                         }
                         UiButton {
                             applyOnSelect: false
-                            saveGated: true
                             id: okAppLanguageButton
                             text: qsTr("OK")
                             // Grey while the saved language is chosen, as the OK of the fields
+                            saveGated: true
                             enabled: appLanguageCombo.currentIndex >= 0
                                      && appLanguageOptions[appLanguageCombo.currentIndex].value !== settings.app_language
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -9784,8 +9784,8 @@ import AndroidStatusBar 1.0
                                 spacing: 10
 
                                 UiButton {
-                                    cardSurface: true
                                     text: qsTr("Cancel")
+                                    cardSurface: true
                                     Layout.fillWidth: true
                                     onClicked: {
                                         mfaCodeTextField.text = "";
