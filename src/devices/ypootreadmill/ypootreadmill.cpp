@@ -289,8 +289,6 @@ void ypootreadmill::processTelemetry(const QByteArray &value, qint64 now) {
     if (Speed.value() > 0 &&
         !settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool() &&
         settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-            .toString().startsWith(QStringLiteral("Disabled")) &&
-        settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString().startsWith(QStringLiteral("Disabled"))) {
         const double cadence = calculateCadenceFromSpeed(Speed.value());
         if (cadence > 0) {
