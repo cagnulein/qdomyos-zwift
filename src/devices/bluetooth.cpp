@@ -191,6 +191,20 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 
 #endif
         connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::canceled, this, &bluetooth::canceled);
+#if defined(Q_OS_MACOS) && !defined(Q_OS_IOS)
+        // Report macOS Classic inquiry and BLE scan errors in the regular QZ log.
+#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
+        connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::errorOccurred, this,
+#else
+        connect(discoveryAgent,
+                QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this,
+#endif
+                [this](QBluetoothDeviceDiscoveryAgent::Error error) {
+                    debug(QStringLiteral("macOS Bluetooth discovery error %1: %2")
+                              .arg(int(error))
+                              .arg(discoveryAgent->errorString()));
+                });
+#endif
 #ifndef Q_OS_WIN
         connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &bluetooth::finished);
 #endif
@@ -606,7 +620,24 @@ void bluetooth::startDiscovery() {
         scanStartsMs.append(now);
     }
 
-#ifndef Q_OS_IOS
+#if defined(Q_OS_MACOS) && !defined(Q_OS_IOS)
+    // Unlike iOS, native macOS can scan Bluetooth Classic via IOBluetooth.
+    // Do so even when no specific Classic equipment setting is enabled:
+    // otherwise RFCOMM/SPP equipment is invisible in the device list.
+    // Only request methods supported by the installed macOS Qt backend.
+    const auto supported = QBluetoothDeviceDiscoveryAgent::supportedDiscoveryMethods();
+    const auto requested = supported & (QBluetoothDeviceDiscoveryAgent::ClassicMethod |
+                                        QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+    if (requested == QBluetoothDeviceDiscoveryAgent::NoMethod) {
+        debug(QStringLiteral("macOS Bluetooth: neither Classic nor BLE discovery is available"));
+        return;
+    }
+    debug(QStringLiteral("macOS Bluetooth discovery methods: Classic=%1 BLE=%2")
+              .arg(bool(requested & QBluetoothDeviceDiscoveryAgent::ClassicMethod))
+              .arg(bool(requested & QBluetoothDeviceDiscoveryAgent::LowEnergyMethod)));
+    discoveryAgent->start(requested);
+#elif !defined(Q_OS_IOS)
+    // Preserve existing Android/Linux/Windows behavior and per-device Classic opt-in.
     QSettings settings;
     bool technogym_myrun_treadmill_experimental = settings
                                                       .value(QZSettings::technogym_myrun_treadmill_experimental,
@@ -618,13 +649,13 @@ void bluetooth::startDiscovery() {
         settings.value(QZSettings::iconcept_elliptical, QZSettings::default_iconcept_elliptical).toBool();
 
     if (!trx_route_key && !bh_spada_2 && !technogym_myrun_treadmill_experimental && !iconcept_elliptical) {
-#endif
         discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
-#ifndef Q_OS_IOS
     } else {
         discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod |
                               QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
     }
+#else
+    discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
 #endif
 }
 
