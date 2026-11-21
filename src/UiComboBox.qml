@@ -18,6 +18,8 @@ T.ComboBox {
     id: control
 
     readonly property bool modern: window.ui.modern
+    // on a settings page of the modern look (the items Label Large)
+    readonly property bool inTypeScalePage: modern && window.ui.onTypeScalePage(control)
 
     // Shown text for a raw value: ValueComboBox puts its translated labels here; values
     // missing from the map are shown unchanged
@@ -70,7 +72,8 @@ T.ComboBox {
 
     TextMetrics {
         id: itemMetrics
-        font: control.font
+        // the font of the items: the one of the list on a settings page of the modern look
+        font: control.inTypeScalePage ? control.popup.font : control.font
     }
 
     // Modern: the height of an item of the list - Material's 48, or more with a bigger text: the
@@ -86,8 +89,13 @@ T.ComboBox {
 
     // With a bigger text the label left of the box wraps, but the row still shared its width as
     // if the label were one line, and squeezed the box: the shown item was cut in the middle of
-    // a word. The box keeps the width of its text (at most half the window); 0 is the default
-    Layout.minimumWidth: window.textScale !== 1 ? Math.min(implicitWidth, window.width / 2) : 0
+    // a word. The box keeps the width of its text (at most half the window); 0 is the default.
+    // Modern look: always - the chosen value is the setting, it is not cut
+    Layout.minimumWidth: modern || window.textScale !== 1 ? Math.min(implicitWidth, window.width / 2) : 0
+    // On a settings page the box wants the width of its value (its field, below), at most half the
+    // window as well, so a button next to it in a row "list (fillWidth) + button" keeps its room:
+    // the button has no minimum width of its own. -1 - the implicit width, as before
+    Layout.preferredWidth: inTypeScalePage ? Math.min(implicitWidth, window.width / 2) : -1
 
     // Width of the widest item for the list width (#5236), measured when the list opens;
     // DeviceComboBox calls it too: its items change while the list is open
@@ -249,6 +257,12 @@ T.ComboBox {
         rightPadding: control.editable ? 2 : control.mirrored ? (control.modern ? 16 : 12) : 0
 
         text: control.editable ? control.editText : control.displayText
+        // On a settings page of the modern look the box is as wide as its value. A
+        // TextField has no implicit width of its own (Qt 5.15.0 qquicktextfield.cpp:440
+        // setImplicitResizeEnabled(false), 307-310), so the box kept 120 of its background and cut
+        // a longer value; the width of the text as TextField.qml of Material does (47-48).
+        // Elsewhere and in the classic 0, as before
+        implicitWidth: control.inTypeScalePage ? contentWidth + leftPadding + rightPadding : 0
 
         enabled: control.editable
         autoScroll: control.editable
@@ -340,6 +354,12 @@ T.ComboBox {
         Material.theme: control.Material.theme
         Material.accent: control.Material.accent
         Material.primary: control.Material.primary
+
+        // A popup takes the window font, not the one of its field (Qt 5.15.0
+        // QQuickPopupItemPrivate::resolveFont, qquickpopupitem.cpp:100-105). On a settings page
+        // of the modern look the items are Label Large, the field Body Large; elsewhere
+        // and in the classic the window font, as before
+        font: control.inTypeScalePage ? window.ui.fontOf(control.font, window.ui.labelPx(control.font.pixelSize)) : window.font
 
         // Modern: the list keeps clear of the rounded corners, the highlight of the first and
         // the last item was a square block in them

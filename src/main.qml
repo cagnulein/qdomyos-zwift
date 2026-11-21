@@ -392,6 +392,30 @@ ApplicationWindow {
         readonly property int fontBody: fontPx(16)     // dialog text, list titles, fields
         readonly property int fontLabel: fontPx(15)    // drawer entries, group titles
         readonly property int fontCaption: fontPx(13)  // secondary lines, chips, captions
+        // Material 3 roles of the settings pages: a row - its label, the
+        // value of its field or list - is Body Large (fontBody); buttons, the items of an open list,
+        // nested headers and table headers Label Large / Title Small 14; the hint under a setting
+        // Body Small 12
+        readonly property int fontLabelLarge: fontPx(14)
+        readonly property int fontBodySmall: fontPx(12)
+        // The font of a settings page (its root sets it, the rows inherit it): the size of Body
+        // Large only. A control takes from its parent only what the parent font sets, the rest
+        // from the font of its style (Qt 5.15.0 QQuickControlPrivate::inheritFont,
+        // qquickcontrol.cpp:555-571; Qt.font sets only the fields given, qquickglobal.cpp:322-419):
+        // a button keeps the weight Medium of the Material style
+        readonly property font rowFont: Qt.font({ pixelSize: fontBody })
+        // The item lies on a settings page of the modern look: a root with typeScalePage (the
+        // pages that set rowFont). The parents are read in the binding that calls it, so it
+        // follows a move of the item
+        function onTypeScalePage(item) {
+            for (var p = item ? item.parent : null; p; p = p.parent)
+                if (p.typeScalePage === true)
+                    return true
+            return false
+        }
+        // A button or a list item takes Label Large where the text around it is Body Large (a
+        // settings page, onTypeScalePage); elsewhere it keeps the size it inherits
+        function labelPx(px) { return px === fontBody ? fontLabelLarge : px }
         // The app font (12 on the emulator, not the Material 14): labels, fields, buttons, lists
         readonly property int fontBase: fontPx(window.appFontPx)
 
@@ -523,11 +547,17 @@ ApplicationWindow {
     readonly property int appFontPx: iosTextSize ? 14 : Qt.application.font.pixelSize > 0 ? Qt.application.font.pixelSize : 14
     // Size of the hints under the settings. Where the app font has no pixel size (desktop)
     // "pixelSize - 2" is ignored and the hints have the size of the text: kept so when scaled
-    readonly property int fontHint: textScale === 1 ? Qt.application.font.pixelSize - 2
+    // Modern look: Body Small; the pages that use it are the settings
+    readonly property int fontHint: ui.modern ? ui.fontBodySmall
+        : textScale === 1 ? Qt.application.font.pixelSize - 2
         : iosTextSize ? Math.round((iosBodyPx - 2) * textScale)
         : fontPx(Qt.application.font.pixelSize > 0 ? Qt.application.font.pixelSize - 2 : appFontPx)
     // The window font is set only for a size other than 100 % and reset otherwise
     readonly property int scaledFontPx: textScale !== 1 ? fontPx(appFontPx) : 0
+    // The size a row of a settings page sets on itself with a size other than 100 % (its Binding
+    // on scaledFontPx > 0): the window font in the classic look, Body Large in the modern one -
+    // the size its page gives it at 100 %
+    readonly property int rowScaledPx: ui.modern ? ui.fontBody : scaledFontPx
     // Size of a plain Text, which takes the app font, not the window font (0 at 100 %). On Android
     // the app font has a pixel size, the one of the controls. On iOS a Text is scaled from the body
     // size (above); on desktop the app font has a point size (in QML "pointSize": there is no

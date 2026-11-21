@@ -32,7 +32,8 @@ T.GroupBox {
         width: control.availableWidth
 
         text: control.title
-        font: control.modern ? window.ui.fontOf(control.font, window.ui.fontLabel, Font.DemiBold)
+        // Modern: the title of a group, Title Medium 16 (was 15 DemiBold)
+        font: control.modern ? window.ui.fontOf(control.font, window.ui.fontBody, Font.Medium)
                              : control.font
         color: control.modern ? window.ui.accent
                               : (control.enabled ? control.Material.foreground : control.Material.hintTextColor)
