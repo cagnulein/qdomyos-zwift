@@ -2401,11 +2401,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
     bool deviceCadenceRecent = lastDeviceCadenceMs > 0 && nowMs - lastDeviceCadenceMs < 3000;
     bool sensorCadenceRecent = lastCadenceSensorMs > 0 && nowMs - lastCadenceSensorMs < 3000;
-    bool externalCadenceConfigured =
-        !settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-             .toString().startsWith(QStringLiteral("Disabled"));
-    if (!cadenceAvailable && !deviceCadenceRecent && !sensorCadenceRecent &&
-        !externalCadenceConfigured && Speed.value() > 0) {
+    if (!cadenceAvailable && !deviceCadenceRecent && !sensorCadenceRecent && Speed.value() > 0) {
         bool garminCompanion =
             settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool();
         bool hasPowerSensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
