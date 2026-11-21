@@ -367,6 +367,14 @@ Szeretné bekapcsolni a szükséges szolgáltatásokat?</translation>
         <source>Not connecting?</source>
         <translation>Nem sikerül csatlakozni?</translation>
     </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Az edzőgép nem található</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Kapcsolja be a kerékpárt, a futópadot vagy az evezőgépet, majd az újbóli kereséshez koppintson a felül található Bluetooth-ikonra.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -4279,6 +4287,10 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <source>QZ is running</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>A QZ fut</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>A Bluetooth ki van kapcsolva</translation>
     </message>
 </context>
 <context>

@@ -383,6 +383,14 @@ Chcete zapnout požadované služby?</translation>
         <source>Not connecting?</source>
         <translation>Nedaří se připojit?</translation>
     </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Trenažér nenalezen</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Zapněte kolo, běžecký pás nebo veslovací trenažér a klepnutím na ikonu Bluetooth nahoře hledejte znovu.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -4295,6 +4303,10 @@ Při prvním spuštění to může chvíli trvat.</translation>
     <message>
         <source>Unable to open an email application</source>
         <translation>Nepodařilo se otevřít e-mailovou aplikaci</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth je vypnuté</translation>
     </message>
 </context>
 <context>

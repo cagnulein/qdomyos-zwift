@@ -383,6 +383,14 @@ Wil je de vereiste voorzieningen inschakelen?</translation>
         <source>Not connecting?</source>
         <translation>Geen verbinding?</translation>
     </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Apparaat niet gevonden</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Zet je fiets, loopband of roeitrainer aan en tik bovenaan op het Bluetooth-pictogram om opnieuw te zoeken.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -4295,6 +4303,10 @@ Bij de eerste start kan dit even duren.</translation>
     <message>
         <source>Unable to open an email application</source>
         <translation>Kan geen e-mailapp openen</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth staat uit</translation>
     </message>
 </context>
 <context>

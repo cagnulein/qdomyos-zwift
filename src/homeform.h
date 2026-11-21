@@ -268,6 +268,10 @@ class homeform : public QObject {
     // Status line of the search for the equipment on the home page, with the last device found;
     // empty once it is connected
     Q_INVOKABLE QString bluetoothSearchStatus();
+    // The search has given up and waits for a tap on the Bluetooth icon; false once connected
+    Q_INVOKABLE bool bluetoothSearchStopped();
+    // Android: Bluetooth is off, the status line says so; false once connected
+    Q_INVOKABLE bool bluetoothSearchOff();
     // Tap on the Bluetooth icon: search right away, or when Android allows it again (with a toast saying when)
     Q_INVOKABLE void bluetoothSearchNow();
     // An opened list of devices: a search that may run during a workout too

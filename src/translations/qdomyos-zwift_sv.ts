@@ -367,6 +367,14 @@ Vill du aktivera de tjänster som krävs?</translation>
         <source>Not connecting?</source>
         <translation>Går det inte att ansluta?</translation>
     </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Träningsredskapet hittades inte</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Slå på cykeln, löpbandet eller roddmaskinen och tryck sedan på Bluetooth-ikonen högst upp om du vill söka igen.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -4279,6 +4287,10 @@ Det kan ta en stund vid första starten.</translation>
         <source>QZ is running</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ körs</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth är av</translation>
     </message>
 </context>
 <context>

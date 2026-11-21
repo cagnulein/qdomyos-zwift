@@ -363,6 +363,8 @@ ApplicationWindow {
         readonly property color accentInk: dark ? "#12101A" : "#FFFFFF"
         readonly property color danger: dark ? "#FF8A80" : "#C62828"
         readonly property color ok: dark ? "#7EDC8A" : "#2E7D32"
+        // Mark drawn on a danger-coloured badge ("!")
+        readonly property color dangerInk: dark ? "#000000" : "#FFFFFF"
         // Notes that ask for attention but are not errors: the orange pair of the accents above
         readonly property color warning: dark ? "#FFB36B" : "#984200"
         // Dimming behind a modal popup

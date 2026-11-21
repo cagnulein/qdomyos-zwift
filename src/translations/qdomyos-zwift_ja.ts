@@ -383,6 +383,14 @@ Would you like to enable the required services?</source>
         <source>Not connecting?</source>
         <translation>接続できませんか？</translation>
     </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>機器が見つかりません</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>バイク、トレッドミル、またはローイングマシンの電源を入れ、上部のBluetoothアイコンをタップして再検索してください。</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -4307,6 +4315,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Unable to open an email application</source>
         <translation>メールアプリを開けませんでした</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetoothがオフです</translation>
     </message>
 </context>
 <context>

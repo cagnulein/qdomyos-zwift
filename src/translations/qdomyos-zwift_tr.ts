@@ -383,6 +383,14 @@ Gerekli hizmetleri açmak ister misiniz?</translation>
         <source>Not connecting?</source>
         <translation>Bağlanmıyor mu?</translation>
     </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Cihaz bulunamadı</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Bisikletinizi, koşu bandınızı veya kürek makinenizi açın, ardından yeniden aramak için üstteki Bluetooth simgesine dokunun.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -4295,6 +4303,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Unable to open an email application</source>
         <translation>Bir e-posta uygulaması açılamadı</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth kapalı</translation>
     </message>
 </context>
 <context>

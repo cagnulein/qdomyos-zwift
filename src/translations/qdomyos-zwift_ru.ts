@@ -383,6 +383,14 @@ Would you like to enable the required services?</source>
         <source>Not connecting?</source>
         <translation>Не подключается?</translation>
     </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Тренажёр не найден</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Включите велотренажёр, беговую дорожку или гребной тренажёр и нажмите значок Bluetooth вверху, чтобы искать снова.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -4295,6 +4303,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Unable to open an email application</source>
         <translation>Не удалось открыть почтовое приложение</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth выключен</translation>
     </message>
 </context>
 <context>

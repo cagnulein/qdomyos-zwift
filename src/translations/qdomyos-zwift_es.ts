@@ -383,6 +383,14 @@ Would you like to enable the required services?</source>
         <source>Not connecting?</source>
         <translation>¿No se conecta?</translation>
     </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Equipo no encontrado</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Enciende tu bicicleta, cinta de correr o remo y toca el icono de Bluetooth de arriba para buscar de nuevo.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -4303,6 +4311,10 @@ Esto puede tardar un poco en el primer inicio.</translation>
     <message>
         <source>Unable to open an email application</source>
         <translation>No se pudo abrir una aplicación de correo electrónico</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth desactivado</translation>
     </message>
 </context>
 <context>

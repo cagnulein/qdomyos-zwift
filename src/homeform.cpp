@@ -2005,6 +2005,10 @@ void homeform::refresh_bluetooth_devices_clicked() {
 QString homeform::bluetoothSearchStatus() {
     if (!bluetoothManager || bluetoothManager->device())
         return QString();
+    // with Bluetooth off nothing is searched: the line said "Searching for the device..." (or the
+    // start value "Connecting...") until it was switched on
+    if (bluetoothManager->bluetoothOff())
+        return tr("Bluetooth is off");
     // while scanning, the last device found shows that QZ is finding something (useful for troubleshooting)
     const QString scanning = lastFoundDevice.isEmpty() ? tr("Searching for the device...")
                                                        : tr("%1 found").arg(lastFoundDevice);
@@ -2023,6 +2027,15 @@ QString homeform::bluetoothSearchStatus() {
     if (lastFoundDevice.isEmpty())
         return countdown;
     return tr("%1 found").arg(lastFoundDevice) + QStringLiteral("\n") + countdown;
+}
+
+bool homeform::bluetoothSearchStopped() {
+    return bluetoothManager && !bluetoothManager->device() && !bluetoothManager->isSearching() &&
+           bluetoothManager->searchStopped();
+}
+
+bool homeform::bluetoothSearchOff() {
+    return bluetoothManager && !bluetoothManager->device() && bluetoothManager->bluetoothOff();
 }
 
 void homeform::bluetoothSearchNow() {
