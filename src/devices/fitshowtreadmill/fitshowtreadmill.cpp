@@ -710,11 +710,8 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
     bool rscCadenceRecent = lastRscCadenceMs > 0 && nowMs - lastRscCadenceMs < 3000;
     bool sensorCadenceRecent = lastCadenceSensorMs > 0 && nowMs - lastCadenceSensorMs < 3000;
-    bool externalCadenceConfigured =
-        !settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-             .toString().startsWith(QStringLiteral("Disabled"));
     if (!cadenceFromAppleWatch() && !cadenceAvailable && !rscCadenceRecent && !sensorCadenceRecent &&
-        !externalCadenceConfigured && Speed.value() > 0) {
+        Speed.value() > 0) {
         bool garminCompanion =
             settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool();
         bool hasPowerSensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
