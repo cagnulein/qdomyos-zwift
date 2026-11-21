@@ -5,8 +5,11 @@
 // on the GUI thread would freeze the page for a moment.
 //
 // In:  { pages: [{ file: "settings.qml", source: "..." }, ...] }
-// Out: { map: { key: { file, chain: ["Section", "Subsection"] } }, keys, ms }
+// Out: { map: { key: { file, chain: ["Section", "Subsection"], pos: "005367.000072" } }, keys, ms }
 // The titles are the English sources of qsTr(); the page translates them with its context.
+// pos is where the setting stands as the pages are read, top to bottom: its line on the main
+// page, or the line of the accordionContent that opens its page there, then its line on that
+// page. Fixed-width numbers, so comparing the strings gives the order of the pages.
 
 // AccordionElement, AccordionCheckElement, StaticAccordionElement
 var ELEMENT = /\b\w*Accordion\w*Element\s*\{/
@@ -57,10 +60,62 @@ function titlesOf(stack) {
     return chain
 }
 
-function record(map, key, file, chain, strength) {
+function record(map, key, file, chain, strength, line) {
     var known = map[key]
     if (!known || strength > known.strength)
-        map[key] = { file: file, chain: chain, strength: strength }
+        map[key] = { file: file, chain: chain, strength: strength, line: line }
+}
+
+// The key ending at `end` is a condition: "(settings.miles_unit && ...) ? lbs : kg" in the label of
+// Player Weight shows the weight, not the unit switch further down the page
+function usedAsCondition(line, end) {
+    var k = end
+    while (k < line.length && (line.charAt(k) === " " || line.charAt(k) === ")"))
+        k++
+    var next = line.substring(k, k + 2)
+    return next.charAt(0) === "?" || next === "&&" || next === "||"
+}
+
+var MAIN_PAGE = "settings.qml"
+// The pages that are on no page come after all of them
+var NO_ANCHOR = "999999"
+
+function padLine(line) {
+    var s = String(line)
+    while (s.length < 6)
+        s = "0" + s
+    return s
+}
+
+// The pages opened from another page: { "settings-tiles.qml": { file: "settings.qml", line: 7689 } }
+function pageAnchors(pages) {
+    var anchors = {}
+    for (var i = 0; i < pages.length; i++) {
+        var lines = withoutBlockComments(pages[i].source || "").split("\n")
+        for (var n = 0; n < lines.length; n++) {
+            var at = lines[n].indexOf("accordionContent:")
+            if (at < 0)
+                continue
+            var open = lines[n].indexOf("\"", at)
+            var close = open < 0 ? -1 : lines[n].indexOf("\"", open + 1)
+            if (close < 0)
+                continue
+            var target = lines[n].substring(open + 1, close)
+            if (target !== MAIN_PAGE && !anchors[target])
+                anchors[target] = { file: pages[i].file, line: n }
+        }
+    }
+    return anchors
+}
+
+// "005367." for a page opened at line 5367 of the main page, "" for the main page itself
+function pagePrefix(file, anchors, depth) {
+    if (file === MAIN_PAGE)
+        return ""
+    var anchor = anchors[file]
+    if (!anchor || depth > 8)
+        return NO_ANCHOR + "."
+    return pagePrefix(anchor.file, anchors, depth + 1) + padLine(anchor.line) + "."
 }
 
 // Block comments out, line breaks kept: commented-out controls are not where a setting lives
@@ -89,7 +144,7 @@ function parse(file, source, map) {
         {
             var linked = LINKED.exec(line)
             if (linked)
-                record(map, linked[1], file, titlesOf(stack), 3)
+                record(map, linked[1], file, titlesOf(stack), 3, i)
             if (line.indexOf("settings.") >= 0) {
                 var strength = SHOWS.test(line) ? 2 : (WRITES.test(line) ? 1 : 0)
                 var chain = null
@@ -98,7 +153,8 @@ function parse(file, source, map) {
                 while ((m = KEY.exec(line)) !== null) {
                     if (chain === null)
                         chain = titlesOf(stack)
-                    record(map, m[1], file, chain, strength)
+                    // A key that only decides what the line shows is no more than a mention there
+                    record(map, m[1], file, chain, strength === 2 && usedAsCondition(line, KEY.lastIndex) ? 0 : strength, i)
                 }
             }
         }
@@ -111,7 +167,13 @@ function parse(file, source, map) {
 WorkerScript.onMessage = function (message) {
     var started = Date.now()
     var map = {}
-    var pages = message.pages || []
+    // The pages arrive in the order their requests finished; read in a fixed order, the main
+    // page first, a setting mentioned equally on two pages gets the same place every time
+    var pages = (message.pages || []).slice().sort(function (a, b) {
+        if ((a.file === MAIN_PAGE) !== (b.file === MAIN_PAGE))
+            return a.file === MAIN_PAGE ? -1 : 1
+        return a.file < b.file ? -1 : (a.file > b.file ? 1 : 0)
+    })
     // Always answer: without a map the page keeps the catalog paths, but it must stop waiting
     try {
         for (var i = 0; i < pages.length; i++)
@@ -119,9 +181,22 @@ WorkerScript.onMessage = function (message) {
     } catch (e) {
         map = {}
     }
+    var anchors = {}
+    try {
+        anchors = pageAnchors(pages)
+    } catch (e) {
+        anchors = {}
+    }
     var keys = 0
     for (var key in map) {
+        // Without a place the setting goes after the rest, in the catalog order
+        try {
+            map[key].pos = pagePrefix(map[key].file, anchors, 0) + padLine(map[key].line)
+        } catch (e) {
+            delete map[key].pos
+        }
         delete map[key].strength
+        delete map[key].line
         keys++
     }
     WorkerScript.sendMessage({ map: map, keys: keys, ms: Date.now() - started })
