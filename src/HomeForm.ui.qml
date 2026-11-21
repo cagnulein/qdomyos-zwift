@@ -471,19 +471,20 @@ Page {
             sourceComponent: Row {
                 spacing: 8
 
-                // Bluetooth is off: a warning, drawn here because the app font has no warning sign
+                // Bluetooth is off: a warning, not an error (the user switched it off), drawn here
+                // because the app font has no warning sign
                 Rectangle {
                     visible: page.bluetoothOff
                     anchors.verticalCenter: parent.verticalCenter
                     width: 16
                     height: 16
                     radius: 8
-                    color: window.ui.danger
+                    color: window.ui.warning
                     Accessible.ignored: true
                     Label {
                         anchors.centerIn: parent
                         text: "!"
-                        color: window.ui.dangerInk
+                        color: window.ui.warningInk
                         font.pixelSize: window.ui.fontCaption
                         font.bold: true
                         // Qt 5.15 lifts the children of an ignored item into the tree: the sign has to
@@ -518,7 +519,7 @@ Page {
                     horizontalAlignment: Text.AlignHCenter
                     // two lines ("<device> found" and the countdown) grow down, set closer
                     lineHeight: text.indexOf("\n") >= 0 ? 0.8 : 1
-                    color: page.bluetoothOff ? window.ui.danger : window.ui.textMuted
+                    color: page.bluetoothOff ? window.ui.warning : window.ui.textMuted
                     font.pixelSize: window.ui.fontCaption
                 }
             }
@@ -586,6 +587,9 @@ Page {
                     id: emptyColumn
                     width: parent.width
                     spacing: 12
+                    // The stopped search says what to do: tap the Bluetooth icon in the row of the
+                    // controls. With the top bar off there is no such icon, the texts stay as before
+                    readonly property bool stopped: page.searchStopped && page.modernControlsShown
 
                     Label {
                         width: parent.width
@@ -594,7 +598,7 @@ Page {
                         // status to the edge of the area, this padding and the room above the
                         // capitals make the 24. It scrolls with the heading
                         topPadding: page.modernControlsShown ? 11 : 4
-                        text: page.searchStopped ? qsTranslate("HomeForm.ui", "Equipment not found")
+                        text: emptyColumn.stopped ? qsTranslate("HomeForm.ui", "Equipment not found")
                                                  : qsTranslate("HomeForm.ui", "Looking for your equipment…")
                         horizontalAlignment: Text.AlignHCenter
                         wrapMode: Text.WordWrap
@@ -605,7 +609,7 @@ Page {
 
                     Label {
                         width: parent.width
-                        text: page.searchStopped ? qsTranslate("HomeForm.ui", "Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.")
+                        text: emptyColumn.stopped ? qsTranslate("HomeForm.ui", "Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.")
                                                  : qsTranslate("HomeForm.ui", "Turn on your bike, treadmill or rower: QZ connects to it automatically.")
                         horizontalAlignment: Text.AlignHCenter
                         wrapMode: Text.WordWrap

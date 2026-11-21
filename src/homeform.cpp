@@ -2005,7 +2005,7 @@ void homeform::refresh_bluetooth_devices_clicked() {
 QString homeform::bluetoothSearchStatus() {
     if (!bluetoothManager || bluetoothManager->device())
         return QString();
-    // with Bluetooth off nothing is searched: the line said "Searching for the device..." (or the
+    // with Bluetooth off no Bluetooth search runs: the line said "Searching for the device..." (or the
     // start value "Connecting...") until it was switched on
     if (bluetoothManager->bluetoothOff())
         return tr("Bluetooth is off");
