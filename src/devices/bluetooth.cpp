@@ -3880,7 +3880,7 @@ void bluetooth::connectedAndDiscovered() {
 
         if (!csc_as_bike && !csc_as_treadmill) {
             for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
-                if (((b.name().startsWith(cscName))) && !cadenceSensor &&
+                if (b.name().startsWith(cscName) && !cadenceSensor && !runningCadenceSensor &&
                     !cscName.startsWith(QStringLiteral("Disabled"))) {
                     settings.setValue(QZSettings::csc_sensor_lastdevice_name, b.name());
 
@@ -3889,13 +3889,37 @@ void bluetooth::connectedAndDiscovered() {
 #else
                     settings.setValue(QZSettings::csc_sensor_address, b.deviceUuid().toString());
 #endif
-                    cadenceSensor = new cscbike(false, false, true);
-                    // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
-
-                    connect(cadenceSensor, &cscbike::debug, this, &bluetooth::debug);
-                    connect(cadenceSensor, &bluetoothdevice::cadenceChanged, this->device(),
-                            &bluetoothdevice::cadenceSensor);
-                    cadenceSensor->deviceDiscovered(b);
+                    // A running footpod reports RSC (0x1814 / 0x2A53), not cycling
+                    // CSC (0x1816 / 0x2A5B). Use the existing Stryd/RSC decoder
+                    // when the selected accessory belongs to a treadmill.
+                    // Some RUNNING SENSOR pods omit the service UUID in advertising.
+                    const bool runningFootpod =
+                        device() && device()->deviceType() == TREADMILL &&
+                        (deviceHasService(b, QBluetoothUuid((quint16)0x1814)) ||
+                         b.name().startsWith(QStringLiteral("RUNNING SENSOR"), Qt::CaseInsensitive));
+                    if (runningFootpod) {
+                        // The same pod may already be selected under Power Sensor.
+                        // That path connects cadence too: avoid two BLE connections.
+                        if (!powerSensorName.startsWith(QStringLiteral("Disabled")) &&
+                            b.name().startsWith(powerSensorName)) {
+                            emit debug(QStringLiteral("RSC cadence sensor will use the Power Sensor connection: ") +
+                                       b.name());
+                            break;
+                        }
+                        runningCadenceSensor = new strydrunpowersensor(false, false, true);
+                        connect(runningCadenceSensor, &strydrunpowersensor::debug, this, &bluetooth::debug);
+                        connect(runningCadenceSensor, &bluetoothdevice::cadenceChanged, this->device(),
+                                &bluetoothdevice::cadenceSensor);
+                        runningCadenceSensor->deviceDiscovered(b);
+                    } else {
+                        // Preserve the existing CSC accessory handling for bikes
+                        // and for cadence sensors that do not advertise RSC.
+                        cadenceSensor = new cscbike(false, false, true);
+                        connect(cadenceSensor, &cscbike::debug, this, &bluetooth::debug);
+                        connect(cadenceSensor, &bluetoothdevice::cadenceChanged, this->device(),
+                                &bluetoothdevice::cadenceSensor);
+                        cadenceSensor->deviceDiscovered(b);
+                    }
                     if(homeform::singleton())
                         homeform::singleton()->setToastRequested(QObject::tr("%1 (cadence sensor) connected!").arg(b.name()));
                     break;
@@ -5477,6 +5501,10 @@ void bluetooth::restart() {
         // heartRateBelt->disconnectBluetooth(); // to test
         delete cadenceSensor;
         cadenceSensor = nullptr;
+    }
+    if (runningCadenceSensor) {
+        delete runningCadenceSensor;
+        runningCadenceSensor = nullptr;
     }
     if (powerSensor) {
 
