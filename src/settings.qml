@@ -2507,6 +2507,7 @@ import AndroidStatusBar 1.0
             property bool resistance_compatibility: false
             // Keep newly added properties at the end to preserve settings order on iOS.
             property bool strava_synthetic_gps_track: false
+            property bool keep_bike_c1_mini: false
 
         }
 
@@ -5511,6 +5512,32 @@ import AndroidStatusBar 1.0
                         color: Material.backgroundColor
                         accordionContent: "gears.qml"
                         pageSettings: settings
+                    }
+
+                    AccordionElement {
+                        id: keepBikeAccordion
+                        title: qsTr("Keep Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            IndicatorOnlySwitch {
+                                text: qsTr("Keep C1 Mini (18 resistance levels)")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                checked: settings.keep_bike_c1_mini
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: {
+                                    settings.keep_bike_c1_mini = checked
+                                    window.settings_restart_to_apply = true
+                                }
+                            }
+                        }
                     }
 
                     AccordionElement {
