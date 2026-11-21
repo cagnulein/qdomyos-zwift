@@ -10677,6 +10677,7 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
     stravaWorkoutName = QFileInfo(file.fileName()).completeBaseName();
     emit workoutNameChanged(workoutName());
     if (!file.fileName().isEmpty()) {
+        bool hasRouteSegments = false;
         {
             if (trainProgram) {
 
@@ -10741,10 +10742,15 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
                 emit videoPathChanged(movieFileName);
                 setVideoIconVisible(true);
             }
+            hasRouteSegments = !list.isEmpty();
             trainProgram = new trainprogram(list, bluetoothManager, nullptr, nullptr, videoIconVisible());
         }
 
         trainProgramSignals();
+        if (hasRouteSegments) {
+            // Use the same QZ-only pause/resume as Start Workout, without stopping the equipment.
+            trainprogram_autostart_requested();
+        }
     }
 }
 
