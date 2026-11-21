@@ -8521,6 +8521,14 @@ Default: A = -0.96, B = 1.33</source>
         <source>Use Console Gears</source>
         <translation>Gunakan gigi konsol</translation>
     </message>
+    <message>
+        <source>Use Zwift Right Controller Only</source>
+        <translation>Gunakan hanya kontroler Zwift kanan</translation>
+    </message>
+    <message>
+        <source>Doesn't require a Zwift unlock.</source>
+        <translation>Tidak perlu membuka kunci Zwift.</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

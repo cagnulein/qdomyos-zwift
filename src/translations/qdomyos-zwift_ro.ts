@@ -8521,6 +8521,14 @@ Default: A = -0.96, B = 1.33</source>
         <source>Use Console Gears</source>
         <translation>Folosește treptele consolei</translation>
     </message>
+    <message>
+        <source>Use Zwift Right Controller Only</source>
+        <translation>Folosește doar controlerul Zwift din dreapta</translation>
+    </message>
+    <message>
+        <source>Doesn't require a Zwift unlock.</source>
+        <translation>Nu necesită deblocarea Zwift.</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

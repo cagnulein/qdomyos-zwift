@@ -8521,6 +8521,14 @@ Default: A = -0.96, B = 1.33</source>
         <source>Use Console Gears</source>
         <translation>Sử dụng số trên bảng điều khiển</translation>
     </message>
+    <message>
+        <source>Use Zwift Right Controller Only</source>
+        <translation>Chỉ sử dụng bộ điều khiển Zwift bên phải</translation>
+    </message>
+    <message>
+        <source>Doesn't require a Zwift unlock.</source>
+        <translation>Không cần mở khóa Zwift.</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

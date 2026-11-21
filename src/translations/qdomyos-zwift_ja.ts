@@ -8786,6 +8786,14 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
         <source>Use Console Gears</source>
         <translation>コンソールのギアを使用</translation>
     </message>
+    <message>
+        <source>Use Zwift Right Controller Only</source>
+        <translation>Zwiftの右コントローラーのみ使用</translation>
+    </message>
+    <message>
+        <source>Doesn't require a Zwift unlock.</source>
+        <translation>Zwiftのロック解除は不要です。</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

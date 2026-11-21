@@ -8698,6 +8698,14 @@ Standard: A = -0.96, B = 1.33</translation>
         <source>Use Console Gears</source>
         <translation>Brug gear fra konsollen</translation>
     </message>
+    <message>
+        <source>Use Zwift Right Controller Only</source>
+        <translation>Brug kun højre Zwift-controller</translation>
+    </message>
+    <message>
+        <source>Doesn't require a Zwift unlock.</source>
+        <translation>Kræver ikke oplåsning af Zwift.</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

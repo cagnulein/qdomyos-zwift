@@ -8521,6 +8521,14 @@ Default: A = -0.96, B = 1.33</source>
         <source>Use Console Gears</source>
         <translation>कंसोल गियर का उपयोग करें</translation>
     </message>
+    <message>
+        <source>Use Zwift Right Controller Only</source>
+        <translation>केवल दाएँ Zwift कंट्रोलर का उपयोग करें</translation>
+    </message>
+    <message>
+        <source>Doesn't require a Zwift unlock.</source>
+        <translation>Zwift अनलॉक करने की आवश्यकता नहीं है।</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

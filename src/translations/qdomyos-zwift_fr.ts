@@ -8762,6 +8762,14 @@ Par défaut : A = -0.96, B = 1.33</translation>
         <source>Use Console Gears</source>
         <translation>Utiliser les vitesses de la console</translation>
     </message>
+    <message>
+        <source>Use Zwift Right Controller Only</source>
+        <translation>Utiliser uniquement la manette droite Zwift</translation>
+    </message>
+    <message>
+        <source>Doesn't require a Zwift unlock.</source>
+        <translation>Ne nécessite pas de déverrouillage Zwift.</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

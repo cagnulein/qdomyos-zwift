@@ -27,6 +27,12 @@ class AbstractZapDevice: public QObject {
         RIGHT
     };
 
+    // Special right-only mapping and idle reset require the explicit user setting.
+    static bool useSingleRightClickV2(bool settingEnabled, int manufacturerType) {
+        return settingEnabled && manufacturerType == 10;
+    }
+    bool singleRightClickV2 = false;
+
     QByteArray RIDE_ON;
     QByteArray REQUEST_START;
     QByteArray RESPONSE_START;
@@ -532,6 +538,7 @@ class AbstractZapDevice: public QObject {
         const bool previousLeftShiftDown = lastRideButtonStateValid ? lastRideButtonState.leftShiftDown : false;
         const bool previousRightShiftUp = lastRideButtonStateValid ? lastRideButtonState.rightShiftUp : false;
         const bool previousRightShiftDown = lastRideButtonStateValid ? lastRideButtonState.rightShiftDown : false;
+        const bool previousRightB = lastRideButtonStateValid ? lastRideButtonState.rightB : false;
         const bool previousLeftPowerUp = lastRideButtonStateValid ? lastRideButtonState.leftPowerUp : false;
         const bool previousRightPowerUp = lastRideButtonStateValid ? lastRideButtonState.rightPowerUp : false;
 
@@ -545,6 +552,9 @@ class AbstractZapDevice: public QObject {
             applyGearButtonSetting(QZSettings::zwiftplay_gear_rs1, QZSettings::default_zwiftplay_gear_rs1, zwiftplay_swap);
         }
         if (state.rightShiftDown && (!gears_volume_debouncing || !previousRightShiftDown)) {
+            applyGearButtonSetting(QZSettings::zwiftplay_gear_rs2, QZSettings::default_zwiftplay_gear_rs2, zwiftplay_swap);
+        }
+        if (singleRightClickV2 && state.rightB && (!gears_volume_debouncing || !previousRightB)) {
             applyGearButtonSetting(QZSettings::zwiftplay_gear_rs2, QZSettings::default_zwiftplay_gear_rs2, zwiftplay_swap);
         }
         if (state.leftPowerUp && (!gears_volume_debouncing || !previousLeftPowerUp)) {

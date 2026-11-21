@@ -8738,6 +8738,14 @@ Predefinito: A = -0.96, B = 1.33</translation>
         <source>Use Console Gears</source>
         <translation>Usa le marce della console</translation>
     </message>
+    <message>
+        <source>Use Zwift Right Controller Only</source>
+        <translation>Usa solo il controller Zwift destro</translation>
+    </message>
+    <message>
+        <source>Doesn't require a Zwift unlock.</source>
+        <translation>Non richiede lo sblocco di Zwift.</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

@@ -8722,6 +8722,14 @@ Standaard: A = -0.96, B = 1.33</translation>
         <source>Use Console Gears</source>
         <translation>Versnellingen van de console gebruiken</translation>
     </message>
+    <message>
+        <source>Use Zwift Right Controller Only</source>
+        <translation>Alleen rechter Zwift-controller gebruiken</translation>
+    </message>
+    <message>
+        <source>Doesn't require a Zwift unlock.</source>
+        <translation>Geen Zwift-ontgrendeling nodig.</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

@@ -3505,6 +3505,9 @@ class QZSettings {
     static const QString resistance_compatibility;
     static constexpr bool default_resistance_compatibility = false;
 
+    static const QString zwift_right_controller_only;
+    static constexpr bool default_zwift_right_controller_only = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

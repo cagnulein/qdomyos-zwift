@@ -8521,6 +8521,14 @@ Default: A = -0.96, B = 1.33</source>
         <source>Use Console Gears</source>
         <translation>استخدام تروس وحدة التحكم</translation>
     </message>
+    <message>
+        <source>Use Zwift Right Controller Only</source>
+        <translation>استخدام وحدة تحكم Zwift اليمنى فقط</translation>
+    </message>
+    <message>
+        <source>Doesn't require a Zwift unlock.</source>
+        <translation>لا يتطلب إلغاء قفل Zwift.</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

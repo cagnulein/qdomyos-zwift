@@ -8521,6 +8521,14 @@ Default: A = -0.96, B = 1.33</source>
         <source>Use Console Gears</source>
         <translation>Käytä konsolin vaihteita</translation>
     </message>
+    <message>
+        <source>Use Zwift Right Controller Only</source>
+        <translation>Käytä vain oikeanpuoleista Zwift-ohjainta</translation>
+    </message>
+    <message>
+        <source>Doesn't require a Zwift unlock.</source>
+        <translation>Ei vaadi Zwift-lukituksen avaamista.</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

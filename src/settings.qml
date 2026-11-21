@@ -2507,6 +2507,7 @@ import AndroidStatusBar 1.0
             property bool resistance_compatibility: false
             // Keep newly added properties at the end to preserve settings order on iOS.
             property bool strava_synthetic_gps_track: false
+            property bool zwift_right_controller_only: false
 
         }
 
@@ -17536,6 +17537,35 @@ import AndroidStatusBar 1.0
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
+                            }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Use Zwift Right Controller Only")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.zwift_right_controller_only
+                                enabled: settings.zwift_click
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.zwift_right_controller_only = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            Label {
+                                text: qsTr("Doesn't require a Zwift unlock.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
                             }
 
                             IndicatorOnlySwitch {

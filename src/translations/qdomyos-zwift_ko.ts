@@ -8722,6 +8722,14 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
         <source>Use Console Gears</source>
         <translation>콘솔 기어 사용</translation>
     </message>
+    <message>
+        <source>Use Zwift Right Controller Only</source>
+        <translation>Zwift 오른쪽 컨트롤러만 사용</translation>
+    </message>
+    <message>
+        <source>Doesn't require a Zwift unlock.</source>
+        <translation>Zwift 잠금 해제가 필요하지 않습니다.</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

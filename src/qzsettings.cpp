@@ -1175,6 +1175,8 @@ const QString QZSettings::applewatch_as_treadmill_speed = QStringLiteral("applew
 const QString QZSettings::horizon_treadmill_omega_z = QStringLiteral("horizon_treadmill_omega_z");
 const QString QZSettings::nordictrack_elliptical_s700 = QStringLiteral("nordictrack_elliptical_s700");
 
+const QString QZSettings::zwift_right_controller_only = QStringLiteral("zwift_right_controller_only");
+
 // Zwift Play/Ride per-button gear mapping
 const QString QZSettings::zwiftplay_gear_ls1 = QStringLiteral("zwiftplay_gear_ls1");
 const QString QZSettings::zwiftplay_gear_ls2 = QStringLiteral("zwiftplay_gear_ls2");
@@ -1372,9 +1374,7 @@ const QString QZSettings::resistance_compatibility = QStringLiteral("resistance_
 
 const QString QZSettings::strava_synthetic_gps_track = QStringLiteral("strava_synthetic_gps_track");
 
-const uint32_t allSettingsCount = 1058;
-
-QVariant allSettings[allSettingsCount][2] = {
+QVariant allSettings[][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
     {QZSettings::bike_wheel_revs, QZSettings::default_bike_wheel_revs},
@@ -2457,7 +2457,11 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_use_console_gears, QZSettings::default_proform_use_console_gears},
     {QZSettings::resistance_compatibility, QZSettings::default_resistance_compatibility},
     {QZSettings::strava_synthetic_gps_track, QZSettings::default_strava_synthetic_gps_track},
+    {QZSettings::zwift_right_controller_only, QZSettings::default_zwift_right_controller_only},
 };
+
+// Keep the count in sync with the actual array entries when new settings are added.
+const uint32_t allSettingsCount = sizeof(allSettings) / sizeof(allSettings[0]);
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
     QSettings settings;

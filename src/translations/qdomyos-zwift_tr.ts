@@ -8722,6 +8722,14 @@ Varsayılan: A = -0.96, B = 1.33</translation>
         <source>Use Console Gears</source>
         <translation>Konsol viteslerini kullan</translation>
     </message>
+    <message>
+        <source>Use Zwift Right Controller Only</source>
+        <translation>Yalnızca sağ Zwift kontrolcüsünü kullan</translation>
+    </message>
+    <message>
+        <source>Doesn't require a Zwift unlock.</source>
+        <translation>Zwift kilidini açmak gerekmez.</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

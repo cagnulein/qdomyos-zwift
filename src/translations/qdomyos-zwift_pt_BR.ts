@@ -8521,6 +8521,14 @@ Default: A = -0.96, B = 1.33</source>
         <source>Use Console Gears</source>
         <translation>Usar marchas do console</translation>
     </message>
+    <message>
+        <source>Use Zwift Right Controller Only</source>
+        <translation>Usar apenas o controle direito do Zwift</translation>
+    </message>
+    <message>
+        <source>Doesn't require a Zwift unlock.</source>
+        <translation>Não requer desbloqueio do Zwift.</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>
