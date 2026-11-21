@@ -55,9 +55,14 @@ Item {
             return false
         return c.linkedBoolSetting === undefined || c.isOpen
     }
-    // A label of its own: the name of the control below it
+    function isDescription(c) {
+        return c.text !== undefined && c.wrapMode !== undefined && c.color !== undefined
+            && Qt.colorEqual(c.color, window.ui.textMuted)
+    }
+    // A label of its own, not a description: the name of the control below it
     function isTitle(c) {
         return c.text !== undefined && c.wrapMode !== undefined && c.checked === undefined && c.readOnly === undefined
+            && !isDescription(c)
     }
     // A note in bold italic, which the modern look keeps in its own colour ("Apple Watch users:
     // leave it disabled!", "0.005 = Clinchers", "IMPORTANT: ... UNIT ID")
@@ -123,7 +128,7 @@ Item {
                 want.section = true
                 want.groupStart = true
                 cur = null
-            } else if (cur && ((cur.titleOnly && c.checked === undefined)
+            } else if (cur && (isDescription(c) || (cur.titleOnly && c.checked === undefined)
                                || isNote(c)
                                || (isButton(c) && (hasPicker(cur.last.item) || cur.pickerNote)))) {
                 // A description or a note joins the setting above it; a lone title ("FTMS
