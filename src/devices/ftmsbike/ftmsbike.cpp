@@ -406,6 +406,16 @@ resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
     return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), max_resistance);
 }
 
+QByteArray ftmsbike::encodeStandardResistanceLevel(resistance_t resistance) {
+    // FTMS Set Target Resistance Level uses a 16-bit little-endian value in 0.1 units.
+    const uint16_t scaled = static_cast<uint16_t>(resistance) * 10;
+    QByteArray packet(3, '\0');
+    packet[0] = static_cast<char>(FTMS_SET_TARGET_RESISTANCE_LEVEL);
+    packet[1] = static_cast<char>(scaled & 0xFF);
+    packet[2] = static_cast<char>((scaled >> 8) & 0xFF);
+    return packet;
+}
+
 bool ftmsbike::uses16BitResistanceForDevice(const QString &deviceName) {
     // Apply the Matrix R30 XR FTMS control and 16-bit resistance workaround
     // to all MX-RB devices, regardless of their Bluetooth name suffix.
@@ -497,7 +507,10 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         if (TC_BIKE)
             tcPendingResistance = requestResistance;
 
-        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28 || USDC_D700 || FS_YK || TUNTURI_E50_168 || VIFHTR ||
+        // TC-prefix bikes acknowledged short 0x04 <level> writes but only provided ~65 W at
+        // QZ level 41, versus ~400 W at the console maximum. Try the standard FTMS
+        // 16-bit, 0.1-unit payload without changing any other device's routing.
+        if(TC_BIKE || JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28 || USDC_D700 || FS_YK || TUNTURI_E50_168 || VIFHTR ||
            INCONDI_S150I || FS_SB_RCR || HS_5000L || DRUMFIT ||
            uses16BitResistanceForDevice(bluetoothDevice.name()) ||
            (settings.value(QZSettings::force_resistance_instead_inclination,
@@ -506,10 +519,8 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
                            QZSettings::default_resistance_compatibility).toBool())) {
             if (uses16BitResistanceForDevice(bluetoothDevice.name()))
                 matrixLastResistanceCommand = requestResistance;
-            uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
-            write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
-            write[2] = ((uint16_t)requestResistance * 10) >> 8;
-            writeCharacteristic(write, sizeof(write),
+            QByteArray write = encodeStandardResistanceLevel(requestResistance);
+            writeCharacteristic(reinterpret_cast<uint8_t *>(write.data()), write.size(),
                                 QStringLiteral("forceResistance ") + QString::number(requestResistance));
         } else {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
