@@ -377,6 +377,13 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
             // todo
         }
     } else if (characteristic.uuid() == QBluetoothUuid::RSCMeasurement) {
+        // Generic RSC-only footpods (e.g. Bodytone BTC-1) use this path too.
+        // The RSC Feature (0x2A54) is not needed and may be malformed.
+        if (newValue.size() < 4) {
+            emit debug(QStringLiteral("Ignoring truncated RSC measurement"));
+            return;
+        }
+        lastPacket = newValue;
         uint8_t flags = (uint8_t)newValue.at(0);
         bool InstantaneousStrideLengthPresent = (flags & 0x01);
         bool TotalDistancePresent = (flags & 0x02) ? true : false;
