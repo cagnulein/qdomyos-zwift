@@ -4,6 +4,12 @@
 #include "devices/daumbike/daumbike.h"
 #include "Tools/testsettings.h"
 
+TEST(FtmsBikeParserTest, EncodesStandardFtmsResistanceLevelWithTenthsAndLittleEndian) {
+    EXPECT_EQ(QByteArray::fromHex("04 0a 00"), ftmsbike::encodeStandardResistanceLevel(1));
+    EXPECT_EQ(QByteArray::fromHex("04 8c 00"), ftmsbike::encodeStandardResistanceLevel(14));
+    EXPECT_EQ(QByteArray::fromHex("04 9a 01"), ftmsbike::encodeStandardResistanceLevel(41));
+}
+
 TEST(FtmsBikeParserTest, DecodesFsIb50Resistance) {
     resistance_t resistance = -1;
     const QByteArray packet = QByteArray::fromHex("02 42 02 47 07 1e 34 00 00 00 00 00 00 00 00");
