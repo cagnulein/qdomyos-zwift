@@ -35,6 +35,19 @@ Item {
         return true
     }
 
+    // A workout started (Save & Start here, Start Workout in the program list) closes the editor.
+    // The page listens itself, so the handler goes away with it:
+    // one connected in main.qml per opening outlived the page and called it after it was destroyed.
+    // The kept editor of the modern look is closed by main.qml (onTrainprogram_autostart_requested)
+    Connections {
+        target: window
+        enabled: root !== window.keptWorkoutEditor
+        function onTrainprogram_autostart_requested() {
+            console.log("[WorkoutEditor.qml] trainprogram_autostart_requested received, closing editor")
+            root.closeRequested()
+        }
+    }
+
     Settings {
         id: settings
     }
