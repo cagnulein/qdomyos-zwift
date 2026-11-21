@@ -456,10 +456,9 @@ Page {
             active: page.modernControlsShown
             // Over the empty state only the last device found and the time to the next search
             // ("HRM-Pro found" and "Next search in 12 s" under it): its heading says the rest
-            // ("Looking for your equipment"). The line has its own place under the buttons, so
-            // it comes and goes without moving the page
-            // ("Looking for your equipment"). A stopped search is said by the heading too
-            // ("Equipment not found" and what to do), so the line is not shown then
+            // ("Looking for your equipment"); a stopped search is said by the heading too
+            // ("Equipment not found" and what to do), so the line is not shown then. The line has
+            // its own place under the buttons, so it comes and goes without moving the page
             readonly property bool countdown: !page.searchStopped && page.searchStatus !== ""
                                               && page.searchStatus !== qsTranslate("homeform", "Searching for the device...")
             // with the top bar off it is not shown either: its place is under the controls.
@@ -550,7 +549,7 @@ Page {
             // the status starts 8 dp under the buttons: the scrolled checklist is cut under the
             // status, not in the middle of the empty space. Over this state the status changes
             // with every search: two lines ("<device> found" and the countdown, the second 0.8 of
-            // a line lower), one line, or none (e.g. searching with nothing found yet, Bluetooth off).
+            // a line lower), one line, or none (e.g. searching with nothing found yet).
             // The place of the two lines is kept in all of them, so the page does not move; with
             // one line or none the cut is further below what is shown. 1.8 lines + 5: 5 and the
             // room under the letters of the second line make the 8 dp, as 13 makes 16 in
