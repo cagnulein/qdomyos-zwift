@@ -28,9 +28,9 @@ HomeForm {
         // connected", and the line would read "Searching for the device..." beside the green card
         if (rootItem.info === "Connecting..." && window.equipmentConnected)
             return false
-        // homeform writes "<device> found" into info once the device is found (name + " found");
-        // a loaded workout puts its name there
-        return !String(rootItem.info).endsWith(" found")
+        // info is "<device> found" (translated) once the device is found, or the name of a loaded
+        // workout: homeform says which, the translated text cannot be matched
+        return !rootItem.infoDeviceFound
     }
     background: Rectangle {
         anchors.fill: parent

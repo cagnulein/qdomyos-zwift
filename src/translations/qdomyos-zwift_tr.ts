@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="tr_TR">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Kapat</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -1363,6 +1370,21 @@ QZ ayarları güncellensin mi?</translation>
     <message>
         <source>Open email</source>
         <translation>E-postayı aç</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Satın alınıyor...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Satın alma başarılı</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Satın alma başarısız</translation>
     </message>
 </context>
 <context>
