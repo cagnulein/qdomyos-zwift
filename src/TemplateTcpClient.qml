@@ -36,7 +36,7 @@ ColumnLayout {
             //inputMethodHints: Qt.ImhFormattedNumbersOnly
             onAccepted: hostRow.doSaveHost(text)
         }
-        Button {
+        UiButton {
             id: buttonTcpClientIp
             text: "OK"
             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -68,7 +68,7 @@ ColumnLayout {
             inputMethodHints: Qt.ImhDigitsOnly
             onAccepted: portRow.doSavePort(text)
         }
-        Button {
+        UiButton {
             id: buttonlabelTcpClientPort
             text: "OK"
             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
