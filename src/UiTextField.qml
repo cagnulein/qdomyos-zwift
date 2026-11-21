@@ -14,6 +14,9 @@ T.TextField {
 
     readonly property bool modern: window.ui.modern
     readonly property int modernInset: modern ? 6 : 0
+    // The placeholder as drawn: a narrow field can show a shorter one ("–" for "None")
+    // while placeholderText, which the screen reader reads, keeps the word
+    property string shownPlaceholder: placeholderText
 
     implicitWidth: implicitBackgroundWidth + leftInset + rightInset
                    || Math.max(contentWidth, placeholder.implicitWidth) + leftPadding + rightPadding
@@ -179,7 +182,7 @@ T.TextField {
         y: control.topPadding
         width: control.width - (control.leftPadding + control.rightPadding)
         height: control.height - (control.topPadding + control.bottomPadding)
-        text: control.placeholderText
+        text: control.shownPlaceholder
         font: control.font
         color: control.placeholderTextColor
         verticalAlignment: control.verticalAlignment
