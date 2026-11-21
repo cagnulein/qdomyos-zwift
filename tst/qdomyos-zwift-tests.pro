@@ -39,6 +39,7 @@ SOURCES += \
         Tools/testsettings.cpp \
         Tools/typeidgenerator.cpp \
         Devices/TestSchwinn411510EParser.cpp \
+        Devices/TestSchwinnC7Resistance.cpp \
         Devices/TestZwiftRideController.cpp \
         Devices/TestApexBikeParser.cpp \
         Devices/TestEchelonUnlock.cpp \

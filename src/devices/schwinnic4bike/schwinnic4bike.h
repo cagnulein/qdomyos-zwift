@@ -38,6 +38,12 @@ class schwinnic4bike : public bike {
     Q_OBJECT
   public:
     schwinnic4bike(bool noWriteResistance, bool noHeartService);
+    // C7 reports the physical resistance in FTMS Indoor Bike Data. Other Schwinn
+    // models retain the legacy power/cadence estimate until individually verified.
+    static bool shouldUseBikeFtmsResistance(const QString &deviceName, bool fieldPresent, double level) {
+        return deviceName.startsWith(QStringLiteral("C7-"), Qt::CaseInsensitive) &&
+               fieldPresent && level >= 1.0 && level <= 100.0;
+    }
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     bool ergManagedBySS2K() override { return true; }
     resistance_t maxResistance() override { return max_resistance; }
