@@ -168,8 +168,10 @@ Item {
                 // setting. Text on the block, in the column of the text of the frames, as M3 puts the
                 // supporting text of a list (T-641, mockup notes/mockups/t641-section-notes-2026-11-21,
                 // decision 21.11): the gap of the frames above it, the gaps of two below it - the ink
-                // 8 dp under the header or the frame above and 12 dp over the next frame
-                if (isTitle(e.group.first.item))
+                // ~8 dp under the header or the frame above, the block of the text 12 dp over the next
+                // frame (the ink 12-15, as the style guide puts a list under a hint). A subheader - a
+                // title, not a note in its own colour - gets its room above it
+                if (isTitle(e.group.first.item) && !isNote(e.group.first.item))
                     e.group.first.top = Math.max(e.group.first.top, subheaderTop)
                 e.group.first.top += seen ? frameGap : 0
                 e.group.last.bottom += frameGap

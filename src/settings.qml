@@ -9592,13 +9592,25 @@ import AndroidStatusBar 1.0
 
                     Label {
                         id: garminConnectLabel
+                        // Classic only: the modern look shows the subheader below. A font written here for the
+                        // classic look would not be the one the label inherits (T-641)
+                        visible: !window.ui.modern
                         text: "Garmin Connect"
-                        // Modern look: a subheader of the section, as "Gear Controls" - Title Small 14 Medium in
-                        // the accent (T-641); classic: the app font of a plain label. The size with the weight: in
-                        // Qt 5 a write of the weight alone keeps the size the label inherits at that moment
-                        font.pixelSize: window.ui.modern ? window.ui.fontLabelLarge : window.ui.fontBase
-                        font.weight: window.ui.modern ? Font.Medium : Font.Normal
-                        color: window.ui.modern ? window.ui.accent : enabled ? Material.foreground : Material.hintTextColor // classic: as Label of the Material style
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    Label {
+                        // Modern look: a subheader of the section, as "Gear Controls" - Title Small 14 Medium in the
+                        // accent (T-641). The size with the weight: in Qt 5 a write of the weight alone keeps the
+                        // size the label inherits at that moment
+                        visible: window.ui.modern
+                        text: garminConnectLabel.text
+                        font.pixelSize: window.ui.fontLabelLarge
+                        font.weight: Font.Medium
+                        color: window.ui.accent
+                        Layout.fillWidth: true
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
