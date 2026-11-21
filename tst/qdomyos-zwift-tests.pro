@@ -44,6 +44,7 @@ SOURCES += \
         Devices/TestEchelonUnlock.cpp \
         Devices/TestNautilusTreadmillParser.cpp \
         Devices/TestFtmsBikeResistance.cpp \
+        Devices/TestBkoolBikeCadence.cpp \
         Devices/TestYpooM5Control.cpp \
         Devices/TestYpooTreadmill.cpp \
         Devices/TestYpooM5Distance.cpp \
