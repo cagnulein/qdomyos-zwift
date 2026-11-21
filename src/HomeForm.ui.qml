@@ -474,11 +474,13 @@ Page {
                 // Bluetooth is off: a warning, not an error (the user switched it off), drawn here
                 // because the app font has no warning sign
                 Rectangle {
+                    id: offMark
                     visible: page.bluetoothOff
                     anchors.verticalCenter: parent.verticalCenter
-                    width: 16
-                    height: 16
-                    radius: 8
+                    // follows the size of the sign: 16 at 100 % text, the "!" stays inside at 170 %
+                    width: Math.round(window.ui.fontCaption * 1.25)
+                    height: width
+                    radius: width / 2
                     color: window.ui.warning
                     Accessible.ignored: true
                     Label {
@@ -514,7 +516,7 @@ Page {
                     // ends with "…" inside the page margins, the signal bars (and the Bluetooth-off
                     // mark) beside it. Qt elides one-line text only, so the two short lines of the
                     // search stay as they are
-                    width: Math.min(implicitWidth, page.width - 2 * window.contentSideMargin - 28 - (page.bluetoothOff ? 24 : 0))
+                    width: Math.min(implicitWidth, page.width - 2 * window.contentSideMargin - 28 - (page.bluetoothOff ? offMark.width + 8 : 0))
                     elide: Text.ElideRight
                     horizontalAlignment: Text.AlignHCenter
                     // two lines ("<device> found" and the countdown) grow down, set closer
