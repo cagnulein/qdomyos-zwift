@@ -74,3 +74,25 @@ TEST(KeepBikeNewProtocolRegressionTest, ResistanceWriteFrameUsesMetricsCommandTy
     EXPECT_TRUE(frame.startsWith(QByteArray::fromHex("a5a5a03617003216ef235501c2f9d7040000")));
     EXPECT_TRUE(frame.contains(QByteArray::fromHex("01b53130362f37ff20a01f")));
 }
+
+TEST(KeepBikeC1MiniRegressionTest, EncodesPlainResistanceLevelInsteadOfLevelTimes1000) {
+    EXPECT_EQ(keepbike::buildNewProtocolC1MiniResistancePayload(1),
+              QByteArray::fromHex("02b53130362f36ff0801"));
+    EXPECT_EQ(keepbike::buildNewProtocolC1MiniResistancePayload(17),
+              QByteArray::fromHex("02b53130362f36ff0811"));
+    EXPECT_EQ(keepbike::buildNewProtocolC1MiniResistancePayload(18),
+              QByteArray::fromHex("02b53130362f36ff0812"));
+}
+
+TEST(KeepBikeC1MiniRegressionTest, WrapsControlWithBikeConCounterAndValidCrc) {
+    const QByteArray frame = keepbike::buildNewProtocolC1MiniControlFrame(
+        0x00a0, 0x07, keepbike::buildNewProtocolC1MiniResistancePayload(17));
+    EXPECT_TRUE(keepbike::isNewProtocolFrame(frame));
+    EXPECT_TRUE(frame.startsWith(QByteArray::fromHex("a5a5a00016003216ef235503b00710040000")));
+    EXPECT_TRUE(frame.contains(QByteArray::fromHex("02b53130362f36ff0811")));
+
+    const QByteArray stopFrame = keepbike::buildNewProtocolC1MiniControlFrame(
+        0x01a0, 0x08, QByteArray::fromHex("02b53130362f34ff0801"));
+    EXPECT_TRUE(keepbike::isNewProtocolFrame(stopFrame));
+    EXPECT_TRUE(stopFrame.contains(QByteArray::fromHex("b0081104000002b53130362f34ff0801")));
+}
