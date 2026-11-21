@@ -1895,6 +1895,11 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Test portable Zwift PlayerState decoder
+        run: |
+          g++ -std=c++17 -O2 -Wall -Wextra -Werror tst/ZwiftApi/zwift_player_state_parser_test.cpp -o /tmp/zwift-player-state-test
+          /tmp/zwift-player-state-test
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
