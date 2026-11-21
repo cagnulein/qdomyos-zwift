@@ -91,6 +91,7 @@ class ftmsbike : public bike {
     static resistance_t normalizedResistanceForDevice(const QString &deviceName, double rawResistance);
     static resistance_t rawResistanceForDevice(const QString &deviceName, resistance_t displayedResistance);
     static bool uses16BitResistanceForDevice(const QString &deviceName);
+    static QByteArray encodeStandardResistanceLevel(resistance_t resistance);
     static bool isMatchingFtmsControlResponse(const QBluetoothUuid &characteristicUuid,
                                               const QByteArray &response, uint8_t requestedOpcode);
 
