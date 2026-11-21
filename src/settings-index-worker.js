@@ -66,6 +66,16 @@ function record(map, key, file, chain, strength, line) {
         map[key] = { file: file, chain: chain, strength: strength, line: line }
 }
 
+// The key ending at `end` is a condition: "(settings.miles_unit && ...) ? lbs : kg" in the label of
+// Player Weight shows the weight, not the unit switch further down the page
+function usedAsCondition(line, end) {
+    var k = end
+    while (k < line.length && (line.charAt(k) === " " || line.charAt(k) === ")"))
+        k++
+    var next = line.substring(k, k + 2)
+    return next.charAt(0) === "?" || next === "&&" || next === "||"
+}
+
 var MAIN_PAGE = "settings.qml"
 // The pages that are on no page come after all of them
 var NO_ANCHOR = "999999"
@@ -143,7 +153,8 @@ function parse(file, source, map) {
                 while ((m = KEY.exec(line)) !== null) {
                     if (chain === null)
                         chain = titlesOf(stack)
-                    record(map, m[1], file, chain, strength, i)
+                    // A key that only decides what the line shows is no more than a mention there
+                    record(map, m[1], file, chain, strength === 2 && usedAsCondition(line, KEY.lastIndex) ? 0 : strength, i)
                 }
             }
         }
