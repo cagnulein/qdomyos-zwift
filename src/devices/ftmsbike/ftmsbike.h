@@ -30,6 +30,7 @@
 #include "wheelcircumference.h"
 #include "devices/bike.h"
 #include "inclinationresistancetable.h"
+#include "tcftmsoverlay.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -90,6 +91,7 @@ class ftmsbike : public bike {
     static resistance_t normalizedResistanceForDevice(const QString &deviceName, double rawResistance);
     static resistance_t rawResistanceForDevice(const QString &deviceName, resistance_t displayedResistance);
     static bool uses16BitResistanceForDevice(const QString &deviceName);
+    static QByteArray encodeStandardResistanceLevel(resistance_t resistance);
     static bool isMatchingFtmsControlResponse(const QBluetoothUuid &characteristicUuid,
                                               const QByteArray &response, uint8_t requestedOpcode);
 
@@ -198,8 +200,12 @@ class ftmsbike : public bike {
     // D500V2 workaround: track if we're awaiting start simulation command after request control
     bool awaiting_start_simulation_after_request_control = false;
     resistance_t lastDomyosRequestedResistance = -1;
+    resistance_t tcPendingResistance = -1;
+    TcFtmsOverlay tcFtmsOverlay;
 
     bool DU30_bike = false;
+    bool TC_BIKE = false;
+    bool tcPowerSampleValid = false;
     bool ICSE = false;
     bool DOMYOS = false;
     bool D500V2 = false;
