@@ -7891,7 +7891,6 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Move the charts up or down to choose their order in Workout History. Changes are saved automatically.")
                                 wrapMode: Text.WordWrap
                                 Layout.fillWidth: true
-                                // Modern look: muted, as the other hints - a hint with no setting of its own has no frame
                                 color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
                             }
 
