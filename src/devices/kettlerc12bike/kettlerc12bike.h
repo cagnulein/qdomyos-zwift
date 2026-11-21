@@ -76,6 +76,7 @@ class kettlerc12bike : public bike {
     QByteArray pendingHandshakeResponse;
     bool controlReady = false;
     bool initialResistanceSent = false;
+    bool automaticPrimeAllowed = true;
     int pendingNativeResistance = -1;
     bool connectedAndDiscoveredEmitted = false;
     bool noWriteResistance = false;
@@ -149,3 +150,4 @@ class kettlerc12bike : public bike {
 };
 
 #endif // KETTLERC12BIKE_H
+

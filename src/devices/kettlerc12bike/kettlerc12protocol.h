@@ -13,6 +13,15 @@ constexpr uint16_t targetPowerHandle = 0x0042;
 constexpr int maxTargetPowerWatts = 500;
 constexpr int minResistanceLevel = 1;
 constexpr int maxResistanceLevel = 20;
+constexpr int initialTargetPowerWatts = 25;
+
+// Do not replace a user or controller request (including Stop) with the
+// automatic initial target while the asynchronous handshake is completing.
+inline bool shouldPrimeTarget(bool allowed, bool activeTarget, int pendingPower,
+                              int pendingResistance, int queuedNativeResistance, int pendingStop) {
+    return allowed && !activeTarget && pendingPower < 0 && pendingResistance < 0 &&
+           queuedNativeResistance < 0 && pendingStop < 0;
+}
 
 // The C12 SecureData.txt asset is a sequential index-to-16-byte-response table:
 // "0000:<32 hex digits>" through "FFFF:<32 hex digits>".
@@ -75,3 +84,4 @@ inline std::array<uint8_t, 2> encodeTargetPower(int watts) {
 } // namespace KettlerC12Protocol
 
 #endif // KETTLERC12PROTOCOL_H
+

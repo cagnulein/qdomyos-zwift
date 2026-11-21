@@ -227,10 +227,12 @@ void kettlerc12bike::update() {
         // Power takes precedence over manual resistance requests.
         if (!noWriteResistance) {
             if (requestPower >= 0) {
+                automaticPrimeAllowed = false;
                 forceResistance(requestPower);
                 emit debug(QStringLiteral("Kettler C12 requested watt target: ") +
                            QString::number(targetPowerWatts));
             } else if (requestResistance != -1) {
+                automaticPrimeAllowed = false;
                 // Manual resistance controls the C12 native 1..20 level, not watts.
                 pendingNativeResistance = KettlerC12Protocol::encodeResistanceLevel(requestResistance);
                 targetPowerActive = false;
@@ -243,6 +245,7 @@ void kettlerc12bike::update() {
         requestResistance = -1;
 
         if (requestStop != -1) {
+            automaticPrimeAllowed = false;
             targetPowerActive = false;
             initialResistanceSent = false;
             requestStop = -1;
@@ -680,6 +683,14 @@ void kettlerc12bike::characteristicWritten(const QLowEnergyCharacteristic &chara
             pendingHandshakeResponse.clear();
             controlReady = true;
             qDebug() << QStringLiteral("C12 handshake write acknowledged (acceptance by bike unverified)");
+            if (KettlerC12Protocol::shouldPrimeTarget(automaticPrimeAllowed, targetPowerActive, requestPower,
+                                                     requestResistance, pendingNativeResistance, requestStop)) {
+                // Match the initial level-1 / 25 W sequence validated on Tom's C12.
+                // update() handles the writes and lets real requests take priority.
+                forceResistance(KettlerC12Protocol::initialTargetPowerWatts);
+                qDebug() << QStringLiteral("C12 priming initial target to 25 W");
+            }
+            automaticPrimeAllowed = false;
         }
     }
 }
@@ -696,6 +707,7 @@ void kettlerc12bike::controllerStateChanged(QLowEnergyController::ControllerStat
         pendingHandshakeResponse.clear();
         controlReady = false;
         initialResistanceSent = false;
+        automaticPrimeAllowed = true;
         pendingNativeResistance = -1;
         targetPowerActive = false;
         lastTargetPowerWrite.invalidate();
@@ -781,3 +793,4 @@ resistance_t kettlerc12bike::pelotonToBikeResistance(int pelotonResistance) {
     // This is for ergometer mode: resistance = target power
     return (pelotonResistance * max_resistance) / 100;
 }
+

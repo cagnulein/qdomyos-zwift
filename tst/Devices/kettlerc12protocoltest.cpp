@@ -21,9 +21,22 @@ int main() {
     check(100, 0x64, 0x00);
     check(105, 0x69, 0x00);
     check(250, 0xfa, 0x00);
-    check(300, 0xfa, 0x00); // existing driver limit
+    check(300, 0x2c, 0x01);
+    check(600, 0xf4, 0x01); // clamp at 500 W
     check(0, 0x00, 0x00);
     check(-1, 0x00, 0x00);
+
+    // A pending command or Stop must always win over connection priming.
+    using KettlerC12Protocol::shouldPrimeTarget;
+    assert(KettlerC12Protocol::initialTargetPowerWatts == 25);
+    assert(shouldPrimeTarget(true, false, -1, -1, -1, -1));
+    assert(!shouldPrimeTarget(false, false, -1, -1, -1, -1));
+    assert(!shouldPrimeTarget(true, true, -1, -1, -1, -1));
+    assert(!shouldPrimeTarget(true, false, 47, -1, -1, -1));
+    assert(!shouldPrimeTarget(true, false, 0, -1, -1, -1));
+    assert(!shouldPrimeTarget(true, false, -1, 1, -1, -1));
+    assert(!shouldPrimeTarget(true, false, -1, -1, 1, -1));
+    assert(!shouldPrimeTarget(true, false, -1, -1, -1, 1));
 
     // Challenge is interpreted as a big-endian integer; the C12 table
     // maps every 16-bit index to one 16-byte response.
@@ -72,3 +85,4 @@ int main() {
     assert(KettlerC12Protocol::encodeResistanceLevel(20) == 20);
     assert(KettlerC12Protocol::encodeResistanceLevel(90) == 20);
 }
+
