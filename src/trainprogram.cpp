@@ -1,4 +1,5 @@
 #include "trainprogram.h"
+#include "zwift-api/zwift_player_state_parser.h"
 #include "zwiftworkout.h"
 #include "workoutimport.h"
 #include "homeform.h"
@@ -737,6 +738,7 @@ void trainprogram::scheduler() {
                         zwift_counter = 0;
                         QByteArray bb = zwift_world->playerStatus(zwift_player_id);
                         qDebug() << " ZWIFT API PROTOBUF << " + bb.toHex(' ');
+                        bool validPlayerState = !bb.isEmpty();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
                         h->zwift_api_decodemessage_player(bb.data(), bb.length());
@@ -770,18 +772,26 @@ void trainprogram::scheduler() {
                             distance = state.distance();
                         } else {
                             // Errore durante il parsing
+                            validPlayerState = false;
                             qDebug() << "Error parsing PlayerState";
                         }
 #else
+                        // Raspberry Pi/Linux and non-MSVC desktop builds do not link
+                        // the generated Zwift Protobuf library.
                         float alt = 0;
                         float distance = 0;
+                        validPlayerState = zwift_player_state::parse(bb.constData(),
+                                                                      static_cast<std::size_t>(bb.size()),
+                                                                      distance, alt);
+                        if (!validPlayerState)
+                            qWarning() << "Error parsing Zwift PlayerState";
 #endif
                         static float old_distance = 0;
                         static float old_alt = 0;
                         
                         qDebug() << "zwift api incline1" << old_distance << old_alt << distance << alt;
 
-                        if(old_distance > 0) {
+                        if(validPlayerState && old_distance > 0) {
                             float delta = distance - old_distance;
                             float deltaA = alt - old_alt;
                             float incline = (deltaA / delta);
@@ -818,8 +828,10 @@ void trainprogram::scheduler() {
                                 }
                             }
                         }
-                        old_distance = distance;
-                        old_alt = alt;
+                        if (validPlayerState) {
+                            old_distance = distance;
+                            old_alt = alt;
+                        }
                     }
                 }
             }
