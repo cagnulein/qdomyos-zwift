@@ -68,6 +68,8 @@ win32: CONFIG += debug
 macx: CONFIG += static
 macx {
     QMAKE_INFO_PLIST = macx/Info.plist
+    # Native macOS desktop builds are always trial builds. Never apply this to iOS.
+    !ios: DEFINES += LICENSE
 }
 INCLUDEPATH += qmdnsengine/src/include
 
