@@ -93,6 +93,9 @@ import AndroidStatusBar 1.0
             onMessage: {
                 settingsPane.settingsIndex = messageObject.map
                 settingsPane.settingsIndexLoading = false
+                // "Changed" waits for the index to list the settings in the order of the pages
+                if (settingsPane.changedOnly)
+                    settingsPane.updateFilteredSettings()
                 if (settingsPane.pendingJump) {
                     var entry = settingsPane.pendingJump
                     settingsPane.pendingJump = null
@@ -736,10 +739,41 @@ import AndroidStatusBar 1.0
             return computeTranslatedName({name: name, key: entry.parent}) || name
         }
 
+        // Where a setting stands on the pages (pos of settings-index-worker.js), "" when unknown.
+        // A setting made of others ("Specific Model": a picker over one switch per model) stands
+        // where the first of them does, as in jumpToSetting
+        function pagePositionOf(entry) {
+            if (!settingsIndex)
+                return ""
+            var where = settingsIndex[entry.key]
+            if (where && where.pos)
+                return where.pos
+            var first = ""
+            var persistent = settingsCatalog.settings || []
+            for (var v = 0; v < persistent.length; v++) {
+                if (persistent[v].virtualParent !== entry.key)
+                    continue
+                var part = settingsIndex[persistent[v].key]
+                if (part && part.pos && (first === "" || part.pos < first))
+                    first = part.pos
+            }
+            return first
+        }
+
         function updateFilteredSettings() {
             if (!settingsCatalogLoaded) {
                 filteredSettings = []
                 settingsSearchPending = settingsSearchActive
+                return
+            }
+
+            // "Changed" is listed in the order of the pages, so it waits for their index (the
+            // onMessage of settingsIndexWorker lists it then): not in the catalog order first and
+            // sorted again a moment later
+            if (changedOnly && !settingsIndex) {
+                filteredSettings = []
+                settingsSearchPending = true
+                loadSettingsIndex()
                 return
             }
 
@@ -772,6 +806,23 @@ import AndroidStatusBar 1.0
                 // The changed settings are listed in full: a cut list would hide some of them
                 if (results.length >= 80 && !changedOnly)
                     break
+            }
+            // "Changed" in the order of the pages, as the settings stand on them. Without a place
+            // (a setting on no page, a page that could not be read): after the rest, in the
+            // catalog order - the sort of the engine need not keep it
+            if (changedOnly) {
+                var positions = {}
+                var order = {}
+                for (var r = 0; r < results.length; r++) {
+                    positions[results[r].key] = pagePositionOf(results[r]) || "~"
+                    order[results[r].key] = r
+                }
+                results.sort(function (a, b) {
+                    var pa = positions[a.key], pb = positions[b.key]
+                    if (pa !== pb)
+                        return pa < pb ? -1 : 1
+                    return order[a.key] - order[b.key]
+                })
             }
             filteredSettings = results
             settingsSearchPending = false
