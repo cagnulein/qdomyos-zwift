@@ -206,3 +206,12 @@ An Android rider whose treadmill appeared as a ProForm 525 CT in iFIT explicitly
 In **QZ Settings > Bike Options > Skandika Bike Options**, turn **Skandika X-2000 Protocol** **OFF** if it is enabled, then reconnect the ergometer and pedal to check the Speed and Watt tiles. This option is intended for the X-2000 protocol and should not be assumed to suit every Skandika model.
 
 A Skandika Morpheus owner using QZ on an iPhone reported that the ergometer connected but both speed and watts stayed at zero. After being asked to toggle **Skandika X-2000 Protocol**, the owner confirmed that it worked. The Skandika driver supports distinct protocol variants, so this is a model-specific troubleshooting step; keep the setting enabled if your actual bike uses the X-2000 protocol.
+
+## Is the ART.IS Cross AS6 (ChangYow SM5081E BLE) compatible with QZ and ROUVY?
+
+**Yes, for a confirmed AS6 configuration.** An ART.IS Cross AS6 with **ChangYow SM5081E BLE electronics (firmware 21)**, broadcasting as `AS6-0185`, was successfully connected to QZ on an Android phone. QZ showed **live power, cadence, and speed**. ROUVY on a separate Android tablet then worked through **QZ's Wi-Fi virtual trainer** rather than connecting directly to the bike.
+
+The bike advertised the standard **FTMS Fitness Machine Service (0x1826)**, with **Indoor Bike Data (0x2AD2)**, **Fitness Machine Control Point (0x2AD9)**, **Supported Resistance Level Range (0x2AD6)**, and **Supported Power Range (0x2AD8)**. Other firmware variants should be checked individually.
+
+The important ROUVY detail is to pair QZ's virtual **ELITE AVANTI** Wi-Fi trainer under **both Smart Trainer and Power**; otherwise the route can open while the avatar remains stationary. See the [complete AS6 + ROUVY setup, QZ settings, and startup sequence](integrations.md#how-do-i-connect-an-artis-cross-as6-changyow-sm5081e-ble-to-rouvy-through-qz-over-wi-fi).
+
