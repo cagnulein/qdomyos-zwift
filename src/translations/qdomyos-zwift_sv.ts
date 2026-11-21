@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="sv_SE">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Stäng</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -1347,6 +1354,21 @@ Vill du uppdatera QZ-inställningarna?</translation>
     <message>
         <source>Open email</source>
         <translation>Öppna e-post</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Köper…</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Köpet har genomförts</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Det gick inte att genomföra köpet</translation>
     </message>
 </context>
 <context>

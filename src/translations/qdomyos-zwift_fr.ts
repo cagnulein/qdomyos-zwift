@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="fr_FR">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Fermer</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -1363,6 +1370,21 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
     <message>
         <source>Open email</source>
         <translation>Ouvrir l’e-mail</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Achat en cours...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Achat réussi</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Échec de l’achat</translation>
     </message>
 </context>
 <context>

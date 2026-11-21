@@ -101,7 +101,7 @@ ColumnLayout {
         visible: !window.ui.modern
         height: 50
         width: parent.width
-        text: "Close"
+        text: qsTr("Close")
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         // nothing listens to popupclose(): back the same way as the toolbar arrow
         onClicked: {

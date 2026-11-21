@@ -873,6 +873,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         m_topBarHeight = 0;
         emit topBarHeightChanged(m_topBarHeight); // NOTE: clazy-incorrecrt-emit
         m_info = QLatin1String("");
+        m_infoFoundDevice.clear();
         emit infoChanged(m_info); // NOTE: clazy-incorrecrt-emit
     }
 
@@ -1697,6 +1698,7 @@ void homeform::peloton_start_workout() {
 
     if (settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
         m_info = stravaPelotonActivityName;
+        m_infoFoundDevice.clear();
         emit infoChanged(m_info);
     }
 
@@ -5418,8 +5420,8 @@ void homeform::deviceFound(const QString &name) {
     if (!settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
         return;
     }
-    m_info = name + QStringLiteral(" found");
-    emit infoChanged(m_info);
+    m_infoFoundDevice = name;
+    emit infoChanged(info());
 }
 
 void homeform::LargeButton(const QString &name) {
@@ -6777,6 +6779,7 @@ void homeform::Stop() {
 
         // clearing the label on top because if it was running a training program, with stop the program will be terminated
         m_info = workoutName();
+        m_infoFoundDevice.clear();
         emit infoChanged(m_info);
     }
 
@@ -10224,6 +10227,7 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
             QSettings settings;
             if (settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
                 m_info = workoutName();
+                m_infoFoundDevice.clear();
                 emit infoChanged(m_info);
             }
         }
@@ -10398,6 +10402,7 @@ void homeform::trainprogram_zwo_loaded(const QString &s) {
                     return;
                 }
                 m_info = workoutName();
+                m_infoFoundDevice.clear();
                 emit infoChanged(m_info);
             }
         }
