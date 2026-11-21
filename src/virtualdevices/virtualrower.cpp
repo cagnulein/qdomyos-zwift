@@ -28,6 +28,11 @@ QByteArray echelonPacket(std::initializer_list<uint8_t> bytes) {
 }
 }
 
+// EXR identifies QZ through GATT service discovery after FTMS pairing.
+// Do not advertise this 128-bit UUID: legacy advertising space is limited.
+static const QBluetoothUuid EXR_QZ_SERVICE_UUID(QStringLiteral("0000515A-0000-1000-8000-00805F9B34FB"));
+static const QBluetoothUuid EXR_QZ_IDENTITY_UUID(QStringLiteral("0000515B-0000-1000-8000-00805F9B34FB"));
+
 // PM5 Concept2 BLE UUIDs
 // Base UUID: CE06XXXX-43E5-11E4-916C-0800200C9A66
 
@@ -270,6 +275,15 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
                 serviceDataFIT.addCharacteristic(charDataFIT4);
                 serviceDataFIT.addCharacteristic(charDataFIT5);
                 serviceDataFIT.addCharacteristic(charDataFIT6);
+
+                // Read-only QZ identity for EXR's FTMS compatibility layer.
+                QLowEnergyCharacteristicData exrIdentity;
+                exrIdentity.setUuid(EXR_QZ_IDENTITY_UUID);
+                exrIdentity.setProperties(QLowEnergyCharacteristic::Read);
+                exrIdentity.setValue(QByteArrayLiteral("QZ Fitness"));
+                serviceDataEXR.setType(QLowEnergyServiceData::ServiceTypePrimary);
+                serviceDataEXR.setUuid(EXR_QZ_SERVICE_UUID);
+                serviceDataEXR.addCharacteristic(exrIdentity);
             }
         }
 
@@ -381,6 +395,12 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         } else if (!echelon) {
             serviceFIT = leController->addService(serviceDataFIT);
             QThread::msleep(100); // give time to Android to add the service async.ly
+            if (!serviceDataEXR.characteristics().isEmpty()) {
+                serviceEXR = leController->addService(serviceDataEXR);
+                if (!serviceEXR)
+                    qWarning() << "Failed to add QZ identity service for EXR";
+                QThread::msleep(100);
+            }
         }
 
         if (echelon) {
@@ -720,6 +740,12 @@ void virtualrower::reconnect() {
     } else if (!echelon) {
         serviceFIT = leController->addService(serviceDataFIT);
         QThread::msleep(100); // give time to Android to add the service async.ly
+        if (!serviceDataEXR.characteristics().isEmpty()) {
+            serviceEXR = leController->addService(serviceDataEXR);
+            if (!serviceEXR)
+                qWarning() << "Failed to restore QZ identity service for EXR";
+            QThread::msleep(100);
+        }
     }
     if (echelon && !serviceDataEchelon.characteristics().isEmpty()) {
         serviceEchelonDiscovery = leController->addService(serviceDataEchelonDiscovery);
