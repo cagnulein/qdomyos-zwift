@@ -27,7 +27,7 @@ Item {
     readonly property int frameGap: 6
     readonly property int blockPad: 6
     // A subheader inside a section ("Gear Controls", "Garmin Connect"): the room above it, as M3
-    // keeps a new group of a list apart (T-641)
+    // keeps a new group of a list apart
     readonly property int subheaderTop: 20
     // The margins of the holder in the column of the section: the content inside the block and
     // inside the frames of its settings
@@ -166,8 +166,7 @@ Item {
                 // No setting in the group (a description or a note of the section, a subheader, a
                 // button of the list above): no frame - in a frame of its own it looked like an empty
                 // setting. Text on the block, in the column of the text of the frames, as M3 puts the
-                // supporting text of a list (T-641, mockup notes/mockups/t641-section-notes-2026-11-21,
-                // decision 21.11): the gap of the frames above it, the gaps of two below it - the ink
+                // supporting text of a list: the gap of the frames above it, the gaps of two below it - the ink
                 // ~8 dp under the header or the frame above, the block of the text 12 dp over the next
                 // frame (the ink 12-15, as the style guide puts a list under a hint). A subheader - a
                 // title, not a note in its own colour - gets its room above it
