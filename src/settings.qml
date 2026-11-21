@@ -741,7 +741,8 @@ import AndroidStatusBar 1.0
 
         // Where a setting stands on the pages (pos of settings-index-worker.js), "" when unknown.
         // A setting made of others ("Specific Model": a picker over one switch per model) stands
-        // where the first of them does, as in jumpToSetting
+        // where the first of them on the pages does (jumpToSetting opens the first of them in the
+        // catalog: the same section)
         function pagePositionOf(entry) {
             if (!settingsIndex)
                 return ""
