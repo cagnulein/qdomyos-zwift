@@ -206,6 +206,15 @@ ApplicationWindow {
     // The support button "?" (SupportHelpButton) is in the bottom right corner of the home page
     readonly property bool supportHelpShown: supportHelpButton.shown
     property bool settings_restart_to_apply: false
+    // Modern look: the workout editor page, made on its first opening and kept while the app runs
+    // (see "editor")
+    property var keptWorkoutEditor: null
+    // Save & Start in the kept editor closes it, as in the classic look. One handler for the one
+    // editor: a closure connected per opening would pile up
+    onTrainprogram_autostart_requested: {
+        if (keptWorkoutEditor && stackView.currentItem === keptWorkoutEditor)
+            keptWorkoutEditor.closeRequested()
+    }
     property bool gymModePopupDismissed: false
 
     // rootItem comes from homeform, created only after this file is loaded (main.cpp): for about
@@ -1979,6 +1988,30 @@ ApplicationWindow {
              });
             break
         case "editor":
+            // Modern look: the editor is made once and kept - StackView does not destroy a page it
+            // did not make, and hides it when it leaves the stack, its web view too - so opening it
+            // again shows it at once, with the workout as it was left, instead of loading the page anew
+            if (window.ui.modern) {
+                if (!keptWorkoutEditor) {
+                    keptWorkoutEditor = Qt.createComponent("WorkoutEditor.qml").createObject(window.contentItem, { visible: false })
+                    if (keptWorkoutEditor) {
+                        keptWorkoutEditor.closeRequested.connect(function() {
+                            if (stackView.currentItem === keptWorkoutEditor)
+                                stackView.pop()
+                        })
+                    }
+                }
+                if (keptWorkoutEditor) {
+                    // Already in the stack: back to it - pushing it again would only warn
+                    // "nothing to push". Page by page, as Back does, so a settings page above
+                    // still asks to restart or to save the profile
+                    if (stackView.find(function(item) { return item === keptWorkoutEditor }) === null)
+                        stackView.push(keptWorkoutEditor)
+                    else
+                        while (stackView.currentItem !== keptWorkoutEditor && navigateBack(false)) {}
+                    break
+                }
+            }
             var editorPage = stackView.push("WorkoutEditor.qml")
             if (editorPage) {
                 editorPage.closeRequested.connect(function() {
