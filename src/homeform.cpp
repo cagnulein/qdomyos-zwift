@@ -69,6 +69,9 @@
 #include <QDataStream>
 #include <algorithm>
 #include <chrono>
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
 
 #ifdef Q_OS_IOS
 // Implemented by ios/support_email.mm; always built for Qt iOS including IO_UNDER_QT.
@@ -80,6 +83,16 @@ homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
 
 namespace {
+// QFile::copy() gives the copy the permissions of the source, and a file in the resources is
+// read-only: on Windows a bundled program copied that way cannot be deleted. Copies made by
+// earlier versions are fixed too, as this runs at every start.
+void makeBundledCopyWritable(const QString &path) {
+    QFile file(path);
+    if (file.exists() && !(file.permissions() & QFileDevice::WriteOwner)) {
+        file.setPermissions(file.permissions() | QFileDevice::WriteOwner);
+    }
+}
+
 QString uploadActivityLabelFromSport(FIT_SPORT sport) {
     switch (sport) {
     case FIT_SPORT_RUNNING:
@@ -1066,6 +1079,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         if (!QFile(targetPath).exists() && !QFile(markerPath).exists()) {
             QFile::copy(":/zwo/" + itZwo.fileName(), targetPath);
         }
+        makeBundledCopyWritable(targetPath);
     }
 
     QDirIterator itGpx(":/gpx/");
@@ -1078,7 +1092,17 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         if (!QFile(targetPath).exists() && !QFile(markerPath).exists()) {
             QFile::copy(":/gpx/" + itGpx.fileName(), targetPath);
         }
+        makeBundledCopyWritable(targetPath);
     }
+
+#ifdef Q_OS_WIN
+    // deletion markers that earlier versions left visible
+    QDirIterator itMarker(getWritableAppDir() + "training", QStringList() << QStringLiteral(".deleted_*"),
+                          QDir::Files | QDir::Hidden, QDirIterator::Subdirectories);
+    while (itMarker.hasNext()) {
+        hideDeletionMarker(itMarker.next());
+    }
+#endif
 
     removeOldWorkoutImages();
 
@@ -10151,6 +10175,21 @@ void homeform::importFitFilesToHistory(const QStringList &files) {
     QMetaObject::invokeMethod(fitProcessor, "importFiles", Qt::QueuedConnection, Q_ARG(QStringList, files));
 }
 
+// On Windows a leading dot does not hide a file, only the hidden attribute does: without it the
+// list of programs shows the deletion markers (.deleted_<name>.zwo matches *.zwo)
+void homeform::hideDeletionMarker(const QString &markerPath) {
+#ifdef Q_OS_WIN
+    const QString nativePath = QDir::toNativeSeparators(markerPath);
+    const wchar_t *path = reinterpret_cast<const wchar_t *>(nativePath.utf16());
+    const DWORD attributes = GetFileAttributesW(path);
+    if (attributes != INVALID_FILE_ATTRIBUTES && !(attributes & FILE_ATTRIBUTE_HIDDEN)) {
+        SetFileAttributesW(path, attributes | FILE_ATTRIBUTE_HIDDEN);
+    }
+#else
+    Q_UNUSED(markerPath)
+#endif
+}
+
 bool homeform::deleteTrainingProgramFile(const QString &fileUrl) {
     if (fileUrl.isEmpty()) {
         return false;
@@ -10183,6 +10222,7 @@ bool homeform::deleteTrainingProgramFile(const QString &fileUrl) {
     if (markerFile.open(QIODevice::WriteOnly)) {
         markerFile.write("This file was intentionally deleted by the user");
         markerFile.close();
+        hideDeletionMarker(markerFile.fileName());
     }
     return true;
 }

@@ -797,6 +797,7 @@ public:
     static QString getAndroidDataAppDir();
 #endif
     Q_INVOKABLE static QString getWritableAppDir();
+    static void hideDeletionMarker(const QString &markerPath);
     static QString safeFileName(const QString &name, const QString &fallback);
     Q_INVOKABLE static QString getProfileDir();
     Q_INVOKABLE static void clearFiles();

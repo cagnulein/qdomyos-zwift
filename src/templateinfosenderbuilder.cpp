@@ -1359,6 +1359,7 @@ void TemplateInfoSenderBuilder::onDeleteTrainingProgram(const QJsonValue &msgCon
             if (markerFile.open(QIODevice::WriteOnly)) {
                 markerFile.write("This file was intentionally deleted by the user");
                 markerFile.close();
+                homeform::hideDeletionMarker(markerPath);
                 qDebug() << "onDeleteTrainingProgram: created deletion marker at" << markerPath;
             } else {
                 qDebug() << "onDeleteTrainingProgram: failed to create deletion marker at" << markerPath;
