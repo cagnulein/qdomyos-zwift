@@ -370,8 +370,6 @@ class bluetooth : public QObject, public SignalHandler {
     heartratebelt *heartRateBelt = nullptr;
     smartspin2k *ftmsAccessory = nullptr;
     cscbike *cadenceSensor = nullptr;
-    // RSC (0x1814) running footpods selected as an accessory cadence source.
-    strydrunpowersensor *runningCadenceSensor = nullptr;
     stagesbike *powerSensor = nullptr;
     strydrunpowersensor *powerSensorRun = nullptr;
     stagesbike *powerBike = nullptr;
