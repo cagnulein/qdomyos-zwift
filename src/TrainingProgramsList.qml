@@ -174,7 +174,7 @@ ColumnLayout {
                 FolderListModel {
                     id: folderModel
                     nameFilters: ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr"]
-                    folder: "file://" + rootItem.getWritableAppDir() + 'training'
+                    folder: rootItem.localFileUrl(rootItem.getWritableAppDir() + 'training')
                           showDotAndDotDot: false
                     showDirs: true
                           sortField: "Name"
