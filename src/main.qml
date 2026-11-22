@@ -929,7 +929,8 @@ ApplicationWindow {
             // switched on: the search starts by itself right now
             bluetoothOff = rootItem.bluetoothSearchOff()
             var next = rootItem.bluetoothNextSearchSeconds()
-            if (bluetoothOff || next >= 0) {
+            // connected while the window is open (a DirCon trainer): no search to wait for
+            if (bluetoothOff || next >= 0 || rootItem.hasConnectedDevice()) {
                 idleSeconds = 0
                 secondsLeft = Math.max(next, 0)
                 return
@@ -1005,8 +1006,9 @@ ApplicationWindow {
             // follows the marked trainer, not currentIndex: the list is filled again on every opening
             DeviceComboBox {
                 id: gymModeDeviceComboBox
-                // Nothing to choose yet (Bluetooth off, nothing found): no empty box
-                visible: popupGymMode.devices.length > 0
+                // Nothing to choose (Bluetooth off, also after devices were found; nothing found yet): no
+                // box, the devices found before stay in rootItem.bluetoothDevices
+                visible: !popupGymMode.bluetoothOff && popupGymMode.devices.length > 0
                 width: parent.width
                 // "Disabled" and "Wifi" of the settings list mean nothing here
                 hidden: ["Disabled", "Wifi"]
@@ -1071,7 +1073,7 @@ ApplicationWindow {
                     id: gymModeNextButton
                     anchors.right: parent.right
                     highlighted: true
-                    enabled: popupGymMode.pickedDevice !== ""
+                    enabled: !popupGymMode.bluetoothOff && popupGymMode.pickedDevice !== ""
                     text: qsTranslate("Wizard", "Next")
                     onClicked: {
                         var device = popupGymMode.pickedDevice
