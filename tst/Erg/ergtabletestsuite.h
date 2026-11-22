@@ -34,6 +34,8 @@ public:
     void test_stableFtmsPowerMatchConvergesWithoutJumps();
     void test_stableFtmsPowerMatchRejectsUnstableSensors();
     void test_stableFtmsPowerMatchResetsOnTargetAndSensorLoss();
+    void test_stableFtmsPowerMatchSurvivesTrainerResponseLag();
+    void test_stableFtmsPowerMatchSuppressesOnlyMatchingVirtualFtmsPower();
 
 };
 
@@ -88,4 +90,12 @@ TEST_F(ErgTableTestSuite, TestStableFtmsPowerMatchRejectsUnstableSensors) {
 
 TEST_F(ErgTableTestSuite, TestStableFtmsPowerMatchResetsOnTargetAndSensorLoss) {
     this->test_stableFtmsPowerMatchResetsOnTargetAndSensorLoss();
+}
+
+TEST_F(ErgTableTestSuite, TestStableFtmsPowerMatchSurvivesTrainerResponseLag) {
+    this->test_stableFtmsPowerMatchSurvivesTrainerResponseLag();
+}
+
+TEST_F(ErgTableTestSuite, TestStableFtmsPowerMatchSuppressesOnlyMatchingVirtualFtmsPower) {
+    this->test_stableFtmsPowerMatchSuppressesOnlyMatchingVirtualFtmsPower();
 }
