@@ -39,7 +39,12 @@ ScrollView {
         id: mainLayout
         // Modern look: 8 between the groups, as Material 3
         spacing: window.ui.modern ? 8 : 10
-        anchors.fill: parent
+        // Modern look: no bottom anchor - the height comes from the column itself, which the
+        // contentHeight above reads (anchored to fill, the column looped on it)
+        anchors.fill: window.ui.modern ? undefined : parent
+        anchors.left: window.ui.modern ? parent.left : undefined
+        anchors.right: window.ui.modern ? parent.right : undefined
+        anchors.top: window.ui.modern ? parent.top : undefined
         anchors.margins: 10
         // Modern look: inside the frames, which run framePadH (16) further out, on the page
         // margin 16

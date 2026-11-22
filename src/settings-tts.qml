@@ -28,7 +28,12 @@ ScrollView {
     ColumnLayout {
         id: column1
         spacing: 0
-        anchors.fill: parent
+        // Modern look: no bottom anchor - the height comes from the column itself, and the
+        // ScrollView takes its content height from it (anchored to fill, the column looped on it)
+        anchors.fill: window.ui.modern ? undefined : parent
+        anchors.left: window.ui.modern ? parent.left : undefined
+        anchors.right: window.ui.modern ? parent.right : undefined
+        anchors.top: window.ui.modern ? parent.top : undefined
         // Modern look: a thin frame around every setting, as in the settings sections; the
         // column moves in by the width of the frame padding, the page clips at its edge
         anchors.leftMargin: window.ui.modern ? 16 : 0 // framePadH of UiSettingFrames
