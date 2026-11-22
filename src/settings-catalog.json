@@ -13142,7 +13142,7 @@
       "defaultValue": "",
       "defaultExpression": "\"\"",
       "options": null,
-      "restartRequired": false
+      "restartRequired": true
     },
     {
       "key": "life_fitness_password",
@@ -13156,7 +13156,7 @@
       "defaultValue": "",
       "defaultExpression": "\"\"",
       "options": null,
-      "restartRequired": false
+      "restartRequired": true
     },
     {
       "key": "life_fitness_api_key",

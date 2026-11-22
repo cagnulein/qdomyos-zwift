@@ -16,7 +16,10 @@ import AndroidStatusBar 1.0
         // The page height from the column itself: ScrollView takes it from its only child on its
         // own, but on a phone it stopped following after a turn of the screen - the column grew
         // to 7254 while the page stayed 1310, a section opened after it could not be scrolled
-        contentHeight: column1.implicitHeight
+        // Not below heldContentHeight while the page made again after a reset goes back to where
+        // the old one was scrolled to (showChangedAfterReset)
+        contentHeight: Math.max(column1.implicitHeight, heldContentHeight)
+        property real heldContentHeight: 0
         focus: true
         anchors.fill: parent
         anchors.leftMargin: (Qt.platform.os === "android" && AndroidStatusBar.hasWaterfallDisplay) ?
@@ -983,27 +986,48 @@ import AndroidStatusBar 1.0
         // The page is made again, as for a new language: some controls read their setting once,
         // when they are made (the switch of a section, the list of models, the order of the
         // charts), and would show the old value or write it back. It opens on the same sections
-        // and on the changed settings
+        // and on the changed settings, scrolled to where this one was
         function showResetDone(message) {
             var states = sectionStates(contentItem, [])
             var snapshot = initialProfileSettingsSnapshot
             var restartToApply = window.settings_restart_to_apply
             var query = settingsSearchTextField.text
+            var scroll = { y: contentItem.contentY, height: contentHeight }
+            // The catalog and the index of the pages read here: the new page lists "Changed" at
+            // once with them, and can put the list where it was. Reading them again would list it
+            // only later (both are read asynchronously)
+            var catalog = settingsCatalogLoaded && settingsIndex ?
+                    { catalog: settingsCatalog, items: searchableSettings, defaults: settingDefaults,
+                      index: settingsIndex } : null
             // The context of this page goes with the replace, the new page does the rest
             var page = stackView.replace("settings.qml", {}, StackView.Immediate)
-            page.showChangedAfterReset(states, snapshot, restartToApply, query, message)
+            page.showChangedAfterReset(states, snapshot, restartToApply, query, message, catalog, scroll)
         }
 
-        function showChangedAfterReset(states, snapshot, restartToApply, query, message) {
+        function showChangedAfterReset(states, snapshot, restartToApply, query, message, catalog, scroll) {
             // Set by this page when it was made: what was changed before still counts
             initialProfileSettingsSnapshot = snapshot
             window.settings_restart_to_apply = restartToApply
+            if (catalog) {
+                settingsCatalog = catalog.catalog
+                searchableSettings = catalog.items
+                settingDefaults = catalog.defaults
+                settingsCatalogLoaded = true
+                settingsIndex = catalog.index
+            }
             openSections(contentItem, states, 0)
             settingsSearchVisible = true
             restoringSearch = true
             settingsSearchTextField.text = query
             restoringSearch = false
+            // The list is made before setChangedOnly returns (the Repeater makes its items at once,
+            // outside an incubation), and a Flickable puts a contentY beyond its height back at
+            // once (QQuickFlickable::setContentHeight, fixupY): the page is kept as high as the old
+            // one while the list is made and scrolled, and only gets shorter by what was reset
+            heldContentHeight = scroll.height
             setChangedOnly(true)
+            contentItem.contentY = scroll.y
+            heldContentHeight = 0
             toast.show(message)
         }
 
