@@ -46,17 +46,27 @@ class technogymmyruntreadmillrfcomm : public treadmill {
     void serviceFinished();
     void readSocket();
     void rfCommConnected();
+    void onSocketDisconnected();
     void onSocketErrorOccurred(QBluetoothSocket::SocketError);
+    void retryConnection();
     void update();
     void changeInclinationRequested(double grade, double percentage);
 
   private:
-    QBluetoothServiceDiscoveryAgent *discoveryAgent;
+    QBluetoothServiceDiscoveryAgent *discoveryAgent = nullptr;
     QBluetoothServiceInfo serialPortService;
     QBluetoothSocket *socket = nullptr;
 
 
     QTimer *refresh;
+    QTimer *retryTimer = nullptr;
+    QTimer *connectionTimeout = nullptr;
+    int reconnectAttempts = 0;
+    static constexpr int maxReconnectAttempts = 5;
+    bool myRunStatusReceived = false;
+    bool connectedToastShown = false;
+    void scheduleReconnect();
+    void showConnectedToastIfReady();
     bool initDone = false;
     volatile bool found = false;
 
