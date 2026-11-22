@@ -3978,6 +3978,10 @@ Przy pierwszym uruchomieniu może to chwilę potrwać.</translation>
         <translation>Wyszukiwanie urządzenia…</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Łączenie z %1…</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>Znaleziono: %1</translation>
     </message>

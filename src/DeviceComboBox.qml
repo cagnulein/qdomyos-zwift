@@ -26,13 +26,18 @@ ValueComboBox {
 
     // rows.clear() sets currentIndex to -1: the row of the value is set again, so the list shows it
     // chosen and Enter without a highlighted row takes it, as with the model of the plain ComboBox
+    // Rows of rootItem.bluetoothDevices this list does not show (the Gym mode window: "Disabled", "Wifi")
+    property var hidden: []
+
     function fill() {
         rows.clear()
         var current = -1
         for (var i = 0; i < found.length; ++i) {
-            rows.append({ "name": found[i] })
+            if (hidden.indexOf(found[i]) >= 0)
+                continue
             if (current < 0 && value !== "" && deviceName(found[i]) === deviceName(value))
-                current = i
+                current = rows.count
+            rows.append({ "name": found[i] })
         }
         currentIndex = current
         measureItems()
@@ -44,7 +49,7 @@ ValueComboBox {
             shown[deviceName(rows.get(i).name)] = true
         var added = false
         for (var j = 0; j < found.length; ++j) {
-            if (shown[deviceName(found[j])] !== true) {
+            if (shown[deviceName(found[j])] !== true && hidden.indexOf(found[j]) < 0) {
                 rows.append({ "name": found[j] })
                 added = true
             }

@@ -3962,6 +3962,10 @@ Dette kan ta litt tid ved første oppstart.</translation>
         <translation>Søker etter enheten …</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Kobler til %1 …</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>Funnet: %1</translation>
     </message>

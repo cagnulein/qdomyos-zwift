@@ -3978,6 +3978,10 @@ Při prvním spuštění to může chvíli trvat.</translation>
         <translation>Hledání zařízení…</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Připojování k %1…</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>Nalezeno: %1</translation>
     </message>

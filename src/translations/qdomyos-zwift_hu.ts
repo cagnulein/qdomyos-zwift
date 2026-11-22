@@ -3962,6 +3962,10 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <translation>Eszköz keresése...</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Csatlakozás: %1...</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>Megtalálva: %1</translation>
     </message>

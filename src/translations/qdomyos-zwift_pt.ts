@@ -4050,6 +4050,10 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <translation>Procurando o dispositivo...</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Conectando a %1...</translation>
+    </message>
+    <message>
         <source>Search stopped, tap the Bluetooth icon</source>
         <translation>Pesquisa parada, toque no ícone Bluetooth</translation>
     </message>

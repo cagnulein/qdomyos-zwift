@@ -4042,6 +4042,10 @@ This may take a few moments on first startup.</source>
         <translation>Поиск тренажёра…</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Подключение к %1…</translation>
+    </message>
+    <message>
         <source>Search stopped, tap the Bluetooth icon</source>
         <translation>Поиск остановлен, нажмите значок Bluetooth</translation>
     </message>

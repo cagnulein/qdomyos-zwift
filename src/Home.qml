@@ -256,6 +256,7 @@ HomeForm {
             searchStatus = rootItem.bluetoothSearchStatus()
             searchStopped = rootItem.bluetoothSearchStopped()
             bluetoothOff = rootItem.bluetoothSearchOff()
+            window.bluetoothSearchPolled()
         }
     }
 

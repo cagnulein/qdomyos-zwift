@@ -4058,6 +4058,10 @@ This may take a few moments on first startup.</source>
         <translation>正在搜索设备...</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>正在连接 %1...</translation>
+    </message>
+    <message>
         <source>Search stopped, tap the Bluetooth icon</source>
         <translation>搜索已停止，请点击蓝牙图标</translation>
     </message>

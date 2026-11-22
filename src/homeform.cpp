@@ -2042,6 +2042,12 @@ QString homeform::bluetoothSearchStatus() {
     // start value "Connecting...") until it was switched on
     if (bluetoothManager->bluetoothOff())
         return tr("Bluetooth is off");
+    // Gym mode: the trainer is picked, QZ looks for it and connects - say which one, while a search runs
+    // or is due. A search that has given up still says to tap the Bluetooth icon; after a scan that
+    // failed (Location off) none runs or is due, and the line stays empty as before
+    if (!bluetoothManager->gymModeDevice().isEmpty() &&
+        (bluetoothManager->isSearching() || bluetoothManager->nextSearchMs()))
+        return tr("Connecting to %1...").arg(bluetoothManager->gymModeDevice());
     // while scanning, the last device found shows that QZ is finding something (useful for troubleshooting)
     const QString scanning = lastFoundDevice.isEmpty() ? tr("Searching for the device...")
                                                        : tr("%1 found").arg(lastFoundDevice);
@@ -2077,6 +2083,18 @@ void homeform::bluetoothSearchNow() {
     const int waitSec = bluetoothManager->searchNow();
     if (waitSec > 0)
         setToastRequested(tr("Android allows 5 Bluetooth searches in 30 s, the next one starts in %1 s").arg(waitSec));
+}
+
+int homeform::bluetoothNextSearchSeconds() {
+    if (!bluetoothManager || bluetoothManager->device())
+        return -1;
+    if (bluetoothManager->isSearching())
+        return 0;
+    if (!bluetoothManager->nextSearchMs())
+        return -1;
+    const qint64 left = bluetoothManager->nextSearchMs() - QDateTime::currentMSecsSinceEpoch();
+    // rounded up as in bluetoothSearchStatus(): both say the same number
+    return left > 0 ? int((left + 999) / 1000) : 0;
 }
 
 void homeform::selectGymModeDevice(const QString &deviceName) {
