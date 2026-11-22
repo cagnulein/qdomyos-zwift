@@ -1,4 +1,6 @@
 import QtQuick 2.7
+// Pointer handlers (2.12) by name only: the rest of the page keeps the QtQuick 2.7 types
+import QtQuick 2.12 as Handlers
 import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
@@ -371,9 +373,13 @@ import AndroidStatusBar 1.0
                     if (!flickable || !row)
                         return
                     ticks++
-                    // The finger wins: once the page is touched the glow stops scrolling it
-                    if (flickable.dragging || flickable.moving)
+                    // The finger wins: once the page is moved the glow stops scrolling it and goes.
+                    // Only a drag, a flick or the wheel moves it: contentY set here does not
+                    // (QQuickFlickable::setContentY, movementStarting)
+                    if (flickable.dragging || flickable.moving) {
                         ticks = 1000
+                        letGo()
+                    }
                     if (ticks <= 20) {
                         var at = row.mapToItem(flickable.contentItem, 0, 0).y
                         flickable.contentY = Math.max(0, Math.min(at - 96, flickable.contentHeight - flickable.height))
@@ -419,11 +425,44 @@ import AndroidStatusBar 1.0
                 Component.onCompleted: follow()
                 Timer { interval: 40; repeat: true; running: true; onTriggered: glow.follow() }
                 color: lit ? Qt.rgba(Material.accent.r, Material.accent.g, Material.accent.b, 0.22) : "transparent"
+                // Lit once the page has settled: lit at once, it came with the jump and the keyboard
+                // going down, while the eye was still on the move. Then held for the eye to find
+                // the row, and let go
+                opacity: 0
                 SequentialAnimation {
+                    id: life
                     running: true
-                    PauseAnimation { duration: 1200 }
-                    NumberAnimation { target: glow; property: "opacity"; to: 0; duration: 800 }
+                    PauseAnimation { duration: 300 }
+                    NumberAnimation { target: glow; property: "opacity"; to: 1; duration: 200; easing.type: Easing.OutCubic }
+                    PauseAnimation { duration: 2000 }
+                    ScriptAction { script: glow.letGo() }
+                }
+                SequentialAnimation {
+                    id: fadeOut
+                    NumberAnimation { target: glow; property: "opacity"; to: 0; duration: 400; easing.type: Easing.InQuad }
                     ScriptAction { script: glow.destroy() }
+                }
+                function letGo() {
+                    if (fadeOut.running)
+                        return
+                    life.stop()
+                    fadeOut.start()
+                }
+                // A touch anywhere on the page lets the glow go as well: the setting is found, the
+                // glow would only lie over what the finger does next. It only lurks: a PointHandler
+                // takes a passive grab and leaves the touch unaccepted, so it still reaches the
+                // switch or field under it (qquickpointhandler.cpp, handleEventPoint)
+                Item {
+                    x: -glow.x
+                    y: -glow.y
+                    width: glow.flickable ? glow.flickable.width : 0
+                    height: glow.flickable ? glow.flickable.height : 0
+                    Handlers.PointHandler {
+                        onActiveChanged: {
+                            if (active)
+                                glow.letGo()
+                        }
+                    }
                 }
             }
         }
