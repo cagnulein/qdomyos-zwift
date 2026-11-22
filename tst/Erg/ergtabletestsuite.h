@@ -36,6 +36,9 @@ public:
     void test_stableFtmsPowerMatchResetsOnTargetAndSensorLoss();
     void test_stableFtmsPowerMatchSurvivesTrainerResponseLag();
     void test_stableFtmsPowerMatchSuppressesOnlyMatchingVirtualFtmsPower();
+    void test_stableFtmsPowerMatchKeepsCorrectionAcrossRudySpikes();
+    void test_stableFtmsPowerMatchFallsBackOnPersistentOutliers();
+    void test_stableFtmsPowerMatchResetAfterDisconnect();
 
 };
 
@@ -98,4 +101,14 @@ TEST_F(ErgTableTestSuite, TestStableFtmsPowerMatchSurvivesTrainerResponseLag) {
 
 TEST_F(ErgTableTestSuite, TestStableFtmsPowerMatchSuppressesOnlyMatchingVirtualFtmsPower) {
     this->test_stableFtmsPowerMatchSuppressesOnlyMatchingVirtualFtmsPower();
+}
+
+TEST_F(ErgTableTestSuite, TestStableFtmsPowerMatchKeepsCorrectionAcrossRudySpikes) {
+    this->test_stableFtmsPowerMatchKeepsCorrectionAcrossRudySpikes();
+}
+TEST_F(ErgTableTestSuite, TestStableFtmsPowerMatchFallsBackOnPersistentOutliers) {
+    this->test_stableFtmsPowerMatchFallsBackOnPersistentOutliers();
+}
+TEST_F(ErgTableTestSuite, TestStableFtmsPowerMatchResetAfterDisconnect) {
+    this->test_stableFtmsPowerMatchResetAfterDisconnect();
 }
