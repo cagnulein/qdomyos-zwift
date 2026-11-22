@@ -882,11 +882,19 @@ ApplicationWindow {
         x: Math.round((parent.width - width) / 2)
         y: Math.round((parent.height - height) / 2)
         width: Math.min(parent.width - 30, 720)
-        // with a bigger text the content is taller: Skip fell out. Modern: the fonts of the type scale
-        // are bigger than the classic ones, at 100 % too (Skip and Next below the window)
-        height: window.textScale !== 1 || modern
-            ? Math.min(parent.height - 40, Math.max(260, gymModeColumn.implicitHeight + 36 + topPadding + bottomPadding))
+        // with a bigger text the content is taller: Skip fell out. Modern: the height of the content, as a
+        // Material 3 dialog - the fonts of the type scale are bigger than the classic ones (Skip and Next
+        // fell below the window at 100 % too), and with Bluetooth off a minimum left an empty band
+        readonly property real contentFitHeight: gymModeColumn.implicitHeight + 36 + topPadding + bottomPadding
+        height: modern ? Math.min(parent.height - 40, contentFitHeight)
+            : window.textScale !== 1
+            ? Math.min(parent.height - 40, Math.max(260, contentFitHeight))
             : Math.min(parent.height - 40, 260)
+        // Modern: the window grows smoothly when the list comes (Bluetooth switched on); not at opening
+        Behavior on height {
+            enabled: popupGymMode.modern && popupGymMode.opened
+            NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+        }
         modal: true
         focus: true
         closePolicy: Popup.NoAutoClose
