@@ -1,4 +1,6 @@
 import QtQuick 2.7
+// Pointer handlers (2.12) by name only: the rest of the page keeps the QtQuick 2.7 types
+import QtQuick 2.12 as Handlers
 import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
@@ -338,6 +340,19 @@ import AndroidStatusBar 1.0
             var row = (target.parent && String(target.parent).indexOf("Row") >= 0 &&
                        target.parent.height > target.height && target.parent.height < 200)
                       ? target.parent : target
+            // Modern look: the title of a switch section (a tile named as its setting, "Heart")
+            // was lit alone, a thin bar without its switch. A tile card is lit whole like the
+            // tiles whose name differs from the title, a section inside a page - its switch row
+            if (target.objectName === "accordionTitle") {
+                row = target.parent
+                for (var up = target.parent; up; up = up.parent) {
+                    if (up.modernCard !== undefined) {
+                        if (up.modernCard)
+                            row = up
+                        break
+                    }
+                }
+            }
             var at = row.mapToItem(flickable.contentItem, 0, 0)
             flickable.contentY = Math.max(0, Math.min(at.y - 96, flickable.contentHeight - flickable.height))
             // Nothing to light when not even a section was found: the whole page would glow
@@ -346,6 +361,9 @@ import AndroidStatusBar 1.0
             // On the flickable, not in its content: a ScrollView takes the content height from
             // the only child of the content, a second child would zero it and throw the page to
             // the top. So the highlight follows the scroll itself.
+            // The glow of a result opened just before is let go: it lies over another row now
+            if (activeGlow)
+                activeGlow.letGo()
             activeGlow = settingHighlight.createObject(flickable, { flickable: flickable, row: row,
                                                                     lit: reveal.lit !== false })
         }
@@ -374,13 +392,29 @@ import AndroidStatusBar 1.0
                     if (!flickable || !row)
                         return
                     ticks++
-                    // The finger wins: once the page is touched the glow stops scrolling it
+                    // The finger wins: once the page is moved the glow stops scrolling it and goes.
+                    // Only a drag, a flick or the wheel moves it: contentY set here does not
+                    // (QQuickFlickable::setContentY, movementStarting)
                     if (flickable.dragging || flickable.moving)
-                        ticks = 1000
+                        letGo()
                     if (ticks <= 20) {
                         var at = row.mapToItem(flickable.contentItem, 0, 0).y
                         flickable.contentY = Math.max(0, Math.min(at - 96, flickable.contentHeight - flickable.height))
                     }
+                    // Modern look: the whole frame of the setting - its label, control and
+                    // description - or the whole card of a tile, with their corners: M3 lights a
+                    // list item whole, and a bar over the label alone cut the frame across
+                    var shape = window.ui.modern ? (row.modernCard === true ? row : settingFrameOf(row)) : null
+                    if (shape) {
+                        var p = shape.mapToItem(flickable, 0, 0)
+                        x = p.x
+                        y = p.y
+                        width = shape.width
+                        height = shape.height
+                        radius = shape === row ? row.cardRadius : shape.radius
+                        return
+                    }
+                    radius = 12
                     // Around the row itself, a little wider than its text, which starts at its
                     // very edge; a lone label is as wide as its text: up to the same indent on the
                     // right
@@ -408,6 +442,25 @@ import AndroidStatusBar 1.0
                     y = top - 2
                     height = bottom - top + 4
                 }
+                // The frame UiSettingFrames draws around the setting the item is part of, null when
+                // there is none. The frames lie next to the content of a section, made by a Loader
+                // of their own: looked for among the siblings of every item up from the row
+                function settingFrameOf(item) {
+                    for (var up = item ? item.parent : null; up && up !== flickable; up = up.parent) {
+                        var kids = up.children
+                        for (var i = 0; i < kids.length; i++) {
+                            var k = kids[i]
+                            var frames = k.frameOf !== undefined ? k
+                                       : (k.item && k.item.frameOf !== undefined ? k.item : null)
+                            if (!frames)
+                                continue
+                            var frame = frames.frameOf(item)
+                            if (frame)
+                                return frame
+                        }
+                    }
+                    return null
+                }
                 function nextShown(item) {
                     var siblings = item.parent ? item.parent.children : []
                     for (var i = 0; i < siblings.length; i++) {
@@ -422,11 +475,48 @@ import AndroidStatusBar 1.0
                 Component.onCompleted: follow()
                 Timer { interval: 40; repeat: true; running: true; onTriggered: glow.follow() }
                 color: lit ? Qt.rgba(Material.accent.r, Material.accent.g, Material.accent.b, 0.22) : "transparent"
+                // A beat of the motion, not a wait for anything: lit at once, the glow came together with
+                // the jump and the keyboard going down, while the eye was still on the move. So it comes in
+                // a moment after the jump (Android Settings lights a found preference the same way,
+                // after a delay and with a fade), is held for the eye to find the row, and let go
+                opacity: 0
                 SequentialAnimation {
+                    id: life
                     running: true
-                    PauseAnimation { duration: 1200 }
-                    NumberAnimation { target: glow; property: "opacity"; to: 0; duration: 800 }
+                    PauseAnimation { duration: 300 }
+                    NumberAnimation { target: glow; property: "opacity"; to: 1; duration: 200; easing.type: Easing.OutCubic }
+                    PauseAnimation { duration: 2000 }
+                    ScriptAction { script: glow.letGo() }
+                }
+                SequentialAnimation {
+                    id: fadeOut
+                    NumberAnimation { target: glow; property: "opacity"; to: 0; duration: 400; easing.type: Easing.InQuad }
                     ScriptAction { script: glow.destroy() }
+                }
+                // Out, and the page no longer brought back to the row: a field touched while the page
+                // is still being scrolled to the row scrolls the page its own way
+                function letGo() {
+                    ticks = 1000
+                    if (fadeOut.running)
+                        return
+                    life.stop()
+                    fadeOut.start()
+                }
+                // A touch anywhere on the page lets the glow go as well: the setting is found, the
+                // glow would only lie over what the finger does next. It only lurks: a PointHandler
+                // takes a passive grab and leaves the touch unaccepted, so it still reaches the
+                // switch or field under it (qquickpointhandler.cpp, handleEventPoint)
+                Item {
+                    x: -glow.x
+                    y: -glow.y
+                    width: glow.flickable ? glow.flickable.width : 0
+                    height: glow.flickable ? glow.flickable.height : 0
+                    Handlers.PointHandler {
+                        onActiveChanged: {
+                            if (active)
+                                glow.letGo()
+                        }
+                    }
                 }
             }
         }
@@ -439,6 +529,10 @@ import AndroidStatusBar 1.0
             // position (after a result was opened the page is deep in a section)
             if (settingsPane.contentItem)
                 settingsPane.contentItem.contentY = 0
+            // A search again: the glow of the setting found last time has done its part (the button of
+            // the bar is no touch on the page, it would stay to the end of its time)
+            if (activeGlow)
+                activeGlow.letGo()
             Qt.callLater(function() {
                 settingsSearchTextField.forceActiveFocus()
             })
