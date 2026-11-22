@@ -801,6 +801,7 @@ public:
     static QString getAndroidDataAppDir();
 #endif
     Q_INVOKABLE static QString getWritableAppDir();
+    Q_INVOKABLE static QUrl localFileUrl(const QString &path);
     static void hideDeletionMarker(const QString &markerPath);
     static QString safeFileName(const QString &name, const QString &fallback);
     Q_INVOKABLE static QString getProfileDir();
