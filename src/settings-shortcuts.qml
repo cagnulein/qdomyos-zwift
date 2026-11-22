@@ -75,6 +75,10 @@ ScrollView {
             // on iOS the title of a switch kept the size of the style while the text around it grew: with a size other than 100 % it takes the one of the window font
             Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.rowScaledPx; restoreMode: Binding.RestoreBindingOrValue }
             id: shortcutsEnabledDelegate
+            // Modern look: no side padding, so the label lines up with the hint and the switch
+            // with the key fields, as on the TTS page; the classic look as on master
+            Binding on leftPadding { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
+            Binding on rightPadding { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
             text: qsTr("Enable Keyboard Shortcuts")
             checked: settings.shortcuts_enabled
             Layout.fillWidth: true
@@ -92,8 +96,18 @@ ScrollView {
         }
 
         component ShortcutField : UiTextField {
+            id: shortcutField
             property string settingName: ""
             placeholderText: qsTr("None")
+            // Modern look: a dash when the word does not fit the field (at 170 % the Ukrainian word
+            // was elided); the screen reader still reads the word. The width comes from the
+            // layout (Layout.preferredWidth), not from the placeholder
+            shownPlaceholder: window.ui.modern && placeholderMetrics.advanceWidth > width - leftPadding - rightPadding ? "–" : placeholderText
+            TextMetrics {
+                id: placeholderMetrics
+                font: shortcutField.font
+                text: shortcutField.placeholderText
+            }
             // Modern: the letter and "None" in the middle, with room for the whole word
             horizontalAlignment: window.ui.modern ? Text.AlignHCenter : Text.AlignRight
             leftPadding: window.ui.modern ? 6 : padding
@@ -101,7 +115,7 @@ ScrollView {
             // Modern: one letter needs less than 100; three of them (the AVS row) left no
             // room for the label on a phone
             Layout.preferredWidth: window.ui.modern ? 76 : 100
-            // Modern look: the key in Body Medium 14 - Body Large of the page did not fit "None"
+            // Modern look: the key in Label Large 14 - Body Large of the page did not fit "None"
             // in a field of a row of five. The page is made while the look is set, and the
             // look is switched on the settings page under it
             Binding on font.pixelSize { when: window.ui.modern; value: window.ui.fontLabelLarge; restoreMode: Binding.RestoreBindingOrValue }
@@ -144,9 +158,6 @@ ScrollView {
 
         component PresetShortcutField : ShortcutField {
             horizontalAlignment: Text.AlignHCenter
-            // Modern look: a field of a row of seven (power zones) has no room for "None" at 14:
-            // a dash there; the screen reader still reads the word
-            shownPlaceholder: window.ui.modern && parent && parent.children.length > 5 ? "–" : placeholderText
             Layout.fillWidth: true
             Layout.minimumWidth: 28
             Layout.preferredWidth: 56

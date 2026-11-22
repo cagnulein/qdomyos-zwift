@@ -10,8 +10,9 @@ import QtQuick.Layouts 1.3
 // Goes into the item that holds the content at its (0, 0) - the Loader of AccordionElement, the
 // box of StaticAccordionElement and AccordionCheckElement - which is laid out in the column of
 // the section under its header; made by a Loader of its own there, it is told that item by holder.
-// On a settings page without sections (TTS, the inclination overrides) it is the first item of
-// the column itself, of no height: it stands at (0, 0) of the column as well.
+// On a settings page without sections (TTS, the keyboard shortcuts, the inclination overrides)
+// it is the first item of the column itself, of no height: it stands at (0, 0) of the column as
+// well.
 Item {
     id: frames
 
