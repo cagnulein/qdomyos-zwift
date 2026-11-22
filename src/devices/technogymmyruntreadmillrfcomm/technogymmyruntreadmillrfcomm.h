@@ -33,6 +33,7 @@ class technogymmyruntreadmillrfcomm : public treadmill {
     Q_OBJECT
   public:
     explicit technogymmyruntreadmillrfcomm();
+    bool connected() override;
     bool canHandleSpeedChange() override { return false; }
     bool canHandleInclineChange() override { return false; }    
 
