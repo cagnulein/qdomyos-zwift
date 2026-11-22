@@ -501,8 +501,8 @@ ApplicationWindow {
     Material.background: ui.modern ? ui.bg : undefined
 
     // The phone can switch its night mode while the app runs (by schedule or from the quick
-    // settings): Android reports it as a configuration change, iOS through the return to the
-    // foreground (onStateChanged below)
+    // settings): Android reports it as a configuration change, iOS as a change of the window traits.
+    // Both are read again on the return to the foreground too (onStateChanged below)
     Connections {
         target: AndroidStatusBar
         function onSystemThemeChanged() { window.ui.refreshSystemTheme() }

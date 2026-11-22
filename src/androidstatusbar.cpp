@@ -32,6 +32,13 @@ AndroidStatusBar::AndroidStatusBar(QObject *parent) : QObject(parent)
         if (m_instance)
             emit m_instance->safeAreaChanged();
     });
+    // Nor does Qt 5.15 report the switch between light and dark appearance (lockscreen.mm).
+    // Queued: QML reads the appearance and repaints after UIKit has finished the trait change, not
+    // inside its callback
+    lockscreen::setSystemThemeChangedCallback([]() {
+        if (m_instance)
+            QMetaObject::invokeMethod(m_instance, "systemThemeChanged", Qt::QueuedConnection);
+    });
 #endif
 }
 
