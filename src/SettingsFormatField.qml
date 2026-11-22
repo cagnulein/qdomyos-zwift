@@ -25,8 +25,8 @@ UiTextField {
     id: field
 
     invalid: !valid
-    // A time field by its format, not by its text: UiTextField guesses a time from the text, which
-    // an address like "1:23" would pass and a time field still being typed would not
+    // A time field by its format, not by its text: UiTextField guesses a time once, from the text the
+    // field is created with, and an address like "1:23" would pass the guess
     timeShaped: format === "time"
     // The guess of UiTextField sets true over the binding above: undone for the other formats
     onTimeShapedChanged: if (timeShaped && format !== "time") timeShaped = false
