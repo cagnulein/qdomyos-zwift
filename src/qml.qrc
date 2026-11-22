@@ -152,6 +152,7 @@
         <file>UiDrawerItem.qml</file>
         <file>UiSectionHeader.qml</file>
         <file>UiSettingFrames.qml</file>
+        <file>UiSettingsRow.qml</file>
         <file>UiStickyHeader.qml</file>
         <file>UiButton.qml</file>
         <file>UiFrame.qml</file>

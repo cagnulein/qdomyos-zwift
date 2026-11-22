@@ -472,7 +472,7 @@ ColumnLayout {
                 FolderListModel {
                     id: folderModel
                     nameFilters: ["*.qzs"]
-                    folder: "file://" + rootItem.getProfileDir()
+                    folder: rootItem.localFileUrl(rootItem.getProfileDir())
                     showDotAndDotDot: false
                     showDirs: false
                     sortReversed: true
@@ -491,7 +491,7 @@ ColumnLayout {
                     }
                     Component.onCompleted: {
                         // on Windows it doesn't update the folder
-                        folderModel.folder = "file://" + rootItem.getProfileDir();
+                        folderModel.folder = rootItem.localFileUrl(rootItem.getProfileDir());
                     }
                 }
                 // files of a previous install were copied back into the QZ folder; reload the

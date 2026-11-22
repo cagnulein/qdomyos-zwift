@@ -218,7 +218,7 @@ ColumnLayout {
                                 isSearching = false
                             } else {
                                 // Trigger recursive C++ search
-                                var baseFolder = "file://" + rootItem.getWritableAppDir() + 'training'
+                                var baseFolder = rootItem.getWritableAppDir() + 'training'
                                 searchRecursively(baseFolder, text)
                             }
                         }
@@ -299,7 +299,7 @@ ColumnLayout {
                         FolderListModel {
                             id: folderModel
                             nameFilters: ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr"]
-                            folder: "file://" + rootItem.getWritableAppDir() + 'training'
+                            folder: rootItem.localFileUrl(rootItem.getWritableAppDir() + 'training')
                             showDotAndDotDot: false
                             showDirs: true
                             sortField: "Name"

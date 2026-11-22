@@ -1872,6 +1872,13 @@ QString homeform::getWritableAppDir() {
     return path;
 }
 
+// "file://" + path is not a valid URL when the path starts with a drive letter ("file://C:/..." makes C the
+// host) or is relative (Linux: getWritableAppDir() is empty), so QML folder lists built that way show the
+// working directory or nothing; QUrl::fromLocalFile builds the right one on every platform
+QUrl homeform::localFileUrl(const QString &path) {
+    return QUrl::fromLocalFile(QFileInfo(path).absoluteFilePath());
+}
+
 // Keep any letters (Cyrillic, accents, CJK...): only replace characters a file name cannot hold
 QString homeform::safeFileName(const QString &name, const QString &fallback) {
     QString safe = name.trimmed();

@@ -576,8 +576,10 @@ ApplicationWindow {
         : Qt.font({ family: Qt.application.font.family, pixelSize: plainFontPx })
     // Wrap mode of a label next to a field: with a bigger text it no longer fits in one line
     // and ran under the field and the OK button. The fixed-size popups below wrap their text too,
-    // and then take the width of the screen and the height of the text
-    readonly property int labelWrap: textScale === 1 ? Text.NoWrap : Text.WordWrap
+    // and then take the width of the screen and the height of the text.
+    // Modern look: always wraps - the labels of the settings take Body Large (16), and a long one
+    // no longer fits beside its field at 100 % either; the classic look as before
+    readonly property int labelWrap: textScale === 1 && !ui.modern ? Text.NoWrap : Text.WordWrap
     // Space under the hint of a setting: a wrapped label of the next one fills its row and
     // touched the hint above it, the two read as one block
     readonly property int hintGap: textScale === 1 ? 0 : Math.round(6 * textScale)
@@ -2323,7 +2325,7 @@ ApplicationWindow {
                     FileDialog {
                         id: fileDialogGPX
                          title: qsTr("Please choose a file")
-                         folder: "file://" + rootItem.getWritableAppDir() + 'gpx'
+                         folder: rootItem.localFileUrl(rootItem.getWritableAppDir() + 'gpx')
                          onAccepted: {
                              console.log("You chose: " + fileDialogGPX.fileUrl)
                               gpx_open_clicked(fileDialogGPX.fileUrl)
