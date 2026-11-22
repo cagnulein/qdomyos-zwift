@@ -2667,9 +2667,10 @@ int homeform::resistanceTilePressed(const QString &kind, const QString &name) {
         return 0;
     }
     // a CSC sensor has no resistance to set: these tiles only feed its power estimate and already work.
+    // Skandika sends lastRequestedResistance() with Auto Resistance off, so these tiles already work there too.
     // Renpho releases the control of the bike on every update while Auto Resistance is off, so a level
     // applied here would never be written: keep it as it is
-    if (dynamic_cast<cscbike *>(dev) || dynamic_cast<renphobike *>(dev)) {
+    if (dynamic_cast<cscbike *>(dev) || dynamic_cast<skandikawiribike *>(dev) || dynamic_cast<renphobike *>(dev)) {
         return 0;
     }
     if (!m_resistanceTilesWithoutAutoResistance) {
