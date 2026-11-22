@@ -3,7 +3,9 @@
 #import <AVKit/AVKit.h>
 #import <UIKit/UIKit.h>
 #include <QDebug>
+#include <QSettings>
 #include "ios/ios_floating_metrics.h"
+#include "qzsettings.h"
 
 // Draw the complete text on one line, scaling it to fit rather than truncating it.
 static void QZDrawFittedText(NSString *text, CGRect rect, UIFont *font, UIColor *color) {
@@ -123,11 +125,16 @@ API_AVAILABLE(ios(15.0))
 - (void)render {
     if (!self.layer) return;
     NSArray<NSArray<NSString *> *> *all = self.metrics ?: @[];
+    QSettings settings;
+    // Share the Android floating-window opacity control (0-100%) with iOS PiP.
+    // AVKit controls the PiP compositor, so it may still render an opaque window.
+    const int opacityPercent = qBound(0, settings.value(QZSettings::floating_transparency,
+                                                       QZSettings::default_floating_transparency).toInt(), 100);
     NSUInteger pages = MAX((NSUInteger)1, (all.count + 8) / 9);
     NSUInteger page = ((NSUInteger)(NSDate.date.timeIntervalSince1970 / 6)) % pages;
     NSRange range = NSMakeRange(MIN(page * 9, all.count), MIN((NSUInteger)9, all.count - MIN(page * 9, all.count)));
     NSArray<NSArray<NSString *> *> *shown = [all subarrayWithRange:range];
-    NSString *signature = [NSString stringWithFormat:@"%@/%lu/%lu/%@", shown, (unsigned long)page, (unsigned long)pages, self.emptyLabel ?: @""];
+    NSString *signature = [NSString stringWithFormat:@"%@/%lu/%lu/%@/%d", shown, (unsigned long)page, (unsigned long)pages, self.emptyLabel ?: @"", opacityPercent];
     if ([signature isEqualToString:self.lastFrame] && self.layer.status != AVQueuedSampleBufferRenderingStatusFailed) return;
     CVPixelBufferRef pixel = NULL;
     NSDictionary *attrs = @{(id)kCVPixelBufferCGImageCompatibilityKey:@YES, (id)kCVPixelBufferCGBitmapContextCompatibilityKey:@YES, (id)kCVPixelBufferIOSurfacePropertiesKey:@{}};
@@ -139,6 +146,10 @@ API_AVAILABLE(ios(15.0))
     CGColorSpaceRelease(color);
     if (!ctx) { qWarning() << "Floating metrics: bitmap context creation failed"; CVPixelBufferUnlockBaseAddress(pixel, 0); CVPixelBufferRelease(pixel); return; }
     CGContextTranslateCTM(ctx, 0, 270); CGContextScaleCTM(ctx, 1, -1);
+    // Clear the BGRA buffer before drawing with alpha; otherwise its uninitialised
+    // pixels would be blended into the partially transparent content.
+    CGContextClearRect(ctx, CGRectMake(0, 0, 480, 270));
+    CGContextSetAlpha(ctx, (CGFloat)opacityPercent / 100.0);
     UIGraphicsPushContext(ctx);
     [[UIColor colorWithWhite:0.06 alpha:1] setFill]; UIRectFill(CGRectMake(0, 0, 480, 270));
     UIFont *labelFont = [UIFont systemFontOfSize:17 weight:UIFontWeightMedium];
