@@ -18,6 +18,15 @@ public:
     static constexpr int MAX_UP_WATTS_PER_SECOND = 3;
     static constexpr int MAX_DOWN_WATTS_PER_SECOND = 8;
 
+    // When the virtual FTMS bike already drives changePower() through its target-power
+    // callback, forwarding that same 0x05 packet directly to the trainer would
+    // overwrite the rate-limited, pedal-matched command. Only suppress it for
+    // external-sensor ERG when the trainer lacks native resistance telemetry.
+    static bool shouldBlockDirectFtmsPower(bool externalPowerSensor, bool nativeResistance,
+                                           bool nativeErg, bool autoResistanceEnabled) {
+        return externalPowerSensor && !nativeResistance && nativeErg && autoResistanceEnabled;
+    }
+
     void reset() {
         samples.clear();
         target = 0;
@@ -49,8 +58,12 @@ public:
         const bool valid = std::isfinite(trainerWatts) && std::isfinite(pedalWatts) &&
                            std::isfinite(cadence) && trainerWatts > 0 && pedalWatts > 0 &&
                            cadence >= 60 && cadence <= 130 &&
-                           std::abs(trainerWatts - pedalWatts) <= MAX_ABSOLUTE_SENSOR_DELTA &&
-                           std::abs(trainerWatts - command) <= 20;
+                           std::abs(trainerWatts - pedalWatts) <= MAX_ABSOLUTE_SENSOR_DELTA;
+        // Do NOT require trainerWatts to follow 'command' within 20 W on each
+        // sample. FTMS wattage is delayed by the hardware during ERG ramps; the
+        // command-vs-telemetry gate invalidated a stable ~44 W pedal offset and
+        // repeatedly drove the command back down. Keep the paired-delta stability
+        // window, cadence checks, absolute offset cap and slew-rate limits instead.
 
         if (!valid) {
             samples.clear();
