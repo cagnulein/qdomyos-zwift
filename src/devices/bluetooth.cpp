@@ -324,13 +324,15 @@ void bluetooth::finished() {
             const qint64 now = QDateTime::currentMSecsSinceEpoch();
             if (!rescanStartedMs)
                 rescanStartedMs = now;
-            if (now - rescanStartedMs > 10 * 60 * 1000) {
+            // the Gym mode window is open: the user waits there for the trainer, the search goes on
+            // with pauses of at most 10 s (the window restarted it every 10 s on its own before)
+            if (!gymModeWindowOpen && now - rescanStartedMs > 10 * 60 * 1000) {
                 debug(QStringLiteral("BTLE scanning stopped, no device found in 10 minutes"));
                 nextRescanMs = 0;
                 rescanStopped = true;
                 return;
             }
-            const int delayMs = qMin(3000 << qMin(rescanCount, 5), 60000);
+            const int delayMs = qMin(3000 << qMin(rescanCount, 5), gymModeWindowOpen ? 10000 : 60000);
             rescanCount++;
             nextRescanMs = now + delayMs;
             rescanTimer.start(delayMs);

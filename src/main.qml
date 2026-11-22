@@ -893,20 +893,22 @@ ApplicationWindow {
             pickedDevice = ""
             // opened again after a disconnection: no row of the last pick marked in the list
             gymModeDeviceComboBox.value = ""
-            hurriedTo = 0
+            idleSeconds = 0
+            // the search of the home page keeps its pauses at most 10 s while the window is open
+            rootItem.setGymModeWindowOpen(true)
             if (!rootItem.bluetoothSearchOff())
                 rootItem.bluetoothSearchNow()
             pollState()
         }
+        onClosed: rootItem.setGymModeWindowOpen(false)
 
-        // The window has no search of its own: it shows the countdown of the search of the home page
-        // (one number on both), and while it is open no pause between two searches is longer than
-        // hurrySeconds. A search through bluetoothSearchNow(), which keeps to the Android limit of
-        // scan starts. With Bluetooth off there is no search, so the window says so instead
-        readonly property int hurrySeconds: 10
+        // The window shows the countdown of the search of the home page (one number on both). With
+        // Bluetooth off there is no search, so the window says so instead
+        readonly property int refreshSeconds: 10
         property int secondsLeft: 0
-        // the wait bluetoothSearchNow() left (the Android limit): not hurried again every second
-        property int hurriedTo: 0
+        // No search running or due although Bluetooth is on (a scan that failed: Location off, or any
+        // error on iOS): as before, the window starts one every refreshSeconds
+        property int idleSeconds: 0
         property bool bluetoothOff: false
         // The trainer marked in the list: Next connects to it. The list is sorted by signal and
         // rebuilt on every search result, so a tap only marks and the name is kept apart
@@ -926,17 +928,18 @@ ApplicationWindow {
         function pollState() {
             // switched on: the search starts by itself right now
             bluetoothOff = rootItem.bluetoothSearchOff()
-            secondsLeft = rootItem.bluetoothNextSearchSeconds()
-            if (secondsLeft === 0)
-                hurriedTo = 0
-            if (bluetoothOff)
+            var next = rootItem.bluetoothNextSearchSeconds()
+            if (bluetoothOff || next >= 0) {
+                idleSeconds = 0
+                secondsLeft = Math.max(next, 0)
                 return
-            // the search gave up (10 minutes) or waits longer than the window wants: search now
-            if (rootItem.bluetoothSearchStopped() || (secondsLeft > hurrySeconds && secondsLeft > hurriedTo)) {
-                rootItem.bluetoothSearchNow()
-                secondsLeft = rootItem.bluetoothNextSearchSeconds()
-                hurriedTo = secondsLeft
             }
+            idleSeconds++
+            secondsLeft = refreshSeconds - idleSeconds
+            if (idleSeconds < refreshSeconds)
+                return
+            idleSeconds = 0
+            rootItem.bluetoothSearchNow()
         }
 
         Column {
@@ -997,7 +1000,7 @@ ApplicationWindow {
                 }
             }
 
-            // The search goes on every 10 seconds: the rows of the open list must stay where they
+            // The search goes on while the window is open: the rows of the open list must stay where they
             // are (DeviceComboBox, devices found while it is open go to the end). The shown text
             // follows the marked trainer, not currentIndex: the list is filled again on every opening
             DeviceComboBox {
@@ -1020,6 +1023,8 @@ ApplicationWindow {
                 TextMetrics {
                     id: gymModeFieldMetrics
                     font.family: gymModeDeviceComboBox.font.family
+                    font.weight: gymModeDeviceComboBox.font.weight
+                    font.capitalization: gymModeDeviceComboBox.font.capitalization
                     font.pixelSize: gymModeDeviceComboBox.fullPx
                     text: gymModeDeviceComboBox.displayText
                 }

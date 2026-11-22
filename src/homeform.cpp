@@ -2085,9 +2085,12 @@ void homeform::bluetoothSearchNow() {
 }
 
 int homeform::bluetoothNextSearchSeconds() {
-    if (!bluetoothManager || bluetoothManager->device() || bluetoothManager->isSearching() ||
-        !bluetoothManager->nextSearchMs())
+    if (!bluetoothManager || bluetoothManager->device())
+        return -1;
+    if (bluetoothManager->isSearching())
         return 0;
+    if (!bluetoothManager->nextSearchMs())
+        return -1;
     const qint64 left = bluetoothManager->nextSearchMs() - QDateTime::currentMSecsSinceEpoch();
     // rounded up as in bluetoothSearchStatus(): both say the same number
     return left > 0 ? int((left + 999) / 1000) : 0;

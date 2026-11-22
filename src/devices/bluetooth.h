@@ -211,6 +211,9 @@ class bluetooth : public QObject, public SignalHandler {
     bool bluetoothOff() const { return bluetoothOffPoll.isActive() && !isSearching(); }
     // Gym mode: the trainer picked in the window, empty until then
     QString gymModeDevice() const { return gymModeSessionDevice; }
+    // Gym mode: the window waits for the trainer to be picked; while it is open the pause between two
+    // automatic searches stays short and the search does not give up after 10 minutes
+    void setGymModeWindowOpen(bool open) { gymModeWindowOpen = open; }
     /**
      * @brief searchNow Starts a search right away and resets the pause between the automatic ones.
      * Android 7.0 and later ignore the 6th scan start in 30 s: then the search is scheduled for when it is allowed.
@@ -479,6 +482,7 @@ class bluetooth : public QObject, public SignalHandler {
     QTimer rescanTimer;
     qint64 nextRescanMs = 0;
     bool rescanStopped = false;
+    bool gymModeWindowOpen = false;
     // Android 7.0 and later ignore the scan starts after the 5th one in this window
     static constexpr qint64 scanStartWindowMs = 30000;
     QList<qint64> scanStartsMs;
