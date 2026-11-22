@@ -810,3 +810,63 @@ void ErgTableTestSuite::test_stableFtmsPowerMatchSuppressesOnlyMatchingVirtualFt
     EXPECT_FALSE(StableFtmsPowerMatch::shouldBlockDirectFtmsPower(true, false, false, true));
     EXPECT_FALSE(StableFtmsPowerMatch::shouldBlockDirectFtmsPower(true, false, true, false));
 }
+
+// Representative consecutive trainer/pedal readings from Rudy's FI9117
+// 2026-11-22 17:36:33-17:36:44, then the 215/125 W spike at 17:37:21.
+// A spike should freeze corrections, not erase the stable calibration.
+void ErgTableTestSuite::test_stableFtmsPowerMatchKeepsCorrectionAcrossRudySpikes() {
+    StableFtmsPowerMatch match;
+    struct Pair { double trainer; double pedal; double cadence; };
+    const Pair readings[] = {
+        {173, 135, 87}, {173, 135, 88}, {173, 136, 88},
+        {173, 135, 88}, {173, 136, 88}, {173, 131, 86},
+        {170, 129, 86}, {197, 130, 86}, {193, 137, 86},
+        {193, 146, 85}, {193, 139, 84}
+    };
+    int command = 168;
+    for (int second = 0; second < 11; ++second) {
+        const int last = command;
+        command = match.adjustedPower(168, readings[second].trainer,
+                                      readings[second].pedal,
+                                      readings[second].cadence, second * 1000LL);
+        EXPECT_GE(command, last);
+        EXPECT_LE(command - last, StableFtmsPowerMatch::MAX_UP_WATTS_PER_SECOND);
+    }
+    EXPECT_GT(command, 168);
+    const int beforeSpike = command;
+    EXPECT_EQ(beforeSpike, match.adjustedPower(168, 215, 125, 84, 11000));
+    EXPECT_STREQ("outlier-hold", match.status());
+    // Paired telemetry becomes plausible again and the old calibration remains.
+    EXPECT_GE(match.adjustedPower(168, 193, 144, 86, 12000), beforeSpike);
+}
+
+void ErgTableTestSuite::test_stableFtmsPowerMatchFallsBackOnPersistentOutliers() {
+    StableFtmsPowerMatch match;
+    int command = 168;
+    for (int second = 0; second < 25; ++second) {
+        command = match.adjustedPower(168, 166, 122, 90, second * 1000LL);
+    }
+    EXPECT_GT(command, 168);
+    const int previous = command;
+    for (int second = 25; second <= 28; ++second) {
+        command = match.adjustedPower(168, 215, 125, 90, second * 1000LL);
+        EXPECT_EQ(previous, command) << "A short outlier burst must freeze the command";
+    }
+    for (int second = 29; second <= 42; ++second)
+        command = match.adjustedPower(168, 215, 125, 90, second * 1000LL);
+    EXPECT_EQ(168, command) << "Persistent invalid data must safely ramp back to target";
+}
+
+void ErgTableTestSuite::test_stableFtmsPowerMatchResetAfterDisconnect() {
+    StableFtmsPowerMatch match;
+    int command = 168;
+    for (int second = 0; second <= 25; ++second)
+        command = match.adjustedPower(168, 166, 122, 90, second * 1000LL);
+    EXPECT_GT(command, 168);
+    // This is the explicit reset invoked on QLowEnergyController::UnconnectedState.
+    match.reset();
+    EXPECT_EQ(168, match.adjustedPower(168, 0, 0, 0, 26000));
+    for (int second = 27; second <= 33; ++second)
+        EXPECT_EQ(168, match.adjustedPower(168, 166, 122, 90, second * 1000LL));
+    EXPECT_GT(match.adjustedPower(168, 166, 122, 90, 34000), 168);
+}
