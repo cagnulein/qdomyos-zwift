@@ -99,7 +99,8 @@ UiTextField {
         x: field.modern ? 0 : field.leftPadding
         width: field.width - x - field.rightPadding
         y: field.height - implicitHeight - 2
-        wrapMode: Text.WordWrap
+        // Modern look: Text.Wrap breaks a translated word longer than the narrow column instead of running past it
+        wrapMode: field.modern ? Text.Wrap : Text.WordWrap
         horizontalAlignment: field.horizontalAlignment
         font.pixelSize: field.modern ? window.fontHint
             : window.textScale === 1 ? Qt.application.font.pixelSize - 3 : window.fontPx(window.appFontPx - 3)
