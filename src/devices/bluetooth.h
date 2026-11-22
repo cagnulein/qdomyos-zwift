@@ -212,8 +212,16 @@ class bluetooth : public QObject, public SignalHandler {
     // Gym mode: the trainer picked in the window, empty until then
     QString gymModeDevice() const { return gymModeSessionDevice; }
     // Gym mode: the window waits for the trainer to be picked; while it is open the pause between two
-    // automatic searches stays short and the search does not give up after 10 minutes
-    void setGymModeWindowOpen(bool open) { gymModeWindowOpen = open; }
+    // automatic searches stays short and the search does not give up after 10 minutes. Closed: the
+    // pauses and the 10 minutes count from now (the window restarted the search every 10 s before),
+    // otherwise a window open for 10 minutes would leave a search that gives up at once
+    void setGymModeWindowOpen(bool open) {
+        gymModeWindowOpen = open;
+        if (!open) {
+            rescanCount = 0;
+            rescanStartedMs = 0;
+        }
+    }
     /**
      * @brief searchNow Starts a search right away and resets the pause between the automatic ones.
      * Android 7.0 and later ignore the 6th scan start in 30 s: then the search is scheduled for when it is allowed.

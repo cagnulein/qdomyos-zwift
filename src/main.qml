@@ -911,7 +911,7 @@ ApplicationWindow {
         property int idleSeconds: 0
         property bool bluetoothOff: false
         // The trainer marked in the list: Next connects to it. The list is sorted by signal and
-        // rebuilt on every search result, so a tap only marks and the name is kept apart
+        // filled again at every opening, so a tap only marks and the name is kept apart
         property string pickedDevice: ""
         // Only the found trainers: "Disabled" and "Wifi" of the settings list mean nothing here
         readonly property var devices: {
