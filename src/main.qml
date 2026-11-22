@@ -194,6 +194,9 @@ ApplicationWindow {
     signal restart()
     // Sent by the settings page when a key of the home page copy changes (Home.qml)
     signal tileSettingChanged(string key, var value)
+    // Sent by the home page each time it reads the state of the Bluetooth search (once a second): the
+    // Gym mode window reads it on the same tick, so both show the same countdown
+    signal bluetoothSearchPolled()
     signal volumeUp()
     signal volumeDown()
     signal keyMediaPrevious()
@@ -1075,13 +1078,14 @@ ApplicationWindow {
         }
     }
 
-    // One tick a second: the countdown of the window and the state of Bluetooth
-    Timer {
-        id: gymModeRefreshTimer
-        interval: 1000
-        repeat: true
-        running: popupGymMode.visible
-        onTriggered: popupGymMode.pollState()
+    // The countdown of the window and the state of Bluetooth, on the tick of the home page status line
+    // behind it: a timer of its own showed its number up to a second apart ("5 s" over "4 s")
+    Connections {
+        target: window
+        function onBluetoothSearchPolled() {
+            if (popupGymMode.visible)
+                popupGymMode.pollState()
+        }
     }
 
     UiInfoPopup {
