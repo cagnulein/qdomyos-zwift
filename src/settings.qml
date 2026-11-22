@@ -358,6 +358,9 @@ import AndroidStatusBar 1.0
             // On the flickable, not in its content: a ScrollView takes the content height from
             // the only child of the content, a second child would zero it and throw the page to
             // the top. So the highlight follows the scroll itself.
+            // The glow of a result opened just before is let go: it lies over another row now
+            if (activeGlow)
+                activeGlow.letGo()
             activeGlow = settingHighlight.createObject(flickable, { flickable: flickable, row: row,
                                                                     lit: reveal.lit !== false })
         }
@@ -389,10 +392,8 @@ import AndroidStatusBar 1.0
                     // The finger wins: once the page is moved the glow stops scrolling it and goes.
                     // Only a drag, a flick or the wheel moves it: contentY set here does not
                     // (QQuickFlickable::setContentY, movementStarting)
-                    if (flickable.dragging || flickable.moving) {
-                        ticks = 1000
+                    if (flickable.dragging || flickable.moving)
                         letGo()
-                    }
                     if (ticks <= 20) {
                         var at = row.mapToItem(flickable.contentItem, 0, 0).y
                         flickable.contentY = Math.max(0, Math.min(at - 96, flickable.contentHeight - flickable.height))
@@ -471,9 +472,10 @@ import AndroidStatusBar 1.0
                 Component.onCompleted: follow()
                 Timer { interval: 40; repeat: true; running: true; onTriggered: glow.follow() }
                 color: lit ? Qt.rgba(Material.accent.r, Material.accent.g, Material.accent.b, 0.22) : "transparent"
-                // Lit once the page has settled: lit at once, it came with the jump and the keyboard
-                // going down, while the eye was still on the move. Then held for the eye to find
-                // the row, and let go
+                // A beat of the motion, not a wait for anything: lit at once, the glow came together with
+                // the jump and the keyboard going down, while the eye was still on the move. So it comes in
+                // a moment after the jump (Android Settings lights a found preference the same way,
+                // after a delay and with a fade), is held for the eye to find the row, and let go
                 opacity: 0
                 SequentialAnimation {
                     id: life
@@ -488,7 +490,10 @@ import AndroidStatusBar 1.0
                     NumberAnimation { target: glow; property: "opacity"; to: 0; duration: 400; easing.type: Easing.InQuad }
                     ScriptAction { script: glow.destroy() }
                 }
+                // Out, and the page no longer brought back to the row: a field touched while the page
+                // is still being scrolled to the row scrolls the page its own way
                 function letGo() {
+                    ticks = 1000
                     if (fadeOut.running)
                         return
                     life.stop()
@@ -521,6 +526,10 @@ import AndroidStatusBar 1.0
             // position (after a result was opened the page is deep in a section)
             if (settingsPane.contentItem)
                 settingsPane.contentItem.contentY = 0
+            // A search again: the glow of the setting found last time has done its part (the button of
+            // the bar is no touch on the page, it would stay to the end of its time)
+            if (activeGlow)
+                activeGlow.letGo()
             Qt.callLater(function() {
                 settingsSearchTextField.forceActiveFocus()
             })
