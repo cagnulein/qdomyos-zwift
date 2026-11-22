@@ -1638,6 +1638,28 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
 
+    // Run BT-* treadmills report physical console actions through the FTMS
+    // Fitness Machine Status characteristic. These existing treadmill signals
+    // are connected to HomeForm's Start/Pause/StopFromDevice slots.
+    if (run_bt_treadmill && characteristic.uuid() == QBluetoothUuid((quint16)0x2ADA)) {
+        if (newValue.size() == 1 && (uint8_t)newValue.at(0) == 0x04) {
+            // Fitness Machine Started or Resumed by User.
+            if (isPaused()) {
+                emit debug(QStringLiteral("RUN BT- FTMS physical Start/Resume"));
+                emit buttonHWStart();
+            }
+        } else if (newValue.size() == 2 && (uint8_t)newValue.at(0) == 0x02) {
+            // Fitness Machine Stopped or Paused by User.
+            if ((uint8_t)newValue.at(1) == 0x01) {
+                emit debug(QStringLiteral("RUN BT- FTMS physical Stop"));
+                emit buttonHWStop();
+            } else if ((uint8_t)newValue.at(1) == 0x02 && !isPaused()) {
+                emit debug(QStringLiteral("RUN BT- FTMS physical Pause"));
+                emit buttonHWPause();
+            }
+        }
+    }
+
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4)) {
         if (newValue.at(0) == 0x55 && newValue.length() > 7) {
             lastPacketComplete.clear();
@@ -2997,6 +3019,9 @@ int horizontreadmill::GenerateCRC_CCITT(uint8_t *PUPtr8, int PU16_Count, int crc
 }
 
 bool horizontreadmill::autoPauseWhenSpeedIsZero() {
+    // RUN BT- uses explicit FTMS console events instead of zero-speed heuristics.
+    if (run_bt_treadmill)
+        return false;
     if(disableAutoPause == true)
         return false;
 
@@ -3013,6 +3038,9 @@ bool horizontreadmill::autoPauseWhenSpeedIsZero() {
 }
 
 bool horizontreadmill::autoStartWhenSpeedIsGreaterThenZero() {
+    // RUN BT- uses explicit FTMS console events instead of speed-based auto-start.
+    if (run_bt_treadmill)
+        return false;
     QSettings settings;
     bool horizon_treadmill_omega_z =
         settings.value(QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z).toBool();
