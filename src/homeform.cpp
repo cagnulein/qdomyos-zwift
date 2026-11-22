@@ -2673,6 +2673,7 @@ int homeform::resistanceTilePressed(const QString &kind, const QString &name) {
         return 0;
     }
     if (!m_resistanceTilesWithoutAutoResistance) {
+        qDebug() << QStringLiteral("resistance tile with auto resistance off: asking") << kind << name;
         return 2;
     }
     applyResistanceTileWithAutoResistanceOff(kind, name);
