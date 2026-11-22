@@ -23,9 +23,17 @@ import AndroidStatusBar 1.0
                             AndroidStatusBar.waterfallLeftInset : 0
         anchors.rightMargin: (Qt.platform.os === "android" && AndroidStatusBar.hasWaterfallDisplay) ?
                              AndroidStatusBar.waterfallRightInset : 0
-        // Padding, not margins: the text moves in, the scroll bar stays at the edge
-        leftPadding: window.contentSideMargin
-        rightPadding: window.contentSideMargin
+        // Padding, not margins: the text moves in, the scroll bar stays at the edge. Modern look:
+        // the page margin of Material 3, 16
+        leftPadding: window.ui.modern ? Math.max(16, window.contentSideMargin) : window.contentSideMargin
+        rightPadding: window.ui.modern ? Math.max(16, window.contentSideMargin) : window.contentSideMargin
+        // Modern look: the rows (labels, fields, lists) Body Large - the controls of the page
+        // inherit it (QQuickControlPrivate::updateFontRecur, also through plain items); the
+        // classic keeps the window font, as when nothing is set. A binding, not a Binding element:
+        // once the look can be switched on this page, the classic must follow the window font after it
+        font: window.ui.modern ? window.ui.rowFont : window.font
+        // buttons and lists of this page take Label Large (window.ui.onTypeScalePage)
+        readonly property bool typeScalePage: true
         //anchors.bottom: footerSettings.top
         //anchors.bottomMargin: footerSettings.height + 10
         id: settingsPane
@@ -1027,6 +1035,21 @@ import AndroidStatusBar 1.0
             if (searchSpeedKeys.indexOf(entry.key) >= 0 || isTileSpeedPreset(entry.key))
                 return settings.miles_unit ? qsTr("mph") : qsTr("km/h")
             return ""
+        }
+
+        // The font of the labels of the search results: the font of this page (the root above -
+        // the window font in the classic look, Body Large in the modern one), bold or not. A label
+        // that sets only a weight keeps, in Qt 5, the size it inherited when created; one font
+        // binding follows the text size and the look (once it can be switched on this page). A size Binding would
+        // write back, turned off, the size it found, and that one depends on the look
+        function searchFont(bold) {
+            var f = settingsPane.font
+            var spec = { family: f.family, bold: bold }
+            if (f.pixelSize > 0)
+                spec.pixelSize = f.pixelSize
+            else
+                spec.pointSize = f.pointSize
+            return Qt.font(spec)
         }
 
         // The name of a result with the unit of its value, as the page writes it next to the
@@ -2752,8 +2775,7 @@ import AndroidStatusBar 1.0
                 Layout.preferredWidth: Math.max(1, column1.width)
 
                 Label {
-                    // a label that sets only a weight keeps, in Qt 5, the size it inherited when created
-                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                    font: settingsPane.searchFont(true)
                     // The catalog error above says it all: no "Searching..." or "No settings found"
                     visible: settingsCatalogError.length === 0
                     text: settingsCatalogLoading ? qsTr("Loading settings...") :
@@ -2766,7 +2788,6 @@ import AndroidStatusBar 1.0
                           filteredSettings.length === 0 ? qsTr("No settings found") :
                           qsTr("Search results") + " (" + filteredSettings.length + ")"
                     color: Material.color(Material.Red)
-                    font.bold: true
                     Layout.fillWidth: true
                     wrapMode: window.labelWrap
                 }
@@ -2838,9 +2859,8 @@ import AndroidStatusBar 1.0
                                     spacing: 2
 
                                     Label {
-                                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                        font: settingsPane.searchFont(true)
                                         text: settingsPane.searchTitle(entry)
-                                        font.bold: true
                                         wrapMode: Text.WordWrap
                                         Layout.fillWidth: true
                                         Layout.minimumWidth: 0
@@ -2860,7 +2880,7 @@ import AndroidStatusBar 1.0
                                 // "On" in the accent; as wide as 42 % of the card at most, cut at
                                 // the end; nothing when the value is not known
                                 Label {
-                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                    font: settingsPane.searchFont(false)
                                     visible: searchResultFrame.valueText.length > 0
                                     text: searchResultFrame.valueText
                                     color: searchResultFrame.valueOn ? Material.accent : Material.color(Material.Grey)
@@ -2874,9 +2894,8 @@ import AndroidStatusBar 1.0
                                 }
 
                                 Label {
-                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                    font: settingsPane.searchFont(true)
                                     text: "›"
-                                    font.bold: true
                                     color: Material.color(Material.Grey)
                                     Accessible.ignored: true
                                     Layout.alignment: Qt.AlignVCenter
@@ -2920,9 +2939,10 @@ import AndroidStatusBar 1.0
                 //anchors.topMargin: 10
                 accordionContent: ColumnLayout {
                     spacing: 0
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             id: labelAppLanguage
                             text: qsTr("App Language:")
                             wrapMode: window.labelWrap
@@ -3254,9 +3274,10 @@ import AndroidStatusBar 1.0
                         color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
                     }
 
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             id: labelNickname
                             text: qsTr("Nickname:")
                             wrapMode: window.labelWrap
@@ -3265,7 +3286,7 @@ import AndroidStatusBar 1.0
                         SettingsTextField {
                             id: nicknameTextField
                             savedText: settings.user_nickname
-                            horizontalAlignment: Text.AlignRight
+                            horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: settings.user_nickname = text
@@ -3294,9 +3315,10 @@ import AndroidStatusBar 1.0
                         color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
                     }
 
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             id: labelEmail
                             text: qsTr("Email:")
                             wrapMode: window.labelWrap
@@ -3305,7 +3327,7 @@ import AndroidStatusBar 1.0
                         SettingsTextField {
                             id: emailTextField
                             savedText: settings.user_email
-                            horizontalAlignment: Text.AlignRight
+                            horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             validator: EmailValidator {}
@@ -3668,7 +3690,9 @@ import AndroidStatusBar 1.0
 
                     UiButton {
                         id: refreshHeartBeltNameButton
+                        wrapsText: true
                         text: qsTr("Refresh Devices List")
+                        Layout.maximumWidth: window.ui.modern ? parent.width : Number.POSITIVE_INFINITY
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: refresh_bluetooth_devices_clicked();
                     }
@@ -4458,15 +4482,18 @@ import AndroidStatusBar 1.0
 
                             Label {
                                 text: qsTr("Left Controller Buttons")
-                                font.bold: true
-                                font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 2)
+                                // Modern look: a subheader of the section, Title Small 14 Medium in the accent
+                                font.weight: window.ui.modern ? Font.Medium : Font.Bold
+                                font.pixelSize: window.ui.modern ? window.ui.fontLabelLarge : window.fontPx(Qt.application.font.pixelSize + 2)
+                                color: window.ui.modern ? window.ui.accent : enabled ? Material.foreground : Material.hintTextColor // classic: as Label of the Material style
                                 Layout.fillWidth: true
                                 Layout.topMargin: 20
                                 wrapMode: window.labelWrap
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Left Up:")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -4478,8 +4505,9 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Left Down:")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -4491,8 +4519,9 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Left Left:")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -4504,8 +4533,9 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Left Right:")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -4517,8 +4547,9 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Left Shoulder:")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -4530,8 +4561,9 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Left Power:")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -4545,15 +4577,18 @@ import AndroidStatusBar 1.0
 
                             Label {
                                 text: qsTr("Right Controller Buttons")
-                                font.bold: true
-                                font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 2)
+                                // Modern look: a subheader of the section, Title Small 14 Medium in the accent
+                                font.weight: window.ui.modern ? Font.Medium : Font.Bold
+                                font.pixelSize: window.ui.modern ? window.ui.fontLabelLarge : window.fontPx(Qt.application.font.pixelSize + 2)
+                                color: window.ui.modern ? window.ui.accent : enabled ? Material.foreground : Material.hintTextColor // classic: as Label of the Material style
                                 Layout.fillWidth: true
                                 Layout.topMargin: 20
                                 wrapMode: window.labelWrap
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Right Y:")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -4565,8 +4600,9 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Right A:")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -4578,8 +4614,9 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Right B:")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -4591,8 +4628,9 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Right Z:")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -4604,8 +4642,9 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Right Shoulder:")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -4617,8 +4656,9 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Right Power:")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -5115,10 +5155,11 @@ import AndroidStatusBar 1.0
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Profile:")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -5137,11 +5178,12 @@ import AndroidStatusBar 1.0
 
                             Label {
                                 text: qsTr("Cruise Profile Settings")
-                                font.bold: true
-                                font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 1)
+                                // Modern look: a subheader of the section, Title Small 14 Medium in the accent
+                                font.weight: window.ui.modern ? Font.Medium : Font.Bold
+                                font.pixelSize: window.ui.modern ? window.ui.fontLabelLarge : window.fontPx(Qt.application.font.pixelSize + 1)
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                color: Material.color(Material.Grey)
+                                color: window.ui.modern ? window.ui.accent : Material.color(Material.Grey)
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
                                 wrapMode: window.labelWrap
                             }
@@ -5258,11 +5300,12 @@ import AndroidStatusBar 1.0
 
                             Label {
                                 text: qsTr("Climb Profile Settings")
-                                font.bold: true
-                                font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 1)
+                                // Modern look: a subheader of the section, Title Small 14 Medium in the accent
+                                font.weight: window.ui.modern ? Font.Medium : Font.Bold
+                                font.pixelSize: window.ui.modern ? window.ui.fontLabelLarge : window.fontPx(Qt.application.font.pixelSize + 1)
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                color: Material.color(Material.Grey)
+                                color: window.ui.modern ? window.ui.accent : Material.color(Material.Grey)
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
                                 wrapMode: window.labelWrap
                             }
@@ -5379,11 +5422,12 @@ import AndroidStatusBar 1.0
 
                             Label {
                                 text: qsTr("Sprint Profile Settings")
-                                font.bold: true
-                                font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 1)
+                                // Modern look: a subheader of the section, Title Small 14 Medium in the accent
+                                font.weight: window.ui.modern ? Font.Medium : Font.Bold
+                                font.pixelSize: window.ui.modern ? window.ui.fontLabelLarge : window.fontPx(Qt.application.font.pixelSize + 1)
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                color: Material.color(Material.Grey)
+                                color: window.ui.modern ? window.ui.accent : Material.color(Material.Grey)
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
                                 wrapMode: window.labelWrap
                             }
@@ -5701,9 +5745,10 @@ import AndroidStatusBar 1.0
                         //anchors.topMargin: 10
                         accordionContent: ColumnLayout {
                             spacing: 0
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     id: labelEchelonWattTable
                                     text: qsTr("Watt Profile:")
                                     wrapMode: window.labelWrap
@@ -6538,9 +6583,10 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("TDF1 IP:")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -6549,7 +6595,7 @@ import AndroidStatusBar 1.0
                                     id: proformTDF1IPTextField
                                     format: "host"
                                     savedText: settings.proformtdf1ip
-                                    horizontalAlignment: Text.AlignRight
+                                    horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
@@ -6564,9 +6610,10 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     id: labelproformTDF4IP
                                     text: qsTr("TDF4 IP:")
                                     wrapMode: window.labelWrap
@@ -6576,7 +6623,7 @@ import AndroidStatusBar 1.0
                                     id: proformTDF4IPTextField
                                     format: "host"
                                     savedText: settings.proformtdf4ip
-                                    horizontalAlignment: Text.AlignRight
+                                    horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
@@ -6591,9 +6638,10 @@ import AndroidStatusBar 1.0
                                     onClicked: { settings.proformtdf4ip = proformTDF4IPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     id: labelproformTDFCompanionIP
                                     text: qsTr("TDF Companion IP:")
                                     wrapMode: window.labelWrap
@@ -6603,7 +6651,7 @@ import AndroidStatusBar 1.0
                                     id: proformTDFCompanionIPTextField
                                     format: "host"
                                     savedText: settings.tdf_10_ip
-                                    horizontalAlignment: Text.AlignRight
+                                    horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
@@ -6654,9 +6702,10 @@ import AndroidStatusBar 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
-                        RowLayout {
+                        UiSettingsRow {
                             spacing: 10
                             Label {
+                                Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                 id: labelcomputrainerSerialPort
                                 text: qsTr("Serial Port:")
                                 wrapMode: window.labelWrap
@@ -6665,7 +6714,7 @@ import AndroidStatusBar 1.0
                             SettingsTextField {
                                 id: computrainerSerialPortTextField
                                 savedText: settings.computrainer_serialport
-                                horizontalAlignment: Text.AlignRight
+                                horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 //inputMethodHints: Qt.ImhFormattedNumbersOnly
@@ -6691,9 +6740,10 @@ import AndroidStatusBar 1.0
                         color: Material.backgroundColor
 												accordionContent: ColumnLayout {
                             spacing: 0
-                        RowLayout {
+                        UiSettingsRow {
                             spacing: 10
                             Label {
+                                Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                 id: labelKettlerUsbSerialPort
                                 text: qsTr("Serial Port:")
                                 wrapMode: window.labelWrap
@@ -6702,7 +6752,7 @@ import AndroidStatusBar 1.0
                             SettingsTextField {
                                 id: kettlerUsbSerialPortTextField
                                 savedText: settings.kettler_usb_serialport
-                                horizontalAlignment: Text.AlignRight
+                                horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onAccepted: { settings.kettler_usb_serialport = text; window.settings_restart_to_apply = true; }
@@ -6716,9 +6766,10 @@ import AndroidStatusBar 1.0
                                 onClicked: { settings.kettler_usb_serialport = kettlerUsbSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                             }
                         }
-                        RowLayout {
+                        UiSettingsRow {
                             spacing: 10
                             Label {
+                                Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                 id: labelKettlerUsbBaudrate
                                 text: qsTr("Baudrate:")
                                 wrapMode: window.labelWrap
@@ -6760,9 +6811,10 @@ import AndroidStatusBar 1.0
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
                             spacing: 0
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     id: labelDaumSerialPort
                                     text: qsTr("Serial Port:")
                                     Layout.fillWidth: true
@@ -6771,7 +6823,7 @@ import AndroidStatusBar 1.0
                                     id: daumSerialPortTextField
                                     savedText: settings.daum_serialport
                                     Accessible.name: labelDaumSerialPort.text + " " + text
-                                    horizontalAlignment: Text.AlignRight
+                                    horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: { settings.daum_serialport = text; window.settings_restart_to_apply = true; }
@@ -6850,9 +6902,10 @@ import AndroidStatusBar 1.0
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
                             spacing: 0
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     id: labelFreebeatSerialPort
                                     text: qsTr("Serial Port:")
                                     wrapMode: window.labelWrap
@@ -6861,7 +6914,7 @@ import AndroidStatusBar 1.0
                                 SettingsTextField {
                                     id: freebeatSerialPortTextField
                                     savedText: settings.freebeat_serialport
-                                    horizontalAlignment: Text.AlignRight
+                                    horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: { settings.freebeat_serialport = text; window.settings_restart_to_apply = true; }
@@ -7556,9 +7609,10 @@ import AndroidStatusBar 1.0
                         color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
                     }
 
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             id: labelFloatingWindowType
                             text: qsTr("Floating Window Type:")
                             wrapMode: window.labelWrap
@@ -7767,14 +7821,20 @@ import AndroidStatusBar 1.0
                     }
 
                     UiButton {
+                        wrapsText: true
                         text: qsTr("Open Floating on a Browser")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        // Modern look: no wider than the section. A button keeps its text on one
+                        // line, and at a large text size a long translation made the whole section
+                        // wider than its card
+                        Layout.maximumWidth: window.ui.modern ? parent.width : Number.POSITIVE_INFINITY
                         onClicked: openFloatingWindowBrowser();
                     }
 
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             id: labelChartDisplayMode
                             text: qsTr("Chart Display Mode:")
                             wrapMode: window.labelWrap
@@ -7889,6 +7949,11 @@ import AndroidStatusBar 1.0
 
                             Label {
                                 text: qsTr("Move the charts up or down to choose their order in Workout History. Changes are saved automatically.")
+                                // modern: a hint, Body Small in the muted colour as the other hints; the classic keeps
+                                // the font of the page, as before (window.font, as the root of the page sets it). A
+                                // binding, not a Binding element: turned off, a Binding would write back the size it
+                                // found, the Body Large of the modern page, and the classic would keep it
+                                font: window.ui.modern ? Qt.font({ pixelSize: window.fontHint }) : window.font
                                 wrapMode: Text.WordWrap
                                 Layout.fillWidth: true
                                 color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
@@ -7937,9 +8002,10 @@ import AndroidStatusBar 1.0
                         }
                     }
 
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             text: qsTr("iOS Live Activity Left Metric:")
                             wrapMode: window.labelWrap
                             Layout.fillWidth: true
@@ -7960,9 +8026,10 @@ import AndroidStatusBar 1.0
                         }
                     }
 
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             text: qsTr("iOS Live Activity Right Metric:")
                             wrapMode: window.labelWrap
                             Layout.fillWidth: true
@@ -8215,9 +8282,10 @@ import AndroidStatusBar 1.0
                 accordionContent: ColumnLayout {
                     spacing: 0
 /*
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             id: labelPelotonUsername
                             text: qsTr("Username:")
                             wrapMode: window.labelWrap
@@ -8226,7 +8294,7 @@ import AndroidStatusBar 1.0
                         SettingsTextField {
                             id: pelotonUsernameTextField
                             savedText: settings.peloton_username
-                            horizontalAlignment: Text.AlignRight
+                            horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: { settings.peloton_username = text; window.settings_restart_to_apply = true; }
@@ -8256,9 +8324,10 @@ import AndroidStatusBar 1.0
                         color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
                     }
 
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             id: labelPelotonPassword
                             text: qsTr("Password:") + ((rootItem.pelotonLogin===-1 || Qt.platform.os === "android")?"":(rootItem.pelotonLogin===1?"\u2705":"\u274c"))
                             wrapMode: window.labelWrap
@@ -8276,7 +8345,7 @@ import AndroidStatusBar 1.0
                         SettingsTextField {
                             id: pelotonPasswordTextField
                             savedText: settings.peloton_password
-                            horizontalAlignment: Text.AlignRight
+                            horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhHiddenText
@@ -8366,9 +8435,10 @@ import AndroidStatusBar 1.0
                         color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
                     }
 
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             text: qsTr("Treadmill Level:")
                             wrapMode: window.labelWrap
                             Layout.fillWidth: true
@@ -8407,9 +8477,10 @@ import AndroidStatusBar 1.0
                         color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
                     }
 
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             text: qsTr("Treadmill Walk Level:")
                             wrapMode: window.labelWrap
                             Layout.fillWidth: true
@@ -8522,9 +8593,10 @@ import AndroidStatusBar 1.0
                         color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
                     }
 
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             text: qsTr("Rower Level:")
                             wrapMode: window.labelWrap
                             Layout.fillWidth: true
@@ -8563,9 +8635,10 @@ import AndroidStatusBar 1.0
                         color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
                     }
 
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             id: labelPZPUsername
                             text: qsTr("PZP Username:")
                             wrapMode: window.labelWrap
@@ -8574,7 +8647,7 @@ import AndroidStatusBar 1.0
                         SettingsTextField {
                             id: pzpUsernameTextField
                             savedText: settings.pzp_username
-                            horizontalAlignment: Text.AlignRight
+                            horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: settings.pzp_username = text
@@ -8603,9 +8676,10 @@ import AndroidStatusBar 1.0
                         color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
                     }
 
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             id: labelPZPPassword
                             text: qsTr("PZP Password:") + ((rootItem.pzpLogin===-1 || Qt.platform.os === "android")?"":(rootItem.pzpLogin===1?"\u2705":"\u274c"))
                             wrapMode: window.labelWrap
@@ -8623,7 +8697,7 @@ import AndroidStatusBar 1.0
                         SettingsTextField {
                             id: pzpPasswordTextField
                             savedText: settings.pzp_password
-                            horizontalAlignment: Text.AlignRight
+                            horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhHiddenText
@@ -8823,9 +8897,10 @@ import AndroidStatusBar 1.0
                     }
 
                     /*
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             id: labelPelotonCadenceMetric
                             text: qsTr("Override Cadence Metric:")
                             wrapMode: window.labelWrap
@@ -8852,9 +8927,10 @@ import AndroidStatusBar 1.0
                         }
                     }*/
 
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             id: labelPelotonHeartRateMetric
                             text: qsTr("Override HR Metric:")
                             wrapMode: window.labelWrap
@@ -8938,9 +9014,10 @@ import AndroidStatusBar 1.0
                         color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
                     }
 
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             text: qsTr("Date Format:")
                             wrapMode: window.labelWrap
                             Layout.fillWidth: true
@@ -9118,9 +9195,10 @@ import AndroidStatusBar 1.0
                 accordionContent: ColumnLayout {
                     spacing: 0
 
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             text: qsTr("Username:")
                             wrapMode: window.labelWrap
                             Layout.fillWidth: true
@@ -9128,7 +9206,7 @@ import AndroidStatusBar 1.0
                         SettingsTextField {
                             id: zwiftUsernameTextField
                             savedText: settings.zwift_username
-                            horizontalAlignment: Text.AlignRight
+                            horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: { settings.zwift_username = text; window.settings_restart_to_apply = true; }
@@ -9158,9 +9236,10 @@ import AndroidStatusBar 1.0
                         color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
                     }
 
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             id: labelZwiftPassword
                             text: qsTr("Password:") + ((rootItem.zwiftLogin===-1 || Qt.platform.os === "android")?"":(rootItem.zwiftLogin===1?"\u2705":"\u274c"))
                             wrapMode: window.labelWrap
@@ -9178,7 +9257,7 @@ import AndroidStatusBar 1.0
                         SettingsTextField {
                             id: zwiftPasswordTextField
                             savedText: settings.zwift_password
-                            horizontalAlignment: Text.AlignRight
+                            horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhHiddenText
@@ -9602,12 +9681,12 @@ import AndroidStatusBar 1.0
                     }
 
                     Label {
-                        // Modern look: a subheader of the section, as "Gear Controls" - the group title size, Medium,
+                        // Modern look: a subheader of the section, as "Gear Controls" - Title Small 14, Medium,
                         // in the accent. The size with the weight: in Qt 5 a write of the weight alone keeps the
                         // size the label inherits at that moment
                         visible: window.ui.modern
                         text: garminConnectLabel.text
-                        font.pixelSize: window.ui.fontLabel
+                        font.pixelSize: window.ui.fontLabelLarge
                         font.weight: Font.Medium
                         color: window.ui.accent
                         Layout.fillWidth: true
@@ -9700,9 +9779,10 @@ import AndroidStatusBar 1.0
                         color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
                     }
 
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             text: qsTr("Garmin Email:")
                             wrapMode: window.labelWrap
                             Layout.fillWidth: true
@@ -9710,7 +9790,7 @@ import AndroidStatusBar 1.0
                         SettingsTextField {
                             id: garminEmailTextField
                             savedText: settings.garmin_email
-                            horizontalAlignment: Text.AlignRight
+                            horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             validator: EmailValidator {}
@@ -9730,9 +9810,10 @@ import AndroidStatusBar 1.0
                         }
                     }
 
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             text: qsTr("Garmin Password:")
                             wrapMode: window.labelWrap
                             Layout.fillWidth: true
@@ -9741,7 +9822,7 @@ import AndroidStatusBar 1.0
                             id: garminPasswordTextField
                             savedText: settings.garmin_password
                             echoMode: TextInput.Password
-                            horizontalAlignment: Text.AlignRight
+                            horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: { rootItem.garmin_connect_logout(); settings.garmin_password = text; }
@@ -9759,9 +9840,10 @@ import AndroidStatusBar 1.0
                         }
                     }
 
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             text: qsTr("Garmin Server:")
                             wrapMode: window.labelWrap
                             Layout.fillWidth: true
@@ -12665,9 +12747,10 @@ import AndroidStatusBar 1.0
                                     window.settings_restart_to_apply = true;
                                 }
                             }
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     id: labelproformtreadmillip
                                     text: qsTr("Proform IP:")
                                     wrapMode: window.labelWrap
@@ -12677,7 +12760,7 @@ import AndroidStatusBar 1.0
                                     id: proformtreadmillIPTextField
                                     format: "host"
                                     savedText: settings.proformtreadmillip
-                                    horizontalAlignment: Text.AlignRight
+                                    horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
@@ -12692,9 +12775,10 @@ import AndroidStatusBar 1.0
                                     onClicked: { settings.proformtreadmillip = proformtreadmillIPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     id: labelnordictrack2950IP
                                     text: qsTr("Nordictrack 2950 IP:")
                                     wrapMode: window.labelWrap
@@ -12704,7 +12788,7 @@ import AndroidStatusBar 1.0
                                     id: nordictrack2950IPTextField
                                     format: "host"
                                     savedText: settings.nordictrack_2950_ip
-                                    horizontalAlignment: Text.AlignRight
+                                    horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
@@ -12941,9 +13025,9 @@ import AndroidStatusBar 1.0
                         accordionContent: ColumnLayout {
                             spacing: 0
 
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
-                                Label { text: qsTr("Life Fitness username/email:"); wrapMode: window.labelWrap; Layout.fillWidth: true }
+                                Label { Layout.columnSpan: parent.stackedRow ? parent.columns : 1; text: qsTr("Life Fitness username/email:"); wrapMode: window.labelWrap; Layout.fillWidth: true }
                                 SettingsTextField {
                                     id: lifeFitnessUsernameTextField
                                     savedText: settings.life_fitness_username
@@ -12956,9 +13040,9 @@ import AndroidStatusBar 1.0
                                     onClicked: { settings.life_fitness_username = lifeFitnessUsernameTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
-                                Label { text: qsTr("Life Fitness password:"); wrapMode: window.labelWrap; Layout.fillWidth: true }
+                                Label { Layout.columnSpan: parent.stackedRow ? parent.columns : 1; text: qsTr("Life Fitness password:"); wrapMode: window.labelWrap; Layout.fillWidth: true }
                                 SettingsTextField {
                                     id: lifeFitnessPasswordTextField
                                     savedText: settings.life_fitness_password
@@ -13664,9 +13748,10 @@ import AndroidStatusBar 1.0
                                 onClicked: settings.horizon_treadmill_suspend_stats_pause = checked
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     id: labelhorizonTreadmillProfile1
                                     text: qsTr("User 1:")
                                     wrapMode: window.labelWrap
@@ -13675,7 +13760,7 @@ import AndroidStatusBar 1.0
                                 SettingsTextField {
                                     id: horizonTreadmillProfile1TextField
                                     savedText: settings.horizon_treadmill_profile_user1
-                                    horizontalAlignment: Text.AlignRight
+                                    horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: { settings.horizon_treadmill_profile_user1 = text; window.settings_restart_to_apply = true; }
@@ -13689,9 +13774,10 @@ import AndroidStatusBar 1.0
                                     onClicked: { settings.horizon_treadmill_profile_user1 = horizonTreadmillProfile1TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     id: labelhorizonTreadmillProfile2
                                     text: qsTr("User 2:")
                                     wrapMode: window.labelWrap
@@ -13700,7 +13786,7 @@ import AndroidStatusBar 1.0
                                 SettingsTextField {
                                     id: horizonTreadmillProfile2TextField
                                     savedText: settings.horizon_treadmill_profile_user2
-                                    horizontalAlignment: Text.AlignRight
+                                    horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: { settings.horizon_treadmill_profile_user2 = text; window.settings_restart_to_apply = true; }
@@ -13714,9 +13800,10 @@ import AndroidStatusBar 1.0
                                     onClicked: { settings.horizon_treadmill_profile_user2 = horizonTreadmillProfile2TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     id: labelhorizonTreadmillProfile3
                                     text: qsTr("User 3:")
                                     wrapMode: window.labelWrap
@@ -13725,7 +13812,7 @@ import AndroidStatusBar 1.0
                                 SettingsTextField {
                                     id: horizonTreadmillProfile3TextField
                                     savedText: settings.horizon_treadmill_profile_user3
-                                    horizontalAlignment: Text.AlignRight
+                                    horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: { settings.horizon_treadmill_profile_user3 = text; window.settings_restart_to_apply = true; }
@@ -13739,9 +13826,10 @@ import AndroidStatusBar 1.0
                                     onClicked: { settings.horizon_treadmill_profile_user3 = horizonTreadmillProfile3TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     id: labelhorizonTreadmillProfile4
                                     text: qsTr("User 4:")
                                     wrapMode: window.labelWrap
@@ -13750,7 +13838,7 @@ import AndroidStatusBar 1.0
                                 SettingsTextField {
                                     id: horizonTreadmillProfile4TextField
                                     savedText: settings.horizon_treadmill_profile_user4
-                                    horizontalAlignment: Text.AlignRight
+                                    horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: { settings.horizon_treadmill_profile_user4 = text; window.settings_restart_to_apply = true; }
@@ -13764,9 +13852,10 @@ import AndroidStatusBar 1.0
                                     onClicked: { settings.horizon_treadmill_profile_user4 = horizonTreadmillProfile4TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     id: labelhorizonTreadmillProfile5
                                     text: qsTr("User 5:")
                                     wrapMode: window.labelWrap
@@ -13775,7 +13864,7 @@ import AndroidStatusBar 1.0
                                 SettingsTextField {
                                     id: horizonTreadmillProfile5TextField
                                     savedText: settings.horizon_treadmill_profile_user5
-                                    horizontalAlignment: Text.AlignRight
+                                    horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: { settings.horizon_treadmill_profile_user5 = text; window.settings_restart_to_apply = true; }
@@ -14264,9 +14353,10 @@ import AndroidStatusBar 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Serial Port:")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -14274,7 +14364,7 @@ import AndroidStatusBar 1.0
                                 SettingsTextField {
                                     id: csaferowerSerialPortTextField
                                     savedText: settings.csafe_rower
-                                    horizontalAlignment: Text.AlignRight
+                                    horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
@@ -14320,7 +14410,9 @@ import AndroidStatusBar 1.0
                     }                   
 
                     UiButton {
+                        wrapsText: true
                         text: qsTr("Refresh Devices List")
+                        Layout.maximumWidth: window.ui.modern ? parent.width : Number.POSITIVE_INFINITY
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: refresh_bluetooth_devices_clicked();
                     }
@@ -14410,9 +14502,10 @@ import AndroidStatusBar 1.0
                                     window.settings_restart_to_apply = true;
                                 }
                             }
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("ProForm Rower IP:")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -14421,7 +14514,7 @@ import AndroidStatusBar 1.0
                                     id: proformRowerIPTextField
                                     format: "host"
                                     savedText: settings.proform_rower_ip
-                                    horizontalAlignment: Text.AlignRight
+                                    horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: { settings.proform_rower_ip = text; window.settings_restart_to_apply = true; }
@@ -14504,9 +14597,10 @@ import AndroidStatusBar 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Serial Port:")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -14514,7 +14608,7 @@ import AndroidStatusBar 1.0
                                 SettingsTextField {
                                     id: csafeellipticalSerialPortTextField
                                     savedText: settings.csafe_elliptical_port
-                                    horizontalAlignment: Text.AlignRight
+                                    horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
@@ -14560,7 +14654,9 @@ import AndroidStatusBar 1.0
                     }
 
                     UiButton {
+                        wrapsText: true
                         text: qsTr("Refresh Devices List")
+                        Layout.maximumWidth: window.ui.modern ? parent.width : Number.POSITIVE_INFINITY
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: refresh_bluetooth_devices_clicked();
                     }
@@ -14667,9 +14763,10 @@ import AndroidStatusBar 1.0
                                 Layout.fillWidth: true
                                 onClicked: { settings.nordictrack_elliptical_s700 = checked; window.settings_restart_to_apply = true; }
                             }
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Companion IP:")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -14678,7 +14775,7 @@ import AndroidStatusBar 1.0
                                     id: proformEllipticalCompanionIPTextField
                                     format: "host"
                                     savedText: settings.proform_elliptical_ip
-                                    horizontalAlignment: Text.AlignRight
+                                    horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
@@ -14813,7 +14910,9 @@ import AndroidStatusBar 1.0
 
                     UiButton {
                         id: refreshFilterDeviceButton
+                        wrapsText: true
                         text: qsTr("Refresh Devices List")
+                        Layout.maximumWidth: window.ui.modern ? parent.width : Number.POSITIVE_INFINITY
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: refresh_bluetooth_devices_clicked();
                     }
@@ -15185,9 +15284,10 @@ import AndroidStatusBar 1.0
                         }
                     }
 
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             id: labelStravaSuffix
                             text: qsTr("Suffix activity:")
                             wrapMode: window.labelWrap
@@ -15196,7 +15296,7 @@ import AndroidStatusBar 1.0
                         SettingsTextField {
                             id: stravaSuffixTextField
                             savedText: settings.strava_suffix
-                            horizontalAlignment: Text.AlignRight
+                            horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: settings.strava_suffix = text
@@ -15425,9 +15525,10 @@ import AndroidStatusBar 1.0
                         color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
                     }
 
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             id: labelPowerAvg
                             text: qsTr("Power Averaging Mode:")
                             wrapMode: window.labelWrap
@@ -16007,7 +16108,9 @@ import AndroidStatusBar 1.0
 
                             UiButton {
                                 id: refreshCadenceSensorNameButton
+                                wrapsText: true
                                 text: qsTr("Refresh Devices List")
+                                Layout.maximumWidth: window.ui.modern ? parent.width : Number.POSITIVE_INFINITY
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: refresh_bluetooth_devices_clicked();
                             }
@@ -16636,7 +16739,9 @@ import AndroidStatusBar 1.0
 
                             UiButton {
                                 id: refreshPowerSensorNameButton
+                                wrapsText: true
                                 text: qsTr("Refresh Devices List")
+                                Layout.maximumWidth: window.ui.modern ? parent.width : Number.POSITIVE_INFINITY
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: refresh_bluetooth_devices_clicked();
                             }
@@ -16704,7 +16809,9 @@ import AndroidStatusBar 1.0
 
                                     UiButton {
                                         id: refreshEliteRizerNameButton
+                                        wrapsText: true
                                         text: qsTr("Refresh Devices List")
+                                        Layout.maximumWidth: window.ui.modern ? parent.width : Number.POSITIVE_INFINITY
                                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                         onClicked: refresh_bluetooth_devices_clicked();
                                     }
@@ -16775,7 +16882,9 @@ import AndroidStatusBar 1.0
 
                                     UiButton {
                                         id: refreshEliteSterzoSmartNameButton
+                                        wrapsText: true
                                         text: qsTr("Refresh Devices List")
+                                        Layout.maximumWidth: window.ui.modern ? parent.width : Number.POSITIVE_INFINITY
                                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                         onClicked: refresh_bluetooth_devices_clicked();
                                     }
@@ -16824,7 +16933,9 @@ import AndroidStatusBar 1.0
 
                             UiButton {
                                 id: refreshFTMSAccessoryNameButton
+                                wrapsText: true
                                 text: qsTr("Refresh Devices List")
+                                Layout.maximumWidth: window.ui.modern ? parent.width : Number.POSITIVE_INFINITY
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: refresh_bluetooth_devices_clicked();
                             }                                                        
@@ -17750,9 +17861,9 @@ import AndroidStatusBar 1.0
 
                             Label {
                                 text: qsTr("Gear Controls")
-                                // Modern look: a subheader of the section - the group title size, Medium, in the accent
+                                // Modern look: a subheader of the section, Title Small 14 Medium in the accent
                                 font.weight: window.ui.modern ? Font.Medium : Font.Bold
-                                font.pixelSize: window.ui.modern ? window.ui.fontLabel : window.fontPx(Qt.application.font.pixelSize + 2)
+                                font.pixelSize: window.ui.modern ? window.ui.fontLabelLarge : window.fontPx(Qt.application.font.pixelSize + 2)
                                 color: window.ui.modern ? window.ui.accent : enabled ? Material.foreground : Material.hintTextColor // classic: as Label of the Material style
                                 Layout.fillWidth: true
                                 Layout.topMargin: 20
@@ -17773,8 +17884,9 @@ import AndroidStatusBar 1.0
                                 color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Left Shifter Up (LS1):")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -17786,8 +17898,9 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Left Shifter Down (LS2):")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -17799,8 +17912,9 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Right Shifter Up (RS1):")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -17812,8 +17926,9 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Right Shifter Down (RS2):")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -17825,8 +17940,9 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Left Paddle (ZL):")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -17838,8 +17954,9 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Right Paddle (ZR):")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -17851,8 +17968,9 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Power Up (LB):")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -17864,8 +17982,9 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            RowLayout {
+                            UiSettingsRow {
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Ride On (RB):")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -17942,9 +18061,10 @@ import AndroidStatusBar 1.0
                 //anchors.topMargin: 10
                 accordionContent: ColumnLayout {
                     spacing: 0
-                    RowLayout {
+                    UiSettingsRow {
                         spacing: 10
                         Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                             id: labelMapsType
                             text: qsTr("Maps Type:")
                             wrapMode: window.labelWrap
@@ -18511,7 +18631,8 @@ import AndroidStatusBar 1.0
 
                                     SwitchDelegate {
                                         // on iOS the title of a switch kept the size of the style while the text around it grew: with a size other than 100 % it takes the one of the window font
-                                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                        // (in the modern look the Body Large of the rows, as the rows of Tiles Options)
+                                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.rowScaledPx; restoreMode: Binding.RestoreBindingOrValue }
                                         text: qsTr("Virtual Tacx")
                                         spacing: 0
                                         bottomPadding: 0
@@ -18659,9 +18780,10 @@ import AndroidStatusBar 1.0
                         accordionContent: ColumnLayout {
                             spacing: 0
 
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("MQTT Host:")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -18669,7 +18791,7 @@ import AndroidStatusBar 1.0
                                 SettingsTextField {
                                     id: mqttHostTextField
                                     savedText: settings.mqtt_host
-                                    horizontalAlignment: Text.AlignRight
+                                    horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: settings.mqtt_host = text
@@ -18740,9 +18862,10 @@ import AndroidStatusBar 1.0
                             }
 
                             // Username field
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Username:")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -18750,7 +18873,7 @@ import AndroidStatusBar 1.0
                                 SettingsTextField {
                                     id: mqttUsernameTextField
                                     savedText: settings.mqtt_username
-                                    horizontalAlignment: Text.AlignRight
+                                    horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: settings.mqtt_username = text
@@ -18779,9 +18902,10 @@ import AndroidStatusBar 1.0
                             }
 
                             // Password field
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Password:")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -18789,7 +18913,7 @@ import AndroidStatusBar 1.0
                                 SettingsTextField {
                                     id: mqttPasswordTextField
                                     savedText: settings.mqtt_password
-                                    horizontalAlignment: Text.AlignRight
+                                    horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     echoMode: TextInput.Password
@@ -18819,9 +18943,10 @@ import AndroidStatusBar 1.0
                             }
 
                             // Device ID field
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("Device ID:")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -18829,7 +18954,7 @@ import AndroidStatusBar 1.0
                                 SettingsTextField {
                                     id: mqttDeviceIdTextField
                                     savedText: settings.mqtt_deviceid
-                                    horizontalAlignment: Text.AlignRight
+                                    horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: settings.mqtt_deviceid = text
@@ -18868,9 +18993,10 @@ import AndroidStatusBar 1.0
                         accordionContent: ColumnLayout {
                         spacing: 0
 
-                            RowLayout {
+                            UiSettingsRow {
                                 spacing: 10
                                 Label {
+                                    Layout.columnSpan: parent.stackedRow ? parent.columns : 1
                                     text: qsTr("OSC IP:")
                                     wrapMode: window.labelWrap
                                     Layout.fillWidth: true
@@ -18879,7 +19005,7 @@ import AndroidStatusBar 1.0
                                     id: oscIPTextField
                                     format: "ip"
                                     savedText: settings.osc_ip
-                                    horizontalAlignment: Text.AlignRight
+                                    horizontalAlignment: parent.stackedRow ? Text.AlignLeft : Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly

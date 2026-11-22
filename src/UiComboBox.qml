@@ -96,6 +96,8 @@ T.ComboBox {
     // window as well, so a button next to it in a row "list (fillWidth) + button" keeps its room:
     // the button has no minimum width of its own. -1 - the implicit width, as before
     Layout.preferredWidth: inTypeScalePage ? Math.min(implicitWidth, window.width / 2) : -1
+    // A stacked UiSettingsRow (the label above): the list across the free width
+    Layout.fillWidth: !!parent && parent.stackedRow === true
 
     // Width of the widest item for the list width (#5236), measured when the list opens;
     // DeviceComboBox calls it too: its items change while the list is open

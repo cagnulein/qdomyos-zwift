@@ -41,7 +41,8 @@ Item {
     // A row is one setting as well ("GR7 Cadence Multiplier" with its field and OK): cut into
     // groups, the OK button got the margins of a setting of its own and sat lower than the field
     readonly property bool single: content !== null && (content.checked !== undefined || content.text !== undefined
-                                                         || String(content).indexOf("QQuickRowLayout") === 0)
+                                                         || String(content).indexOf("QQuickRowLayout") === 0
+                                                         || content.stackedRow !== undefined)
     readonly property int insetTop: !window.ui.modern ? 0 : blockPad + (single ? framePadV : 0)
     readonly property int insetBottom: insetTop
 
@@ -197,17 +198,51 @@ Item {
             itemFrames = list
     }
 
+    // A label of a setting in two lines or more: the lines closer, x1.15 of the font (~x1.28 by
+    // default). Most rows of settings.qml are a RowLayout of a Label and a field: the labels are
+    // found here, in the content of the section. Only Body Large (the row labels; the hints are
+    // smaller); one line stays as it is (Qt 5.15.0 cuts the only line too, qquicktext.cpp:1264); the
+    // line count follows the width only. UiSettingsRow (stackedRow) and the switches (titleLeading)
+    // set their own
+    function applyLeading(item) {
+        if (!item)
+            return
+        if (item.lineCount !== undefined && item.lineHeight !== undefined && item.wrapMode !== undefined) {
+            // regular weight: the headers of the sections inside (Medium) keep theirs, as the top ones
+            if (item.readOnly === undefined && item.font && item.font.pixelSize === window.ui.fontBody
+                    && !item.font.bold && item.font.weight <= Font.Normal) {
+                var label = item
+                label.lineHeight = Qt.binding(function () {
+                    return window.ui.modern && label.wrapMode !== Text.NoWrap && label.lineCount > 1 ? 0.9 : 1
+                })
+            }
+            return
+        }
+        if (item.stackedRow !== undefined || item.titleLeading !== undefined)
+            return
+        for (var i = 0; i < item.children.length; i++)
+            applyLeading(item.children[i])
+    }
+    function applyLeadingAll() {
+        if (window.ui.modern && content)
+            applyLeading(content)
+    }
+
     // A new content (a Loader loads it again on every opening): its margins as it comes
     // On the next turn: the content is often set while the section is still being laid out, and
     // margins changed in the middle of it made a binding loop on the height of the section
     onContentChanged: {
         baseMargins = []
         Qt.callLater(frames.regroup)
+        Qt.callLater(frames.applyLeadingAll)
     }
     // Made by a Loader once the look turns modern, the content is often there already: the frames
     // are laid out when made as well, not only on a change of it (a second call on the same turn
     // is merged into one)
-    Component.onCompleted: Qt.callLater(frames.regroup)
+    Component.onCompleted: {
+        Qt.callLater(frames.regroup)
+        Qt.callLater(frames.applyLeadingAll)
+    }
     // A section opened again (StaticAccordionElement keeps its content while closed): the
     // settings are visible again, the groups are made anew
     onVisibleChanged: if (visible) Qt.callLater(frames.regroup)
@@ -218,7 +253,10 @@ Item {
     }
     Connections {
         target: window.ui
-        function onModernChanged() { Qt.callLater(frames.regroup) }
+        function onModernChanged() {
+            Qt.callLater(frames.regroup)
+            Qt.callLater(frames.applyLeadingAll)
+        }
     }
 
     // The block of an open section: its header is the top of it
