@@ -26,6 +26,9 @@ Item {
     readonly property int framePadV: 8
     readonly property int frameGap: 6
     readonly property int blockPad: 6
+    // A subheader inside a section ("Gear Controls", "Garmin Connect"): the room above it, as M3
+    // keeps a new group of a list apart
+    readonly property int subheaderTop: 20
     // The margins of the holder in the column of the section: the content inside the block and
     // inside the frames of its settings
     readonly property int insetLeft: !window.ui.modern ? 0
@@ -72,6 +75,10 @@ Item {
     // A UiButton on its own in the column
     function isButton(c) {
         return c.applyOnSelect !== undefined && c.clicked !== undefined
+    }
+    // Something to set or to press with a meaning of its own: not a text and not a button
+    function isSetting(c) {
+        return !isDescription(c) && !isNote(c) && !isTitle(c) && !isButton(c)
     }
     // A drop-down list, or a row with one in it
     function hasPicker(c) {
@@ -140,8 +147,9 @@ Item {
                 cur.pickerNote = isNote(c) && hasPicker(cur.last.item)
                 cur.last = want
                 cur.titleOnly = false
+                cur.plain = cur.plain && !isSetting(c)
             } else {
-                cur = { first: want, last: want, titleOnly: isTitle(c) }
+                cur = { first: want, last: want, titleOnly: isTitle(c), plain: !isSetting(c) }
                 want.group = cur
                 want.groupStart = true
             }
@@ -154,6 +162,18 @@ Item {
                 continue
             if (e.section) {
                 e.top += seen ? frameGap : 0
+            } else if (e.group.plain) {
+                // No setting in the group (a description or a note of the section, a subheader, a
+                // button of the list above): no frame - in a frame of its own it looked like an empty
+                // setting. Text on the block, in the column of the text of the frames, as M3 puts the
+                // supporting text of a list: the gap of the frames above it, the gaps of two below it - the ink
+                // ~8 dp under the header or the frame above, the block of the text 12 dp over the next
+                // frame (the ink 12-15, as the style guide puts a list under a hint). A subheader - a
+                // title, not a note in its own colour - gets its room above it
+                if (isTitle(e.group.first.item) && !isNote(e.group.first.item))
+                    e.group.first.top = Math.max(e.group.first.top, subheaderTop)
+                e.group.first.top += seen ? frameGap : 0
+                e.group.last.bottom += frameGap
             } else {
                 e.group.first.top += framePadV + (seen ? frameGap : 0)
                 e.group.last.bottom += framePadV

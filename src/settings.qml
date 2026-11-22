@@ -7891,7 +7891,7 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Move the charts up or down to choose their order in Workout History. Changes are saved automatically.")
                                 wrapMode: Text.WordWrap
                                 Layout.fillWidth: true
-                                color: Material.color(Material.Lime)
+                                color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
                             }
 
                             Repeater {
@@ -9592,7 +9592,25 @@ import AndroidStatusBar 1.0
 
                     Label {
                         id: garminConnectLabel
+                        // Classic only: the modern look shows the subheader below. A font written here for the
+                        // classic look would not be the one the label inherits
+                        visible: !window.ui.modern
                         text: "Garmin Connect"
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    Label {
+                        // Modern look: a subheader of the section, as "Gear Controls" - the group title size, Medium,
+                        // in the accent. The size with the weight: in Qt 5 a write of the weight alone keeps the
+                        // size the label inherits at that moment
+                        visible: window.ui.modern
+                        text: garminConnectLabel.text
+                        font.pixelSize: window.ui.fontLabel
+                        font.weight: Font.Medium
+                        color: window.ui.accent
+                        Layout.fillWidth: true
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17732,11 +17750,13 @@ import AndroidStatusBar 1.0
 
                             Label {
                                 text: qsTr("Gear Controls")
-                                font.bold: true
-                                font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 2)
+                                // Modern look: a subheader of the section - the group title size, Medium, in the accent
+                                font.weight: window.ui.modern ? Font.Medium : Font.Bold
+                                font.pixelSize: window.ui.modern ? window.ui.fontLabel : window.fontPx(Qt.application.font.pixelSize + 2)
+                                color: window.ui.modern ? window.ui.accent : enabled ? Material.foreground : Material.hintTextColor // classic: as Label of the Material style
                                 Layout.fillWidth: true
                                 Layout.topMargin: 20
-                                wrapMode: window.labelWrap
+                                wrapMode: window.ui.modern ? Text.WordWrap : window.labelWrap
                             }
 
                             Label {
