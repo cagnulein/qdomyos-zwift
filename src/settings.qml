@@ -3017,9 +3017,17 @@ import AndroidStatusBar 1.0
                         width: 44
                         Accessible.role: Accessible.Button
                         Accessible.name: qsTr("Clear")
+                        // As the classic "Clear": back no longer brings the cleared results up, a result
+                        // tapped before the index came no longer opens (onTextEdited is not called for
+                        // a text set here)
+                        function clear() {
+                            settingsPane.searchReturn = null
+                            settingsPane.pendingJump = null
+                            settingsSearchTextField.text = ""
+                        }
                         // Qt 5.15: a double tap of the screen reader does not reach onClicked
-                        Accessible.onPressAction: settingsSearchTextField.text = ""
-                        onClicked: settingsSearchTextField.text = ""
+                        Accessible.onPressAction: clear()
+                        onClicked: clear()
                         UiIcon {
                             anchors.centerIn: parent
                             width: 20
