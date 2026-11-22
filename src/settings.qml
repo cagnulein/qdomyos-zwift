@@ -6390,7 +6390,7 @@ import AndroidStatusBar 1.0
                             checked: settings.sportstech_esx500
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: { settings.sportstech_esx500 = checked; window.settings_restart_to_apply = true; }
+                            onClicked: { settings.sportstech_esx500 = checked; }
                         }
 										   }
                     }
@@ -9661,14 +9661,14 @@ import AndroidStatusBar 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: if (valid) { settings.zwift_api_poll = value; window.settings_restart_to_apply = true; }
+                            onAccepted: if (valid) { settings.zwift_api_poll = value; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         UiButton {
                             text: qsTr("OK")
                             enabled: zwiftPollTimeTextField.valid && zwiftPollTimeTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.zwift_api_poll = zwiftPollTimeTextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.zwift_api_poll = zwiftPollTimeTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9698,7 +9698,7 @@ import AndroidStatusBar 1.0
                         checked: settings.zwift_api_autoinclination
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.zwift_api_autoinclination = checked; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.zwift_api_autoinclination = checked; }
                     }
 
                     Label {
@@ -13246,7 +13246,7 @@ import AndroidStatusBar 1.0
                                 checked: settings.kingsmith_r2_enable_hw_buttons
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: { settings.kingsmith_r2_enable_hw_buttons = checked; window.settings_restart_to_apply = true; }
+                                onClicked: { settings.kingsmith_r2_enable_hw_buttons = checked; }
                             }
 
                             Label {
@@ -13358,7 +13358,7 @@ import AndroidStatusBar 1.0
                                 checked: settings.fitfiu_mc_v460
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: { settings.fitfiu_mc_v460 = checked; window.settings_restart_to_apply = true; }
+                                onClicked: { settings.fitfiu_mc_v460 = checked; }
                             }
                             IndicatorOnlySwitch {
                                 text: "Zero ZT-2500"
@@ -13371,7 +13371,7 @@ import AndroidStatusBar 1.0
                                 checked: settings.zero_zt2500_treadmill
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: { settings.zero_zt2500_treadmill = checked; window.settings_restart_to_apply = true; }
+                                onClicked: { settings.zero_zt2500_treadmill = checked; }
                             }
                             IndicatorOnlySwitch {
                                 text: "UMAY S100"
@@ -13384,7 +13384,7 @@ import AndroidStatusBar 1.0
                                 checked: settings.umay_s100_treadmill
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: { settings.umay_s100_treadmill = checked; window.settings_restart_to_apply = true; }
+                                onClicked: { settings.umay_s100_treadmill = checked; }
                             }
                         }
                     }
@@ -13512,14 +13512,14 @@ import AndroidStatusBar 1.0
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: { settings.domyos_treadmill_button_5kmh = value; window.settings_restart_to_apply = true; }
+                                    onAccepted: { settings.domyos_treadmill_button_5kmh = value; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 UiButton {
                                     text: qsTr("OK")
                                     enabled: domyosTreadmillButton5KmhTimeTextField.valid && domyosTreadmillButton5KmhTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.domyos_treadmill_button_5kmh = domyosTreadmillButton5KmhTimeTextField.value; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
+                                    onClicked: { settings.domyos_treadmill_button_5kmh = domyosTreadmillButton5KmhTimeTextField.value; toast.show(qsTr("Setting saved!"));}
                                 }
                             }
 
@@ -13537,14 +13537,14 @@ import AndroidStatusBar 1.0
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: { settings.domyos_treadmill_button_10kmh = value; window.settings_restart_to_apply = true; }
+                                    onAccepted: { settings.domyos_treadmill_button_10kmh = value; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 UiButton {
                                     text: qsTr("OK")
                                     enabled: domyosTreadmillButton10KmhTimeTextField.valid && domyosTreadmillButton10KmhTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.domyos_treadmill_button_10kmh = domyosTreadmillButton10KmhTimeTextField.value; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
+                                    onClicked: { settings.domyos_treadmill_button_10kmh = domyosTreadmillButton10KmhTimeTextField.value; toast.show(qsTr("Setting saved!"));}
                                 }
                             }
 
@@ -13562,14 +13562,14 @@ import AndroidStatusBar 1.0
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: { settings.domyos_treadmill_button_16kmh = value; window.settings_restart_to_apply = true; }
+                                    onAccepted: { settings.domyos_treadmill_button_16kmh = value; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 UiButton {
                                     text: qsTr("OK")
                                     enabled: domyosTreadmillButton16KmhTimeTextField.valid && domyosTreadmillButton16KmhTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.domyos_treadmill_button_16kmh = domyosTreadmillButton16KmhTimeTextField.value; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
+                                    onClicked: { settings.domyos_treadmill_button_16kmh = domyosTreadmillButton16KmhTimeTextField.value; toast.show(qsTr("Setting saved!"));}
                                 }
                             }
 
@@ -13587,14 +13587,14 @@ import AndroidStatusBar 1.0
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: { settings.domyos_treadmill_button_22kmh = value; window.settings_restart_to_apply = true; }
+                                    onAccepted: { settings.domyos_treadmill_button_22kmh = value; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 UiButton {
                                     text: qsTr("OK")
                                     enabled: domyosTreadmillButton22KmhTimeTextField.valid && domyosTreadmillButton22KmhTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.domyos_treadmill_button_22kmh = domyosTreadmillButton22KmhTimeTextField.value; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
+                                    onClicked: { settings.domyos_treadmill_button_22kmh = domyosTreadmillButton22KmhTimeTextField.value; toast.show(qsTr("Setting saved!"));}
                                 }
                             }
 
@@ -14253,7 +14253,7 @@ import AndroidStatusBar 1.0
                         checked: settings.toorx_65s_evo
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.toorx_65s_evo = checked; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.toorx_65s_evo = checked; }
                     }
 
                     IndicatorOnlySwitch {
@@ -14282,7 +14282,7 @@ import AndroidStatusBar 1.0
                         checked: settings.bh_spada_2_watt
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.bh_spada_2_watt = checked; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.bh_spada_2_watt = checked; }
                     }                    
 
                     IndicatorOnlySwitch {
@@ -15073,7 +15073,7 @@ import AndroidStatusBar 1.0
                                 checked: settings.sole_elliptical_inclination
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: { settings.sole_elliptical_inclination = checked; window.settings_restart_to_apply = true; }
+                                onClicked: { settings.sole_elliptical_inclination = checked; }
                             }
                             IndicatorOnlySwitch {
                                 id: soleEllipticalE55Delegate
@@ -15585,7 +15585,7 @@ import AndroidStatusBar 1.0
                         checked: settings.strava_auth_external_webbrowser
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.strava_auth_external_webbrowser = checked; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.strava_auth_external_webbrowser = checked; }
                     }
 
                     Label {
@@ -16430,7 +16430,7 @@ import AndroidStatusBar 1.0
                                 checked: settings.rogue_echo_bike
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: { settings.rogue_echo_bike = checked; window.settings_restart_to_apply = true; }
+                                onClicked: { settings.rogue_echo_bike = checked; }
                             }
 
                             Label {
@@ -16458,7 +16458,7 @@ import AndroidStatusBar 1.0
                                 checked: settings.cscbike_custom_resistance_power_table
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: { settings.cscbike_custom_resistance_power_table = checked; window.settings_restart_to_apply = true; }
+                                onClicked: { settings.cscbike_custom_resistance_power_table = checked; }
                             }
 
                             Label {
@@ -18480,7 +18480,7 @@ import AndroidStatusBar 1.0
                         checked: settings.bluetooth_30m_hangs
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.bluetooth_30m_hangs = checked; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.bluetooth_30m_hangs = checked; }
                     }
 
                     Label {
@@ -19591,7 +19591,7 @@ import AndroidStatusBar 1.0
                         checked: settings.applewatch_as_treadmill_speed
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.applewatch_as_treadmill_speed = checked; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.applewatch_as_treadmill_speed = checked; }
                     }
 
                     Label {
