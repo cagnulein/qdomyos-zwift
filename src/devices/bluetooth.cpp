@@ -1210,6 +1210,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
                 filter = (b.name().compare(effectiveFilterDevice, Qt::CaseInsensitive) == 0);
             }
+            if (!gymModeSessionDevice.isEmpty() && filter)
+                debug(QStringLiteral("gym mode: \"%1\" matches the selected device").arg(b.name()));
             const QString deviceName = b.name();
             const QString upperDeviceName = deviceName.toUpper();
             // Some Hammer Speed Race S bikes advertise a four-digit prefix, e.g. "4864 RACER S".
@@ -4455,6 +4457,7 @@ void bluetooth::heartRate(uint8_t heart) { Q_UNUSED(heart) }
 void bluetooth::selectGymModeDevice(const QString &deviceName) {
     QString normalizedDeviceName = deviceName.trimmed();
     normalizedDeviceName.remove(QRegularExpression(QStringLiteral(" \\(\\d+%\\)$")));
+    debug(QStringLiteral("gym mode: device selected \"%1\", searching %2").arg(normalizedDeviceName).arg(isSearching()));
 
     if (normalizedDeviceName.isEmpty() ||
         !normalizedDeviceName.compare(QStringLiteral("Disabled"), Qt::CaseInsensitive) ||

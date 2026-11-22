@@ -209,6 +209,8 @@ class bluetooth : public QObject, public SignalHandler {
     // Android: Bluetooth is off; the search starts by itself as soon as it is switched on (a search
     // started by a tap before the poll noticed it is on means it is on already)
     bool bluetoothOff() const { return bluetoothOffPoll.isActive() && !isSearching(); }
+    // Gym mode: the trainer picked in the window, empty until then
+    QString gymModeDevice() const { return gymModeSessionDevice; }
     /**
      * @brief searchNow Starts a search right away and resets the pause between the automatic ones.
      * Android 7.0 and later ignore the 6th scan start in 30 s: then the search is scheduled for when it is allowed.

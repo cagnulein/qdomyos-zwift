@@ -887,9 +887,37 @@ ApplicationWindow {
         focus: true
         closePolicy: Popup.NoAutoClose
         onOpened: {
-            // opened again after a disconnection: nothing picked yet in this window
+            pickedDevice = ""
+            // opened again after a disconnection: no row of the last pick marked in the list
             gymModeDeviceComboBox.value = ""
-            refresh_bluetooth_devices_clicked()
+            secondsLeft = refreshSeconds
+            pollState()
+            if (!bluetoothOff)
+                refresh_bluetooth_devices_clicked()
+        }
+
+        // The search restarts every refreshSeconds; the hint counts down to it. With Bluetooth
+        // off the search does nothing, so the window says so instead of the countdown
+        readonly property int refreshSeconds: 10
+        property int secondsLeft: refreshSeconds
+        property bool bluetoothOff: false
+        // The trainer marked in the list: Next connects to it. The list is sorted by signal and
+        // rebuilt on every search result, so a tap only marks and the name is kept apart
+        property string pickedDevice: ""
+        // Only the found trainers: "Disabled" and "Wifi" of the settings list mean nothing here
+        readonly property var devices: {
+            var r = []
+            // rootItem appears after the window is built: until then, an empty list
+            if (typeof rootItem === "undefined" || !rootItem || !rootItem.bluetoothDevices)
+                return r
+            var all = rootItem.bluetoothDevices
+            for (var i = 0; i < all.length; i++)
+                if (all[i] !== "Disabled" && all[i] !== "Wifi")
+                    r.push(all[i])
+            return r
+        }
+        function pollState() {
+            bluetoothOff = rootItem.bluetoothSearchOff()
         }
 
         Column {
@@ -907,61 +935,127 @@ ApplicationWindow {
                 wrapMode: Text.WordWrap
             }
 
-            Label {
-                width: parent.width
-                text: qsTr("QZ found the nearby Bluetooth trainers. Choose the machine you want to use for this session.")
-                wrapMode: Text.WordWrap
-                horizontalAlignment: Text.AlignHCenter
+            Row {
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: 8
+
+                // Bluetooth is off: a warning, not an error (the user switched it off), the sign of
+                // the home page, drawn because the app font has no warning sign
+                Rectangle {
+                    id: gymModeOffMark
+                    visible: popupGymMode.bluetoothOff
+                    anchors.verticalCenter: parent.verticalCenter
+                    // follows the size of the sign, so the "!" stays inside with a bigger text
+                    width: Math.round(gymModeOffSign.font.pixelSize * 1.4)
+                    height: width
+                    radius: width / 2
+                    color: window.ui.warning
+                    Accessible.ignored: true
+                    Label {
+                        id: gymModeOffSign
+                        anchors.centerIn: parent
+                        text: "!"
+                        color: window.ui.warningInk
+                        font.pixelSize: window.fontPx(16)
+                        font.bold: true
+                        // Qt 5.15 lifts the children of an ignored item into the tree: the sign has
+                        // to be ignored itself, the status text next to it says the words
+                        Accessible.ignored: true
+                    }
+                }
+
+                Label {
+                    width: Math.min(implicitWidth, gymModeColumn.width - (popupGymMode.bluetoothOff ? gymModeOffMark.width + 8 : 0))
+                    // Bluetooth is off: the one thing to do here, so larger and bold
+                    font.pixelSize: window.fontPx(popupGymMode.bluetoothOff ? Qt.application.font.pixelSize + 6 : Qt.application.font.pixelSize)
+                    font.bold: popupGymMode.bluetoothOff
+                    text: popupGymMode.bluetoothOff ? qsTranslate("homeform", "Bluetooth is off")
+                          : popupGymMode.devices.length === 0 ? qsTranslate("homeform", "Searching for the device...")
+                          : qsTr("QZ found the nearby Bluetooth trainers. Choose the machine you want to use for this session.")
+                    wrapMode: Text.WordWrap
+                    horizontalAlignment: Text.AlignHCenter
+                }
             }
 
-            // A pick connects at once, and the search goes on every 10 seconds: the rows of the open
-            // list must stay where they are (DeviceComboBox). The shown text follows the picked
-            // value, not currentIndex: the list is filled again on every opening
+            // The search goes on every 10 seconds: the rows of the open list must stay where they
+            // are (DeviceComboBox, devices found while it is open go to the end). The shown text
+            // follows the marked trainer, not currentIndex: the list is filled again on every opening
             DeviceComboBox {
                 id: gymModeDeviceComboBox
+                // Nothing to choose yet (Bluetooth off, nothing found): no empty box
+                visible: popupGymMode.devices.length > 0
                 width: parent.width
-                labels: ({ "Disabled": qsTr("Disabled") })
-                displayText: value !== "" ? labelFor(value) : qsTr("Select a device")
+                // "Disabled" and "Wifi" of the settings list mean nothing here
+                hidden: ["Disabled", "Wifi"]
+                displayText: popupGymMode.pickedDevice !== "" ? popupGymMode.pickedDevice : qsTr("Select a device")
                 font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 8)
 
                 onActivated: {
-                    // Enter with no row highlighted: nothing picked yet
+                    // Enter with no row highlighted: nothing marked
                     if (index < 0)
                         return
-                    var selectedDevice = stripBluetoothDeviceName(currentValue)
-                    if (selectedDevice === "Disabled" || selectedDevice === "Wifi" || selectedDevice.length === 0) {
+                    var picked = currentValue
+                    var selectedDevice = stripBluetoothDeviceName(picked)
+                    console.log("gym mode: picked '" + picked + "' -> '" + selectedDevice + "'")
+                    if (selectedDevice.length === 0)
                         return
-                    }
-                    popupGymMode.close()
-                    rootItem.selectGymModeDevice(selectedDevice)
+                    popupGymMode.pickedDevice = selectedDevice
                 }
             }
 
             Label {
                 width: parent.width
-                text: qsTr("The list refreshes automatically every 10 seconds.")
+                visible: !popupGymMode.bluetoothOff
+                text: qsTranslate("homeform", "Next search in %1 s").arg(popupGymMode.secondsLeft)
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignHCenter
                 color: Material.color(Material.Grey)
             }
 
-            Button {
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: qsTr("Skip")
-                onClicked: {
-                    gymModePopupDismissed = true
-                    popupGymMode.close()
+            // Skip on the left, Next on the right: Next stays grey until a trainer is marked
+            Item {
+                width: parent.width
+                height: gymModeNextButton.implicitHeight
+
+                Button {
+                    anchors.left: parent.left
+                    text: qsTr("Skip")
+                    onClicked: {
+                        gymModePopupDismissed = true
+                        popupGymMode.close()
+                    }
+                }
+
+                Button {
+                    id: gymModeNextButton
+                    anchors.right: parent.right
+                    highlighted: true
+                    enabled: popupGymMode.pickedDevice !== ""
+                    text: qsTranslate("Wizard", "Next")
+                    onClicked: {
+                        var device = popupGymMode.pickedDevice
+                        popupGymMode.close()
+                        rootItem.selectGymModeDevice(device)
+                    }
                 }
             }
         }
     }
 
+    // One tick a second: the countdown of the window and the state of Bluetooth
     Timer {
         id: gymModeRefreshTimer
-        interval: 10000
+        interval: 1000
         repeat: true
         running: popupGymMode.visible
-        onTriggered: refresh_bluetooth_devices_clicked()
+        onTriggered: {
+            popupGymMode.pollState()
+            if (--popupGymMode.secondsLeft > 0)
+                return
+            popupGymMode.secondsLeft = popupGymMode.refreshSeconds
+            if (!popupGymMode.bluetoothOff)
+                refresh_bluetooth_devices_clicked()
+        }
     }
 
     UiInfoPopup {

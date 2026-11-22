@@ -2042,6 +2042,9 @@ QString homeform::bluetoothSearchStatus() {
     // start value "Connecting...") until it was switched on
     if (bluetoothManager->bluetoothOff())
         return tr("Bluetooth is off");
+    // Gym mode: the trainer is picked, QZ looks for it and connects - say which one
+    if (!bluetoothManager->gymModeDevice().isEmpty())
+        return tr("Connecting to %1...").arg(bluetoothManager->gymModeDevice());
     // while scanning, the last device found shows that QZ is finding something (useful for troubleshooting)
     const QString scanning = lastFoundDevice.isEmpty() ? tr("Searching for the device...")
                                                        : tr("%1 found").arg(lastFoundDevice);
