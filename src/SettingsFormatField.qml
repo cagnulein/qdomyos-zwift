@@ -25,8 +25,8 @@ UiTextField {
     id: field
 
     invalid: !valid
-    // A time field from the start: the text comes from savedText, and UiTextField would guess it
-    // from the text in its own Component.onCompleted, which may run before the text is set
+    // A time field by its format, not by its text: UiTextField guesses a time from the text, which
+    // an address like "1:23" would pass and a time field still being typed would not
     timeShaped: format === "time"
 
     property string format: "time"

@@ -17,6 +17,10 @@ UiTextField {
     readonly property bool dirty: savedText !== undefined
                                   && (text !== String(savedText) || preeditText !== "")
 
+    // A free text is never a time: UiTextField guesses one from the text ("12:34"), and the modern look would
+    // make a label or a password like that read-only, on wheels
+    onTimeShapedChanged: if (timeShaped) timeShaped = false
+
     onSavedTextChanged: if (savedText !== undefined) text = savedText
     Component.onCompleted: if (savedText !== undefined) text = savedText
 }
