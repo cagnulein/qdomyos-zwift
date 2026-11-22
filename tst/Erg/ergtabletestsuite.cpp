@@ -866,7 +866,7 @@ void ErgTableTestSuite::test_stableFtmsPowerMatchResetAfterDisconnect() {
     // This is the explicit reset invoked on QLowEnergyController::UnconnectedState.
     match.reset();
     EXPECT_EQ(168, match.adjustedPower(168, 0, 0, 0, 26000));
-    for (int second = 27; second <= 33; ++second)
+    for (int second = 27; second <= 34; ++second)
         EXPECT_EQ(168, match.adjustedPower(168, 166, 122, 90, second * 1000LL));
-    EXPECT_GT(match.adjustedPower(168, 166, 122, 90, 34000), 168);
+    EXPECT_GT(match.adjustedPower(168, 166, 122, 90, 35000), 168);
 }
