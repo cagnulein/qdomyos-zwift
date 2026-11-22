@@ -93,8 +93,11 @@ UiTextField {
         id: reason
         visible: !field.valid
         text: field.errorText
-        x: field.leftPadding
-        width: field.width - field.leftPadding - field.rightPadding
+        // Modern look: the number field is the narrow one of UiTextField (88), where "Allowed range: 1 to 120" took
+        // three lines; the reason keeps the 120 of the classic field and grows to the left from the right edge
+        width: field.modern ? Math.max(field.width - field.leftPadding - field.rightPadding, 120)
+                            : field.width - field.leftPadding - field.rightPadding
+        x: field.modern ? field.width - field.rightPadding - width : field.leftPadding
         y: field.height - implicitHeight - 2
         wrapMode: Text.WordWrap
         horizontalAlignment: field.horizontalAlignment
