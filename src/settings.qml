@@ -8002,7 +8002,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             id: labelFloatingTransparency
-                            text: qsTr("Floating Window % Transparency:")
+                            text: qsTr("Floating Window Opacity (%):")
                             wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
@@ -8027,7 +8027,7 @@ import AndroidStatusBar 1.0
                     }
 
                     Label {
-                        text: qsTr("Android Only: transparency percentage of the floating window.")
+                        text: qsTr("Opacity for the Android floating window and iOS PiP (100 = opaque). The iOS system may ignore transparency in PiP.")
                         font.bold: !window.ui.modern
                         font.italic: !window.ui.modern
                         font.pixelSize: window.fontHint
