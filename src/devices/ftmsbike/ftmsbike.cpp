@@ -335,12 +335,14 @@ void ftmsbike::changePower(int32_t power) {
             pedalFresh ? m_watt.value() : 0,
             Cadence.value(), now.toMSecsSinceEpoch());
         requestPower = adjusted;
-        if (adjusted != targetPower) {
+        if (targetPower > 0) {
             qDebug() << "stable FTMS power match" << "target pedal" << targetPower
                      << "trainer command" << adjusted
                      << "trainer watts" << m_rawWatt.value()
                      << "pedal watts" << m_watt.value()
-                     << "cadence" << Cadence.value();
+                     << "cadence" << Cadence.value()
+                     << "correction" << m_stableFtmsPowerMatch.currentCorrection()
+                     << "state" << m_stableFtmsPowerMatch.status();
         }
         return;
     }
@@ -2455,6 +2457,12 @@ uint16_t ftmsbike::watts() {
 
 void ftmsbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
+    if (state == QLowEnergyController::UnconnectedState) {
+        // A new BLE session must not reuse the last power-matching offset.
+        // Command writes pause while the controller is disconnected.
+        m_stableFtmsPowerMatch.reset();
+        qDebug() << "stable FTMS power match reset after BLE disconnection";
+    }
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
