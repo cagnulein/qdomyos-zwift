@@ -1,5 +1,6 @@
 #include "technogymmyruntreadmillrfcomm.h"
 #include "virtualdevices/virtualtreadmill.h"
+#include "homeform.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QMetaEnum>
@@ -15,13 +16,75 @@ technogymmyruntreadmillrfcomm::technogymmyruntreadmillrfcomm() {
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &technogymmyruntreadmillrfcomm::update);
     refresh->start(1s);
+
+    retryTimer = new QTimer(this);
+    retryTimer->setSingleShot(true);
+    connect(retryTimer, &QTimer::timeout, this, &technogymmyruntreadmillrfcomm::retryConnection);
+
+    connectionTimeout = new QTimer(this);
+    connectionTimeout->setSingleShot(true);
+    connect(connectionTimeout, &QTimer::timeout, this, [this]() {
+        if (socket && socket->state() != QBluetoothSocket::ConnectedState) {
+            emit debug(QStringLiteral("MyRun RFCOMM connection timed out"));
+            scheduleReconnect();
+        }
+    });
 }
 
 bool technogymmyruntreadmillrfcomm::connected() {
     // The base treadmill implementation always reports false. For this
     // Bluetooth Classic driver the RFCOMM socket is the connection source
     // of truth, but report ready only after the MyRun init sequence.
-    return initDone && socket && socket->state() == QBluetoothSocket::ConnectedState;
+    return initDone && myRunStatusReceived && socket &&
+           socket->state() == QBluetoothSocket::ConnectedState;
+}
+
+void technogymmyruntreadmillrfcomm::showConnectedToastIfReady() {
+    if (connectedToastShown || !connected())
+        return;
+
+    connectedToastShown = true;
+    reconnectAttempts = 0;
+    emit debug(QStringLiteral("MyRun RFCOMM ready: handshake and status received"));
+    if (homeform::singleton())
+        homeform::singleton()->setToastRequested(QObject::tr("Technogym MyRun connected!"));
+}
+
+void technogymmyruntreadmillrfcomm::scheduleReconnect() {
+    initDone = false;
+    myRunStatusReceived = false;
+    connectedToastShown = false;
+    connectionTimeout->stop();
+    if (retryTimer->isActive() || reconnectAttempts >= maxReconnectAttempts)
+        return;
+
+    const int delayMs = (reconnectAttempts + 1) * 5000;
+    emit debug(QStringLiteral("MyRun RFCOMM retry %1/%2 in %3 seconds")
+                   .arg(reconnectAttempts + 1)
+                   .arg(maxReconnectAttempts)
+                   .arg(delayMs / 1000));
+    retryTimer->start(delayMs);
+}
+
+void technogymmyruntreadmillrfcomm::retryConnection() {
+    ++reconnectAttempts;
+    if (socket) {
+        QBluetoothSocket *oldSocket = socket;
+        socket = nullptr;
+        oldSocket->abort();
+        oldSocket->deleteLater();
+    }
+
+    // Refresh SDP on every retry: the previous SerialPort service may no
+    // longer be valid after the treadmill is power-cycled.
+    found = false;
+    serialPortService = QBluetoothServiceInfo();
+    if (!discoveryAgent)
+        return;
+    if (discoveryAgent->isActive())
+        discoveryAgent->stop();
+    emit debug(QStringLiteral("MyRun RFCOMM retry: restarting service discovery"));
+    discoveryAgent->start(QBluetoothServiceDiscoveryAgent::MinimalDiscovery);
 }
 
 void technogymmyruntreadmillrfcomm::deviceDiscovered(const QBluetoothDeviceInfo &device) {
@@ -59,7 +122,7 @@ void technogymmyruntreadmillrfcomm::serviceFinished(void) {
         connect(socket, &QBluetoothSocket::readyRead, this, &technogymmyruntreadmillrfcomm::readSocket);
         connect(socket, &QBluetoothSocket::connected, this,
                 QOverload<>::of(&technogymmyruntreadmillrfcomm::rfCommConnected));
-        connect(socket, &QBluetoothSocket::disconnected, this, &technogymmyruntreadmillrfcomm::disconnected);
+        connect(socket, &QBluetoothSocket::disconnected, this, &technogymmyruntreadmillrfcomm::onSocketDisconnected);
         connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this,
                 &technogymmyruntreadmillrfcomm::onSocketErrorOccurred);
 
@@ -75,6 +138,9 @@ void technogymmyruntreadmillrfcomm::serviceFinished(void) {
             socket->connectToService(serialPortService);
         }
         emit debug(QStringLiteral("ConnectToService done"));
+        if (socket && socket->state() != QBluetoothSocket::ConnectedState &&
+            !retryTimer->isActive())
+            connectionTimeout->start(30000);
     }
 }
 
@@ -112,7 +178,7 @@ void technogymmyruntreadmillrfcomm::changeInclinationRequested(double grade, dou
 void technogymmyruntreadmillrfcomm::update() {
     QSettings settings;
 
-    if (initDone) {
+    if (connected()) {
         // ******************************************* virtual treadmill init *************************************
         if (!this->hasVirtualDevice()) {
             QSettings settings;
@@ -168,41 +234,51 @@ void technogymmyruntreadmillrfcomm::update() {
 }
 
 void technogymmyruntreadmillrfcomm::rfCommConnected() {
-    emit debug(QStringLiteral("connected ") + socket->peerName());
+    connectionTimeout->stop();
+    if (!socket || socket->state() != QBluetoothSocket::ConnectedState)
+        return;
+    retryTimer->stop();
+    emit debug(QStringLiteral("RFCOMM socket connected: ") + socket->peerName());
 
-    socket->write(QStringLiteral("@FWVER#").toLocal8Bit());
-    qDebug() << QStringLiteral(" init1 write");
-    waitForAPacket();
-    socket->write(QStringLiteral("!DEV,027#").toLocal8Bit());
-    qDebug() << QStringLiteral(" init2 write");
-    waitForAPacket();
-    socket->write(QStringLiteral("!DEV,060#").toLocal8Bit());
-    qDebug() << QStringLiteral(" init3 write");
-    waitForAPacket();
-    socket->write(QStringLiteral("!DEV,101,1,21,4#@rtg_id#").toLocal8Bit());
-    qDebug() << QStringLiteral(" init4 write");
-    waitForAPacket();
-    socket->write(QStringLiteral("!DEV,073#").toLocal8Bit());
-    qDebug() << QStringLiteral(" init5 write");
-    waitForAPacket();
-    socket->write(QStringLiteral("!DEV,102#").toLocal8Bit());
-    qDebug() << QStringLiteral(" init6 write");
-    waitForAPacket();
-    socket->write(QStringLiteral("!DEV,104#").toLocal8Bit());
-    qDebug() << QStringLiteral(" init7 write");
-    waitForAPacket();
-    socket->write(QStringLiteral("!DEV,073#").toLocal8Bit());
-    qDebug() << QStringLiteral(" init8 write");
-    waitForAPacket();
-    socket->write(QStringLiteral("!DEV,053,0.0,0#@SSIUNITS#@DISABLE_PACE#").toLocal8Bit());
-    qDebug() << QStringLiteral(" init9 write");
-    waitForAPacket();
-    socket->write(QStringLiteral("!DEV,032,0#").toLocal8Bit());
-    qDebug() << QStringLiteral(" init10 write");
-    waitForAPacket();
+    // Preserve the existing MyRun handshake and its timings. If the socket
+    // drops during a waitForAPacket() nested event loop, stop immediately.
+    QBluetoothSocket *initialSocket = socket;
+    auto writeInitCommand = [this, initialSocket](const QString &command, int step) {
+        if (socket != initialSocket || !socket ||
+            socket->state() != QBluetoothSocket::ConnectedState)
+            return false;
+        socket->write(command.toLocal8Bit());
+        qDebug() << QStringLiteral(" init%1 write").arg(step);
+        waitForAPacket();
+        return socket == initialSocket && socket &&
+               socket->state() == QBluetoothSocket::ConnectedState &&
+               !retryTimer->isActive();
+    };
+
+    if (!writeInitCommand(QStringLiteral("@FWVER#"), 1))
+        return;
+    if (!writeInitCommand(QStringLiteral("!DEV,027#"), 2))
+        return;
+    if (!writeInitCommand(QStringLiteral("!DEV,060#"), 3))
+        return;
+    if (!writeInitCommand(QStringLiteral("!DEV,101,1,21,4#@rtg_id#"), 4))
+        return;
+    if (!writeInitCommand(QStringLiteral("!DEV,073#"), 5))
+        return;
+    if (!writeInitCommand(QStringLiteral("!DEV,102#"), 6))
+        return;
+    if (!writeInitCommand(QStringLiteral("!DEV,104#"), 7))
+        return;
+    if (!writeInitCommand(QStringLiteral("!DEV,073#"), 8))
+        return;
+    if (!writeInitCommand(QStringLiteral("!DEV,053,0.0,0#@SSIUNITS#@DISABLE_PACE#"), 9))
+        return;
+    if (!writeInitCommand(QStringLiteral("!DEV,032,0#"), 10))
+        return;
+
     initDone = true;
-    // requestStart = 1;
     emit connectedAndDiscovered();
+    showConnectedToastIfReady();
 }
 
 void technogymmyruntreadmillrfcomm::waitForAPacket() {
@@ -223,6 +299,11 @@ void technogymmyruntreadmillrfcomm::readSocket() {
         QByteArray line = socket->readAll();
         qDebug() << QStringLiteral(" << ") << line.size() << line;
 
+        if (line.contains("!MYR,031,") && line.contains('#')) {
+            myRunStatusReceived = true;
+            showConnectedToastIfReady();
+        }
+
         if (line.length() > 60) {
             QStringList values = QString(line).split(QStringLiteral(","));
             Speed = values.at(2).toDouble();
@@ -235,6 +316,19 @@ void technogymmyruntreadmillrfcomm::readSocket() {
     }
 }
 
+void technogymmyruntreadmillrfcomm::onSocketDisconnected() {
+    if (sender() != socket)
+        return;
+    emit debug(QStringLiteral("MyRun RFCOMM disconnected"));
+    emit disconnected();
+    scheduleReconnect();
+}
+
 void technogymmyruntreadmillrfcomm::onSocketErrorOccurred(QBluetoothSocket::SocketError error) {
-    emit debug(QStringLiteral("onSocketErrorOccurred ") + QString::number(error));
+    if (sender() != socket)
+        return;
+    emit debug(QStringLiteral("MyRun RFCOMM socket error %1: %2")
+                   .arg(static_cast<int>(error))
+                   .arg(socket ? socket->errorString() : QString()));
+    scheduleReconnect();
 }
