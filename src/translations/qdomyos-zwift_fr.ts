@@ -390,6 +390,14 @@ Souhaitez-vous activer les services nécessaires ?</translation>
         <source>Not connecting?</source>
         <translation>Pas de connexion ?</translation>
     </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Appareil introuvable</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Allumez votre vélo, tapis de course ou rameur, puis touchez l’icône Bluetooth en haut pour relancer la recherche.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -4325,6 +4333,10 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
     <message>
         <source>Unable to open an email application</source>
         <translation>Impossible d’ouvrir une application de messagerie</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth désactivé</translation>
     </message>
 </context>
 <context>

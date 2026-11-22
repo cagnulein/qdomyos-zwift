@@ -390,6 +390,14 @@ Would you like to enable the required services?</source>
         <source>Not connecting?</source>
         <translation>연결되지 않나요?</translation>
     </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>운동 기구를 찾을 수 없습니다</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>자전거, 트레드밀 또는 로잉 머신의 전원을 켠 다음 상단의 Bluetooth 아이콘을 눌러 다시 검색하세요.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -4317,6 +4325,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Unable to open an email application</source>
         <translation>이메일 앱을 열 수 없습니다</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth가 꺼져 있습니다</translation>
     </message>
 </context>
 <context>

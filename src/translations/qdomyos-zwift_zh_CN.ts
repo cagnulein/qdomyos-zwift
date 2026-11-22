@@ -390,6 +390,14 @@ Would you like to enable the required services?</source>
         <source>Not connecting?</source>
         <translation>无法连接？</translation>
     </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>未找到设备</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>请打开您的单车、跑步机或划船机，然后点击顶部的蓝牙图标重新搜索。</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -4333,6 +4341,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Unable to open an email application</source>
         <translation>无法打开电子邮件应用</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>蓝牙已关闭</translation>
     </message>
 </context>
 <context>

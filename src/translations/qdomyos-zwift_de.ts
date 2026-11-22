@@ -390,6 +390,14 @@ Möchten Sie die erforderlichen Dienste aktivieren?</translation>
         <source>Not connecting?</source>
         <translation>Keine Verbindung?</translation>
     </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Gerät nicht gefunden</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Schalten Sie Ihr Fahrrad, Laufband oder Rudergerät ein und tippen Sie oben auf das Bluetooth-Symbol, um erneut zu suchen.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -4325,6 +4333,10 @@ Beim ersten Start kann dies einen Moment dauern.</translation>
     <message>
         <source>Unable to open an email application</source>
         <translation>E-Mail-Anwendung konnte nicht geöffnet werden</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth ist aus</translation>
     </message>
 </context>
 <context>
