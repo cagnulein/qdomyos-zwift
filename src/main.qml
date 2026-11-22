@@ -890,16 +890,20 @@ ApplicationWindow {
             pickedDevice = ""
             // opened again after a disconnection: no row of the last pick marked in the list
             gymModeDeviceComboBox.value = ""
-            secondsLeft = refreshSeconds
+            hurriedTo = 0
+            if (!rootItem.bluetoothSearchOff())
+                rootItem.bluetoothSearchNow()
             pollState()
-            if (!bluetoothOff)
-                refresh_bluetooth_devices_clicked()
         }
 
-        // The search restarts every refreshSeconds; the hint counts down to it. With Bluetooth
-        // off the search does nothing, so the window says so instead of the countdown
-        readonly property int refreshSeconds: 10
-        property int secondsLeft: refreshSeconds
+        // The window has no search of its own: it shows the countdown of the search of the home page
+        // (one number on both), and while it is open no pause between two searches is longer than
+        // hurrySeconds. A search through bluetoothSearchNow(), which keeps to the Android limit of
+        // scan starts. With Bluetooth off there is no search, so the window says so instead
+        readonly property int hurrySeconds: 10
+        property int secondsLeft: 0
+        // the wait bluetoothSearchNow() left (the Android limit): not hurried again every second
+        property int hurriedTo: 0
         property bool bluetoothOff: false
         // The trainer marked in the list: Next connects to it. The list is sorted by signal and
         // rebuilt on every search result, so a tap only marks and the name is kept apart
@@ -917,11 +921,19 @@ ApplicationWindow {
             return r
         }
         function pollState() {
-            var wasOff = bluetoothOff
+            // switched on: the search starts by itself right now
             bluetoothOff = rootItem.bluetoothSearchOff()
-            // switched on: the search starts by itself right now, the countdown starts from it
-            if (wasOff && !bluetoothOff)
-                secondsLeft = refreshSeconds
+            secondsLeft = rootItem.bluetoothNextSearchSeconds()
+            if (secondsLeft === 0)
+                hurriedTo = 0
+            if (bluetoothOff)
+                return
+            // the search gave up (10 minutes) or waits longer than the window wants: search now
+            if (rootItem.bluetoothSearchStopped() || (secondsLeft > hurrySeconds && secondsLeft > hurriedTo)) {
+                rootItem.bluetoothSearchNow()
+                secondsLeft = rootItem.bluetoothNextSearchSeconds()
+                hurriedTo = secondsLeft
+            }
         }
 
         Column {
@@ -993,7 +1005,21 @@ ApplicationWindow {
                 // "Disabled" and "Wifi" of the settings list mean nothing here
                 hidden: ["Disabled", "Wifi"]
                 displayText: popupGymMode.pickedDevice !== "" ? popupGymMode.pickedDevice : qsTr("Select a device")
-                font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 8)
+                // The size of master; a text wider than the box (a long name, a bigger text, de at 170 %
+                // was cut to "Wählen Sie ein Ge") is made smaller to fit, down to the size of the
+                // window text. The field is a TextField: it has no elide and no fontSizeMode
+                readonly property real fullPx: window.fontPx(Qt.application.font.pixelSize + 8)
+                readonly property real textRoom: contentItem ? contentItem.width - contentItem.leftPadding - contentItem.rightPadding : 0
+                font.pixelSize: textRoom > 0 && gymModeFieldMetrics.advanceWidth > textRoom
+                    ? Math.max(window.fontPx(window.appFontPx), Math.floor(fullPx * textRoom / gymModeFieldMetrics.advanceWidth))
+                    : fullPx
+
+                TextMetrics {
+                    id: gymModeFieldMetrics
+                    font.family: gymModeDeviceComboBox.font.family
+                    font.pixelSize: gymModeDeviceComboBox.fullPx
+                    text: gymModeDeviceComboBox.displayText
+                }
 
                 onActivated: {
                     // Enter with no row highlighted: nothing marked
@@ -1011,7 +1037,9 @@ ApplicationWindow {
             Label {
                 width: parent.width
                 visible: !popupGymMode.bluetoothOff
-                text: qsTranslate("homeform", "Next search in %1 s").arg(popupGymMode.secondsLeft)
+                // while a search runs: the line above says "Searching for the device..." or the list
+                // fills, so no text here; an empty Label keeps its one line, the buttons stay put
+                text: popupGymMode.secondsLeft > 0 ? qsTranslate("homeform", "Next search in %1 s").arg(popupGymMode.secondsLeft) : ""
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignHCenter
                 color: Material.color(Material.Grey)
@@ -1053,14 +1081,7 @@ ApplicationWindow {
         interval: 1000
         repeat: true
         running: popupGymMode.visible
-        onTriggered: {
-            popupGymMode.pollState()
-            if (--popupGymMode.secondsLeft > 0)
-                return
-            popupGymMode.secondsLeft = popupGymMode.refreshSeconds
-            if (!popupGymMode.bluetoothOff)
-                refresh_bluetooth_devices_clicked()
-        }
+        onTriggered: popupGymMode.pollState()
     }
 
     UiInfoPopup {

@@ -276,6 +276,9 @@ class homeform : public QObject {
     Q_INVOKABLE bool bluetoothSearchOff();
     // Tap on the Bluetooth icon: search right away, or when Android allows it again (with a toast saying when)
     Q_INVOKABLE void bluetoothSearchNow();
+    // Seconds to the next automatic search, the countdown of the status line; 0 while a search runs,
+    // with none due (stopped, Bluetooth off) and once connected
+    Q_INVOKABLE int bluetoothNextSearchSeconds();
     // An opened list of devices: a search that may run during a workout too
     Q_INVOKABLE void searchForDeviceList() {
         if (bluetoothManager)
