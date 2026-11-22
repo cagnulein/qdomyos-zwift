@@ -10,6 +10,9 @@ import QtQuick.Layouts 1.3
 // Goes into the item that holds the content at its (0, 0) - the Loader of AccordionElement, the
 // box of StaticAccordionElement and AccordionCheckElement - which is laid out in the column of
 // the section under its header; made by a Loader of its own there, it is told that item by holder.
+// On a settings page without sections (TTS, the keyboard shortcuts, the inclination overrides)
+// it is the first item of the column itself, of no height: it stands at (0, 0) of the column as
+// well.
 Item {
     id: frames
 
@@ -19,6 +22,8 @@ Item {
     property Item header: null
     // 1 - a top-level section, 2 - inside it, and so on; deeper ones are drawn as the second
     property int depth: 1
+    // Items of the column left without a frame (the title of a settings page)
+    property var exclude: []
     // The item that holds the content and these frames at its (0, 0)
     property Item holder: parent
 
@@ -128,7 +133,7 @@ Item {
             // A list (the profiles, the settings files) is not a setting: it fills its section
             // by its anchors, and layout margins of a frame moved it off its place
             if (!window.ui.modern || !c.visible || (c.height <= 0 && c.implicitHeight <= 0)
-                    || c.contentY !== undefined)
+                    || exclude.indexOf(c) >= 0 || c.contentY !== undefined)
                 continue
             if (isSectionLike(c)) {
                 // Out to the edges of the frames around it

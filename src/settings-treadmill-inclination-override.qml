@@ -1,12 +1,18 @@
 import QtQuick 2.7
+import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 
 ScrollView {
+    // Modern look: the rows Body Large, as on the settings page
+    font: window.ui.modern ? window.ui.rowFont : window.font
+    // Buttons and lists of this page take Label Large (window.ui.onTypeScalePage)
+    readonly property bool typeScalePage: true
     contentWidth: -1
-    leftPadding: window.contentSideMargin
-    rightPadding: window.contentSideMargin
+    // Modern look: the page margin of Material 3, 16
+    leftPadding: window.ui.modern ? Math.max(16, window.contentSideMargin) : window.contentSideMargin
+    rightPadding: window.ui.modern ? Math.max(16, window.contentSideMargin) : window.contentSideMargin
     focus: true
     anchors.fill: parent
     //anchors.bottom: footerSettings.top
@@ -22,7 +28,22 @@ ScrollView {
     ColumnLayout {
         id: column1
         spacing: 0
-        anchors.fill: parent
+        // Modern look: no bottom anchor - the height comes from the column itself, and the
+        // ScrollView takes its content height from it (anchored to fill, the column looped on it)
+        anchors.fill: window.ui.modern ? undefined : parent
+        anchors.left: window.ui.modern ? parent.left : undefined
+        anchors.right: window.ui.modern ? parent.right : undefined
+        anchors.top: window.ui.modern ? parent.top : undefined
+        // Modern look: a thin frame around every setting, as in the settings sections; the
+        // column moves in by the width of the frame padding, the page clips at its edge
+        anchors.leftMargin: window.ui.modern ? 16 : 0 // framePadH of UiSettingFrames
+        anchors.rightMargin: window.ui.modern ? 16 : 0 // framePadH of UiSettingFrames
+
+        UiSettingFrames {
+            content: column1
+            exclude: [ttsLabel]
+            Layout.preferredHeight: 0
+        }
 
         Label {
             Layout.preferredWidth: parent.width
@@ -32,7 +53,13 @@ ScrollView {
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
-            color: Material.color(Material.Red)
+            // Modern look: a page title like the TTS page instead of the red caption
+            color: window.ui.ink(Material.color(Material.Red))
+            // the classic look keeps the size it inherits
+            Binding on font.pixelSize { when: window.ui.modern; value: window.ui.fontHeadline; restoreMode: Binding.RestoreBindingOrValue }
+            font.weight: window.ui.modern ? Font.DemiBold : Font.Normal
+            topPadding: window.ui.modern ? 12 : 0
+            bottomPadding: window.ui.modern ? 8 : 0
         }
 
         RowLayout {
