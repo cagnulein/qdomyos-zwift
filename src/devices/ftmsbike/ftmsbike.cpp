@@ -1950,6 +1950,17 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
         return;
     }
 
+    // A virtual FTMS target-power request is already delivered via changePower().
+    // With an external pedal meter and no native resistance telemetry, that path
+    // owns the rate-limited power-matched command. Directly forwarding 0x05 would
+    // override it with the uncorrected workout target every ~10 seconds.
+    if (isPowerCommand && StableFtmsPowerMatch::shouldBlockDirectFtmsPower(
+            power_sensor, native_resistance_received, ergModeSupported, autoResistance())) {
+        qDebug() << "suppressing direct FTMS power target in favour of stable pedal power matching"
+                 << newValue.toHex(' ');
+        return;
+    }
+
     QByteArray b = newValue;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
