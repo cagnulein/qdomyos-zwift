@@ -1160,6 +1160,10 @@ QZ ayarları güncellensin mi?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>YPOO M5 başlatılamadı; yeniden bağlanmak gerekiyor</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S bağlandı!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -4861,7 +4865,7 @@ QZ&apos;nin bu değeri değiştirmesine izin verilsin mi?
     </message>
     <message>
         <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
-        <translation>Sanal cihaz (%1) etkin. Bunu istemediyseniz Ayarlar'dan devre dışı bırakın.</translation>
+        <translation>Sanal cihaz (%1) etkin. Bunu istemediyseniz Ayarlar&apos;dan devre dışı bırakın.</translation>
     </message>
     <message>
         <source>Bike</source>
@@ -7422,7 +7426,7 @@ IMPORTANT NOTES:
     </message>
     <message>
         <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
-        <translation>QZ'de direnç değiştirildiğinde bisiklet yalnızca 1. seviyeye veya en yüksek seviyeye geçiyorsa etkinleştirin. FTMS direnç değerini 10 ile çarparak gönderir. Varsayılan: kapalı.</translation>
+        <translation>QZ&apos;de direnç değiştirildiğinde bisiklet yalnızca 1. seviyeye veya en yüksek seviyeye geçiyorsa etkinleştirin. FTMS direnç değerini 10 ile çarparak gönderir. Varsayılan: kapalı.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>

@@ -1160,6 +1160,10 @@ QZ 설정을 업데이트하시겠습니까?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>YPOO M5 초기화에 실패했습니다. 다시 연결해야 합니다</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S 연결됨!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>

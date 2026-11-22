@@ -1160,6 +1160,10 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>Échec de l&apos;initialisation du YPOO M5 ; reconnexion nécessaire</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S connecté !</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -2783,7 +2787,7 @@ Les questions suivantes personnaliseront QZ pour votre équipement et vos object
     </message>
     <message>
         <source>Zwift Click</source>
-        <translation>Zwift Clic</translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
         <source>Zwift Play</source>
@@ -4869,7 +4873,7 @@ Autoriser QZ à modifier cette valeur ?
     </message>
     <message>
         <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
-        <translation>L'appareil simulé (%1) est actif. Si ce n'était pas voulu, désactivez-le dans les paramètres.</translation>
+        <translation>L&apos;appareil simulé (%1) est actif. Si ce n&apos;était pas voulu, désactivez-le dans les paramètres.</translation>
     </message>
     <message>
         <source>Bike</source>
@@ -8214,7 +8218,7 @@ Par défaut : A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Zwift Click</source>
-        <translation>Zwift Clic</translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
         <source>Use it to change the gears on QZ!</source>
