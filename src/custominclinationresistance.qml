@@ -5,6 +5,10 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 
 ScrollView {
+    // Modern look: the rows Body Large, the role of a settings row (window.ui.rowFont)
+    font: window.ui.modern ? window.ui.rowFont : window.font
+    // Buttons and lists of this page take Label Large (window.ui.onTypeScalePage)
+    readonly property bool typeScalePage: true
     id: customInclinationResistanceWindow
     contentWidth: -1
     // The column with its top and bottom margins, which are not in its implicit height
@@ -300,12 +304,13 @@ ScrollView {
             text: qsTr("Set the resistance QZ should target at each incline. QZ interpolates automatically between points and uses the nearest endpoint outside the configured range. Changes are saved automatically.")
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
-            font.pixelSize: window.ui.modern ? window.ui.fontCaption : window.fontHint
+            font.pixelSize: window.fontHint // modern look: Body Small, as the hints of the settings
             bottomPadding: window.hintGap
             color: window.ui.modern ? window.ui.textMuted : Material.accent
         }
 
-        // Modern look: the column titles over the fields, no grid
+        // Modern look: the column titles over the fields, no grid; Label Large 14, as the headers of
+        // the gear tables (the rows of the page are Body Large)
         RowLayout {
             visible: window.ui.modern
             Layout.fillWidth: true
@@ -313,6 +318,7 @@ ScrollView {
             spacing: 8
             Label {
                 text: qsTr("Inclination (%)")
+                font.pixelSize: window.ui.fontLabelLarge
                 color: window.ui.textMuted
                 horizontalAlignment: Text.AlignHCenter
                 Layout.fillWidth: true
@@ -321,6 +327,7 @@ ScrollView {
             }
             Label {
                 text: qsTr("Resistance")
+                font.pixelSize: window.ui.fontLabelLarge
                 color: window.ui.textMuted
                 horizontalAlignment: Text.AlignHCenter
                 Layout.fillWidth: true

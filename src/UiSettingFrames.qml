@@ -22,7 +22,8 @@ Item {
     // The item that holds the content and these frames at its (0, 0)
     property Item holder: parent
 
-    readonly property int framePadH: 10
+    // the text of a setting 16 in from the edge of its frame, as Material 3 (was 10)
+    readonly property int framePadH: 16
     readonly property int framePadV: 8
     readonly property int frameGap: 6
     readonly property int blockPad: 6

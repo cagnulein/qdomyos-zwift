@@ -130,10 +130,12 @@ ColumnLayout {
                 wrapMode: Text.WordWrap
                 // A tile card: its title stands out, in the accent while the tile is on
                 color: rootElement.modernCard && rootElement.isOpen ? window.ui.accent : window.ui.textMain
-                font.weight: rootElement.modernCard ? Font.DemiBold : Font.Normal
+                // A tile card: the title of a group, Title Medium
+                font.weight: rootElement.modernCard ? Font.Medium : Font.Normal
                 // The size as well: in Qt 5 a write of the weight alone keeps the size the label
-                // inherits at that moment, and a change of the text size missed it
-                font.pixelSize: window.ui.fontBase
+                // inherits at that moment, and a change of the text size missed it. Modern look:
+                // Body Large, as the other rows
+                font.pixelSize: window.ui.modern ? window.ui.fontBody : window.ui.fontBase
             }
 
             UiSwitch {
@@ -244,6 +246,7 @@ ColumnLayout {
             active: contentBox.framed || used
             onLoaded: used = true
             z: -1
+            visible: contentBox.framed
             readonly property int insetLeft: item ? item.insetLeft : 0
             readonly property int insetRight: item ? item.insetRight : 0
             readonly property int insetTop: item ? item.insetTop : 0
