@@ -275,8 +275,40 @@ Item {
         strokeWidth: 1
     }
 
+    // The frame of the setting an item is part of: its label, control and description together.
+    // null when it has none (the classic look, a section, a note of the section). The search lights
+    // the setting it opens by it (settings.qml, settingHighlight)
+    function frameOf(item) {
+        if (!content || !item)
+            return null
+        // The child of the column the item sits in (the column itself for a single setting)
+        var c = item
+        while (c && c !== content && c.parent !== content)
+            c = c.parent
+        if (!c)
+            return null
+        var kids = content.children
+        for (var f = 0; f < itemFrames.length; f++) {
+            if (itemFrames[f].first === content)
+                return settingFrames.itemAt(f)
+            var first = -1, last = -1, at = -1
+            for (var k = 0; k < kids.length; k++) {
+                if (kids[k] === itemFrames[f].first)
+                    first = k
+                if (kids[k] === itemFrames[f].last)
+                    last = k
+                if (kids[k] === c)
+                    at = k
+            }
+            if (first >= 0 && at >= first && at <= last)
+                return settingFrames.itemAt(f)
+        }
+        return null
+    }
+
     // A frame for every setting
     Repeater {
+        id: settingFrames
         model: frames.itemFrames
         UiFrame {
             z: -1

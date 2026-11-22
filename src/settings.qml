@@ -337,6 +337,19 @@ import AndroidStatusBar 1.0
             var row = (target.parent && String(target.parent).indexOf("Row") >= 0 &&
                        target.parent.height > target.height && target.parent.height < 200)
                       ? target.parent : target
+            // Modern look: the title of a switch section (a tile named as its setting, "Heart")
+            // was lit alone, a thin bar without its switch. A tile card is lit whole like the
+            // tiles whose name differs from the title, a section inside a page - its switch row
+            if (target.objectName === "accordionTitle") {
+                row = target.parent
+                for (var up = target.parent; up; up = up.parent) {
+                    if (up.modernCard !== undefined) {
+                        if (up.modernCard)
+                            row = up
+                        break
+                    }
+                }
+            }
             var at = row.mapToItem(flickable.contentItem, 0, 0)
             flickable.contentY = Math.max(0, Math.min(at.y - 96, flickable.contentHeight - flickable.height))
             // Nothing to light when not even a section was found: the whole page would glow
@@ -384,6 +397,20 @@ import AndroidStatusBar 1.0
                         var at = row.mapToItem(flickable.contentItem, 0, 0).y
                         flickable.contentY = Math.max(0, Math.min(at - 96, flickable.contentHeight - flickable.height))
                     }
+                    // Modern look: the whole frame of the setting - its label, control and
+                    // description - or the whole card of a tile, with their corners: M3 lights a
+                    // list item whole, and a bar over the label alone cut the frame across
+                    var shape = window.ui.modern ? (row.modernCard === true ? row : settingFrameOf(row)) : null
+                    if (shape) {
+                        var p = shape.mapToItem(flickable, 0, 0)
+                        x = p.x
+                        y = p.y
+                        width = shape.width
+                        height = shape.height
+                        radius = shape === row ? row.cardRadius : shape.radius
+                        return
+                    }
+                    radius = 12
                     // Around the row itself, a little wider than its text, which starts at its
                     // very edge; a lone label is as wide as its text: up to the same indent on the
                     // right
@@ -410,6 +437,25 @@ import AndroidStatusBar 1.0
                     width = Math.min(pos.x + w + 6, flickable.width) - x
                     y = top - 2
                     height = bottom - top + 4
+                }
+                // The frame UiSettingFrames draws around the setting the item is part of, null when
+                // there is none. The frames lie next to the content of a section, made by a Loader
+                // of their own: looked for among the siblings of every item up from the row
+                function settingFrameOf(item) {
+                    for (var up = item ? item.parent : null; up && up !== flickable; up = up.parent) {
+                        var kids = up.children
+                        for (var i = 0; i < kids.length; i++) {
+                            var k = kids[i]
+                            var frames = k.frameOf !== undefined ? k
+                                       : (k.item && k.item.frameOf !== undefined ? k.item : null)
+                            if (!frames)
+                                continue
+                            var frame = frames.frameOf(item)
+                            if (frame)
+                                return frame
+                        }
+                    }
+                    return null
                 }
                 function nextShown(item) {
                     var siblings = item.parent ? item.parent.children : []
