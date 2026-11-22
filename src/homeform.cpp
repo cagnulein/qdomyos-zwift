@@ -6717,7 +6717,7 @@ void homeform::StopFromDevice() {
 
     // An idle/repeated status notification must not open an empty workout summary.
     // Keep the same no-workout guards used by Stop(), before entering the QML UI flow.
-    const auto *device = bluetoothManager ? bluetoothManager->device() : nullptr;
+    auto *device = bluetoothManager ? bluetoothManager->device() : nullptr;
     if (stopped || !device)
         return;
 
