@@ -703,6 +703,46 @@ HomeForm {
                     Accessible.ignored: true
                 }
 
+                // "Return to app" in the empty second line of T.Power(W), as on the classic tile
+                RoundButton {
+                    id: modernRelease
+                    objectName: "target_power_release"
+                    text: qsTr("Return to app")
+                    onClicked: rootItem.releaseTargetPower()
+                    visible: identificator === "target_power" && rootItem.targetPowerReleaseVisible && !largeButton
+                    anchors.top: modernValue.bottom
+                    anchors.horizontalCenter: modernCard.horizontalCenter
+                    // over the touch areas of -/+ below (64 x 80 around their circles, down to
+                    // the middle of this button): a tap on its edge returns control, not a step
+                    z: 1
+                    // 32, not 48: the line between the value and the bottom of the card is 39
+                    height: 32 * modernTile.zoom
+                    width: Math.min(implicitWidth, modernCard.width - 16 * modernTile.zoom)
+                    topInset: 0
+                    bottomInset: 0
+                    leftInset: 0
+                    rightInset: 0
+                    font.pointSize: settings.theme_tile_secondline_textsize * modernTile.zoom
+                    background: Rectangle {
+                        radius: height / 2
+                        color: modernRelease.down ? window.ui.alpha(window.ui.accent, 0.35) : window.ui.surfaceHighest
+                    }
+                    contentItem: Text {
+                        text: modernRelease.text
+                        font: modernRelease.font
+                        color: window.ui.textMain
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                        elide: Text.ElideRight
+                    }
+
+                    Accessible.role: Accessible.Button
+                    Accessible.name: text
+                    Accessible.description: qsTr("Give load control back to the app")
+                    Accessible.focusable: true
+                    Accessible.onPressAction: { rootItem.releaseTargetPower() }
+                }
+
                 RoundButton {
                     id: modernMinus
                     objectName: minusName
