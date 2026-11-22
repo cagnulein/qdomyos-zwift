@@ -1162,7 +1162,7 @@ QZ 설정을 업데이트하시겠습니까?</translation>
     </message>
     <message>
         <source>Coach S connected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Coach S 연결됨!</translation>
     </message>
 </context>
 <context>

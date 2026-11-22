@@ -1162,7 +1162,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Coach S connected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Coach S подключён!</translation>
     </message>
 </context>
 <context>

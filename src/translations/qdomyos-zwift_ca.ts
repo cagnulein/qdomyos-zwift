@@ -5,7 +5,7 @@
     <name>ChartJsTest</name>
     <message>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Tanca</translation>
     </message>
 </context>
 <context>
@@ -132,19 +132,19 @@
     </message>
     <message>
         <source>Strong signal</source>
-        <translation type="unfinished"></translation>
+        <translation>Senyal fort</translation>
     </message>
     <message>
         <source>Good signal</source>
-        <translation type="unfinished"></translation>
+        <translation>Bon senyal</translation>
     </message>
     <message>
         <source>Fair signal</source>
-        <translation type="unfinished"></translation>
+        <translation>Senyal acceptable</translation>
     </message>
     <message>
         <source>Weak signal</source>
-        <translation type="unfinished"></translation>
+        <translation>Senyal feble</translation>
     </message>
 </context>
 <context>
@@ -314,11 +314,11 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Return to app</source>
-        <translation type="unfinished"></translation>
+        <translation>Torna a l’aplicació</translation>
     </message>
     <message>
         <source>Give load control back to the app</source>
-        <translation type="unfinished"></translation>
+        <translation>Torna el control de la càrrega a l’aplicació</translation>
     </message>
 </context>
 <context>
@@ -373,11 +373,11 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Equipment not found</source>
-        <translation type="unfinished"></translation>
+        <translation>No s’ha trobat cap aparell</translation>
     </message>
     <message>
         <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Encén la bicicleta, la cinta de córrer o el rem i toca la icona de Bluetooth de la part superior per tornar a cercar.</translation>
     </message>
 </context>
 <context>
@@ -1139,7 +1139,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Coach S connected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Coach S connectat!</translation>
     </message>
 </context>
 <context>
@@ -1365,15 +1365,15 @@ Do you want to update QZ settings?</source>
     <name>SwagBagItem</name>
     <message>
         <source>Purchasing...</source>
-        <translation type="unfinished"></translation>
+        <translation>Compra en curs...</translation>
     </message>
     <message>
         <source>Purchase Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>La compra ha fallat</translation>
     </message>
     <message>
         <source>Purchase Succeeded</source>
-        <translation type="unfinished"></translation>
+        <translation>Compra completada</translation>
     </message>
 </context>
 <context>
@@ -2710,11 +2710,11 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Zwift Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
         <source>Zwift Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Play</translation>
     </message>
     <message>
         <source>Correct startup phase:
@@ -2872,15 +2872,15 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Your equipment, units and profile, step by step</source>
-        <translation type="unfinished"></translation>
+        <translation>El teu aparell, les unitats i el perfil, pas a pas</translation>
     </message>
     <message>
         <source>Pick a topic and go straight to its settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Tria un tema i ves directament a la seva configuració</translation>
     </message>
     <message>
         <source>Close the wizard</source>
-        <translation type="unfinished"></translation>
+        <translation>Tanca l’assistent</translation>
     </message>
 </context>
 <context>
@@ -3161,19 +3161,19 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Calendar</source>
-        <translation type="unfinished"></translation>
+        <translation>Calendari</translation>
     </message>
     <message>
         <source>No workouts on this day</source>
-        <translation type="unfinished"></translation>
+        <translation>Cap entrenament aquest dia</translation>
     </message>
     <message>
         <source>No workouts yet</source>
-        <translation type="unfinished"></translation>
+        <translation>Encara no hi ha entrenaments</translation>
     </message>
     <message>
         <source>Finished workouts appear here: open one to see its charts.</source>
-        <translation type="unfinished"></translation>
+        <translation>Els entrenaments acabats apareixen aquí: obre’n un per veure’n els gràfics.</translation>
     </message>
 </context>
 <context>
@@ -3235,11 +3235,11 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Decrease the offset of gear %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Redueix el desplaçament de la marxa %1</translation>
     </message>
     <message>
         <source>Increase the offset of gear %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Augmenta el desplaçament de la marxa %1</translation>
     </message>
 </context>
 <context>
@@ -3270,15 +3270,15 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Decrease %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Redueix %1</translation>
     </message>
     <message>
         <source>Increase %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Augmenta %1</translation>
     </message>
     <message>
         <source>Remove the point at inclination %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina el punt amb inclinació %1</translation>
     </message>
 </context>
 <context>
@@ -4279,7 +4279,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Bluetooth is off</source>
-        <translation type="unfinished"></translation>
+        <translation>El Bluetooth està desactivat</translation>
     </message>
 </context>
 <context>
@@ -7512,7 +7512,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Zwift Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
         <source>Use it to change the gears on QZ!</source>
@@ -7520,7 +7520,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Zwift Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Play</translation>
     </message>
     <message>
         <source>Also for Elite Square. Use it to change the gears on QZ!</source>

@@ -5,7 +5,7 @@
     <name>ChartJsTest</name>
     <message>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Κλείσιμο</translation>
     </message>
 </context>
 <context>
@@ -132,19 +132,19 @@
     </message>
     <message>
         <source>Strong signal</source>
-        <translation type="unfinished"></translation>
+        <translation>Ισχυρό σήμα</translation>
     </message>
     <message>
         <source>Good signal</source>
-        <translation type="unfinished"></translation>
+        <translation>Καλό σήμα</translation>
     </message>
     <message>
         <source>Fair signal</source>
-        <translation type="unfinished"></translation>
+        <translation>Μέτριο σήμα</translation>
     </message>
     <message>
         <source>Weak signal</source>
-        <translation type="unfinished"></translation>
+        <translation>Ασθενές σήμα</translation>
     </message>
 </context>
 <context>
@@ -314,11 +314,11 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Return to app</source>
-        <translation type="unfinished"></translation>
+        <translation>Επιστροφή στην εφαρμογή</translation>
     </message>
     <message>
         <source>Give load control back to the app</source>
-        <translation type="unfinished"></translation>
+        <translation>Επιστροφή ελέγχου φορτίου στην εφαρμογή</translation>
     </message>
 </context>
 <context>
@@ -373,11 +373,11 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Equipment not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Ο εξοπλισμός δεν βρέθηκε</translation>
     </message>
     <message>
         <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ενεργοποιήστε το ποδήλατο, τον διάδρομο ή το κωπηλατικό και πατήστε το εικονίδιο Bluetooth επάνω για νέα αναζήτηση.</translation>
     </message>
 </context>
 <context>
@@ -1139,7 +1139,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Coach S connected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Το Coach S συνδέθηκε!</translation>
     </message>
 </context>
 <context>
@@ -1365,15 +1365,15 @@ Do you want to update QZ settings?</source>
     <name>SwagBagItem</name>
     <message>
         <source>Purchasing...</source>
-        <translation type="unfinished"></translation>
+        <translation>Αγορά σε εξέλιξη...</translation>
     </message>
     <message>
         <source>Purchase Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Η αγορά απέτυχε</translation>
     </message>
     <message>
         <source>Purchase Succeeded</source>
-        <translation type="unfinished"></translation>
+        <translation>Η αγορά ολοκληρώθηκε</translation>
     </message>
 </context>
 <context>
@@ -2710,11 +2710,11 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Zwift Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
         <source>Zwift Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Play</translation>
     </message>
     <message>
         <source>Correct startup phase:
@@ -2872,15 +2872,15 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Your equipment, units and profile, step by step</source>
-        <translation type="unfinished"></translation>
+        <translation>Ο εξοπλισμός, οι μονάδες και το προφίλ σας, βήμα προς βήμα</translation>
     </message>
     <message>
         <source>Pick a topic and go straight to its settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Επιλέξτε ένα θέμα για να μεταβείτε απευθείας στις ρυθμίσεις του</translation>
     </message>
     <message>
         <source>Close the wizard</source>
-        <translation type="unfinished"></translation>
+        <translation>Κλείσιμο οδηγού</translation>
     </message>
 </context>
 <context>
@@ -3161,19 +3161,19 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Calendar</source>
-        <translation type="unfinished"></translation>
+        <translation>Ημερολόγιο</translation>
     </message>
     <message>
         <source>No workouts on this day</source>
-        <translation type="unfinished"></translation>
+        <translation>Δεν υπάρχουν προπονήσεις αυτή την ημέρα</translation>
     </message>
     <message>
         <source>No workouts yet</source>
-        <translation type="unfinished"></translation>
+        <translation>Δεν υπάρχουν ακόμη προπονήσεις</translation>
     </message>
     <message>
         <source>Finished workouts appear here: open one to see its charts.</source>
-        <translation type="unfinished"></translation>
+        <translation>Οι ολοκληρωμένες προπονήσεις εμφανίζονται εδώ: ανοίξτε μία για να δείτε τα γραφήματά της.</translation>
     </message>
 </context>
 <context>
@@ -3235,11 +3235,11 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Decrease the offset of gear %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Μείωση μετατόπισης της ταχύτητας %1</translation>
     </message>
     <message>
         <source>Increase the offset of gear %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Αύξηση μετατόπισης της ταχύτητας %1</translation>
     </message>
 </context>
 <context>
@@ -3270,15 +3270,15 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Decrease %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Μείωση %1</translation>
     </message>
     <message>
         <source>Increase %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Αύξηση %1</translation>
     </message>
     <message>
         <source>Remove the point at inclination %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Αφαίρεση σημείου στην κλίση %1</translation>
     </message>
 </context>
 <context>
@@ -4279,7 +4279,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Bluetooth is off</source>
-        <translation type="unfinished"></translation>
+        <translation>Το Bluetooth είναι απενεργοποιημένο</translation>
     </message>
 </context>
 <context>
@@ -7512,7 +7512,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Zwift Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
         <source>Use it to change the gears on QZ!</source>
@@ -7520,7 +7520,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Zwift Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Play</translation>
     </message>
     <message>
         <source>Also for Elite Square. Use it to change the gears on QZ!</source>

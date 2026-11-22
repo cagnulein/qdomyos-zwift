@@ -1162,7 +1162,7 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
     </message>
     <message>
         <source>Coach S connected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Coach S verbunden!</translation>
     </message>
 </context>
 <context>
@@ -2787,7 +2787,7 @@ Die folgenden Fragen passen QZ an Ihre Ausrüstung und Ziele an.</translation>
     </message>
     <message>
         <source>Zwift Click</source>
-        <translation>Zwift Klick</translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
         <source>Zwift Play</source>
@@ -8198,7 +8198,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Zwift Click</source>
-        <translation>Zwift Klick</translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
         <source>Use it to change the gears on QZ!</source>

@@ -5,7 +5,7 @@
     <name>ChartJsTest</name>
     <message>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Đóng</translation>
     </message>
 </context>
 <context>
@@ -132,19 +132,19 @@
     </message>
     <message>
         <source>Strong signal</source>
-        <translation type="unfinished"></translation>
+        <translation>Tín hiệu mạnh</translation>
     </message>
     <message>
         <source>Good signal</source>
-        <translation type="unfinished"></translation>
+        <translation>Tín hiệu tốt</translation>
     </message>
     <message>
         <source>Fair signal</source>
-        <translation type="unfinished"></translation>
+        <translation>Tín hiệu trung bình</translation>
     </message>
     <message>
         <source>Weak signal</source>
-        <translation type="unfinished"></translation>
+        <translation>Tín hiệu yếu</translation>
     </message>
 </context>
 <context>
@@ -314,11 +314,11 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Return to app</source>
-        <translation type="unfinished"></translation>
+        <translation>Quay lại ứng dụng</translation>
     </message>
     <message>
         <source>Give load control back to the app</source>
-        <translation type="unfinished"></translation>
+        <translation>Trả quyền điều khiển tải về cho ứng dụng</translation>
     </message>
 </context>
 <context>
@@ -373,11 +373,11 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Equipment not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Không tìm thấy thiết bị</translation>
     </message>
     <message>
         <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bật xe đạp, máy chạy bộ hoặc máy chèo thuyền, sau đó nhấn biểu tượng Bluetooth ở phía trên để tìm lại.</translation>
     </message>
 </context>
 <context>
@@ -1139,7 +1139,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Coach S connected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Đã kết nối Coach S!</translation>
     </message>
 </context>
 <context>
@@ -1365,15 +1365,15 @@ Do you want to update QZ settings?</source>
     <name>SwagBagItem</name>
     <message>
         <source>Purchasing...</source>
-        <translation type="unfinished"></translation>
+        <translation>Đang mua...</translation>
     </message>
     <message>
         <source>Purchase Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Mua thất bại</translation>
     </message>
     <message>
         <source>Purchase Succeeded</source>
-        <translation type="unfinished"></translation>
+        <translation>Mua thành công</translation>
     </message>
 </context>
 <context>
@@ -2710,11 +2710,11 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Zwift Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
         <source>Zwift Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Play</translation>
     </message>
     <message>
         <source>Correct startup phase:
@@ -2872,15 +2872,15 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Your equipment, units and profile, step by step</source>
-        <translation type="unfinished"></translation>
+        <translation>Thiết bị, đơn vị và hồ sơ của bạn, từng bước một</translation>
     </message>
     <message>
         <source>Pick a topic and go straight to its settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Chọn một chủ đề để mở ngay phần cài đặt</translation>
     </message>
     <message>
         <source>Close the wizard</source>
-        <translation type="unfinished"></translation>
+        <translation>Đóng trình hướng dẫn</translation>
     </message>
 </context>
 <context>
@@ -3161,19 +3161,19 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Calendar</source>
-        <translation type="unfinished"></translation>
+        <translation>Lịch</translation>
     </message>
     <message>
         <source>No workouts on this day</source>
-        <translation type="unfinished"></translation>
+        <translation>Không có buổi tập trong ngày này</translation>
     </message>
     <message>
         <source>No workouts yet</source>
-        <translation type="unfinished"></translation>
+        <translation>Chưa có buổi tập nào</translation>
     </message>
     <message>
         <source>Finished workouts appear here: open one to see its charts.</source>
-        <translation type="unfinished"></translation>
+        <translation>Các buổi tập đã hoàn thành xuất hiện ở đây: mở một buổi để xem biểu đồ.</translation>
     </message>
 </context>
 <context>
@@ -3235,11 +3235,11 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Decrease the offset of gear %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Giảm độ lệch của số %1</translation>
     </message>
     <message>
         <source>Increase the offset of gear %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Tăng độ lệch của số %1</translation>
     </message>
 </context>
 <context>
@@ -3270,15 +3270,15 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Decrease %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Giảm %1</translation>
     </message>
     <message>
         <source>Increase %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Tăng %1</translation>
     </message>
     <message>
         <source>Remove the point at inclination %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Xóa điểm tại độ dốc %1</translation>
     </message>
 </context>
 <context>
@@ -4279,7 +4279,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Bluetooth is off</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth đang tắt</translation>
     </message>
 </context>
 <context>
@@ -7512,7 +7512,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Zwift Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
         <source>Use it to change the gears on QZ!</source>
@@ -7520,7 +7520,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Zwift Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Play</translation>
     </message>
     <message>
         <source>Also for Elite Square. Use it to change the gears on QZ!</source>

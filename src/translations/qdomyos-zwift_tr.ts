@@ -1162,7 +1162,7 @@ QZ ayarları güncellensin mi?</translation>
     </message>
     <message>
         <source>Coach S connected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Coach S bağlandı!</translation>
     </message>
 </context>
 <context>

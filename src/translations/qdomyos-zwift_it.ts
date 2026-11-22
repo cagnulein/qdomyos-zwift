@@ -1162,7 +1162,7 @@ Vuoi aggiornare le impostazioni di QZ?</translation>
     </message>
     <message>
         <source>Coach S connected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Coach S connesso!</translation>
     </message>
 </context>
 <context>
@@ -8294,7 +8294,7 @@ Predefinito: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Zwift Play Vibration</source>
-        <translation>Zwift Vibrazione</translation>
+        <translation>Vibrazione Zwift Play</translation>
     </message>
     <message>
         <source>Enable vibration feedback on Zwift Play controllers when changing gears. Default: enabled.</source>

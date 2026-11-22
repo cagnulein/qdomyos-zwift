@@ -1146,7 +1146,7 @@ Szeretné frissíteni a QZ beállításait?</translation>
     </message>
     <message>
         <source>Coach S connected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Coach S csatlakoztatva!</translation>
     </message>
 </context>
 <context>

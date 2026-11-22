@@ -1146,7 +1146,7 @@ Vil du oppdatere QZ-innstillingene?</translation>
     </message>
     <message>
         <source>Coach S connected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Coach S tilkoblet!</translation>
     </message>
 </context>
 <context>

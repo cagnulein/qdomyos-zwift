@@ -1162,7 +1162,7 @@ Zaktualizować ustawienia QZ?</translation>
     </message>
     <message>
         <source>Coach S connected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Coach S połączony!</translation>
     </message>
 </context>
 <context>
