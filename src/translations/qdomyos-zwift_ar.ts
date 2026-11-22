@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ar_EG">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -122,6 +129,22 @@
     <message>
         <source>Choose a heart rate sensor</source>
         <translation>اختر مستشعر نبض القلب</translation>
+    </message>
+    <message>
+        <source>Strong signal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -289,6 +312,14 @@ Would you like to enable the required services?</source>
         <source>Cancel</source>
         <translation>إلغاء</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -339,6 +370,14 @@ Would you like to enable the required services?</source>
     <message>
         <source>Not connecting?</source>
         <translation>هل تواجه مشكلة في الاتصال؟</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1098,12 +1137,16 @@ Do you want to update QZ settings?</source>
         <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
         <translation>لم يتم العثور على مستشعر نبض قلب قريب. تأكد من تشغيله وبث بيانات نبض القلب.</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">موافق</translation>
     </message>
     <message>
         <source>Save</source>
@@ -1115,7 +1158,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">فتح</translation>
     </message>
     <message>
         <source>&amp;Yes</source>
@@ -1319,6 +1362,21 @@ Do you want to update QZ settings?</source>
     </message>
 </context>
 <context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -1446,7 +1504,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">حذف</translation>
     </message>
     <message>
         <source>Start Workout</source>
@@ -1493,6 +1551,17 @@ Do you want to update QZ settings?</source>
     </message>
 </context>
 <context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>UiSectionHeader</name>
     <message>
         <source>Expanded</source>
@@ -1516,17 +1585,6 @@ Do you want to update QZ settings?</source>
     <message>
         <source>sec</source>
         <translation>ثانية</translation>
-    </message>
-</context>
-<context>
-    <name>UiProgress</name>
-    <message>
-        <source>Restoring files of the previous installation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Restoring files of the previous installation: %1 of %2</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1554,7 +1612,7 @@ Do you want to update QZ settings?</source>
     <name>WebTranslations</name>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">موافق</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -1578,7 +1636,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">حذف</translation>
     </message>
     <message>
         <source>Load</source>
@@ -1622,27 +1680,27 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">نعم</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">لا</translation>
     </message>
     <message>
         <source>Bike</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">دراجة</translation>
     </message>
     <message>
         <source>Treadmill</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">جهاز المشي</translation>
     </message>
     <message>
         <source>Elliptical</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">جهاز التمارين البيضاوي</translation>
     </message>
     <message>
         <source>Rower</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">جهاز التجديف</translation>
     </message>
     <message>
         <source>Workout Editor</source>
@@ -2405,7 +2463,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">إيقاف</translation>
     </message>
     <message>
         <source>Auto Resistance</source>
@@ -2552,7 +2610,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">رجوع</translation>
     </message>
     <message>
         <source>Choose your preferred app</source>
@@ -2742,19 +2800,19 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Bike</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">دراجة</translation>
     </message>
     <message>
         <source>Treadmill</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">جهاز المشي</translation>
     </message>
     <message>
         <source>Rower</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">جهاز التجديف</translation>
     </message>
     <message>
         <source>Elliptical</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">جهاز التمارين البيضاوي</translation>
     </message>
     <message>
         <source>Other app</source>
@@ -2810,6 +2868,18 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>kg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2918,17 +2988,8 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Importing workouts...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Processing workout files...
-This may take a few moments on first startup.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">حذف</translation>
     </message>
     <message>
         <source>Success</source>
@@ -3098,6 +3159,22 @@ This may take a few moments on first startup.</source>
         <source>has a workout</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Calendar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>charts</name>
@@ -3156,6 +3233,14 @@ This may take a few moments on first startup.</source>
         <source>Offset</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
@@ -3181,6 +3266,18 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Reset Example</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Decrease %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3484,7 +3581,7 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">إيقاف</translation>
     </message>
     <message>
         <source>Start</source>
@@ -4180,6 +4277,10 @@ This may take a few moments on first startup.</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ قيد التشغيل</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -4503,11 +4604,11 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">نعم</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">لا</translation>
     </message>
     <message>
         <source>Connection lost in the background</source>
@@ -4962,7 +5063,7 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">موافق</translation>
     </message>
     <message>
         <source>Setting saved!</source>
@@ -8550,7 +8651,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">إيقاف</translation>
     </message>
     <message>
         <source>Lap</source>
@@ -8685,7 +8786,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">موافق</translation>
     </message>
     <message>
         <source>Setting saved!</source>
@@ -9351,7 +9452,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">موافق</translation>
     </message>
     <message>
         <source>Setting saved!</source>
@@ -9533,7 +9634,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">موافق</translation>
     </message>
     <message>
         <source>Setting saved!</source>
