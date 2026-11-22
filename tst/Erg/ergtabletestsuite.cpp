@@ -776,3 +776,37 @@ void ErgTableTestSuite::test_stableFtmsPowerMatchResetsOnTargetAndSensorLoss() {
     EXPECT_EQ(0, match.adjustedPower(0, 185, 141, 90, 40000));
     EXPECT_EQ(130, match.adjustedPower(130, 126, 82, 90, 41000));
 }
+
+// Regression from Rudy's November 22 FI9117 trace: the trainer can lag behind
+// QZ's command by >20 W while trainer-vs-pedal offset remains stable.
+// This must not reset the controller and force its command back to 168 W.
+void ErgTableTestSuite::test_stableFtmsPowerMatchSurvivesTrainerResponseLag() {
+    StableFtmsPowerMatch match;
+    int command = match.adjustedPower(168, 166, 122, 90, 0);
+    EXPECT_EQ(168, command);
+    bool sawTrainerLagGreaterThan20W = false;
+    for (int second = 1; second <= 32; ++second) {
+        const int last = command;
+        // Simulate a trainer that remains at 166 W for 13 seconds, then
+        // starts following the raised command with a delayed 2 W/s response.
+        const double trainer = 166.0 + (second <= 13 ? 0 : 2 * (second - 13));
+        sawTrainerLagGreaterThan20W |= std::abs(trainer - command) > 20;
+        command = match.adjustedPower(168, trainer, trainer - 44.0, 90, second * 1000LL);
+        EXPECT_GE(command, last) << "Correction must not oscillate on trainer lag";
+        EXPECT_LE(command - last, StableFtmsPowerMatch::MAX_UP_WATTS_PER_SECOND);
+        EXPECT_LE(command, 212);
+    }
+    EXPECT_TRUE(sawTrainerLagGreaterThan20W);
+    EXPECT_GE(command, 208); // convergence to the stable 44 W correction
+}
+
+// Only the path whose matching controller owns FTMS 0x05 may suppress
+// direct forwarding; native-resistance bikes and devices without an external
+// power sensor retain the existing routing.
+void ErgTableTestSuite::test_stableFtmsPowerMatchSuppressesOnlyMatchingVirtualFtmsPower() {
+    EXPECT_TRUE(StableFtmsPowerMatch::shouldBlockDirectFtmsPower(true, false, true, true));
+    EXPECT_FALSE(StableFtmsPowerMatch::shouldBlockDirectFtmsPower(false, false, true, true));
+    EXPECT_FALSE(StableFtmsPowerMatch::shouldBlockDirectFtmsPower(true, true, true, true));
+    EXPECT_FALSE(StableFtmsPowerMatch::shouldBlockDirectFtmsPower(true, false, false, true));
+    EXPECT_FALSE(StableFtmsPowerMatch::shouldBlockDirectFtmsPower(true, false, true, false));
+}
