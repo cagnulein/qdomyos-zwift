@@ -186,10 +186,6 @@
         <translation>Otomatik direnci aç</translation>
     </message>
     <message>
-        <source>Cancel</source>
-        <translation>İptal</translation>
-    </message>
-    <message>
         <source>Permissions Required</source>
         <translation>İzin gerekli</translation>
     </message>

@@ -186,10 +186,6 @@
         <translation>Automatische weerstand aanzetten</translation>
     </message>
     <message>
-        <source>Cancel</source>
-        <translation>Annuleren</translation>
-    </message>
-    <message>
         <source>Permissions Required</source>
         <translation>Machtigingen vereist</translation>
     </message>

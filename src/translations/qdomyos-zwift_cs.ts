@@ -186,10 +186,6 @@
         <translation>Zapnout automatický odpor</translation>
     </message>
     <message>
-        <source>Cancel</source>
-        <translation>Zrušit</translation>
-    </message>
-    <message>
         <source>Permissions Required</source>
         <translation>Vyžadována oprávnění</translation>
     </message>

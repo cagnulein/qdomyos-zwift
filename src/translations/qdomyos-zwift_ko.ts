@@ -186,10 +186,6 @@
         <translation>자동 저항 켜기</translation>
     </message>
     <message>
-        <source>Cancel</source>
-        <translation>취소</translation>
-    </message>
-    <message>
         <source>Permissions Required</source>
         <translation>권한 필요</translation>
     </message>

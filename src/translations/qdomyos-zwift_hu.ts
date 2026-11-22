@@ -186,10 +186,6 @@
         <translation>Automatikus ellenállás bekapcsolása</translation>
     </message>
     <message>
-        <source>Cancel</source>
-        <translation>Mégse</translation>
-    </message>
-    <message>
         <source>Permissions Required</source>
         <translation>Engedélyek szükségesek</translation>
     </message>

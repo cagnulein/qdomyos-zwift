@@ -186,10 +186,6 @@
         <translation>Slå på automatisk motstand</translation>
     </message>
     <message>
-        <source>Cancel</source>
-        <translation>Avbryt</translation>
-    </message>
-    <message>
         <source>Permissions Required</source>
         <translation>Tillatelser kreves</translation>
     </message>
