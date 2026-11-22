@@ -1,6 +1,8 @@
 package org.cagnulen.qdomyoszwift
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.health.connect.client.PermissionController
@@ -19,6 +21,18 @@ class HealthConnectPermissionActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Exported aliases only open the privacy policy, even for explicit intents
+        // with unexpected actions or extras. Permission requests remain internal.
+        if (intent.component?.className != HealthConnectPermissionActivity::class.java.name) {
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://robertoviola.cloud/privacy-policy-qdomyos-zwift/")))
+            } catch (t: Throwable) {
+                QLog.w(TAG, "Unable to open Health Connect privacy policy", t)
+            }
+            finish()
+            return
+        }
 
         val permissions = intent.getStringArrayListExtra(EXTRA_PERMISSIONS)?.toSet().orEmpty()
         if (permissions.isEmpty()) {

@@ -1,5 +1,13 @@
 # Treadmill troubleshooting
 
+## Domyos Run 500: QZ remains paused after starting or resuming on the treadmill console
+
+On a Domyos Run 500, QZ may continue to display live speed and incline while its workout session remains **paused** after Start or Resume is pressed on the treadmill console. Live readings alone do not mean that QZ is recording: elapsed workout data, distance, averages and maxima may not advance during the paused interval.
+
+For reliable recording, **press Play/Start in QZ as well** whenever you start or resume the workout from the treadmill console. Alternatively, start the session from QZ. A user confirmed that enabling **Horizon 7.8 start issue** helped with this setup, but console-driven resume still required manually starting QZ's session. Check that the QZ workout timer is advancing before relying on the recording. This is distinct from the treadmill belt's own Start/Pause controls.
+
+Short Android tests on this setup also confirmed live speed and incline controls and recording with the phone screen locked; longer background sessions were not established by those tests.
+
 ## QZ is connected to my treadmill, but the session or distance is not updating. What should I check?
 
 First check whether the QZ workout session itself is paused. If the **Play** button at the top of QZ is flashing, press it to resume/start the QZ session.
@@ -85,7 +93,21 @@ QZ writes treadmill activities differently depending on this setting:
 
 Strava can hide the elevation for activities tagged as treadmill/indoor even when the FIT file contains the elevation data. In a confirmed support case, removing the indoor/treadmill classification made the elevation visible in Strava, while keeping the virtual classification still showed it correctly.
 
-So, for treadmill workouts where you want Strava to display QZ's calculated elevation gain, use **Strava Virtual Activity = ON**.
+First, enable **Strava Virtual Activity Tag** under **QZ Settings > Advanced Settings**.
+
+### What if Strava still hides the elevation gain?
+
+Enable **Strava Synthetic GPS Track** under **QZ Settings > Advanced Settings** as well (available since [PR #5805](https://github.com/cagnulein/qdomyos-zwift/pull/5805)). A user tested this feature and confirmed that Strava displayed the elevation gain from a virtual workout after synthetic GPS was enabled.
+
+The setting works as follows:
+
+- Both **Strava Virtual Activity Tag** and **Strava Synthetic GPS Track** must be enabled.
+- It applies to **virtual treadmill, bike, and elliptical workouts** recorded **without real GPS**. It is **off by default**.
+- QZ writes a fictional GPS route into the exported FIT file, using the workout's recorded distance to advance along the route. The original recorded altitude, accumulated ascent/descent, distance and duration are retained.
+- When the workout has real GPS data, QZ leaves the real GPS track unchanged rather than inserting synthetic coordinates.
+- Record a **new activity** after enabling the setting; it does not modify FIT files or Strava activities already uploaded.
+
+**Important:** The route is **not a real location**. It can appear as a map in Strava or any other service importing the FIT file. Enable the feature only if you are comfortable with a fictional GPS trace. Its effect on the displayed elevation has been confirmed in a user test, but other services may process the FIT fields differently.
 
 ## My treadmill only changes incline in 1% increments. Why do 0.5% commands not work as expected?
 

@@ -12,7 +12,7 @@ The exact Android menu names vary by device and manufacturer. On some devices, t
 
 The QZ Android Notification setting helps keep QZ active while Zwift is in the foreground, but Android's own battery management can still suspend or stop QZ in the background. In a confirmed support case, QZ repeatedly disconnected after roughly 2 to 5 minutes until the user found the additional Android battery setting and changed QZ to unrestricted battery usage. See [issue #5034](https://github.com/cagnulein/qdomyos-zwift/issues/5034).
 
-This workaround is Android-specific. iOS does not provide QZ with the same background mechanism; if your iOS setup requires QZ and the training app to remain active at the same time, use separate devices.
+This workaround is Android-specific. **iOS uses a different background mechanism:** the newer QZ iOS beta supports running QZ with Zwift or MyWhoosh on the **same iPhone or iPad** when **Experimental Settings > iOS Background Keep Alive** is enabled. See the [iOS FAQ](ios.md).
 
 ## Debug logging is enabled, but QZ has stopped creating new log files. What should I try?
 
@@ -71,3 +71,9 @@ If QZ runs **directly on an older Android-based Echelon console** and already co
 In a confirmed Android 9 Echelon-console A/B test, the physical Bluetooth link disconnected after roughly **31.6–31.8 seconds** in two runs with virtual Bluetooth advertising enabled. With it disabled, the connection remained stable for **at least 68 seconds**, until QZ was deliberately closed. Android battery-optimization changes alone had not solved that specific issue.
 
 **Important:** Disabling virtual Bluetooth also removes that Bluetooth bridge for downstream apps/devices. Do **not** use this workaround if Zwift, MyWhoosh, or another app needs QZ's advertised Bluetooth trainer; investigate the connection issue or use an appropriately configured alternative bridge instead. This is a targeted workaround on the tested older console, not a universal cure for Bluetooth disconnects.
+
+## Some QZ settings switches do not respond when Android uses a right-to-left language. What can I try?
+
+If QZ settings switches (for example, switches in the Garmin settings) appear mirrored or do not respond to taps while Android is using a right-to-left (RTL) language, temporarily switch the **Android device language to English**, then reopen QZ and try the switches again. Tap the switch itself rather than the surrounding settings row.
+
+A user confirmed that the switches became usable after changing the Android system language from an RTL language to English. This is a **temporary workaround**, not a confirmed fix for QZ's RTL layout; switch back to your preferred language after configuring QZ and check whether the setting remains effective. If the issue recurs, report the QZ version, Android version, language and affected switch so the RTL behavior can be corrected.

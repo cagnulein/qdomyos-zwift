@@ -103,27 +103,66 @@ function main_ws_queue_process(msg) {
 }
 
 
+// the socket being opened or open (main_ws is set only once it is open); a socket that is not this
+// one any more was closed by main_ws_pause and is left alone
+let main_ws_socket = null;
+// A page kept hidden (the workout editor of the modern look, main.qml) leaves the server while it is
+// hidden, or it would take every update of the workout for nothing: main_ws_pause(true) closes the
+// socket and keeps it closed, main_ws_pause(false) connects again. What is sent meanwhile waits in
+// the queue and goes once the socket is open again
+let main_ws_paused = false;
+
+function main_ws_pause(paused) {
+    paused = !!paused;
+    if (paused === main_ws_paused)
+        return;
+    main_ws_paused = paused;
+    if (paused) {
+        let socket = main_ws_socket;
+        main_ws_socket = null;
+        main_ws = null;
+        if (socket) {
+            console.log('Socket is closed while the page is hidden');
+            socket.close();
+        }
+    } else if (!main_ws_socket) {
+        main_ws_connect();
+    }
+}
+
 function main_ws_connect() {
     let socket = new WebSocket((location.protocol == 'https:'?'wss://' : 'ws://') + host_url + '/' + get_template_name() + '-ws');
+    main_ws_socket = socket;
     socket.onopen = function (event) {
+        if (main_ws_socket !== socket) {
+            socket.close();
+            return;
+        }
         console.log('Upgrade HTTP connection OK');
         main_ws = socket;
         main_ws_queue_process();
     };
     socket.onclose = function(e) {
+        if (main_ws_socket !== socket)
+            return;
         main_ws = null;
+        main_ws_socket = null;
         console.log('Socket is closed. Reconnect will be attempted in 30 second.', e.reason);
         setTimeout(function() {
-            main_ws_connect();
+            if (!main_ws_paused && !main_ws_socket)
+                main_ws_connect();
         }, 5000);
     };
 
     socket.onerror = function(err) {
-        main_ws = null;
+        if (main_ws === socket)
+            main_ws = null;
         console.error('Socket encountered error: ', err.message, 'Closing socket');
         socket.close();
     };
     socket.onmessage = function (event) {
+        if (main_ws_socket !== socket)
+            return;
         console.log(event.data);
         let msg = JSON.parse(event.data);
         main_ws_queue_process(msg);

@@ -7,7 +7,6 @@ import QtQuick.Controls.Material 2.0
 ScrollView {
     contentWidth: -1
     focus: true
-    anchors.horizontalCenter: parent.horizontalCenter
     anchors.fill: parent
     id: settingsShortcutsPane
     objectName: "settingsShortcutsPane"
@@ -56,12 +55,12 @@ ScrollView {
 
         Label {
             text: qsTr("Click on a field and press a key to assign a shortcut. Press Backspace to clear. Preset fields follow the same left-to-right order as the preset buttons.")
-            font.italic: true
+            font.italic: !window.ui.modern
             font.pixelSize: window.fontHint
             bottomPadding: window.hintGap
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
-            color: Material.color(Material.Lime)
+            color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
         }
 
         component ShortcutField : TextField {

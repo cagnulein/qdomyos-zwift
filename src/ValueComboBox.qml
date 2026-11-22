@@ -13,28 +13,18 @@ UiComboBox {
     property string value
     property var labels: ({})
 
-    function labelFor(v) {
-        return labels.hasOwnProperty(v) ? labels[v] : v
-    }
+    // UiComboBox's list items and labelFor() show these labels
+    itemLabels: labels
 
     displayText: labelFor(value)
-    onActivated: value = currentValue
+    // Enter on an open list with no row highlighted gives -1 (DeviceComboBox: the saved device is not
+    // in the list): there is no value to take
+    onActivated: if (index >= 0) value = currentValue
 
     // savedText (see UiComboBox) is the raw saved value: shown through `value`, compared raw
     dirty: savedText !== undefined && value !== String(savedText)
     function showSaved() {
         if (savedText !== undefined)
             value = savedText
-    }
-
-    // Same as the delegate of UiComboBox; only the text goes through labelFor()
-    delegate: MenuItem {
-        width: ListView.view.width
-        text: control.labelFor(modelData)
-        Accessible.name: text
-        Accessible.onPressAction: clicked()
-        Material.foreground: control.currentIndex === index ? ListView.view.contentItem.Material.accent : ListView.view.contentItem.Material.foreground
-        highlighted: control.highlightedIndex === index
-        hoverEnabled: control.hoverEnabled
     }
 }

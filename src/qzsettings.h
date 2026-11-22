@@ -751,6 +751,10 @@ class QZSettings {
     static const QString proform_tdf_jonseed_watt;
     static constexpr bool default_proform_tdf_jonseed_watt = false;
 
+    // Opt-in support for physical front/rear gears on ProForm Wi-Fi consoles.
+    static const QString proform_use_console_gears;
+    static constexpr bool default_proform_use_console_gears = false;
+
     static const QString proform_studio;
     static constexpr bool default_proform_studio = false;
 
@@ -3357,6 +3361,8 @@ class QZSettings {
     static constexpr bool default_proform_carbon_tl_PFTL59723_6 = false;
     static const QString proform_treadmill_cst_505_pftl59420_0;
     static constexpr bool default_proform_treadmill_cst_505_pftl59420_0 = false;
+    static const QString proform_treadmill_cst_505_pftl59420_2026;
+    static constexpr bool default_proform_treadmill_cst_505_pftl59420_2026 = false;
     static const QString proform_treadmill_105_cst;
     static constexpr bool default_proform_treadmill_105_cst = false;
     static const QString proform_treadmill_305_cst;
@@ -3470,6 +3476,34 @@ class QZSettings {
     // the day the first-setup log was turned on (ISO date), for the 7 days
     static const QString log_debug_first_setup_since;
     static const QString default_log_debug_first_setup_since;
+
+    // The modern look of the interface (main.qml window.ui), off by default: with it off every page
+    // keeps its classic look. The theme, the accent and the theme mode apply to the modern look only
+    static const QString ui_modern;
+    static constexpr bool default_ui_modern = false;
+    // colour set of the modern look: graphite, oled, midnight
+    static const QString ui_theme;
+    static const QString default_ui_theme;
+    // accent colour of the modern look: violet, blue, teal, green, orange, pink
+    static const QString ui_accent;
+    static const QString default_ui_accent;
+    // auto (follows the night mode of the phone), dark, light
+    static const QString ui_theme_mode;
+    static const QString default_ui_theme_mode;
+
+    // The user answered whether QZ may write the wheel circumference of a Wahoo trainer (asked at the
+    // first connection). Written at the first discovery of a Wahoo trainer: true when that trainer
+    // already was the last device, so it was connected before the question existed
+    static const QString wahoo_wheel_question_answered;
+    static constexpr bool default_wahoo_wheel_question_answered = false;
+
+    // Optional synthetic coordinates for virtual FIT activities (no real GPS).
+    static const QString strava_synthetic_gps_track;
+    static constexpr bool default_strava_synthetic_gps_track = false;
+
+    // Use FTMS 16-bit resistance levels multiplied by 10 for compatible trainers.
+    static const QString resistance_compatibility;
+    static constexpr bool default_resistance_compatibility = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

@@ -43,6 +43,12 @@
         <file>inner_templates/chartjs/chartjs.3.4.1.min.js</file>
         <file>inner_templates/chartjs/dochart.js</file>
         <file>inner_templates/chartjs/globals.js</file>
+        <file>inner_templates/chartjs/qzcharttheme.js</file>
+        <file>inner_templates/chartjs/qz-theme-bridge.js</file>
+        <file>inner_templates/chartjs/qzmetriccharts.js</file>
+        <file>inner_templates/chartjs/qz-modern.css</file>
+        <file>inner_templates/chartjs/qz-modern-select.js</file>
+        <file>inner_templates/chartjs/qz-modern-charts.css</file>
         <file>inner_templates/chartjs/jquery-3.6.0.min.js</file>
         <file>inner_templates/chartjs/main_ws_manager.js</file>
         <file>inner_templates/chartjs/moment.js</file>
@@ -141,7 +147,30 @@
         <file>custominclinationresistance.qml</file>
         <file>IndicatorOnlySwitch.qml</file>
         <file>ValueComboBox.qml</file>
+        <file>DeviceComboBox.qml</file>
         <file>UiComboBox.qml</file>
+        <file>UiDrawerItem.qml</file>
+        <file>UiSectionHeader.qml</file>
+        <file>UiSettingFrames.qml</file>
+        <file>UiStickyHeader.qml</file>
+        <file>UiButton.qml</file>
+        <file>UiFrame.qml</file>
+        <file>UiGroupBox.qml</file>
+        <file>UiIcon.qml</file>
+        <file>UiIcons.js</file>
+        <file>UiInfoPopup.qml</file>
+        <file>UiMessageDialog.qml</file>
+        <file>UiMenuBackground.qml</file>
+        <file>UiNotice.qml</file>
+        <file>UiPopup.qml</file>
+        <file>UiProgress.qml</file>
+        <file>UiSpinBox.qml</file>
+        <file>UiSpinInput.qml</file>
+        <file>UiSwitch.qml</file>
+        <file>UiSwitchDelegate.qml</file>
+        <file>UiSwitchIndicator.qml</file>
+        <file>UiTextField.qml</file>
+        <file>fonts/MaterialSymbolsQZ.ttf</file>
         <file>StaticAccordionElement.qml</file>
         <file>inner_templates/chartjs/dotreadmillchartlive.js</file>
         <file>inner_templates/chartjs/treadmillchartlive.htm</file>

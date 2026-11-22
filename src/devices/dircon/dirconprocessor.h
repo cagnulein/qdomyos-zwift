@@ -112,6 +112,7 @@ class DirconProcessor : public QObject {
                              quint16 serv_port, const QString &serv_sn, const QString &mac, QObject *parent = nullptr);
     bool sendCharacteristicNotification(quint16 uuid, const QByteArray &data);
     bool init();
+    bool hasClients() const { return !clientsMap.isEmpty(); }
   private slots:
     void tcpDataAvailable();
     void tcpDisconnected();
@@ -121,6 +122,7 @@ class DirconProcessor : public QObject {
     void onCharacteristicRead(quint16 uuid);
     void onCharacteristicWrite(quint16 uuid, QByteArray data);
     void onCharacteristicNotificationSwitch(quint16 uuid, char switchval);
+    void clientDisconnected();
 };
 
 #endif // DIRCONPROCESSOR_H

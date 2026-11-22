@@ -53,7 +53,7 @@ ColumnLayout {
             inputMethodHints: Qt.ImhDigitsOnly
             onAccepted: portRow.doSavePort(text)
         }
-        Button {
+        UiButton {
             id: buttonlabelWebServerPort
             text: "OK"
             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter

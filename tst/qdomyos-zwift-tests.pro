@@ -18,6 +18,7 @@ SOURCES += \
         Devices/bluetoothdevicetestsuite.cpp \
         Devices/bluetoothsignalreceiver.cpp \
         Devices/devicediscoveryinfo.cpp \
+        Devices/dirconloopbacktestsuite.cpp \
         Devices/deviceindex.cpp \
         Devices/devicenamepatterngroup.cpp \
         Devices/devicetestdataindex.cpp \
@@ -28,6 +29,7 @@ SOURCES += \
         ToolTests/qfittestsuite.cpp \
         ToolTests/metrictestsuite.cpp \
         ToolTests/treadmillrunnclosedlooptests.cpp \
+        ToolTests/ksespinclinationtests.cpp \
         ToolTests/fitshowstartspeedgatetests.cpp \
         ToolTests/testsettingstestsuite.cpp \
         ToolTests/testsettingssecuritytestsuite.cpp \
@@ -59,12 +61,14 @@ SOURCES += \
         Devices/TestXcxBikeParser.cpp \
         Devices/TestFtmsBikeParser.cpp \
         Devices/TestRowerTargetResistance.cpp \
+        Devices/TestBkoolStandaloneResistance.cpp \
         Devices/TestPafersRowerRouting.cpp \
         Devices/TestHeartRateSensorOffer.cpp \
         Devices/TestFreebeatBoomBikeParser.cpp \
         Devices/TestKettlerClassicProtocol.cpp \
         Devices/TestFitPlusBikeResistance.cpp \
         Devices/TestTargetPowerOverride.cpp \
+        Devices/TestTargetPowerRelease.cpp \
         VirtualRowerCadenceTest.cpp \
         main.cpp
 
@@ -91,6 +95,7 @@ HEADERS += \
     Devices/bluetoothdevicetestsuite.h \
     Devices/bluetoothsignalreceiver.h \
     Devices/devicediscoveryinfo.h \
+    Devices/dirconloopbacktestsuite.h \
     Devices/deviceindex.h \
     Devices/devicenamepatterngroup.h \
     Devices/devicetestdataindex.h \

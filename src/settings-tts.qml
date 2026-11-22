@@ -9,7 +9,6 @@ ScrollView {
     leftPadding: window.contentSideMargin
     rightPadding: window.contentSideMargin
     focus: true
-    anchors.horizontalCenter: parent.horizontalCenter
     anchors.fill: parent
     //anchors.bottom: footerSettings.top
     //anchors.bottomMargin: footerSettings.height + 10
@@ -70,7 +69,7 @@ ScrollView {
                 onAccepted: if (valid) settings.tts_summary_sec = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 id: okTTSSummarySec
                 text: qsTr("OK")
                 enabled: ttsSummarySecTextField.valid && ttsSummarySecTextField.dirty

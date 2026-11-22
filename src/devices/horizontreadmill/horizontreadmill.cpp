@@ -1014,8 +1014,12 @@ void horizontreadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
-            if (!adidas_treadmill && (!FS_TREADMILL || !areInclinationSettingsDefault())) {
-                requestInclination = treadmillInclinationOverrideReverse(requestInclination);
+            // The generic override table only covers 0..15%. Do not clamp ZIPRO Shred's
+            // higher FTMS grades through the reverse lookup.
+            if (!adidas_treadmill && (!FS_TREADMILL || !areInclinationSettingsDefault()) &&
+                !(zipro_shred_treadmill && requestInclination > 15.0)) {
+                requestInclination = treadmillInclinationOverrideReverse(requestInclination,
+                                                                          ks_esp_treadmill ? maxInclination : 15.0);
             }
 
             // this treadmill doesn't send the incline, so i'm forcing it manually
@@ -1812,6 +1816,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                           2.0;
                 parseCadence(cadence);
                 cadenceAvailable = true;
+                if (cadence > 0)
+                    lastDeviceCadenceMs = QDateTime::currentMSecsSinceEpoch();
             }
             index += 2;
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
@@ -2236,6 +2242,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                                     (uint16_t)((uint8_t)newValue.at(index))));
                 parseCadence(cadence);
                 cadenceAvailable = true;
+                if (cadence > 0)
+                    lastDeviceCadenceMs = QDateTime::currentMSecsSinceEpoch();
             }
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
@@ -2370,6 +2378,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         parseCadence(cadence);
         cadenceAvailable = true;
+        if (cadence > 0)
+            lastDeviceCadenceMs = QDateTime::currentMSecsSinceEpoch();
         emit cadenceChanged(cadence);
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(cadence));
     }
@@ -2386,8 +2396,12 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     cadenceFromAppleWatch();
 
-    // Calculate cadence from speed if not available from FTMS and no external power sensor
-    if (!cadenceAvailable && Speed.value() > 0) {
+    // Calculate cadence from speed if not available from FTMS/RSC or an external cadence sensor and no external
+    // power sensor. They come in separate packets: a cadence received in the last 3 seconds is still current.
+    qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+    bool deviceCadenceRecent = lastDeviceCadenceMs > 0 && nowMs - lastDeviceCadenceMs < 3000;
+    bool sensorCadenceRecent = lastCadenceSensorMs > 0 && nowMs - lastCadenceSensorMs < 3000;
+    if (!cadenceAvailable && !deviceCadenceRecent && !sensorCadenceRecent && Speed.value() > 0) {
         bool garminCompanion =
             settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool();
         bool hasPowerSensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
@@ -2731,6 +2745,11 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     {
         QSettings settings;
         bluetoothDevice = device;
+        ks_esp_treadmill = device.name().toUpper().startsWith(QStringLiteral("KS-ESP-"));
+        if (ks_esp_treadmill) {
+            maxInclination = 25.0;
+            qDebug() << QStringLiteral("KS-ESP treadmill: 25% max inclination");
+        }
         JFTM_T202 = device.name().toUpper().startsWith(QStringLiteral("JFTM T202"));
         SW3925EAI_TREADMILL = device.name().toUpper().startsWith(QStringLiteral("SW3925EAI-"));
         if (SW3925EAI_TREADMILL) {
@@ -2777,13 +2796,18 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             minInclination = -6.0;
             maxInclination = 40.0;
             qDebug() << QStringLiteral("ADIDAS TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("SHRED"))) {
+            zipro_shred_treadmill = true;
+            maxInclination = 40.0;
+            qDebug() << QStringLiteral("ZIPRO SHRED TREADMILL 40% inclination enabled");
         } else if (device.name().toUpper().startsWith(QStringLiteral("S77"))) {
             sole_s77_treadmill = true;
             qDebug() << QStringLiteral("SOLE S77 TREADMILL workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("SCHWINN 810"))) {
             schwinn_810_treadmill = true;
             qDebug() << QStringLiteral("Schwinn 810 TREADMILL workaround ON!");
-        } else if (device.name().toUpper().startsWith(QStringLiteral("YESOUL"))) {
+        } else if (device.name().toUpper().startsWith(QStringLiteral("YESOUL")) ||
+                   device.name().toUpper().startsWith(QStringLiteral("YS_W2"))) {
             yesoul_treadmill = true;
             qDebug() << QStringLiteral("YESOUL TREADMILL workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("TREADMILL"))) { // Technogym Run
@@ -2814,7 +2838,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             if(domyos_treadmill_ts100) {
                 qDebug() << QStringLiteral("Domyos TS100 mode ON - Fixed 15° inclination");
             }
-        } else if ((device.name().toUpper().startsWith(QStringLiteral("BFX_T9_")))) {
+        } else if ((device.name().toUpper().startsWith(QStringLiteral("BFX_T9")))) {
             qDebug() << QStringLiteral("BOWFLEX T9 found");
             BOWFLEX_T9 = true;
         } else if ((device.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")))) {

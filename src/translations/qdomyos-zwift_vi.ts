@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="vi_VN">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Đóng</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -67,6 +74,77 @@
     <message>
         <source>Other folders</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>Thư mục cha</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Mở</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Không có tệp GPX ở đây</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+</context>
+<context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Đã tìm thấy cảm biến nhịp tim: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Đã tìm thấy các cảm biến nhịp tim: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Kết nối</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Chọn</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Để sau</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Đừng hỏi lại</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Chọn cảm biến nhịp tim</translation>
+    </message>
+    <message>
+        <source>Strong signal</source>
+        <translation>Tín hiệu mạnh</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Tín hiệu tốt</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Tín hiệu trung bình</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Tín hiệu yếu</translation>
     </message>
 </context>
 <context>
@@ -198,7 +276,7 @@ Would you like to do that now?</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Good</source>
@@ -225,6 +303,22 @@ Would you like to enable the required services?</source>
     <message>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Dừng</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Hủy</translation>
+    </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Quay lại ứng dụng</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Trả quyền điều khiển tải về cho ứng dụng</translation>
     </message>
 </context>
 <context>
@@ -265,6 +359,26 @@ Would you like to enable the required services?</source>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Đang tìm thiết bị của bạn…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Bật xe đạp, máy chạy bộ hoặc máy chèo thuyền: QZ sẽ tự động kết nối.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Không kết nối được?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Không tìm thấy thiết bị</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Bật xe đạp, máy chạy bộ hoặc máy chèo thuyền, sau đó nhấn biểu tượng Bluetooth ở phía trên để tìm lại.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -286,7 +400,7 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Chart</source>
-        <translation type="unfinished"></translation>
+        <translation>Biểu đồ</translation>
     </message>
     <message>
         <source>Treadmill Status</source>
@@ -474,7 +588,7 @@ Would you like to enable the required services?</source>
     <name>QAndroidPlatformTheme</name>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation>Có</translation>
     </message>
     <message>
         <source>Yes to All</source>
@@ -482,7 +596,7 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation>Không</translation>
     </message>
     <message>
         <source>No to All</source>
@@ -1003,12 +1117,36 @@ Do you want to update QZ settings?</source>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (cảm biến nhịp tim): không có dữ liệu nhịp tim. Hãy chắc chắn cảm biến đang phát dữ liệu.</translation>
+    </message>
+    <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Đang tìm cảm biến nhịp tim...</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Đang tìm %1 (cảm biến nhịp tim)...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Không tìm thấy %1 (cảm biến nhịp tim). Hãy chắc chắn cảm biến đã bật và đang phát dữ liệu nhịp tim.</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Không tìm thấy cảm biến nhịp tim gần đây. Hãy chắc chắn cảm biến đã bật và đang phát dữ liệu.</translation>
+    </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Đã kết nối Coach S!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">OK</translation>
     </message>
     <message>
         <source>Save</source>
@@ -1020,7 +1158,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mở</translation>
     </message>
     <message>
         <source>&amp;Yes</source>
@@ -1056,7 +1194,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Hủy</translation>
     </message>
     <message>
         <source>Discard</source>
@@ -1116,6 +1254,22 @@ Do you want to update QZ settings?</source>
         <source>Other folders</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Chạm vào một tệp để chọn, sau đó nhấn Tải.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Tải</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Không có cài đặt đã lưu</translation>
+    </message>
 </context>
 <context>
     <name>SettingsNumberField</name>
@@ -1142,6 +1296,84 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Maximum: %1</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Liên hệ bộ phận hỗ trợ QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Soạn email hỗ trợ kèm thông tin chẩn đoán</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Chưa kết nối thiết bị</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Tốc độ và công suất bằng không</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Hỗ trợ QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Xong</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Ẩn bàn phím</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Đóng yêu cầu hỗ trợ</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Hãy cho chúng tôi biết điều gì không hoạt động. QZ sẽ thêm thông tin về thiết bị và ứng dụng.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Mô tả sự cố...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Mô tả sự cố</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Đính kèm nhật ký gỡ lỗi nếu có</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Bạn có thể xem lại hoặc chỉnh sửa email trước khi gửi. Không có gì được gửi tự động.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Hủy</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Mở email</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Đang mua...</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Mua thất bại</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Mua thành công</translation>
     </message>
 </context>
 <context>
@@ -1221,7 +1453,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Xóa</translation>
     </message>
     <message>
         <source>Other folders</source>
@@ -1263,7 +1495,7 @@ Do you want to update QZ settings?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Restore programs</source>
+        <source>Restore files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1272,11 +1504,87 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Xóa</translation>
     </message>
     <message>
         <source>Start Workout</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>Thư mục cha</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Không tìm thấy bài tập</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Không có bài tập ở đây</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>Hiển thị ít hơn</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Hiển thị thêm</translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Có</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Không</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Hủy</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Đã mở rộng</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Đã thu gọn</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>giờ</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>phút</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>giây</translation>
     </message>
 </context>
 <context>
@@ -1304,11 +1612,11 @@ Do you want to update QZ settings?</source>
     <name>WebTranslations</name>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Hủy</translation>
     </message>
     <message>
         <source>Confirm</source>
@@ -1328,11 +1636,11 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Xóa</translation>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation>Tải</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -1348,7 +1656,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>Quay lại</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -1372,27 +1680,27 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Có</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Không</translation>
     </message>
     <message>
         <source>Bike</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Xe đạp</translation>
     </message>
     <message>
         <source>Treadmill</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Máy chạy bộ</translation>
     </message>
     <message>
         <source>Elliptical</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Máy tập toàn thân</translation>
     </message>
     <message>
         <source>Rower</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Máy chèo thuyền</translation>
     </message>
     <message>
         <source>Workout Editor</source>
@@ -1784,6 +2092,11 @@ Do you want to update QZ settings?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation type="unfinished"></translation>
@@ -2150,7 +2463,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dừng</translation>
     </message>
     <message>
         <source>Auto Resistance</source>
@@ -2244,6 +2557,16 @@ Do you want to update QZ settings?</source>
         <source>Interval {number}, {field}: {error}</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>Bộ chấp hành PID nhịp tim</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>Mặc định</translation>
+    </message>
 </context>
 <context>
     <name>Wizard</name>
@@ -2287,7 +2610,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Quay lại</translation>
     </message>
     <message>
         <source>Choose your preferred app</source>
@@ -2387,11 +2710,11 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Zwift Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
         <source>Zwift Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Play</translation>
     </message>
     <message>
         <source>Correct startup phase:
@@ -2477,19 +2800,19 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Bike</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Xe đạp</translation>
     </message>
     <message>
         <source>Treadmill</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Máy chạy bộ</translation>
     </message>
     <message>
         <source>Rower</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Máy chèo thuyền</translation>
     </message>
     <message>
         <source>Elliptical</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Máy tập toàn thân</translation>
     </message>
     <message>
         <source>Other app</source>
@@ -2546,6 +2869,18 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <source>kg</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Thiết bị, đơn vị và hồ sơ của bạn, từng bước một</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Chọn một chủ đề để mở ngay phần cài đặt</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Đóng trình hướng dẫn</translation>
     </message>
 </context>
 <context>
@@ -2653,17 +2988,8 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Importing workouts...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Processing workout files...
-This may take a few moments on first startup.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Xóa</translation>
     </message>
     <message>
         <source>Success</source>
@@ -2782,6 +3108,22 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Adding workouts to the history</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Open on Peloton</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2816,6 +3158,22 @@ This may take a few moments on first startup.</source>
     <message>
         <source>has a workout</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Calendar</source>
+        <translation>Lịch</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Không có buổi tập trong ngày này</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Chưa có buổi tập nào</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Các buổi tập đã hoàn thành xuất hiện ở đây: mở một buổi để xem biểu đồ.</translation>
     </message>
 </context>
 <context>
@@ -2875,6 +3233,14 @@ This may take a few moments on first startup.</source>
         <source>Offset</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Giảm độ lệch của số %1</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Tăng độ lệch của số %1</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
@@ -2901,6 +3267,18 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Reset Example</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Giảm %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Tăng %1</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Xóa điểm tại độ dốc %1</translation>
     </message>
 </context>
 <context>
@@ -2980,6 +3358,10 @@ This may take a few moments on first startup.</source>
 </context>
 <context>
     <name>homeform</name>
+    <message>
+        <source>No enabled metrics</source>
+        <translation>Không có chỉ số nào được bật</translation>
+    </message>
     <message>
         <source>Speed (%1/h)</source>
         <translation type="unfinished"></translation>
@@ -3199,7 +3581,7 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dừng</translation>
     </message>
     <message>
         <source>Start</source>
@@ -3433,6 +3815,14 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3466,14 +3856,6 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>The file could not be copied to the QZ folder.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Training programs restored: %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No training programs of a previous installation were found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3890,9 +4272,22 @@ This may take a few moments on first startup.</source>
         <source>Unable to open an email application</source>
         <translation>Không thể mở ứng dụng email</translation>
     </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ đang chạy</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth đang tắt</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Chỉ số nổi (hình trong hình)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation type="unfinished"></translation>
@@ -4007,6 +4402,17 @@ Do you want to start it now?</source>
     </message>
     <message>
         <source>Peloton</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4136,17 +4542,6 @@ In the next window, allow access to the QZ folder.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Training Programs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Training programs of a previous installation may still be in the QZ folder.
-Do you want to look for them?
-
-In the next window, allow access to the QZ folder.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Restart now?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4209,11 +4604,11 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Có</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Không</translation>
     </message>
     <message>
         <source>Connection lost in the background</source>
@@ -4235,11 +4630,11 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Not now</source>
-        <translation type="unfinished"></translation>
+        <translation>Để sau</translation>
     </message>
     <message>
         <source>Don&apos;t ask again</source>
-        <translation type="unfinished"></translation>
+        <translation>Đừng hỏi lại</translation>
     </message>
     <message>
         <source>Auto Resistance enabled</source>
@@ -4252,6 +4647,138 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Please choose a file</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>Đã lưu! Xem trong ứng dụng Tệp.</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>Đã lưu! Xem trong thư mục riêng của ứng dụng.</translation>
+    </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Số ảo Wahoo</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>Để mô phỏng số ảo, QZ thay đổi chu vi bánh xe được lưu trong thiết bị tập của bạn. Giá trị này có thể vẫn còn sau khi đóng QZ và ảnh hưởng đến hoạt động với các ứng dụng khác.
+
+Cho phép QZ thay đổi giá trị này?
+
+Nếu chọn Không, QZ sẽ bật Without Wheel Diameter Protocol (Cài đặt &gt; Tùy chọn xe đạp &gt; Tùy chọn Wahoo), và số ảo sẽ hoạt động thông qua độ dốc. Nếu chọn Có, bạn có thể hoàn tác sau: bật tùy chọn đó và khi thiết bị tập đã kết nối, nhấn Restore Default Setting to the Trainer.</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Quay lại</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>Menu chính</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>Cửa sổ nổi</translation>
+    </message>
+    <message>
+        <source>Load settings</source>
+        <translation>Tải cài đặt</translation>
+    </message>
+    <message>
+        <source>Save settings</source>
+        <translation>Lưu cài đặt</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Bản đồ</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Video</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>Biểu đồ</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>Khóa các ô</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>Mở khóa các ô</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>Tắt lực cản tự động</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>Bật lực cản tự động</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>Ngắt kết nối Strava</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Kết nối Strava</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Ngắt kết nối Peloton</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Kết nối Peloton</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Cài đặt Garmin Connect</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Ngắt kết nối Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Kết nối Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>Bài tập</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>Ứng dụng</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>Dịch vụ</translation>
+    </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Thiết bị mô phỏng (%1) đang hoạt động. Nếu không cố ý bật, hãy tắt trong Cài đặt.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Xe đạp</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Máy chạy bộ</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Máy tập toàn thân</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Máy chèo thuyền</translation>
     </message>
 </context>
 <context>
@@ -4328,12 +4855,40 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Other folders</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Xóa</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>Hồ sơ mới</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Hồ sơ đã lưu</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Chạm vào hồ sơ để chọn, sau đó nhấn Tải. Nhấn giữ để xóa.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Đang hoạt động</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Tải</translation>
     </message>
 </context>
 <context>
@@ -4503,16 +5058,12 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Open</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>General Options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">OK</translation>
     </message>
     <message>
         <source>Setting saved!</source>
@@ -5363,7 +5914,7 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Tiles Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Tùy chọn các ô</translation>
     </message>
     <message>
         <source>General UI Options</source>
@@ -5796,7 +6347,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Hủy</translation>
     </message>
     <message>
         <source>Submit</source>
@@ -6540,6 +7091,14 @@ Please enter it below:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Lộ trình GPS giả lập cho Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Thêm lộ trình GPS giả lập vào hoạt động ảo không có GPS. Strava có thể hiển thị độ cao tăng thêm, nhưng lộ trình này không có thật.</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6660,6 +7219,14 @@ IMPORTANT NOTES:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>Tương thích lực cản</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Bật nếu việc thay đổi lực cản trong QZ chỉ đặt xe ở mức 1 hoặc mức tối đa. Gửi giá trị lực cản FTMS nhân với 10. Mặc định: tắt.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>
@@ -6969,7 +7536,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Zwift Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
         <source>Use it to change the gears on QZ!</source>
@@ -6977,7 +7544,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Zwift Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Play</translation>
     </message>
     <message>
         <source>Also for Elite Square. Use it to change the gears on QZ!</source>
@@ -7341,10 +7908,6 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Clears all the QZ logs, QZ .fit files and QZ images (these files are saved by QZ for every session) from your device while maintaining your saved Profiles and Settings.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hidden on its page right now: change it here</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7979,6 +8542,110 @@ Default: A = -0.96, B = 1.33</source>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Thiết lập cách độ dốc từ ứng dụng ảo được chuyển thành lực cản xe đạp.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Dùng ánh xạ tùy chỉnh khi QZ chuyển độ dốc của ứng dụng ảo thành lực cản.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Mỗi dòng một cặp độ dốc|lực cản. QZ nội suy giữa các điểm và giới hạn giá trị bên ngoài khoảng đã cấu hình.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Tên người dùng tài khoản Life Fitness để đăng nhập dịch vụ. Chỉ lưu trên thiết bị và không bao giờ ghi vào nhật ký gỡ lỗi.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Mật khẩu tài khoản Life Fitness để đăng nhập dịch vụ. Chỉ lưu trên thiết bị và không bao giờ ghi vào nhật ký gỡ lỗi.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Thao tác camera</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Thao tác biểu cảm</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Trình giả lập Wattbike</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Vị trí biểu đồ công suất</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Vị trí biểu đồ nhịp tim</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Vị trí biểu đồ lực cản so với lực cản mục tiêu</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Vị trí biểu đồ lực cản Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Vị trí biểu đồ nhịp đạp</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Vị trí biểu đồ phân bố công suất</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Vị trí biểu đồ tốc độ và độ dốc</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Vị trí theo số của biểu đồ này trong Lịch sử bài tập. Sắp xếp lại bằng nút lên và xuống trong Tùy chọn giao diện chung.</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Tìm cảm biến nhịp tim khi khởi động</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Trong 5 phút đầu sau khi máy tập kết nối, nếu chưa có dữ liệu nhịp tim, QZ tìm cảm biến mỗi phút một lần: tự kết nối dây đeo ngực đã chọn ngay khi tìm thấy hoặc đề xuất cảm biến ở gần nếu chưa chọn dây đeo. Chạm vào ô nhịp tim hoặc biểu tượng Bluetooth trên trang chủ để tìm bất cứ lúc nào.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Tùy chọn xe đạp Daum</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>Cổng nối tiếp dùng cho các máy đo công suất Daum đời cũ như 8008 TRS 3. Trên Android với bộ chuyển USB sang nối tiếp, hãy dùng &apos;usb&apos;. COM1, COM2, v.v. được chấp nhận làm bí danh để tìm bộ chuyển USB, nhưng không phải tên cổng Android. Trên Windows dùng COM1 hoặc COM3; trên Linux/macOS dùng đường dẫn thiết bị nối tiếp, ví dụ /dev/ttyUSB0.</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>Độ trễ thăm dò lực cản:</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>Sử dụng cài đặt Độ trễ độ dốc để giới hạn tần suất QZ gửi cập nhật lực cản và công suất tới Daum. Mặc định: 0 giây.</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>Bộ lọc độ dốc (%):</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>Trong bài tập GPX, bỏ qua thay đổi độ dốc nhỏ hơn giá trị này và chỉ gửi lệnh độ dốc mới khi độ chênh so với giá trị gửi gần nhất đạt ngưỡng đã cấu hình. Mặc định: 0 (tắt).</translation>
+    </message>
+    <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>Không tìm thấy cài đặt này trên các trang cài đặt</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Sử dụng số trên bảng điều khiển</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>
@@ -8008,7 +8675,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dừng</translation>
     </message>
     <message>
         <source>Lap</source>
@@ -8143,7 +8810,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">OK</translation>
     </message>
     <message>
         <source>Setting saved!</source>
@@ -8791,6 +9458,10 @@ Default: A = -0.96, B = 1.33</source>
         <source>km/h</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Tùy chọn các ô</translation>
+    </message>
 </context>
 <context>
     <name>settings-treadmill-inclination-override</name>
@@ -8805,7 +9476,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">OK</translation>
     </message>
     <message>
         <source>Setting saved!</source>
@@ -8987,7 +9658,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">OK</translation>
     </message>
     <message>
         <source>Setting saved!</source>
@@ -9148,69 +9819,6 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Max Watt/KG</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SupportHelpButton</name>
-    <message>
-        <source>Contact QZ support</source>
-        <translation>Liên hệ bộ phận hỗ trợ QZ</translation>
-    </message>
-    <message>
-        <source>Prepare a support email with diagnostics</source>
-        <translation>Soạn email hỗ trợ kèm thông tin chẩn đoán</translation>
-    </message>
-    <message>
-        <source>No device connected</source>
-        <translation>Chưa kết nối thiết bị</translation>
-    </message>
-    <message>
-        <source>Speed and power at zero</source>
-        <translation>Tốc độ và công suất bằng không</translation>
-    </message>
-    <message>
-        <source>QZ Support</source>
-        <translation>Hỗ trợ QZ</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation>Xong</translation>
-    </message>
-    <message>
-        <source>Hide keyboard</source>
-        <translation>Ẩn bàn phím</translation>
-    </message>
-    <message>
-        <source>Close support request</source>
-        <translation>Đóng yêu cầu hỗ trợ</translation>
-    </message>
-    <message>
-        <source>Tell us what is not working. QZ will add your device and app information.</source>
-        <translation>Hãy cho chúng tôi biết điều gì không hoạt động. QZ sẽ thêm thông tin về thiết bị và ứng dụng.</translation>
-    </message>
-    <message>
-        <source>Describe the problem...</source>
-        <translation>Mô tả sự cố...</translation>
-    </message>
-    <message>
-        <source>Describe the problem</source>
-        <translation>Mô tả sự cố</translation>
-    </message>
-    <message>
-        <source>Attach debug log if available</source>
-        <translation>Đính kèm nhật ký gỡ lỗi nếu có</translation>
-    </message>
-    <message>
-        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
-        <translation>Bạn có thể xem lại hoặc chỉnh sửa email trước khi gửi. Không có gì được gửi tự động.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Hủy</translation>
-    </message>
-    <message>
-        <source>Open email</source>
-        <translation>Mở email</translation>
     </message>
 </context>
 </TS>
