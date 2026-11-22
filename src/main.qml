@@ -2105,6 +2105,12 @@ ApplicationWindow {
         // it its shadow) and the sheet below takes its place
         background.visible: !window.ui.modern
 
+        // The menu opens only by the menu button of the home page, not by a swipe from the left
+        // edge: on pages pushed on the stack the native web views (map, charts, workout editor)
+        // are drawn over the whole QML scene, the drawer included (QTBUG-58365, QTBUG-98574), and
+        // with gesture navigation that edge is the system Back. A swipe on the open menu still closes it
+        dragMargin: 0
+
         // Modern: a sheet with rounded outer corners, over the whole drawer (paddings too). It
         // runs past the left edge, so only the right-hand corners show. 16: the corner of the
         // Material 3 navigation drawer (shape Corner Large). On Android the top one shows through
