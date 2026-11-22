@@ -94,10 +94,10 @@ UiTextField {
         visible: !field.valid
         text: field.errorText
         // Modern look: the number field is the narrow one of UiTextField (88), where "Allowed range: 1 to 120" took
-        // three lines; the reason keeps the 120 of the classic field and grows to the left from the right edge
-        width: field.modern ? Math.max(field.width - field.leftPadding - field.rightPadding, 120)
-                            : field.width - field.leftPadding - field.rightPadding
-        x: field.modern ? field.width - field.rightPadding - width : field.leftPadding
+        // three lines between the paddings; the reason takes the left padding too, from the left edge of the field
+        // to the right edge of the digits. Not wider: past the field it would run into the label next to it
+        x: field.modern ? 0 : field.leftPadding
+        width: field.width - x - field.rightPadding
         y: field.height - implicitHeight - 2
         wrapMode: Text.WordWrap
         horizontalAlignment: field.horizontalAlignment
