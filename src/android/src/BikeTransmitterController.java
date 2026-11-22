@@ -300,6 +300,15 @@ public class BikeTransmitterController {
         int cumulativeWatt = 0;
         int accumulatedTorque32 = 0;
         Timer carousalTimer = null;
+        // Guard both producers: setBroadcastData replaces the next radio payload.
+        final Object responseLock = new Object();
+        final java.util.ArrayDeque<byte[]> responseQueue = new java.util.ArrayDeque<>();
+        boolean responsePending = false;
+        boolean responseInFlight = false;
+        byte lastCommand = (byte)0xff;
+        int commandSequence = 255;
+        byte[] lastCommandData = {(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff};
+
 
         @Override
         public void onChannelDeath() {
@@ -342,12 +351,10 @@ public class BikeTransmitterController {
                        QLog.d(TAG, "Tx Payload HEX: " + bytesToHex(payload));
                        QLog.d(TAG, debugString);
 
-                       if (mIsOpen) {
-                           try {
-                               // Setting the data to be broadcast on the next channel period
-                               mAntChannel.setBroadcastData(payload);
-                           } catch (RemoteException e) {
-                               channelError(e);
+                       synchronized (responseLock) {
+                           if (mIsOpen && !responsePending) {
+                               try { mAntChannel.setBroadcastData(payload); }
+                               catch (RemoteException e) { channelError(e); }
                            }
                        }
                    }
@@ -374,6 +381,27 @@ public class BikeTransmitterController {
                     // Switching on event code to handle the different types of channel events
                     switch (code) {
                         case TX:
+                            synchronized (responseLock) {
+                                if (responsePending) {
+                                    // TX means the previous scheduled broadcast has gone out.
+                                    if (responseInFlight) responseInFlight = false;
+                                    if (!responseQueue.isEmpty()) {
+                                        byte[] response = responseQueue.removeFirst();
+                                        try {
+                                            if (mIsOpen) {
+                                                mAntChannel.setBroadcastData(response);
+                                                responseInFlight = true;
+                                                QLog.d(TAG, "Requested page scheduled: " + bytesToHex(response));
+                                            }
+                                        } catch (RemoteException e) {
+                                            responseQueue.addFirst(response);
+                                            channelError(e);
+                                        }
+                                        break;
+                                    }
+                                    responsePending = false;
+                                }
+                            }
                             cnt += 1;
                             String debugString = "";
 
@@ -393,12 +421,10 @@ public class BikeTransmitterController {
                             QLog.d(TAG, "Tx Payload HEX: " + bytesToHex(payload));
                             QLog.d(TAG, debugString);
 
-                            if (mIsOpen) {
-                                try {
-                                    // Setting the data to be broadcast on the next channel period
-                                    mAntChannel.setBroadcastData(payload);
-                                } catch (RemoteException e) {
-                                    channelError(e);
+                            synchronized (responseLock) {
+                                if (mIsOpen && !responsePending) {
+                                    try { mAntChannel.setBroadcastData(payload); }
+                                    catch (RemoteException e) { channelError(e); }
                                 }
                             }
                             break;
@@ -640,8 +666,18 @@ public class BikeTransmitterController {
             QLog.d(TAG, "Received control command page: 0x" + String.format("%02X", pageNumber));
             QLog.d(TAG, "Control Command HEX: " + bytesToHex(data));
             
+            if (pageNumber == 0x30 || pageNumber == 0x31 || pageNumber == 0x33) {
+                synchronized (responseLock) {
+                    lastCommand = pageNumber;
+                    commandSequence = commandSequence == 255 ? 0 : (commandSequence + 1) % 255;
+                    System.arraycopy(data, 4, lastCommandData, 0, 4);
+                }
+            }
             // Handle control command pages
             switch (pageNumber) {
+                case 0x46:
+                    enqueueRequestedPage(data);
+                    break;
                 case 0x30: // Basic Resistance
                     handleBasicResistanceCommand(data);
                     break;
@@ -657,6 +693,37 @@ public class BikeTransmitterController {
             }
         }
         
+        private void enqueueRequestedPage(byte[] request) {
+            int page = request[6] & 0xff;
+            int count = request[5] & 0x7f;
+            // FE-C uses broadcast responses; ignore invalid requests and unknown pages.
+            if ((request[7] & 0xff) != 1 || count == 0 || count > 16) return;
+            synchronized (responseLock) {
+                byte[] reply = new byte[8];
+                java.util.Arrays.fill(reply, (byte)0xff);
+                reply[0] = (byte)page;
+                if (page == 0x36) {
+                    // Unknown maximum force; QZ accepts target power and basic resistance.
+                    reply[7] = 0x03;
+                } else if (page == 0x47) {
+                    reply[1] = lastCommand;
+                    reply[2] = (byte)commandSequence;
+                    // Reports that QZ accepted the command, not bike hardware confirmation.
+                    reply[3] = lastCommand == (byte)0xff ? (byte)0xff : 0;
+                    System.arraycopy(lastCommandData, 0, reply, 4, 4);
+                } else if (page == 0x50) {
+                    // ANT development manufacturer ID; model/revision unknown.
+                    reply[1] = (byte)0xff; reply[2] = (byte)0xff;
+                    reply[3] = (byte)0xff; reply[4] = (byte)0xff;
+                    reply[5] = 0x00; reply[6] = (byte)0xff; reply[7] = (byte)0xff;
+                } else return;
+                // Bound growth under repeated requests without interrupting normal traffic indefinitely.
+                if (responseQueue.size() + count > 48) return;
+                for (int i = 0; i < count; i++) responseQueue.addLast(reply.clone());
+                responsePending = true;
+            }
+        }
+
         private void handleBasicResistanceCommand(byte[] data) {
             int resistance = data[7] & 0xFF; // Resistance in 0.5% increments
             double resistancePercent = resistance * 0.5;
