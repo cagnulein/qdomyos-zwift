@@ -951,6 +951,8 @@ import AndroidStatusBar 1.0
             else if (key === "watt_offset" || key === "watt_gain" || key === "power_sensor_name") {
                 settings.treadmillDataPoints = ""
                 settings.ergDataPoints = ""
+                settings.setValue("treadmillDataPoints", "")
+                settings.setValue("ergDataPoints", "")
             }
         }
 
@@ -995,10 +997,10 @@ import AndroidStatusBar 1.0
             var scroll = { y: contentItem.contentY, height: contentHeight }
             // The catalog and the index of the pages read here: the new page lists "Changed" at
             // once with them, and can put the list where it was. Reading them again would list it
-            // only later (both are read asynchronously)
+            // only later (both are read asynchronously). The names in the list are made again: a
+            // reset of App Language changes them
             var catalog = settingsCatalogLoaded && settingsIndex ?
-                    { catalog: settingsCatalog, items: searchableSettings, defaults: settingDefaults,
-                      index: settingsIndex } : null
+                    { catalog: settingsCatalog, index: settingsIndex } : null
             // The context of this page goes with the replace, the new page does the rest
             var page = stackView.replace("settings.qml", {}, StackView.Immediate)
             page.showChangedAfterReset(states, snapshot, restartToApply, query, message, catalog, scroll)
@@ -1010,10 +1012,9 @@ import AndroidStatusBar 1.0
             window.settings_restart_to_apply = restartToApply
             if (catalog) {
                 settingsCatalog = catalog.catalog
-                searchableSettings = catalog.items
-                settingDefaults = catalog.defaults
                 settingsCatalogLoaded = true
                 settingsIndex = catalog.index
+                buildSearchableSettings()
             }
             openSections(contentItem, states, 0)
             settingsSearchVisible = true
@@ -2895,7 +2896,7 @@ import AndroidStatusBar 1.0
                     }
 
                     // Back to the defaults: the changed settings listed, after a confirmation
-                    Button {
+                    UiButton {
                         visible: changedOnly && filteredSettings.length > 0 &&
                                  !settingsCatalogLoading && !settingsSearchPending
                         text: qsTr("Reset all")
@@ -3026,7 +3027,7 @@ import AndroidStatusBar 1.0
                                 // Over the card's MouseArea: a tap here resets, the rest of the
                                 // card still opens the setting. No insets: the card keeps nearly
                                 // its height
-                                Button {
+                                UiButton {
                                     visible: settingsPane.changedOnly
                                     text: qsTr("Reset")
                                     topInset: 0
