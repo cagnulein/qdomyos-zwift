@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="cs_CZ">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Zavřít</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -382,6 +389,14 @@ Chcete zapnout požadované služby?</translation>
     <message>
         <source>Not connecting?</source>
         <translation>Nedaří se připojit?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Trenažér nenalezen</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Zapněte kolo, běžecký pás nebo veslovací trenažér a klepnutím na ikonu Bluetooth nahoře hledejte znovu.</translation>
     </message>
 </context>
 <context>
@@ -1145,6 +1160,10 @@ Aktualizovat nastavení QZ?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>Inicializace YPOO M5 se nezdařila; je nutné se znovu připojit</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S připojen!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1363,6 +1382,21 @@ Aktualizovat nastavení QZ?</translation>
     <message>
         <source>Open email</source>
         <translation>Otevřít e-mail</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Probíhá nákup...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Nákup proběhl úspěšně</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Nákup se nezdařil</translation>
     </message>
 </context>
 <context>
@@ -4295,6 +4329,10 @@ Při prvním spuštění to může chvíli trvat.</translation>
     <message>
         <source>Unable to open an email application</source>
         <translation>Nepodařilo se otevřít e-mailovou aplikaci</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth je vypnuté</translation>
     </message>
 </context>
 <context>

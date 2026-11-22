@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="de_DE">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Schließen</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -382,6 +389,14 @@ Möchten Sie die erforderlichen Dienste aktivieren?</translation>
     <message>
         <source>Not connecting?</source>
         <translation>Keine Verbindung?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Gerät nicht gefunden</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Schalten Sie Ihr Fahrrad, Laufband oder Rudergerät ein und tippen Sie oben auf das Bluetooth-Symbol, um erneut zu suchen.</translation>
     </message>
 </context>
 <context>
@@ -1145,6 +1160,10 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>Initialisierung des YPOO M5 fehlgeschlagen; erneute Verbindung erforderlich</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S verbunden!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1363,6 +1382,21 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
     <message>
         <source>Open email</source>
         <translation>E-Mail öffnen</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Kauf läuft...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Kauf erfolgreich</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Kauf fehlgeschlagen</translation>
     </message>
 </context>
 <context>
@@ -2753,7 +2787,7 @@ Die folgenden Fragen passen QZ an Ihre Ausrüstung und Ziele an.</translation>
     </message>
     <message>
         <source>Zwift Click</source>
-        <translation>Zwift Klick</translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
         <source>Zwift Play</source>
@@ -4303,6 +4337,10 @@ Beim ersten Start kann dies einen Moment dauern.</translation>
     <message>
         <source>Unable to open an email application</source>
         <translation>E-Mail-Anwendung konnte nicht geöffnet werden</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth ist aus</translation>
     </message>
 </context>
 <context>
@@ -8160,7 +8198,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Zwift Click</source>
-        <translation>Zwift Klick</translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
         <source>Use it to change the gears on QZ!</source>

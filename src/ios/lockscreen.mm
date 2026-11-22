@@ -1027,6 +1027,38 @@ void lockscreen::setSafeAreaChangedCallback(void (*callback)()) {
     });
 }
 
+// The window of Qt (QUIWindow) sees the system switch between light and dark in
+// traitCollectionDidChange: (qiosscreen.mm), but in Qt 5.15 that only rebuilds the palette:
+// QWindowSystemInterface::handleThemeChange(nullptr) sends no event to the windows, and QML has
+// no colour scheme to read (Qt 6.5 adds QStyleHints::colorSchemeChanged on the same call). So the
+// callback runs after Qt's own handler, on the same condition. Only QUIWindow's own method is
+// replaced, the one of UIWindow (the keyboard and the other windows) is left alone
+static void (*qzSystemThemeChanged)() = nullptr;
+
+void lockscreen::setSystemThemeChangedCallback(void (*callback)()) {
+    qzSystemThemeChanged = callback;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        Class windowClass = NSClassFromString(@"QUIWindow");
+        SEL selector = @selector(traitCollectionDidChange:);
+        Method method = windowClass ? class_getInstanceMethod(windowClass, selector) : nullptr;
+        if (!method || method == class_getInstanceMethod(class_getSuperclass(windowClass), selector)) {
+            return;
+        }
+        IMP original = method_getImplementation(method);
+        method_setImplementation(method, imp_implementationWithBlock(^(UIWindow *self_,
+                                                                       UITraitCollection *previous) {
+            ((void (*)(id, SEL, UITraitCollection *))original)(self_, selector, previous);
+            if (@available(iOS 13.0, *)) {
+                if (qzSystemThemeChanged && self_.screen == UIScreen.mainScreen &&
+                    previous.userInterfaceStyle != self_.traitCollection.userInterfaceStyle) {
+                    qzSystemThemeChanged();
+                }
+            }
+        }));
+    });
+}
+
 void lockscreen::shareFile(const char* path) {
     NSURL *url = [NSURL fileURLWithPath:[NSString stringWithUTF8String:path]];
     dispatch_async(dispatch_get_main_queue(), ^{

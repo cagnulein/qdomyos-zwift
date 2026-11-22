@@ -69,6 +69,9 @@
 #include <QDataStream>
 #include <algorithm>
 #include <chrono>
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
 
 #ifdef Q_OS_IOS
 // Implemented by ios/support_email.mm; always built for Qt iOS including IO_UNDER_QT.
@@ -80,6 +83,16 @@ homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
 
 namespace {
+// QFile::copy() gives the copy the permissions of the source, and a file in the resources is
+// read-only: on Windows a bundled program copied that way cannot be deleted. Copies made by
+// earlier versions are fixed too, as this runs at every start.
+void makeBundledCopyWritable(const QString &path) {
+    QFile file(path);
+    if (file.exists() && !(file.permissions() & QFileDevice::WriteOwner)) {
+        file.setPermissions(file.permissions() | QFileDevice::WriteOwner);
+    }
+}
+
 QString uploadActivityLabelFromSport(FIT_SPORT sport) {
     switch (sport) {
     case FIT_SPORT_RUNNING:
@@ -873,6 +886,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         m_topBarHeight = 0;
         emit topBarHeightChanged(m_topBarHeight); // NOTE: clazy-incorrecrt-emit
         m_info = QLatin1String("");
+        m_infoFoundDevice.clear();
         emit infoChanged(m_info); // NOTE: clazy-incorrecrt-emit
     }
 
@@ -1065,6 +1079,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         if (!QFile(targetPath).exists() && !QFile(markerPath).exists()) {
             QFile::copy(":/zwo/" + itZwo.fileName(), targetPath);
         }
+        makeBundledCopyWritable(targetPath);
     }
 
     QDirIterator itGpx(":/gpx/");
@@ -1077,7 +1092,17 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         if (!QFile(targetPath).exists() && !QFile(markerPath).exists()) {
             QFile::copy(":/gpx/" + itGpx.fileName(), targetPath);
         }
+        makeBundledCopyWritable(targetPath);
     }
+
+#ifdef Q_OS_WIN
+    // deletion markers that earlier versions left visible
+    QDirIterator itMarker(getWritableAppDir() + "training", QStringList() << QStringLiteral(".deleted_*"),
+                          QDir::Files | QDir::Hidden, QDirIterator::Subdirectories);
+    while (itMarker.hasNext()) {
+        hideDeletionMarker(itMarker.next());
+    }
+#endif
 
     removeOldWorkoutImages();
 
@@ -1697,6 +1722,7 @@ void homeform::peloton_start_workout() {
 
     if (settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
         m_info = stravaPelotonActivityName;
+        m_infoFoundDevice.clear();
         emit infoChanged(m_info);
     }
 
@@ -1844,6 +1870,13 @@ QString homeform::getWritableAppDir() {
     path = QDir::currentPath() + "/";
 #endif
     return path;
+}
+
+// "file://" + path is not a valid URL when the path starts with a drive letter ("file://C:/..." makes C the
+// host) or is relative (Linux: getWritableAppDir() is empty), so QML folder lists built that way show the
+// working directory or nothing; QUrl::fromLocalFile builds the right one on every platform
+QUrl homeform::localFileUrl(const QString &path) {
+    return QUrl::fromLocalFile(QFileInfo(path).absoluteFilePath());
 }
 
 // Keep any letters (Cyrillic, accents, CJK...): only replace characters a file name cannot hold
@@ -2005,6 +2038,10 @@ void homeform::refresh_bluetooth_devices_clicked() {
 QString homeform::bluetoothSearchStatus() {
     if (!bluetoothManager || bluetoothManager->device())
         return QString();
+    // with Bluetooth off no Bluetooth search runs: the line said "Searching for the device..." (or the
+    // start value "Connecting...") until it was switched on
+    if (bluetoothManager->bluetoothOff())
+        return tr("Bluetooth is off");
     // while scanning, the last device found shows that QZ is finding something (useful for troubleshooting)
     const QString scanning = lastFoundDevice.isEmpty() ? tr("Searching for the device...")
                                                        : tr("%1 found").arg(lastFoundDevice);
@@ -2023,6 +2060,15 @@ QString homeform::bluetoothSearchStatus() {
     if (lastFoundDevice.isEmpty())
         return countdown;
     return tr("%1 found").arg(lastFoundDevice) + QStringLiteral("\n") + countdown;
+}
+
+bool homeform::bluetoothSearchStopped() {
+    return bluetoothManager && !bluetoothManager->device() && !bluetoothManager->isSearching() &&
+           bluetoothManager->searchStopped();
+}
+
+bool homeform::bluetoothSearchOff() {
+    return bluetoothManager && !bluetoothManager->device() && bluetoothManager->bluetoothOff();
 }
 
 void homeform::bluetoothSearchNow() {
@@ -5418,8 +5464,8 @@ void homeform::deviceFound(const QString &name) {
     if (!settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
         return;
     }
-    m_info = name + QStringLiteral(" found");
-    emit infoChanged(m_info);
+    m_infoFoundDevice = name;
+    emit infoChanged(info());
 }
 
 void homeform::LargeButton(const QString &name) {
@@ -6777,6 +6823,7 @@ void homeform::Stop() {
 
         // clearing the label on top because if it was running a training program, with stop the program will be terminated
         m_info = workoutName();
+        m_infoFoundDevice.clear();
         emit infoChanged(m_info);
     }
 
@@ -10148,6 +10195,21 @@ void homeform::importFitFilesToHistory(const QStringList &files) {
     QMetaObject::invokeMethod(fitProcessor, "importFiles", Qt::QueuedConnection, Q_ARG(QStringList, files));
 }
 
+// On Windows a leading dot does not hide a file, only the hidden attribute does: without it the
+// list of programs shows the deletion markers (.deleted_<name>.zwo matches *.zwo)
+void homeform::hideDeletionMarker(const QString &markerPath) {
+#ifdef Q_OS_WIN
+    const QString nativePath = QDir::toNativeSeparators(markerPath);
+    const wchar_t *path = reinterpret_cast<const wchar_t *>(nativePath.utf16());
+    const DWORD attributes = GetFileAttributesW(path);
+    if (attributes != INVALID_FILE_ATTRIBUTES && !(attributes & FILE_ATTRIBUTE_HIDDEN)) {
+        SetFileAttributesW(path, attributes | FILE_ATTRIBUTE_HIDDEN);
+    }
+#else
+    Q_UNUSED(markerPath)
+#endif
+}
+
 bool homeform::deleteTrainingProgramFile(const QString &fileUrl) {
     if (fileUrl.isEmpty()) {
         return false;
@@ -10180,6 +10242,7 @@ bool homeform::deleteTrainingProgramFile(const QString &fileUrl) {
     if (markerFile.open(QIODevice::WriteOnly)) {
         markerFile.write("This file was intentionally deleted by the user");
         markerFile.close();
+        hideDeletionMarker(markerFile.fileName());
     }
     return true;
 }
@@ -10224,6 +10287,7 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
             QSettings settings;
             if (settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
                 m_info = workoutName();
+                m_infoFoundDevice.clear();
                 emit infoChanged(m_info);
             }
         }
@@ -10398,6 +10462,7 @@ void homeform::trainprogram_zwo_loaded(const QString &s) {
                     return;
                 }
                 m_info = workoutName();
+                m_infoFoundDevice.clear();
                 emit infoChanged(m_info);
             }
         }
@@ -10677,6 +10742,7 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
     stravaWorkoutName = QFileInfo(file.fileName()).completeBaseName();
     emit workoutNameChanged(workoutName());
     if (!file.fileName().isEmpty()) {
+        bool hasRouteSegments = false;
         {
             if (trainProgram) {
 
@@ -10741,10 +10807,15 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
                 emit videoPathChanged(movieFileName);
                 setVideoIconVisible(true);
             }
+            hasRouteSegments = !list.isEmpty();
             trainProgram = new trainprogram(list, bluetoothManager, nullptr, nullptr, videoIconVisible());
         }
 
         trainProgramSignals();
+        if (hasRouteSegments) {
+            // Use the same QZ-only pause/resume as Start Workout, without stopping the equipment.
+            trainprogram_autostart_requested();
+        }
     }
 }
 

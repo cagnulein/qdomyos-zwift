@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="zh_CN">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>关闭</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -382,6 +389,14 @@ Would you like to enable the required services?</source>
     <message>
         <source>Not connecting?</source>
         <translation>无法连接？</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>未找到设备</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>请打开您的单车、跑步机或划船机，然后点击顶部的蓝牙图标重新搜索。</translation>
     </message>
 </context>
 <context>
@@ -1145,6 +1160,10 @@ Do you want to update QZ settings?</source>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>YPOO M5 初始化失败，需要重新连接</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S 已连接！</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1363,6 +1382,21 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Open email</source>
         <translation>打开邮件</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>正在购买...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>购买成功</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>购买失败</translation>
     </message>
 </context>
 <context>
@@ -4311,6 +4345,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Unable to open an email application</source>
         <translation>无法打开电子邮件应用</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>蓝牙已关闭</translation>
     </message>
 </context>
 <context>

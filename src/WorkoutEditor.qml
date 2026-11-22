@@ -35,6 +35,19 @@ Item {
         return true
     }
 
+    // A workout started (Save & Start here, Start Workout in the program list) closes the editor.
+    // The page listens itself, so the handler goes away with it:
+    // one connected in main.qml per opening outlived the page and called it after it was destroyed.
+    // The kept editor of the modern look is closed by main.qml (onTrainprogram_autostart_requested)
+    Connections {
+        target: window
+        enabled: root !== window.keptWorkoutEditor
+        function onTrainprogram_autostart_requested() {
+            console.log("[WorkoutEditor.qml] trainprogram_autostart_requested received, closing editor")
+            root.closeRequested()
+        }
+    }
+
     Settings {
         id: settings
     }
@@ -78,6 +91,9 @@ Item {
                 busy.visible = false
                 busy.running = false
                 portPoller.stop()
+                // loaded after Back (portPoller): hidden already, so off the server at once
+                if (root.StackView.status !== StackView.Active)
+                    webView.runJavaScript("window.main_ws_pause && main_ws_pause(true)")
             } else if (loadRequest.status === WebView.LoadFailedStatus) {
                 root.pageLoaded = false
                 root.requestedPage = ""
@@ -86,6 +102,21 @@ Item {
                 portPoller.start()
             }
         }
+    }
+
+    // Shown again without a reload (the modern look keeps the page, main.qml; any look when a page
+    // above it is closed): the page asks again for the connected machine, FTP, the units and the
+    // saved workouts. Not at the first opening: the page is still loading and asks itself
+    StackView.onActivated: {
+        if (root.pageLoaded)
+            webView.runJavaScript("window.main_ws_pause && main_ws_pause(false);"
+                                  + " window.qzEditorReopened && window.qzEditorReopened()")
+    }
+    // Hidden (kept by the modern look, or under another page): off the server until shown again,
+    // or it would take every update of the workout for nothing (main_ws_manager.js)
+    StackView.onDeactivated: {
+        if (root.pageLoaded)
+            webView.runJavaScript("window.main_ws_pause && main_ws_pause(true)")
     }
 
     // a new app language: the page asks for its texts again (a reload would lose the edits)

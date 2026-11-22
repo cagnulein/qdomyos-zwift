@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="nl_NL">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Sluiten</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -382,6 +389,14 @@ Wil je de vereiste voorzieningen inschakelen?</translation>
     <message>
         <source>Not connecting?</source>
         <translation>Geen verbinding?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Apparaat niet gevonden</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Zet je fiets, loopband of roeitrainer aan en tik bovenaan op het Bluetooth-pictogram om opnieuw te zoeken.</translation>
     </message>
 </context>
 <context>
@@ -1145,6 +1160,10 @@ Wil je de QZ-instellingen bijwerken?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>Initialisatie van YPOO M5 mislukt; opnieuw verbinden vereist</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S verbonden!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1363,6 +1382,21 @@ Wil je de QZ-instellingen bijwerken?</translation>
     <message>
         <source>Open email</source>
         <translation>E-mail openen</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Aankoop bezig...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Aankoop geslaagd</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Aankoop mislukt</translation>
     </message>
 </context>
 <context>
@@ -4295,6 +4329,10 @@ Bij de eerste start kan dit even duren.</translation>
     <message>
         <source>Unable to open an email application</source>
         <translation>Kan geen e-mailapp openen</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth staat uit</translation>
     </message>
 </context>
 <context>

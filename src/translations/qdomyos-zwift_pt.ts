@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="pt_PT">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Fechar</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -382,6 +389,14 @@ Pretende ativar os serviços necessários?</translation>
     <message>
         <source>Not connecting?</source>
         <translation>Não conecta?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Equipamento não encontrado</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Ligue a bicicleta, a esteira ou o remo e toque no ícone Bluetooth no topo para procurar de novo.</translation>
     </message>
 </context>
 <context>
@@ -1145,6 +1160,10 @@ Deseja atualizar as configurações do QZ?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>Falha ao inicializar a YPOO M5; é necessário reconectar</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S conectado!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1363,6 +1382,21 @@ Deseja atualizar as configurações do QZ?</translation>
     <message>
         <source>Open email</source>
         <translation>Abrir e-mail</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Comprando...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Compra concluída</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Falha na compra</translation>
     </message>
 </context>
 <context>
@@ -4303,6 +4337,10 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
     <message>
         <source>Unable to open an email application</source>
         <translation>Não foi possível abrir uma aplicação de e-mail</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>O Bluetooth está desligado</translation>
     </message>
 </context>
 <context>

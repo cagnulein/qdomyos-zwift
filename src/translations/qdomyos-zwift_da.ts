@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="da_DK">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Luk</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -366,6 +373,14 @@ Vil du aktivere de nødvendige tjenester?</translation>
     <message>
         <source>Not connecting?</source>
         <translation>Ingen forbindelse?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Træningsudstyret blev ikke fundet</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Tænd for cyklen, løbebåndet eller romaskinen, og tryk på Bluetooth-ikonet øverst for at søge igen.</translation>
     </message>
 </context>
 <context>
@@ -1129,6 +1144,10 @@ Vil du opdatere QZ-indstillingerne?</translation>
         <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
         <translation>%1 (pulssensor) blev ikke fundet. Sørg for, at den er tændt og udsender pulsmålinger.</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S tilsluttet!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1347,6 +1366,21 @@ Vil du opdatere QZ-indstillingerne?</translation>
     <message>
         <source>Open email</source>
         <translation>Åbn mail</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Gennemfører køb...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Købet er gennemført</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Købet mislykkedes</translation>
     </message>
 </context>
 <context>
@@ -4279,6 +4313,10 @@ Det kan tage et øjeblik ved første start.</translation>
         <source>QZ is running</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ kører</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth er slået fra</translation>
     </message>
 </context>
 <context>

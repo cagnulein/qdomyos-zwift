@@ -148,6 +148,8 @@ class homeform : public QObject {
     Q_PROPERTY(QString pelotonProvider READ pelotonProvider NOTIFY changePelotonProvider WRITE setPelotonProvider)
     Q_PROPERTY(int topBarHeight READ topBarHeight NOTIFY topBarHeightChanged)
     Q_PROPERTY(QString info READ info NOTIFY infoChanged)
+    // info is "<device> found": QML tells it by this, not by the translated text
+    Q_PROPERTY(bool infoDeviceFound READ infoDeviceFound NOTIFY infoChanged)
     Q_PROPERTY(QString signal READ signal NOTIFY signalChanged)
     Q_PROPERTY(QString startText READ startText NOTIFY startTextChanged)
     Q_PROPERTY(QString startIcon READ startIcon NOTIFY startIconChanged)
@@ -268,6 +270,10 @@ class homeform : public QObject {
     // Status line of the search for the equipment on the home page, with the last device found;
     // empty once it is connected
     Q_INVOKABLE QString bluetoothSearchStatus();
+    // The search has given up and waits for a tap on the Bluetooth icon; false once connected
+    Q_INVOKABLE bool bluetoothSearchStopped();
+    // Android: Bluetooth is off, the status line says so; false once connected
+    Q_INVOKABLE bool bluetoothSearchOff();
     // Tap on the Bluetooth icon: search right away, or when Android allows it again (with a toast saying when)
     Q_INVOKABLE void bluetoothSearchNow();
     // An opened list of devices: a search that may run during a workout too
@@ -550,7 +556,9 @@ class homeform : public QObject {
     int topBarHeight() { return m_topBarHeight; }
     bool stopRequested() { return m_stopRequested; }
     bool startRequested() { return m_startRequested; }
-    QString info() { return m_info; }
+    // "<device> found" is made when it is read, not stored: it follows a change of the app language
+    QString info() { return m_infoFoundDevice.isEmpty() ? m_info : tr("%1 found").arg(m_infoFoundDevice); }
+    bool infoDeviceFound() { return !m_infoFoundDevice.isEmpty(); }
     QString signal();
     QString startText();
     QString startIcon();
@@ -793,6 +801,8 @@ public:
     static QString getAndroidDataAppDir();
 #endif
     Q_INVOKABLE static QString getWritableAppDir();
+    Q_INVOKABLE static QUrl localFileUrl(const QString &path);
+    static void hideDeletionMarker(const QString &markerPath);
     static QString safeFileName(const QString &name, const QString &fallback);
     Q_INVOKABLE static QString getProfileDir();
     Q_INVOKABLE static void clearFiles();
@@ -1154,6 +1164,8 @@ public:
 
     int m_topBarHeight = 120;
     QString m_info = QStringLiteral("Connecting...");
+    // set: info() is "<device> found" for this device, m_info is not used
+    QString m_infoFoundDevice;
     bool m_labelHelp = true;
     // last device found by the Bluetooth search, shown by bluetoothSearchStatus() until the equipment is connected
     QString lastFoundDevice;

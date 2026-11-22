@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="it_IT" sourcelanguage="en">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Chiudi</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -382,6 +389,14 @@ Vuoi attivare i servizi necessari?</translation>
     <message>
         <source>Not connecting?</source>
         <translation>Non si collega?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Attrezzo non trovato</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Accendi la bici, il tapis roulant o il vogatore, poi tocca l&apos;icona Bluetooth in alto per cercare di nuovo.</translation>
     </message>
 </context>
 <context>
@@ -1145,6 +1160,10 @@ Vuoi aggiornare le impostazioni di QZ?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>Inizializzazione di YPOO M5 non riuscita; è necessario riconnettersi</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S connesso!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1363,6 +1382,21 @@ Vuoi aggiornare le impostazioni di QZ?</translation>
     <message>
         <source>Open email</source>
         <translation>Apri email</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Acquisto in corso...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Acquisto riuscito</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Acquisto non riuscito</translation>
     </message>
 </context>
 <context>
@@ -4303,6 +4337,10 @@ Al primo avvio potrebbe richiedere qualche istante.</translation>
     <message>
         <source>Unable to open an email application</source>
         <translation>Impossibile aprire un’applicazione email</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth disattivato</translation>
     </message>
 </context>
 <context>
@@ -8256,7 +8294,7 @@ Predefinito: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Zwift Play Vibration</source>
-        <translation>Zwift Vibrazione</translation>
+        <translation>Vibrazione Zwift Play</translation>
     </message>
     <message>
         <source>Enable vibration feedback on Zwift Play controllers when changing gears. Default: enabled.</source>

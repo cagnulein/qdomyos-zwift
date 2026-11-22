@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="hu_HU">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Bezárás</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -366,6 +373,14 @@ Szeretné bekapcsolni a szükséges szolgáltatásokat?</translation>
     <message>
         <source>Not connecting?</source>
         <translation>Nem sikerül csatlakozni?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Az edzőgép nem található</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Kapcsolja be a kerékpárt, a futópadot vagy az evezőgépet, majd az újbóli kereséshez koppintson a felül található Bluetooth-ikonra.</translation>
     </message>
 </context>
 <context>
@@ -1129,6 +1144,10 @@ Szeretné frissíteni a QZ beállításait?</translation>
         <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
         <translation>%1 (pulzusérzékelő) nem található. Ellenőrizd, hogy be van-e kapcsolva és sugározza-e a pulzusadatokat.</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S csatlakoztatva!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1347,6 +1366,21 @@ Szeretné frissíteni a QZ beállításait?</translation>
     <message>
         <source>Open email</source>
         <translation>E-mail megnyitása</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Vásárlás...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Sikeres vásárlás</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Sikertelen vásárlás</translation>
     </message>
 </context>
 <context>
@@ -4279,6 +4313,10 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <source>QZ is running</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>A QZ fut</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>A Bluetooth ki van kapcsolva</translation>
     </message>
 </context>
 <context>

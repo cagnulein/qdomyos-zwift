@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ja_JP">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>閉じる</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -382,6 +389,14 @@ Would you like to enable the required services?</source>
     <message>
         <source>Not connecting?</source>
         <translation>接続できませんか？</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>機器が見つかりません</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>バイク、トレッドミル、またはローイングマシンの電源を入れ、上部のBluetoothアイコンをタップして再検索してください。</translation>
     </message>
 </context>
 <context>
@@ -1145,6 +1160,10 @@ QZの設定を更新しますか?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>YPOO M5の初期化に失敗しました。再接続が必要です</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach Sに接続しました！</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1363,6 +1382,21 @@ QZの設定を更新しますか?</translation>
     <message>
         <source>Open email</source>
         <translation>メールを開く</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>購入処理中...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>購入が完了しました</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>購入に失敗しました</translation>
     </message>
 </context>
 <context>
@@ -4307,6 +4341,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Unable to open an email application</source>
         <translation>メールアプリを開けませんでした</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetoothがオフです</translation>
     </message>
 </context>
 <context>

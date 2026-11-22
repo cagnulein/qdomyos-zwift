@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ko_KR">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>닫기</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -382,6 +389,14 @@ Would you like to enable the required services?</source>
     <message>
         <source>Not connecting?</source>
         <translation>연결되지 않나요?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>운동 기구를 찾을 수 없습니다</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>자전거, 트레드밀 또는 로잉 머신의 전원을 켠 다음 상단의 Bluetooth 아이콘을 눌러 다시 검색하세요.</translation>
     </message>
 </context>
 <context>
@@ -1145,6 +1160,10 @@ QZ 설정을 업데이트하시겠습니까?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>YPOO M5 초기화에 실패했습니다. 다시 연결해야 합니다</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S 연결됨!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1363,6 +1382,21 @@ QZ 설정을 업데이트하시겠습니까?</translation>
     <message>
         <source>Open email</source>
         <translation>이메일 열기</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>구매 중...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>구매 완료</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>구매 실패</translation>
     </message>
 </context>
 <context>
@@ -4295,6 +4329,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Unable to open an email application</source>
         <translation>이메일 앱을 열 수 없습니다</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth가 꺼져 있습니다</translation>
     </message>
 </context>
 <context>

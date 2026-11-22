@@ -97,9 +97,9 @@ Rectangle {
         Binding on font.pixelSize { when: window.ui.modern; value: window.ui.fontCaption; restoreMode: Binding.RestoreBindingOrValue }
         id: descriptionText
         text: !storeItem.modernStatus ? product.description
-            : storeItem.purchaseState === "buying" ? "Purchasing..."
-            : storeItem.purchaseState === "failed" ? "Purchase Failed"
-            : "Purchase Succeeded"
+            : storeItem.purchaseState === "buying" ? qsTr("Purchasing...")
+            : storeItem.purchaseState === "failed" ? qsTr("Purchase Failed")
+            : qsTr("Purchase Succeeded")
         anchors.right: priceText.left
         anchors.left: parent.left
         anchors.top: titleText.bottom
@@ -166,7 +166,7 @@ Rectangle {
             }
             pendingRect.visible = true;
             spinBox.visible = true;
-            statusText.text = "Purchasing...";
+            statusText.text = qsTr("Purchasing...");
             storeItem.state = "PURCHASING";
             product.purchase();
         }
@@ -210,7 +210,7 @@ Rectangle {
                 // Modern look: only the answer to a tap (a renewal can arrive on its own on iOS)
                 if (storeItem.purchaseState === "buying")
                     storeItem.purchaseState = "done";
-                statusText.text = "Purchase Succeeded";
+                statusText.text = qsTr("Purchase Succeeded");
                 spinBox.visible = false;
 
             }
@@ -221,7 +221,7 @@ Rectangle {
                 if (storeItem.purchaseState === "buying")
                     storeItem.purchaseState = transaction && transaction.failureReason === 1
                         ? "" : "failed";
-                statusText.text = "Purchase Failed";
+                statusText.text = qsTr("Purchase Failed");
                 spinBox.visible = false;
                 storeItem.state = "NORMAL";
             }

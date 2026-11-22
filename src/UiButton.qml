@@ -30,9 +30,12 @@ T.Button {
     property bool saveGated: false
     readonly property bool gated: savedField !== null || saveGated
     readonly property bool savePending: modern && gated && enabled
-    // After the list's own onActivated (it sets displayText, which the OK handler reads)
+    // After the list's own onActivated (it sets displayText, which the OK handler reads).
+    // Only while the OK is enabled, that is the list holds a change: ComboBox emits activated
+    // again when the picked item is the current one, and clicked() from here would save it
+    // and show "Setting saved!" though nothing changed
     function applySelection() {
-        if (control.modern && control.applyOnSelect)
+        if (control.modern && control.applyOnSelect && control.enabled)
             control.clicked()
     }
     Component.onCompleted: {
@@ -68,8 +71,12 @@ T.Button {
     // font itself: in Qt 5 a write of one attribute keeps the size the button inherits at
     // that moment, and a button made at another text size kept it after the size or the
     // look changed. A weight set on an instance (font.bold) still wins
+    // Modern: Label Large 14 on a settings page, whose rows are Body Large 16 (ui.labelPx);
+    // elsewhere the size it inherits, as before
+    readonly property bool inTypeScalePage: modern && window.ui.onTypeScalePage(control)
     readonly property font labelFont: !modern ? font : Qt.font({
-        family: font.family, pixelSize: font.pixelSize, italic: font.italic,
+        family: font.family, pixelSize: inTypeScalePage ? window.ui.labelPx(font.pixelSize) : font.pixelSize,
+        italic: font.italic,
         letterSpacing: font.letterSpacing, hintingPreference: font.hintingPreference,
         weight: font.weight !== Font.Normal ? font.weight : Font.DemiBold,
         capitalization: Font.MixedCase

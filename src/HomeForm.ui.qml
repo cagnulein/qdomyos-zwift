@@ -23,6 +23,10 @@ Page {
     property bool modernInfoShown: true
     // Search for the equipment ("Next search in 12 s"), set by Home.qml while no device is connected
     property string searchStatus: ""
+    // The search has stopped: the empty state says so instead of "Looking for your equipment"
+    property bool searchStopped: false
+    // Android: Bluetooth is off, the modern status line marks it as a warning
+    property bool bluetoothOff: false
     // Home.qml sets the new values from the settings page in it (the background color of the top bar)
     property alias homeFormSettings: settings
     // Modern look, for the grid of tiles in Home.qml: where the first row starts below the top of
@@ -452,9 +456,10 @@ Page {
             active: page.modernControlsShown
             // Over the empty state only the last device found and the time to the next search
             // ("HRM-Pro found" and "Next search in 12 s" under it): its heading says the rest
-            // ("Looking for your equipment"). The line has its own place under the buttons, so
-            // it comes and goes without moving the page
-            readonly property bool countdown: page.searchStatus !== ""
+            // ("Looking for your equipment"); a stopped search is said by the heading too
+            // ("Equipment not found" and what to do), so the line is not shown then. The line has
+            // its own place under the buttons, so it comes and goes without moving the page
+            readonly property bool countdown: !page.searchStopped && page.searchStatus !== ""
                                               && page.searchStatus !== qsTranslate("homeform", "Searching for the device...")
             // with the top bar off it is not shown either: its place is under the controls.
             // It is the state of the buttons, so it stays with them while the tiles scroll
@@ -466,6 +471,29 @@ Page {
             sourceComponent: Row {
                 spacing: 8
 
+                // Bluetooth is off: a warning, not an error (the user switched it off), drawn here
+                // because the app font has no warning sign
+                Rectangle {
+                    id: offMark
+                    visible: page.bluetoothOff
+                    anchors.verticalCenter: parent.verticalCenter
+                    // follows the size of the sign: 16 at 100 % text, the "!" stays inside at 170 %
+                    width: Math.round(window.ui.fontCaption * 1.25)
+                    height: width
+                    radius: width / 2
+                    color: window.ui.warning
+                    Accessible.ignored: true
+                    Label {
+                        anchors.centerIn: parent
+                        text: "!"
+                        color: window.ui.warningInk
+                        font.pixelSize: window.ui.fontCaption
+                        font.bold: true
+                        // Qt 5.15 lifts the children of an ignored item into the tree: the sign has to
+                        // be ignored itself, the status text next to it says the words
+                        Accessible.ignored: true
+                    }
+                }
                 Image {
                     visible: !modernEmpty.visible
                     anchors.verticalCenter: parent.verticalCenter
@@ -485,14 +513,15 @@ Page {
                     // first search it means the same as the search status
                     text: page.searchStatus !== "" ? page.searchStatus : (rootItem.info === "Connecting..." ? qsTranslate("homeform", "Searching for the device...") : rootItem.info)
                     // A long workout name stays one line (the tiles start under one line) and
-                    // ends with "…" inside the page margins, the signal bars beside it. Qt elides
-                    // one-line text only, so the two short lines of the search stay as they are
-                    width: Math.min(implicitWidth, page.width - 2 * window.contentSideMargin - 28)
+                    // ends with "…" inside the page margins, the signal bars (and the Bluetooth-off
+                    // mark) beside it. Qt elides one-line text only, so the two short lines of the
+                    // search stay as they are
+                    width: Math.min(implicitWidth, page.width - 2 * window.contentSideMargin - 28 - (page.bluetoothOff ? offMark.width + 8 : 0))
                     elide: Text.ElideRight
                     horizontalAlignment: Text.AlignHCenter
                     // two lines ("<device> found" and the countdown) grow down, set closer
                     lineHeight: text.indexOf("\n") >= 0 ? 0.8 : 1
-                    color: window.ui.textMuted
+                    color: page.bluetoothOff ? window.ui.warning : window.ui.textMuted
                     font.pixelSize: window.ui.fontCaption
                 }
             }
@@ -523,7 +552,7 @@ Page {
             // the status starts 8 dp under the buttons: the scrolled checklist is cut under the
             // status, not in the middle of the empty space. Over this state the status changes
             // with every search: two lines ("<device> found" and the countdown, the second 0.8 of
-            // a line lower), one line, or none (e.g. searching with nothing found yet, Bluetooth off).
+            // a line lower), one line, or none (e.g. searching with nothing found yet).
             // The place of the two lines is kept in all of them, so the page does not move; with
             // one line or none the cut is further below what is shown. 1.8 lines + 5: 5 and the
             // room under the letters of the second line make the 8 dp, as 13 makes 16 in
@@ -560,6 +589,9 @@ Page {
                     id: emptyColumn
                     width: parent.width
                     spacing: 12
+                    // The stopped search says what to do: tap the Bluetooth icon in the row of the
+                    // controls. With the top bar off there is no such icon, the texts stay as before
+                    readonly property bool stopped: page.searchStopped && page.modernControlsShown
 
                     Label {
                         width: parent.width
@@ -568,7 +600,8 @@ Page {
                         // status to the edge of the area, this padding and the room above the
                         // capitals make the 24. It scrolls with the heading
                         topPadding: page.modernControlsShown ? 11 : 4
-                        text: qsTranslate("HomeForm.ui", "Looking for your equipment…")
+                        text: emptyColumn.stopped ? qsTranslate("HomeForm.ui", "Equipment not found")
+                                                 : qsTranslate("HomeForm.ui", "Looking for your equipment…")
                         horizontalAlignment: Text.AlignHCenter
                         wrapMode: Text.WordWrap
                         color: window.ui.textMain
@@ -578,7 +611,8 @@ Page {
 
                     Label {
                         width: parent.width
-                        text: qsTranslate("HomeForm.ui", "Turn on your bike, treadmill or rower: QZ connects to it automatically.")
+                        text: emptyColumn.stopped ? qsTranslate("HomeForm.ui", "Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.")
+                                                 : qsTranslate("HomeForm.ui", "Turn on your bike, treadmill or rower: QZ connects to it automatically.")
                         horizontalAlignment: Text.AlignHCenter
                         wrapMode: Text.WordWrap
                         color: window.ui.textMuted

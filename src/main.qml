@@ -206,6 +206,15 @@ ApplicationWindow {
     // The support button "?" (SupportHelpButton) is in the bottom right corner of the home page
     readonly property bool supportHelpShown: supportHelpButton.shown
     property bool settings_restart_to_apply: false
+    // Modern look: the workout editor page, made on its first opening and kept while the app runs
+    // (see "editor")
+    property var keptWorkoutEditor: null
+    // Save & Start in the kept editor closes it, as in the classic look. One handler for the one
+    // editor: a closure connected per opening would pile up
+    onTrainprogram_autostart_requested: {
+        if (keptWorkoutEditor && stackView.currentItem === keptWorkoutEditor)
+            keptWorkoutEditor.closeRequested()
+    }
     property bool gymModePopupDismissed: false
 
     // rootItem comes from homeform, created only after this file is loaded (main.cpp): for about
@@ -365,6 +374,8 @@ ApplicationWindow {
         readonly property color ok: dark ? "#7EDC8A" : "#2E7D32"
         // Notes that ask for attention but are not errors: the orange pair of the accents above
         readonly property color warning: dark ? "#FFB36B" : "#984200"
+        // Mark drawn on a warning-coloured badge ("!")
+        readonly property color warningInk: dark ? "#000000" : "#FFFFFF"
         // Dimming behind a modal popup
         readonly property color scrim: Qt.rgba(0, 0, 0, dark ? 0.6 : 0.4)
 
@@ -383,6 +394,30 @@ ApplicationWindow {
         readonly property int fontBody: fontPx(16)     // dialog text, list titles, fields
         readonly property int fontLabel: fontPx(15)    // drawer entries, group titles
         readonly property int fontCaption: fontPx(13)  // secondary lines, chips, captions
+        // Material 3 roles of the settings pages: a row - its label, the
+        // value of its field or list - is Body Large (fontBody); buttons, the items of an open list,
+        // nested headers and table headers Label Large / Title Small 14; the hint under a setting
+        // Body Small 12
+        readonly property int fontLabelLarge: fontPx(14)
+        readonly property int fontBodySmall: fontPx(12)
+        // The font of a settings page (its root sets it, the rows inherit it): the size of Body
+        // Large only. A control takes from its parent only what the parent font sets, the rest
+        // from the font of its style (Qt 5.15.0 QQuickControlPrivate::inheritFont,
+        // qquickcontrol.cpp:555-571; Qt.font sets only the fields given, qquickglobal.cpp:322-419):
+        // a button keeps the weight Medium of the Material style
+        readonly property font rowFont: Qt.font({ pixelSize: fontBody })
+        // The item lies on a settings page of the modern look: a root with typeScalePage (the
+        // pages that set rowFont). The parents are read in the binding that calls it, so it
+        // follows a move of the item
+        function onTypeScalePage(item) {
+            for (var p = item ? item.parent : null; p; p = p.parent)
+                if (p.typeScalePage === true)
+                    return true
+            return false
+        }
+        // A button or a list item takes Label Large where the text around it is Body Large (a
+        // settings page, onTypeScalePage); elsewhere it keeps the size it inherits
+        function labelPx(px) { return px === fontBody ? fontLabelLarge : px }
         // The app font (12 on the emulator, not the Material 14): labels, fields, buttons, lists
         readonly property int fontBase: fontPx(window.appFontPx)
 
@@ -466,8 +501,8 @@ ApplicationWindow {
     Material.background: ui.modern ? ui.bg : undefined
 
     // The phone can switch its night mode while the app runs (by schedule or from the quick
-    // settings): Android reports it as a configuration change, iOS through the return to the
-    // foreground (onStateChanged below)
+    // settings): Android reports it as a configuration change, iOS as a change of the window traits.
+    // Both are read again on the return to the foreground too (onStateChanged below)
     Connections {
         target: AndroidStatusBar
         function onSystemThemeChanged() { window.ui.refreshSystemTheme() }
@@ -514,11 +549,17 @@ ApplicationWindow {
     readonly property int appFontPx: iosTextSize ? 14 : Qt.application.font.pixelSize > 0 ? Qt.application.font.pixelSize : 14
     // Size of the hints under the settings. Where the app font has no pixel size (desktop)
     // "pixelSize - 2" is ignored and the hints have the size of the text: kept so when scaled
-    readonly property int fontHint: textScale === 1 ? Qt.application.font.pixelSize - 2
+    // Modern look: Body Small; the pages that use it are the settings
+    readonly property int fontHint: ui.modern ? ui.fontBodySmall
+        : textScale === 1 ? Qt.application.font.pixelSize - 2
         : iosTextSize ? Math.round((iosBodyPx - 2) * textScale)
         : fontPx(Qt.application.font.pixelSize > 0 ? Qt.application.font.pixelSize - 2 : appFontPx)
     // The window font is set only for a size other than 100 % and reset otherwise
     readonly property int scaledFontPx: textScale !== 1 ? fontPx(appFontPx) : 0
+    // The size a row of a settings page sets on itself with a size other than 100 % (its Binding
+    // on scaledFontPx > 0): the window font in the classic look, Body Large in the modern one -
+    // the size its page gives it at 100 %
+    readonly property int rowScaledPx: ui.modern ? ui.fontBody : scaledFontPx
     // Size of a plain Text, which takes the app font, not the window font (0 at 100 %). On Android
     // the app font has a pixel size, the one of the controls. On iOS a Text is scaled from the body
     // size (above); on desktop the app font has a point size (in QML "pointSize": there is no
@@ -535,8 +576,10 @@ ApplicationWindow {
         : Qt.font({ family: Qt.application.font.family, pixelSize: plainFontPx })
     // Wrap mode of a label next to a field: with a bigger text it no longer fits in one line
     // and ran under the field and the OK button. The fixed-size popups below wrap their text too,
-    // and then take the width of the screen and the height of the text
-    readonly property int labelWrap: textScale === 1 ? Text.NoWrap : Text.WordWrap
+    // and then take the width of the screen and the height of the text.
+    // Modern look: always wraps - the labels of the settings take Body Large (16), and a long one
+    // no longer fits beside its field at 100 % either; the classic look as before
+    readonly property int labelWrap: textScale === 1 && !ui.modern ? Text.NoWrap : Text.WordWrap
     // Space under the hint of a setting: a wrapped label of the next one fills its row and
     // touched the hint above it, the two read as one block
     readonly property int hintGap: textScale === 1 ? 0 : Math.round(6 * textScale)
@@ -1774,6 +1817,77 @@ ApplicationWindow {
             width: visible ? implicitWidth : 0
         }
 
+        // Modern look, map page (GoogleMap.qml): 2D or 3D map without a trip to the settings. Two
+        // segments of 48 dp, 32 dp tall, the chosen one filled with the tone of the accent. Its text
+        // names it for the screen reader, checked tells which one is on
+        Row {
+            id: mapsTypeSwitch
+            readonly property var mapPage: stackView.currentItem && typeof stackView.currentItem.setMapsType === "function"
+                                           ? stackView.currentItem : null
+            visible: window.ui.modern && mapPage !== null
+            anchors.right: parent.right
+            anchors.rightMargin: 12
+            anchors.verticalCenter: parent.verticalCenter
+            Repeater {
+                model: ["2D", "3D"]
+                AbstractButton {
+                    id: mapsTypeSegment
+                    text: modelData
+                    checkable: true
+                    checked: mapsTypeSwitch.mapPage !== null && mapsTypeSwitch.mapPage.mapsType === modelData
+                    width: 48
+                    height: 48
+                    font: Qt.font({ family: headerToolbar.font.family, pixelSize: window.ui.fontPx(14),
+                                    weight: checked ? Font.DemiBold : Font.Medium,
+                                    hintingPreference: headerToolbar.font.hintingPreference })
+                    // A tap on the chosen one keeps it; the other one switches the page, which then
+                    // tells the new type back through checked
+                    onClicked: {
+                        if (mapsTypeSwitch.mapPage)
+                            mapsTypeSwitch.mapPage.setMapsType(modelData)
+                        checked = Qt.binding(function() {
+                            return mapsTypeSwitch.mapPage !== null && mapsTypeSwitch.mapPage.mapsType === modelData
+                        })
+                    }
+                    background: Item {
+                        // The pill as one outline: each half is a rounded rectangle twice its width,
+                        // clipped to its own half, so only the outer corners are round
+                        Item {
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: parent.width
+                            height: 32
+                            clip: true
+                            Rectangle {
+                                x: index === 0 ? 0 : -parent.width
+                                width: 2 * parent.width
+                                height: parent.height
+                                radius: height / 2
+                                color: mapsTypeSegment.checked ? Qt.tint(window.ui.surface, window.ui.alpha(window.ui.accent, 0.16))
+                                                               : "transparent"
+                                border.width: 1
+                                border.color: window.ui.outline
+                            }
+                        }
+                        // the line between the two halves
+                        Rectangle {
+                            visible: index === 1
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 1
+                            height: 32
+                            color: window.ui.outline
+                        }
+                    }
+                    contentItem: Text {
+                        text: mapsTypeSegment.text
+                        font: mapsTypeSegment.font
+                        color: window.ui.textMain
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+                }
+            }
+        }
+
         Label {
             id: toolbarTitle
             // Modern look, home page: more buttons on the right than on the left, and the title centred
@@ -1829,7 +1943,8 @@ ApplicationWindow {
                 var c = parent.width / 2, room = c
                 var left = [toolButton, toolButtonFloating]
                 var right = [toolButtonSettingsSearch, toolButtonLoadSettings, toolButtonSaveSettings, toolButtonMaps,
-                             toolButtonVideo, toolButtonChart, toolButtonShareFit, toolButtonLockTiles, toolButtonAutoResistance]
+                             toolButtonVideo, toolButtonChart, toolButtonShareFit, toolButtonLockTiles, toolButtonAutoResistance,
+                             mapsTypeSwitch]
                 for (var i = 0; i < left.length; i++)
                     if (left[i].visible && left[i].opacity > 0 && left[i].width > 0)
                         room = Math.min(room, c - (left[i].x + left[i].width))
@@ -1907,15 +2022,34 @@ ApplicationWindow {
              });
             break
         case "editor":
+            // Modern look: the editor is made once and kept - StackView does not destroy a page it
+            // did not make, and hides it when it leaves the stack, its web view too - so opening it
+            // again shows it at once, with the workout as it was left, instead of loading the page anew
+            if (window.ui.modern) {
+                if (!keptWorkoutEditor) {
+                    keptWorkoutEditor = Qt.createComponent("WorkoutEditor.qml").createObject(window.contentItem, { visible: false })
+                    if (keptWorkoutEditor) {
+                        keptWorkoutEditor.closeRequested.connect(function() {
+                            if (stackView.currentItem === keptWorkoutEditor)
+                                stackView.pop()
+                        })
+                    }
+                }
+                if (keptWorkoutEditor) {
+                    // Already in the stack: back to it - pushing it again would only warn
+                    // "nothing to push". Page by page, as Back does, so a settings page above
+                    // still asks to restart or to save the profile
+                    if (stackView.find(function(item) { return item === keptWorkoutEditor }) === null)
+                        stackView.push(keptWorkoutEditor)
+                    else
+                        while (stackView.currentItem !== keptWorkoutEditor && navigateBack(false)) {}
+                    break
+                }
+            }
             var editorPage = stackView.push("WorkoutEditor.qml")
             if (editorPage) {
                 editorPage.closeRequested.connect(function() {
                     stackView.pop()
-                })
-                // Close editor when workout is started from Save & Start
-                trainprogram_autostart_requested.connect(function() {
-                    console.log("[main.qml] trainprogram_autostart_requested received, closing editor")
-                    editorPage.closeRequested()
                 })
             }
             break
@@ -1999,6 +2133,12 @@ ApplicationWindow {
         // Classic look: the background of the style, untouched. Modern look: it is hidden (with
         // it its shadow) and the sheet below takes its place
         background.visible: !window.ui.modern
+
+        // The menu opens only by the menu button of the home page, not by a swipe from the left
+        // edge: on pages pushed on the stack the native web views (map, charts, workout editor)
+        // are drawn over the whole QML scene, the drawer included (QTBUG-58365, QTBUG-98574), and
+        // with gesture navigation that edge is the system Back. A swipe on the open menu still closes it
+        dragMargin: 0
 
         // Modern: a sheet with rounded outer corners, over the whole drawer (paddings too). It
         // runs past the left edge, so only the right-hand corners show. 16: the corner of the
@@ -2185,7 +2325,7 @@ ApplicationWindow {
                     FileDialog {
                         id: fileDialogGPX
                          title: qsTr("Please choose a file")
-                         folder: "file://" + rootItem.getWritableAppDir() + 'gpx'
+                         folder: rootItem.localFileUrl(rootItem.getWritableAppDir() + 'gpx')
                          onAccepted: {
                              console.log("You chose: " + fileDialogGPX.fileUrl)
                               gpx_open_clicked(fileDialogGPX.fileUrl)

@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="el_GR">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Κλείσιμο</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -122,6 +129,22 @@
     <message>
         <source>Choose a heart rate sensor</source>
         <translation>Επιλέξτε αισθητήρα καρδιακών παλμών</translation>
+    </message>
+    <message>
+        <source>Strong signal</source>
+        <translation>Ισχυρό σήμα</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Καλό σήμα</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Μέτριο σήμα</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Ασθενές σήμα</translation>
     </message>
 </context>
 <context>
@@ -289,6 +312,14 @@ Would you like to enable the required services?</source>
         <source>Cancel</source>
         <translation>Ακύρωση</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Επιστροφή στην εφαρμογή</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Επιστροφή ελέγχου φορτίου στην εφαρμογή</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -339,6 +370,14 @@ Would you like to enable the required services?</source>
     <message>
         <source>Not connecting?</source>
         <translation>Δεν συνδέεται;</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Ο εξοπλισμός δεν βρέθηκε</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Ενεργοποιήστε το ποδήλατο, τον διάδρομο ή το κωπηλατικό και πατήστε το εικονίδιο Bluetooth επάνω για νέα αναζήτηση.</translation>
     </message>
 </context>
 <context>
@@ -1098,12 +1137,16 @@ Do you want to update QZ settings?</source>
         <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
         <translation>Δεν βρέθηκε κοντινός αισθητήρας καρδιακών παλμών. Βεβαιωθείτε ότι είναι ενεργός και μεταδίδει δεδομένα.</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Το Coach S συνδέθηκε!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Εντάξει</translation>
     </message>
     <message>
         <source>Save</source>
@@ -1115,7 +1158,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Άνοιγμα</translation>
     </message>
     <message>
         <source>&amp;Yes</source>
@@ -1319,6 +1362,21 @@ Do you want to update QZ settings?</source>
     </message>
 </context>
 <context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Αγορά σε εξέλιξη...</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Η αγορά απέτυχε</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Η αγορά ολοκληρώθηκε</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -1446,7 +1504,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Διαγραφή</translation>
     </message>
     <message>
         <source>Start Workout</source>
@@ -1493,6 +1551,17 @@ Do you want to update QZ settings?</source>
     </message>
 </context>
 <context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>UiSectionHeader</name>
     <message>
         <source>Expanded</source>
@@ -1516,17 +1585,6 @@ Do you want to update QZ settings?</source>
     <message>
         <source>sec</source>
         <translation>δευτ.</translation>
-    </message>
-</context>
-<context>
-    <name>UiProgress</name>
-    <message>
-        <source>Restoring files of the previous installation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Restoring files of the previous installation: %1 of %2</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1554,7 +1612,7 @@ Do you want to update QZ settings?</source>
     <name>WebTranslations</name>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Εντάξει</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -1578,7 +1636,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Διαγραφή</translation>
     </message>
     <message>
         <source>Load</source>
@@ -1622,27 +1680,27 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ναι</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Όχι</translation>
     </message>
     <message>
         <source>Bike</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ποδήλατο</translation>
     </message>
     <message>
         <source>Treadmill</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Διάδρομος</translation>
     </message>
     <message>
         <source>Elliptical</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ελλειπτικό</translation>
     </message>
     <message>
         <source>Rower</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Κωπηλατικό</translation>
     </message>
     <message>
         <source>Workout Editor</source>
@@ -2405,7 +2463,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Διακοπή</translation>
     </message>
     <message>
         <source>Auto Resistance</source>
@@ -2552,7 +2610,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Πίσω</translation>
     </message>
     <message>
         <source>Choose your preferred app</source>
@@ -2652,11 +2710,11 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Zwift Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
         <source>Zwift Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Play</translation>
     </message>
     <message>
         <source>Correct startup phase:
@@ -2742,19 +2800,19 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Bike</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ποδήλατο</translation>
     </message>
     <message>
         <source>Treadmill</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Διάδρομος</translation>
     </message>
     <message>
         <source>Rower</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Κωπηλατικό</translation>
     </message>
     <message>
         <source>Elliptical</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ελλειπτικό</translation>
     </message>
     <message>
         <source>Other app</source>
@@ -2811,6 +2869,18 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <source>kg</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Ο εξοπλισμός, οι μονάδες και το προφίλ σας, βήμα προς βήμα</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Επιλέξτε ένα θέμα για να μεταβείτε απευθείας στις ρυθμίσεις του</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Κλείσιμο οδηγού</translation>
     </message>
 </context>
 <context>
@@ -2918,17 +2988,8 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Importing workouts...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Processing workout files...
-This may take a few moments on first startup.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Διαγραφή</translation>
     </message>
     <message>
         <source>Success</source>
@@ -3098,6 +3159,22 @@ This may take a few moments on first startup.</source>
         <source>has a workout</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Calendar</source>
+        <translation>Ημερολόγιο</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Δεν υπάρχουν προπονήσεις αυτή την ημέρα</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Δεν υπάρχουν ακόμη προπονήσεις</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Οι ολοκληρωμένες προπονήσεις εμφανίζονται εδώ: ανοίξτε μία για να δείτε τα γραφήματά της.</translation>
+    </message>
 </context>
 <context>
     <name>charts</name>
@@ -3156,6 +3233,14 @@ This may take a few moments on first startup.</source>
         <source>Offset</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Μείωση μετατόπισης της ταχύτητας %1</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Αύξηση μετατόπισης της ταχύτητας %1</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
@@ -3182,6 +3267,18 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Reset Example</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Μείωση %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Αύξηση %1</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Αφαίρεση σημείου στην κλίση %1</translation>
     </message>
 </context>
 <context>
@@ -3484,7 +3581,7 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Διακοπή</translation>
     </message>
     <message>
         <source>Start</source>
@@ -4180,6 +4277,10 @@ This may take a few moments on first startup.</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>Το QZ εκτελείται</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Το Bluetooth είναι απενεργοποιημένο</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -4503,11 +4604,11 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ναι</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Όχι</translation>
     </message>
     <message>
         <source>Connection lost in the background</source>
@@ -4962,7 +5063,7 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Εντάξει</translation>
     </message>
     <message>
         <source>Setting saved!</source>
@@ -7411,7 +7512,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Zwift Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
         <source>Use it to change the gears on QZ!</source>
@@ -7419,7 +7520,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Zwift Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Play</translation>
     </message>
     <message>
         <source>Also for Elite Square. Use it to change the gears on QZ!</source>
@@ -8550,7 +8651,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Διακοπή</translation>
     </message>
     <message>
         <source>Lap</source>
@@ -8685,7 +8786,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Εντάξει</translation>
     </message>
     <message>
         <source>Setting saved!</source>
@@ -9351,7 +9452,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Εντάξει</translation>
     </message>
     <message>
         <source>Setting saved!</source>
@@ -9533,7 +9634,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Εντάξει</translation>
     </message>
     <message>
         <source>Setting saved!</source>

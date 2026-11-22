@@ -16,8 +16,10 @@ Rectangle {
     signal clicked()
 
     Layout.fillWidth: true
-    Layout.leftMargin: nested ? 0 : 8
-    Layout.rightMargin: nested ? 0 : 8
+    // On the margin of its page: the block of the section is as wide as
+    // the cards of the page (was 8 in from them)
+    Layout.leftMargin: 0
+    Layout.rightMargin: 0
     Layout.topMargin: nested ? 2 : 6
     implicitHeight: Math.max(nested ? 48 : 56, headerTitle.implicitHeight + 24)
     radius: nested ? 12 : 16
@@ -45,13 +47,15 @@ Rectangle {
     Label {
         id: headerTitle
         anchors.left: parent.left
-        anchors.leftMargin: header.nested ? 16 : 18
+        // 16 in from the edge, as the text of a setting from the edge of its frame (was 18 at the
+        // top level)
+        anchors.leftMargin: 16
         anchors.right: headerChevron.left
         anchors.rightMargin: 8
         anchors.verticalCenter: parent.verticalCenter
         text: window.ui.plainTitle(header.title)
         wrapMode: Text.WordWrap
-        font.pixelSize: header.nested ? window.ui.fontLabel : window.ui.fontBody
+        font.pixelSize: header.nested ? window.ui.fontLabelLarge : window.ui.fontBody // nested: Title Small 14
         font.weight: Font.Medium
         color: header.isOpen ? window.ui.accent : window.ui.textMain
     }
