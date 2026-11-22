@@ -4059,7 +4059,7 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Connecting to %1...</source>
-        <translation>正在连接 %1…</translation>
+        <translation>正在连接 %1...</translation>
     </message>
     <message>
         <source>Search stopped, tap the Bluetooth icon</source>

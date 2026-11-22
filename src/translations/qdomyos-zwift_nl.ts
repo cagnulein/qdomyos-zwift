@@ -3979,7 +3979,7 @@ Bij de eerste start kan dit even duren.</translation>
     </message>
     <message>
         <source>Connecting to %1...</source>
-        <translation>Verbinden met %1...</translation>
+        <translation>Verbinden met %1…</translation>
     </message>
     <message>
         <source>%1 found</source>

@@ -3979,7 +3979,7 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Connecting to %1...</source>
-        <translation>%1 cihazına bağlanılıyor...</translation>
+        <translation>%1 cihazına bağlanılıyor…</translation>
     </message>
     <message>
         <source>%1 found</source>

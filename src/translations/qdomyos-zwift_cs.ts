@@ -3979,7 +3979,7 @@ Při prvním spuštění to může chvíli trvat.</translation>
     </message>
     <message>
         <source>Connecting to %1...</source>
-        <translation>Připojování k %1...</translation>
+        <translation>Připojování k %1…</translation>
     </message>
     <message>
         <source>%1 found</source>

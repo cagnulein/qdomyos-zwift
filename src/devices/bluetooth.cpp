@@ -1210,7 +1210,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
                 filter = (b.name().compare(effectiveFilterDevice, Qt::CaseInsensitive) == 0);
             }
-            if (!gymModeSessionDevice.isEmpty() && filter)
+            // only until it is connected: the search goes on afterwards for the accessories
+            if (!gymModeSessionDevice.isEmpty() && filter && !this->device())
                 debug(QStringLiteral("gym mode: \"%1\" matches the selected device").arg(b.name()));
             const QString deviceName = b.name();
             const QString upperDeviceName = deviceName.toUpper();

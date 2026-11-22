@@ -4051,7 +4051,7 @@ Al primo avvio potrebbe richiedere qualche istante.</translation>
     </message>
     <message>
         <source>Connecting to %1...</source>
-        <translation>Connessione a %1…</translation>
+        <translation>Connessione a %1...</translation>
     </message>
     <message>
         <source>Search stopped, tap the Bluetooth icon</source>

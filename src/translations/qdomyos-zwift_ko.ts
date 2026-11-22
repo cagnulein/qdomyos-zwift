@@ -3979,7 +3979,7 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Connecting to %1...</source>
-        <translation>%1에 연결하는 중...</translation>
+        <translation>%1에 연결하는 중…</translation>
     </message>
     <message>
         <source>%1 found</source>

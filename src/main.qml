@@ -917,7 +917,11 @@ ApplicationWindow {
             return r
         }
         function pollState() {
+            var wasOff = bluetoothOff
             bluetoothOff = rootItem.bluetoothSearchOff()
+            // switched on: the search starts by itself right now, the countdown starts from it
+            if (wasOff && !bluetoothOff)
+                secondsLeft = refreshSeconds
         }
 
         Column {
@@ -966,8 +970,9 @@ ApplicationWindow {
 
                 Label {
                     width: Math.min(implicitWidth, gymModeColumn.width - (popupGymMode.bluetoothOff ? gymModeOffMark.width + 8 : 0))
-                    // Bluetooth is off: the one thing to do here, so larger and bold
-                    font.pixelSize: window.fontPx(popupGymMode.bluetoothOff ? Qt.application.font.pixelSize + 6 : Qt.application.font.pixelSize)
+                    // Bluetooth is off: the one thing to do here, so larger and bold. appFontPx: the size
+                    // of the controls this label had before (on iOS the app font is bigger)
+                    font.pixelSize: window.fontPx(popupGymMode.bluetoothOff ? window.appFontPx + 6 : window.appFontPx)
                     font.bold: popupGymMode.bluetoothOff
                     text: popupGymMode.bluetoothOff ? qsTranslate("homeform", "Bluetooth is off")
                           : popupGymMode.devices.length === 0 ? qsTranslate("homeform", "Searching for the device...")
