@@ -435,11 +435,28 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         if (max_resistance > 0 && requestResistance > max_resistance)
             requestResistance = max_resistance;
 
-        // Initial conversion uses QZ's existing FTMS resistance-to-grade scale.
-        // Bike resistance gain/offset can tune it; levels above 25 still need
-        // validation against the bike's reported resistance and Kinomap trace.
-        const double grade = (static_cast<double>(requestResistance) * bikeResistanceGain +
-                              bikeResistanceOffset) / 10.0;
+        // Empirical Zipro Rave map: FTMS simulation grade 0..15% -> resistance
+        // 1,3,5,7,9,11,13,15,18,20,22,24,26,28,30,32.
+        // Invert this monotonic map, interpolating between measured levels.
+        // This mapping is specific to Rave; do not use the global bike gain/
+        // offset or the auto-learned inclination table for it.
+        static const uint8_t resistanceAtGrade[] = {
+            1, 3, 5, 7, 9, 11, 13, 15, 18, 20, 22, 24, 26, 28, 30, 32
+        };
+        const double target = qBound(1.0, static_cast<double>(requestResistance), 32.0);
+        double grade = 15.0;
+        if (target <= resistanceAtGrade[0]) {
+            grade = 0.0;
+        } else {
+            for (int g = 1; g <= 15; ++g) {
+                if (target <= resistanceAtGrade[g]) {
+                    const double lower = resistanceAtGrade[g - 1];
+                    const double upper = resistanceAtGrade[g];
+                    grade = (g - 1) + (target - lower) / (upper - lower);
+                    break;
+                }
+            }
+        }
         qDebug() << "Zipro Rave resistance to FTMS 0x11 grade:" << requestResistance << grade;
         forceInclination(grade);
         return;
