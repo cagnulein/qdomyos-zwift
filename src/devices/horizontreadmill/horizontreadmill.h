@@ -108,6 +108,10 @@ class horizontreadmill : public treadmill {
     bool sole_s77_treadmill = false;
     bool anplus_treadmill = false;
     bool run_bt_treadmill = false;
+    // RUN BT- does not report the very first console Start via FTMS 0x2ADA.
+    // Permit exactly one speed-based recording start, after seeing the belt at rest.
+    bool runBtInitialStartPending = true;
+    bool runBtSeenZeroSpeed = false;
     bool tunturi_t60_treadmill = false;
     bool trx3500_treadmill = false;
     bool sole_f85_treadmill = false;
