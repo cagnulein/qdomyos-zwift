@@ -18,8 +18,16 @@ import QtQuick.Controls.Material 2.0
 // saved one (another spelling of it is, see normalized()), the OK button of the row is enabled
 // by `valid && dirty`: a grey OK means there is nothing to save. A field without `savedText` is
 // never dirty
-TextField {
+// Built on UiTextField: the modern look draws it as its other fields (filled, a red ring
+// instead of the red line, a time picked on wheels); the classic look is the Material
+// TextField as before
+UiTextField {
     id: field
+
+    invalid: !valid
+    // A time field from the start: the text comes from savedText, and UiTextField would guess it
+    // from the text in its own Component.onCompleted, which may run before the text is set
+    timeShaped: format === "time"
 
     property string format: "time"
     property var savedText: undefined
@@ -45,8 +53,11 @@ TextField {
     }
     // Full keyboard on purpose: a number keyboard of Android may have no ':' and allow a single '.'
 
-    // Room for the reason under the line while the value is not valid
-    bottomPadding: valid ? 16 : 16 + reason.implicitHeight
+    // Room for the reason under the line (classic) or under the field (modern) while the
+    // value is not valid
+    readonly property real reasonRoom: valid ? 0 : reason.implicitHeight
+    bottomPadding: (modern ? 12 : 16) + reasonRoom
+    bottomInset: modernInset + reasonRoom
 
     onSavedTextChanged: if (savedText !== undefined) text = savedText
     Component.onCompleted: if (savedText !== undefined) text = savedText
@@ -77,8 +88,9 @@ TextField {
     }
 
     Rectangle {
-        // Over the underline of the Material TextField (same place, see its background)
-        visible: !field.valid
+        // Over the underline of the Material TextField (same place, see its background);
+        // the modern look has the red ring of UiTextField instead
+        visible: !field.valid && !field.modern
         x: field.leftPadding
         width: field.width - field.leftPadding - field.rightPadding
         height: 2
@@ -94,7 +106,8 @@ TextField {
         y: field.height - implicitHeight - 2
         wrapMode: Text.WordWrap
         horizontalAlignment: field.horizontalAlignment
-        font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize - 3 : window.fontPx(window.appFontPx - 3)
-        color: Material.color(Material.Red)
+        font.pixelSize: field.modern ? window.fontHint
+            : window.textScale === 1 ? Qt.application.font.pixelSize - 3 : window.fontPx(window.appFontPx - 3)
+        color: field.modern ? window.ui.danger : Material.color(Material.Red)
     }
 }

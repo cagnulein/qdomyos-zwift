@@ -8,7 +8,9 @@ import QtQuick.Controls 2.15
 // save. A field without `savedText` is never dirty. A word still being typed on a predictive
 // keyboard (Android) is in preeditText, not yet in text: it counts as a change, or the OK stayed
 // grey and could not take the tap that commits the word
-TextField {
+// Built on UiTextField: the modern look draws it as its other fields; the classic look is the
+// Material TextField as before
+UiTextField {
     id: field
 
     property var savedText: undefined
