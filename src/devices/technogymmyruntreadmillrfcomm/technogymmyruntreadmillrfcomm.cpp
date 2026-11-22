@@ -17,6 +17,13 @@ technogymmyruntreadmillrfcomm::technogymmyruntreadmillrfcomm() {
     refresh->start(1s);
 }
 
+bool technogymmyruntreadmillrfcomm::connected() {
+    // The base treadmill implementation always reports false. For this
+    // Bluetooth Classic driver the RFCOMM socket is the connection source
+    // of truth, but report ready only after the MyRun init sequence.
+    return initDone && socket && socket->state() == QBluetoothSocket::ConnectedState;
+}
+
 void technogymmyruntreadmillrfcomm::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
