@@ -255,7 +255,18 @@ import AndroidStatusBar 1.0
                 // The unit a label carries on the page ("Bike Weight (kg)") is not in the name
                 return typeof item.text === "string" && item.text.length > 0 &&
                        (names.indexOf(normalizedLabel(item.text)) >= 0 ||
+                        namedWithWideUnit(item.text) ||
                         names.indexOf(normalizedLabel(item.text.replace(/\s*\([^()]*\)\s*:?\s*$/, ""))) >= 0)
+            }
+            // Japanese and Chinese put the unit in a full-width bracket, "バイク重量（kg）". Only the
+            // unit of this setting is dropped: "ケイデンスセンサー（トレッドミル）" is another setting
+            function namedWithWideUnit(text) {
+                var unit = searchUnit(entry)
+                var bracket = text.lastIndexOf("（")
+                if (unit.length === 0 || bracket <= 0 ||
+                        normalizedLabel(text.substring(bracket)) !== normalizedLabel("（" + unit + "）"))
+                    return false
+                return names.indexOf(normalizedLabel(text.substring(0, bracket))) >= 0
             }
             var target = switchedOff ? switchedOff : findItem(container, function (item) {
                 return item.visible && named(item)
@@ -781,6 +792,15 @@ import AndroidStatusBar 1.0
                 // Try without colon
                 var plain = qsTranslate(contexts[i], name)
                 if (plain !== name) return plain
+                // A label with its unit filled in on the page: "Bike Weight (%1)", cut before the
+                // bracket of the unit, a full-width one in Japanese and Chinese. The unit is added
+                // back by searchTitle()
+                var withUnit = qsTranslate(contexts[i], name + " (%1)")
+                if (withUnit !== name + " (%1)") {
+                    var unitAt = withUnit.indexOf("%1")
+                    var bracket = Math.max(withUnit.lastIndexOf("(", unitAt), withUnit.lastIndexOf("（", unitAt))
+                    return (bracket >= 0 ? withUnit.substring(0, bracket) : withUnit.replace("%1", "")).trim()
+                }
             }
             return name
         }
