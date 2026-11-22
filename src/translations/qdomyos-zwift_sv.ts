@@ -5233,6 +5233,30 @@ Vill du tillåta att QZ ändrar värdet?
         <translation>Diagrammets plats i ordningen i träningshistoriken. Ordningen ändras med knapparna upp och ned i Allmänna gränssnittsalternativ.</translation>
     </message>
     <message>
+        <source>Setting reset</source>
+        <translation>Inställningen har återställts</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Återställda inställningar: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Återställ alla</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Vill du återställa ändrade inställningar?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Inställningar som återställs till standardvärdena: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Återställ</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Välj Auto om du vill följa enhetens språk eller välj ett visst språk för QZ.</translation>
     </message>

@@ -5257,6 +5257,30 @@ Mag QZ deze waarde wijzigen?
         <translation>Plaats van deze grafiek in de trainingsgeschiedenis. Wijzig de volgorde met de knoppen omhoog en omlaag in Algemene interface-opties.</translation>
     </message>
     <message>
+        <source>Setting reset</source>
+        <translation>Instelling gereset</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Instellingen gereset: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Alles resetten</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Gewijzigde instellingen resetten?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Instellingen die worden teruggezet naar hun standaardwaarden: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Resetten</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Kies ‘Automatisch’ om de taal van je apparaat te volgen, of kies een specifieke taal voor QZ.</translation>
     </message>

@@ -6374,6 +6374,30 @@ Darf QZ diesen Wert ändern?
         <translation>Platz dieses Diagramms im Trainingsverlauf. Die Reihenfolge ändern Sie mit den Schaltflächen nach oben und nach unten in den Allgemeinen UI-Optionen.</translation>
     </message>
     <message>
+        <source>Setting reset</source>
+        <translation>Einstellung zurückgesetzt</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Zurückgesetzte Einstellungen: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Alle zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Geänderte Einstellungen zurücksetzen?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Einstellungen, die auf ihre Standardwerte zurückgesetzt werden: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Zurücksetzen</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Wählen Sie Auto, um die Sprache Ihres Geräts zu übernehmen, oder wählen Sie eine bestimmte Sprache für QZ.</translation>
     </message>

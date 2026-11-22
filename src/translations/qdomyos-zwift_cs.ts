@@ -5257,6 +5257,30 @@ Povolit QZ tuto hodnotu měnit?
         <translation>Pořadí tohoto grafu v historii tréninků. Pořadí změníte tlačítky nahoru a dolů v Obecných možnostech rozhraní.</translation>
     </message>
     <message>
+        <source>Setting reset</source>
+        <translation>Nastavení obnoveno</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Obnovená nastavení: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Obnovit vše</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Obnovit změněná nastavení?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Změněná nastavení (%1) se vrátí na výchozí hodnoty.</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Obnovit</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Zvolte „Auto“ pro jazyk zařízení, nebo vyberte konkrétní jazyk QZ.</translation>
     </message>

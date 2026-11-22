@@ -5257,6 +5257,30 @@ Zezwolić QZ na zmianę tej wartości?
         <translation>Pozycja tego wykresu w historii treningów. Kolejność zmienia się przyciskami w górę i w dół w Ogólnych opcjach interfejsu użytkownika.</translation>
     </message>
     <message>
+        <source>Setting reset</source>
+        <translation>Zresetowano ustawienie</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Zresetowano ustawienia: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Resetuj wszystko</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Zresetować zmienione ustawienia?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Zmienione ustawienia (%1) wrócą do wartości domyślnych.</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Resetuj</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Wybierz „Automatycznie”, aby używać języka urządzenia, albo wskaż język QZ.</translation>
     </message>

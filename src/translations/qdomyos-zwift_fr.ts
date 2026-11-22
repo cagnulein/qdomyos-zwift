@@ -6306,6 +6306,30 @@ Autoriser QZ à modifier cette valeur ?
         <translation>Langue de l&apos;application :</translation>
     </message>
     <message>
+        <source>Setting reset</source>
+        <translation>Paramètre réinitialisé</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Paramètres réinitialisés : %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Tout réinitialiser</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Réinitialiser les paramètres modifiés ?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Paramètres qui reviennent à leurs valeurs par défaut : %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Réinitialiser</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Choisissez Auto pour suivre la langue de votre appareil, ou sélectionnez une langue spécifique pour QZ.</translation>
     </message>

@@ -6314,6 +6314,30 @@ QZ がこの値を変更することを許可しますか？
         <translation>アプリ言語:</translation>
     </message>
     <message>
+        <source>Setting reset</source>
+        <translation>設定をリセットしました</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>リセットした設定: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>すべてリセット</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>変更した設定をリセットしますか？</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>既定値に戻る設定: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>リセット</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>デバイスの言語設定に従う場合は「自動（システム）」を選択するか、QZ用の特定の言語を選択してください。</translation>
     </message>

@@ -13142,7 +13142,7 @@
       "defaultValue": "",
       "defaultExpression": "\"\"",
       "options": null,
-      "restartRequired": false
+      "restartRequired": true
     },
     {
       "key": "life_fitness_password",
@@ -13156,7 +13156,7 @@
       "defaultValue": "",
       "defaultExpression": "\"\"",
       "options": null,
-      "restartRequired": false
+      "restartRequired": true
     },
     {
       "key": "life_fitness_api_key",
@@ -16073,7 +16073,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "custom_inclination_resistance_table",
@@ -16087,7 +16087,7 @@
       "defaultValue": "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16",
       "defaultExpression": "\"0|4\\n1|6\\n2|8\\n3|10\\n4|11\\n5|11.5\\n6|12\\n8|13\\n10|14\\n12|15\\n15|16\"",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "watt_max",
@@ -16229,7 +16229,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": false
+      "restartRequired": true
     },
     {
       "key": "ui_text_scale",
