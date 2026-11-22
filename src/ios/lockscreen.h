@@ -153,6 +153,10 @@ class lockscreen {
     // (status bar shown or hidden, the phone turned, the app window resized on an iPad)
     static void setSafeAreaChangedCallback(void (*callback)());
 
+    // callback on the main thread each time the system switches between light and dark appearance
+    // (iOS 13+) while the app runs; systemDarkMode() may answer differently then
+    static void setSystemThemeChangedCallback(void (*callback)());
+
     // the share sheet with a file (a saved workout)
     static void shareFile(const char* path);
 };

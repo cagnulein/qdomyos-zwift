@@ -76,8 +76,9 @@ public slots:
 
 signals:
     void insetsChanged();
-    // Android: the system configuration changed (night mode among others); systemDarkMode() may
-    // answer differently now
+    // The system theme may have changed, systemDarkMode() may answer differently now. Android: the
+    // system configuration changed (night mode among others). iOS 13+: the system switched between
+    // light and dark appearance while the app runs (Qt 5.15 does not report it to QML)
     void systemThemeChanged();
     // iOS: UIKit changed the safe area of the Qt window, safeAreaInsets() may answer differently now
     // (the status bar shown or hidden, the phone turned, the app window resized on an iPad). Neither
