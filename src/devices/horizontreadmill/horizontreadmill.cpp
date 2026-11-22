@@ -1643,7 +1643,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     // are connected to HomeForm's Start/Pause/StopFromDevice slots.
     if (run_bt_treadmill && characteristic.uuid() == QBluetoothUuid((quint16)0x2ADA)) {
         if (newValue.size() == 1 && (uint8_t)newValue.at(0) == 0x04) {
-            // Fitness Machine Started or Resumed by User.
+            // A genuine FTMS Start/Resume supersedes the one-time speed fallback.
+            runBtInitialStartPending = false;
             if (isPaused()) {
                 emit debug(QStringLiteral("RUN BT- FTMS physical Start/Resume"));
                 emit buttonHWStart();
@@ -1651,11 +1652,17 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         } else if (newValue.size() == 2 && (uint8_t)newValue.at(0) == 0x02) {
             // Fitness Machine Stopped or Paused by User.
             if ((uint8_t)newValue.at(1) == 0x01) {
+                // Do not start another session from speed after a definitive Stop.
+                runBtInitialStartPending = false;
                 emit debug(QStringLiteral("RUN BT- FTMS physical Stop"));
                 emit buttonHWStop();
-            } else if ((uint8_t)newValue.at(1) == 0x02 && !isPaused()) {
-                emit debug(QStringLiteral("RUN BT- FTMS physical Pause"));
-                emit buttonHWPause();
+            } else if ((uint8_t)newValue.at(1) == 0x02) {
+                // Subsequent resumes must use the explicit FTMS 0x04 event.
+                runBtInitialStartPending = false;
+                if (!isPaused()) {
+                    emit debug(QStringLiteral("RUN BT- FTMS physical Pause"));
+                    emit buttonHWPause();
+                }
             }
         }
     }
@@ -3038,9 +3045,23 @@ bool horizontreadmill::autoPauseWhenSpeedIsZero() {
 }
 
 bool horizontreadmill::autoStartWhenSpeedIsGreaterThenZero() {
-    // RUN BT- uses explicit FTMS console events instead of speed-based auto-start.
-    if (run_bt_treadmill)
-        return false;
+    if (run_bt_treadmill) {
+        // RUN BT- does not send FTMS 0x04 for the first physical Start.
+        // HomeForm polls this method even at zero speed, so require an observed
+        // zero -> positive transition and consume it just once per connection.
+        // Do not use speed for later Pause/Resume cycles or after Stop.
+        if (!runBtInitialStartPending)
+            return false;
+        if (currentSpeed().value() <= 0.0) {
+            runBtSeenZeroSpeed = true;
+            return false;
+        }
+        if (!runBtSeenZeroSpeed)
+            return false;
+        runBtInitialStartPending = false;
+        emit debug(QStringLiteral("RUN BT- initial belt motion: starting QZ workout"));
+        return true;
+    }
     QSettings settings;
     bool horizon_treadmill_omega_z =
         settings.value(QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z).toBool();
