@@ -898,6 +898,9 @@ ApplicationWindow {
         modal: true
         focus: true
         closePolicy: Popup.NoAutoClose
+        // Bluetooth off before the window comes in, not after (opened is already true in onOpened):
+        // the window enters with "Bluetooth is off", not with the search shown for a moment
+        onAboutToShow: bluetoothOff = rootItem.bluetoothSearchOff()
         onOpened: {
             pickedDevice = ""
             // opened again after a disconnection: no row of the last pick marked in the list
@@ -910,7 +913,6 @@ ApplicationWindow {
             pollState()
         }
         onClosed: rootItem.setGymModeWindowOpen(false)
-        readonly property bool modern: window.ui.modern
 
         // The window shows the countdown of the search of the home page (one number on both). With
         // Bluetooth off there is no search, so the window says so instead
@@ -1033,8 +1035,7 @@ ApplicationWindow {
                 // window text. The field is a TextField: it has no elide and no fontSizeMode
                 readonly property real fullPx: popupGymMode.modern ? window.ui.fontBody : window.fontPx(Qt.application.font.pixelSize + 8)
                 readonly property real textRoom: contentItem ? contentItem.width - contentItem.leftPadding - contentItem.rightPadding : 0
-                font.pixelSize: popupGymMode.modern ? window.ui.fontBody
-                    : textRoom > 0 && gymModeFieldMetrics.advanceWidth > textRoom
+                font.pixelSize: textRoom > 0 && gymModeFieldMetrics.advanceWidth > textRoom
                     ? Math.max(window.fontPx(window.appFontPx), Math.floor(fullPx * textRoom / gymModeFieldMetrics.advanceWidth))
                     : fullPx
                 // Modern: the popup is surfaceHigh, the list one tone below it (as the RPE list)
