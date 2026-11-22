@@ -6714,6 +6714,28 @@ void homeform::PauseFromDevice() {
 
 void homeform::StopFromDevice() {
     qDebug() << QStringLiteral("Physical stop button pressed on device - stopping app");
+
+    // An idle/repeated status notification must not open an empty workout summary.
+    // Keep the same no-workout guards used by Stop(), before entering the QML UI flow.
+    const auto *device = bluetoothManager ? bluetoothManager->device() : nullptr;
+    if (stopped || !device)
+        return;
+
+    if (device->deviceType() == TREADMILL && device->currentSpeed().value() == 0.0 &&
+        QTime(0, 0, 0, 0).secsTo(device->elapsedTime()) == 0)
+        return;
+
+    // Home.qml::inner_stop() invokes the normal Stop() slot, then displays the
+    // workout summary (or the optional RPE/feel dialog). Calling Stop() alone
+    // saves the session but misses that UI flow. Physical Stop is definitive,
+    // so there is no need for an additional confirmation dialog.
+    QObject *home = engine && !engine->rootObjects().isEmpty()
+                        ? engine->rootObjects().constFirst()->findChild<QObject *>(QStringLiteral("home"))
+                        : nullptr;
+    if (home && QMetaObject::invokeMethod(home, "inner_stop", Qt::DirectConnection))
+        return;
+
+    qWarning() << QStringLiteral("Physical stop: Home.qml unavailable, saving workout without summary");
     Stop();
 }
 
