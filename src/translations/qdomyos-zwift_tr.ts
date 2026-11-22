@@ -3978,6 +3978,10 @@ This may take a few moments on first startup.</source>
         <translation>Cihaz aranıyor…</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>%1 cihazına bağlanılıyor...</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>Bulundu: %1</translation>
     </message>

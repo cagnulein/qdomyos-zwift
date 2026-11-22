@@ -3962,6 +3962,10 @@ Det kan ta en stund vid första starten.</translation>
         <translation>Söker efter enheten…</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Ansluter till %1…</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>Hittade: %1</translation>
     </message>
