@@ -185,7 +185,7 @@ qint64 CharacteristicWriteProcessor0003::hubRidingDataIdleMs() const {
 }
 
 QByteArray CharacteristicWriteProcessor0003::buildCurrentHubRidingData() {
-    const uint32_t power = Bike ? static_cast<uint32_t>(Bike->wattsMetric().value()) : 0U;
+    const uint32_t power = Bike ? static_cast<uint32_t>(Bike->wattsMetricforUI()) : 0U;
     const uint32_t cadence = Bike ? static_cast<uint32_t>(Bike->currentCadence().value()) : 0U;
     QByteArray payload = encodeHubRidingData(power, cadence, 0, power, calculateUnknown1(power), 0);
     lastHubRidingDataTimer.restart();
