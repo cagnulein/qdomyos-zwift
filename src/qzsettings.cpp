@@ -1381,6 +1381,7 @@ const QString QZSettings::wahoo_wheel_question_answered = QStringLiteral("wahoo_
 const QString QZSettings::resistance_compatibility = QStringLiteral("resistance_compatibility");
 
 const QString QZSettings::strava_synthetic_gps_track = QStringLiteral("strava_synthetic_gps_track");
+const QString QZSettings::treadmill_calories_model = QStringLiteral("treadmill_calories_model");
 
 const uint32_t allSettingsCount = 1059;
 
@@ -2468,6 +2469,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::resistance_compatibility, QZSettings::default_resistance_compatibility},
     {QZSettings::rouvy_virtual_gearing_profile, QZSettings::default_rouvy_virtual_gearing_profile},
     {QZSettings::strava_synthetic_gps_track, QZSettings::default_strava_synthetic_gps_track},
+    {QZSettings::treadmill_calories_model, QZSettings::default_treadmill_calories_model},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

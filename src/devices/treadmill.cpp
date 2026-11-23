@@ -294,6 +294,115 @@ uint16_t treadmill::wattsCalc(double weight, double speed, double inclination) {
     return watts;
 }
 
+// Treadmill energy model.
+//
+// Walking: "Minimum Mechanics" equation, Ludlow & Weyand, J Appl Physiol 123:1288 (2017), in the
+// form printed in Weyand et al., J Appl Physiol 131:1272 (2021) Table 1 (V'O2 in mL O2/kg/min,
+// s in m/s, g in % grade, no load, treadmill terrain factor 1.0):
+//   g >= 0: 3.05 + 0.32 g + 3.28 + (1 + 0.19 g) 2.66 s^2
+//   g <  0: 3.05 + 0.73 (3.28 + 2.66 s^2)
+// In the 2021 field study it predicted measured walking energy within +4% (ACSM +13%,
+// Pandolf +17%, Looney +20%). 3.05 is the resting rate of the study subjects; here the
+// person's own resting rate (Mifflin-St Jeor, the formula QZ already uses for active
+// calories) replaces it, as Ludlow & Weyand 2016 did with population resting rates.
+// Fitted on 0.4-1.6 m/s; faster walking up to the gait switch is an extrapolation.
+//
+// Running: ACSM net running cost, 0.2 S + 0.9 S G (S m/min, G fractional grade, downhill
+// treated as level as in ACSM), plus the same resting rate.
+//
+// Gait switch: walk-run transition at Froude number v^2/(g L) = 0.5 (Kram et al., J Exp Biol
+// 200:821, 1997) with leg length L = 0.5 x height. For a 1.72 m adult that gives 2.05 m/s,
+// matching the 2.06 m/s preferred transition speed measured by Hreljac (MSSE 25:1158, 1993).
+//
+// Oxygen to energy: 20.1 J per mL O2 (Weyand 2021; measured field RER 0.83 gave 20.2).
+double treadmill::walkRunTransitionKmh(double heightCm) {
+    if (heightCm < 100.0 || heightCm > 250.0)
+        heightCm = 175.0;
+    const double legLengthM = 0.5 * heightCm / 100.0;
+    return sqrt(0.5 * 9.81 * legLengthM) * 3.6;
+}
+
+double treadmill::kcalPerMinute(double speedKmh, double inclinePct, double weightKg, double heightCm,
+                                double restingKcalPerDay, bool *running) {
+    const double kcalPerMlO2 = 20.1 / 4184.0;
+    const double restingKcalPerMin = restingKcalPerDay > 0 ? restingKcalPerDay / 1440.0 : 0;
+    if (running)
+        *running = false;
+    if (speedKmh <= 0 || weightKg <= 0)
+        return restingKcalPerMin;
+
+    const bool run = speedKmh >= walkRunTransitionKmh(heightCm);
+    if (running)
+        *running = run;
+    double netMlKgMin;
+    if (run) {
+        const double S = speedKmh * 1000.0 / 60.0;
+        const double G = inclinePct > 0 ? inclinePct / 100.0 : 0;
+        netMlKgMin = 0.2 * S + 0.9 * S * G;
+    } else {
+        const double s = speedKmh / 3.6;
+        if (inclinePct >= 0)
+            netMlKgMin = 0.32 * inclinePct + 3.28 + (1.0 + 0.19 * inclinePct) * 2.66 * s * s;
+        else
+            netMlKgMin = 0.73 * (3.28 + 2.66 * s * s);
+    }
+    return restingKcalPerMin + netMlKgMin * weightKg * kcalPerMlO2;
+}
+
+bool treadmill::caloriesModelEnabled() {
+    QSettings settings;
+    return settings.value(QZSettings::treadmill_calories_model, QZSettings::default_treadmill_calories_model)
+        .toBool();
+}
+
+// Integrates the model over the session clock, so pauses and laps follow elapsed time.
+void treadmill::accumulateModelCalories() {
+    const double e = elapsed.value();
+    if (e < modelLastElapsed)
+        modelLastElapsed = e; // session was cleared
+    const double dt = e - modelLastElapsed;
+    if (dt <= 0)
+        return;
+    modelLastElapsed = e;
+
+    const double speed = currentSpeed().value();
+    if (speed <= 0)
+        return; // belt stopped: no workout calories, same as the power-based value
+
+    QSettings settings;
+    const double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toDouble();
+    const double height = settings.value(QZSettings::height, QZSettings::default_height).toDouble();
+    const double kcal = kcalPerMinute(speed, currentInclination().value(), weight, height,
+                                      metric::calculateBMR()) * dt / 60.0;
+    modelKCal.setValue(modelKCal.value() + kcal);
+}
+
+metric treadmill::calories() {
+    if (!caloriesModelEnabled())
+        return bluetoothdevice::calories();
+    accumulateModelCalories();
+    QSettings settings;
+    if (settings.value(QZSettings::calories_from_hr, QZSettings::default_calories_from_hr).toBool() &&
+        Heart.value() > 0)
+        return bluetoothdevice::calories();
+    if (settings.value(QZSettings::calories_active_only, QZSettings::default_calories_active_only).toBool()) {
+        activeKCal.setValue(metric::calculateActiveKCal(modelKCal.value(), elapsed.value()));
+        return activeKCal;
+    }
+    return modelKCal;
+}
+
+metric treadmill::totalCalories() {
+    if (!caloriesModelEnabled())
+        return bluetoothdevice::totalCalories();
+    accumulateModelCalories();
+    QSettings settings;
+    if (settings.value(QZSettings::calories_from_hr, QZSettings::default_calories_from_hr).toBool() &&
+        Heart.value() > 0)
+        return bluetoothdevice::totalCalories();
+    return modelKCal;
+}
+
 uint16_t treadmill::watts(double weight) {
     if(!powerReceivedFromPowerSensor) {
         uint16_t watts = wattsCalc(weight, currentSpeed().value(), currentInclination().value());
@@ -310,6 +419,8 @@ void treadmill::clearStats() {
     rawSpeed.clear(false);
     rawInclination.clear(false);
     KCal.clear(true);
+    modelKCal.clear(true);
+    modelLastElapsed = 0;
     Distance.clear(true);
     Distance1s.clear(true);
     // Keep the raw accumulated steps but start the next QZ session from zero.
@@ -339,6 +450,7 @@ void treadmill::setPaused(bool p) {
     rawSpeed.setPaused(p);
     rawInclination.setPaused(p);
     KCal.setPaused(p);
+    modelKCal.setPaused(p);
     Distance.setPaused(p);
     Distance1s.setPaused(p);
     Heart.setPaused(p);
@@ -361,6 +473,7 @@ void treadmill::setLap() {
     rawSpeed.setLap(false);
     rawInclination.setLap(false);
     KCal.setLap(true);
+    modelKCal.setLap(true);
     Distance.setLap(true);
     Distance1s.setLap(true);
     Heart.setLap(false);

@@ -12346,6 +12346,20 @@
       "restartRequired": false
     },
     {
+      "key": "treadmill_calories_model",
+      "name": "Treadmill Calories from Walking/Running Model",
+      "description": "Treadmills only. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the treadmill or power-based value instead. Calculate Calories from Heart Rate still takes priority when it is on.",
+      "parent": "Heart Rate Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": true,
+      "defaultExpression": "true",
+      "options": null,
+      "restartRequired": false
+    },
+    {
       "key": "bike_power_offset",
       "name": "Zwift Power Offset (W)",
       "description": "Add an offset in watts to the requested power from apps like Zwift. Positive values increase power, negative values decrease it. Default is 0.",
@@ -17404,6 +17418,7 @@
       "cadence_sensor_speed_ratio": "cadenceSensorOptionsAccordion",
       "calories_active_only": "heartRateOptionsAccordion",
       "calories_from_hr": "heartRateOptionsAccordion",
+      "treadmill_calories_model": "heartRateOptionsAccordion",
       "chart_display_mode": "uiGeneralOptionsAccordion",
       "computrainer_serialport": "computrainerBikeAccordion",
       "confirm_stop_workout": "advancedSettingsAccordion",
@@ -18006,6 +18021,7 @@
       "cadence_sensor_speed_ratio": "settings.qml",
       "calories_active_only": "settings.qml",
       "calories_from_hr": "settings.qml",
+      "treadmill_calories_model": "settings.qml",
       "chart_display_mode": "settings.qml",
       "computrainer_serialport": "settings.qml",
       "confirm_stop_workout": "settings.qml",

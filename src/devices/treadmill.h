@@ -33,6 +33,16 @@ class treadmill : public bluetoothdevice {
     metric currentStepCount() { return StepCount; }
     virtual uint16_t watts(double weight);
     static uint16_t wattsCalc(double weight, double speed, double inclination);
+
+    // Energy model for walking and running on a treadmill (see treadmill.cpp for sources).
+    // Returns kcal/min including resting metabolism; speed km/h, incline %, weight kg,
+    // height cm, restingKcalPerDay from Mifflin-St Jeor. *running tells which gait was used.
+    static double kcalPerMinute(double speedKmh, double inclinePct, double weightKg, double heightCm,
+                                double restingKcalPerDay, bool *running = nullptr);
+    // Speed (km/h) where people switch from walking to running, from leg length (height).
+    static double walkRunTransitionKmh(double heightCm);
+    metric calories() override;
+    metric totalCalories() override;
     BLUETOOTH_TYPE deviceType() override;
     void clearStats() override;
     void setLap() override;
@@ -71,6 +81,12 @@ class treadmill : public bluetoothdevice {
     void instantaneousStrideLengthSensor(double length) override;
     void groundContactSensor(double groundContact) override;
     void verticalOscillationSensor(double verticalOscillation) override;
+
+  private:
+    bool caloriesModelEnabled();
+    void accumulateModelCalories();
+    metric modelKCal;
+    double modelLastElapsed = 0;
 
   signals:
     void tapeStarted();
