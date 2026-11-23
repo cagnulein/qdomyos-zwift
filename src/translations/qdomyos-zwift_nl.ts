@@ -3978,6 +3978,10 @@ Bij de eerste start kan dit even duren.</translation>
         <translation>Apparaat zoeken…</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Verbinden met %1…</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>%1 gevonden</translation>
     </message>
@@ -5255,6 +5259,30 @@ Mag QZ deze waarde wijzigen?
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>Plaats van deze grafiek in de trainingsgeschiedenis. Wijzig de volgorde met de knoppen omhoog en omlaag in Algemene interface-opties.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Instelling gereset</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Instellingen gereset: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Alles resetten</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Gewijzigde instellingen resetten?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Instellingen die worden teruggezet naar hun standaardwaarden: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Resetten</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>

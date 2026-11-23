@@ -3962,6 +3962,10 @@ Det kan tage et øjeblik ved første start.</translation>
         <translation>Søger efter enheden...</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Opretter forbindelse til %1...</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>%1 fundet</translation>
     </message>
@@ -5231,6 +5235,30 @@ Må QZ ændre værdien?
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>Grafens plads i rækkefølgen i træningshistorikken. Rækkefølgen ændres med op- og ned-knapperne i Generelle indstillinger for brugerflade.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Indstillingen er nulstillet</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Nulstillede indstillinger: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Nulstil alle</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Nulstil ændrede indstillinger?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Indstillinger, der nulstilles til standardværdierne: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Nulstil</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>

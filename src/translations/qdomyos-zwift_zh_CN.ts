@@ -4058,6 +4058,10 @@ This may take a few moments on first startup.</source>
         <translation>正在搜索设备...</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>正在连接 %1...</translation>
+    </message>
+    <message>
         <source>Search stopped, tap the Bluetooth icon</source>
         <translation>搜索已停止，请点击蓝牙图标</translation>
     </message>
@@ -6392,6 +6396,30 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     <message>
         <source>App Language:</source>
         <translation>应用语言:</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>设置已重置</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>已重置的设置：%1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>全部重置</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>重置已更改的设置？</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>将恢复为默认值的设置：%1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>重置</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>

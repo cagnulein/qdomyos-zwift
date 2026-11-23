@@ -324,13 +324,15 @@ void bluetooth::finished() {
             const qint64 now = QDateTime::currentMSecsSinceEpoch();
             if (!rescanStartedMs)
                 rescanStartedMs = now;
-            if (now - rescanStartedMs > 10 * 60 * 1000) {
+            // the Gym mode window is open: the user waits there for the trainer, the search goes on
+            // with pauses of at most 10 s (the window restarted it every 10 s on its own before)
+            if (!gymModeWindowOpen && now - rescanStartedMs > 10 * 60 * 1000) {
                 debug(QStringLiteral("BTLE scanning stopped, no device found in 10 minutes"));
                 nextRescanMs = 0;
                 rescanStopped = true;
                 return;
             }
-            const int delayMs = qMin(3000 << qMin(rescanCount, 5), 60000);
+            const int delayMs = qMin(3000 << qMin(rescanCount, 5), gymModeWindowOpen ? 10000 : 60000);
             rescanCount++;
             nextRescanMs = now + delayMs;
             rescanTimer.start(delayMs);
@@ -1223,6 +1225,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
                 filter = (b.name().compare(effectiveFilterDevice, Qt::CaseInsensitive) == 0);
             }
+            // only until it is connected: the search goes on afterwards for the accessories
+            if (!gymModeSessionDevice.isEmpty() && filter && !this->device())
+                debug(QStringLiteral("gym mode: \"%1\" matches the selected device").arg(b.name()));
             const QString deviceName = b.name();
             const QString upperDeviceName = deviceName.toUpper();
             // Some Hammer Speed Race S bikes advertise a four-digit prefix, e.g. "4864 RACER S".
@@ -4468,6 +4473,7 @@ void bluetooth::heartRate(uint8_t heart) { Q_UNUSED(heart) }
 void bluetooth::selectGymModeDevice(const QString &deviceName) {
     QString normalizedDeviceName = deviceName.trimmed();
     normalizedDeviceName.remove(QRegularExpression(QStringLiteral(" \\(\\d+%\\)$")));
+    debug(QStringLiteral("gym mode: device selected \"%1\", searching %2").arg(normalizedDeviceName).arg(isSearching()));
 
     if (normalizedDeviceName.isEmpty() ||
         !normalizedDeviceName.compare(QStringLiteral("Disabled"), Qt::CaseInsensitive) ||

@@ -4054,6 +4054,10 @@ This may take a few moments on first startup.</source>
         <translation>機器を検索しています...</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>%1 に接続中...</translation>
+    </message>
+    <message>
         <source>Search stopped, tap the Bluetooth icon</source>
         <translation>検索を停止しました。Bluetoothアイコンをタップしてください</translation>
     </message>
@@ -6312,6 +6316,30 @@ QZ がこの値を変更することを許可しますか？
     <message>
         <source>App Language:</source>
         <translation>アプリ言語:</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>設定をリセットしました</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>リセットした設定: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>すべてリセット</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>変更した設定をリセットしますか？</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>既定値に戻る設定: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>リセット</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>

@@ -3962,6 +3962,10 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <translation>Eszköz keresése...</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Csatlakozás: %1...</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>Megtalálva: %1</translation>
     </message>
@@ -5231,6 +5235,30 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>A diagram sorszáma az edzéselőzményekben. A sorrend a felület általános beállításaiban, a fel és le gombokkal módosítható.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Beállítás visszaállítva</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Visszaállított beállítások: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Összes visszaállítása</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Visszaállítja a módosított beállításokat?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Az alapértelmezett értékre visszaálló beállítások: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Visszaállítás</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>

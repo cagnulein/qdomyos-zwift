@@ -3978,6 +3978,10 @@ This may take a few moments on first startup.</source>
         <translation>Cihaz aranıyor…</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>%1 cihazına bağlanılıyor…</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>Bulundu: %1</translation>
     </message>
@@ -5255,6 +5259,30 @@ QZ&apos;nin bu değeri değiştirmesine izin verilsin mi?
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>Bu grafiğin antrenman geçmişindeki sırası. Sıra, Genel arayüz seçeneklerindeki yukarı ve aşağı düğmeleriyle değiştirilir.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Ayar sıfırlandı</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Sıfırlanan ayarlar: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Tümünü sıfırla</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Değiştirilmiş ayarlar sıfırlansın mı?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Varsayılan değerlerine dönecek ayarlar: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Sıfırla</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>

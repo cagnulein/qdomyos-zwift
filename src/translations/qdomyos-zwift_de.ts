@@ -4050,6 +4050,10 @@ Beim ersten Start kann dies einen Moment dauern.</translation>
         <translation>Suche nach dem Gerät...</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Verbindung mit %1 wird hergestellt...</translation>
+    </message>
+    <message>
         <source>Search stopped, tap the Bluetooth icon</source>
         <translation>Suche gestoppt, tippen Sie auf das Bluetooth-Symbol</translation>
     </message>
@@ -6372,6 +6376,30 @@ Darf QZ diesen Wert ändern?
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>Platz dieses Diagramms im Trainingsverlauf. Die Reihenfolge ändern Sie mit den Schaltflächen nach oben und nach unten in den Allgemeinen UI-Optionen.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Einstellung zurückgesetzt</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Zurückgesetzte Einstellungen: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Alle zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Geänderte Einstellungen zurücksetzen?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Einstellungen, die auf ihre Standardwerte zurückgesetzt werden: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Zurücksetzen</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>

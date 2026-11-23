@@ -1,4 +1,6 @@
 import QtQuick 2.7
+// Pointer handlers (2.12) by name only: the rest of the page keeps the QtQuick 2.7 types
+import QtQuick 2.12 as Handlers
 import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
@@ -16,7 +18,10 @@ import AndroidStatusBar 1.0
         // The page height from the column itself: ScrollView takes it from its only child on its
         // own, but on a phone it stopped following after a turn of the screen - the column grew
         // to 7254 while the page stayed 1310, a section opened after it could not be scrolled
-        contentHeight: column1.implicitHeight
+        // Not below heldContentHeight while the page made again after a reset goes back to where
+        // the old one was scrolled to (showChangedAfterReset)
+        contentHeight: Math.max(column1.implicitHeight, heldContentHeight)
+        property real heldContentHeight: 0
         focus: true
         anchors.fill: parent
         anchors.leftMargin: (Qt.platform.os === "android" && AndroidStatusBar.hasWaterfallDisplay) ?
@@ -335,6 +340,19 @@ import AndroidStatusBar 1.0
             var row = (target.parent && String(target.parent).indexOf("Row") >= 0 &&
                        target.parent.height > target.height && target.parent.height < 200)
                       ? target.parent : target
+            // Modern look: the title of a switch section (a tile named as its setting, "Heart")
+            // was lit alone, a thin bar without its switch. A tile card is lit whole like the
+            // tiles whose name differs from the title, a section inside a page - its switch row
+            if (target.objectName === "accordionTitle") {
+                row = target.parent
+                for (var up = target.parent; up; up = up.parent) {
+                    if (up.modernCard !== undefined) {
+                        if (up.modernCard)
+                            row = up
+                        break
+                    }
+                }
+            }
             var at = row.mapToItem(flickable.contentItem, 0, 0)
             flickable.contentY = Math.max(0, Math.min(at.y - 96, flickable.contentHeight - flickable.height))
             // Nothing to light when not even a section was found: the whole page would glow
@@ -343,6 +361,9 @@ import AndroidStatusBar 1.0
             // On the flickable, not in its content: a ScrollView takes the content height from
             // the only child of the content, a second child would zero it and throw the page to
             // the top. So the highlight follows the scroll itself.
+            // The glow of a result opened just before is let go: it lies over another row now
+            if (activeGlow)
+                activeGlow.letGo()
             activeGlow = settingHighlight.createObject(flickable, { flickable: flickable, row: row,
                                                                     lit: reveal.lit !== false })
         }
@@ -371,13 +392,29 @@ import AndroidStatusBar 1.0
                     if (!flickable || !row)
                         return
                     ticks++
-                    // The finger wins: once the page is touched the glow stops scrolling it
+                    // The finger wins: once the page is moved the glow stops scrolling it and goes.
+                    // Only a drag, a flick or the wheel moves it: contentY set here does not
+                    // (QQuickFlickable::setContentY, movementStarting)
                     if (flickable.dragging || flickable.moving)
-                        ticks = 1000
+                        letGo()
                     if (ticks <= 20) {
                         var at = row.mapToItem(flickable.contentItem, 0, 0).y
                         flickable.contentY = Math.max(0, Math.min(at - 96, flickable.contentHeight - flickable.height))
                     }
+                    // Modern look: the whole frame of the setting - its label, control and
+                    // description - or the whole card of a tile, with their corners: M3 lights a
+                    // list item whole, and a bar over the label alone cut the frame across
+                    var shape = window.ui.modern ? (row.modernCard === true ? row : settingFrameOf(row)) : null
+                    if (shape) {
+                        var p = shape.mapToItem(flickable, 0, 0)
+                        x = p.x
+                        y = p.y
+                        width = shape.width
+                        height = shape.height
+                        radius = shape === row ? row.cardRadius : shape.radius
+                        return
+                    }
+                    radius = 12
                     // Around the row itself, a little wider than its text, which starts at its
                     // very edge; a lone label is as wide as its text: up to the same indent on the
                     // right
@@ -405,6 +442,25 @@ import AndroidStatusBar 1.0
                     y = top - 2
                     height = bottom - top + 4
                 }
+                // The frame UiSettingFrames draws around the setting the item is part of, null when
+                // there is none. The frames lie next to the content of a section, made by a Loader
+                // of their own: looked for among the siblings of every item up from the row
+                function settingFrameOf(item) {
+                    for (var up = item ? item.parent : null; up && up !== flickable; up = up.parent) {
+                        var kids = up.children
+                        for (var i = 0; i < kids.length; i++) {
+                            var k = kids[i]
+                            var frames = k.frameOf !== undefined ? k
+                                       : (k.item && k.item.frameOf !== undefined ? k.item : null)
+                            if (!frames)
+                                continue
+                            var frame = frames.frameOf(item)
+                            if (frame)
+                                return frame
+                        }
+                    }
+                    return null
+                }
                 function nextShown(item) {
                     var siblings = item.parent ? item.parent.children : []
                     for (var i = 0; i < siblings.length; i++) {
@@ -419,11 +475,48 @@ import AndroidStatusBar 1.0
                 Component.onCompleted: follow()
                 Timer { interval: 40; repeat: true; running: true; onTriggered: glow.follow() }
                 color: lit ? Qt.rgba(Material.accent.r, Material.accent.g, Material.accent.b, 0.22) : "transparent"
+                // A beat of the motion, not a wait for anything: lit at once, the glow came together with
+                // the jump and the keyboard going down, while the eye was still on the move. So it comes in
+                // a moment after the jump (Android Settings lights a found preference the same way,
+                // after a delay and with a fade), is held for the eye to find the row, and let go
+                opacity: 0
                 SequentialAnimation {
+                    id: life
                     running: true
-                    PauseAnimation { duration: 1200 }
-                    NumberAnimation { target: glow; property: "opacity"; to: 0; duration: 800 }
+                    PauseAnimation { duration: 300 }
+                    NumberAnimation { target: glow; property: "opacity"; to: 1; duration: 200; easing.type: Easing.OutCubic }
+                    PauseAnimation { duration: 2000 }
+                    ScriptAction { script: glow.letGo() }
+                }
+                SequentialAnimation {
+                    id: fadeOut
+                    NumberAnimation { target: glow; property: "opacity"; to: 0; duration: 400; easing.type: Easing.InQuad }
                     ScriptAction { script: glow.destroy() }
+                }
+                // Out, and the page no longer brought back to the row: a field touched while the page
+                // is still being scrolled to the row scrolls the page its own way
+                function letGo() {
+                    ticks = 1000
+                    if (fadeOut.running)
+                        return
+                    life.stop()
+                    fadeOut.start()
+                }
+                // A touch anywhere on the page lets the glow go as well: the setting is found, the
+                // glow would only lie over what the finger does next. It only lurks: a PointHandler
+                // takes a passive grab and leaves the touch unaccepted, so it still reaches the
+                // switch or field under it (qquickpointhandler.cpp, handleEventPoint)
+                Item {
+                    x: -glow.x
+                    y: -glow.y
+                    width: glow.flickable ? glow.flickable.width : 0
+                    height: glow.flickable ? glow.flickable.height : 0
+                    Handlers.PointHandler {
+                        onActiveChanged: {
+                            if (active)
+                                glow.letGo()
+                        }
+                    }
                 }
             }
         }
@@ -436,6 +529,10 @@ import AndroidStatusBar 1.0
             // position (after a result was opened the page is deep in a section)
             if (settingsPane.contentItem)
                 settingsPane.contentItem.contentY = 0
+            // A search again: the glow of the setting found last time has done its part (the button of
+            // the bar is no touch on the page, it would stay to the end of its time)
+            if (activeGlow)
+                activeGlow.letGo()
             Qt.callLater(function() {
                 settingsSearchTextField.forceActiveFocus()
             })
@@ -460,11 +557,18 @@ import AndroidStatusBar 1.0
             scrollTimer.start()
         }
 
+        // A section that opens by itself: the open state of a section with a switch
+        // (AccordionCheckElement) is the value of its setting, which the new page reads anew
+        function isPlainSection(item) {
+            return item.isOpen !== undefined && item.accordionContent !== undefined &&
+                   item.linkedBoolSetting === undefined
+        }
+
         // The sections of a page in page order, open or not: a new page opens the same ones
         function sectionStates(item, states) {
             var kids = item ? item.children : []
             for (var i = 0; i < kids.length; i++) {
-                if (kids[i].isOpen !== undefined && kids[i].accordionContent !== undefined)
+                if (isPlainSection(kids[i]))
                     states.push(kids[i].isOpen)
                 sectionStates(kids[i], states)
             }
@@ -474,7 +578,7 @@ import AndroidStatusBar 1.0
         function openSections(item, states, at) {
             var kids = item ? item.children : []
             for (var i = 0; i < kids.length; i++) {
-                if (kids[i].isOpen !== undefined && kids[i].accordionContent !== undefined) {
+                if (isPlainSection(kids[i])) {
                     if (at < states.length && kids[i].isOpen !== states[at])
                         kids[i].isOpen = states[at]
                     at++
@@ -918,6 +1022,116 @@ import AndroidStatusBar 1.0
             }
             return entry.catalogKind === "setting" && !isPrivateSetting(entry) &&
                    differsFromDefault(entry.key, entry.type, entry.defaultValue)
+        }
+
+        // A reset writes the default and does what the control of the setting does besides
+        // storing the value
+        function writeDefault(key, type, value) {
+            if (type === "boolean")
+                value = !!value
+            else if (type === "integer")
+                value = parseInt(value)
+            else if (type === "number")
+                value = parseFloat(value)
+            // The account of one server is no good on the other
+            if (key === "garmin_domain" && value !== settings.garmin_domain)
+                rootItem.garmin_connect_logout()
+            // Into the store at once: "Changed" and the page made again read it, and this page's
+            // Settings writes a property only a moment later, or not at all when its copy already
+            // holds the default
+            settings.setValue(key, value)
+            if (settings[key] !== undefined)
+                settings[key] = value
+            if (key === "ui_text_scale" || key === "ui_text_scale_system")
+                window.setTextScaleOption(key, value)
+            else if (key === "android_notification_v2")
+                rootItem.android_notification_apply(value)
+            else if (key === "app_language")
+                rootItem.setAppLanguage(value)
+            else if (key === "heart_rate_belt_name")
+                rootItem.reconnectHeartRateBelt(value)
+            else if (key === "watt_offset" || key === "watt_gain" || key === "power_sensor_name") {
+                settings.treadmillDataPoints = ""
+                settings.ergDataPoints = ""
+                settings.setValue("treadmillDataPoints", "")
+                settings.setValue("ergDataPoints", "")
+            }
+        }
+
+        // The restart is asked for as the catalog says (restartRequired), not for every setting
+        function resetEntry(entry) {
+            if (entry.catalogKind === "virtual") {
+                // A model picker goes back by its switches: it has no value of its own
+                for (var o = 0; entry.options && o < entry.options.length; o++) {
+                    var key = entry.options[o].sets
+                    if (key && settingDefaults[key] !== undefined && settingDefaults[key] !== null)
+                        writeDefault(key, "boolean", settingDefaults[key])
+                }
+            } else {
+                writeDefault(entry.key, entry.type, entry.defaultValue)
+            }
+            if (entry.restartRequired)
+                window.settings_restart_to_apply = true
+        }
+
+        function resetSetting(entry) {
+            resetEntry(entry)
+            showResetDone(qsTr("Setting reset"))
+        }
+
+        // The settings listed now: with a text in the search field, only the ones it matches
+        function resetListedSettings() {
+            var list = filteredSettings
+            for (var i = 0; i < list.length; i++)
+                resetEntry(list[i])
+            showResetDone(qsTr("Settings reset: %1").arg(list.length))
+        }
+
+        // The page is made again, as for a new language: some controls read their setting once,
+        // when they are made (the switch of a section, the list of models, the order of the
+        // charts), and would show the old value or write it back. It opens on the same sections
+        // and on the changed settings, scrolled to where this one was
+        function showResetDone(message) {
+            var states = sectionStates(contentItem, [])
+            var snapshot = initialProfileSettingsSnapshot
+            var restartToApply = window.settings_restart_to_apply
+            var query = settingsSearchTextField.text
+            var scroll = { y: contentItem.contentY, height: contentHeight }
+            // The catalog and the index of the pages read here: the new page lists "Changed" at
+            // once with them, and can put the list where it was. Reading them again would list it
+            // only later (both are read asynchronously). The names in the list are made again: a
+            // reset of App Language changes them
+            var catalog = settingsCatalogLoaded && settingsIndex ?
+                    { catalog: settingsCatalog, index: settingsIndex } : null
+            // The context of this page goes with the replace, the new page does the rest
+            var page = stackView.replace("settings.qml", {}, StackView.Immediate)
+            page.showChangedAfterReset(states, snapshot, restartToApply, query, message, catalog, scroll)
+        }
+
+        function showChangedAfterReset(states, snapshot, restartToApply, query, message, catalog, scroll) {
+            // Set by this page when it was made: what was changed before still counts
+            initialProfileSettingsSnapshot = snapshot
+            window.settings_restart_to_apply = restartToApply
+            if (catalog) {
+                settingsCatalog = catalog.catalog
+                settingsCatalogLoaded = true
+                settingsIndex = catalog.index
+                buildSearchableSettings()
+            }
+            openSections(contentItem, states, 0)
+            settingsSearchVisible = true
+            restoringSearch = true
+            settingsSearchTextField.text = query
+            restoringSearch = false
+            // The list is made before setChangedOnly returns (the Repeater makes its items at once,
+            // outside an incubation), and a Flickable puts a contentY beyond its height back at
+            // once (QQuickFlickable::setContentHeight, fixupY): the page is kept as high as the old
+            // one while the list is made and scrolled, and only gets shorter by what was reset
+            heldContentHeight = scroll.height
+            setChangedOnly(true)
+            contentItem.contentY = scroll.y
+            heldContentHeight = 0
+            toast.show(message)
         }
 
         // From this page's Settings: the pages opened over it (voice, tiles...) write into the same
@@ -2788,22 +3002,44 @@ import AndroidStatusBar 1.0
                 Layout.fillWidth: true
                 Layout.preferredWidth: Math.max(1, column1.width)
 
-                Label {
-                    font: settingsPane.searchFont(true)
-                    // The catalog error above says it all: no "Searching..." or "No settings found"
-                    visible: settingsCatalogError.length === 0
-                    text: settingsCatalogLoading ? qsTr("Loading settings...") :
-                          settingsSearchPending ? qsTr("Searching...") :
-                          changedOnly && filteredSettings.length > 0 ?
-                              qsTr("Changed settings") + " (" + filteredSettings.length + ")" :
-                          // With a text the changed settings may be there, just not matching it
-                          changedOnly && settingsSearchTextField.text.trim().length === 0 ?
-                              qsTr("No changed settings") :
-                          filteredSettings.length === 0 ? qsTr("No settings found") :
-                          qsTr("Search results") + " (" + filteredSettings.length + ")"
-                    color: Material.color(Material.Red)
+                RowLayout {
                     Layout.fillWidth: true
-                    wrapMode: window.labelWrap
+                    spacing: 8
+
+                    Label {
+                        font: settingsPane.searchFont(true)
+                        // The catalog error above says it all: no "Searching..." or "No settings found"
+                        visible: settingsCatalogError.length === 0
+                        text: settingsCatalogLoading ? qsTr("Loading settings...") :
+                              settingsSearchPending ? qsTr("Searching...") :
+                              changedOnly && filteredSettings.length > 0 ?
+                                  qsTr("Changed settings") + " (" + filteredSettings.length + ")" :
+                              // With a text the changed settings may be there, just not matching it
+                              changedOnly && settingsSearchTextField.text.trim().length === 0 ?
+                                  qsTr("No changed settings") :
+                              filteredSettings.length === 0 ? qsTr("No settings found") :
+                              qsTr("Search results") + " (" + filteredSettings.length + ")"
+                        color: Material.color(Material.Red)
+                        Layout.fillWidth: true
+                        wrapMode: window.labelWrap
+                    }
+
+                    // Back to the defaults: the changed settings listed, after a confirmation
+                    UiButton {
+                        visible: changedOnly && filteredSettings.length > 0 &&
+                                 !settingsCatalogLoading && !settingsSearchPending
+                        text: qsTr("Reset all")
+                        onClicked: resetChangedDialog.open()
+                    }
+                }
+
+                MessageDialog {
+                    id: resetChangedDialog
+                    text: qsTr("Reset changed settings?")
+                    informativeText: qsTr("Settings that go back to their default values: %1").arg(settingsPane.filteredSettings.length)
+                    buttons: (MessageDialog.Yes | MessageDialog.No)
+                    onYesClicked: settingsPane.resetListedSettings()
+                    visible: false
                 }
 
                 Repeater {
@@ -2912,6 +3148,19 @@ import AndroidStatusBar 1.0
                                     text: "›"
                                     color: Material.color(Material.Grey)
                                     Accessible.ignored: true
+                                    Layout.alignment: Qt.AlignVCenter
+                                }
+
+                                // Over the card's MouseArea: a tap here resets, the rest of the
+                                // card still opens the setting. No insets: the card keeps nearly
+                                // its height
+                                UiButton {
+                                    visible: settingsPane.changedOnly
+                                    text: qsTr("Reset")
+                                    topInset: 0
+                                    bottomInset: 0
+                                    Accessible.name: qsTr("Reset") + ": " + settingsPane.plainTitle(settingsPane.searchTitle(entry))
+                                    onClicked: settingsPane.resetSetting(entry)
                                     Layout.alignment: Qt.AlignVCenter
                                 }
                             }
@@ -6344,7 +6593,7 @@ import AndroidStatusBar 1.0
                             checked: settings.sportstech_esx500
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: { settings.sportstech_esx500 = checked; window.settings_restart_to_apply = true; }
+                            onClicked: { settings.sportstech_esx500 = checked; }
                         }
 										   }
                     }
@@ -9615,14 +9864,14 @@ import AndroidStatusBar 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: if (valid) { settings.zwift_api_poll = value; window.settings_restart_to_apply = true; }
+                            onAccepted: if (valid) { settings.zwift_api_poll = value; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         UiButton {
                             text: qsTr("OK")
                             enabled: zwiftPollTimeTextField.valid && zwiftPollTimeTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.zwift_api_poll = zwiftPollTimeTextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.zwift_api_poll = zwiftPollTimeTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9652,7 +9901,7 @@ import AndroidStatusBar 1.0
                         checked: settings.zwift_api_autoinclination
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.zwift_api_autoinclination = checked; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.zwift_api_autoinclination = checked; }
                     }
 
                     Label {
@@ -13200,7 +13449,7 @@ import AndroidStatusBar 1.0
                                 checked: settings.kingsmith_r2_enable_hw_buttons
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: { settings.kingsmith_r2_enable_hw_buttons = checked; window.settings_restart_to_apply = true; }
+                                onClicked: { settings.kingsmith_r2_enable_hw_buttons = checked; }
                             }
 
                             Label {
@@ -13312,7 +13561,7 @@ import AndroidStatusBar 1.0
                                 checked: settings.fitfiu_mc_v460
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: { settings.fitfiu_mc_v460 = checked; window.settings_restart_to_apply = true; }
+                                onClicked: { settings.fitfiu_mc_v460 = checked; }
                             }
                             IndicatorOnlySwitch {
                                 text: "Zero ZT-2500"
@@ -13325,7 +13574,7 @@ import AndroidStatusBar 1.0
                                 checked: settings.zero_zt2500_treadmill
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: { settings.zero_zt2500_treadmill = checked; window.settings_restart_to_apply = true; }
+                                onClicked: { settings.zero_zt2500_treadmill = checked; }
                             }
                             IndicatorOnlySwitch {
                                 text: "UMAY S100"
@@ -13338,7 +13587,7 @@ import AndroidStatusBar 1.0
                                 checked: settings.umay_s100_treadmill
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: { settings.umay_s100_treadmill = checked; window.settings_restart_to_apply = true; }
+                                onClicked: { settings.umay_s100_treadmill = checked; }
                             }
                         }
                     }
@@ -13466,14 +13715,14 @@ import AndroidStatusBar 1.0
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: { settings.domyos_treadmill_button_5kmh = value; window.settings_restart_to_apply = true; }
+                                    onAccepted: { settings.domyos_treadmill_button_5kmh = value; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 UiButton {
                                     text: qsTr("OK")
                                     enabled: domyosTreadmillButton5KmhTimeTextField.valid && domyosTreadmillButton5KmhTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.domyos_treadmill_button_5kmh = domyosTreadmillButton5KmhTimeTextField.value; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
+                                    onClicked: { settings.domyos_treadmill_button_5kmh = domyosTreadmillButton5KmhTimeTextField.value; toast.show(qsTr("Setting saved!"));}
                                 }
                             }
 
@@ -13491,14 +13740,14 @@ import AndroidStatusBar 1.0
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: { settings.domyos_treadmill_button_10kmh = value; window.settings_restart_to_apply = true; }
+                                    onAccepted: { settings.domyos_treadmill_button_10kmh = value; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 UiButton {
                                     text: qsTr("OK")
                                     enabled: domyosTreadmillButton10KmhTimeTextField.valid && domyosTreadmillButton10KmhTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.domyos_treadmill_button_10kmh = domyosTreadmillButton10KmhTimeTextField.value; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
+                                    onClicked: { settings.domyos_treadmill_button_10kmh = domyosTreadmillButton10KmhTimeTextField.value; toast.show(qsTr("Setting saved!"));}
                                 }
                             }
 
@@ -13516,14 +13765,14 @@ import AndroidStatusBar 1.0
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: { settings.domyos_treadmill_button_16kmh = value; window.settings_restart_to_apply = true; }
+                                    onAccepted: { settings.domyos_treadmill_button_16kmh = value; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 UiButton {
                                     text: qsTr("OK")
                                     enabled: domyosTreadmillButton16KmhTimeTextField.valid && domyosTreadmillButton16KmhTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.domyos_treadmill_button_16kmh = domyosTreadmillButton16KmhTimeTextField.value; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
+                                    onClicked: { settings.domyos_treadmill_button_16kmh = domyosTreadmillButton16KmhTimeTextField.value; toast.show(qsTr("Setting saved!"));}
                                 }
                             }
 
@@ -13541,14 +13790,14 @@ import AndroidStatusBar 1.0
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: { settings.domyos_treadmill_button_22kmh = value; window.settings_restart_to_apply = true; }
+                                    onAccepted: { settings.domyos_treadmill_button_22kmh = value; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 UiButton {
                                     text: qsTr("OK")
                                     enabled: domyosTreadmillButton22KmhTimeTextField.valid && domyosTreadmillButton22KmhTimeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.domyos_treadmill_button_22kmh = domyosTreadmillButton22KmhTimeTextField.value; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
+                                    onClicked: { settings.domyos_treadmill_button_22kmh = domyosTreadmillButton22KmhTimeTextField.value; toast.show(qsTr("Setting saved!"));}
                                 }
                             }
 
@@ -14207,7 +14456,7 @@ import AndroidStatusBar 1.0
                         checked: settings.toorx_65s_evo
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.toorx_65s_evo = checked; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.toorx_65s_evo = checked; }
                     }
 
                     IndicatorOnlySwitch {
@@ -14236,7 +14485,7 @@ import AndroidStatusBar 1.0
                         checked: settings.bh_spada_2_watt
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.bh_spada_2_watt = checked; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.bh_spada_2_watt = checked; }
                     }                    
 
                     IndicatorOnlySwitch {
@@ -15027,7 +15276,7 @@ import AndroidStatusBar 1.0
                                 checked: settings.sole_elliptical_inclination
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: { settings.sole_elliptical_inclination = checked; window.settings_restart_to_apply = true; }
+                                onClicked: { settings.sole_elliptical_inclination = checked; }
                             }
                             IndicatorOnlySwitch {
                                 id: soleEllipticalE55Delegate
@@ -15539,7 +15788,7 @@ import AndroidStatusBar 1.0
                         checked: settings.strava_auth_external_webbrowser
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.strava_auth_external_webbrowser = checked; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.strava_auth_external_webbrowser = checked; }
                     }
 
                     Label {
@@ -16384,7 +16633,7 @@ import AndroidStatusBar 1.0
                                 checked: settings.rogue_echo_bike
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: { settings.rogue_echo_bike = checked; window.settings_restart_to_apply = true; }
+                                onClicked: { settings.rogue_echo_bike = checked; }
                             }
 
                             Label {
@@ -16412,7 +16661,7 @@ import AndroidStatusBar 1.0
                                 checked: settings.cscbike_custom_resistance_power_table
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: { settings.cscbike_custom_resistance_power_table = checked; window.settings_restart_to_apply = true; }
+                                onClicked: { settings.cscbike_custom_resistance_power_table = checked; }
                             }
 
                             Label {
@@ -18434,7 +18683,7 @@ import AndroidStatusBar 1.0
                         checked: settings.bluetooth_30m_hangs
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.bluetooth_30m_hangs = checked; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.bluetooth_30m_hangs = checked; }
                     }
 
                     Label {
@@ -19545,7 +19794,7 @@ import AndroidStatusBar 1.0
                         checked: settings.applewatch_as_treadmill_speed
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.applewatch_as_treadmill_speed = checked; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.applewatch_as_treadmill_speed = checked; }
                     }
 
                     Label {

@@ -42,6 +42,7 @@ SOURCES += \
         Tools/testsettings.cpp \
         Tools/typeidgenerator.cpp \
         Devices/TestSchwinn411510EParser.cpp \
+        Devices/TestKettlerUSBProtocol.cpp \
         Devices/TestZwiftRideController.cpp \
         Devices/TestApexBikeParser.cpp \
         Devices/TestEchelonUnlock.cpp \
@@ -107,6 +108,7 @@ HEADERS += \
     Devices/devicenamepatterngroup.h \
     Devices/devicetestdataindex.h \
     Devices/TestSchwinn411510EParser.h \
+    Devices/TestKettlerUSBProtocol.h \
     Devices/TestApexBikeParser.h \
     Devices/TestEchelonUnlock.h \
     Devices/TestNautilusTreadmillParser.h \

@@ -18,6 +18,8 @@
 #define _KettlerUSB_h 1
 
 #include <QDebug>
+#include <QByteArray>
+#include <QElapsedTimer>
 #include <QFile>
 #include <QMutex>
 #include <QString>
@@ -82,6 +84,20 @@ class KettlerUSB : public QThread {
     void setDevice(QString deviceFilename); // setup the device filename
     void setPower(double power);            // set the target power in Watts
 
+    enum class Protocol { Unknown, Legacy8, Extended9 };
+    struct StatusFrame {
+        Protocol protocol = Protocol::Unknown;
+        double heartRate = 0;
+        double cadence = 0;
+        double speed = 0;
+        double distance = 0;
+        double power = 0;
+    };
+
+    static bool decodeStatusFrame(const QString &response, StatusFrame &frame);
+    static bool isStatusResponse(const QString &response);
+    static bool takeResponse(QByteArray &buffer, QString &response);
+
     // GET TELEMETRY AND STATUS
     void getTelemetry(double &Power, double &HeartRate, double &Cadence, double &Speed,
                       double &Distance, int &Status);
@@ -96,8 +112,9 @@ class KettlerUSB : public QThread {
     // Protocol encoding/decoding
     int sendCommand(const QString &command);
     QString readResponse();
-    void parseStatusResponse(const QString &response);
-    void initSequence(); // Send initialization commands
+    bool parseStatusResponse(const QString &response);
+    bool initSequence(); // Preserve E7 startup sequence
+    bool tryExtendedHandshake(); // Recover AX1 when legacy startup does not yield status
 
     // Mutex for controlling accessing private data
     QMutex pvars;
@@ -117,10 +134,10 @@ class KettlerUSB : public QThread {
     // device port
     QString deviceFilename;
 #ifdef WIN32
-    HANDLE devicePort;
+    HANDLE devicePort = INVALID_HANDLE_VALUE;
     DCB deviceSettings;
 #else
-    int devicePort;
+    int devicePort = -1;
     struct termios deviceSettings;
 #endif
 
@@ -129,9 +146,10 @@ class KettlerUSB : public QThread {
     QString rawRead();
     void flushSerialBuffer(); // Flush any pending data in serial buffer
 
-    // Bytes received but not yet returned as a complete line (all platforms:
-    // a single read() on a USB serial adapter often returns part of a line)
     QByteArray rxBuffer;
+    QString statusCommand = QStringLiteral("ST");
+    Protocol activeProtocol = Protocol::Unknown;
+    bool extendedHandshakeAttempted = false;
 };
 
 class KettlerSleeper : public QThread {

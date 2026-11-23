@@ -4050,6 +4050,10 @@ Esto puede tardar un poco en el primer inicio.</translation>
         <translation>Buscando el dispositivo...</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Conectando con %1...</translation>
+    </message>
+    <message>
         <source>Search stopped, tap the Bluetooth icon</source>
         <translation>Búsqueda detenida, toca el icono de Bluetooth</translation>
     </message>
@@ -6364,6 +6368,30 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     <message>
         <source>App Language:</source>
         <translation>Idioma de la aplicación:</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Ajuste restablecido</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Ajustes restablecidos: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Restablecer todo</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>¿Restablecer los ajustes modificados?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Ajustes que vuelven a sus valores predeterminados: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Restablecer</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>

@@ -3978,6 +3978,10 @@ This may take a few moments on first startup.</source>
         <translation>기기를 검색하는 중…</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>%1에 연결하는 중…</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>%1 찾음</translation>
     </message>
@@ -5255,6 +5259,30 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>운동 기록에서 이 그래프의 순서입니다. 순서는 일반 UI 옵션의 위로/아래로 버튼으로 바꿉니다.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>설정을 초기화했습니다</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>초기화한 설정: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>모두 초기화</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>변경된 설정을 초기화하시겠습니까?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>기본값으로 돌아갈 설정: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>초기화</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
