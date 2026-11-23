@@ -90,6 +90,7 @@
         // Only an explicit press of "Resume from here" starts a selected interval.
         let totalPreviewSeconds = 0;
         let selectedPreviewSecond = 0;
+        let currentPreviewSecond = -1;
         let seekEnabled = false;
         let draggingCanvas = null;
 
@@ -111,6 +112,22 @@
                 const x = Math.max(area.left, Math.min(area.right, scale.getPixelForValue(selectedPreviewSecond)));
                 const ctx = chart.ctx;
                 ctx.save();
+                // Actual workout progress is independent of the user's selected seek time.
+                if (currentPreviewSecond >= 0) {
+                    const liveX = Math.max(area.left, Math.min(area.right,
+                        scale.getPixelForValue(currentPreviewSecond)));
+                    ctx.strokeStyle = '#16a34a';
+                    ctx.lineWidth = 3;
+                    ctx.setLineDash([]);
+                    ctx.beginPath();
+                    ctx.moveTo(liveX, area.top);
+                    ctx.lineTo(liveX, area.bottom);
+                    ctx.stroke();
+                }
+                if (!seekEnabled) {
+                    ctx.restore();
+                    return;
+                }
                 ctx.strokeStyle = '#e11d48';
                 ctx.lineWidth = 2;
                 ctx.setLineDash([5, 3]);
@@ -341,6 +358,17 @@
 
         // Update chart from WebSocket data
         function updateWorkoutFromData(data) {
+            // Live progress changes once per second, independently of the chart data.
+            const current = typeof data.currentSeconds === 'number' && data.currentSeconds >= 0
+                ? data.currentSeconds : -1;
+            if (currentPreviewSecond !== current) {
+                currentPreviewSecond = current;
+                document.querySelectorAll('#chart-container canvas').forEach(function (canvas) {
+                    const chart = Chart.getChart(canvas);
+                    if (chart)
+                        chart.draw();
+                });
+            }
             // Create a hash of the data to detect changes
             const dataHash = JSON.stringify({
                 points: data.points,
