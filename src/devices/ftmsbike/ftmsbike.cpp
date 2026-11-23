@@ -541,7 +541,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
             lastPhysicalGearTarget = targetLevel;
             return;
         }
-        const QByteArray packet = ftmsResistanceTargetPacket(targetLevel, 1, 32);
+        QByteArray packet = ftmsResistanceTargetPacket(targetLevel, 1, 32);
         if (!packet.isEmpty()) {
             qDebug() << "BI9200 resistance target" << targetLevel << packet.toHex(' ');
             writeCharacteristic(reinterpret_cast<uint8_t *>(packet.data()),
