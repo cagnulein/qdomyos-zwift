@@ -77,10 +77,14 @@ import AndroidStatusBar 1.0
         // Modern look: the search bar stays on top of the page; once it has scrolled off the top
         // the toolbar shows its search button, which brings the bar back (main.qml). The bottom of
         // the drawn box of the field, not of the row or of the field item: both end with an empty
-        // bottom inset, and a short list of results stops scrolling with only that inset in view
+        // bottom inset, and a short list of results stops scrolling with only that inset in view.
+        // contentY is taken no further than the end of the content: a short page pulled up past
+        // its end goes back by itself and must not flash the button
         readonly property bool searchBarScrolledAway: window.ui.modern && contentItem !== null &&
-            contentItem.contentY > settingsSearchBar.y + settingsSearchTextField.y +
-                                   settingsSearchTextField.height - settingsSearchTextField.bottomInset
+            Math.min(contentItem.contentY,
+                     contentItem.originY + contentItem.contentHeight + contentItem.bottomMargin - contentItem.height) >
+                settingsSearchBar.y + settingsSearchTextField.y +
+                settingsSearchTextField.height - settingsSearchTextField.bottomInset
         // The glow of the last jump: gone at once when back returns to the results
         property var activeGlow: null
         // Set while back puts the old query into the field: its onTextChanged must not search
@@ -3284,11 +3288,14 @@ import AndroidStatusBar 1.0
 
                                     // Over the card's MouseArea: a tap here resets, the rest of the
                                     // card still opens the setting
-                                    ToolButton {
+                                    // A flat UiButton: the state layer of the modern look, no ripple
+                                    UiButton {
                                         visible: settingsPane.changedOnly
                                         anchors.verticalCenter: parent.verticalCenter
-                                        width: 48
-                                        height: 48
+                                        flat: true
+                                        implicitWidth: 48
+                                        leftPadding: 0
+                                        rightPadding: 0
                                         Accessible.name: qsTr("Reset") + ": " + settingsPane.plainTitle(settingsPane.searchTitle(entry))
                                         UiIcon { anchors.centerIn: parent; width: 24; height: 24; name: "restart_alt"; color: window.ui.textMuted }
                                         onClicked: settingsPane.resetSetting(entry)
