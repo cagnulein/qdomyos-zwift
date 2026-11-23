@@ -2,6 +2,7 @@
 #include <QDebug>
 #include "bike.h"
 #include <limits>
+#include "rouvygearing.h"
 
 CharacteristicWriteProcessor0003::CharacteristicWriteProcessor0003(double bikeResistanceGain,
                                                                  int8_t bikeResistanceOffset,
@@ -104,6 +105,9 @@ bool CharacteristicWriteProcessor0003::decodeSInt(const QByteArray &bytes, qint3
 }
 
 QByteArray CharacteristicWriteProcessor0003::gearStatusResponse() const {
+    QSettings settings;
+    if (!settings.value(QZSettings::rouvy_compatibility, QZSettings::default_rouvy_compatibility).toBool())
+        return QByteArray::fromHex("3c0888041206 0a0440c0bb01");
     QByteArray response = QByteArray::fromHex("3c08880412");
     response.append(char(lastGearRatio.size() + 3));
     response.append(char(0x0a));
@@ -113,53 +117,40 @@ QByteArray CharacteristicWriteProcessor0003::gearStatusResponse() const {
     return response;
 }
 
+QByteArray CharacteristicWriteProcessor0003::gearAckResponse(const QByteArray &ratioBytes) const {
+    QSettings settings;
+    if (settings.value(QZSettings::rouvy_compatibility, QZSettings::default_rouvy_compatibility).toBool())
+        return QByteArray::fromHex("3c08880412050a0340") + ratioBytes;
+
+    // Preserve the pre-Rouvy Zwift ACK byte for byte.
+    QByteArray response = QByteArray::fromHex("3c088804120503408c60");
+    response[8] = ratioBytes.at(0);
+    response[9] = ratioBytes.at(1);
+    return response;
+}
+
 void CharacteristicWriteProcessor0003::handleZwiftGear(const QByteArray &array) {
     if (array.size() < 2)
         return;
-    int length = 0;
-    for (; length < array.size() && length < 3; ++length) {
-        if ((static_cast<quint8>(array.at(length)) & 0x80) == 0) {
-            ++length;
-            break;
-        }
-    }
-    if (length < 2 || length > 3 || (static_cast<quint8>(array.at(length - 1)) & 0x80))
-        return;
-    lastGearRatio = array.left(length);
 
     uint8_t g = 0;
     QSettings settings;
     if (settings.value(QZSettings::rouvy_compatibility, QZSettings::default_rouvy_compatibility).toBool()) {
-        static const int mixed[] = {7500, 8700, 9800, 11000, 12000, 13100, 14100, 15300,
-                                    16700, 18300, 20400, 22000, 23900, 26200, 27500, 30600,
-                                    32400, 34400, 36700, 39300, 42300, 45800, 50000, 55000};
-        static const int flat[] = {13899, 15000, 16200, 18900, 19500, 20400, 21700, 22100,
-                                   24400, 26000, 26500, 27900, 29400, 30000, 32500, 33100, 35300,
-                                   35500, 37900, 39000, 40800, 44200, 48200, 53000};
-        static const int allArounder[] = {10600, 12500, 14500, 14600, 16700, 17100, 18400, 20000,
-                                          20600, 22900, 23300, 25000, 25299, 26900, 28200, 29200,
-                                          31800, 32000, 34300, 35000, 36900, 40000, 43600, 48000};
-        static const int climbing[] = {8300, 9400, 10700, 11900, 12500, 13400, 14300, 15400,
-                                       15800, 17600, 17900, 20000, 20500, 22599, 23100, 25000,
-                                       25299, 27300, 28700, 30000, 33100, 35800, 39100, 43000};
-        const int profile = settings.value(QZSettings::rouvy_virtual_gearing_profile,
-                                           QZSettings::default_rouvy_virtual_gearing_profile).toInt();
-        const int *ratios = mixed;
-        int count = 24;
-        switch (profile) {
-        case 1: ratios = flat; count = 24; break;
-        case 2: ratios = allArounder; break;
-        case 3: ratios = climbing; break;
-        case 0: break;
-        default: return;
-        }
-        const qint64 ratio = decodeVarint(lastGearRatio, 0).value;
-        for (int i = 0; i < count; ++i) {
-            if (ratio == ratios[i]) {
-                g = i + 1;
+        int length = 0;
+        for (; length < array.size() && length < 3; ++length) {
+            if ((static_cast<quint8>(array.at(length)) & 0x80) == 0) {
+                ++length;
                 break;
             }
         }
+        if (length < 2 || length > 3 || (static_cast<quint8>(array.at(length - 1)) & 0x80))
+            return;
+        lastGearRatio = array.left(length);
+
+        const int profile = settings.value(QZSettings::rouvy_virtual_gearing_profile,
+                                           QZSettings::default_rouvy_virtual_gearing_profile).toInt();
+        const qint64 ratio = decodeVarint(lastGearRatio, 0).value;
+        g = RouvyGearing::gearForRatio(profile, ratio);
     } else {
     if (array.size() >= 2) {
         if ((uint8_t)array[0] == (uint8_t)0xCC && (uint8_t)array[1] == (uint8_t)0x3A) g = 1;
@@ -348,7 +339,7 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
         qDebug() << "Zwift Play Processor: Slope change request";
         qint32 slopeValue = 0;
         if (!decodeSInt(receivedData.mid(1), slopeValue))
-            return -1; // Do not abort the process on malformed DIRCON payloads.
+            return CP_OK; // Ignore invalid slopes without a DIRCON protocol error.
         double slopefloat = slopeValue;
         QByteArray slope(2, 0);
         slope[0] = quint8(qint16(slopefloat) & 0xFF);
@@ -383,7 +374,7 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
         notifier0002->addAnswer(reply);
 
         if (receivedData.size() < 6) return -1;
-        reply = QByteArray::fromHex("3c08880412050a0340") + receivedData.mid(4, 2);
+        reply = gearAckResponse(receivedData.mid(4, 2));
         handleZwiftGear(receivedData.mid(4));
         notifier0004->addAnswer(reply);
     }
