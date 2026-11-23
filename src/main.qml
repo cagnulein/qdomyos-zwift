@@ -2441,6 +2441,7 @@ ApplicationWindow {
                     width: parent.width
                     Accessible.role: Accessible.Button
                     Accessible.name: qsTr("Profile: ") + settings.profile_name
+                    Accessible.onPressAction: drawerAction("profile")
                     onClicked: drawerAction("profile")
                 }
 
@@ -2458,6 +2459,7 @@ ApplicationWindow {
                 width: parent.width
                 Accessible.role: Accessible.Button
                 Accessible.name: qsTr("Workouts History")
+                Accessible.onPressAction: drawerAction("history")
                 onClicked: drawerAction("history")
             }
                 ItemDelegate {
@@ -2465,6 +2467,7 @@ ApplicationWindow {
                     width: parent.width
                     Accessible.role: Accessible.Button
                     Accessible.name: qsTr("Swag Bag")
+                    Accessible.onPressAction: drawerAction("swagbag")
                     onClicked: drawerAction("swagbag")
                 }
 
@@ -2473,6 +2476,7 @@ ApplicationWindow {
                     width: parent.width
                     Accessible.role: Accessible.Button
                     Accessible.name: qsTr("Charts")
+                    Accessible.onPressAction: drawerAction("charts")
                     onClicked: drawerAction("charts")
                 }
                 ItemDelegate {
@@ -2481,6 +2485,7 @@ ApplicationWindow {
                     width: parent.width
                     Accessible.role: Accessible.Button
                     Accessible.name: qsTr("Open GPX")
+                    Accessible.onPressAction: drawerAction("opengpx")
                     onClicked: drawerAction("opengpx")
                 }
                 ItemDelegate {
@@ -2489,6 +2494,7 @@ ApplicationWindow {
                     width: parent.width
                     Accessible.role: Accessible.Button
                     Accessible.name: qsTr("Open Train Program")
+                    Accessible.onPressAction: drawerAction("trainprogram")
                     onClicked: drawerAction("trainprogram")
                 }
                 ItemDelegate {
@@ -2496,6 +2502,7 @@ ApplicationWindow {
                     width: parent.width
                     Accessible.role: Accessible.Button
                     Accessible.name: qsTr("Workout Editor")
+                    Accessible.onPressAction: drawerAction("editor")
                     onClicked: drawerAction("editor")
                 }
                 /*
@@ -2513,6 +2520,7 @@ ApplicationWindow {
                     width: parent.width
                     Accessible.role: Accessible.Button
                     Accessible.name: qsTr("Save GPX")
+                    Accessible.onPressAction: drawerAction("savegpx")
                     onClicked: drawerAction("savegpx")
                 }
                 ItemDelegate {
@@ -2521,6 +2529,7 @@ ApplicationWindow {
                     width: parent.width
                     Accessible.role: Accessible.Button
                     Accessible.name: qsTr("Save FIT")
+                    Accessible.onPressAction: drawerAction("savefit")
                     onClicked: drawerAction("savefit")
                 }
                 ItemDelegate {
@@ -2529,6 +2538,7 @@ ApplicationWindow {
                     width: parent.width
                     Accessible.role: Accessible.Button
                     Accessible.name: qsTr("Wizard")
+                    Accessible.onPressAction: drawerAction("wizard")
                     onClicked: drawerAction("wizard")
                 }
                 ItemDelegate {
@@ -2537,6 +2547,7 @@ ApplicationWindow {
                     width: parent.width
                     Accessible.role: Accessible.Button
                     Accessible.name: qsTr("Help")
+                    Accessible.onPressAction: drawerAction("help")
                     onClicked: drawerAction("help")
                 }
                 ItemDelegate {
@@ -2545,6 +2556,7 @@ ApplicationWindow {
                     width: parent.width
                     Accessible.role: Accessible.Button
                     Accessible.name: qsTr("Community")
+                    Accessible.onPressAction: drawerAction("community")
                     onClicked: drawerAction("community")
                 }
                 ItemDelegate {
@@ -2552,6 +2564,7 @@ ApplicationWindow {
                     width: parent.width
                     Accessible.role: Accessible.Button
                     Accessible.name: qsTr("Credits")
+                    Accessible.onPressAction: drawerAction("credits")
                     onClicked: drawerAction("credits")
                 }
                 ItemDelegate {
@@ -2582,6 +2595,7 @@ ApplicationWindow {
                     Accessible.role: Accessible.Button
                     Accessible.name: rootItem.isStravaLoggedIn() ? qsTr("Disconnect from Strava") : qsTr("Connect with Strava")
                     Accessible.description: rootItem.isStravaLoggedIn() ? qsTr("Tap to log out of Strava") : qsTr("Tap to connect your Strava account")
+                    Accessible.onPressAction: drawerAction("strava")
                     onClicked: drawerAction("strava")
                 }
 
@@ -2599,6 +2613,7 @@ ApplicationWindow {
                     Accessible.role: Accessible.Button
                     Accessible.name: rootItem.isPelotonLoggedIn() ? qsTr("Disconnect from Peloton") : qsTr("Connect with Peloton")
                     Accessible.description: rootItem.isPelotonLoggedIn() ? qsTr("Tap to log out of Peloton") : qsTr("Tap to connect your Peloton account")
+                    Accessible.onPressAction: drawerAction("peloton")
                     onClicked: drawerAction("peloton")
                 }
 
@@ -2617,6 +2632,7 @@ ApplicationWindow {
                     Accessible.role: Accessible.Button
                     Accessible.name: qsTr("Garmin Connect settings")
                     Accessible.description: qsTr("Open Garmin Connect integration settings")
+                    Accessible.onPressAction: drawerAction("garmin")
                     onClicked: drawerAction("garmin")
                 }
 
@@ -2634,6 +2650,7 @@ ApplicationWindow {
                     Accessible.role: Accessible.Button
                     Accessible.name: rootItem.isIntervalsICULoggedIn() ? qsTr("Disconnect from Intervals.icu") : qsTr("Connect with Intervals.icu")
                     Accessible.description: rootItem.isIntervalsICULoggedIn() ? qsTr("Tap to log out of Intervals.icu") : qsTr("Tap to connect your Intervals.icu account")
+                    Accessible.onPressAction: drawerAction("intervals")
                     onClicked: drawerAction("intervals")
                 }
 
