@@ -253,10 +253,12 @@ bool ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
             lastPhysicalGearTarget = static_cast<resistance_t>(qRound(rawTarget / 10.0));
             pendingPhysicalGearEchoTarget = lastPhysicalGearTarget;
             pendingPhysicalGearEchoStart = lastPhysicalGearResistance;
+            lastPhysicalGearCommandWasResistance = true;
         } else {
             // Unknown physical response to an inclination/power command:
             // retain the existing time guard until an explicit resistance target.
             pendingPhysicalGearEchoTarget = -1;
+            lastPhysicalGearCommandWasResistance = false;
         }
     }
     return queued;
@@ -542,8 +544,9 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         const QByteArray packet = ftmsResistanceTargetPacket(targetLevel, 1, 32);
         if (!packet.isEmpty()) {
             qDebug() << "BI9200 resistance target" << targetLevel << packet.toHex(' ');
-            writeCharacteristic(reinterpret_cast<uint8_t *>(const_cast<char *>(packet.constData())),
-                                packet.size(), QStringLiteral("forceResistance ") + QString::number(targetLevel));
+            writeCharacteristic(reinterpret_cast<uint8_t *>(packet.data()),
+                                static_cast<uint8_t>(packet.size()),
+                                QStringLiteral("forceResistance ") + QString::number(targetLevel));
         }
         return;
     }
@@ -1852,7 +1855,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 // different target. For unknown 0x11/power commands retain the
                 // conservative legacy guard.
                 const qint64 classifierGuardMs =
-                    pendingPhysicalGearEchoTarget < 0 || knownCommandEcho ? sinceControlMs : -1;
+                    !lastPhysicalGearCommandWasResistance || knownCommandEcho ? sinceControlMs : -1;
                 resistance_t gearDelta = 0;
                 if (physicalResistanceGearDelta(lastPhysicalGearResistance, nativeLevel,
                                                 classifierGuardMs, bi9200Limits, &gearDelta)) {
@@ -1876,6 +1879,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 lastPhysicalGearTarget = -1;
                 pendingPhysicalGearEchoTarget = -1;
                 pendingPhysicalGearEchoStart = -1;
+                lastPhysicalGearCommandWasResistance = false;
                 physicalGearChangePending = false;
             }
 
@@ -2518,6 +2522,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         lastPhysicalGearTarget = -1;
         pendingPhysicalGearEchoTarget = -1;
         pendingPhysicalGearEchoStart = -1;
+        lastPhysicalGearCommandWasResistance = false;
         physicalGearChangePending = false;
         if (bluetoothDevice.name().toUpper().startsWith("SUITO")) {
             qDebug() << QStringLiteral("SUITO found");
