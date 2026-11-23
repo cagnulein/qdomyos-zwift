@@ -219,7 +219,8 @@ Nordictrack C1650:
 norditrack_s25_treadmill=true
 proformtreadmillip=172.31.2.36
 ```
-Zwift specific options (auto inclination not there yet in the Raspberry Pi version):
+Zwift API automatic inclination is supported on Raspberry Pi builds containing the portable Zwift PlayerState decoder. Configure your Zwift account and enable automatic incline:
+
 ```
 zwift_api_autoinclination=true
 zwift_inclination_gain=1
@@ -227,6 +228,9 @@ zwift_inclination_offset=0
 zwift_username=user@myemail.com
 zwift_password=Password1
 ```
+
+For a Technogym MyRun that requires the Bluetooth Classic (RFCOMM) control protocol, also set `technogym_myrun_treadmill_experimental=true`. The Raspberry's Bluetooth adapter must support Classic Bluetooth, and QZ must first be able to control incline manually; the Zwift API decoder alone cannot add control to a BLE-only connection. Use the debug log to check the Zwift login, player samples and RFCOMM connection before enabling unattended operation.
+
 
 Check it works:
 ```

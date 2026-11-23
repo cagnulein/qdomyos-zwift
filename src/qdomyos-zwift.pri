@@ -483,6 +483,7 @@ windows_zwift_workout_paddleocr_thread.h \
 devices/fakerower/fakerower.h \
 zwift-api/PlayerStateWrapper.h \
 zwift-api/zwift_client_auth.h \
+zwift-api/zwift_player_state_parser.h \
 zwift_play/abstractZapDevice.h \
 zwift_play/zapBleUuids.h \
 zwift_play/zapConstants.h \
