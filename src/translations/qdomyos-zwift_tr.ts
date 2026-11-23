@@ -2409,6 +2409,10 @@ QZ ayarları güncellensin mi?</translation>
         <translation>1 mil</translation>
     </message>
     <message>
+        <source>Live update</source>
+        <translation>Canlı güncelleme</translation>
+    </message>
+    <message>
         <source>AVG</source>
         <translation>ORT.</translation>
     </message>
@@ -6192,6 +6196,14 @@ QZ&apos;nin bu değeri değiştirmesine izin verilsin mi?
     <message>
         <source>Choose which charts to display in the footer: both heart rate and power charts, only heart rate chart, or only power chart.</source>
         <translation>Ekranın altında hangi grafiklerin gösterileceğini seçin: nabız ve güç grafikleri, yalnızca nabız grafiği veya yalnızca güç grafiği.</translation>
+    </message>
+    <message>
+        <source>Live Charts During a Workout</source>
+        <translation>Antrenman sırasında canlı grafikler</translation>
+    </message>
+    <message>
+        <source>The Charts page adds the new data every second while a workout is running. Also switched on the Charts page itself. Default is off.</source>
+        <translation>Grafikler sayfası, antrenman sürerken yeni verileri her saniye ekler. Grafikler sayfasının kendisinden de açılıp kapatılabilir. Varsayılan: kapalı.</translation>
     </message>
     <message>
         <source>iOS Live Activity Left Metric:</source>

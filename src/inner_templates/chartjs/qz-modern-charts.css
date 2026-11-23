@@ -56,3 +56,62 @@ html.modern .heart_avg, html.modern .heart_max {
 html.modern #loading {
     background-color: var(--qz-bg) !important;
 }
+/* The live update switch under the date (chart.htm): the caption 13 like the captions of the
+   web pages, the switch 44 x 26 like the one of the workout editor, with the Material 3 icon
+   in the knob (check / cross), the knob 20 in both states. The track ends at the right edge of
+   the date */
+html.modern #live_refresh_box {
+    color: var(--qz-text) !important;
+    font-size: 13px !important;
+    font-family: inherit !important;
+}
+html.modern #live_refresh {
+    padding: 0 0 0 4px;
+}
+html.modern #live_refresh .track {
+    width: 44px;
+    height: 26px;
+    margin-left: 12px;
+    border-color: var(--qz-muted);
+    border-radius: 13px;
+    background-color: var(--qz-surface-highest);
+}
+html.modern #live_refresh .knob {
+    top: 1px;
+    left: 1px;
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    background-color: var(--qz-muted);
+}
+html.modern #live_refresh[aria-checked="true"] .track {
+    background-color: var(--qz-accent);
+    border-color: var(--qz-accent);
+}
+html.modern #live_refresh[aria-checked="true"] .knob {
+    left: 19px;
+    background-color: var(--qz-accent-ink, var(--qz-bg));
+}
+html.modern #live_refresh .knob svg {
+    display: block;
+    width: 14px;
+    height: 14px;
+    margin: 3px;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+html.modern #live_refresh .knob .on {
+    display: none;
+    stroke: var(--qz-accent);
+}
+html.modern #live_refresh .knob .off {
+    stroke: var(--qz-surface-highest);
+}
+html.modern #live_refresh[aria-checked="true"] .knob .on {
+    display: inline;
+}
+html.modern #live_refresh[aria-checked="true"] .knob .off {
+    display: none;
+}

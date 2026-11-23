@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 1051,
+  "settingCount": 1052,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -16615,6 +16615,20 @@
       "name": "Resistance Compatibility",
       "description": "Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.",
       "parent": "Advanced Settings",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "restartRequired": false
+    },
+    {
+      "key": "charts_live_update",
+      "name": "Live Charts During a Workout",
+      "description": "The Charts page adds the new data every second while a workout is running. Also switched on the Charts page itself. Default is off.",
+      "parent": "General UI Options",
       "type": "boolean",
       "qmlType": "bool",
       "control": "switch",

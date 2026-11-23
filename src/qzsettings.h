@@ -3505,6 +3505,11 @@ class QZSettings {
     static const QString resistance_compatibility;
     static constexpr bool default_resistance_compatibility = false;
 
+    // The Charts page updates its charts once a second while a workout is running; also switched
+    // on the page itself (chartjs/dochart.js)
+    static const QString charts_live_update;
+    static constexpr bool default_charts_live_update = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

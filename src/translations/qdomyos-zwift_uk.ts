@@ -2389,6 +2389,10 @@ Do you want to update QZ settings?</source>
         <translation>1 миля</translation>
     </message>
     <message>
+        <source>Live update</source>
+        <translation>Онлайн-оновлення</translation>
+    </message>
+    <message>
         <source>Peloton Workout in progress!</source>
         <translation>Триває тренування Peloton!</translation>
     </message>
@@ -6336,6 +6340,14 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     <message>
         <source>Choose which charts to display in the footer: both heart rate and power charts, only heart rate chart, or only power chart.</source>
         <translation>Виберіть, які графіки показувати внизу екрана: пульс і потужність, лише пульс або лише потужність.</translation>
+    </message>
+    <message>
+        <source>Live Charts During a Workout</source>
+        <translation>Графіки онлайн під час тренування</translation>
+    </message>
+    <message>
+        <source>The Charts page adds the new data every second while a workout is running. Also switched on the Charts page itself. Default is off.</source>
+        <translation>Сторінка «Графіки» щосекунди домальовує нові дані, поки триває тренування. Вмикається і на самій сторінці «Графіки». Типово вимкнено.</translation>
     </message>
     <message>
         <source>iOS Live Activity Left Metric:</source>

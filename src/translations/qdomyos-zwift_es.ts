@@ -2389,6 +2389,10 @@ Do you want to update QZ settings?</source>
         <translation>1 milla</translation>
     </message>
     <message>
+        <source>Live update</source>
+        <translation>Actualización en vivo</translation>
+    </message>
+    <message>
         <source>Peloton Workout in progress!</source>
         <translation>¡Entrenamiento de Peloton en curso!</translation>
     </message>
@@ -6084,6 +6088,14 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     <message>
         <source>Choose which charts to display in the footer: both heart rate and power charts, only heart rate chart, or only power chart.</source>
         <translation>Elige qué gráficos mostrar en el pie de página: gráficos de frecuencia cardíaca y potencia, solo gráfico de frecuencia cardíaca, o solo gráfico de potencia.</translation>
+    </message>
+    <message>
+        <source>Live Charts During a Workout</source>
+        <translation>Gráficos en vivo durante el entrenamiento</translation>
+    </message>
+    <message>
+        <source>The Charts page adds the new data every second while a workout is running. Also switched on the Charts page itself. Default is off.</source>
+        <translation>La página Gráficos añade los datos nuevos cada segundo mientras hay un entrenamiento en curso. También se activa en la propia página Gráficos. Predeterminado: apagado.</translation>
     </message>
     <message>
         <source>UI Themes</source>

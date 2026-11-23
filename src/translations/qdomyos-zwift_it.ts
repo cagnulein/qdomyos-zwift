@@ -2389,6 +2389,10 @@ Vuoi aggiornare le impostazioni di QZ?</translation>
         <translation>1 miglio</translation>
     </message>
     <message>
+        <source>Live update</source>
+        <translation>Aggiornamento dal vivo</translation>
+    </message>
+    <message>
         <source>Peloton Workout in progress!</source>
         <translation>Allenamento Peloton in corso!</translation>
     </message>
@@ -6537,6 +6541,14 @@ Consentire a QZ di modificare questo valore?
     <message>
         <source>Choose which charts to display in the footer: both heart rate and power charts, only heart rate chart, or only power chart.</source>
         <translation>Scegli quali grafici visualizzare nel piè di pagina: grafico frequenza cardiaca e potenza, solo grafico frequenza cardiaca, o solo grafico potenza.</translation>
+    </message>
+    <message>
+        <source>Live Charts During a Workout</source>
+        <translation>Grafici in tempo reale durante l’allenamento</translation>
+    </message>
+    <message>
+        <source>The Charts page adds the new data every second while a workout is running. Also switched on the Charts page itself. Default is off.</source>
+        <translation>La pagina Grafici aggiunge i nuovi dati ogni secondo durante un allenamento. Si attiva anche direttamente nella pagina Grafici. Predefinito: disattivato.</translation>
     </message>
     <message>
         <source>Please choose a color</source>

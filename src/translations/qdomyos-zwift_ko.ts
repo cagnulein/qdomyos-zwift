@@ -2409,6 +2409,10 @@ QZ 설정을 업데이트하시겠습니까?</translation>
         <translation>1마일</translation>
     </message>
     <message>
+        <source>Live update</source>
+        <translation>실시간 업데이트</translation>
+    </message>
+    <message>
         <source>AVG</source>
         <translation>평균</translation>
     </message>
@@ -6192,6 +6196,14 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
     <message>
         <source>Choose which charts to display in the footer: both heart rate and power charts, only heart rate chart, or only power chart.</source>
         <translation>화면 하단에 표시할 그래프를 선택하세요: 심박수와 파워 그래프 모두, 심박수 그래프만, 파워 그래프만.</translation>
+    </message>
+    <message>
+        <source>Live Charts During a Workout</source>
+        <translation>운동 중 실시간 그래프</translation>
+    </message>
+    <message>
+        <source>The Charts page adds the new data every second while a workout is running. Also switched on the Charts page itself. Default is off.</source>
+        <translation>운동 중 그래프 화면에 새 데이터를 매초 추가합니다. 그래프 화면에서도 켜고 끌 수 있습니다. 기본값: 꺼짐.</translation>
     </message>
     <message>
         <source>iOS Live Activity Left Metric:</source>

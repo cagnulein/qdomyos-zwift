@@ -2389,6 +2389,10 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
         <translation>1 Meile</translation>
     </message>
     <message>
+        <source>Live update</source>
+        <translation>Live-Aktualisierung</translation>
+    </message>
+    <message>
         <source>Peloton Workout in progress!</source>
         <translation>Peloton Workout läuft!</translation>
     </message>
@@ -6020,6 +6024,14 @@ Darf QZ diesen Wert ändern?
     <message>
         <source>Choose which charts to display in the footer: both heart rate and power charts, only heart rate chart, or only power chart.</source>
         <translation>Wählen Sie aus, welche Diagramme in der Fußzeile angezeigt werden sollen: Herzfrequenz- und Leistungsdiagramme, nur Herzfrequenzdiagramm oder nur Leistungsdiagramm.</translation>
+    </message>
+    <message>
+        <source>Live Charts During a Workout</source>
+        <translation>Live-Diagramme während des Trainings</translation>
+    </message>
+    <message>
+        <source>The Charts page adds the new data every second while a workout is running. Also switched on the Charts page itself. Default is off.</source>
+        <translation>Die Seite „Diagramme“ ergänzt während eines laufenden Trainings jede Sekunde die neuen Daten. Lässt sich auch direkt auf der Seite „Diagramme“ umschalten. Standardmäßig ist es aus.</translation>
     </message>
     <message>
         <source>UI Themes</source>
