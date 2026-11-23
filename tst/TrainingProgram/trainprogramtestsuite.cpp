@@ -130,15 +130,15 @@ void TrainProgramTestSuite::test_seekWithinTimeOnlyWorkout() {
     program.restart();
     EXPECT_TRUE(program.seekToElapsedSeconds(75));
     EXPECT_EQ(program.currentRowIndex(), 1);
-    EXPECT_EQ(program.totalElapsedTime(), QTime(0, 1, 15));
+    EXPECT_EQ(program.offsetElapsedTime(), 75);
 
     EXPECT_TRUE(program.seekToElapsedSeconds(60));
     EXPECT_EQ(program.currentRowIndex(), 1);
-    EXPECT_EQ(program.totalElapsedTime(), QTime(0, 1, 0));
+    EXPECT_EQ(program.offsetElapsedTime(), 60);
 
     EXPECT_FALSE(program.seekToElapsedSeconds(210));
     EXPECT_EQ(program.currentRowIndex(), 1);
-    EXPECT_EQ(program.totalElapsedTime(), QTime(0, 1, 0));
+    EXPECT_EQ(program.offsetElapsedTime(), 60);
 }
 
 void TrainProgramTestSuite::test_seekRejectsBlockingAndDistanceRows() {
