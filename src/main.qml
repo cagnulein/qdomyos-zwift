@@ -2251,8 +2251,10 @@ ApplicationWindow {
         case "editor":
             // Modern look: the editor is made once and kept - StackView does not destroy a page it
             // did not make, and hides it when it leaves the stack, its web view too - so opening it
-            // again shows it at once, with the workout as it was left, instead of loading the page anew
-            if (window.ui.modern) {
+            // again shows it at once, with the workout as it was left, instead of loading the page anew.
+            // Not with VoiceOver on iOS: there the page opens the native editor once, when it is made
+            // (WorkoutEditor.qml, nativeMode), so it is made anew at each opening, as in the classic look
+            if (window.ui.modern && !(OS_VERSION === "iOS" && rootItem.isVoiceOverRunning())) {
                 if (!keptWorkoutEditor) {
                     keptWorkoutEditor = Qt.createComponent("WorkoutEditor.qml").createObject(window.contentItem, { visible: false })
                     if (keptWorkoutEditor) {
