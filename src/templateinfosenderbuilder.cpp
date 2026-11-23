@@ -810,6 +810,7 @@ void TemplateInfoSenderBuilder::onGetWorkoutPreview(TemplateInfoSender *tempSend
 
         outObj[QStringLiteral("points")] = points;
         outObj[QStringLiteral("seekSupported")] = hf->previewWorkoutSeekSupported();
+        outObj[QStringLiteral("currentSeconds")] = hf->previewWorkoutCurrentSeconds();
         outObj[QStringLiteral("description")] = hf->previewWorkoutDescription();
         outObj[QStringLiteral("tags")] = hf->previewWorkoutTags();
 
