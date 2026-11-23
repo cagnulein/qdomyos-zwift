@@ -424,14 +424,32 @@ TEST(KettlerClassicProtocol, CoachSCadenceAveragesRealNovember22PollingJitter) {
     for (int i = 0; i < 18; ++i) {
         nowMs += intervalsMs[i];
         const double spm = cadence.completedStroke(++strokes, nowMs, true);
-        if (i >= 3) { // full four-interval window
+        if (i == 0) EXPECT_NEAR(spm, 60000.0 / intervalsMs[i], 0.01); // first valid interval
+        if (i >= 2) { // full three-interval window
             minSmoothed = qMin(minSmoothed, spm);
             maxSmoothed = qMax(maxSmoothed, spm);
         }
     }
     EXPECT_GE(minSmoothed, 25.0);
-    EXPECT_LE(maxSmoothed, 27.4);
+    EXPECT_LE(maxSmoothed, 28.0);
     EXPECT_NEAR(cadence.completedStroke(++strokes, nowMs + 2250, true), 26.7, 1.0);
+}
+
+TEST(KettlerClassicProtocol, CoachSCadenceStartsWithOneIntervalAndUsesRollingThree) {
+    kettlerclassicprotocol::CoachSCadenceSmoother cadence;
+    // First completed stroke has no interval yet; second publishes immediately.
+    EXPECT_DOUBLE_EQ(cadence.completedStroke(200, 1000, false), 0.0);
+    EXPECT_NEAR(cadence.completedStroke(201, 3000, true), 30.0, 0.01);
+    EXPECT_NEAR(cadence.completedStroke(202, 5000, true), 30.0, 0.01);
+    // The third interval is included; the fourth replaces the oldest one.
+    EXPECT_NEAR(cadence.completedStroke(203, 8000, true), 60000.0 * 3 / 7000.0, 0.01);
+    EXPECT_NEAR(cadence.completedStroke(204, 11000, true), 60000.0 * 3 / 8000.0, 0.01);
+    // After a pause, never smear the idle time into the next reading.
+    EXPECT_DOUBLE_EQ(cadence.completedStroke(205, 19000, false), 0.0);
+    EXPECT_NEAR(cadence.completedStroke(206, 21000, true), 30.0, 0.01);
+    // An unexpected long interval also clears stale cadence history.
+    EXPECT_DOUBLE_EQ(cadence.completedStroke(207, 30000, true), 0.0);
+    EXPECT_NEAR(cadence.completedStroke(208, 32000, true), 30.0, 0.01);
 }
 
 TEST(KettlerClassicProtocol, CoachSCadenceResetsAfterStopRestartAndCounterReset) {
