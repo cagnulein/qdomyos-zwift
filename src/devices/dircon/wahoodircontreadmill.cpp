@@ -577,6 +577,29 @@ void wahoodircontreadmill::parseFitnessMachineStatus(const QByteArray &value) {
     qDebug() << "WahooDirconTreadmill: Fitness Machine Status:" << QString::number(statusCode, 16);
 }
 
+// FTMS control-point operations 0x07 and 0x08 are explicit user actions.
+// Never send these as part of the DirCon discovery/connection handshake: a
+// treadmill belt must not start just because QZ connected to its server.
+void wahoodircontreadmill::start() {
+    if (!connected()) {
+        emit debug(QStringLiteral("DirCon treadmill: ignoring Start while disconnected"));
+        return;
+    }
+    uint8_t command[] = {0x07}; // FTMS Start/Resume
+    writeCharacteristic(command, sizeof(command), QStringLiteral("DirCon Start/Resume"));
+}
+
+void wahoodircontreadmill::stop(bool pause) {
+    if (!connected()) {
+        emit debug(QStringLiteral("DirCon treadmill: ignoring Stop/Pause while disconnected"));
+        return;
+    }
+    uint8_t command[] = {0x08, static_cast<uint8_t>(pause ? 0x02 : 0x01)};
+    // FTMS 0x08 parameter: 0x01 Stop, 0x02 Pause.
+    writeCharacteristic(command, sizeof(command), pause ? QStringLiteral("DirCon Pause")
+                                                         : QStringLiteral("DirCon Stop"));
+}
+
 void wahoodircontreadmill::changeSpeed(double speed) {
     qDebug() << "WahooDirconTreadmill: change speed to" << speed;
 
