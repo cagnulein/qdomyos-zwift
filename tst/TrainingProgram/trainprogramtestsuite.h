@@ -16,6 +16,8 @@ public:
     void test_pidHrModeWorkoutOverrideTakesPrecedence();
     void test_pidHrModeAndMaxInclinationRoundTripThroughXml();
     void test_ziproShredHighInclineXmlValuesArePreserved();
+    void test_seekWithinTimeOnlyWorkout();
+    void test_seekRejectsBlockingAndDistanceRows();
 };
 
 TEST_F(TrainProgramTestSuite, LapButtonBarrierBlocksSkippedZeroDurationRow) {
@@ -60,6 +62,14 @@ TEST_F(TrainProgramTestSuite, PidHrModeAndMaxInclinationRoundTripThroughXml) {
 
 TEST_F(TrainProgramTestSuite, ZiproShredHighInclineXmlValuesArePreserved) {
     this->test_ziproShredHighInclineXmlValuesArePreserved();
+}
+
+TEST_F(TrainProgramTestSuite, SeekWithinTimeOnlyWorkout) {
+    this->test_seekWithinTimeOnlyWorkout();
+}
+
+TEST_F(TrainProgramTestSuite, SeekRejectsBlockingAndDistanceRows) {
+    this->test_seekRejectsBlockingAndDistanceRows();
 }
 
 #endif // TRAINPROGRAMTESTSUITE_H
