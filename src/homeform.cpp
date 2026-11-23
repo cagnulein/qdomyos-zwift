@@ -10287,6 +10287,31 @@ bool homeform::deleteTrainingProgramFile(const QString &fileUrl) {
     return true;
 }
 
+bool homeform::previewWorkoutSeekSupported() const {
+    if (!previewTrainProgram || previewTrainProgram->loadedRows.isEmpty())
+        return false;
+    for (const auto &row : previewTrainProgram->loadedRows) {
+        if (row.distance != -1 || row.waitForLap || row.HRabove > 0 || row.HRbelow > 0 ||
+            QTime(0, 0, 0).secsTo(row.duration) <= 0)
+            return false;
+    }
+    return true;
+}
+
+void homeform::setPreviewWorkoutSelectedSeconds(int seconds) {
+    const int value = seconds < 0 || !previewWorkoutSeekSupported() ? -1
+                        : qBound(0, seconds, qMax(0, preview_workout_points() - 1));
+    if (m_previewWorkoutSelectedSeconds != value) {
+        m_previewWorkoutSelectedSeconds = value;
+        emit previewWorkoutSelectedSecondsChanged(value);
+    }
+}
+
+void homeform::setNextWorkoutStartSecond(int seconds) {
+    m_nextWorkoutStartSecond = previewWorkoutSeekSupported() && seconds > 0 &&
+                              seconds < preview_workout_points() ? seconds : -1;
+}
+
 void homeform::trainprogram_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("trainprogram_open_clicked") << fileName;
 
@@ -10338,21 +10363,27 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
 
 void homeform::trainprogram_autostart_requested() {
     qDebug() << QStringLiteral("trainprogram_autostart_requested");
+    const int seekSeconds = m_nextWorkoutStartSecond;
+    m_nextWorkoutStartSecond = -1;
+    auto seekAfterStart = [this, seekSeconds]() {
+        if (seekSeconds > 0 && (!trainProgram || !trainProgram->seekToElapsedSeconds(seekSeconds)))
+            setToastRequested(tr("This workout cannot resume at the selected time"));
+    };
 
-    bluetoothdevice *dev = nullptr;
-    if (bluetoothManager) {
-        dev = bluetoothManager->device();
-    }
-
+    bluetoothdevice *dev = bluetoothManager ? bluetoothManager->device() : nullptr;
     if (dev && !dev->isPaused()) {
-        // Pause and resume QZ to start the program, without sending STOP/START
-        // commands to the physical device (Domyos ellipticals lose console telemetry).
+        // Preserve existing pause/resume semantics for running equipment, without
+        // sending an unsolicited physical STOP/START during a program change.
         QMetaObject::invokeMethod(this, [this]() { Start_inner(false); }, Qt::QueuedConnection);
         QThread::msleep(200);
-        QMetaObject::invokeMethod(this, [this]() { Start_inner(false); }, Qt::QueuedConnection);
+        QMetaObject::invokeMethod(this, [this, seekAfterStart]() {
+            Start_inner(false);
+            seekAfterStart();
+        }, Qt::QueuedConnection);
     } else {
-        // Device is paused/stopped, call Start() once
         QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
+        if (seekSeconds > 0)
+            QMetaObject::invokeMethod(this, seekAfterStart, Qt::QueuedConnection);
     }
 }
 
@@ -10476,7 +10507,9 @@ void homeform::trainprogram_preview(const QUrl &fileName) {
                 previewTrainProgram = 0;
             }
             previewTrainProgram = trainprogram::load(file.fileName(), bluetoothManager, fileNameLocal.right(3).toUpper());
+            setPreviewWorkoutSelectedSeconds(-1);
             emit previewWorkoutPointsChanged(preview_workout_points());
+            emit previewWorkoutSeekSupportedChanged();
             emit previewWorkoutDescriptionChanged(previewWorkoutDescription());
             emit previewWorkoutTagsChanged(previewWorkoutTags());
         }
