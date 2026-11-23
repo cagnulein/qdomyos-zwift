@@ -238,6 +238,58 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
+    const bool tour600 = bluetoothDevice.name().trimmed().compare(
+        QStringLiteral("TOUR 600"), Qt::CaseInsensitive) == 0;
+    // TOUR 600 reports crank revolutions through CSC, while Cycling Power
+    // contains wheel revolutions only. The two counters must not be mixed.
+    if (tour600 && characteristic.uuid() == QBluetoothUuid(static_cast<quint16>(0x2a5b))) {
+        if (newValue.isEmpty())
+            return;
+        const quint8 flags = static_cast<quint8>(newValue.at(0));
+        const int crankOffset = 1 + ((flags & 0x01) ? 6 : 0);
+        if (!(flags & 0x02) || newValue.size() < crankOffset + 4)
+            return;
+        const quint16 revs = quint8(newValue.at(crankOffset)) |
+                             (quint16(quint8(newValue.at(crankOffset + 1))) << 8);
+        const quint16 eventTime = quint8(newValue.at(crankOffset + 2)) |
+                                  (quint16(quint8(newValue.at(crankOffset + 3))) << 8);
+        CrankRevs = revs;
+        LastCrankEventTime = eventTime;
+        if (tour600CscInitialized) {
+            const quint16 revDelta = quint16(revs - oldCrankRevs);
+            const quint16 timeDelta = quint16(eventTime - oldLastCrankEventTime);
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                    .toString().startsWith(QStringLiteral("Disabled"))) {
+                if (revDelta && timeDelta) {
+                    const double rpm = double(revDelta) * 1024.0 * 60.0 / timeDelta;
+                    if (rpm < 256.0) {
+                        Cadence = rpm;
+                        lastGoodCadence = now;
+                    }
+                } else if (lastGoodCadence.msecsTo(now) > 2000) {
+                    Cadence = 0;
+                }
+            }
+        }
+        if (!tour600CscInitialized)
+            lastRefreshCharacteristicChanged = now;
+        tour600CscInitialized = true;
+        oldCrankRevs = revs;
+        oldLastCrankEventTime = eventTime;
+        emit cadenceChanged(Cadence.value());
+        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+            Speed = Cadence.value() * settings.value(QZSettings::cadence_sensor_speed_ratio,
+                                                     QZSettings::default_cadence_sensor_speed_ratio).toDouble();
+        } else {
+            Speed = metric::calculateSpeedFromPower(watts(), Inclination.value(), Speed.value(),
+                    fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+        }
+        Distance += (Speed.value() / 3600000.0) * lastRefreshCharacteristicChanged.msecsTo(now);
+        lastRefreshCharacteristicChanged = now;
+        emit debug(QStringLiteral("TOUR 600 CSC cadence: ") + QString::number(Cadence.value()) +
+                   QStringLiteral(" estimated speed: ") + QString::number(Speed.value()));
+    }
+
     if (characteristic.uuid() == QBluetoothUuid::CyclingPowerMeasurement) {
         lastPacket = newValue;
 
@@ -282,7 +334,7 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
             crank_rev_present = true;
         }
 
-        if (cadence_present) {
+        if (cadence_present && !tour600) {
             if (wheel_revs && !crank_rev_present) {
                 time_division = 2048;
                 CrankRevs =
@@ -610,12 +662,28 @@ void stagesbike::serviceScanDone(void) {
     m_control->requestConnectionUpdate(c);
 #endif
 
+    // Kettler TOUR 600 exposes CSC/Cycling Power as well as proprietary services.
+    // Its BLE link can drop while subscribing to the proprietary characteristics.
+    // Only discover the two standard measurement services for this model.
+    const bool kettlerTour600 =
+        bluetoothDevice.name().trimmed().compare(QStringLiteral("TOUR 600"), Qt::CaseInsensitive) == 0;
+    const QBluetoothUuid cscServiceId(static_cast<quint16>(0x1816));
+    const QBluetoothUuid cyclingPowerServiceId(static_cast<quint16>(0x1818));
+
     auto services_list = m_control->services();
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
-        gattCommunicationChannelService.append(m_control->createServiceObject(s));
-        connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
-                &stagesbike::stateChanged);
-        gattCommunicationChannelService.constLast()->discoverDetails();
+        if (kettlerTour600 && s != cscServiceId && s != cyclingPowerServiceId) {
+            qDebug() << "Kettler TOUR 600: skipping BLE service" << s;
+            continue;
+        }
+        QLowEnergyService *service = m_control->createServiceObject(s);
+        if (!service) {
+            qDebug() << "Unable to create BLE service object" << s;
+            continue;
+        }
+        gattCommunicationChannelService.append(service);
+        connect(service, &QLowEnergyService::stateChanged, this, &stagesbike::stateChanged);
+        service->discoverDetails();
     }
 }
 
@@ -703,6 +771,7 @@ void stagesbike::controllerStateChanged(QLowEnergyController::ControllerState st
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
+        tour600CscInitialized = false;
         connectBackLater();
     }
 }
