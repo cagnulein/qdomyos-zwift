@@ -74,6 +74,17 @@ import AndroidStatusBar 1.0
         property var pendingReveal: null
         // The search a result was opened from: back returns to it
         property var searchReturn: null
+        // Modern look: the search bar stays on top of the page; once it has scrolled off the top
+        // the toolbar shows its search button, which brings the bar back (main.qml). The bottom of
+        // the drawn box of the field, not of the row or of the field item: both end with an empty
+        // bottom inset, and a short list of results stops scrolling with only that inset in view.
+        // contentY is taken no further than the end of the content: a short page pulled up past
+        // its end goes back by itself and must not flash the button
+        readonly property bool searchBarScrolledAway: window.ui.modern && contentItem !== null &&
+            Math.min(contentItem.contentY,
+                     contentItem.originY + contentItem.contentHeight + contentItem.bottomMargin - contentItem.height) >
+                settingsSearchBar.y + settingsSearchTextField.y +
+                settingsSearchTextField.height - settingsSearchTextField.bottomInset
         // The glow of the last jump: gone at once when back returns to the results
         property var activeGlow: null
         // Set while back puts the old query into the field: its onTextChanged must not search
@@ -115,6 +126,34 @@ import AndroidStatusBar 1.0
                     settingsPane.jumpToSetting(entry)
                 }
             }
+        }
+
+        function pageTitleOf(file) {
+            var pages = settingsCatalog.pages || []
+            for (var i = 0; i < pages.length; i++)
+                if (pages[i].target === file)
+                    return computeTranslatedName(pages[i])
+            return file
+        }
+
+        // The translation context of a page: its file without ".qml"
+        function pageContextOf(file) {
+            return file.slice(-4) === ".qml" ? file.slice(0, -4) : file
+        }
+
+        // Modern look, the path of a result: "Page › Section › Subsection" of the setting; the
+        // catalog's nearest group until the index is ready or when the setting is not on these pages
+        function sectionOf(entry) {
+            var where = settingsIndex ? settingsIndex[entry.key] : null
+            if (!where)
+                return parentDisplayName(entry)
+            var context = pageContextOf(where.file)
+            var parts = []
+            if (where.file !== "settings.qml")
+                parts.push(pageTitleOf(where.file))
+            for (var i = 0; i < where.chain.length; i++)
+                parts.push(qsTranslate(context, where.chain[i]))
+            return parts.length > 0 ? parts.join(" › ") : parentDisplayName(entry)
         }
 
         function findItem(item, predicate) {
@@ -305,7 +344,7 @@ import AndroidStatusBar 1.0
             activeGlow = null
             var back = searchReturn
             searchReturn = null
-            // The search bar may have been closed with its button meanwhile
+            // Classic look: the search bar may have been closed with its button meanwhile
             settingsSearchVisible = true
             restoringSearch = true
             settingsSearchTextField.text = back.query
@@ -535,7 +574,6 @@ import AndroidStatusBar 1.0
         function showSettingsSearch() {
             settingsSearchVisible = true
             loadSettingsCatalog()
-            loadSettingsIndex()
             // The search bar is the top row of the page: bring it into view from any scroll
             // position (after a result was opened the page is deep in a section)
             if (settingsPane.contentItem)
@@ -550,7 +588,7 @@ import AndroidStatusBar 1.0
         }
 
         function hideSettingsSearch() {
-            // The search closed is done with: back no longer brings its results up, a result
+            // Classic look: the search closed is done with, back no longer brings its results up, a result
             // tapped before the index came no longer opens
             searchReturn = null
             pendingJump = null
@@ -657,6 +695,10 @@ import AndroidStatusBar 1.0
         }
 
         function loadSettingsCatalog() {
+            // The modern look shows its search bar on the page without showSettingsSearch (the toolbar
+            // button calls it only once the bar has scrolled away): the index comes with the catalog,
+            // on the first search or "Changed"
+            loadSettingsIndex()
             if (settingsCatalogLoaded || settingsCatalogLoading)
                 return
 
@@ -2947,18 +2989,25 @@ import AndroidStatusBar 1.0
             anchors.left: parent.left
             anchors.right: parent.right
 
+            // Modern look: always on top of the page (the toolbar shows a search button only once it
+            // has scrolled away), with a clear button inside the field and the "Changed" filter
+            // next to it
             RowLayout {
                 id: settingsSearchBar
-                visible: settingsSearchVisible
+                visible: settingsSearchVisible || window.ui.modern
                 spacing: 8
                 Layout.fillWidth: true
+                Layout.topMargin: window.ui.modern ? 8 : 0
+                Layout.bottomMargin: window.ui.modern ? 8 : 0
 
-                TextField {
+                UiTextField {
                     id: settingsSearchTextField
                     Layout.fillWidth: true
                     placeholderText: qsTr("Search settings")
                     selectByMouse: true
                     inputMethodHints: Qt.ImhNoPredictiveText
+                    leftPadding: window.ui.modern ? 44 : undefined
+                    rightPadding: window.ui.modern ? 44 : undefined
                     // A new search of one's own: back no longer returns to the previous one, and
                     // the result tapped before the index came is not wanted any more
                     onTextEdited: {
@@ -2983,6 +3032,46 @@ import AndroidStatusBar 1.0
                             settingsPane.settingsSearchPending = false
                         }
                     }
+
+                    UiIcon {
+                        visible: window.ui.modern
+                        anchors.left: parent.left
+                        anchors.leftMargin: 12
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 22
+                        height: 22
+                        name: "search"
+                        color: window.ui.textMuted
+                    }
+
+                    MouseArea {
+                        visible: window.ui.modern && settingsSearchTextField.text.length > 0
+                        anchors.right: parent.right
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        // The touch target of Material 3, 48 wide; the text stops 44 from the edge
+                        width: 48
+                        Accessible.role: Accessible.Button
+                        Accessible.name: qsTr("Clear")
+                        // As the classic "Clear": back no longer brings the cleared results up, a result
+                        // tapped before the index came no longer opens (onTextEdited is not called for
+                        // a text set here)
+                        function clear() {
+                            settingsPane.searchReturn = null
+                            settingsPane.pendingJump = null
+                            settingsSearchTextField.text = ""
+                        }
+                        // Qt 5.15: a double tap of the screen reader does not reach onClicked
+                        Accessible.onPressAction: clear()
+                        onClicked: clear()
+                        UiIcon {
+                            anchors.centerIn: parent
+                            width: 20
+                            height: 20
+                            name: "close"
+                            color: window.ui.textMuted
+                        }
+                    }
                 }
 
                 // Classic look: a toggle as in master; modern look: the filled pill when on
@@ -2994,7 +3083,9 @@ import AndroidStatusBar 1.0
                     onClicked: settingsPane.setChangedOnly(checked)
                 }
 
+                // Modern look: the bar stays, the field clears with its own button
                 UiButton {
+                    visible: !window.ui.modern
                     text: qsTr("Clear")
                     onClicked: settingsPane.hideSettingsSearch()
                 }
@@ -3011,7 +3102,7 @@ import AndroidStatusBar 1.0
             ColumnLayout {
                 id: settingsSearchResults
                 visible: settingsSearchActive
-                spacing: 4
+                spacing: window.ui.modern ? 8 : 4
                 Layout.fillWidth: true
                 Layout.preferredWidth: Math.max(1, column1.width)
 
@@ -3020,7 +3111,11 @@ import AndroidStatusBar 1.0
                     spacing: 8
 
                     Label {
-                        font: settingsPane.searchFont(true)
+                        // Modern look: Title Small 14 Medium, the size with the weight in one font
+                        font: window.ui.modern ? Qt.font({ family: settingsPane.font.family,
+                                                           pixelSize: window.ui.fontLabelLarge,
+                                                           weight: Font.Medium })
+                                               : settingsPane.searchFont(true)
                         // The catalog error above says it all: no "Searching..." or "No settings found"
                         visible: settingsCatalogError.length === 0
                         text: settingsCatalogLoading ? qsTr("Loading settings...") :
@@ -3032,7 +3127,8 @@ import AndroidStatusBar 1.0
                                   qsTr("No changed settings") :
                               filteredSettings.length === 0 ? qsTr("No settings found") :
                               qsTr("Search results") + " (" + filteredSettings.length + ")"
-                        color: Material.color(Material.Red)
+                        // A status line, not an error: plain muted text in the modern look
+                        color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Red)
                         Layout.fillWidth: true
                         wrapMode: window.labelWrap
                     }
@@ -3065,16 +3161,35 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                         Layout.minimumWidth: 0
                         Layout.preferredWidth: width
-                        Layout.preferredHeight: searchResultContent.implicitHeight + 8
+                        // Classic look: from the layout's own implicitHeight, as before
+                        Layout.preferredHeight: window.ui.modern ? implicitHeight : searchResultContent.implicitHeight + 8
                         implicitWidth: width
-                        implicitHeight: searchResultContent.implicitHeight + 8
+                        // Modern look: the Reset button of "Changed" makes the title row 48 px high,
+                        // the title sits in its middle, and 12 on top of that looked like a gap: 6
+                        // there. At the bottom only when that row is also the last one (no
+                        // description below). Classic look: 4 and 4, as before
+                        readonly property bool controlOnTop: window.ui.modern && settingsPane.changedOnly
+                        readonly property bool hasDescription: entry.description !== null && entry.description !== undefined &&
+                                                               entry.description.length > 0
+                        readonly property bool controlAtBottom: controlOnTop && !hasDescription
+                        readonly property real topPad: window.ui.modern ? (controlOnTop ? 6 : 12) : 4
+                        readonly property real bottomPad: window.ui.modern ? (controlAtBottom ? 6 : 12) : 4
+                        // Modern look, the heights of a Material 3 list item: two lines (the title and
+                        // the path) at least 72, the content in the middle; with a description at
+                        // least 88, the content on top
+                        readonly property real minHeight: window.ui.modern ? (hasDescription ? 88 : 72) : 0
+                        implicitHeight: Math.max(minHeight,
+                                                 (window.ui.modern ? modernResultContent.height : searchResultContent.implicitHeight) +
+                                                 topPad + bottomPad)
 
+                        // Modern look: a filled card like the other groups instead of a grey frame
                         Rectangle {
                             anchors.fill: parent
-                            color: resultArea.pressed ? Qt.rgba(0.5, 0.5, 0.5, 0.2) : "transparent"
+                            color: window.ui.modern ? (resultArea.pressed ? window.ui.surfaceHighest : window.ui.surfaceHigh)
+                                                    : (resultArea.pressed ? Qt.rgba(0.5, 0.5, 0.5, 0.2) : "transparent")
                             border.color: Material.color(Material.Grey)
-                            border.width: 1
-                            radius: 2
+                            border.width: window.ui.modern ? 0 : 1
+                            radius: window.ui.modern ? 16 : 2
                         }
 
                         // The value as text: a binding on the setting, so it follows a change
@@ -3103,8 +3218,135 @@ import AndroidStatusBar 1.0
                             Accessible.onPressAction: searchResultFrame.open()
                         }
 
+                        // Modern look: the title, the path and the description wrap. With a text that
+                        // wraps, Qt 5.15.0 (Android) gives up a RowLayout half way ("Detected recursive
+                        // rearrange", QTBUG-86371, fixed in 5.15.7): its invalidate() sets the implicit
+                        // size at once. So anything that wraps in this card - widths by anchors, the
+                        // height from the text, no Qt Quick Layout around it. Classic look: the layout
+                        // below, as it was
+                        Column {
+                            id: modernResultContent
+                            visible: window.ui.modern
+                            spacing: 2
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.top: parent.top
+                            // 16 in from the edge of the card, as Material 3
+                            anchors.leftMargin: 16
+                            anchors.rightMargin: 16
+                            anchors.topMargin: searchResultFrame.hasDescription ? searchResultFrame.topPad
+                                : Math.max(searchResultFrame.topPad, (searchResultFrame.implicitHeight - height) / 2)
+
+                            Item {
+                                id: modernResultRow
+                                width: parent.width
+                                height: Math.max(modernResultTitles.height, modernResultTrailing.height)
+
+                                Column {
+                                    id: modernResultTitles
+                                    anchors.left: parent.left
+                                    anchors.right: modernResultTrailing.left
+                                    anchors.rightMargin: modernResultTrailing.width > 0 ? 8 : 0
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    spacing: 2
+
+                                    Label {
+                                        // Body Large, Medium; a capital first letter - the fields of
+                                        // a tile preset are "value:" and "label:" on their page
+                                        width: parent.width
+                                        readonly property string plain: settingsPane.plainTitle(settingsPane.searchTitle(entry))
+                                        text: plain.charAt(0).toUpperCase() + plain.slice(1)
+                                        font.pixelSize: window.ui.fontBody
+                                        font.weight: Font.Medium
+                                        wrapMode: Text.WordWrap
+                                        // The card's MouseArea carries the name: a tap of the
+                                        // screen reader on the text reaches the card
+                                        Accessible.ignored: true
+                                    }
+
+                                    // The full path, in the accent colour as the way to the setting
+                                    Label {
+                                        width: parent.width
+                                        text: settingsPane.plainTitle(settingsPane.sectionOf(entry))
+                                        color: window.ui.accent
+                                        font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
+                                        wrapMode: Text.WordWrap
+                                        Accessible.ignored: true
+                                    }
+                                }
+
+                                Row {
+                                    id: modernResultTrailing
+                                    anchors.right: parent.right
+                                    // "Changed": the reset button 48 wide, its icon 16 in from the
+                                    // edge of the card, as the title on the left
+                                    anchors.rightMargin: settingsPane.changedOnly ? -12 : 0
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    // value -> reset icon: the 12 inside the button is the gap
+                                    spacing: settingsPane.changedOnly ? 0 : 8
+
+                                    // The value as text, as wide as 42 % of the card at most, cut at
+                                    // the end; nothing when the value is not known. "On" in the accent
+                                    // in the search; "Changed" lists only values, all of them muted
+                                    Label {
+                                        visible: searchResultFrame.valueText.length > 0
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        width: Math.min(implicitWidth, Math.max(0, searchResultFrame.width * 0.42))
+                                        text: searchResultFrame.valueText
+                                        color: searchResultFrame.valueOn && !settingsPane.changedOnly ? window.ui.accent
+                                                                                                       : window.ui.textMuted
+                                        // Body Medium 14
+                                        font.pixelSize: window.ui.fontLabelLarge
+                                        horizontalAlignment: Text.AlignRight
+                                        elide: Text.ElideRight
+                                        maximumLineCount: 1
+                                        textFormat: Text.PlainText
+                                        Accessible.ignored: true
+                                    }
+
+                                    UiIcon {
+                                        visible: !settingsPane.changedOnly
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        width: 22
+                                        height: 22
+                                        name: "chevron_right"
+                                        color: window.ui.textMuted
+                                    }
+
+                                    // Over the card's MouseArea: a tap here resets, the rest of the
+                                    // card still opens the setting
+                                    // A flat UiButton: the state layer of the modern look, no ripple
+                                    UiButton {
+                                        visible: settingsPane.changedOnly
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        flat: true
+                                        implicitWidth: 48
+                                        leftPadding: 0
+                                        rightPadding: 0
+                                        Accessible.name: qsTr("Reset") + ": " + settingsPane.plainTitle(settingsPane.searchTitle(entry))
+                                        UiIcon { anchors.centerIn: parent; width: 24; height: 24; name: "restart_alt"; color: window.ui.textMuted }
+                                        onClicked: settingsPane.resetSetting(entry)
+                                    }
+                                }
+                            }
+
+                            Label {
+                                visible: searchResultFrame.hasDescription
+                                width: parent.width
+                                text: entry._translatedDescription || entry.description || ""
+                                color: window.ui.textMuted
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                Accessible.ignored: true
+                            }
+                        }
+
                         ColumnLayout {
                             id: searchResultContent
+                            visible: !window.ui.modern
                             spacing: 2
                             anchors.left: parent.left
                             anchors.right: parent.right

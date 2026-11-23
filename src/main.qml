@@ -1798,7 +1798,18 @@ ApplicationWindow {
             }
             anchors.right: toolButtonLoadSettings.left
             anchors.verticalCenter: parent.verticalCenter
-            visible: headerToolbar.settingsPageActive
+            // Modern look: the settings keep their search field on the page itself; the button
+            // shows once that field has scrolled off the top and brings it back. It fades and
+            // grows in, and out the same way, instead of popping up under the finger
+            readonly property bool shown: headerToolbar.settingsPageActive &&
+                (!window.ui.modern || stackView.currentItem.searchBarScrolledAway === true)
+            // Fading out only on the settings: leaving them it goes at once, not over the next page
+            visible: shown || (opacity > 0 && headerToolbar.settingsPageActive)
+            enabled: shown
+            opacity: shown ? 1 : 0
+            scale: shown ? 1 : 0.6
+            Behavior on opacity { enabled: window.ui.modern; NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+            Behavior on scale { enabled: window.ui.modern; NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Search settings")
         }
