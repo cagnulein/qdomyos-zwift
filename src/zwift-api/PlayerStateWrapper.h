@@ -9,17 +9,21 @@
 #include <QNetworkReply>
 #include <QEventLoop>
 #include <QDebug>
+#include "zwift_client_auth.h"
 
 class ZwiftRequest: public QObject {
     Q_OBJECT
 
 public:
-    ZwiftRequest(const QString& getAccessToken) : getAccessToken(getAccessToken) {}
+    ZwiftRequest(AuthToken* authToken) : authToken(authToken) {}
 
     QString json(const QString& url) {
+        const QString token = authToken->getAccessToken();
+        if (token.isEmpty())
+            return QString();
         QNetworkRequest request(QUrl(BASE_URL + url));
         request.setRawHeader("Accept", "application/json");
-        request.setRawHeader("Authorization", "Bearer " + getAccessToken.toUtf8());
+        request.setRawHeader("Authorization", "Bearer " + token.toUtf8());
 
         QNetworkReply* reply = manager.get(request);
         QEventLoop loop;
@@ -28,16 +32,24 @@ public:
 
         if (reply->error() != QNetworkReply::NoError) {
             qDebug() << "Error: " << reply->errorString();
+            if (reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 401)
+                authToken->invalidateAccessToken();
+            reply->deleteLater();
             return "";
         }
 
-        return reply->readAll();
+        const QString body = QString::fromUtf8(reply->readAll());
+        reply->deleteLater();
+        return body;
     }
 
     QByteArray protobuf(const QString& url) {
+        const QString token = authToken->getAccessToken();
+        if (token.isEmpty())
+            return QByteArray();
         QNetworkRequest request(QUrl(BASE_URL + url));
         request.setRawHeader("Accept", "application/x-protobuf-lite");
-        request.setRawHeader("Authorization", "Bearer " + getAccessToken.toUtf8());
+        request.setRawHeader("Authorization", "Bearer " + token.toUtf8());
 
         QNetworkReply* reply = manager.get(request);
         QEventLoop loop;
@@ -46,21 +58,26 @@ public:
 
         if (reply->error() != QNetworkReply::NoError) {
             qDebug() << "Error: " << reply->errorString();
+            if (reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 401)
+                authToken->invalidateAccessToken();
+            reply->deleteLater();
             return QByteArray();
         }
 
-        return reply->readAll();
+        const QByteArray body = reply->readAll();
+        reply->deleteLater();
+        return body;
     }
 
 private:
     QNetworkAccessManager manager;
     const QString BASE_URL = "https://us-or-rly101.zwift.com";
-    const QString getAccessToken;
+    AuthToken* authToken;
 };
 
 class World {
 public:    
-    World(int worldId, const QString& getAccessToken) : worldId(worldId), request(getAccessToken) {}
+    World(int worldId, AuthToken* authToken) : worldId(worldId), request(authToken) {}
 
     QString getPlayers() {
         return request.json("/relay/worlds/" + QString::number(worldId));
