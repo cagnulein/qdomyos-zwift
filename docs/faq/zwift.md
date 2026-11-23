@@ -12,6 +12,8 @@ In confirmed support cases, waiting about three minutes in Zwift before continui
 
 An active Zwift subscription is not required for this handshake procedure; a Zwift account that can reach the pairing flow is sufficient.
 
+**Automatic unlock (experimental):** With **Zwift Click** enabled in QZ Accessories, QZ checks the LEFT Click V2's BLE handshake automatically. An echoed `RideOn` means the controller is already active, so no login is requested. If a `FF 03` challenge arrives without a recent `RideOn` echo, QZ tries Zwift's server-signed unlock using the **existing** Zwift username and password from **Settings > Zwift Options**. If those credentials are missing, QZ asks the rider to enter them and reconnect the controller. An internet connection and a Zwift account are needed for server-side unlock, but an active paid Zwift subscription is not required. No separate unlock switch is needed. Click V1, Zwift Play, and Zwift Ride retain their existing behavior. On API failure, QZ falls back to the legacy empty BLE ACK; if the controller remains locked, use the manual procedure above. This implementation still requires hardware validation on iOS and Android.
+
 ## Why can't Zwift find QZ or Wahoo KICKR 0000 when QZ is in the background on iOS?
 
 On iPhone, **initial discovery** of QZ's virtual trainer can behave differently from keeping an **already-paired** connection alive. If Zwift's pairing screen does not list **QZ** (Bluetooth) or **Wahoo KICKR 0000** (Wahoo Direct Connect / Wi-Fi), try this confirmed workaround:

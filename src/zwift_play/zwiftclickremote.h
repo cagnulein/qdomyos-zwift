@@ -24,6 +24,9 @@
 
 #include <QObject>
 #include <QTime>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include "zwift-api/zwift_client_auth.h"
 
 #include "devices/bluetoothdevice.h"
 #include "zwiftPlayDevice.h"
@@ -40,12 +43,49 @@ class zwiftclickremote : public bluetoothdevice {
     bool connected() override;
     ZwiftPlayDevice* playDevice = new ZwiftPlayDevice();
     void vibrate(uint8_t pattern);
+    // Binary framing used by Click V2's server-signed challenge/response.
+    static QByteArray dLockChallengePayload(const QByteArray &frame) {
+        if (frame.size() < 4 ||
+            static_cast<quint8>(frame.at(0)) != 0xff ||
+            static_cast<quint8>(frame.at(1)) != 0x03 ||
+            static_cast<quint8>(frame.at(2)) != 0x00)
+            return QByteArray();
+        return frame.mid(3);
+    }
+    static QByteArray dLockResponseFrame(const QByteArray &signedReply) {
+        QByteArray frame = QByteArray::fromHex("ff0400");
+        frame.append(signedReply);
+        return frame;
+    }
+    // An echoed RideOn close to the challenge means that the controller is
+    // already functioning. Otherwise a signed reply may be necessary.
+    static bool needsDLockReply(qint64 lastRideOnEchoMs, qint64 challengeAtMs) {
+        return lastRideOnEchoMs <= 0 || lastRideOnEchoMs < challengeAtMs - 2000;
+    }
     AbstractZapDevice::ZWIFT_PLAY_TYPE typeZap = AbstractZapDevice::NONE;
     
     // Wrapper per characteristicChanged che accetta direttamente QBluetoothUuid
     void handleCharacteristicValueChanged(const QBluetoothUuid &uuid, const QByteArray &newValue);
 
   private:
+    // In-memory, per-controller unlock state. All callbacks run on the Qt event loop.
+    QNetworkAccessManager unlockNetwork;
+    AuthToken *unlockAuth = nullptr;
+    QByteArray pendingUnlockPayload;
+    bool clickV2Left = false; // detected from LEFT + device name, no setting
+    bool unlockDecisionPending = false;
+    qint64 lastRideOnEchoMs = 0;
+    bool credentialsPromptShown = false;
+    bool unlockTokenPending = false;
+    bool unlockRequestPending = false;
+    bool unlockRetriedUnauthorized = false;
+    quint64 unlockGeneration = 0;
+
+    void handleDLockChallenge(const QByteArray &frame);
+    void startDLockRequest();
+    void sendDLockFrame(const QByteArray &signedReply);
+    void resetDLockSession();
+
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattNotify1Characteristic;
     QLowEnergyCharacteristic gattNotify2Characteristic;

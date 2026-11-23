@@ -41,6 +41,7 @@ SOURCES += \
         Devices/TestSchwinn411510EParser.cpp \
         Devices/TestKettlerUSBProtocol.cpp \
         Devices/TestZwiftRideController.cpp \
+        Devices/TestZwiftClickV2DLock.cpp \
         Devices/TestApexBikeParser.cpp \
         Devices/TestEchelonUnlock.cpp \
         Devices/TestNautilusTreadmillParser.cpp \

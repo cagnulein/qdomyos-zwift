@@ -11,6 +11,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QDateTime>
+#include <QTimer>
 
 class AuthToken : public QObject {
     Q_OBJECT
@@ -28,8 +29,11 @@ public:
     qint64 access_token_expiration;
     qint64 refresh_token_expiration;
 
-    AuthToken(const QString& username, const QString& password, QObject* parent = nullptr)
-        : QObject(parent), username(username), password(password) {}
+    // d-lock uses the same stored Zwift credentials, but the Game Client grant.
+    // The default Zwift Mobile Link flow is intentionally unchanged.
+    AuthToken(const QString& username, const QString& password, QObject* parent = nullptr,
+              bool gameClient = false)
+        : QObject(parent), username(username), password(password), gameClient(gameClient) {}
 
     bool haveValidAccessToken() const {
         return !access_token.isEmpty() && QDateTime::currentMSecsSinceEpoch() < access_token_expiration;
@@ -53,6 +57,31 @@ signals:
 
 public slots:
     void updateTokenData() {
+        if (gameClient) {
+            // ZwiftBoard (MIT): the server-signed Click V2 d-lock response requires
+            // a Zwift Game Client token, not the Mobile Link token used elsewhere.
+            QNetworkRequest request(QUrl("https://secure.zwift.com/auth/realms/zwift/protocol/openid-connect/token"));
+            request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+            QUrlQuery form;
+            form.addQueryItem("client_id", QStringLiteral("Zwift Game Client"));
+            if (haveValidRefreshToken()) {
+                form.addQueryItem("grant_type", QStringLiteral("refresh_token"));
+                form.addQueryItem("refresh_token", refresh_token);
+            } else {
+                form.addQueryItem("grant_type", QStringLiteral("password"));
+                form.addQueryItem("username", username);
+                form.addQueryItem("password", password);
+            }
+            QNetworkReply *reply = networkManager.post(request, form.toString(QUrl::FullyEncoded).toUtf8());
+            QTimer::singleShot(10000, reply, [reply]() {
+                if (reply->isRunning())
+                    reply->abort();
+            });
+            connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+                handleTokenResponse(reply);
+            });
+            return;
+        }
         if (haveValidRefreshToken()) {
             QUrl url("https://secure.zwift.com/auth/realms/zwift/tokens/access/codes");
             QUrlQuery query;
@@ -106,6 +135,12 @@ private slots:
             qDebug() << "Access Token received successfully";
             emit tokenReceived(true, QObject::tr("Zwift Login OK!"));
         } else {
+            // An invalid Game Client refresh grant must not poison all later
+            // Click unlocks. Retry with credentials on the next challenge.
+            if (gameClient) {
+                refresh_token.clear();
+                refresh_token_expiration = 0;
+            }
             qDebug() << "Error fetching token: " << reply->errorString();
             emit tokenReceived(false, QObject::tr("Zwift Auth Failed!"));
         }
@@ -114,6 +149,7 @@ private slots:
     }
 
 private:
+    bool gameClient = false;
     QNetworkAccessManager networkManager;
 };
 

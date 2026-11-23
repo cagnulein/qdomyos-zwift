@@ -1,0 +1,82 @@
+name: Zwift Click V2 live authentication
+
+# Deliberately NOT a pull_request or pull_request_target workflow.
+# Secret-bearing checks must never run automatically for fork/third-party PRs.
+# This push trigger is limited to our trusted, internal Click V2 feature branch.
+# Push after provisioning ZWIFT_USER/ZWIFT_PASSWORD to run a fresh credentials-backed check.
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/zwift-click-v2-auto-unlock
+    paths:
+      - .github/workflows/zwift-click-v2-auth-smoke.yml
+      - src/zwift-api/zwift_client_auth.h
+      - tst/IntegrationTests/zwift_click_v2_auth_smoke.cpp
+
+permissions:
+  contents: read
+
+concurrency:
+  group: zwift-click-auth-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  zwift-game-client-auth:
+    if: >-
+      github.repository == 'cagnulein/qdomyos-zwift' &&
+      github.ref == 'refs/heads/feature/zwift-click-v2-auto-unlock' &&
+      github.actor == 'cagnulein'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+
+    steps:
+      - name: Checkout trusted internal branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install minimal Qt dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            g++ pkg-config qtbase5-dev qtbase5-dev-tools ca-certificates
+
+      - name: Build QZ AuthToken live smoke test (no credentials)
+        shell: bash
+        run: |
+          set -euo pipefail
+          moc src/zwift-api/zwift_client_auth.h -o "${RUNNER_TEMP}/moc_zwift_client_auth.cpp"
+          g++ -std=c++11 -O2 -fPIC -Isrc \
+            $(pkg-config --cflags Qt5Core Qt5Network) \
+            tst/IntegrationTests/zwift_click_v2_auth_smoke.cpp \
+            "${RUNNER_TEMP}/moc_zwift_client_auth.cpp" \
+            $(pkg-config --libs Qt5Core Qt5Network) \
+            -o "${RUNNER_TEMP}/zwift_click_v2_auth_smoke"
+
+      - name: Authenticate and refresh Zwift Game Client token
+        shell: bash
+        env:
+          ZWIFT_USER: ${{ secrets.ZWIFT_USER }}
+          ZWIFT_PASSWORD: ${{ secrets.ZWIFT_PASSWORD }}
+        run: |
+          set -euo pipefail
+          # Secrets exist only for this step, and are never passed on argv.
+          # Do not use shell xtrace, curl -v or expose HTTP response bodies.
+          if [[ -z "$ZWIFT_USER" || -z "$ZWIFT_PASSWORD" ]]; then
+            echo "::error::Add ZWIFT_USER and ZWIFT_PASSWORD to repository Actions secrets, then rerun this job."
+            exit 1
+          fi
+          "${RUNNER_TEMP}/zwift_click_v2_auth_smoke"
+
+      - name: Scope of verification
+        if: success()
+        shell: bash
+        run: |
+          {
+            echo "### Zwift Click V2 live auth"
+            echo "- PASS: QZ AuthToken Zwift Game Client password grant."
+            echo "- PASS: QZ AuthToken token refresh grant."
+            echo "- NOT TESTED: BLE FF 03 challenge, server-signed d-lock reply, physical controller unlock."
+            echo "- No bearer tokens or credentials were printed by this test."
+          } >> "$GITHUB_STEP_SUMMARY"
