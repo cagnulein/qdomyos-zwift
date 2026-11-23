@@ -155,6 +155,53 @@ TEST(FtmsBikeParserTest, PhysicalResistanceGearReplayIsUnchangedWhenFeatureDisab
     EXPECT_FALSE(ftmsbike::shouldReplayPhysicalGearChange(true, true));
 }
 
+TEST(FtmsBikeParserTest, PhysicalResistanceTargetPacketUsesNativeFtmsTenths) {
+    EXPECT_EQ(QByteArray::fromHex("040a00"),
+              ftmsbike::ftmsResistanceTargetPacket(1, 1, 32));
+    EXPECT_EQ(QByteArray::fromHex("043c00"),
+              ftmsbike::ftmsResistanceTargetPacket(6, 1, 32));
+    EXPECT_EQ(QByteArray::fromHex("046e00"),
+              ftmsbike::ftmsResistanceTargetPacket(11, 1, 32));
+    EXPECT_EQ(QByteArray::fromHex("044001"),
+              ftmsbike::ftmsResistanceTargetPacket(32, 1, 32));
+    EXPECT_EQ(QByteArray::fromHex("044001"),
+              ftmsbike::ftmsResistanceTargetPacket(55, 1, 32));
+    EXPECT_TRUE(ftmsbike::ftmsResistanceTargetPacket(8, 20, 1).isEmpty());
+}
+
+TEST(FtmsBikeParserTest, PhysicalResistanceCommandEchoTracksTargetInsteadOfBlockingAllShifts) {
+    // While a 1 -> 6 FTMS command is being applied, intermediate values
+    // must not become spurious virtual gears.
+    EXPECT_TRUE(ftmsbike::isExpectedResistanceCommandEcho(3, 1, 6, 300, 3000));
+    EXPECT_TRUE(ftmsbike::isExpectedResistanceCommandEcho(6, 1, 6, 600, 3000));
+    EXPECT_FALSE(ftmsbike::isExpectedResistanceCommandEcho(7, 1, 6, 600, 3000));
+    EXPECT_FALSE(ftmsbike::isExpectedResistanceCommandEcho(5, 1, 6, 3000, 3000));
+    EXPECT_TRUE(ftmsbike::isExpectedResistanceCommandEcho(7, 10, 6, 600, 3000));
+    EXPECT_FALSE(ftmsbike::isExpectedResistanceCommandEcho(11, 10, 6, 600, 3000));
+    EXPECT_FALSE(ftmsbike::isExpectedResistanceCommandEcho(11, 10, -1, 600, 3000));
+    // A 6 -> 7 hardware press while command 6 -> 6 is pending is NOT an echo.
+    EXPECT_FALSE(ftmsbike::isExpectedResistanceCommandEcho(7, 6, 6, 200, 3000));
+}
+
+TEST(FtmsBikeParserTest, PhysicalResistanceTargetAvoidsZwiftEchoLoop) {
+    EXPECT_TRUE(ftmsbike::shouldWriteResistanceTarget(6, 5, 5));
+    // Zwift repeats the same grade every second.
+    EXPECT_FALSE(ftmsbike::shouldWriteResistanceTarget(6, 6, 5));
+    // Hardware physical shift already reached the requested target.
+    EXPECT_FALSE(ftmsbike::shouldWriteResistanceTarget(7, 6, 7));
+    EXPECT_TRUE(ftmsbike::shouldWriteResistanceTarget(8, 7, 7));
+}
+
+TEST(FtmsBikeParserTest, PhysicalResistanceTargetDoesNotApplyModifierTwice) {
+    // Before this fix, bike::changeResistance() produced 6 but update()
+    // added gearsModifier()*5 again, yielding 11 on the BI9200.
+    EXPECT_EQ(6, ftmsbike::effectiveRequestedResistance(6, 5, true));
+    // With the feature disabled, preserve existing FTMS behavior.
+    EXPECT_EQ(11, ftmsbike::effectiveRequestedResistance(6, 5, false));
+    // Legacy QZ virtual-gear-only request remains unchanged.
+    EXPECT_EQ(9, ftmsbike::effectiveRequestedResistance(-1, 10, false));
+}
+
 TEST(DaumBikeControlTest, AllowsZeroPowerFallbackWithConnectedVirtualFtmsBike) {
     EXPECT_TRUE(daumbike::shouldWriteResistanceToDaum(true, true, 0));
 }
