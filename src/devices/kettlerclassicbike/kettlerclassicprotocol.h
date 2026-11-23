@@ -51,7 +51,8 @@ private:
 // The Coach S reports completed strokes only when QZ polls it (about every
 // 500 ms). Instantaneous intervals oscillate between 2.0 and 2.5 seconds
 // even with a constant rowing rhythm. Average elapsed time over the last
-// four *completed stroke intervals*, never across an idle pause.
+// three *completed stroke intervals*, publishing from the first valid
+// interval (second completed stroke), never across an idle pause.
 class CoachSCadenceSmoother {
 public:
     void reset();
