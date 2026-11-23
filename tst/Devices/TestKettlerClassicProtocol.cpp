@@ -409,6 +409,50 @@ TEST(KettlerClassicProtocol, CoachSSessionCountersStartAtZeroAndRebase) {
     EXPECT_EQ(counters.meters(), 0u);
 }
 
+TEST(KettlerClassicProtocol, CoachSCadenceAveragesRealNovember22PollingJitter) {
+    kettlerclassicprotocol::CoachSCadenceSmoother cadence;
+    // The 2026-11-22 22:34:57-22:35:35 Coach S log: 500-ms polls made
+    // 24/30 SPM alternate despite an approximately 27-SPM steady rhythm.
+    const int intervalsMs[] = {1994, 2535, 2473, 1993, 2463, 2015,
+                               2499, 2036, 2618, 1826, 2575, 2442,
+                               1989, 2547, 1995, 2450, 2053, 2521};
+    qint64 nowMs = 0;
+    quint16 strokes = 1131;
+    EXPECT_DOUBLE_EQ(cadence.completedStroke(strokes, nowMs, false), 0.0);
+    double minSmoothed = 80.0;
+    double maxSmoothed = 0.0;
+    for (int i = 0; i < 18; ++i) {
+        nowMs += intervalsMs[i];
+        const double spm = cadence.completedStroke(++strokes, nowMs, true);
+        if (i >= 3) { // full four-interval window
+            minSmoothed = qMin(minSmoothed, spm);
+            maxSmoothed = qMax(maxSmoothed, spm);
+        }
+    }
+    EXPECT_GE(minSmoothed, 25.0);
+    EXPECT_LE(maxSmoothed, 27.4);
+    EXPECT_NEAR(cadence.completedStroke(++strokes, nowMs + 2250, true), 26.7, 1.0);
+}
+
+TEST(KettlerClassicProtocol, CoachSCadenceResetsAfterStopRestartAndCounterReset) {
+    kettlerclassicprotocol::CoachSCadenceSmoother cadence;
+    EXPECT_DOUBLE_EQ(cadence.completedStroke(100, 1000, false), 0.0);
+    EXPECT_NEAR(cadence.completedStroke(101, 3250, true), 26.67, 0.1);
+    EXPECT_NEAR(cadence.completedStroke(102, 5500, true), 26.67, 0.1);
+    // A long gap cannot drag down the cadence when rowing resumes.
+    EXPECT_DOUBLE_EQ(cadence.completedStroke(103, 15000, false), 0.0);
+    EXPECT_NEAR(cadence.completedStroke(104, 17250, true), 26.67, 0.1);
+    // The console can reset its cumulative counter while QZ stays connected.
+    EXPECT_DOUBLE_EQ(cadence.completedStroke(1, 19500, true), 0.0);
+    EXPECT_NEAR(cadence.completedStroke(2, 21750, true), 26.67, 0.1);
+    cadence.reset(); // QZ workout reset, reconnect or timeout
+    EXPECT_DOUBLE_EQ(cadence.completedStroke(2, 24000, false), 0.0);
+    EXPECT_NEAR(cadence.completedStroke(4, 28500, true), 26.67, 0.1);
+    // Invalid 0-ms interval must not divide by zero or poison next samples.
+    EXPECT_DOUBLE_EQ(cadence.completedStroke(5, 28500, true), 0.0);
+    EXPECT_NEAR(cadence.completedStroke(6, 30750, true), 26.67, 0.1);
+}
+
 TEST(KettlerClassicProtocol, CoachSConcept2PaceUsesWattsNotFlywheelDistance) {
     kettlerclassicprotocol::CoachSPowerBasedPace pace;
     // 2026-11-18, 20:35:50 (L4, 185 W) and 20:35:58 (L5, 338 W):
