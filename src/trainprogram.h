@@ -105,6 +105,7 @@ class trainprogram : public QObject {
     static BLUETOOTH_TYPE deviceTypeFromXmlKey(const QString &key);
     static BLUETOOTH_TYPE xmlDeviceType(const QString &filename, BLUETOOTH_TYPE fallback = UNKNOWN);
     QTime totalElapsedTime();
+    int elapsedSeconds() const { return ticks; }
     int currentRowElapsedSeconds() const;
     QTime currentRowElapsedTime();
     QTime currentRowRemainingTime();
