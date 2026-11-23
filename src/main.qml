@@ -2669,7 +2669,11 @@ ApplicationWindow {
                             { key: "strava", image: "icons/icons/btn_strava_connectwith_orange.png" },
                             { key: "peloton", image: "icons/icons/Button_Connect_Rect_DarkMode.png" },
                             { key: "garmin", image: "icons/icons/garmin-connect-badge.png" },
-                            { key: "intervals", image: "icons/icons/intervals-logo-with-name.png" }
+                            // White lettering on a transparent background, unreadable on a light
+                            // card (1.2:1): there the dark-lettering variant, as intervals.icu shows
+                            // its logo in its own light theme
+                            { key: "intervals", image: "icons/icons/intervals-logo-with-name.png",
+                              lightImage: "icons/icons/intervals-logo-with-name-light.png" }
                         ]
                         delegate: Rectangle {
                             width: (parent.width - 8) / 2
@@ -2679,7 +2683,7 @@ ApplicationWindow {
                             Image {
                                 anchors.fill: parent
                                 anchors.margins: 8
-                                source: modelData.image
+                                source: !window.ui.dark && modelData.lightImage ? modelData.lightImage : modelData.image
                                 fillMode: Image.PreserveAspectFit
                                 smooth: true
                             }
