@@ -223,6 +223,7 @@ class ftmsbike : public bike {
     // native shift during the following 3 seconds.
     resistance_t pendingPhysicalGearEchoTarget = -1;
     resistance_t pendingPhysicalGearEchoStart = -1;
+    bool lastPhysicalGearCommandWasResistance = false;
     bool physicalGearChangePending = false;
 
     inclinationResistanceTable _inclinationResistanceTable;
