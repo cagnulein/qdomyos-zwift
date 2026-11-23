@@ -3018,7 +3018,8 @@ import AndroidStatusBar 1.0
                         anchors.right: parent.right
                         anchors.top: parent.top
                         anchors.bottom: parent.bottom
-                        width: 44
+                        // The touch target of Material 3, 48 wide; the text stops 44 from the edge
+                        width: 48
                         Accessible.role: Accessible.Button
                         Accessible.name: qsTr("Clear")
                         // As the classic "Clear": back no longer brings the cleared results up, a result
@@ -3141,8 +3142,13 @@ import AndroidStatusBar 1.0
                         readonly property bool controlAtBottom: controlOnTop && !hasDescription
                         readonly property real topPad: window.ui.modern ? (controlOnTop ? 6 : 12) : 4
                         readonly property real bottomPad: window.ui.modern ? (controlAtBottom ? 6 : 12) : 4
-                        implicitHeight: (window.ui.modern ? modernResultContent.height : searchResultContent.implicitHeight) +
-                                        topPad + bottomPad
+                        // Modern look, the heights of a Material 3 list item: two lines (the title and
+                        // the path) at least 72, the content in the middle; with a description at
+                        // least 88, the content on top
+                        readonly property real minHeight: window.ui.modern ? (hasDescription ? 88 : 72) : 0
+                        implicitHeight: Math.max(minHeight,
+                                                 (window.ui.modern ? modernResultContent.height : searchResultContent.implicitHeight) +
+                                                 topPad + bottomPad)
 
                         // Modern look: a filled card like the other groups instead of a grey frame
                         Rectangle {
@@ -3196,7 +3202,8 @@ import AndroidStatusBar 1.0
                             // 16 in from the edge of the card, as Material 3
                             anchors.leftMargin: 16
                             anchors.rightMargin: 16
-                            anchors.topMargin: searchResultFrame.topPad
+                            anchors.topMargin: searchResultFrame.hasDescription ? searchResultFrame.topPad
+                                : Math.max(searchResultFrame.topPad, (searchResultFrame.implicitHeight - height) / 2)
 
                             Item {
                                 id: modernResultRow
