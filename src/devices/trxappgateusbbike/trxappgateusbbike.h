@@ -75,6 +75,7 @@ class trxappgateusbbike : public bike {
     QTime lastTimeCharChanged;
     uint8_t sec1update = 0;
     QByteArray lastPacket;
+    QByteArray compactIConsoleBuffer;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
