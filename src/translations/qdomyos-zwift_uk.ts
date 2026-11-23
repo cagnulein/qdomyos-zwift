@@ -2389,10 +2389,6 @@ Do you want to update QZ settings?</source>
         <translation>1 миля</translation>
     </message>
     <message>
-        <source>Live update</source>
-        <translation>Онлайн-оновлення</translation>
-    </message>
-    <message>
         <source>Peloton Workout in progress!</source>
         <translation>Триває тренування Peloton!</translation>
     </message>
@@ -6346,8 +6342,8 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Графіки онлайн під час тренування</translation>
     </message>
     <message>
-        <source>The Charts page adds the new data every second while a workout is running. Also switched on the Charts page itself. Default is off.</source>
-        <translation>Сторінка «Графіки» щосекунди домальовує нові дані, поки триває тренування. Вмикається і на самій сторінці «Графіки». Типово вимкнено.</translation>
+        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
+        <translation>Сторінка «Графіки» щосекунди домальовує нові дані, поки триває тренування. Вимкніть, якщо на вашому пристрої сторінка «Графіки» гальмує. Типово увімкнено.</translation>
     </message>
     <message>
         <source>iOS Live Activity Left Metric:</source>

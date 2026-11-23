@@ -2409,10 +2409,6 @@ Aktualizovat nastavení QZ?</translation>
         <translation>1 míle</translation>
     </message>
     <message>
-        <source>Live update</source>
-        <translation>Živá aktualizace</translation>
-    </message>
-    <message>
         <source>AVG</source>
         <translation>PRŮM.</translation>
     </message>
@@ -6202,8 +6198,8 @@ Povolit QZ tuto hodnotu měnit?
         <translation>Živé grafy během tréninku</translation>
     </message>
     <message>
-        <source>The Charts page adds the new data every second while a workout is running. Also switched on the Charts page itself. Default is off.</source>
-        <translation>Stránka Grafy během tréninku každou sekundu doplní nová data. Zapíná se i přímo na stránce Grafy. Výchozí: vypnuto.</translation>
+        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
+        <translation>Stránka Grafy během tréninku každou sekundu doplní nová data. Pokud je stránka Grafy na vašem zařízení pomalá, vypněte to. Výchozí: zapnuto.</translation>
     </message>
     <message>
         <source>iOS Live Activity Left Metric:</source>

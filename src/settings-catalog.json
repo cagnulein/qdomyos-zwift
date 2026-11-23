@@ -16627,14 +16627,14 @@
     {
       "key": "charts_live_update",
       "name": "Live Charts During a Workout",
-      "description": "The Charts page adds the new data every second while a workout is running. Also switched on the Charts page itself. Default is off.",
+      "description": "The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.",
       "parent": "General UI Options",
       "type": "boolean",
       "qmlType": "bool",
       "control": "switch",
       "visible": true,
-      "defaultValue": false,
-      "defaultExpression": "false",
+      "defaultValue": true,
+      "defaultExpression": "true",
       "options": null,
       "restartRequired": false
     }

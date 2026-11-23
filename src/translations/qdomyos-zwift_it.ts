@@ -2389,10 +2389,6 @@ Vuoi aggiornare le impostazioni di QZ?</translation>
         <translation>1 miglio</translation>
     </message>
     <message>
-        <source>Live update</source>
-        <translation>Aggiornamento dal vivo</translation>
-    </message>
-    <message>
         <source>Peloton Workout in progress!</source>
         <translation>Allenamento Peloton in corso!</translation>
     </message>
@@ -6547,8 +6543,8 @@ Consentire a QZ di modificare questo valore?
         <translation>Grafici in tempo reale durante l’allenamento</translation>
     </message>
     <message>
-        <source>The Charts page adds the new data every second while a workout is running. Also switched on the Charts page itself. Default is off.</source>
-        <translation>La pagina Grafici aggiunge i nuovi dati ogni secondo durante un allenamento. Si attiva anche direttamente nella pagina Grafici. Predefinito: disattivato.</translation>
+        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
+        <translation>La pagina Grafici aggiunge i nuovi dati ogni secondo durante un allenamento. Disattivalo se la pagina Grafici è lenta sul tuo dispositivo. Predefinito: attivato.</translation>
     </message>
     <message>
         <source>Please choose a color</source>

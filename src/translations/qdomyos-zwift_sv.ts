@@ -2393,10 +2393,6 @@ Vill du uppdatera QZ-inställningarna?</translation>
         <translation>1 engelsk mil</translation>
     </message>
     <message>
-        <source>Live update</source>
-        <translation>Liveuppdatering</translation>
-    </message>
-    <message>
         <source>AVG</source>
         <translation>MEDEL</translation>
     </message>
@@ -6162,8 +6158,8 @@ Vill du tillåta att QZ ändrar värdet?
         <translation>Livediagram under träningspasset</translation>
     </message>
     <message>
-        <source>The Charts page adds the new data every second while a workout is running. Also switched on the Charts page itself. Default is off.</source>
-        <translation>Sidan Diagram lägger till nya data varje sekund medan ett träningspass pågår. Kan också slås på direkt på sidan Diagram. Standard: av.</translation>
+        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
+        <translation>Sidan Diagram lägger till nya data varje sekund medan ett träningspass pågår. Stäng av det om sidan Diagram är långsam på din enhet. Standard: på.</translation>
     </message>
     <message>
         <source>iOS Live Activity Left Metric:</source>

@@ -2389,10 +2389,6 @@ Do you want to update QZ settings?</source>
         <translation>1 milla</translation>
     </message>
     <message>
-        <source>Live update</source>
-        <translation>Actualización en vivo</translation>
-    </message>
-    <message>
         <source>Peloton Workout in progress!</source>
         <translation>¡Entrenamiento de Peloton en curso!</translation>
     </message>
@@ -6094,8 +6090,8 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Gráficos en vivo durante el entrenamiento</translation>
     </message>
     <message>
-        <source>The Charts page adds the new data every second while a workout is running. Also switched on the Charts page itself. Default is off.</source>
-        <translation>La página Gráficos añade los datos nuevos cada segundo mientras hay un entrenamiento en curso. También se activa en la propia página Gráficos. Predeterminado: apagado.</translation>
+        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
+        <translation>La página Gráficos añade los datos nuevos cada segundo mientras hay un entrenamiento en curso. Apágalo si la página Gráficos va lenta en tu dispositivo. Predeterminado: encendido.</translation>
     </message>
     <message>
         <source>UI Themes</source>

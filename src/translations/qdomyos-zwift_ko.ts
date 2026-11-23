@@ -2409,10 +2409,6 @@ QZ 설정을 업데이트하시겠습니까?</translation>
         <translation>1마일</translation>
     </message>
     <message>
-        <source>Live update</source>
-        <translation>실시간 업데이트</translation>
-    </message>
-    <message>
         <source>AVG</source>
         <translation>평균</translation>
     </message>
@@ -6202,8 +6198,8 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
         <translation>운동 중 실시간 그래프</translation>
     </message>
     <message>
-        <source>The Charts page adds the new data every second while a workout is running. Also switched on the Charts page itself. Default is off.</source>
-        <translation>운동 중 그래프 화면에 새 데이터를 매초 추가합니다. 그래프 화면에서도 켜고 끌 수 있습니다. 기본값: 꺼짐.</translation>
+        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
+        <translation>운동 중 그래프 화면에 새 데이터를 매초 추가합니다. 기기에서 그래프 화면이 느리면 끄세요. 기본값: 켜짐.</translation>
     </message>
     <message>
         <source>iOS Live Activity Left Metric:</source>

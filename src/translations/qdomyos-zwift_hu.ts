@@ -2393,10 +2393,6 @@ Szeretné frissíteni a QZ beállításait?</translation>
         <translation>1 mérföld</translation>
     </message>
     <message>
-        <source>Live update</source>
-        <translation>Élő frissítés</translation>
-    </message>
-    <message>
         <source>AVG</source>
         <translation>ÁTL</translation>
     </message>
@@ -6162,8 +6158,8 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
         <translation>Élő diagramok edzés közben</translation>
     </message>
     <message>
-        <source>The Charts page adds the new data every second while a workout is running. Also switched on the Charts page itself. Default is off.</source>
-        <translation>Edzés közben a Diagramok oldal másodpercenként hozzáadja az új adatokat. Magán a Diagramok oldalon is bekapcsolható. Alapértelmezett: ki.</translation>
+        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
+        <translation>Edzés közben a Diagramok oldal másodpercenként hozzáadja az új adatokat. Kapcsolja ki, ha a Diagramok oldal lassú az eszközén. Alapértelmezett: be.</translation>
     </message>
     <message>
         <source>iOS Live Activity Left Metric:</source>

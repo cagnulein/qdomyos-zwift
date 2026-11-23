@@ -2389,10 +2389,6 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
         <translation>1 Meile</translation>
     </message>
     <message>
-        <source>Live update</source>
-        <translation>Live-Aktualisierung</translation>
-    </message>
-    <message>
         <source>Peloton Workout in progress!</source>
         <translation>Peloton Workout läuft!</translation>
     </message>
@@ -6030,8 +6026,8 @@ Darf QZ diesen Wert ändern?
         <translation>Live-Diagramme während des Trainings</translation>
     </message>
     <message>
-        <source>The Charts page adds the new data every second while a workout is running. Also switched on the Charts page itself. Default is off.</source>
-        <translation>Die Seite „Diagramme“ ergänzt während eines laufenden Trainings jede Sekunde die neuen Daten. Lässt sich auch direkt auf der Seite „Diagramme“ umschalten. Standardmäßig ist es aus.</translation>
+        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
+        <translation>Die Seite „Diagramme“ ergänzt während eines laufenden Trainings jede Sekunde die neuen Daten. Schalte es aus, wenn die Seite „Diagramme“ auf deinem Gerät langsam ist. Standardmäßig ist es an.</translation>
     </message>
     <message>
         <source>UI Themes</source>

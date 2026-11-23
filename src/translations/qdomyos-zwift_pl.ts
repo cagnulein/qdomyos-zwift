@@ -2409,10 +2409,6 @@ Zaktualizować ustawienia QZ?</translation>
         <translation>1 mila</translation>
     </message>
     <message>
-        <source>Live update</source>
-        <translation>Aktualizacja na żywo</translation>
-    </message>
-    <message>
         <source>AVG</source>
         <translation>ŚR.</translation>
     </message>
@@ -6202,8 +6198,8 @@ Zezwolić QZ na zmianę tej wartości?
         <translation>Wykresy na żywo podczas treningu</translation>
     </message>
     <message>
-        <source>The Charts page adds the new data every second while a workout is running. Also switched on the Charts page itself. Default is off.</source>
-        <translation>Strona Wykresy co sekundę dopisuje nowe dane podczas treningu. Można to włączyć także na samej stronie Wykresy. Domyślnie: wyłączone.</translation>
+        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
+        <translation>Strona Wykresy co sekundę dopisuje nowe dane podczas treningu. Wyłącz to, jeśli strona Wykresy działa wolno na Twoim urządzeniu. Domyślnie: włączone.</translation>
     </message>
     <message>
         <source>iOS Live Activity Left Metric:</source>

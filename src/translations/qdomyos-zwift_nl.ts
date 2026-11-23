@@ -2409,10 +2409,6 @@ Wil je de QZ-instellingen bijwerken?</translation>
         <translation>1 mijl</translation>
     </message>
     <message>
-        <source>Live update</source>
-        <translation>Live bijwerken</translation>
-    </message>
-    <message>
         <source>AVG</source>
         <translation>GEM.</translation>
     </message>
@@ -6202,8 +6198,8 @@ Mag QZ deze waarde wijzigen?
         <translation>Live grafieken tijdens de training</translation>
     </message>
     <message>
-        <source>The Charts page adds the new data every second while a workout is running. Also switched on the Charts page itself. Default is off.</source>
-        <translation>De pagina Grafieken voegt tijdens een training elke seconde de nieuwe gegevens toe. Ook aan te zetten op de pagina Grafieken zelf. Standaard: uit.</translation>
+        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
+        <translation>De pagina Grafieken voegt tijdens een training elke seconde de nieuwe gegevens toe. Zet het uit als de pagina Grafieken traag is op je apparaat. Standaard: aan.</translation>
     </message>
     <message>
         <source>iOS Live Activity Left Metric:</source>

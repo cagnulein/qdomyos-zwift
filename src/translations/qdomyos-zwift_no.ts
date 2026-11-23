@@ -2393,10 +2393,6 @@ Vil du oppdatere QZ-innstillingene?</translation>
         <translation>1 engelsk mil</translation>
     </message>
     <message>
-        <source>Live update</source>
-        <translation>Sanntidsoppdatering</translation>
-    </message>
-    <message>
         <source>AVG</source>
         <translation>GJ.SN.</translation>
     </message>
@@ -6162,8 +6158,8 @@ Skal QZ få endre denne verdien?
         <translation>Sanntidsdiagrammer under treningsøkten</translation>
     </message>
     <message>
-        <source>The Charts page adds the new data every second while a workout is running. Also switched on the Charts page itself. Default is off.</source>
-        <translation>Siden Diagrammer legger til nye data hvert sekund mens en treningsøkt pågår. Dette kan også endres på selve siden Diagrammer. Standard: av.</translation>
+        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
+        <translation>Siden Diagrammer legger til nye data hvert sekund mens en treningsøkt pågår. Slå det av hvis siden Diagrammer er treg på enheten din. Standard: på.</translation>
     </message>
     <message>
         <source>iOS Live Activity Left Metric:</source>

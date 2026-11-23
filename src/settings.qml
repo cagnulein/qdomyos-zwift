@@ -2865,7 +2865,7 @@ import AndroidStatusBar 1.0
             property bool resistance_compatibility: false
             // Keep newly added properties at the end to preserve settings order on iOS.
             property bool strava_synthetic_gps_track: false
-            property bool charts_live_update: false
+            property bool charts_live_update: true
 
         }
 
@@ -8417,7 +8417,7 @@ import AndroidStatusBar 1.0
                     }
 
                     Label {
-                        text: qsTr("The Charts page adds the new data every second while a workout is running. Also switched on the Charts page itself. Default is off.")
+                        text: qsTr("The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.")
                         font.bold: !window.ui.modern
                         font.italic: !window.ui.modern
                         font.pixelSize: window.fontHint

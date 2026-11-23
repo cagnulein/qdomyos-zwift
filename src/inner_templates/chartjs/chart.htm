@@ -20,67 +20,6 @@
          <script src="dochart.js"></script>
          <script src="html2canvas.min.js"></script>
     <style>
-    /* the live update switch, in the header under the date: the column is centred on the
-       workout picture (100) and, without an instructor line, stays lower than it, so the
-       header keeps its height. Not in the saved picture of the header (html2canvas of
-       #watt_badge in dochart.js): data-html2canvas-ignore.
-       The --qz-* colours come from a themed page, the rest is the default.
-       No flex gap: the web view of Android 5.1 does not know it */
-    #live_refresh_box {
-        align-items: center;
-        justify-content: flex-end;
-        margin: 8px 0 0;
-    }
-    /* the touch area is 48 px high (::after) while the button keeps 40 px in the header */
-    #live_refresh::after {
-        content: "";
-        position: absolute;
-        top: -4px;
-        bottom: -4px;
-        left: 0;
-        right: 0;
-    }
-    #live_refresh {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        min-height: 40px;
-        padding: 0 4px;
-        border: 0;
-        background-color: transparent;
-        color: inherit;
-        font: inherit;
-    }
-    #live_refresh .track {
-        position: relative;
-        width: 36px;
-        height: 20px;
-        margin-left: 10px;
-        box-sizing: border-box;
-        border: 2px solid var(--qz-outline, grey);
-        border-radius: 10px;
-    }
-    #live_refresh .knob {
-        position: absolute;
-        top: 2px;
-        left: 2px;
-        width: 12px;
-        height: 12px;
-        border-radius: 6px;
-        background-color: var(--qz-outline, grey);
-    }
-    #live_refresh[aria-checked="true"] .track {
-        background-color: var(--qz-accent, #9c7cf4);
-        border-color: var(--qz-accent, #9c7cf4);
-    }
-    #live_refresh[aria-checked="true"] .knob {
-        left: 18px;
-        background-color: var(--qz-bg, #1d2330);
-    }
-    /* the check and the cross in the knob: only the modern look shows them (qz-modern-charts.css) */
-    #live_refresh .knob svg {
-        display: none;
-    }
     canvas{
         -moz-user-select: none;
         -webkit-user-select: none;
@@ -102,13 +41,7 @@
     <div class="instructorName" align="right" style='color: white; font-size: 14px; font-weight:700; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"
 '></div>
     <div class="workoutStartDate" align="right" style='color: grey; font-size: 14px; font-weight:700; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"
-'></div>
-    <div id="live_refresh_box" align="right" data-html2canvas-ignore="true" style='display: none; color: var(--qz-muted, grey); font-size: 12px; font-weight:500; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'>
-        <button type="button" id="live_refresh" role="switch" aria-checked="false">
-            <span data-i18n="chart.liveRefresh">Live update</span>
-            <span class="track" aria-hidden="true"><span class="knob"><svg viewBox="0 0 16 16"><path class="on" d="M3.5 8.5l3 3 6-6"/><path class="off" d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg></span></span>
-        </button>
-    </div></td></tr>
+'></div></td></tr>
     </table>
     </br>
     <hr width="50%" style='color: white;' />

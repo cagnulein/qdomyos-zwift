@@ -2393,10 +2393,6 @@ Vil du opdatere QZ-indstillingerne?</translation>
         <translation>1 mile</translation>
     </message>
     <message>
-        <source>Live update</source>
-        <translation>Liveopdatering</translation>
-    </message>
-    <message>
         <source>AVG</source>
         <translation>GNS.</translation>
     </message>
@@ -6162,8 +6158,8 @@ Må QZ ændre værdien?
         <translation>Livegrafer under træning</translation>
     </message>
     <message>
-        <source>The Charts page adds the new data every second while a workout is running. Also switched on the Charts page itself. Default is off.</source>
-        <translation>Siden "Grafer" tilføjer nye data hvert sekund under træningen. Kan også slås til på selve siden "Grafer". Standard: fra.</translation>
+        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
+        <translation>Siden &quot;Grafer&quot; tilføjer nye data hvert sekund under træningen. Slå det fra, hvis siden &quot;Grafer&quot; er langsom på din enhed. Standard: til.</translation>
     </message>
     <message>
         <source>iOS Live Activity Left Metric:</source>

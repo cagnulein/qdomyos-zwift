@@ -2389,10 +2389,6 @@ QZの設定を更新しますか?</translation>
         <translation>1マイル</translation>
     </message>
     <message>
-        <source>Live update</source>
-        <translation>ライブ更新</translation>
-    </message>
-    <message>
         <source>Peloton Workout in progress!</source>
         <translation>Pelotonワークアウト進行中！</translation>
     </message>
@@ -6050,8 +6046,8 @@ QZ がこの値を変更することを許可しますか？
         <translation>ワークアウト中のライブグラフ</translation>
     </message>
     <message>
-        <source>The Charts page adds the new data every second while a workout is running. Also switched on the Charts page itself. Default is off.</source>
-        <translation>ワークアウト中、グラフ画面に新しいデータを毎秒追加します。グラフ画面からも切り替えられます。初期設定はオフです。</translation>
+        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
+        <translation>ワークアウト中、グラフ画面に新しいデータを毎秒追加します。お使いの端末でグラフ画面が重い場合はオフにしてください。初期設定はオンです。</translation>
     </message>
     <message>
         <source>UI Themes</source>

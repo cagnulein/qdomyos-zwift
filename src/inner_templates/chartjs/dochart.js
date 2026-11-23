@@ -34,12 +34,10 @@ var heartZones = [];
 var miles = 1;
 
 // live update during a workout: the new points of the session are asked for once a second and
-// the charts are updated in place. On or off with the charts_live_update setting (off by
-// default); the switch in the header under the date, shown only while a workout is running (see
-// setLiveActive), changes the same setting
+// the charts are updated in place. On or off with the charts_live_update setting (on by default;
+// a slow device can turn it off), only while a workout is running (see setLiveActive)
 var LIVE_REFRESH_MS = 1000;
-var liveEnabled = false;
-var liveSwitched = false; // the switch was tapped on this page
+var liveEnabled = false; // until getsettings answers
 var liveTimer = null;
 var liveLoading = false;
 var liveActive = false;
@@ -50,10 +48,6 @@ var sessionCache = null; // the session so far, grown by the parts the live upda
 var liveRefresh = false;
 var pendingLive = {}; // canvas id -> the config of a live refresh skipped while off screen
 var pendingLiveTimer = null;
-
-function showLiveSwitch() {
-    $('#live_refresh').attr('aria-checked', liveEnabled ? 'true' : 'false');
-}
 
 // the polling goes on: a chart off screen waits for the next refresh or for a scroll to it
 function livePolling() {
@@ -1386,15 +1380,14 @@ function dochart_init() {
             drawPendingLive();
     }
 
-    // the switch and the polling work only while a workout is running: device connected,
-    // not paused and not stopped (stop pauses the device); state comes with the 'workout' push
+    // the polling works only while a workout is running: device connected, not paused and not
+    // stopped (stop pauses the device); state comes with the 'workout' push
     function setLiveActive(active) {
         let firstState = !liveStateKnown;
         liveStateKnown = true;
         if (active === liveActive)
             return;
         liveActive = active;
-        $('#live_refresh_box').css('display', active ? 'flex' : 'none');
         if (!active) {
             clearTimeout(liveTimer);
             liveTimer = null;
@@ -1434,22 +1427,6 @@ function dochart_init() {
     }
     watchWorkoutState();
 
-    showLiveSwitch();
-    $('#live_refresh').on('click', function() {
-        liveSwitched = true;
-        liveEnabled = !liveEnabled;
-        showLiveSwitch();
-        let save = new MainWSQueueElement({
-            msg: 'setsettings',
-            content: { charts_live_update: liveEnabled }
-        }, function(msg) {
-            return msg.msg === 'R_setsettings' ? msg : null;
-        }, 5000, 3);
-        save.enqueue().catch(function(err) {
-            console.error('Error is ' + err);
-        });
-        scheduleLiveRefresh();
-    });
     // a page kept out of sight (the app may hide it instead of closing) does not poll
     document.addEventListener('visibilitychange', scheduleLiveRefresh);
 
@@ -1545,11 +1522,8 @@ function dochart_init() {
                         if(msg.content[key] === true || msg.content[key] === 'true')
                             miles = 0.621371;
                     } else if (key === 'charts_live_update') {
-                        // null while the setting was never saved: off, its default. A tap on the
-                        // switch before this answer wins: it has already saved its value
-                        if (!liveSwitched)
-                            liveEnabled = isTrueSetting(msg.content[key]);
-                        showLiveSwitch();
+                        // null while the setting was never saved: on, its default
+                        liveEnabled = msg.content[key] === null || isTrueSetting(msg.content[key]);
                     }
                 }
                 if(heart_max_override_enable) {
