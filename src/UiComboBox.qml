@@ -18,6 +18,8 @@ T.ComboBox {
     id: control
 
     readonly property bool modern: window.ui.modern
+    // on a settings page of the modern look (the items Label Large)
+    readonly property bool inTypeScalePage: modern && window.ui.onTypeScalePage(control)
 
     // Shown text for a raw value: ValueComboBox puts its translated labels here; values
     // missing from the map are shown unchanged
@@ -70,23 +72,48 @@ T.ComboBox {
 
     TextMetrics {
         id: itemMetrics
-        font: control.font
+        // the font of the items: the one of the list on a settings page of the modern look
+        font: control.inTypeScalePage ? control.popup.font : control.font
     }
+
+    // Modern: the height of an item of the list - Material's 48, or more with a bigger text: the
+    // item is its text and the vertical padding of Material's MenuItem (12 each side). Measured
+    // with the font of the list, not of the box (the gym mode device box sets a bigger one): with
+    // a text size set, the items take it from the window like the list; at 100 % the 48 holds
+    FontMetrics {
+        id: itemFontMetrics
+        font: control.popup.font
+    }
+    readonly property real itemHeight: Math.max(control.Material.menuItemHeight,
+                                                Math.ceil(itemFontMetrics.height) + 2 * control.Material.menuItemVerticalPadding)
 
     // With a bigger text the label left of the box wraps, but the row still shared its width as
     // if the label were one line, and squeezed the box: the shown item was cut in the middle of
-    // a word. The box keeps the width of its text (at most half the window); 0 is the default
-    Layout.minimumWidth: window.textScale !== 1 ? Math.min(implicitWidth, window.width / 2) : 0
+    // a word. The box keeps the width of its text (at most half the window); 0 is the default.
+    // Modern look: always - the chosen value is the setting, it is not cut
+    Layout.minimumWidth: modern || window.textScale !== 1 ? Math.min(implicitWidth, window.width / 2) : 0
+    // On a settings page the box wants the width of its value (its field, below), at most half the
+    // window as well, so a button next to it in a row "list (fillWidth) + button" keeps its room:
+    // the button has no minimum width of its own. -1 - the implicit width, as before
+    Layout.preferredWidth: inTypeScalePage ? Math.min(implicitWidth, window.width / 2) : -1
+    // A stacked UiSettingsRow (the label above): the list across the free width
+    Layout.fillWidth: !!parent && parent.stackedRow === true
+
+    // Width of the widest item for the list width (#5236), measured when the list opens;
+    // DeviceComboBox calls it too: its items change while the list is open
+    function measureItems() {
+        var widest = 0
+        for (var i = 0; i < control.count; ++i) {
+            itemMetrics.text = control.labelFor(control.textAt(i))
+            widest = Math.max(widest, itemMetrics.advanceWidth)
+        }
+        control.widestItem = Math.ceil(widest)
+    }
 
     Connections {
         target: control.popup
         function onAboutToShow() {
-            var widest = 0
-            for (var i = 0; i < control.count; ++i) {
-                itemMetrics.text = control.labelFor(control.textAt(i))
-                widest = Math.max(widest, itemMetrics.advanceWidth)
-            }
-            control.widestItem = Math.ceil(widest)
+            control.measureItems()
         }
     }
 
@@ -117,6 +144,8 @@ T.ComboBox {
     delegate: MenuItem {
         id: menuItem
         width: ListView.view.width
+        // Modern: exactly the height the list is cut by (itemHeight, whole pixels of the text)
+        height: control.modern ? control.itemHeight : implicitHeight
         text: control.labelFor(control.textRole ? (Array.isArray(control.model) ? modelData[control.textRole] : model[control.textRole]) : modelData)
         // Screen reader: Qt 5.15 gives a MenuItem no accessible action (Qt 6.5 does), so on
         // Android its node is not clickable and a TalkBack touch on an item went to the whole
@@ -230,6 +259,12 @@ T.ComboBox {
         rightPadding: control.editable ? 2 : control.mirrored ? (control.modern ? 16 : 12) : 0
 
         text: control.editable ? control.editText : control.displayText
+        // On a settings page of the modern look the box is as wide as its value. A
+        // TextField has no implicit width of its own (Qt 5.15.0 qquicktextfield.cpp:440
+        // setImplicitResizeEnabled(false), 307-310), so the box kept 120 of its background and cut
+        // a longer value; the width of the text as TextField.qml of Material does (47-48).
+        // Elsewhere and in the classic 0, as before
+        implicitWidth: control.inTypeScalePage ? contentWidth + leftPadding + rightPadding : 0
 
         enabled: control.editable
         autoScroll: control.editable
@@ -294,8 +329,18 @@ T.ComboBox {
         // items lazily (#5236)
         width: Math.min(Math.max(control.width, control.widestItem + 32 + leftPadding + rightPadding),
                         control.Window.width - leftMargin - rightMargin)
-        height: Math.min(control.count * control.Material.menuItemHeight + topPadding + bottomPadding,
-                         control.Window.height - topMargin - bottomMargin)
+        height: {
+            var room = control.Window.height - topMargin - bottomMargin
+            if (!control.modern)
+                return Math.min(control.count * control.Material.menuItemHeight + topPadding + bottomPadding, room)
+            var full = control.count * control.itemHeight + topPadding + bottomPadding
+            if (full <= room)
+                return full
+            // Modern, a list longer than the window: the bottom at the middle of an item, so the
+            // cut item shows that the list goes on (a whole item at the edge looked like its end)
+            var whole = Math.max(0, Math.floor((room - topPadding - bottomPadding) / control.itemHeight - 0.5))
+            return Math.min((whole + 0.5) * control.itemHeight + topPadding + bottomPadding, room)
+        }
         transformOrigin: Item.Top
         // Modal, as the menus of the workout history, so a screen reader's touch on an item cannot
         // reach the row under the list; no dim, so it looks as before
@@ -311,6 +356,12 @@ T.ComboBox {
         Material.theme: control.Material.theme
         Material.accent: control.Material.accent
         Material.primary: control.Material.primary
+
+        // A popup takes the window font, not the one of its field (Qt 5.15.0
+        // QQuickPopupItemPrivate::resolveFont, qquickpopupitem.cpp:100-105). On a settings page
+        // of the modern look the items are Label Large, the field Body Large; elsewhere
+        // and in the classic the window font, as before
+        font: control.inTypeScalePage ? window.ui.fontOf(control.font, window.ui.labelPx(control.font.pixelSize)) : window.font
 
         // Modern: the list keeps clear of the rounded corners, the highlight of the first and
         // the last item was a square block in them
@@ -333,13 +384,41 @@ T.ComboBox {
         }
 
         contentItem: ListView {
+            id: listView
             clip: true
             implicitHeight: contentHeight
             model: control.delegateModel
             currentIndex: control.highlightedIndex
             highlightMoveDuration: 0
 
-            T.ScrollIndicator.vertical: ScrollIndicator { }
+            T.ScrollIndicator.vertical: ScrollIndicator { visible: !control.modern }
+
+            // Modern: a scroll bar while the list is open and does not fit - the indicator shows
+            // only while the list moves. As the menus of the web pages (qz-modern-select.js): 4 wide,
+            // 4 from the edges of the menu, the text colour at 38 %. A template bar, Material's one
+            // animates the opacity of its handle; over the menu, not in the clipped list, with
+            // another parent Qt does not place it (QQuickScrollBarAttachedPrivate::layoutVertical)
+            T.ScrollBar.vertical: T.ScrollBar {
+                parent: listView.parent
+                z: 1
+                x: mirrored ? 4 : parent.width - width - 4
+                y: 4
+                width: 4
+                height: parent.height - 8
+                visible: control.modern && size < 1.0
+                interactive: false
+                // Qt 5.15.0 (Android): a bar that is not interactive still takes touches (fixed in
+                // 5.15.2, qtquickcontrols2 b6280dd207) - a touch at the edge of the menu went to the
+                // bar instead of the item. A disabled item gets no touches; the bar still follows
+                // the list
+                enabled: false
+                minimumSize: height > 0 ? Math.min(1.0, 24 / height) : 0
+                contentItem: Rectangle {
+                    implicitWidth: 4
+                    radius: 2
+                    color: window.ui.alpha(window.ui.textMain, 0.38)
+                }
+            }
         }
 
         // Classic: Material's popup background as before. Modern: the Material 3 menu container

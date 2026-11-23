@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="hu_HU">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Bezárás</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -366,6 +373,14 @@ Szeretné bekapcsolni a szükséges szolgáltatásokat?</translation>
     <message>
         <source>Not connecting?</source>
         <translation>Nem sikerül csatlakozni?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Az edzőgép nem található</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Kapcsolja be a kerékpárt, a futópadot vagy az evezőgépet, majd az újbóli kereséshez koppintson a felül található Bluetooth-ikonra.</translation>
     </message>
 </context>
 <context>
@@ -1129,6 +1144,10 @@ Szeretné frissíteni a QZ beállításait?</translation>
         <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
         <translation>%1 (pulzusérzékelő) nem található. Ellenőrizd, hogy be van-e kapcsolva és sugározza-e a pulzusadatokat.</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S csatlakoztatva!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1347,6 +1366,21 @@ Szeretné frissíteni a QZ beállításait?</translation>
     <message>
         <source>Open email</source>
         <translation>E-mail megnyitása</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Vásárlás...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Sikeres vásárlás</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Sikertelen vásárlás</translation>
     </message>
 </context>
 <context>
@@ -2077,6 +2111,11 @@ Szeretné frissíteni a QZ beállításait?</translation>
     <message>
         <source>Inclination (%)</source>
         <translation>Emelkedés (%)</translation>
+    </message>
+    <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>Egy grafikonon:</translation>
     </message>
     <message>
         <source>Avg Output</source>
@@ -3349,6 +3388,10 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
 <context>
     <name>homeform</name>
     <message>
+        <source>No enabled metrics</source>
+        <translation>Nincs engedélyezett mérőszám</translation>
+    </message>
+    <message>
         <source>Speed (%1/h)</source>
         <translation>Sebesség(%1/h)</translation>
     </message>
@@ -3919,6 +3962,10 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <translation>Eszköz keresése...</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Csatlakozás: %1...</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>Megtalálva: %1</translation>
     </message>
@@ -4271,9 +4318,17 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>A QZ fut</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>A Bluetooth ki van kapcsolva</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Lebegő mérőszámok (kép a képben)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -4796,6 +4851,26 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
 
 „Nem”: a QZ bekapcsolja a „Kerékátmérő-protokoll nélkül” lehetőséget (Beállítások &gt; Kerékpár beállításai &gt; Wahoo beállításai), és a virtuális fokozatok a meredekségen keresztül működnek. „Igen” esetén ezt később ugyanott visszavonhatja: kapcsolja be ezt a lehetőséget, majd csatlakoztatott edzőgép mellett koppintson az „Alapértelmezett beállítás visszaállítása az edzőgépen” gombra.</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>A szimulált eszköz (%1) aktív. Ha ez nem volt szándékos, kapcsold ki a Beállításokban.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Kerékpár</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Futópad</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Elliptikus tréner</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Evezőpad</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -5160,6 +5235,30 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>A diagram sorszáma az edzéselőzményekben. A sorrend a felület általános beállításaiban, a fel és le gombokkal módosítható.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Beállítás visszaállítva</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Visszaállított beállítások: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Összes visszaállítása</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Visszaállítja a módosított beállításokat?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Az alapértelmezett értékre visszaálló beállítások: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Visszaállítás</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -7164,6 +7263,14 @@ Please enter it below:</source>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation>Strava-címke virtuális tevékenységhez</translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Szintetikus GPS-útvonal Stravához</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Szintetikus GPS-nyomvonalat ad a GPS nélküli virtuális tevékenységekhez. A Strava így megjelenítheti a szintemelkedést, de az útvonal nem valós.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

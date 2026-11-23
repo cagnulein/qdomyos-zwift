@@ -5,6 +5,10 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 
 ScrollView {
+    // Modern look: the rows Body Large, the role of a settings row (window.ui.rowFont)
+    font: window.ui.modern ? window.ui.rowFont : window.font
+    // Buttons and lists of this page take Label Large (window.ui.onTypeScalePage)
+    readonly property bool typeScalePage: true
     contentWidth: -1
     // The column with its margins, which are not in its implicit height
     contentHeight: chainringColumn.implicitHeight + 2 * chainringColumn.anchors.margins
@@ -340,7 +344,7 @@ ScrollView {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.margins: window.ui.modern ? Math.max(16, window.contentSideMargin) : 20
-        spacing: window.ui.modern ? 12 : 20
+        spacing: window.ui.modern ? 8 : 20 // modern: 8 between the cards, as Material 3
         id: chainringColumn
 
         // Wahoo Options
@@ -385,7 +389,7 @@ ScrollView {
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
                     Layout.maximumWidth: chainringColumn.width - 20
-                    font.pixelSize: window.ui.modern ? window.ui.fontCaption : window.fontHint
+                    font.pixelSize: window.fontHint // modern look: Body Small, as the hints of the settings
                     bottomPadding: window.hintGap
                     color: window.ui.modern ? window.ui.textMuted : Material.accent
                 }
@@ -407,6 +411,9 @@ ScrollView {
                     Layout.fillWidth: true
                     Layout.maximumWidth: chainringColumn.width - 20
                     color: window.ui.modern ? window.ui.textMuted : Material.foreground
+                    // Modern look: the note of the group is a hint, Body Small; the classic keeps the
+                    // page font. The page is made while the look is set
+                    Binding on font.pixelSize { when: window.ui.modern; value: window.fontHint; restoreMode: Binding.RestoreBindingOrValue }
                 }
 
                 SpinBox {
@@ -463,6 +470,9 @@ ScrollView {
                     Layout.fillWidth: true
                     Layout.maximumWidth: chainringColumn.width - 20
                     color: window.ui.modern ? window.ui.textMuted : Material.foreground
+                    // Modern look: the note of the group is a hint, Body Small; the classic keeps the
+                    // page font. The page is made while the look is set
+                    Binding on font.pixelSize { when: window.ui.modern; value: window.fontHint; restoreMode: Binding.RestoreBindingOrValue }
                 }
                 SpinBox {
                     visible: !window.ui.modern
@@ -766,8 +776,8 @@ ScrollView {
                             color: "transparent"
 
                             Text {
-                                // a plain Text does not inherit the window font: the text size while it is not 100 %
-                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                // a plain Text does not inherit the window font: the text size while it is not 100 %; modern look: the table header and the gear number Label Large 14
+                                Binding on font.pixelSize { when: window.ui.modern || window.scaledFontPx > 0; value: window.ui.modern ? window.ui.fontLabelLarge : window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                 anchors.centerIn: parent
                                 // Modern look: one line inside its column, smaller if it does not fit
                                 width: window.ui.modern ? parent.width - 8 : implicitWidth
@@ -791,7 +801,7 @@ ScrollView {
                             color: "transparent"
 
                             Text {
-                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                Binding on font.pixelSize { when: window.ui.modern || window.scaledFontPx > 0; value: window.ui.modern ? window.ui.fontLabelLarge : window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                 anchors.centerIn: parent
                                 // Modern look: one line inside its column, smaller if it does not fit
                                 width: window.ui.modern ? parent.width - 8 : implicitWidth
@@ -815,7 +825,7 @@ ScrollView {
                             color: "transparent"
 
                             Text {
-                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                Binding on font.pixelSize { when: window.ui.modern || window.scaledFontPx > 0; value: window.ui.modern ? window.ui.fontLabelLarge : window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                 anchors.centerIn: parent
                                 // Modern look: one line inside its column, smaller if it does not fit
                                 width: window.ui.modern ? parent.width - 8 : implicitWidth
@@ -929,8 +939,8 @@ ScrollView {
                                 }
 
                                 contentItem: Text {
-                                    // a plain Text does not inherit the window font: the text size while it is not 100 %
-                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                    // a plain Text does not inherit the window font: the text size while it is not 100 %; modern look: the table header and the gear number Label Large 14
+                                    Binding on font.pixelSize { when: window.ui.modern || window.scaledFontPx > 0; value: window.ui.modern ? window.ui.fontLabelLarge : window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                     text: gear
                                     color: window.ui.ink("black")
                                     horizontalAlignment: Text.AlignHCenter

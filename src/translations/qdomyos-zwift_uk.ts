@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="uk_UA">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Закрити</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -382,6 +389,14 @@ Would you like to enable the required services?</source>
     <message>
         <source>Not connecting?</source>
         <translation>Не підключається?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Тренажер не знайдено</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Увімкніть велотренажер, бігову доріжку або гребний тренажер і натисніть значок Bluetooth угорі, щоб шукати знову.</translation>
     </message>
 </context>
 <context>
@@ -1145,6 +1160,10 @@ Do you want to update QZ settings?</source>
         <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
         <translation>Пульсометр поруч не знайдено. Перевірте, що він увімкнений і транслює пульс.</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S підключено!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1363,6 +1382,21 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Open email</source>
         <translation>Відкрити пошту</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Оформлюємо покупку...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Покупку здійснено</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Не вдалося оплатити</translation>
     </message>
 </context>
 <context>
@@ -2145,6 +2179,11 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Inclination (%)</source>
         <translation>Нахил (%)</translation>
+    </message>
+    <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>На одному графіку:</translation>
     </message>
     <message>
         <source>Avg Output</source>
@@ -3365,6 +3404,10 @@ This may take a few moments on first startup.</source>
 <context>
     <name>homeform</name>
     <message>
+        <source>No enabled metrics</source>
+        <translation>Немає увімкнених показників</translation>
+    </message>
+    <message>
         <source>Speed (%1/h)</source>
         <translation>Швидкість (%1/год)</translation>
     </message>
@@ -3999,6 +4042,10 @@ This may take a few moments on first startup.</source>
         <translation>Пошук тренажера…</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Підключення до %1…</translation>
+    </message>
+    <message>
         <source>Search stopped, tap the Bluetooth icon</source>
         <translation>Пошук зупинено, натисніть значок Bluetooth</translation>
     </message>
@@ -4287,9 +4334,17 @@ This may take a few moments on first startup.</source>
         <source>Unable to open an email application</source>
         <translation>Не вдалося відкрити поштову програму</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth вимкнено</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Плаваючі показники (картинка в картинці)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -4812,6 +4867,26 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
 
 «Ні»: QZ увімкне «Без протоколу діаметра колеса» (Налаштування &gt; Параметри велотренажера &gt; Параметри Wahoo), і віртуальні передачі працюватимуть через ухил. Якщо обрати «Так», це можна згодом скасувати там само: увімкніть цей параметр і за підключеного тренажера натисніть «Відновити типові налаштування тренажера».</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Віртуальний пристрій (%1) активний. Якщо це сталося ненавмисно, вимкніть його в налаштуваннях.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Велотренажер</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Бігова доріжка</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Еліптичний тренажер</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Гребний тренажер</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -5116,6 +5191,30 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     <message>
         <source>App Language:</source>
         <translation>Мова застосунку:</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Налаштування скинуто</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Скинуто налаштувань: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Скинути все</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Скинути змінені налаштування?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Змінені налаштування (%1) повернуться до типових значень.</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Скинути</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -7596,6 +7695,14 @@ Please enter it below:</source>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation>Мітка віртуальної активності Strava</translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Синтетичний GPS-трек Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Додає синтетичний GPS-трек до віртуальних тренувань без GPS. Strava може показати набір висоти, але маршрут несправжній.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

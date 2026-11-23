@@ -25,6 +25,8 @@ constexpr quint8 SUB_STATUS = 0x04;
 constexpr quint8 SUB_ERROR = 0x05;
 constexpr int POLL_INTERVAL_MS = 500;
 constexpr int REQUEST_TIMEOUT_MS = 2000;
+// Jacek's Coach S console uses L4 as the starting physical load.
+constexpr int DEFAULT_COACH_S_RESISTANCE = 4;
 
 // Kinomap / Kettler S-FIT authentication: the client supplies two random
 // salt bytes and an MD5 digest of salt || fixed protocol key. The rower
@@ -94,6 +96,18 @@ quint16 kettlercoachrower::be16(const QByteArray &data, int offset) {
            static_cast<quint8>(data.at(offset + 1));
 }
 
+#ifdef Q_OS_ANDROID
+void kettlercoachrower::connectToBondedDevice(const QBluetoothDeviceInfo &device) {
+    bluetoothDevice = device;
+    emit debug(QStringLiteral("Coach S connecting directly to bonded SPP address ") +
+               device.address().toString());
+    // The existing secured RFCOMM socket performs the same successful
+    // S-FIT handshake in rfCommConnected(); only the inquiry/SDP scan is skipped.
+    createSocket();
+    socket->connectToService(device.address(), QBluetoothUuid(SERIAL_PORT_UUID));
+}
+#endif
+
 void kettlercoachrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bluetoothDevice = device;
     emit debug(QStringLiteral("Found Kettler Coach S: ") + device.name());
@@ -151,13 +165,17 @@ void kettlercoachrower::rfCommConnected() {
     signalledConnection = false;
     signalledDisconnection = false;
     awaitingHandshake = true;
-    lastStrokeTime = QDateTime();
-    lastDistanceTime = QDateTime();
-    lastStrokes = 0;
-    lastDistanceMeters = 0;
+    sessionCounters.reset();
+    powerBasedPace.reset();
+    lastPowerBasedMode = false;
+    rawDistanceOffsetMeters = 0.0;
+    powerClock.start();
+    resetStrokeMetrics();
+    Distance = 0;
+    Distance1s = 0;
+    StrokesCount = 0;
     telemetrySeen = false;
     requestResistance = -1;
-    currentWatts = 0;
     pendingResistanceLevel = -1;
     lastReportedResistanceLevel = -1;
     Resistance = 0;
@@ -289,6 +307,13 @@ void kettlercoachrower::processFrame(const kettlerclassicprotocol::Frame &frame)
             enqueueRead(DEVICE_MODE);
             enqueueRead(SESSION_STATE);
             enqueueRead(DEVICE_MODE);
+            // Apply the console's practical L4 before the first stroke.
+            // Keep the known-good post-auth setup reads ahead of the write.
+            // Explicit "No write resistance" still takes precedence.
+            if (!noWriteResistance) {
+                emit debug(QStringLiteral("Coach S setting default resistance L4 after authentication"));
+                enqueueResistanceRequest(DEFAULT_COACH_S_RESISTANCE);
+            }
             sendNextRequest();
             return;
         }
@@ -308,58 +333,139 @@ void kettlercoachrower::processFrame(const kettlerclassicprotocol::Frame &frame)
     sendNextRequest();
 }
 
+void kettlercoachrower::resetStrokeMetrics() {
+    strokePower.reset();
+    cadenceSmoother.reset();
+    lastStrokeMs = -1;
+    lastStrokes = sessionCounters.rawStrokes();
+    lastStrokeDistanceMeters = sessionCounters.rawMeters();
+    currentWatts = 0;
+    m_watt = 0;
+    Speed = 0;
+    Cadence = 0;
+    if (sessionCounters.hasSample() && powerClock.isValid())
+        strokePower.addSample(lastStrokes, 0, powerClock.elapsed());
+}
+
+void kettlercoachrower::clearStats() {
+    rower::clearStats();
+    // Start a new QZ workout at the latest physical counter values.
+    sessionCounters.clearWorkout();
+    powerBasedPace.reset();
+    lastPowerBasedMode = false;
+    rawDistanceOffsetMeters = 0.0;
+    resetStrokeMetrics();
+    Distance = 0;
+    Distance1s = 0;
+    StrokesCount = 0;
+}
+
+void kettlercoachrower::updateStrokeIdle(qint64 nowMs) {
+    if (strokePower.active(nowMs)) return;
+    cadenceSmoother.reset();
+    if (currentWatts != 0 || Speed.value() != 0 || Cadence.value() != 0) {
+        currentWatts = 0;
+        m_watt = 0;
+        Speed = 0;
+        Cadence = 0;
+        emit debug(QStringLiteral("Coach S no completed stroke: power, speed and cadence idle"));
+    }
+}
+
 void kettlercoachrower::processTelemetry(const QByteArray &payload) {
     if (payload.size() != 24 || be16(payload, 0) != 0x0004) return;
-    const QDateTime now = QDateTime::currentDateTime();
-
-    // Candidate offsets grounded in the 2026-11-15 Kinomap HCI capture.
-    // The counters at +2 (0..18) and +16 (0..119) were monotonic in that
-    // session. Other fields are deliberately not claimed to be watts/HR.
-    // Validate units with a console-vs-QZ hardware test before extending.
+    const qint64 nowMs = powerClock.elapsed();
     const quint16 strokes = be16(payload, 2);
     const quint16 meters = be16(payload, 16);
-    // 2026-11-16 Coach S hardware log: +18..19 follows rowing effort
-    // (80..210) and returns to zero on rest. Candidate instantaneous watts;
-    // console comparison is still needed to confirm the engineering unit.
-    currentWatts = kettlerclassicprotocol::coachSCandidateWatts(payload);
+    const quint16 rawWatts = kettlerclassicprotocol::coachSCandidateWatts(payload);
+    const quint16 consoleStrokeWatts = kettlerclassicprotocol::coachSStrokeWatts(payload);
+    const bool precedingStrokeActive = strokePower.active(nowMs);
+    QSettings settings;
+    const bool powerBasedMode = settings.value(
+        QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool();
+    const bool completedStroke = sessionCounters.hasSample() &&
+                                 strokes > sessionCounters.rawStrokes();
+    const bool strokeActive = strokePower.active(nowMs) || completedStroke;
+
+    // The physical console's distance can advance without new strokes.
+    // A stroke boundary commits the distance, whereas an idle sample rebases
+    // the raw counter. Keep the validated raw-counter pace path unchanged.
+    if (sessionCounters.addSample(strokes, meters, strokeActive))
+        resetStrokeMetrics();
+
+    updateStrokeIdle(nowMs);
+    currentWatts = strokePower.addSample(strokes, consoleStrokeWatts, nowMs);
     m_watt = currentWatts;
     recordReportedResistance(kettlerclassicprotocol::coachSReportedResistance(payload),
                              "E0 byte 23");
-    if (strokes >= lastStrokes) {
-        if (strokes > lastStrokes) {
-            if (lastStrokeTime.isValid()) {
-                const qint64 elapsedMs = lastStrokeTime.msecsTo(now);
-                if (elapsedMs >= 300 && elapsedMs <= 10000) {
-                    Cadence = qBound(0.0, (60000.0 * (strokes - lastStrokes)) / elapsedMs, 80.0);
-                }
-            }
-            lastStrokeTime = now;
-            lastStrokes = strokes;
-        } else if (lastStrokeTime.isValid() && lastStrokeTime.msecsTo(now) > 6000) {
-            Cadence = 0;
-        }
-        StrokesCount = strokes;
+
+    if (powerBasedMode != lastPowerBasedMode) {
+        // Preserve the displayed session distance if the setting is toggled
+        // while QZ is running, without changing raw console counters.
+        const double displayedMeters = Distance.value() * 1000.0;
+        if (powerBasedMode)
+            powerBasedPace.reset(displayedMeters);
+        else
+            rawDistanceOffsetMeters = displayedMeters -
+                                      static_cast<double>(sessionCounters.meters());
+        lastPowerBasedMode = powerBasedMode;
+        emit debug(QStringLiteral("Coach S Concept2 power-based pace %1")
+                       .arg(powerBasedMode ? QStringLiteral("enabled")
+                                           : QStringLiteral("disabled")));
     }
 
-    if (meters >= lastDistanceMeters) {
-        if (meters > lastDistanceMeters) {
-            if (lastDistanceTime.isValid()) {
-                const qint64 elapsedMs = lastDistanceTime.msecsTo(now);
-                if (elapsedMs >= 300 && elapsedMs <= 10000) {
-                    Speed = qBound(0.0, (meters - lastDistanceMeters) * 3600.0 / elapsedMs, 30.0);
+    if (strokes > lastStrokes) {
+        // Smooth only Coach S SPM; preserve watts, speed, distance and PM5.
+        Cadence = cadenceSmoother.completedStroke(strokes, nowMs, precedingStrokeActive);
+        if (powerBasedMode) {
+            const qint64 elapsedMs = lastStrokeMs >= 0 ? nowMs - lastStrokeMs : -1;
+            powerBasedPace.completedStroke(currentWatts, elapsedMs,
+                                           precedingStrokeActive);
+            Speed = powerBasedPace.speedKmh();
+            emit debug(QStringLiteral("Coach S Concept2-equivalent speed=%1 km/h power=%2 W sessionMeters=%3")
+                           .arg(Speed.value(), 0, 'f', 2).arg(currentWatts)
+                           .arg(powerBasedPace.meters(), 0, 'f', 2));
+        }
+        if (lastStrokeMs >= 0) {
+            const qint64 elapsedMs = nowMs - lastStrokeMs;
+            if (elapsedMs >= 300 && elapsedMs <= 6500) {
+                const quint16 strokesDelta = strokes - lastStrokes;
+                if (!powerBasedMode && meters > lastStrokeDistanceMeters) {
+                    const int distanceDelta = meters - lastStrokeDistanceMeters;
+                    const double strokeSpeedKmh =
+                        qBound(0.0, distanceDelta * 3600.0 / elapsedMs, 30.0);
+                    // Preserve the existing, hardware-validated pace EMA.
+                    const double previousSpeedKmh = Speed.value();
+                    const double displaySpeedKmh = previousSpeedKmh > 0.0
+                        ? 0.65 * previousSpeedKmh + 0.35 * strokeSpeedKmh
+                        : strokeSpeedKmh;
+                    Speed = displaySpeedKmh;
+                    emit debug(QStringLiteral(
+                        "Coach S completed-stroke speed=%1 km/h rawStrokeSpeed=%2 km/h distanceDelta=%3 m elapsedMs=%4 strokesDelta=%5")
+                                   .arg(displaySpeedKmh, 0, 'f', 2)
+                                   .arg(strokeSpeedKmh, 0, 'f', 2)
+                                   .arg(distanceDelta).arg(elapsedMs)
+                                   .arg(strokesDelta));
                 }
             }
-            lastDistanceTime = now;
-            lastDistanceMeters = meters;
-        } else if (lastDistanceTime.isValid() && lastDistanceTime.msecsTo(now) > 6000) {
-            Speed = 0;
         }
-        Distance = meters / 1000.0;
-        Distance1s = meters / 1000.0;
+        lastStrokeMs = nowMs;
+        lastStrokeDistanceMeters = meters;
+        lastStrokes = strokes;
     }
-    emit debug(QStringLiteral("Coach S e0 counters strokes=%1 distanceCandidate=%2 powerCandidate=%3 fields=%4")
-                   .arg(strokes).arg(meters).arg(currentWatts)
-                   .arg(QString::fromLatin1(payload.toHex(' '))));
+
+    StrokesCount = static_cast<double>(sessionCounters.strokes());
+    const double displayedMeters = powerBasedMode
+        ? powerBasedPace.meters()
+        : qMax(0.0, static_cast<double>(sessionCounters.meters()) +
+                        rawDistanceOffsetMeters);
+    Distance = displayedMeters / 1000.0;
+    Distance1s = displayedMeters / 1000.0;
+    emit debug(QStringLiteral("Coach S e0 counters strokes=%1 distanceCandidate=%2 powerCandidate=%3 smoothedWatts=%4 fields=%5 sessionStrokes=%6 sessionMeters=%7 consoleStrokeWatts=%8")
+                   .arg(strokes).arg(meters).arg(rawWatts).arg(currentWatts)
+                   .arg(QString::fromLatin1(payload.toHex(' ')))
+                   .arg(sessionCounters.strokes()).arg(sessionCounters.meters())
+                   .arg(consoleStrokeWatts));
 }
 
 void kettlercoachrower::recordReportedResistance(quint8 level, const char *source) {
@@ -392,6 +498,10 @@ void kettlercoachrower::recordReportedResistance(quint8 level, const char *sourc
 
 void kettlercoachrower::update() {
     if (!socket || socket->state() != QBluetoothSocket::ConnectedState || !initDone) return;
+
+    // Coasting raw watt samples do not keep power, speed or cadence alive.
+    if (powerClock.isValid())
+        updateStrokeIdle(powerClock.elapsed());
 
     // Writes are explicitly requested by QZ controls. No speculative
     // S-FIT 0x000B/0x001B-read/0x001C/0x001D polling: Coach S never answered.

@@ -22,12 +22,84 @@ QByteArray encodeFrameWithEscapedPayloadLength(quint16 function, quint8 subFunct
 // The Coach S response uses an independently generated salt.
 QByteArray coachSHandshakeForSalt(const QByteArray &salt);
 bool isValidCoachSHandshake(const QByteArray &payload);
-// Experimental Coach S power candidate: E0 payload bytes 18-19, U16 BE.
-// Hardware logs show zero at rest; not yet compared with console watts.
+// Console-confirmed completed-stroke watts: E0 payload bytes 6-7, U16 BE.
+// Read only on a physical stroke-counter transition: this field retains the
+// previous workout's last watts while the Coach S console is idle.
+quint16 coachSStrokeWatts(const QByteArray &telemetryPayload);
+// Raw flywheel effort candidate at bytes 18-19; diagnostics only, not watts.
 quint16 coachSCandidateWatts(const QByteArray &telemetryPayload);
 // Coach S 0x00E0 telemetry: byte 23 reports the active resistance level.
 // Returns 0 when the frame is invalid or the reported level is outside 1..10.
 quint8 coachSReportedResistance(const QByteArray &telemetryPayload);
+
+// Publish the console's exact completed-stroke watts on counter increments.
+// Ignore any retained console watts before the first fresh stroke.
+class CoachSStrokePowerSmoother {
+public:
+    void reset();
+    quint16 addSample(quint16 strokeCounter, quint16 consoleStrokeWatts, qint64 nowMs);
+    quint16 value(qint64 nowMs) const;
+    bool active(qint64 nowMs) const;
+private:
+    int inactivityTimeoutMs() const;
+    int lastStrokeCounter = -1;
+    qint64 lastCompletedStrokeMs = -1;
+    int strokePeriodMs = 0;
+    quint16 completedWatts = 0;
+};
+
+// The Coach S reports completed strokes only when QZ polls it (about every
+// 500 ms). Instantaneous intervals oscillate between 2.0 and 2.5 seconds
+// even with a constant rowing rhythm. Average elapsed time over the last
+// three *completed stroke intervals*, publishing from the first valid
+// interval (second completed stroke), never across an idle pause.
+class CoachSCadenceSmoother {
+public:
+    void reset();
+    double completedStroke(quint16 strokeCounter, qint64 nowMs, bool previousStrokeActive);
+private:
+    struct StrokeSample {
+        quint16 counter;
+        qint64 timestampMs;
+    };
+    QVector<StrokeSample> samples;
+};
+
+// Concept2-equivalent pace/distance for Coach S when speed_power_based is enabled.
+// Distance is committed at completed-stroke boundaries, never on flywheel coast.
+// The optional initial distance allows a seamless settings-mode transition.
+class CoachSPowerBasedPace {
+public:
+    void reset(double initialMeters = 0.0);
+    void completedStroke(quint16 consoleWatts, qint64 elapsedMs, bool previousStrokeActive);
+    double speedKmh() const { return strokeSpeedKmh; }
+    double meters() const { return sessionMeters; }
+private:
+    double sessionMeters = 0.0;
+    double strokeSpeedKmh = 0.0;
+};
+
+// The console retains raw counters across app sessions. Credit distance only
+// at completed stroke boundaries, dropping handle nudges and idle coasting.
+class CoachSSessionCounters {
+public:
+    void reset();
+    void clearWorkout();
+    bool addSample(quint16 strokes, quint16 meters, bool strokeActive);
+    bool hasSample() const { return initialized; }
+    quint16 rawStrokes() const { return previousStrokes; }
+    quint16 rawMeters() const { return previousMeters; }
+    quint64 strokes() const { return sessionStrokes; }
+    quint64 meters() const { return sessionMeters; }
+private:
+    bool initialized = false;
+    quint16 previousStrokes = 0;
+    quint16 previousMeters = 0;
+    quint16 distanceAnchorMeters = 0;
+    quint64 sessionStrokes = 0;
+    quint64 sessionMeters = 0;
+};
+
 QVector<Frame> consumeFrames(QByteArray &buffer);
 
 } // namespace kettlerclassicprotocol

@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="fi_FI">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Sulje</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -122,6 +129,22 @@
     <message>
         <source>Choose a heart rate sensor</source>
         <translation>Valitse sykesensori</translation>
+    </message>
+    <message>
+        <source>Strong signal</source>
+        <translation>Vahva signaali</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Hyvä signaali</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Kohtalainen signaali</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Heikko signaali</translation>
     </message>
 </context>
 <context>
@@ -289,6 +312,14 @@ Would you like to enable the required services?</source>
         <source>Cancel</source>
         <translation>Peruuta</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Palaa sovellukseen</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Palauta kuorman hallinta sovellukselle</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -339,6 +370,14 @@ Would you like to enable the required services?</source>
     <message>
         <source>Not connecting?</source>
         <translation>Eikö yhteys muodostu?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Laitetta ei löytynyt</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Käynnistä pyörä, juoksumatto tai soutulaite ja hae uudelleen napauttamalla yläreunan Bluetooth-kuvaketta.</translation>
     </message>
 </context>
 <context>
@@ -1098,12 +1137,16 @@ Do you want to update QZ settings?</source>
         <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
         <translation>Läheltä ei löytynyt sykesensoria. Varmista, että se on päällä ja lähettää syketietoja.</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S yhdistetty!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">OK</translation>
     </message>
     <message>
         <source>Save</source>
@@ -1115,7 +1158,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Avaa</translation>
     </message>
     <message>
         <source>&amp;Yes</source>
@@ -1319,6 +1362,21 @@ Do you want to update QZ settings?</source>
     </message>
 </context>
 <context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Ostetaan...</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Osto epäonnistui</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Osto onnistui</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -1446,7 +1504,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista</translation>
     </message>
     <message>
         <source>Start Workout</source>
@@ -1493,6 +1551,17 @@ Do you want to update QZ settings?</source>
     </message>
 </context>
 <context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>UiSectionHeader</name>
     <message>
         <source>Expanded</source>
@@ -1516,17 +1585,6 @@ Do you want to update QZ settings?</source>
     <message>
         <source>sec</source>
         <translation>s</translation>
-    </message>
-</context>
-<context>
-    <name>UiProgress</name>
-    <message>
-        <source>Restoring files of the previous installation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Restoring files of the previous installation: %1 of %2</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1554,7 +1612,7 @@ Do you want to update QZ settings?</source>
     <name>WebTranslations</name>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">OK</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -1578,7 +1636,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista</translation>
     </message>
     <message>
         <source>Load</source>
@@ -1622,27 +1680,27 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kyllä</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ei</translation>
     </message>
     <message>
         <source>Bike</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kuntopyörä</translation>
     </message>
     <message>
         <source>Treadmill</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Juoksumatto</translation>
     </message>
     <message>
         <source>Elliptical</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crosstrainer</translation>
     </message>
     <message>
         <source>Rower</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Soutulaite</translation>
     </message>
     <message>
         <source>Workout Editor</source>
@@ -2034,6 +2092,11 @@ Do you want to update QZ settings?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation type="unfinished"></translation>
@@ -2400,7 +2463,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pysäytä</translation>
     </message>
     <message>
         <source>Auto Resistance</source>
@@ -2547,7 +2610,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Takaisin</translation>
     </message>
     <message>
         <source>Choose your preferred app</source>
@@ -2647,11 +2710,11 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Zwift Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
         <source>Zwift Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Play</translation>
     </message>
     <message>
         <source>Correct startup phase:
@@ -2737,19 +2800,19 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Bike</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kuntopyörä</translation>
     </message>
     <message>
         <source>Treadmill</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Juoksumatto</translation>
     </message>
     <message>
         <source>Rower</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Soutulaite</translation>
     </message>
     <message>
         <source>Elliptical</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crosstrainer</translation>
     </message>
     <message>
         <source>Other app</source>
@@ -2806,6 +2869,18 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <source>kg</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Laitteesi, yksikkösi ja profiilisi vaihe vaiheelta</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Valitse aihe ja siirry suoraan sen asetuksiin</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Sulje ohjattu toiminto</translation>
     </message>
 </context>
 <context>
@@ -2913,17 +2988,8 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Importing workouts...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Processing workout files...
-This may take a few moments on first startup.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poista</translation>
     </message>
     <message>
         <source>Success</source>
@@ -3093,6 +3159,22 @@ This may take a few moments on first startup.</source>
         <source>has a workout</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Calendar</source>
+        <translation>Kalenteri</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Ei harjoituksia tänä päivänä</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Ei vielä harjoituksia</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Päättyneet harjoitukset näkyvät täällä: avaa harjoitus nähdäksesi sen kaaviot.</translation>
+    </message>
 </context>
 <context>
     <name>charts</name>
@@ -3151,6 +3233,14 @@ This may take a few moments on first startup.</source>
         <source>Offset</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Pienennä vaihteen %1 siirtymää</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Suurenna vaihteen %1 siirtymää</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
@@ -3177,6 +3267,18 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Reset Example</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Pienennä %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Suurenna %1</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Poista piste kaltevuudella %1</translation>
     </message>
 </context>
 <context>
@@ -3256,6 +3358,10 @@ This may take a few moments on first startup.</source>
 </context>
 <context>
     <name>homeform</name>
+    <message>
+        <source>No enabled metrics</source>
+        <translation>Ei käytössä olevia mittareita</translation>
+    </message>
     <message>
         <source>Speed (%1/h)</source>
         <translation type="unfinished"></translation>
@@ -3475,7 +3581,7 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pysäytä</translation>
     </message>
     <message>
         <source>Start</source>
@@ -4171,9 +4277,17 @@ This may take a few moments on first startup.</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ on käynnissä</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth on pois päältä</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Kelluvat mittarit (kuva kuvassa)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation type="unfinished"></translation>
@@ -4490,11 +4604,11 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kyllä</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ei</translation>
     </message>
     <message>
         <source>Connection lost in the background</source>
@@ -4645,6 +4759,26 @@ Jos valitset Ei, QZ ottaa käyttöön asetuksen Without Wheel Diameter Protocol 
     <message>
         <source>Services</source>
         <translation>Palvelut</translation>
+    </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Simuloitu laite (%1) on käytössä. Jos tämä ei ollut tarkoitus, poista se käytöstä asetuksissa.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Kuntopyörä</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Juoksumatto</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Crosstrainer</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Soutulaite</translation>
     </message>
 </context>
 <context>
@@ -4929,7 +5063,7 @@ Jos valitset Ei, QZ ottaa käyttöön asetuksen Without Wheel Diameter Protocol 
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">OK</translation>
     </message>
     <message>
         <source>Setting saved!</source>
@@ -4937,6 +5071,30 @@ Jos valitset Ei, QZ ottaa käyttöön asetuksen Without Wheel Diameter Protocol 
     </message>
     <message>
         <source>App Language:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6933,6 +7091,14 @@ Please enter it below:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Stravan synteettinen GPS-reitti</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Lisää synteettisen GPS-reitin virtuaaliharjoituksiin, joissa ei ole GPS-tietoja. Strava voi näyttää nousumetrit, mutta reitti ei ole todellinen.</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7370,7 +7536,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Zwift Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
         <source>Use it to change the gears on QZ!</source>
@@ -7378,7 +7544,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Zwift Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Play</translation>
     </message>
     <message>
         <source>Also for Elite Square. Use it to change the gears on QZ!</source>
@@ -8509,7 +8675,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pysäytä</translation>
     </message>
     <message>
         <source>Lap</source>
@@ -8644,7 +8810,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">OK</translation>
     </message>
     <message>
         <source>Setting saved!</source>
@@ -9310,7 +9476,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">OK</translation>
     </message>
     <message>
         <source>Setting saved!</source>
@@ -9492,7 +9658,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">OK</translation>
     </message>
     <message>
         <source>Setting saved!</source>

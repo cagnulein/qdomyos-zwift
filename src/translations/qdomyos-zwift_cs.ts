@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="cs_CZ">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Zavřít</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -382,6 +389,14 @@ Chcete zapnout požadované služby?</translation>
     <message>
         <source>Not connecting?</source>
         <translation>Nedaří se připojit?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Trenažér nenalezen</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Zapněte kolo, běžecký pás nebo veslovací trenažér a klepnutím na ikonu Bluetooth nahoře hledejte znovu.</translation>
     </message>
 </context>
 <context>
@@ -1145,6 +1160,10 @@ Aktualizovat nastavení QZ?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>Inicializace YPOO M5 se nezdařila; je nutné se znovu připojit</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S připojen!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1363,6 +1382,21 @@ Aktualizovat nastavení QZ?</translation>
     <message>
         <source>Open email</source>
         <translation>Otevřít e-mail</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Probíhá nákup...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Nákup proběhl úspěšně</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Nákup se nezdařil</translation>
     </message>
 </context>
 <context>
@@ -2093,6 +2127,11 @@ Aktualizovat nastavení QZ?</translation>
     <message>
         <source>Inclination (%)</source>
         <translation>Sklon (%)</translation>
+    </message>
+    <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>Na jednom grafu:</translation>
     </message>
     <message>
         <source>Avg Output</source>
@@ -3365,6 +3404,10 @@ Při prvním spuštění to může chvíli trvat.</translation>
 <context>
     <name>homeform</name>
     <message>
+        <source>No enabled metrics</source>
+        <translation>Žádné zapnuté metriky</translation>
+    </message>
+    <message>
         <source>Speed (%1/h)</source>
         <translation>Rychlost (%1/h)</translation>
     </message>
@@ -3935,6 +3978,10 @@ Při prvním spuštění to může chvíli trvat.</translation>
         <translation>Hledání zařízení…</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Připojování k %1…</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>Nalezeno: %1</translation>
     </message>
@@ -4287,9 +4334,17 @@ Při prvním spuštění to může chvíli trvat.</translation>
         <source>Unable to open an email application</source>
         <translation>Nepodařilo se otevřít e-mailovou aplikaci</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth je vypnuté</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Plovoucí metriky (obraz v obraze)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -4812,6 +4867,26 @@ Povolit QZ tuto hodnotu měnit?
 
 „Ne“: QZ zapne „Bez protokolu průměru kola“ (Nastavení &gt; Možnosti kola &gt; Možnosti Wahoo) a virtuální převody budou fungovat přes stoupání. Při volbě „Ano“ to můžete později vrátit tamtéž: zapněte tuto možnost a při připojeném trenažéru klepněte na „Obnovit výchozí nastavení trenažéru“.</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Simulované zařízení (%1) je aktivní. Pokud to nebylo záměrné, vypněte ho v Nastavení.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Kolo</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Běžecký pás</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Eliptický trenažér</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Veslovací trenažér</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -5184,6 +5259,30 @@ Povolit QZ tuto hodnotu měnit?
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>Pořadí tohoto grafu v historii tréninků. Pořadí změníte tlačítky nahoru a dolů v Obecných možnostech rozhraní.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Nastavení obnoveno</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Obnovená nastavení: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Obnovit vše</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Obnovit změněná nastavení?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Změněná nastavení (%1) se vrátí na výchozí hodnoty.</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Obnovit</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -7212,6 +7311,14 @@ Zadejte ho níže:</translation>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation>Štítek virtuální aktivity Strava</translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Syntetická GPS trasa pro Stravu</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Přidá syntetickou GPS trasu k virtuálním aktivitám bez GPS. Strava pak může zobrazit nastoupané metry, ale trasa není skutečná.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

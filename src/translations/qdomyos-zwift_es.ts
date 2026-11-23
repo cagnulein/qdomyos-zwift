@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="es_ES">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Cerrar</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -382,6 +389,14 @@ Would you like to enable the required services?</source>
     <message>
         <source>Not connecting?</source>
         <translation>¿No se conecta?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Equipo no encontrado</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Enciende tu bicicleta, cinta de correr o remo y toca el icono de Bluetooth de arriba para buscar de nuevo.</translation>
     </message>
 </context>
 <context>
@@ -1145,6 +1160,10 @@ Do you want to update QZ settings?</source>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>Error al inicializar la YPOO M5; es necesario volver a conectar</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>¡Coach S conectado!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1363,6 +1382,21 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Open email</source>
         <translation>Abrir correo</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Comprando...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Compra realizada</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Compra fallida</translation>
     </message>
 </context>
 <context>
@@ -2145,6 +2179,11 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Inclination (%)</source>
         <translation>Inclinación (%)</translation>
+    </message>
+    <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>En un gráfico:</translation>
     </message>
     <message>
         <source>Avg Output</source>
@@ -3365,6 +3404,10 @@ Esto puede tardar un poco en el primer inicio.</translation>
 <context>
     <name>homeform</name>
     <message>
+        <source>No enabled metrics</source>
+        <translation>No hay métricas activadas</translation>
+    </message>
+    <message>
         <source>Speed (%1/h)</source>
         <translation>Velocidad (%1/h)</translation>
     </message>
@@ -4007,6 +4050,10 @@ Esto puede tardar un poco en el primer inicio.</translation>
         <translation>Buscando el dispositivo...</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Conectando con %1...</translation>
+    </message>
+    <message>
         <source>Search stopped, tap the Bluetooth icon</source>
         <translation>Búsqueda detenida, toca el icono de Bluetooth</translation>
     </message>
@@ -4295,9 +4342,17 @@ Esto puede tardar un poco en el primer inicio.</translation>
         <source>Unable to open an email application</source>
         <translation>No se pudo abrir una aplicación de correo electrónico</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth desactivado</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Métricas flotantes (imagen en imagen)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -4819,6 +4874,26 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
 ¿Permitir que QZ cambie este valor?
 
 «No»: QZ activa «Sin cambio de diámetro de rueda» (Ajustes &gt; Opciones de bicicleta &gt; Opciones de Wahoo) y las marchas virtuales funcionan a través de la pendiente. Con «Sí» puedes deshacerlo más tarde allí mismo: activa esa opción y, con el rodillo conectado, pulsa «Restaurar la configuración predeterminada del rodillo».</translation>
+    </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>El dispositivo simulado (%1) está activo. Si no era tu intención, desactívalo en Ajustes.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Bicicleta</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Cinta de correr</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Elíptica</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Máquina de remo</translation>
     </message>
 </context>
 <context>
@@ -6295,6 +6370,30 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Idioma de la aplicación:</translation>
     </message>
     <message>
+        <source>Setting reset</source>
+        <translation>Ajuste restablecido</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Ajustes restablecidos: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Restablecer todo</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>¿Restablecer los ajustes modificados?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Ajustes que vuelven a sus valores predeterminados: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Restablecer</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Selecciona Automático para seguir el idioma de tu dispositivo o elige un idioma específico para QZ.</translation>
     </message>
@@ -7616,6 +7715,14 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation>Etiqueta de actividad virtual de Strava</translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Ruta GPS sintética de Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Escribe un recorrido GPS sintético para actividades virtuales sin GPS. Strava podría mostrar el desnivel, pero la ruta no es real.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
