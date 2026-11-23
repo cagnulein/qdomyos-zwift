@@ -10287,6 +10287,13 @@ bool homeform::deleteTrainingProgramFile(const QString &fileUrl) {
     return true;
 }
 
+int homeform::previewWorkoutCurrentSeconds() const {
+    if (!trainProgram || !trainProgram->isStarted() || m_previewWorkoutFile.isEmpty() ||
+        m_previewWorkoutFile != m_activeWorkoutFile)
+        return -1;
+    return trainProgram->elapsedSeconds();
+}
+
 bool homeform::previewWorkoutSeekSupported() const {
     if (!previewTrainProgram || previewTrainProgram->loadedRows.isEmpty())
         return false;
@@ -10328,6 +10335,7 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
             }
 
             trainProgram = trainprogram::load(file.fileName(), bluetoothManager, file.fileName().right(3).toUpper());
+            m_activeWorkoutFile = file.fileName();
 
             QString movieName = file.fileName().left(file.fileName().length() - 3) + "mp4";
             if (QFile::exists(movieName)) {
@@ -10507,6 +10515,7 @@ void homeform::trainprogram_preview(const QUrl &fileName) {
                 previewTrainProgram = 0;
             }
             previewTrainProgram = trainprogram::load(file.fileName(), bluetoothManager, fileNameLocal.right(3).toUpper());
+            m_previewWorkoutFile = file.fileName();
             setPreviewWorkoutSelectedSeconds(-1);
             emit previewWorkoutPointsChanged(preview_workout_points());
             emit previewWorkoutSeekSupportedChanged();
