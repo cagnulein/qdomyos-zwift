@@ -1170,6 +1170,8 @@ public:
     trainprogram *previewTrainProgram = nullptr;
     int m_previewWorkoutSelectedSeconds = -1;
     int m_nextWorkoutStartSecond = -1;
+    QString m_previewWorkoutFile;
+    QString m_activeWorkoutFile;
     QString backupFitFileName =
         QStringLiteral("QZ-backup-") +
         QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
@@ -1422,6 +1424,7 @@ public:
     void trainprogram_autostart_requested();
     int previewWorkoutSelectedSeconds() const { return m_previewWorkoutSelectedSeconds; }
     bool previewWorkoutSeekSupported() const;
+    int previewWorkoutCurrentSeconds() const;
     void setPreviewWorkoutSelectedSeconds(int seconds);
     void setNextWorkoutStartSecond(int seconds);
     void handleOAuthCallbackUrl(const QString &callbackUrl);
