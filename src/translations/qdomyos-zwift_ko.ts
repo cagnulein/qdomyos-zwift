@@ -1366,6 +1366,17 @@ QZ 설정을 업데이트하시겠습니까?</translation>
     </message>
 </context>
 <context>
+    <name>StaticAccordionElement</name>
+    <message>
+        <source>Expanded</source>
+        <translation>펼쳐짐</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>접힘</translation>
+    </message>
+</context>
+<context>
     <name>SupportHelpButton</name>
     <message>
         <source>Contact QZ support</source>

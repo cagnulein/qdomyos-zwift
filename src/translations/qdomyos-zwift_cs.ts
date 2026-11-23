@@ -1366,6 +1366,17 @@ Aktualizovat nastavení QZ?</translation>
     </message>
 </context>
 <context>
+    <name>StaticAccordionElement</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Rozbaleno</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Sbaleno</translation>
+    </message>
+</context>
+<context>
     <name>SupportHelpButton</name>
     <message>
         <source>Contact QZ support</source>

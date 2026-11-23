@@ -1366,6 +1366,17 @@ Do you want to update QZ settings?</source>
     </message>
 </context>
 <context>
+    <name>StaticAccordionElement</name>
+    <message>
+        <source>Expanded</source>
+        <translation>已展开</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>已折叠</translation>
+    </message>
+</context>
+<context>
     <name>SupportHelpButton</name>
     <message>
         <source>Contact QZ support</source>

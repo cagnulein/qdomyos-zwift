@@ -1366,6 +1366,17 @@ Vuoi aggiornare le impostazioni di QZ?</translation>
     </message>
 </context>
 <context>
+    <name>StaticAccordionElement</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Espanso</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Compresso</translation>
+    </message>
+</context>
+<context>
     <name>SupportHelpButton</name>
     <message>
         <source>Contact QZ support</source>

@@ -1366,6 +1366,17 @@ QZ ayarları güncellensin mi?</translation>
     </message>
 </context>
 <context>
+    <name>StaticAccordionElement</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Genişletildi</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Daraltıldı</translation>
+    </message>
+</context>
+<context>
     <name>SupportHelpButton</name>
     <message>
         <source>Contact QZ support</source>

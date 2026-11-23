@@ -1366,6 +1366,17 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
     </message>
 </context>
 <context>
+    <name>StaticAccordionElement</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Ausgeklappt</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Eingeklappt</translation>
+    </message>
+</context>
+<context>
     <name>SupportHelpButton</name>
     <message>
         <source>Contact QZ support</source>

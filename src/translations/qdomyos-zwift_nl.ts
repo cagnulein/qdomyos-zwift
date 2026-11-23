@@ -1366,6 +1366,17 @@ Wil je de QZ-instellingen bijwerken?</translation>
     </message>
 </context>
 <context>
+    <name>StaticAccordionElement</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Uitgevouwen</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Samengevouwen</translation>
+    </message>
+</context>
+<context>
     <name>SupportHelpButton</name>
     <message>
         <source>Contact QZ support</source>
