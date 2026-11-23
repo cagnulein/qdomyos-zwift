@@ -1542,7 +1542,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(serviceZwiftPlayBike, zwiftPlayRead, response);
 
             if (receivedData.size() < 6) return;
-            response = QByteArray::fromHex("3c08880412050a0340") + receivedData.mid(4, 2);
+            response = writeP0003->gearAckResponse(receivedData.mid(4, 2));
             writeP0003->handleZwiftGear(receivedData.mid(4));
             writeCharacteristic(serviceZwiftPlayBike, zwiftPlayIndicate, response);
         }
