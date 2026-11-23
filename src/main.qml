@@ -876,19 +876,31 @@ ApplicationWindow {
         text: qsTr("QZ Classifica is a realtime viewer about the actual\neffort of every QZ users! If you want to join in,\nchoose a nickname in the general settings\nand enable the QZ Classifica setting in the\nexperimental settings section and\nrestart the app.")
     }
 
-    Popup {
+    UiPopup {
         id: popupGymMode
         parent: Overlay.overlay
         x: Math.round((parent.width - width) / 2)
         y: Math.round((parent.height - height) / 2)
         width: Math.min(parent.width - 30, 720)
-        // with a bigger text the content is taller: Skip fell out
-        height: window.textScale !== 1
-            ? Math.min(parent.height - 40, Math.max(260, gymModeColumn.implicitHeight + 36 + topPadding + bottomPadding))
+        // with a bigger text the content is taller: Skip fell out. Modern: the height of the content, as a
+        // Material 3 dialog - the fonts of the type scale are bigger than the classic ones (Skip and Next
+        // fell below the window at 100 % too), and with Bluetooth off a minimum left an empty band
+        readonly property real contentFitHeight: gymModeColumn.implicitHeight + 36 + topPadding + bottomPadding
+        height: modern ? Math.min(parent.height - 40, contentFitHeight)
+            : window.textScale !== 1
+            ? Math.min(parent.height - 40, Math.max(260, contentFitHeight))
             : Math.min(parent.height - 40, 260)
+        // Modern: the window grows smoothly when the list comes (Bluetooth switched on); not at opening
+        Behavior on height {
+            enabled: popupGymMode.modern && popupGymMode.opened
+            NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+        }
         modal: true
         focus: true
         closePolicy: Popup.NoAutoClose
+        // Bluetooth off before the window comes in, not after (opened is already true in onOpened):
+        // the window enters with "Bluetooth is off", not with the search shown for a moment
+        onAboutToShow: bluetoothOff = rootItem.bluetoothSearchOff()
         onOpened: {
             pickedDevice = ""
             // opened again after a disconnection: no row of the last pick marked in the list
@@ -952,8 +964,10 @@ ApplicationWindow {
             Label {
                 width: parent.width
                 text: qsTr("Select Your Gym Device")
-                font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 10)
-                font.bold: true
+                // Modern: the title of UiMessageDialog
+                font.pixelSize: popupGymMode.modern ? window.ui.fontTitle : window.fontPx(Qt.application.font.pixelSize + 10)
+                font.weight: popupGymMode.modern ? Font.DemiBold : Font.Bold
+                color: window.ui.ink(Material.foreground)
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.WordWrap
             }
@@ -979,7 +993,7 @@ ApplicationWindow {
                         anchors.centerIn: parent
                         text: "!"
                         color: window.ui.warningInk
-                        font.pixelSize: window.fontPx(16)
+                        font.pixelSize: popupGymMode.modern ? window.ui.fontBody : window.fontPx(16)
                         font.bold: true
                         // Qt 5.15 lifts the children of an ignored item into the tree: the sign has
                         // to be ignored itself, the status text next to it says the words
@@ -989,15 +1003,18 @@ ApplicationWindow {
 
                 Label {
                     width: Math.min(implicitWidth, gymModeColumn.width - (popupGymMode.bluetoothOff ? gymModeOffMark.width + 8 : 0))
-                    // Bluetooth is off: the one thing to do here, so larger and bold. appFontPx: the size
-                    // of the controls this label had before (on iOS the app font is bigger)
-                    font.pixelSize: window.fontPx(popupGymMode.bluetoothOff ? window.appFontPx + 6 : window.appFontPx)
+                    // Bluetooth is off: the one thing to do here, so larger and bold (modern: Title
+                    // Small, under the Title of the window, and Body of the type scale). appFontPx: the
+                    // size of the controls this label had before (on iOS the app font is bigger)
+                    font.pixelSize: popupGymMode.modern ? (popupGymMode.bluetoothOff ? window.ui.fontTitleSmall : window.ui.fontBody)
+                                    : window.fontPx(popupGymMode.bluetoothOff ? window.appFontPx + 6 : window.appFontPx)
                     font.bold: popupGymMode.bluetoothOff
                     text: popupGymMode.bluetoothOff ? qsTranslate("homeform", "Bluetooth is off")
                           : popupGymMode.devices.length === 0 ? qsTranslate("homeform", "Searching for the device...")
                           : qsTr("QZ found the nearby Bluetooth trainers. Choose the machine you want to use for this session.")
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignHCenter
+                    color: window.ui.ink(Material.foreground)
                 }
             }
 
@@ -1016,11 +1033,13 @@ ApplicationWindow {
                 // The size of master; a text wider than the box (a long name, a bigger text, de at 170 %
                 // was cut to "Wählen Sie ein Ge") is made smaller to fit, down to the size of the
                 // window text. The field is a TextField: it has no elide and no fontSizeMode
-                readonly property real fullPx: window.fontPx(Qt.application.font.pixelSize + 8)
+                readonly property real fullPx: popupGymMode.modern ? window.ui.fontBody : window.fontPx(Qt.application.font.pixelSize + 8)
                 readonly property real textRoom: contentItem ? contentItem.width - contentItem.leftPadding - contentItem.rightPadding : 0
                 font.pixelSize: textRoom > 0 && gymModeFieldMetrics.advanceWidth > textRoom
                     ? Math.max(window.fontPx(window.appFontPx), Math.floor(fullPx * textRoom / gymModeFieldMetrics.advanceWidth))
                     : fullPx
+                // Modern: the popup is surfaceHigh, the list one tone below it (as the RPE list)
+                menuColor: window.ui.surface
 
                 TextMetrics {
                     id: gymModeFieldMetrics
@@ -1052,7 +1071,7 @@ ApplicationWindow {
                 text: popupGymMode.secondsLeft > 0 ? qsTranslate("homeform", "Next search in %1 s").arg(popupGymMode.secondsLeft) : ""
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignHCenter
-                color: Material.color(Material.Grey)
+                color: popupGymMode.modern ? window.ui.textMuted : Material.color(Material.Grey)
             }
 
             // Skip on the left, Next on the right: Next stays grey until a trainer is marked
@@ -1060,16 +1079,17 @@ ApplicationWindow {
                 width: parent.width
                 height: gymModeNextButton.implicitHeight
 
-                Button {
+                UiButton {
                     anchors.left: parent.left
                     text: qsTr("Skip")
+                    cardSurface: true
                     onClicked: {
                         gymModePopupDismissed = true
                         popupGymMode.close()
                     }
                 }
 
-                Button {
+                UiButton {
                     id: gymModeNextButton
                     anchors.right: parent.right
                     highlighted: true
@@ -1778,7 +1798,18 @@ ApplicationWindow {
             }
             anchors.right: toolButtonLoadSettings.left
             anchors.verticalCenter: parent.verticalCenter
-            visible: headerToolbar.settingsPageActive
+            // Modern look: the settings keep their search field on the page itself; the button
+            // shows once that field has scrolled off the top and brings it back. It fades and
+            // grows in, and out the same way, instead of popping up under the finger
+            readonly property bool shown: headerToolbar.settingsPageActive &&
+                (!window.ui.modern || stackView.currentItem.searchBarScrolledAway === true)
+            // Fading out only on the settings: leaving them it goes at once, not over the next page
+            visible: shown || (opacity > 0 && headerToolbar.settingsPageActive)
+            enabled: shown
+            opacity: shown ? 1 : 0
+            scale: shown ? 1 : 0.6
+            Behavior on opacity { enabled: window.ui.modern; NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+            Behavior on scale { enabled: window.ui.modern; NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Search settings")
         }
@@ -2669,7 +2700,11 @@ ApplicationWindow {
                             { key: "strava", image: "icons/icons/btn_strava_connectwith_orange.png" },
                             { key: "peloton", image: "icons/icons/Button_Connect_Rect_DarkMode.png" },
                             { key: "garmin", image: "icons/icons/garmin-connect-badge.png" },
-                            { key: "intervals", image: "icons/icons/intervals-logo-with-name.png" }
+                            // White lettering on a transparent background, unreadable on a light
+                            // card (1.2:1): there the dark-lettering variant, as intervals.icu shows
+                            // its logo in its own light theme
+                            { key: "intervals", image: "icons/icons/intervals-logo-with-name.png",
+                              lightImage: "icons/icons/intervals-logo-with-name-light.png" }
                         ]
                         delegate: Rectangle {
                             width: (parent.width - 8) / 2
@@ -2679,7 +2714,7 @@ ApplicationWindow {
                             Image {
                                 anchors.fill: parent
                                 anchors.margins: 8
-                                source: modelData.image
+                                source: !window.ui.dark && modelData.lightImage ? modelData.lightImage : modelData.image
                                 fillMode: Image.PreserveAspectFit
                                 smooth: true
                             }

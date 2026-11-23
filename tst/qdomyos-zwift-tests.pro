@@ -73,6 +73,7 @@ SOURCES += \
         Devices/TestFitPlusBikeResistance.cpp \
         Devices/TestTargetPowerOverride.cpp \
         Devices/TestTargetPowerRelease.cpp \
+        Devices/TestPausePower.cpp \
         VirtualRowerCadenceTest.cpp \
         main.cpp
 
