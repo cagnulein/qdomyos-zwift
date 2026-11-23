@@ -718,6 +718,12 @@ public class CustomQtActivity extends QtActivity {
         return manager != null && manager.isEnabled();
     }
 
+    // Called by Qt (homeform::touchExplorationActive): a screen reader is on, as in screenReaderOn()
+    public static boolean touchExplorationOn(Context context) {
+        AccessibilityManager manager = (AccessibilityManager) context.getSystemService(ACCESSIBILITY_SERVICE);
+        return manager != null && manager.isEnabled() && manager.isTouchExplorationEnabled();
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

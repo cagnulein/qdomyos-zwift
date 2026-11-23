@@ -55,8 +55,12 @@ UiSwitchDelegate {
     // TalkBack normally activates a focused row through Accessible.onPressAction.
     // Some Android/Qt combinations deliver the double tap as a positional click
     // instead; in that case the whole focused row must behave as the switch.
+    // Only on Android with touch exploration (TalkBack): with any other accessibility
+    // service a sighted user's tap on the label must not toggle the switch, and iOS
+    // VoiceOver presses the switch through Accessible.onPressAction.
     function accessibilityActive() {
-        return typeof rootItem !== "undefined" && rootItem && rootItem.accessibilityActive()
+        return Qt.platform.os === "android" && typeof rootItem !== "undefined" && rootItem
+                && rootItem.touchExplorationActive()
     }
 
     function configureContentItem() {

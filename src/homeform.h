@@ -787,7 +787,7 @@ class homeform : public QObject {
     Q_INVOKABLE void handleOAuthCallbackFromQml(const QString &callbackUrl);
     Q_INVOKABLE void selectGymModeDevice(const QString &deviceName);
     Q_INVOKABLE bool hasConnectedDevice() const;
-    Q_INVOKABLE bool accessibilityActive() const;
+    Q_INVOKABLE bool touchExplorationActive() const;
     Q_INVOKABLE void notifyAccessibilityScreenChanged();
     Q_INVOKABLE void prepareEmbeddedWebViewForVoiceOver();
     Q_INVOKABLE void setDrawerAccessibilityModal(bool modal);

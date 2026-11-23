@@ -29,7 +29,6 @@
 
 #include <QAbstractOAuth2>
 #include <QApplication>
-#include <QAccessible>
 #include <QByteArray>
 #include <QClipboard>
 #include <QCryptographicHash>
@@ -2207,8 +2206,16 @@ bool homeform::hasConnectedDevice() const {
     return bluetoothManager && bluetoothManager->device();
 }
 
-bool homeform::accessibilityActive() const {
-    return QAccessible::isActive();
+// Not QAccessible::isActive(): on Android Qt turns that on for any accessibility service (a password
+// manager too), and on iOS once for the whole session. Only TalkBack turns touch exploration on
+bool homeform::touchExplorationActive() const {
+#ifdef Q_OS_ANDROID
+    return QAndroidJniObject::callStaticMethod<jboolean>(
+        "org/cagnulen/qdomyoszwift/CustomQtActivity", "touchExplorationOn", "(Landroid/content/Context;)Z",
+        QtAndroid::androidActivity().object<jobject>());
+#else
+    return false;
+#endif
 }
 
 bool homeform::supportDeviceConnected() const {
