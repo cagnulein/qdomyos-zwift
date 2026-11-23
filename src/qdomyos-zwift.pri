@@ -293,6 +293,7 @@ devices/iconceptbike/iconceptbike.cpp \
 devices/kettlerclassicbike/kettlerclassicbike.cpp \
 devices/kettlercoachrower/kettlercoachrower.cpp \
 devices/kettlerclassicbike/kettlerclassicprotocol.cpp \
+devices/kettlerrun7treadmill/kettlerrun7treadmill.cpp \
 devices/inspirebike/inspirebike.cpp \
 keepawakehelper.cpp \
 devices/keepbike/keepbike.cpp \
@@ -606,6 +607,7 @@ devices/iconceptbike/iconceptbike.h \
 devices/kettlerclassicbike/kettlerclassicbike.h \
 devices/kettlercoachrower/kettlercoachrower.h \
 devices/kettlerclassicbike/kettlerclassicprotocol.h \
+devices/kettlerrun7treadmill/kettlerrun7treadmill.h \
 devices/keepbike/keepbike.h \
 devices/kingsmithr1protreadmill/kingsmithr1protreadmill.h \
 devices/kingsmithr2treadmill/kingsmithr2treadmill.h \
@@ -1183,3 +1185,4 @@ INCLUDEPATH += purchasing/inapp
 WINRT_MANIFEST = AppxManifest.xml
 
 VERSION = 2.22.0
+

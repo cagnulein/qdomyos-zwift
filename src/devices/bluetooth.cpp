@@ -17,6 +17,20 @@
 #include <QAndroidJniObject>
 #endif
 
+#ifndef Q_OS_IOS
+// Some RUN-series consoles advertise "RUN 71" instead of "RUN71".
+// Normalize only the single optional separator; the model code stays five
+// characters (RUN followed by two digits), without a regular expression.
+static bool isKettlerRunBleName(const QString &advertisedName) {
+    QString name = advertisedName;
+    if (name.size() == 6 && name.at(3) == QLatin1Char(' '))
+        name.remove(3, 1);
+    return name.size() == 5 &&
+           name.startsWith(QStringLiteral("RUN"), Qt::CaseInsensitive) &&
+           name.at(3).isDigit() && name.at(4).isDigit();
+}
+#endif
+
 static void updateDiscoveredDevice(QList<QBluetoothDeviceInfo> &devices, const QBluetoothDeviceInfo &device) {
     QMutableListIterator<QBluetoothDeviceInfo> i(devices);
     while (i.hasNext()) {
@@ -2130,7 +2144,26 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->signalBluetoothDeviceConnected(ypooTreadmill);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
+            }
+#ifndef Q_OS_IOS
+            // Check before generic FTMS/Horizon routing: a customer may have
+            // previously selected RUN 71 in the FTMS Treadmill setting.
+            else if (isKettlerRunBleName(b.name()) &&
+                     !kettlerRun7Treadmill && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                kettlerRun7Treadmill = new kettlerrun7treadmill(noHeartService);
+                emit deviceConnected(b);
+                connect(kettlerRun7Treadmill, &bluetoothdevice::connectedAndDiscovered,
+                        this, &bluetooth::connectedAndDiscovered);
+                connect(kettlerRun7Treadmill, &kettlerrun7treadmill::debug, this, &bluetooth::debug);
+                connect(kettlerRun7Treadmill, &kettlerrun7treadmill::disconnected,
+                        this, &bluetooth::restart, Qt::QueuedConnection);
+                kettlerRun7Treadmill->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(kettlerRun7Treadmill);
+            }
+#endif
+            else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("YPTM-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("HZ_T101-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("HZ_7.0AT-")) ||
@@ -2620,7 +2653,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 //connect(kineticInroadBike, &kineticinroadbike::debug, this, &bluetooth::debug);
                 kineticInroadBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(kineticInroadBike);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("ERGO C12")) ||
+            }
+            else if ((b.name().toUpper().startsWith(QStringLiteral("ERGO C12")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KETTLER C12"))) &&
                        !kettlerC12Bike && filter) {
                 this->setLastBluetoothDevice(b);
@@ -5065,6 +5099,12 @@ void bluetooth::restart() {
         delete kettlerClassicBike;
         kettlerClassicBike = nullptr;
     }
+#ifndef Q_OS_IOS
+    if (kettlerRun7Treadmill) {
+        delete kettlerRun7Treadmill;
+        kettlerRun7Treadmill = nullptr;
+    }
+#endif
     if (kettlerCoachRower) {
         delete kettlerCoachRower;
         kettlerCoachRower = nullptr;
@@ -5592,6 +5632,10 @@ bluetoothdevice *bluetooth::device() {
         return stagesBike;
     } else if (kettlerClassicBike) {
         return kettlerClassicBike;
+#ifndef Q_OS_IOS
+    } else if (kettlerRun7Treadmill) {
+        return kettlerRun7Treadmill;
+#endif
     } else if (kettlerCoachRower) {
         return kettlerCoachRower;
     } else if (toorx) {

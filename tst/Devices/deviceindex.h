@@ -104,6 +104,7 @@ public:
     DEFINE_DEVICE(InspireBike, "Inspire Bike");
     DEFINE_DEVICE(KeepBike, "Keep Bike");
     DEFINE_DEVICE(KettlerClassicBike, "Kettler Classic Bike");
+    DEFINE_DEVICE(KettlerRun7Treadmill, "Kettler RUN 7 BLE Treadmill");
     DEFINE_DEVICE(KettlerCoachRower, "Kettler Coach S Rower");
     DEFINE_DEVICE(KingsmithR1ProTreadmill, "Kingsmith R1 Pro Treadmill");
     DEFINE_DEVICE(KingsmithR2Treadmill, "Kingsmith R2 Treadmill");

@@ -151,6 +151,9 @@
 #include "technogymbike/technogymbike.h"
 #include "devices/toorxtreadmill/toorxtreadmill.h"
 #include "devices/kettlerclassicbike/kettlerclassicbike.h"
+#ifndef Q_OS_IOS
+#include "devices/kettlerrun7treadmill/kettlerrun7treadmill.h"
+#endif
 #include "devices/kettlercoachrower/kettlercoachrower.h"
 #include "devices/iconsolebike/iconsolebike.h"
 #include "devices/treadmill.h"
@@ -297,6 +300,9 @@ class bluetooth : public QObject, public SignalHandler {
     iconsolebike *iconsole = nullptr;
     iconceptbike *iConceptBike = nullptr;
     kettlerclassicbike *kettlerClassicBike = nullptr;
+#ifndef Q_OS_IOS
+    kettlerrun7treadmill *kettlerRun7Treadmill = nullptr;
+#endif
     kettlercoachrower *kettlerCoachRower = nullptr;
     iconceptelliptical *iConceptElliptical = nullptr;
     trxappgateusbtreadmill *trxappgateusb = nullptr;
