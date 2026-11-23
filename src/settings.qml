@@ -744,7 +744,7 @@ import AndroidStatusBar 1.0
         readonly property var translationContexts: [
             "settings", "settings-tiles", "settings-tts",
             "settings-shortcuts", "settings-treadmill-inclination-override",
-            "custominclinationresistance", "homeform"
+            "custominclinationresistance", "homeform", "gears"
         ]
 
         // Catalog texts that no settings page shows: listed here only so that lupdate takes them
@@ -960,9 +960,12 @@ import AndroidStatusBar 1.0
         // cycles them with a controller button itself). Left out of the search by text only;
         // QZ writes them, isPrivateSetting keeps them out of "Changed". Garmin ANT+ and Peloton
         // Bike OCR are no longer offered (their switches are commented out on the pages): they
-        // are visible: false in the catalog, so neither the search nor "Changed" lists them
+        // are visible: false in the catalog, so neither the search nor "Changed" lists them.
+        // The custom inclination to resistance table is the whole table in one text, and the
+        // search already lists its page under the same name: one result is enough
         readonly property var searchHiddenSettings: ({ "mywhoosh_link_camera_value": true,
-                                                       "mywhoosh_link_emote_value": true })
+                                                       "mywhoosh_link_emote_value": true,
+                                                       "custom_inclination_resistance_table": true })
 
         // Not listed among the changed settings:
         // - the accounts and passwords: the same keys QZSettings::isSensitiveSettingKey keeps
@@ -1050,6 +1053,10 @@ import AndroidStatusBar 1.0
                 rootItem.setAppLanguage(value)
             else if (key === "heart_rate_belt_name")
                 rootItem.reconnectHeartRateBelt(value)
+            // The Wahoo Options page stores the circumference of the wheel picked: the default
+            // wheel goes back with the default circumference, or the gears keep the old one
+            else if (key === "gear_wheel_size")
+                writeDefault("gear_circumference", "number", settingDefaults["gear_circumference"])
             else if (key === "watt_offset" || key === "watt_gain" || key === "power_sensor_name") {
                 settings.treadmillDataPoints = ""
                 settings.ergDataPoints = ""
