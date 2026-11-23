@@ -165,6 +165,42 @@ bool ftmsbike::shouldReplayPhysicalGearChange(bool featureEnabled, bool physical
     return !featureEnabled || !physicalShiftPending;
 }
 
+bool ftmsbike::isExpectedResistanceCommandEcho(resistance_t nativeLevel, resistance_t levelBeforeCommand,
+                                               resistance_t targetLevel, qint64 millisecondsSinceCommand,
+                                               qint64 echoGuardMs) {
+    if (targetLevel < 1 || millisecondsSinceCommand < 0 ||
+        millisecondsSinceCommand >= echoGuardMs)
+        return false;
+    // No baseline yet: ignore the startup transition until a valid value arrives.
+    if (levelBeforeCommand < 1)
+        return true;
+    return nativeLevel >= qMin(levelBeforeCommand, targetLevel) &&
+           nativeLevel <= qMax(levelBeforeCommand, targetLevel);
+}
+
+bool ftmsbike::shouldWriteResistanceTarget(resistance_t targetLevel, resistance_t previousTargetLevel,
+                                            resistance_t nativeLevel) {
+    return targetLevel != previousTargetLevel && targetLevel != nativeLevel;
+}
+
+QByteArray ftmsbike::ftmsResistanceTargetPacket(resistance_t targetLevel, resistance_t minimumLevel,
+                                                resistance_t maximumLevel) {
+    if (minimumLevel > maximumLevel || minimumLevel < 0)
+        return QByteArray();
+    const int target = qBound<int>(minimumLevel, targetLevel, maximumLevel) * 10;
+    // FTMS 0x04 target resistance has a signed 16-bit payload, in tenths.
+    QByteArray packet;
+    packet.append(static_cast<char>(FTMS_SET_TARGET_RESISTANCE_LEVEL));
+    packet.append(static_cast<char>(target & 0xff));
+    packet.append(static_cast<char>((target >> 8) & 0xff));
+    return packet;
+}
+
+resistance_t ftmsbike::effectiveRequestedResistance(resistance_t request, resistance_t additionalGearResistance,
+                                                     bool alreadyIncludesGear) {
+    return alreadyIncludesGear ? request : request + additionalGearResistance;
+}
+
 void ftmsbike::writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                    bool wait_for_response) {
     QSettings settings;
@@ -201,8 +237,8 @@ bool ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
                                      gattWriteCharControlPointId.properties() & QLowEnergyCharacteristic::WriteNoResponse &&
                                          !DOMYOS);
 
-    // Keep FTMS control-plane changes separate from physical handlebar shifts,
-    // only for the BI9200 and only when the existing opt-in setting is enabled.
+    // Only on the explicitly opted-in BI9200: track expected control echoes
+    // by target value instead of suppressing all physical shifts for 3 seconds.
     if (queued && data_len > 0 &&
         physicalResistanceGearsEnabled(bluetoothDevice.name(),
             settings.value(QZSettings::gears_from_bike, QZSettings::default_gears_from_bike).toBool()) &&
@@ -211,6 +247,17 @@ bool ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
          data[0] == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS ||
          data[0] == FTMS_SET_TARGET_POWER)) {
         lastPhysicalGearControlCommand = QDateTime::currentDateTime();
+        if (data[0] == FTMS_SET_TARGET_RESISTANCE_LEVEL && data_len >= 3) {
+            const int rawTarget = static_cast<unsigned char>(data[1]) |
+                                  (static_cast<int>(static_cast<unsigned char>(data[2])) << 8);
+            lastPhysicalGearTarget = static_cast<resistance_t>(qRound(rawTarget / 10.0));
+            pendingPhysicalGearEchoTarget = lastPhysicalGearTarget;
+            pendingPhysicalGearEchoStart = lastPhysicalGearResistance;
+        } else {
+            // Unknown physical response to an inclination/power command:
+            // retain the existing time guard until an explicit resistance target.
+            pendingPhysicalGearEchoTarget = -1;
+        }
     }
     return queued;
 }
@@ -477,6 +524,29 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
     }
     enableManualResistancePowerAdjustment(requestResistance);
 
+    // This 0x04 FTMS format is currently enabled ONLY for the BI9200 with
+    // gears_from_bike=true and resistance-level mode. Keep all other bikes'
+    // original packets and write cadence intact.
+    QSettings physicalGearSettings;
+    if (resistance_lvl_mode &&
+        physicalResistanceGearsEnabled(bluetoothDevice.name(),
+            physicalGearSettings.value(QZSettings::gears_from_bike,
+                                       QZSettings::default_gears_from_bike).toBool())) {
+        const resistance_t targetLevel = qBound<resistance_t>(1, requestResistance, 32);
+        if (!shouldWriteResistanceTarget(targetLevel, lastPhysicalGearTarget, lastPhysicalGearResistance)) {
+            // A physical shift already at the desired target needs no replay.
+            // Update the desired level so Zwift's next identical slope won't undo it.
+            lastPhysicalGearTarget = targetLevel;
+            return;
+        }
+        const QByteArray packet = ftmsResistanceTargetPacket(targetLevel, 1, 32);
+        if (!packet.isEmpty()) {
+            qDebug() << "BI9200 resistance target" << targetLevel << packet.toHex(' ');
+            writeCharacteristic(reinterpret_cast<uint8_t *>(const_cast<char *>(packet.constData())),
+                                packet.size(), QStringLiteral("forceResistance ") + QString::number(targetLevel));
+        }
+        return;
+    }
 
     if (MOK_FITNESS) {
         // The MOK Fitness S10 Ultra NAKs the FTMS control point (0x2AD9) for resistance changes.
@@ -706,7 +776,16 @@ void ftmsbike::update() {
                 gearMultiplier = 0;
             else if (REEBOK || TUNTURI_E50_168)
                 gearMultiplier = 1;
-            resistance_t rR = requestResistance + (settings.value(QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled).toBool() ? 0 : gearsModifier() * gearMultiplier);
+            const resistance_t additionalGearResistance =
+                settings.value(QZSettings::gears_custom_table_enabled,
+                               QZSettings::default_gears_custom_table_enabled).toBool()
+                    ? 0 : static_cast<resistance_t>(gearsModifier() * gearMultiplier);
+            // bike::changeResistance() already includes the gear modifier in
+            // requestResistance. The BI9200 must not apply it a second time.
+            // Keep the legacy gear-only QZ UI path when there is no request.
+            resistance_t rR = effectiveRequestedResistance(
+                requestResistance, additionalGearResistance,
+                physicalGearFeatureEnabled && resistance_lvl_mode && requestResistance != -1);
 
             if (rR != currentResistance().value() || lastGearValue != gears()) {
                 bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
@@ -1764,23 +1843,39 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     (static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(index + 1))) << 8));
                 const qint64 sinceControlMs = lastPhysicalGearControlCommand.isValid()
                     ? lastPhysicalGearControlCommand.msecsTo(now) : -1;
-                // The 1684 BI9200 log has 23->25 (+2), 32->27 (-5) and 24->21 (-3).
-                // Cap larger jumps to avoid classifying unrelated resistance changes.
                 const PhysicalResistanceGearLimits bi9200Limits{1, 32, 5, 3000};
+                const bool knownCommandEcho = isExpectedResistanceCommandEcho(
+                    nativeLevel, pendingPhysicalGearEchoStart, pendingPhysicalGearEchoTarget,
+                    sinceControlMs, bi9200Limits.controlEchoGuardMs);
+                // If the native value is NOT an expected echo, do not suppress
+                // this handlebar shift merely because Zwift recently sent a
+                // different target. For unknown 0x11/power commands retain the
+                // conservative legacy guard.
+                const qint64 classifierGuardMs =
+                    pendingPhysicalGearEchoTarget < 0 || knownCommandEcho ? sinceControlMs : -1;
                 resistance_t gearDelta = 0;
                 if (physicalResistanceGearDelta(lastPhysicalGearResistance, nativeLevel,
-                                                sinceControlMs, bi9200Limits, &gearDelta)) {
+                                                classifierGuardMs, bi9200Limits, &gearDelta)) {
                     qDebug() << QStringLiteral("BH BI9200 physical shift")
                              << lastPhysicalGearResistance << nativeLevel << "delta" << gearDelta;
                     lastRawRequestedResistanceValue = -1;
                     physicalGearChangePending = true;
+                    // An explicit native shift supersedes any expected command echo.
+                    pendingPhysicalGearEchoTarget = -1;
                     setGears(gears() + gearDelta);
                 }
-                // Advance baseline on all samples, including ignored command echoes.
+                if (knownCommandEcho && nativeLevel == pendingPhysicalGearEchoTarget) {
+                    // Once the target is reached, another press can be
+                    // detected immediately, even inside the old 3-second guard.
+                    pendingPhysicalGearEchoTarget = -1;
+                }
                 lastPhysicalGearResistance = nativeLevel;
             } else if (bluetoothDevice.name().compare(QStringLiteral("H9110 BI9200"), Qt::CaseInsensitive) == 0) {
                 // A runtime opt-out must not leave a pending shift or stale baseline.
                 lastPhysicalGearResistance = -1;
+                lastPhysicalGearTarget = -1;
+                pendingPhysicalGearEchoTarget = -1;
+                pendingPhysicalGearEchoStart = -1;
                 physicalGearChangePending = false;
             }
 
@@ -2420,6 +2515,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         lastFsIb50InclinationCommand = QDateTime();
         lastPhysicalGearResistance = -1;
         lastPhysicalGearControlCommand = QDateTime();
+        lastPhysicalGearTarget = -1;
+        pendingPhysicalGearEchoTarget = -1;
+        pendingPhysicalGearEchoStart = -1;
         physicalGearChangePending = false;
         if (bluetoothDevice.name().toUpper().startsWith("SUITO")) {
             qDebug() << QStringLiteral("SUITO found");
