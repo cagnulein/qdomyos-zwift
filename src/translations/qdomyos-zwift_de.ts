@@ -8181,6 +8181,18 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>Leistung</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>Abschnitt zurücksetzen?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Einstellungen in „%2“, die auf ihre Standardwerte zurückgesetzt werden: %1</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Abschnitt zurücksetzen</translation>
+    </message>
+    <message>
         <source>Manual</source>
         <translation>Manuell</translation>
     </message>

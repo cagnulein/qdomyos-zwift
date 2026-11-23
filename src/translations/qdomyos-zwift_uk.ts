@@ -5217,6 +5217,18 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Скинути</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>Скинути розділ?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Налаштування розділу «%2» (%1) повернуться до типових значень.</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Скинути розділ</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Виберіть «Авто», щоб використовувати мову пристрою, або задайте мову QZ вручну.</translation>
     </message>

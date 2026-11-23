@@ -5285,6 +5285,18 @@ QZ&apos;nin bu değeri değiştirmesine izin verilsin mi?
         <translation>Sıfırla</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>Bölüm sıfırlansın mı?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>&quot;%2&quot; bölümündeki %1 ayar varsayılan değerlerine döner.</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Bölümü sıfırla</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Cihazınızın dilini kullanmak için &quot;Otomatik (sistem)&quot; seçeneğini seçin veya QZ için belirli bir dil seçin.</translation>
     </message>

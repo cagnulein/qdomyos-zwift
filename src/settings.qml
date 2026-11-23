@@ -89,6 +89,8 @@ import AndroidStatusBar 1.0
         property var activeGlow: null
         // Set while back puts the old query into the field: its onTextChanged must not search
         property bool restoringSearch: false
+        // Modern look, "Changed": the section whose Reset section is being confirmed
+        property string resetSectionName: ""
 
         // The sources of the settings pages, read once and parsed off the GUI thread
         function loadSettingsIndex() {
@@ -142,18 +144,67 @@ import AndroidStatusBar 1.0
         }
 
         // Modern look, the path of a result: "Page › Section › Subsection" of the setting; the
-        // catalog's nearest group until the index is ready or when the setting is not on these pages
+        // catalog's nearest group until the index is ready or when the setting is not on these
+        // pages. A section shown as a card (a tile on the Tiles page: its switch, colour, % and
+        // presets) belongs to the section above it: one block of tiles in "Changed", not a block
+        // of one card per tile; the card says which tile (modernTitle). A switch in the header of
+        // a plain section (Enable Virtual Device) stays in that section, with the settings it
+        // turns on
         function sectionOf(entry) {
             var where = settingsIndex ? settingsIndex[entry.key] : null
+            // A setting made of others ("Specific Model": a picker over one switch per model) has
+            // no control of its own on the pages: the section of the first of them, where
+            // pagePositionOf puts it - not a block of its own next to its section
+            if (!where && settingsIndex) {
+                var persistent = settingsCatalog.settings || []
+                for (var v = 0; v < persistent.length; v++) {
+                    if (persistent[v].virtualParent !== entry.key)
+                        continue
+                    var part = settingsIndex[persistent[v].key]
+                    if (part && part.pos && (!where || part.pos < where.pos))
+                        where = part
+                }
+            }
             if (!where)
                 return parentDisplayName(entry)
             var context = pageContextOf(where.file)
             var parts = []
             if (where.file !== "settings.qml")
                 parts.push(pageTitleOf(where.file))
-            for (var i = 0; i < where.chain.length; i++)
+            var levels = where.card !== undefined ? Math.min(where.chain.length, where.card) : where.chain.length
+            for (var i = 0; i < levels; i++)
                 parts.push(qsTranslate(context, where.chain[i]))
             return parts.length > 0 ? parts.join(" › ") : parentDisplayName(entry)
+        }
+
+        // Modern look, the title of a result: inside a card section that sectionOf leaves out,
+        // the card's title before it ("METS: order index"), except for the card's own switch,
+        // whose title already is the card's
+        function modernTitle(entry) {
+            var title = searchTitle(entry)
+            var where = settingsIndex ? settingsIndex[entry.key] : null
+            if (!where || where.card === undefined || where.card >= where.chain.length ||
+                    (where.own && where.card === where.chain.length - 1))
+                return title
+            return qsTranslate(pageContextOf(where.file), where.chain[where.card]) + ": " + title
+        }
+
+        // Modern look, "Changed": the changed settings listed in the block of one section, and
+        // their reset. The listed ones only, as Reset all: with a text in the field the block
+        // shows the ones matching it, and a setting not shown is not reset
+        function changedIn(section) {
+            var list = []
+            for (var i = 0; i < filteredSettings.length; i++)
+                if (sectionOf(filteredSettings[i]) === section)
+                    list.push(filteredSettings[i])
+            return list
+        }
+
+        function resetSection(section) {
+            var list = changedIn(section)
+            for (var i = 0; i < list.length; i++)
+                resetEntry(list[i])
+            showResetDone(qsTr("Settings reset: %1").arg(list.length))
         }
 
         function findItem(item, predicate) {
@@ -982,17 +1033,37 @@ import AndroidStatusBar 1.0
                 if (results.length >= 80 && !changedOnly)
                     break
             }
-            // "Changed" in the order of the pages, as the settings stand on them. Without a place
-            // (a setting on no page, a page that could not be read): after the rest, in the
+            // "Changed" in the order of the pages, as the settings stand on them. Modern look: also
+            // grouped by section, for the section headers and their reset - a section where its
+            // first changed setting stands, the settings of a section as they stand in it. Without
+            // a place (a setting on no page, a page that could not be read): after the rest, in the
             // catalog order - the sort of the engine need not keep it
             if (changedOnly) {
+                var grouped = window.ui.modern
+                var sections = {}
                 var positions = {}
+                var sectionPositions = {}
                 var order = {}
                 for (var r = 0; r < results.length; r++) {
-                    positions[results[r].key] = pagePositionOf(results[r]) || "~"
-                    order[results[r].key] = r
+                    var resultKey = results[r].key
+                    var position = pagePositionOf(results[r]) || "~"
+                    positions[resultKey] = position
+                    order[resultKey] = r
+                    if (!grouped)
+                        continue
+                    var resultSection = sectionOf(results[r])
+                    sections[resultKey] = resultSection
+                    if (sectionPositions[resultSection] === undefined || position < sectionPositions[resultSection])
+                        sectionPositions[resultSection] = position
                 }
                 results.sort(function (a, b) {
+                    var sa = sections[a.key], sb = sections[b.key]
+                    if (grouped && sa !== sb) {
+                        var fa = sectionPositions[sa], fb = sectionPositions[sb]
+                        if (fa !== fb)
+                            return fa < fb ? -1 : 1
+                        return sa < sb ? -1 : 1
+                    }
                     var pa = positions[a.key], pb = positions[b.key]
                     if (pa !== pb)
                         return pa < pb ? -1 : 1
@@ -3142,13 +3213,46 @@ import AndroidStatusBar 1.0
                     }
                 }
 
-                MessageDialog {
+                // The classic look: the native dialog, as before; the modern one: a card. The reset
+                // makes this page again, the dialog with it: only once the dialog has closed, not
+                // from the answer itself
+                UiMessageDialog {
                     id: resetChangedDialog
                     text: qsTr("Reset changed settings?")
                     informativeText: qsTr("Settings that go back to their default values: %1").arg(settingsPane.filteredSettings.length)
                     buttons: (MessageDialog.Yes | MessageDialog.No)
-                    onYesClicked: settingsPane.resetListedSettings()
-                    visible: false
+                    yesText: qsTr("Reset")
+                    noText: qsTr("Cancel")
+                    destructive: true
+                    property bool confirmed: false
+                    onYesClicked: confirmed = true
+                    onClosed: {
+                        if (!confirmed)
+                            return
+                        confirmed = false
+                        settingsPane.resetListedSettings()
+                    }
+                }
+
+                // Modern look, "Changed": Reset section of a block
+                UiMessageDialog {
+                    id: resetSectionDialog
+                    text: qsTr("Reset section?")
+                    informativeText: qsTr("Settings in “%2” that go back to their default values: %1")
+                                     .arg(settingsPane.resetSectionName ? settingsPane.changedIn(settingsPane.resetSectionName).length : 0)
+                                     .arg(settingsPane.plainTitle(settingsPane.resetSectionName))
+                    buttons: (MessageDialog.Yes | MessageDialog.No)
+                    yesText: qsTr("Reset")
+                    noText: qsTr("Cancel")
+                    destructive: true
+                    property bool confirmed: false
+                    onYesClicked: confirmed = true
+                    onClosed: {
+                        if (!confirmed)
+                            return
+                        confirmed = false
+                        settingsPane.resetSection(settingsPane.resetSectionName)
+                    }
                 }
 
                 Repeater {
@@ -3157,6 +3261,26 @@ import AndroidStatusBar 1.0
                     delegate: Item {
                         id: searchResultFrame
                         property var entry: modelData
+                        // Modern look, "Changed": every section is a block as on its page - the
+                        // accent outline round its header and its cards, the cards 8 in from it, a
+                        // header with the section and its reset above the first setting of the
+                        // section. Every result draws its own piece of the outline, clipped to itself
+                        readonly property bool inBlock: settingsPane.changedOnly && window.ui.modern
+                        readonly property string section: inBlock ? settingsPane.sectionOf(entry) : ""
+                        // The length checked in both: a new, shorter list may reach these bindings
+                        // before the Repeater drops the result
+                        readonly property bool firstInSection: inBlock &&
+                            (index === 0 || index - 1 >= filteredSettings.length ||
+                             settingsPane.sectionOf(filteredSettings[index - 1]) !== section)
+                        readonly property bool lastInSection: inBlock &&
+                            (index >= filteredSettings.length - 1 || settingsPane.sectionOf(filteredSettings[index + 1]) !== section)
+                        // 16 between blocks: 8 of the spacing of the column and 8 here
+                        readonly property real blockGap: firstInSection && index > 0 ? 8 : 0
+                        readonly property real blockInset: inBlock ? 8 : 0
+                        readonly property real blockBottom: lastInSection ? 8 : 0
+                        // The header row of the block: 48 high, the title and Reset section in its
+                        // middle; higher when a long path or a big text scale takes more
+                        readonly property real headerHeight: firstInSection ? blockGap + sectionHeader.height : 0
                         width: Math.max(1, settingsSearchResults.width)
                         Layout.fillWidth: true
                         Layout.minimumWidth: 0
@@ -3176,15 +3300,117 @@ import AndroidStatusBar 1.0
                         readonly property real bottomPad: window.ui.modern ? (controlAtBottom ? 6 : 12) : 4
                         // Modern look, the heights of a Material 3 list item: two lines (the title and
                         // the path) at least 72, the content in the middle; with a description at
-                        // least 88, the content on top
+                        // least 88, the content on top. The card only, without the header and the
+                        // bottom of a block of "Changed"
                         readonly property real minHeight: window.ui.modern ? (hasDescription ? 88 : 72) : 0
-                        implicitHeight: Math.max(minHeight,
+                        implicitHeight: headerHeight +
+                                        Math.max(minHeight,
                                                  (window.ui.modern ? modernResultContent.height : searchResultContent.implicitHeight) +
-                                                 topPad + bottomPad)
+                                                 topPad + bottomPad) +
+                                        blockBottom
+                        // With the card's title in front inside a card section ("METS: order index")
+                        readonly property string titleText: window.ui.modern ? settingsPane.modernTitle(entry)
+                                                                             : settingsPane.searchTitle(entry)
+
+                        // This result's piece of the outline of its block: down to the next result
+                        // (over the spacing of the column) unless it is the last of the section;
+                        // the rounded ends only at the first and the last
+                        Item {
+                            visible: searchResultFrame.inBlock
+                            clip: true
+                            z: -1
+                            y: searchResultFrame.blockGap
+                            width: parent.width
+                            height: parent.height - y + (searchResultFrame.lastInSection ? 0 : settingsSearchResults.spacing)
+                            UiFrame {
+                                readonly property real over: 2 * radius
+                                y: searchResultFrame.firstInSection ? 0 : -over
+                                width: parent.width
+                                height: parent.height - y + (searchResultFrame.lastInSection ? 0 : over)
+                                radius: 24
+                                stroke: window.ui.accent
+                                strokeWidth: 1
+                            }
+                        }
+
+                        // The header of the block: the last level of the path as its title, the levels
+                        // above it on one line over it, and Reset section as an icon at the right.
+                        // Not a RowLayout, as in the card below (QTBUG-86371): at a big text scale
+                        // the title ran under the cards
+                        Item {
+                            id: sectionHeader
+                            visible: searchResultFrame.firstInSection
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.top: parent.top
+                            // The title 16 in from the outline (the text of the cards is 24 in: the
+                            // cards 8 in, their text 16 in them); the right edge is the one of the
+                            // cards, 8 in from the outline
+                            anchors.leftMargin: 16
+                            anchors.rightMargin: searchResultFrame.blockInset
+                            anchors.topMargin: searchResultFrame.blockGap
+                            // 48 for one line; 12 above and below a longer title
+                            height: Math.max(48, sectionTitles.height)
+                            readonly property string fullPath: settingsPane.plainTitle(searchResultFrame.section)
+                            readonly property int lastCut: fullPath.lastIndexOf(" › ")
+                            Column {
+                                id: sectionTitles
+                                anchors.left: parent.left
+                                anchors.right: resetSectionButton.left
+                                anchors.rightMargin: 8
+                                anchors.verticalCenter: parent.verticalCenter
+                                topPadding: 12
+                                bottomPadding: 12
+                                Label {
+                                    // The levels above: Body Small 12, one line, cut at the end
+                                    visible: sectionHeader.lastCut >= 0
+                                    width: parent.width
+                                    text: visible ? sectionHeader.fullPath.slice(0, sectionHeader.lastCut) : ""
+                                    font.pixelSize: window.ui.fontBodySmall
+                                    color: window.ui.textMuted
+                                    elide: Text.ElideRight
+                                    maximumLineCount: 1
+                                    textFormat: Text.PlainText
+                                }
+                                Label {
+                                    // Title Small 14 Medium
+                                    width: parent.width
+                                    text: sectionHeader.lastCut >= 0 ? sectionHeader.fullPath.slice(sectionHeader.lastCut + 3)
+                                                                     : sectionHeader.fullPath
+                                    font.pixelSize: window.ui.fontLabelLarge
+                                    font.weight: Font.Medium
+                                    color: window.ui.accent
+                                    wrapMode: Text.WordWrap
+                                    textFormat: Text.PlainText
+                                }
+                            }
+                            // 48 wide, the icon 16 in from the right edge of the cards: the same
+                            // column as the reset icons of the cards. A flat UiButton, as theirs
+                            UiButton {
+                                id: resetSectionButton
+                                anchors.right: parent.right
+                                anchors.rightMargin: 4
+                                anchors.verticalCenter: parent.verticalCenter
+                                flat: true
+                                implicitWidth: 48
+                                leftPadding: 0
+                                rightPadding: 0
+                                Accessible.name: qsTr("Reset section") + ": " + sectionHeader.fullPath
+                                UiIcon { anchors.centerIn: parent; width: 24; height: 24; name: "restart_alt"; color: window.ui.textMuted }
+                                onClicked: {
+                                    settingsPane.resetSectionName = searchResultFrame.section
+                                    resetSectionDialog.open()
+                                }
+                            }
+                        }
 
                         // Modern look: a filled card like the other groups instead of a grey frame
                         Rectangle {
                             anchors.fill: parent
+                            anchors.topMargin: searchResultFrame.headerHeight
+                            anchors.leftMargin: searchResultFrame.blockInset
+                            anchors.rightMargin: searchResultFrame.blockInset
+                            anchors.bottomMargin: searchResultFrame.blockBottom
                             color: window.ui.modern ? (resultArea.pressed ? window.ui.surfaceHighest : window.ui.surfaceHigh)
                                                     : (resultArea.pressed ? Qt.rgba(0.5, 0.5, 0.5, 0.2) : "transparent")
                             border.color: Material.color(Material.Grey)
@@ -3211,9 +3437,13 @@ import AndroidStatusBar 1.0
                         MouseArea {
                             id: resultArea
                             anchors.fill: parent
+                            anchors.topMargin: searchResultFrame.headerHeight
+                            anchors.leftMargin: searchResultFrame.blockInset
+                            anchors.rightMargin: searchResultFrame.blockInset
+                            anchors.bottomMargin: searchResultFrame.blockBottom
                             onClicked: searchResultFrame.open()
                             Accessible.role: Accessible.Button
-                            Accessible.name: settingsPane.plainTitle(settingsPane.searchTitle(entry)) +
+                            Accessible.name: settingsPane.plainTitle(searchResultFrame.titleText) +
                                              (searchResultFrame.valueText.length > 0 ? ": " + searchResultFrame.valueText : "")
                             Accessible.onPressAction: searchResultFrame.open()
                         }
@@ -3231,11 +3461,16 @@ import AndroidStatusBar 1.0
                             anchors.left: parent.left
                             anchors.right: parent.right
                             anchors.top: parent.top
-                            // 16 in from the edge of the card, as Material 3
-                            anchors.leftMargin: 16
-                            anchors.rightMargin: 16
-                            anchors.topMargin: searchResultFrame.hasDescription ? searchResultFrame.topPad
-                                : Math.max(searchResultFrame.topPad, (searchResultFrame.implicitHeight - height) / 2)
+                            // 16 in from the edge of the card, as Material 3; without a description
+                            // in the middle of the card (its height without the header and the
+                            // bottom of a block)
+                            anchors.leftMargin: 16 + searchResultFrame.blockInset
+                            anchors.rightMargin: 16 + searchResultFrame.blockInset
+                            anchors.topMargin: searchResultFrame.headerHeight +
+                                (searchResultFrame.hasDescription ? searchResultFrame.topPad
+                                 : Math.max(searchResultFrame.topPad,
+                                            (searchResultFrame.implicitHeight - searchResultFrame.headerHeight -
+                                             searchResultFrame.blockBottom - height) / 2))
 
                             Item {
                                 id: modernResultRow
@@ -3254,7 +3489,7 @@ import AndroidStatusBar 1.0
                                         // Body Large, Medium; a capital first letter - the fields of
                                         // a tile preset are "value:" and "label:" on their page
                                         width: parent.width
-                                        readonly property string plain: settingsPane.plainTitle(settingsPane.searchTitle(entry))
+                                        readonly property string plain: settingsPane.plainTitle(searchResultFrame.titleText)
                                         text: plain.charAt(0).toUpperCase() + plain.slice(1)
                                         font.pixelSize: window.ui.fontBody
                                         font.weight: Font.Medium
@@ -3264,8 +3499,10 @@ import AndroidStatusBar 1.0
                                         Accessible.ignored: true
                                     }
 
-                                    // The full path, in the accent colour as the way to the setting
+                                    // The full path, in the accent colour as the way to the setting;
+                                    // not repeated under the header of a block of "Changed"
                                     Label {
+                                        visible: !searchResultFrame.inBlock
                                         width: parent.width
                                         text: settingsPane.plainTitle(settingsPane.sectionOf(entry))
                                         color: window.ui.accent
@@ -3324,7 +3561,7 @@ import AndroidStatusBar 1.0
                                         implicitWidth: 48
                                         leftPadding: 0
                                         rightPadding: 0
-                                        Accessible.name: qsTr("Reset") + ": " + settingsPane.plainTitle(settingsPane.searchTitle(entry))
+                                        Accessible.name: qsTr("Reset") + ": " + settingsPane.plainTitle(searchResultFrame.titleText)
                                         UiIcon { anchors.centerIn: parent; width: 24; height: 24; name: "restart_alt"; color: window.ui.textMuted }
                                         onClicked: settingsPane.resetSetting(entry)
                                     }
