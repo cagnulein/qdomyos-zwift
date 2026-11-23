@@ -5285,6 +5285,18 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
         <translation>초기화</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>섹션을 초기화하시겠습니까?</translation>
+    </message>
+    <message>
+        <source>%1 settings in “%2” go back to their default values.</source>
+        <translation>“%2”의 설정 %1개가 기본값으로 돌아갑니다.</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>섹션 초기화</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>기기 언어를 따르려면 [자동(시스템)]을 선택하고, 아니면 QZ에서 쓸 언어를 직접 선택하세요.</translation>
     </message>

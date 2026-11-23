@@ -6091,6 +6091,18 @@ Consentire a QZ di modificare questo valore?
         <translation>Impostazione salvata!</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>Ripristinare la sezione?</translation>
+    </message>
+    <message>
+        <source>%1 settings in “%2” go back to their default values.</source>
+        <translation>%1 impostazioni in “%2” tornano ai valori predefiniti.</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Ripristina sezione</translation>
+    </message>
+    <message>
         <source>Enter your weight in kilograms so QZ can more accurately calculate calories burned. NOTE: If you choose to use miles as the unit for distance traveled, you will be asked to enter your weight in pounds (lbs) unless you enable &apos;Use kg for weight&apos;.</source>
         <translation>Inserisci il tuo peso in chilogrammi in modo che QZ possa calcolare con maggiore precisione le calorie bruciate. NOTA: Se scegli di usare miglia come unità per la distanza percorsa, ti verrà chiesto di inserire il tuo peso in libbre (lbs) a meno che non attivi &apos;Usa kg per il peso&apos;.</translation>
     </message>

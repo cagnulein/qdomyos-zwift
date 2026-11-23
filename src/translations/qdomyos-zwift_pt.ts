@@ -8185,6 +8185,18 @@ Padrão: A = -0.96, B = 1.33</translation>
         <translation>Potência</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>Redefinir seção?</translation>
+    </message>
+    <message>
+        <source>%1 settings in “%2” go back to their default values.</source>
+        <translation>%1 configurações em “%2” voltam aos valores padrão.</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Redefinir seção</translation>
+    </message>
+    <message>
         <source>Manual</source>
         <translation>Manual</translation>
     </message>

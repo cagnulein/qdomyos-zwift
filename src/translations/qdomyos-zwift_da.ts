@@ -5261,6 +5261,18 @@ Må QZ ændre værdien?
         <translation>Nulstil</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>Nulstil afsnit?</translation>
+    </message>
+    <message>
+        <source>%1 settings in “%2” go back to their default values.</source>
+        <translation>%1 indstillinger i "%2" nulstilles til standardværdierne.</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Nulstil afsnit</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Vælg &quot;Automatisk (system)&quot; for at følge enhedens sprog, eller vælg et bestemt sprog til QZ.</translation>
     </message>

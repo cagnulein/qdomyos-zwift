@@ -6510,6 +6510,18 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>km/h</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>¿Restablecer sección?</translation>
+    </message>
+    <message>
+        <source>%1 settings in “%2” go back to their default values.</source>
+        <translation>%1 ajustes de “%2” vuelven a sus valores predeterminados.</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Restablecer sección</translation>
+    </message>
+    <message>
         <source>Minimum speed for Peloton walking sessions. Set to 0 to disable. Applied to all speed targets in walking workouts.</source>
         <translation>Velocidad mínima para sesiones de caminata de Peloton. Establecer en 0 para deshabilitar. Se aplica a todos los objetivos de velocidad en entrenamientos de caminata.</translation>
     </message>

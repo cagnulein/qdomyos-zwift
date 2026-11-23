@@ -6538,6 +6538,18 @@ QZ がこの値を変更することを許可しますか？
         <translation>km/h</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>セクションをリセットしますか？</translation>
+    </message>
+    <message>
+        <source>%1 settings in “%2” go back to their default values.</source>
+        <translation>「%2」の%1個の設定が既定値に戻ります。</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>セクションをリセット</translation>
+    </message>
+    <message>
         <source>Minimum speed for Peloton walking sessions. Set to 0 to disable. Applied to all speed targets in walking workouts.</source>
         <translation>Pelotonウォーキングセッションの最低速度です。0に設定すると無効になります。ウォーキングワークアウトのすべての目標速度に適用されます。</translation>
     </message>

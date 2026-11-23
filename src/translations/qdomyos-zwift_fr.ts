@@ -6510,6 +6510,18 @@ Autoriser QZ à modifier cette valeur ?
         <translation>km/h</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>Réinitialiser la section ?</translation>
+    </message>
+    <message>
+        <source>%1 settings in “%2” go back to their default values.</source>
+        <translation>%1 paramètres de « %2 » reviennent à leurs valeurs par défaut.</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Réinitialiser la section</translation>
+    </message>
+    <message>
         <source>Minimum speed for Peloton walking sessions. Set to 0 to disable. Applied to all speed targets in walking workouts.</source>
         <translation>Vitesse minimale pour les séances de marche Peloton. Régler sur 0 pour désactiver. Appliqué à tous les objectifs de vitesse dans les entraînements de marche.</translation>
     </message>
