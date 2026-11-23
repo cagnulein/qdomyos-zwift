@@ -463,7 +463,8 @@ HEADERS += \
     $$PWD/mqtt/qmqtttopicname.h \
     $$PWD/mqtt/qmqtttype.h \
     $$PWD/treadmillErgTable.h \
-    $$PWD/wheelcircumference.h \
+    $PWD/rouvygearing.h \
+    $PWD/wheelcircumference.h \
     $$PWD/workoutloaderworker.h \
     $$PWD/workoutmodel.h \
 QTelnet.h \
