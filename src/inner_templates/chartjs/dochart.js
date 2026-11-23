@@ -1543,6 +1543,7 @@ function dochart_init() {
         load_workout_data();
     }).catch(function(err) {
         console.error('Error is ' + err);
+        liveEnabled = true; // no settings: the default, as for the zones
         ensurePowerZones();
         ensureHeartZones();
         load_workout_data();
