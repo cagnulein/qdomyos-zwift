@@ -10389,9 +10389,12 @@ void homeform::trainprogram_autostart_requested() {
             seekAfterStart();
         }, Qt::QueuedConnection);
     } else {
-        QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
-        if (seekSeconds > 0)
-            QMetaObject::invokeMethod(this, seekAfterStart, Qt::QueuedConnection);
+        // Apply start and seek together in one event-loop turn. A timer tick must
+        // never apply the first interval's target before the seek is installed.
+        QMetaObject::invokeMethod(this, [this, seekAfterStart]() {
+            Start_inner(true);
+            seekAfterStart();
+        }, Qt::QueuedConnection);
     }
 }
 
