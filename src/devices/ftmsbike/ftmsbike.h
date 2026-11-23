@@ -219,6 +219,8 @@ class ftmsbike : public bike {
     QDateTime lastPhysicalGearControlCommand;
     // Last desired native level prevents repeated 0x04 writes on every Zwift slope update.
     resistance_t lastPhysicalGearTarget = -1;
+    // Last Zwift grade-derived level without gear offset, for local UI shifts.
+    resistance_t lastPhysicalGearAutomaticBase = -1;
     // Suppress only telemetry belonging to the current command, not every
     // native shift during the following 3 seconds.
     resistance_t pendingPhysicalGearEchoTarget = -1;
