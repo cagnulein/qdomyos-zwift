@@ -9798,6 +9798,18 @@ Padrão: A = -0.96, B = 1.33</translation>
         <translation>Salvar amostra de passo de troca 4</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>Redefinir seção?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Configurações em “%2” que voltam aos valores padrão: %1</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Redefinir seção</translation>
+    </message>
+    <message>
         <source>Manual</source>
         <translation>Manual</translation>
     </message>

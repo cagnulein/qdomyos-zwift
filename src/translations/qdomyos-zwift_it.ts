@@ -6444,6 +6444,18 @@ Consentire a QZ di modificare questo valore?
         <translation>Impostazione salvata!</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>Ripristinare la sezione?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Impostazioni in “%2” che tornano ai valori predefiniti: %1</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Ripristina sezione</translation>
+    </message>
+    <message>
         <source>Save Player Weight</source>
         <translation>Salva peso atleta</translation>
     </message>

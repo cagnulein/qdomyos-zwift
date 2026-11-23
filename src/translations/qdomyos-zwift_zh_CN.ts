@@ -5414,6 +5414,18 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>cm</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>重置此部分？</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>“%2”中的 %1 项设置将恢复为默认值。</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>重置此部分</translation>
+    </message>
+    <message>
         <source>Save Player Weight</source>
         <translation>保存体重</translation>
     </message>
