@@ -307,6 +307,43 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
                 connect(virtualTreadmill, &virtualtreadmill::debug, this, &nordictrackifitadbtreadmill::debug);
                 connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                         &nordictrackifitadbtreadmill::changeInclinationRequested);
+                // On FitPro USB builds the local DirCon/FTMS server already parses
+                // 0x2AD9 writes, but Start/Pause/Stop are intentionally not dispatched
+                // by the shared processor. Only this USB-HID driver opts in to them.
+                // Keep BLE and DirCon on the same path; other treadmill drivers are untouched.
+                connect(virtualTreadmill, &virtualtreadmill::ftmsCharacteristicChanged, this,
+                        [this](const QLowEnergyCharacteristic &, const QByteArray &command) {
+                            if (!grpcInitialized || command.isEmpty())
+                                return;
+                            const uint8_t opcode = static_cast<uint8_t>(command.at(0));
+                            const int state = getGrpcWorkoutState();
+                            if (opcode == 0x07 && command.size() == 1) {
+                                // Do not toggle a running workout on duplicate Start packets.
+                                if (state == 3) {
+                                    emit debug(QStringLiteral("FitPro DirCon: Start ignored (already running)"));
+                                    return;
+                                }
+                                emit debug(QStringLiteral("FitPro DirCon: Start/Resume from remote"));
+                                start();
+                            } else if (opcode == 0x08 && command.size() == 2) {
+                                const uint8_t action = static_cast<uint8_t>(command.at(1));
+                                if (action == 0x02) {
+                                    if (state != 3) {
+                                        emit debug(QStringLiteral("FitPro DirCon: Pause ignored (not running)"));
+                                        return;
+                                    }
+                                    emit debug(QStringLiteral("FitPro DirCon: Pause from remote"));
+                                    stop(true);
+                                } else if (action == 0x01) {
+                                    if (state == 1 || state == 5) {
+                                        emit debug(QStringLiteral("FitPro DirCon: Stop ignored (already idle)"));
+                                        return;
+                                    }
+                                    emit debug(QStringLiteral("FitPro DirCon: Stop from remote"));
+                                    stop(false);
+                                }
+                            }
+                        });
                 this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
             } else {
                 debug("creating virtual bike interface...");
