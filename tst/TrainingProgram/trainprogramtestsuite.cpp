@@ -123,3 +123,34 @@ void TrainProgramTestSuite::test_ziproShredHighInclineXmlValuesArePreserved() {
         EXPECT_EQ(loaded.at(i).zoneHR, 0);
     }
 }
+
+
+void TrainProgramTestSuite::test_seekWithinTimeOnlyWorkout() {
+    trainprogram program({timedRow(60), timedRow(120), timedRow(30)}, nullptr);
+    program.restart();
+    EXPECT_TRUE(program.seekToElapsedSeconds(75));
+    EXPECT_EQ(program.currentRowIndex(), 1);
+    EXPECT_EQ(program.totalElapsedTime(), QTime(0, 1, 15));
+
+    EXPECT_TRUE(program.seekToElapsedSeconds(60));
+    EXPECT_EQ(program.currentRowIndex(), 1);
+    EXPECT_EQ(program.totalElapsedTime(), QTime(0, 1, 0));
+
+    EXPECT_FALSE(program.seekToElapsedSeconds(210));
+    EXPECT_EQ(program.currentRowIndex(), 1);
+    EXPECT_EQ(program.totalElapsedTime(), QTime(0, 1, 0));
+}
+
+void TrainProgramTestSuite::test_seekRejectsBlockingAndDistanceRows() {
+    trainprogram blocked({timedRow(60), lapButtonRow(), timedRow(30)}, nullptr);
+    blocked.restart();
+    EXPECT_FALSE(blocked.seekToElapsedSeconds(65));
+    EXPECT_EQ(blocked.currentRowIndex(), 0);
+
+    trainrow distance = timedRow(60);
+    distance.distance = 0.3;
+    trainprogram byDistance({timedRow(60), distance}, nullptr);
+    byDistance.restart();
+    EXPECT_FALSE(byDistance.seekToElapsedSeconds(65));
+    EXPECT_EQ(byDistance.currentRowIndex(), 0);
+}
