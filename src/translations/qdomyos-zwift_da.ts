@@ -6154,14 +6154,6 @@ Må QZ ændre værdien?
         <translation>Vælg, hvilke grafer der skal vises i bunden af skærmen: både puls og effekt, kun puls eller kun effekt.</translation>
     </message>
     <message>
-        <source>Live Charts During a Workout</source>
-        <translation>Livegrafer under træning</translation>
-    </message>
-    <message>
-        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
-        <translation>Siden &quot;Grafer&quot; tilføjer nye data hvert sekund under træningen. Slå det fra, hvis siden &quot;Grafer&quot; er langsom på din enhed. Standard: til.</translation>
-    </message>
-    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>Venstre måleværdi i Liveaktivitet (iOS):</translation>
     </message>

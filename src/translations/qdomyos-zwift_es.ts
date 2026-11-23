@@ -6086,14 +6086,6 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Elige qué gráficos mostrar en el pie de página: gráficos de frecuencia cardíaca y potencia, solo gráfico de frecuencia cardíaca, o solo gráfico de potencia.</translation>
     </message>
     <message>
-        <source>Live Charts During a Workout</source>
-        <translation>Gráficos en vivo durante el entrenamiento</translation>
-    </message>
-    <message>
-        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
-        <translation>La página Gráficos añade los datos nuevos cada segundo mientras hay un entrenamiento en curso. Apágalo si la página Gráficos va lenta en tu dispositivo. Predeterminado: encendido.</translation>
-    </message>
-    <message>
         <source>UI Themes</source>
         <translation>Temas de interfaz</translation>
     </message>

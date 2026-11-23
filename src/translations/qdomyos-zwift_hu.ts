@@ -6154,14 +6154,6 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
         <translation>Válassza ki, mely diagramok jelenjenek meg a láblécben: a pulzus- és a teljesítménydiagram is, csak a pulzusdiagram vagy csak a teljesítménydiagram.</translation>
     </message>
     <message>
-        <source>Live Charts During a Workout</source>
-        <translation>Élő diagramok edzés közben</translation>
-    </message>
-    <message>
-        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
-        <translation>Edzés közben a Diagramok oldal másodpercenként hozzáadja az új adatokat. Kapcsolja ki, ha a Diagramok oldal lassú az eszközén. Alapértelmezett: be.</translation>
-    </message>
-    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>iOS Élő tevékenység, bal oldali mérőszám:</translation>
     </message>

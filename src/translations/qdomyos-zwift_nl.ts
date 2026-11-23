@@ -6194,14 +6194,6 @@ Mag QZ deze waarde wijzigen?
         <translation>Kies welke grafieken onderaan worden getoond: hartslag en vermogen, alleen hartslag of alleen vermogen.</translation>
     </message>
     <message>
-        <source>Live Charts During a Workout</source>
-        <translation>Live grafieken tijdens de training</translation>
-    </message>
-    <message>
-        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
-        <translation>De pagina Grafieken voegt tijdens een training elke seconde de nieuwe gegevens toe. Zet het uit als de pagina Grafieken traag is op je apparaat. Standaard: aan.</translation>
-    </message>
-    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>Linker waarde Live Activity (iOS):</translation>
     </message>

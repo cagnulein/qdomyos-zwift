@@ -6026,14 +6026,6 @@ Autoriser QZ à modifier cette valeur ?
         <translation>Choisissez les graphiques à afficher dans le pied de page : fréquence cardiaque et puissance, uniquement la fréquence cardiaque, ou uniquement la puissance.</translation>
     </message>
     <message>
-        <source>Live Charts During a Workout</source>
-        <translation>Graphiques en direct pendant l’entraînement</translation>
-    </message>
-    <message>
-        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
-        <translation>La page Graphiques ajoute les nouvelles données chaque seconde pendant un entraînement. Désactivez-le si la page Graphiques est lente sur votre appareil. Par défaut, activé.</translation>
-    </message>
-    <message>
         <source>UI Themes</source>
         <translation>Thèmes de l&apos;interface</translation>
     </message>

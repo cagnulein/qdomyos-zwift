@@ -6058,14 +6058,6 @@ Permitir que o QZ altere esse valor?
         <translation>Escolha quais gráficos exibir no rodapé: gráficos de frequência cardíaca e potência, apenas gráfico de frequência cardíaca ou apenas gráfico de potência.</translation>
     </message>
     <message>
-        <source>Live Charts During a Workout</source>
-        <translation>Gráficos ao vivo durante o treino</translation>
-    </message>
-    <message>
-        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
-        <translation>A página Gráficos acrescenta os novos dados a cada segundo durante um treino. Desligue se a página Gráficos ficar lenta no seu dispositivo. Padrão é ativado.</translation>
-    </message>
-    <message>
         <source>UI Themes</source>
         <translation>Temas da Interface</translation>
     </message>

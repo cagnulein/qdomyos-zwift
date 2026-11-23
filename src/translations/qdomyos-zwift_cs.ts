@@ -6194,14 +6194,6 @@ Povolit QZ tuto hodnotu měnit?
         <translation>Vyberte, které grafy se zobrazí v dolní části obrazovky: tep i výkon, jen tep, nebo jen výkon.</translation>
     </message>
     <message>
-        <source>Live Charts During a Workout</source>
-        <translation>Živé grafy během tréninku</translation>
-    </message>
-    <message>
-        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
-        <translation>Stránka Grafy během tréninku každou sekundu doplní nová data. Pokud je stránka Grafy na vašem zařízení pomalá, vypněte to. Výchozí: zapnuto.</translation>
-    </message>
-    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>Levý údaj Live Activity (iOS):</translation>
     </message>

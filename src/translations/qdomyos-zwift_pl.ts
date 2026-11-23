@@ -6194,14 +6194,6 @@ Zezwolić QZ na zmianę tej wartości?
         <translation>Wybierz, które wykresy mają być wyświetlane w stopce: zarówno wykresy tętna, jak i mocy, tylko wykres tętna lub tylko wykres mocy.</translation>
     </message>
     <message>
-        <source>Live Charts During a Workout</source>
-        <translation>Wykresy na żywo podczas treningu</translation>
-    </message>
-    <message>
-        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
-        <translation>Strona Wykresy co sekundę dopisuje nowe dane podczas treningu. Wyłącz to, jeśli strona Wykresy działa wolno na Twoim urządzeniu. Domyślnie: włączone.</translation>
-    </message>
-    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>Lewy wskaźnik funkcji Live Activity w iOS:</translation>
     </message>

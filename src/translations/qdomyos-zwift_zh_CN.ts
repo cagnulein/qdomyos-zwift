@@ -6094,14 +6094,6 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>选择在页脚显示的图表：心率和功率图表，仅心率图表，或仅功率图表。</translation>
     </message>
     <message>
-        <source>Live Charts During a Workout</source>
-        <translation>训练中的实时图表</translation>
-    </message>
-    <message>
-        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
-        <translation>训练进行时，图表页面每秒补充新数据。如果图表页面在您的设备上运行缓慢，请关闭此项。默认开启。</translation>
-    </message>
-    <message>
         <source>UI Themes</source>
         <translation>主题</translation>
     </message>

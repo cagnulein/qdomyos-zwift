@@ -6194,14 +6194,6 @@ QZ&apos;nin bu değeri değiştirmesine izin verilsin mi?
         <translation>Ekranın altında hangi grafiklerin gösterileceğini seçin: nabız ve güç grafikleri, yalnızca nabız grafiği veya yalnızca güç grafiği.</translation>
     </message>
     <message>
-        <source>Live Charts During a Workout</source>
-        <translation>Antrenman sırasında canlı grafikler</translation>
-    </message>
-    <message>
-        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
-        <translation>Grafikler sayfası, antrenman sürerken yeni verileri her saniye ekler. Grafikler sayfası cihazınızda yavaş çalışıyorsa kapatın. Varsayılan: açık.</translation>
-    </message>
-    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>Canlı Etkinlik sol değeri (iOS):</translation>
     </message>

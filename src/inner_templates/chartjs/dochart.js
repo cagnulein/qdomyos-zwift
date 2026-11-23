@@ -34,10 +34,8 @@ var heartZones = [];
 var miles = 1;
 
 // live update during a workout: the new points of the session are asked for once a second and
-// the charts are updated in place. On or off with the charts_live_update setting (on by default;
-// a slow device can turn it off), only while a workout is running (see setLiveActive)
+// the charts are updated in place, only while a workout is running (see setLiveActive)
 var LIVE_REFRESH_MS = 1000;
-var liveEnabled = false; // until getsettings answers
 var liveTimer = null;
 var liveLoading = false;
 var liveActive = false;
@@ -51,7 +49,7 @@ var pendingLiveTimer = null;
 
 // the polling goes on: a chart off screen waits for the next refresh or for a scroll to it
 function livePolling() {
-    return liveActive && liveEnabled;
+    return liveActive;
 }
 
 function offScreen(canvas) {
@@ -1368,7 +1366,7 @@ function process_arr(arr) {
 }
 
 function dochart_init() {
-    keys_arr = ['ftp', 'miles_unit', 'age', 'heart_rate_zone1', 'heart_rate_zone2', 'heart_rate_zone3', 'heart_rate_zone4', 'heart_max_override_enable', 'heart_max_override_value', 'charts_live_update']
+    keys_arr = ['ftp', 'miles_unit', 'age', 'heart_rate_zone1', 'heart_rate_zone2', 'heart_rate_zone3', 'heart_rate_zone4', 'heart_max_override_enable', 'heart_max_override_value']
 
     function scheduleLiveRefresh() {
         clearTimeout(liveTimer);
@@ -1391,11 +1389,10 @@ function dochart_init() {
         if (!active) {
             clearTimeout(liveTimer);
             liveTimer = null;
-            // with the live update on, pick up the last points before going idle; a load in
-            // flight may predate the stop. Off: the page stays as it was loaded
-            if (liveEnabled && liveLoading)
+            // pick up the last points before going idle; a load in flight may predate the stop
+            if (liveLoading)
                 liveFinalPending = true;
-            else if (liveEnabled && lastSessionLength >= 0)
+            else if (lastSessionLength >= 0)
                 load_workout_data();
         } else {
             // a start or a resume: the session may be a new one of any length (the app clears
@@ -1521,9 +1518,6 @@ function dochart_init() {
                     } else if (key === 'miles_unit') {
                         if(msg.content[key] === true || msg.content[key] === 'true')
                             miles = 0.621371;
-                    } else if (key === 'charts_live_update') {
-                        // null while the setting was never saved: on, its default
-                        liveEnabled = msg.content[key] === null || isTrueSetting(msg.content[key]);
                     }
                 }
                 if(heart_max_override_enable) {
@@ -1543,7 +1537,6 @@ function dochart_init() {
         load_workout_data();
     }).catch(function(err) {
         console.error('Error is ' + err);
-        liveEnabled = true; // no settings: the default, as for the zones
         ensurePowerZones();
         ensureHeartZones();
         load_workout_data();

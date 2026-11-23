@@ -6022,14 +6022,6 @@ Darf QZ diesen Wert ändern?
         <translation>Wählen Sie aus, welche Diagramme in der Fußzeile angezeigt werden sollen: Herzfrequenz- und Leistungsdiagramme, nur Herzfrequenzdiagramm oder nur Leistungsdiagramm.</translation>
     </message>
     <message>
-        <source>Live Charts During a Workout</source>
-        <translation>Live-Diagramme während des Trainings</translation>
-    </message>
-    <message>
-        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
-        <translation>Die Seite „Diagramme“ ergänzt während eines laufenden Trainings jede Sekunde die neuen Daten. Schalte es aus, wenn die Seite „Diagramme“ auf deinem Gerät langsam ist. Standardmäßig ist es an.</translation>
-    </message>
-    <message>
         <source>UI Themes</source>
         <translation>UI-Themen</translation>
     </message>

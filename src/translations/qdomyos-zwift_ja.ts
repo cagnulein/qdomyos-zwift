@@ -6042,14 +6042,6 @@ QZ がこの値を変更することを許可しますか？
         <translation>フッターに表示するチャートを選択します：心拍数とパワーの両方、心拍数のみ、またはパワーのみ。</translation>
     </message>
     <message>
-        <source>Live Charts During a Workout</source>
-        <translation>ワークアウト中のライブグラフ</translation>
-    </message>
-    <message>
-        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
-        <translation>ワークアウト中、グラフ画面に新しいデータを毎秒追加します。お使いの端末でグラフ画面が重い場合はオフにしてください。初期設定はオンです。</translation>
-    </message>
-    <message>
         <source>UI Themes</source>
         <translation>UIテーマ</translation>
     </message>

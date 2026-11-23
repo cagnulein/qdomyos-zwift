@@ -6338,14 +6338,6 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Выберите, какие графики показывать внизу экрана: пульс и мощность, только пульс или только мощность.</translation>
     </message>
     <message>
-        <source>Live Charts During a Workout</source>
-        <translation>Графики онлайн во время тренировки</translation>
-    </message>
-    <message>
-        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
-        <translation>Страница «Графики» каждую секунду дорисовывает новые данные, пока идёт тренировка. Выключите, если на вашем устройстве страница «Графики» тормозит. По умолчанию включено.</translation>
-    </message>
-    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>Левый показатель Live Activity (iOS):</translation>
     </message>

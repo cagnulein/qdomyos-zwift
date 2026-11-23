@@ -6154,14 +6154,6 @@ Vill du tillåta att QZ ändrar värdet?
         <translation>Välj vilka diagram som ska visas längst ned: både puls- och effektdiagram, bara pulsdiagram eller bara effektdiagram.</translation>
     </message>
     <message>
-        <source>Live Charts During a Workout</source>
-        <translation>Livediagram under träningspasset</translation>
-    </message>
-    <message>
-        <source>The Charts page adds the new data every second while a workout is running. Turn it off if the Charts page is slow on your device. Default is on.</source>
-        <translation>Sidan Diagram lägger till nya data varje sekund medan ett träningspass pågår. Stäng av det om sidan Diagram är långsam på din enhet. Standard: på.</translation>
-    </message>
-    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>Vänster mätvärde för iOS-liveaktivitet:</translation>
     </message>
