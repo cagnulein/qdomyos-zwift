@@ -2143,8 +2143,7 @@ ApplicationWindow {
                 font: toolbarTitle.font
                 text: "QZ"
             }
-            // titleMetrics.text: "" for a page without a title, as for the accessible name below
-            text: homeTitle && !fitsCentred && !fitsFree ? shortTitleMetrics.text : titleMetrics.text
+            text: homeTitle && !fitsCentred && !fitsFree ? shortTitleMetrics.text : stackView.currentItem.title
             visible: !homeTitle || fitsCentred || fitsFree || fitsShort
             // Expose page title to VoiceOver while retaining Dynamic Type layout.
             Accessible.role: Accessible.StaticText
