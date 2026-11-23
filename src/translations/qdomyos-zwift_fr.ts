@@ -6514,8 +6514,8 @@ Autoriser QZ à modifier cette valeur ?
         <translation>Réinitialiser la section ?</translation>
     </message>
     <message>
-        <source>%1 settings in “%2” go back to their default values.</source>
-        <translation>%1 paramètres de « %2 » reviennent à leurs valeurs par défaut.</translation>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Paramètres de « %2 » qui reviennent à leurs valeurs par défaut : %1</translation>
     </message>
     <message>
         <source>Reset section</source>

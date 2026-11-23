@@ -3238,7 +3238,7 @@ import AndroidStatusBar 1.0
                 UiMessageDialog {
                     id: resetSectionDialog
                     text: qsTr("Reset section?")
-                    informativeText: qsTr("%1 settings in “%2” go back to their default values.")
+                    informativeText: qsTr("Settings in “%2” that go back to their default values: %1")
                                      .arg(settingsPane.resetSectionName ? settingsPane.changedIn(settingsPane.resetSectionName).length : 0)
                                      .arg(settingsPane.plainTitle(settingsPane.resetSectionName))
                     buttons: (MessageDialog.Yes | MessageDialog.No)

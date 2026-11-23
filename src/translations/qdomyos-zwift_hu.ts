@@ -5265,7 +5265,7 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
         <translation>Visszaállítja a szakaszt?</translation>
     </message>
     <message>
-        <source>%1 settings in “%2” go back to their default values.</source>
+        <source>Settings in “%2” that go back to their default values: %1</source>
         <translation>%1 beállítás visszaáll az alapértelmezett értékére itt: „%2”.</translation>
     </message>
     <message>

@@ -5289,7 +5289,7 @@ QZ&apos;nin bu değeri değiştirmesine izin verilsin mi?
         <translation>Bölüm sıfırlansın mı?</translation>
     </message>
     <message>
-        <source>%1 settings in “%2” go back to their default values.</source>
+        <source>Settings in “%2” that go back to their default values: %1</source>
         <translation>&quot;%2&quot; bölümündeki %1 ayar varsayılan değerlerine döner.</translation>
     </message>
     <message>

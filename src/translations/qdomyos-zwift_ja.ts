@@ -6542,7 +6542,7 @@ QZ がこの値を変更することを許可しますか？
         <translation>セクションをリセットしますか？</translation>
     </message>
     <message>
-        <source>%1 settings in “%2” go back to their default values.</source>
+        <source>Settings in “%2” that go back to their default values: %1</source>
         <translation>「%2」の%1個の設定が既定値に戻ります。</translation>
     </message>
     <message>

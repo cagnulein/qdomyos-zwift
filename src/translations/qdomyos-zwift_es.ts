@@ -6514,8 +6514,8 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>¿Restablecer sección?</translation>
     </message>
     <message>
-        <source>%1 settings in “%2” go back to their default values.</source>
-        <translation>%1 ajustes de “%2” vuelven a sus valores predeterminados.</translation>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Ajustes de “%2” que vuelven a sus valores predeterminados: %1</translation>
     </message>
     <message>
         <source>Reset section</source>

@@ -6095,8 +6095,8 @@ Consentire a QZ di modificare questo valore?
         <translation>Ripristinare la sezione?</translation>
     </message>
     <message>
-        <source>%1 settings in “%2” go back to their default values.</source>
-        <translation>%1 impostazioni in “%2” tornano ai valori predefiniti.</translation>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Impostazioni in “%2” che tornano ai valori predefiniti: %1</translation>
     </message>
     <message>
         <source>Reset section</source>

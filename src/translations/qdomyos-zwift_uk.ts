@@ -5221,7 +5221,7 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Скинути розділ?</translation>
     </message>
     <message>
-        <source>%1 settings in “%2” go back to their default values.</source>
+        <source>Settings in “%2” that go back to their default values: %1</source>
         <translation>Налаштування розділу «%2» (%1) повернуться до типових значень.</translation>
     </message>
     <message>

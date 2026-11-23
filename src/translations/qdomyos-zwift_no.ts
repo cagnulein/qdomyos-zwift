@@ -5265,8 +5265,8 @@ Skal QZ få endre denne verdien?
         <translation>Tilbakestille delen?</translation>
     </message>
     <message>
-        <source>%1 settings in “%2” go back to their default values.</source>
-        <translation>%1 innstillinger i «%2» går tilbake til standardverdiene.</translation>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Innstillinger i «%2» som går tilbake til standardverdiene: %1</translation>
     </message>
     <message>
         <source>Reset section</source>

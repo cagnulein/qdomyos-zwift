@@ -8185,8 +8185,8 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>Abschnitt zurücksetzen?</translation>
     </message>
     <message>
-        <source>%1 settings in “%2” go back to their default values.</source>
-        <translation>%1 Einstellungen in „%2“ werden auf ihre Standardwerte zurückgesetzt.</translation>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Einstellungen in „%2“, die auf ihre Standardwerte zurückgesetzt werden: %1</translation>
     </message>
     <message>
         <source>Reset section</source>

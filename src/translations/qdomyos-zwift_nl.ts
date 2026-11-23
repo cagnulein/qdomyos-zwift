@@ -5289,8 +5289,8 @@ Mag QZ deze waarde wijzigen?
         <translation>Sectie resetten?</translation>
     </message>
     <message>
-        <source>%1 settings in “%2” go back to their default values.</source>
-        <translation>%1 instellingen in ‘%2’ worden teruggezet naar hun standaardwaarden.</translation>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Instellingen in ‘%2’ die worden teruggezet naar hun standaardwaarden: %1</translation>
     </message>
     <message>
         <source>Reset section</source>

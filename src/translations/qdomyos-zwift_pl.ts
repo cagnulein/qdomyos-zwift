@@ -5289,7 +5289,7 @@ Zezwolić QZ na zmianę tej wartości?
         <translation>Zresetować sekcję?</translation>
     </message>
     <message>
-        <source>%1 settings in “%2” go back to their default values.</source>
+        <source>Settings in “%2” that go back to their default values: %1</source>
         <translation>Ustawienia w sekcji „%2” (%1) wrócą do wartości domyślnych.</translation>
     </message>
     <message>

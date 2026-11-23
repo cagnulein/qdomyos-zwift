@@ -5289,7 +5289,7 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
         <translation>섹션을 초기화하시겠습니까?</translation>
     </message>
     <message>
-        <source>%1 settings in “%2” go back to their default values.</source>
+        <source>Settings in “%2” that go back to their default values: %1</source>
         <translation>“%2”의 설정 %1개가 기본값으로 돌아갑니다.</translation>
     </message>
     <message>
