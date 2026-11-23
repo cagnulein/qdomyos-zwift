@@ -5285,6 +5285,18 @@ Povolit QZ tuto hodnotu měnit?
         <translation>Obnovit</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>Obnovit sekci?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Nastavení v sekci „%2“ (%1) se vrátí na výchozí hodnoty.</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Obnovit sekci</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Zvolte „Auto“ pro jazyk zařízení, nebo vyberte konkrétní jazyk QZ.</translation>
     </message>

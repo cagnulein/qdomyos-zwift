@@ -5285,6 +5285,18 @@ Zezwolić QZ na zmianę tej wartości?
         <translation>Resetuj</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>Zresetować sekcję?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Ustawienia w sekcji „%2” (%1) wrócą do wartości domyślnych.</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Resetuj sekcję</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Wybierz „Automatycznie”, aby używać języka urządzenia, albo wskaż język QZ.</translation>
     </message>

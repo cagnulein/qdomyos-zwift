@@ -5261,6 +5261,18 @@ Vill du tillåta att QZ ändrar värdet?
         <translation>Återställ</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>Vill du återställa avsnittet?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Inställningar i ”%2” som återställs till standardvärdena: %1</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Återställ avsnitt</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Välj Auto om du vill följa enhetens språk eller välj ett visst språk för QZ.</translation>
     </message>
