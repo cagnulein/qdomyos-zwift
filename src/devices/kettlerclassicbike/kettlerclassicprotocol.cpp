@@ -152,7 +152,8 @@ double CoachSCadenceSmoother::completedStroke(quint16 strokeCounter, qint64 nowM
             reset();
     }
     samples.append({strokeCounter, nowMs});
-    if (samples.size() > 5) samples.remove(0); // four completed-stroke intervals
+    if (samples.size() > 4) samples.remove(0); // three completed-stroke intervals
+    // Publish after the first valid interval (stroke 2), then average up to 3.
     if (samples.size() < 2) return 0.0;
 
     const StrokeSample &first = samples.constFirst();
