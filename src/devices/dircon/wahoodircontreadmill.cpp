@@ -598,6 +598,12 @@ void wahoodircontreadmill::stop(bool pause) {
     // FTMS 0x08 parameter: 0x01 Stop, 0x02 Pause.
     writeCharacteristic(command, sizeof(command), pause ? QStringLiteral("DirCon Pause")
                                                          : QStringLiteral("DirCon Stop"));
+    if (!pause) {
+        // The hardware may reset both targets after Stop. Do not suppress the
+        // same speed or incline in a later workout because of stale dedup state.
+        lastSpeed = -1.0;
+        lastInclination = -200.0;
+    }
 }
 
 void wahoodircontreadmill::changeSpeed(double speed) {
