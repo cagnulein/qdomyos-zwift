@@ -35,6 +35,8 @@
 class fakerower : public rower {
     Q_OBJECT
   public:
+
+    FtmsRowerResistanceCapabilities ftmsResistanceCapabilities() const override { return {true, true, 1, 15, 1}; }
     fakerower(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
     bool connected() override;
 

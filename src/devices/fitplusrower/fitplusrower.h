@@ -17,6 +17,8 @@ class fitplusrower : public rower {
     Q_OBJECT
 
   public:
+
+    FtmsRowerResistanceCapabilities ftmsResistanceCapabilities() const override { return {true, true, 1, max_resistance, 1}; }
     fitplusrower(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                  double bikeResistanceGain);
     resistance_t maxResistance() override { return max_resistance; }
