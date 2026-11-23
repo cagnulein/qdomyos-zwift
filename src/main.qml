@@ -2136,9 +2136,10 @@ ApplicationWindow {
             visible: !homeTitle || fitsCentred || fitsFree || fitsShort
             // Expose page title to VoiceOver while retaining Dynamic Type layout.
             Accessible.role: Accessible.StaticText
-            Accessible.name: stackView.currentItem.title
-            Accessible.focusable: stackView.currentItem.title !== "" && !drawer.opened
-            Accessible.ignored: stackView.currentItem.title === "" || drawer.opened
+            // A page without a title gives undefined: as "", or the empty title would take the focus
+            Accessible.name: stackView.currentItem && stackView.currentItem.title ? stackView.currentItem.title : ""
+            Accessible.focusable: !!(stackView.currentItem && stackView.currentItem.title) && !drawer.opened
+            Accessible.ignored: !(stackView.currentItem && stackView.currentItem.title) || drawer.opened
             // Modern look only: the classic title keeps the font of the bar, as it inherited it. A
             // plain binding to the bar font: not Binding (its restored value was the size at
             // start-up, the scaled one after a text size), not Qt.font({}) (a default font with a
