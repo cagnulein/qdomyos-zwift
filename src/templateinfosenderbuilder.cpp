@@ -809,6 +809,7 @@ void TemplateInfoSenderBuilder::onGetWorkoutPreview(TemplateInfoSender *tempSend
         QList<double> cadenceData = hf->preview_workout_cadence();
 
         outObj[QStringLiteral("points")] = points;
+        outObj[QStringLiteral("seekSupported")] = hf->previewWorkoutSeekSupported();
         outObj[QStringLiteral("description")] = hf->previewWorkoutDescription();
         outObj[QStringLiteral("tags")] = hf->previewWorkoutTags();
 
@@ -1605,6 +1606,13 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                     return;
                 } else if (msg == QStringLiteral("trainprogram_preview")) {
                     onTrainingProgramPreview(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("setworkoutpreviewseek")) {
+                    if (homeform::singleton()) {
+                        const int seconds = jsonObject[QStringLiteral("content")].toObject()
+                                                .value(QStringLiteral("seconds")).toInt(-1);
+                        homeform::singleton()->setPreviewWorkoutSelectedSeconds(seconds);
+                    }
                     return;
                 } else if (msg == QStringLiteral("getworkoutpreview")) {
                     onGetWorkoutPreview(sender);
