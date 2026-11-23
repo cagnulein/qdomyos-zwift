@@ -372,9 +372,14 @@ void treadmill::accumulateModelCalories() {
     QSettings settings;
     const double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toDouble();
     const double height = settings.value(QZSettings::height, QZSettings::default_height).toDouble();
-    const double kcal = kcalPerMinute(speed, currentInclination().value(), weight, height,
-                                      metric::calculateBMR()) * dt / 60.0;
-    modelKCal.setValue(modelKCal.value() + kcal);
+    const double incline = currentInclination().value();
+    const double bmr = metric::calculateBMR();
+    bool running = false;
+    const double perMin = kcalPerMinute(speed, incline, weight, height, bmr, &running);
+    modelKCal.setValue(modelKCal.value() + perMin * dt / 60.0);
+    qDebug() << QStringLiteral("treadmill calories model:") << "speed" << speed << "incline" << incline
+             << (running ? "run" : "walk") << "kcal/min" << perMin << "dt" << dt << "total"
+             << modelKCal.value() << "elapsed" << e;
 }
 
 metric treadmill::calories() {
