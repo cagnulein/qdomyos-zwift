@@ -235,6 +235,8 @@ class homeform : public QObject {
 
     // workout preview
     Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
+    Q_PROPERTY(int previewWorkoutSelectedSeconds READ previewWorkoutSelectedSeconds NOTIFY previewWorkoutSelectedSecondsChanged)
+    Q_PROPERTY(bool previewWorkoutSeekSupported READ previewWorkoutSeekSupported NOTIFY previewWorkoutSeekSupportedChanged)
     Q_PROPERTY(QList<double> preview_workout_watt READ preview_workout_watt)
     Q_PROPERTY(QList<double> preview_workout_speed READ preview_workout_speed)
     Q_PROPERTY(QList<double> preview_workout_inclination READ preview_workout_inclination)
@@ -1166,6 +1168,8 @@ public:
     QQmlApplicationEngine *engine;
     trainprogram *trainProgram = nullptr;
     trainprogram *previewTrainProgram = nullptr;
+    int m_previewWorkoutSelectedSeconds = -1;
+    int m_nextWorkoutStartSecond = -1;
     QString backupFitFileName =
         QStringLiteral("QZ-backup-") +
         QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
@@ -1416,6 +1420,10 @@ public:
     void Plus(const QString &);
     void trainprogram_open_clicked(const QUrl &fileName);
     void trainprogram_autostart_requested();
+    int previewWorkoutSelectedSeconds() const { return m_previewWorkoutSelectedSeconds; }
+    bool previewWorkoutSeekSupported() const;
+    void setPreviewWorkoutSelectedSeconds(int seconds);
+    void setNextWorkoutStartSecond(int seconds);
     void handleOAuthCallbackUrl(const QString &callbackUrl);
     void handleAndroidDocumentPicked(int requestCode, const QString &uriString);
 
@@ -1597,6 +1605,8 @@ public:
     void trainingProgramIntervalSoundRequested();
 
     void previewWorkoutPointsChanged(int value);
+    void previewWorkoutSelectedSecondsChanged(int value);
+    void previewWorkoutSeekSupportedChanged();
     void previewWorkoutDescriptionChanged(QString value);
     void previewWorkoutTagsChanged(QString value);
 
