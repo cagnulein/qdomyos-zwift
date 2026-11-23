@@ -209,6 +209,11 @@ void kettlerc12bike::sendPoll() {
 }
 
 void kettlerc12bike::update() {
+    // The refresh timer can fire before the BLE controller is created.
+    if (!m_control) {
+        return;
+    }
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
@@ -730,8 +735,9 @@ void kettlerc12bike::errorService(QLowEnergyService::ServiceError err) {
 void kettlerc12bike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     qDebug() << QStringLiteral("Found device: ") + device.name();
 
-    if (device.name().startsWith(QStringLiteral("ERGO C12")) ||
-        device.name().toUpper().startsWith(QStringLiteral("KETTLER C12"))) {
+    if (device.name().startsWith(QStringLiteral("ERGO C12"), Qt::CaseInsensitive) ||
+        device.name().startsWith(QStringLiteral("KETTLER C12"), Qt::CaseInsensitive) ||
+        device.name().startsWith(QStringLiteral("TOUR 600"), Qt::CaseInsensitive)) {
 
         bluetoothDevice = device;
 
