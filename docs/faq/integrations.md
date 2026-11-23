@@ -99,6 +99,62 @@ If the controllers appear connected but gear changes do not work in Kinomap, che
 
 If QZ does not detect the Zwift Ride/Play controller after enabling the option, fully restart QZ with the controller awake. The controller option is applied during QZ startup. In a confirmed support case, enabling the Zwift controller option before starting QZ restored virtual shifting in MyWhoosh; selecting **FTMS** when adding the QZ virtual trainer in Kinomap then made the same setup work there as well.
 
+## How do I connect an ART.IS Cross AS6 (ChangYow SM5081E BLE) to ROUVY through QZ over Wi-Fi?
+
+A rider confirmed this **two-device Android setup** with an **ART.IS Cross AS6** indoor bike (ChangYow SM5081E BLE, firmware 21, advertised as `AS6-0185`), QZ on a Xiaomi 11T Pro phone, and ROUVY on a Lenovo Android tablet. Both Android devices were on the **same home Wi-Fi network**.
+
+**Connection topology:** the physical AS6 bike connects **only to QZ over Bluetooth** on the phone; ROUVY connects to **QZ's virtual trainer over Wi-Fi** on the tablet. Pairing ROUVY directly to the physical bike while QZ is using it can cause the applications to interfere with one another.
+
+### 1. Connect the physical bike in QZ
+
+1. Power on the bike and enable **Bluetooth and Wi-Fi** on the phone.
+2. In QZ, select the AS6 (`AS6-0185` in this example) as the physical bike. In this case, the rider used the **Manual Device** selection; if your FTMS bike needs explicit selection, check **Bike Options > FTMS Bike**.
+3. Confirm **live power, cadence, and speed** in QZ *before* starting ROUVY.
+
+The tested bike exposes the standard **Fitness Machine Service (0x1826)**, **Indoor Bike Data (0x2AD2, notify)**, **Fitness Machine Control Point (0x2AD9, write/indicate)**, and supported resistance/power ranges (**0x2AD6 / 0x2AD8**).
+
+### 2. Configure the QZ virtual trainer
+
+These are the **settings used in the successful test** (not a claim that every toggle is required for every bike):
+
+| QZ setting | Value |
+| --- | --- |
+| Enable Virtual Device | **ON** |
+| Virtual Device Bluetooth | **OFF** |
+| ROUVY Compatibility | **ON** |
+| Wahoo Direct Connect / DIRCON | **ON** |
+| MyWhoosh Compatibility | **OFF** |
+| Virtual Heart Only | **OFF** |
+| Manual Device | **AS6-0185** (the bike's actual advertised name) |
+
+**Debug Log** was also enabled during troubleshooting, but it is not required for normal riding.
+
+### 3. Pair ROUVY on the second Android device
+
+1. Enable **Wi-Fi** on the ROUVY tablet and connect it to the **same local network** as the QZ phone. In this successful setup, tablet **Bluetooth was OFF**.
+2. Enable **Wi-Fi Connectivity** in ROUVY.
+3. Wait for ROUVY to discover QZ's virtual Wi-Fi trainer; the confirmed setup displayed **`ELITE AVANTI 01234 W (Wi-Fi)`**. The advertised name may vary with QZ version/settings.
+4. **Crucial:** select **that same Wi-Fi virtual trainer twice in ROUVY: once under Smart Trainer and again under Power**.
+5. Start a short ride and verify that power updates and the rider moves.
+
+**Symptom and fix:** if ROUVY opens the ride but the avatar remains stationary and the activity automatically pauses, check the **Power** selection first. In the confirmed test, pairing the virtual trainer only as **Smart Trainer** was insufficient; adding **Power** made the ride start and work normally.
+
+### 4. Reliable startup order
+
+1. Turn on the AS6 bike.
+2. Open QZ on the phone and wait for live bike metrics.
+3. Open ROUVY on the tablet.
+4. Select QZ's Wi-Fi trainer as **both Smart Trainer and Power**.
+5. Start the ride.
+
+For **virtual shifting** while ROUVY sends gradients, see [Can I use QZ virtual gears with ROUVY?](#can-i-use-qz-virtual-gears-with-rouvy). This successful report confirms the Wi-Fi bridge and moving rider; it does not separately document a full virtual-gearing or gradient-resistance test.
+
+## ROUVY sees QZ's Wahoo KICKR virtual trainer but never finishes connecting. What should I check?
+
+If ROUVY on a computer detects **Wahoo KICKR 0000** from QZ but remains on the connecting spinner, check whether a **VPN is enabled on the phone running QZ**. Temporarily disable the VPN and retry the connection, keeping QZ and ROUVY on the same local network. A VPN can interfere with local-network discovery or communication even when the virtual trainer is listed.
+
+This fixed a reported iPhone-to-Mac ROUVY connection: the same setup connected normally on a second iPhone, and disabling the VPN on the original iPhone restored its connection too. You do not need to change your virtual gear settings just to test this network issue.
+
 ## Can I use QZ virtual gears with Rouvy?
 
 Yes. QZ can manage virtual gear changes while ROUVY controls the bike or trainer through QZ. ROUVY continues sending terrain/grade changes, while QZ applies the current virtual gear on top of the resistance requested for the route.
@@ -238,3 +294,40 @@ If QZ displays the correct running cadence during a treadmill workout, but **Gar
 Despite its name, this option also affects cadence written into the exported FIT activity used by Garmin Connect, not just Strava. It does **not** halve the live cadence shown on the QZ dashboard. A treadmill user explicitly confirmed that enabling it fixed doubled cadence in **both Garmin Connect and Strava**, while the live QZ reading had already been correct.
 
 Use this only when the exported cadence is actually doubled; do not enable it to correct an inaccurate live cadence reading or a separately recorded activity from a watch.
+
+## Sole+ connects to QZ but shows no workout data when I select an elliptical. What should I choose?
+
+In **Sole+**, remove the unsuccessful elliptical pairing and pair QZ as a **bike** instead, even when the physical machine connected to QZ is an elliptical. Keep QZ running on one device and Sole+ on another, and check that the live metrics are updating in QZ before pairing.
+
+QZ's existing virtual-device path can expose elliptical metrics using a virtual bike profile rather than a native virtual elliptical profile. Selecting **elliptical** in Sole+ can therefore connect to the wrong profile and show no data. In a confirmed iPhone-to-iPad test, selecting QZ as a bike restored data in Sole+ for **both** a physical exercise bike and an elliptical; selecting it as an elliptical returned no data for either.
+
+This is a **pairing/profile workaround**, not a claim that Sole+ receives every elliptical-specific metric. A native virtual elliptical profile is a separate feature and is not required for this workaround.
+
+## How can I avoid duplicate workouts in Intervals.icu when using Garmin Connect?
+
+If QZ uploads a completed workout directly to **Intervals.icu** and also uploads it to **Garmin Connect**, while Garmin Connect is configured to forward activities to Intervals.icu, the same workout can reach Intervals.icu by two different routes and may appear twice.
+
+Choose **one upload route** for each workout:
+
+1. **Via Garmin Connect:** Keep the QZ → Garmin Connect upload and Garmin Connect → Intervals.icu synchronization enabled, but disconnect or disable QZ's direct Intervals.icu upload.
+2. **Direct to Intervals.icu:** Keep QZ's direct Intervals.icu upload and disable the Garmin Connect → Intervals.icu activity sync for that workout source.
+
+QZ supports direct Intervals.icu uploads after a workout is stopped, as well as Garmin Connect integration. These are separate destinations; connecting both does not automatically deduplicate activities arriving through an external Garmin-to-Intervals synchronization. Check with a short test activity after changing the connections.
+
+## Garmin detects QZ's virtual treadmill running sensor but pairing times out. What can I try?
+
+On iOS, QZ can advertise a Bluetooth **Running Speed and Cadence (RSC)** sensor for a Garmin watch to record treadmill speed and distance during its own Treadmill activity. This differs from QZ's cycling power sensor.
+
+1. Enable **Virtual Device** and **Virtual Device Bluetooth** in QZ. Under **Garmin Options**, enable **Garmin Bluetooth Sensor**, then fully restart QZ.
+2. Connect the physical treadmill and confirm QZ displays live speed.
+3. If the watch detects QZ but pairing times out, temporarily disable the Garmin watch's **Phone Connection** under **Connectivity > Phone > Status** (or via Controls). **Keep Bluetooth enabled on the iPhone** so QZ can communicate with the treadmill.
+4. Remove any failed QZ sensor pairing on the watch and retry via **Sensors & Accessories > Add New > Search All** (or **Foot Pod**). Start a Treadmill activity and check speed/distance.
+5. Re-enable the watch's Phone Connection afterward to restore syncing.
+
+A Garmin fēnix 8 user confirmed that disabling the watch's Bluetooth phone connection resolved the pairing timeout and the setup worked with QZ controlling a Hammer Fly Run 4.0 treadmill. Do not disable Bluetooth on the iPhone.
+
+## ROUVY sees QZ's virtual Wi-Fi trainer but cannot connect from a computer. Could cellular data on the phone interfere?
+
+Yes. If QZ is running on an **iPhone** and ROUVY on a computer detects its virtual **ELITE AVANTI** Wi-Fi/DirCon trainer but fails to connect, temporarily turn **Cellular Data** off on the iPhone. Leave **Wi-Fi and Bluetooth on**, ensure the computer and phone are on the same local network, and keep QZ open in the foreground. Fully close and reopen ROUVY, then retry pairing the QZ-advertised Wi-Fi trainer. Also disable any active VPN during this test. You can restore cellular data afterward.
+
+In a confirmed BKOOL Smart Bike v1 / iPhone / Windows ROUVY setup, switching off iPhone cellular data restored the Wi-Fi trainer connection after other troubleshooting had failed. This only confirms the **connection**: the rider separately reported abnormal cadence and power values that still needed investigation. If the connection still fails, check the local network, firewall, and QZ DirCon settings rather than assuming cellular data is always the cause.

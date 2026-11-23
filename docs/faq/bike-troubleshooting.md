@@ -1,5 +1,12 @@
 # Bike and trainer troubleshooting
 
+
+## My iConsole-compatible bike connects to QZ but cadence and power stay at zero. What should I try?
+
+If QZ discovers an iConsole-compatible bike (for example, a Stream UB VIII advertising as `i-Console+...`) but only the workout timer advances, open **QZ Settings > iConsole settings** and enable **iConsole bike**. Restart/reconnect QZ and pedal to check whether cadence, watts, and resistance now update. The iConsole setting is in its own settings section, not necessarily under the general Bike Options list.
+
+In a confirmed Stream UB VIII support case, enabling **iConsole bike** restored cadence and other metrics. If the heart-rate tile remains at zero, try setting QZ's **Heart Rate Belt Name** selection to **Disabled** when you want to use heart rate provided through the bike. The same rider confirmed that this restored both the handlebar heart-rate readings and readings from a compatible chest belt connected through the bike; resistance control also worked. If you instead want QZ to connect directly to a separate Bluetooth chest strap, select that strap explicitly.
+
 ## QZ detects my bike, but the bike metrics stay at zero. What should I try?
 
 If QZ recognizes the bike but cadence, power, speed, or other bike data are not updating while other sources such as heart rate still work:
@@ -109,6 +116,14 @@ Yes, on a QZ build that includes **direct Echelon unlock**. If you previously ne
 **Confirmed on two models:** An EX-7S owner reported that this setup worked after updating QZ without reopening the Echelon app. Separately, an **EX-3** owner affected by the firmware lock installed the **iOS TestFlight beta**, kept **Virtual Echelon disabled**, and confirmed that Zwift riding worked again without the second-device unlock. Close the official Echelon app on other devices so it does not hold the Bluetooth connection. QZ's Echelon bike driver contains a direct unlock handshake. This does not guarantee the same behavior on older QZ builds or every Echelon model/firmware. If direct unlock is unavailable or fails, use the two-device unlock procedure above rather than assuming the bike is unsupported.
 
 
+## How do I connect a ProForm TDF 5.0 to QZ and MyWhoosh?
+
+For the **ProForm Tour de France TDF 5.0** Wi-Fi connection, enter the bike's current local IP address in **QZ's TDF4 IP** field (not TDF1 IP), and leave **ADB disabled**. Start QZ and confirm that the bike's live power/cadence metrics update before configuring the training app.
+
+To use MyWhoosh, run **QZ on one device** and **MyWhoosh on another**. In QZ enable **Virtual Device** and **Virtual Device Bluetooth**, restart QZ, and connect the physical TDF 5.0 first. In MyWhoosh pair **QZ's advertised virtual trainer** as the power source, rather than the physical bike. If the trainer is not visible, keep QZ in the foreground during discovery and check Bluetooth permissions. A rider confirmed receiving bike metrics in QZ and subsequently connecting MyWhoosh using a separate device; this does not establish automatic resistance control on that particular bike.
+
+If QZ's displayed speed differs from the bike console, the **Speed Based on Power** option under Bike Options changes QZ's speed calculation. The displayed virtual speed in MyWhoosh may still differ because the training app computes its own speed from power.
+
 ## My ProForm TDF bike used to connect over Wi-Fi, but QZ suddenly stays on Connecting. What should I check?
 
 QZ's Wi-Fi connection to a ProForm TDF bike uses the bike's configured IP address. If the router assigns the bike a different address through DHCP, QZ can keep trying the old address and no longer connect even though nothing changed in QZ.
@@ -212,3 +227,17 @@ Check **QZ Settings > Advanced Settings > Manual Device** before reinstalling th
 If QZ detects a Hammer ErgoMotion bike but RPM does not update, first check **QZ Settings > iConsole settings** and enable the **iConsole bike** option. If this alone does not help, open **QZ Settings > Bike Options > FTMS Bike**, set the manually selected FTMS bike to **Disabled**, and confirm with **OK**. Reconnect the bike and pedal to check whether RPM updates.
 
 In a confirmed Hammer ErgoMotion support case, enabling the iConsole bike option alone did not fix the zero-RPM reading. After the rider disabled the forced **FTMS Bike** selection, they explicitly confirmed that QZ worked. This is a device-specific troubleshooting step: do not disable a correctly configured FTMS connection for other bikes without a reason.
+
+## My Echelon bike with an external cadence sensor shows cadence but no speed or watts in QZ. What should I check?
+
+If an Echelon bike relies on a separate cadence sensor, first make sure QZ is paired with the sensor in **cadence mode**, not its speed mode. Some dual-mode sensors advertise different Bluetooth names when their mode changes. Under **Settings > Accessories > Cadence Sensor**, select the name currently advertised in cadence mode; keep **Cadence Sensor as a Bike** and **Cadence Sensor as a Treadmill** disabled when the Echelon is the main bike. Close the sensor manufacturer's app before reconnecting QZ.
+
+If cadence starts updating but **Speed** and **Watt** remain zero, check **Advanced Settings**: disable **Speed Calculates on Power / Speed Power Based**, set **Watt Gain = 1**, **Watt Offset = 0**, and **Speed Offset = 0**. Disable **Automatic Virtual Shifting** and **Virtual Echelon** if they were enabled for an unrelated setup. Restart QZ and verify positive speed and watts **before** pairing QZ as the power and cadence source in Zwift on a second device.
+
+A rider with an Echelon Connect bike and a dual-mode external cadence sensor confirmed that this configuration restored QZ speed and power and made the Zwift avatar move. The thread involved several settings changes, so it does not isolate one universal cause. These steps are for this external-cadence setup, not a reason to reset calibrated settings on other bikes.
+
+## My BKOOL Smart Bike v1 connects to QZ but its virtual bike does not move in ROUVY. What should I check?
+
+If the **BKOOL Smart Bike v1** is the primary bike connected to QZ, check that you have **not also selected the same bike under Accessories > Power Sensor**. Set that external **Power Sensor** selection to **Disabled**, and clear any manually forced selection of the BKOOL under **Bike Options > FTMS Bike**. Confirm the changes and fully restart QZ. Connect the physical bike to QZ first, verify its live metrics, then connect ROUVY to the virtual QZ trainer on your other device.
+
+A BKOOL Smart Bike v1 rider reported that ROUVY began working after clearing these duplicate/manual sensor selections. Both selections were changed in the confirmed test, so their individual effects were not isolated. Do not remove a legitimate external power meter or a required FTMS selection on an unrelated trainer.

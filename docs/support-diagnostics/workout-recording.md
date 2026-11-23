@@ -80,3 +80,44 @@
 - QZ's FIT exporter writes manufacturer, product and serial/device identity according to its Garmin Training Effect and device-selection settings; an unexpected selection can affect how the activity is presented.
 - Uploading a FIT activity to Garmin Connect and broadcasting live data to a Garmin watch are different paths. A successful upload or Training Effect value does **not** by itself prove Garmin will update VO2max for that workout.
 - The [Garmin integration FAQ](../faq/integrations.md) describes the two paths; this intake distinguishes file metadata, missing sensor data and Garmin-side eligibility before recommending a configuration change.
+
+
+## Strava treadmill interval pace graph is erratic despite correct recorded speeds
+
+### Provide first
+
+- Exact treadmill model, QZ platform/build, and a screenshot of the affected Strava activity showing the pace graph and interval times.
+- During one short slow/fast interval test, compare the treadmill console speed with QZ's **Speed** tile at both speeds. State whether the discrepancy is visible in QZ or only after export.
+- Screenshot **Treadmill Options > Treadmill Direct Distance** and identify the cadence source (treadmill, footpod, watch, or QZ speed-based estimate). Report **Cadence Gain**, **Cadence Offset**, **Step Gain**, and the running half-cadence export option if cadence is also abnormal.
+
+### If still unclear
+
+- Send the **original QZ-generated FIT file** for the affected workout and a short QZ debug log spanning one slow-to-fast-to-slow interval, with approximate times. Do not substitute a Strava screenshot or an exported summary for the original FIT.
+- Compare successive FIT **speed** and **distance** records independently. Note whether speed follows each interval while distance remains constant and then advances in coarse steps (for example, 100 m).
+- If the treadmill reports coarse distance increments and **Treadmill Direct Distance** is enabled, compare a **new** short interval recording with that option disabled, keeping the other settings unchanged. Compare the new FIT distance progression and Strava graph; do not assume an old upload is recalculated.
+- If cadence is zero or implausibly doubled, compare FIT cadence samples with the QZ live cadence and the cadence source/settings separately from the pace investigation.
+
+### Why it matters
+
+- Correct live speed and correct FIT speed samples do not guarantee a smooth downstream pace graph: coarse machine-reported distance increments can distort pace calculations independently of speed.
+- A support capture showed valid interval speed changes but distance advancing in large discrete steps with **Treadmill Direct Distance** enabled. The resulting Strava pace issue remained pending a new recording; this is a diagnostic distinction, not a confirmed universal fix.
+- Cadence gain/step settings and the exported cadence convention are a **separate** path from FIT speed/distance. Requesting the original FIT distinguishes QZ recording from downstream display interpretation before changing unrelated settings.
+
+## Step Count continues after Stop and an apparent new workout
+
+### Provide first
+
+- QZ platform/build, treadmill model, and the step/cadence source (treadmill, external running sensor, or estimated cadence).
+- State the **exact controls** used to end and restart the activity: QZ **Stop** and **Start**, or the treadmill's physical controls. Include whether QZ's elapsed-time counter restarted and whether the **Step Count** tile reset.
+- Give the Step Count immediately before stopping and immediately after the attempted new start. Confirm whether speed/cadence continued to update.
+
+### If still unclear
+
+- Repeat one short, controlled session using **Stop and then Start directly in QZ**. Record the time of both presses and the Step Count before and after; do not change sensor settings during the comparison.
+- If the count still carries over, send a QZ debug log spanning both actions and a screenshot of the relevant tiles. Specify whether the log contains a QZ Start event after Stop.
+- Compare with a separate attempt using only the treadmill's physical controls if that was the original sequence. Do not request sensor protocol captures unless the step readings themselves are wrong.
+
+### Why it matters
+
+- Stopping or restarting the treadmill motor does not necessarily start a **new QZ workout session**. A log showing Stop without a subsequent QZ Start cannot establish that session counters failed to reset after a new workout.
+- Distinguishing session state from the incoming cadence/step stream prevents unnecessary sensor or FIT-export troubleshooting. This comparison is diagnostic intake, not a confirmed fix for every Step Count issue.

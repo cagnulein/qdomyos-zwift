@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="zh_TW">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>關閉</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -68,6 +75,30 @@
         <source>Other folders</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>上層資料夾</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>開啟</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>這裡沒有 GPX 檔案</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 公里</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 公尺</translation>
+    </message>
 </context>
 <context>
     <name>HeartRateSuggestion</name>
@@ -98,6 +129,22 @@
     <message>
         <source>Choose a heart rate sensor</source>
         <translation>選擇心率感測器</translation>
+    </message>
+    <message>
+        <source>Strong signal</source>
+        <translation>訊號強</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>訊號良好</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>訊號普通</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>訊號弱</translation>
     </message>
 </context>
 <context>
@@ -229,7 +276,7 @@ Would you like to do that now?</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>確定</translation>
     </message>
     <message>
         <source>Good</source>
@@ -256,6 +303,22 @@ Would you like to enable the required services?</source>
     <message>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>停止</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>Return to app</source>
+        <translation>返回應用程式</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>將負載控制權交還給應用程式</translation>
     </message>
 </context>
 <context>
@@ -296,6 +359,26 @@ Would you like to enable the required services?</source>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>正在尋找您的設備…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>請開啟自行車、跑步機或划船機：QZ 會自動連線。</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>無法連線？</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>找不到設備</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>開啟健身車、跑步機或划船機，然後點選上方的藍牙圖示重新搜尋。</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -317,7 +400,7 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Chart</source>
-        <translation type="unfinished"></translation>
+        <translation>圖表</translation>
     </message>
     <message>
         <source>Treadmill Status</source>
@@ -505,7 +588,7 @@ Would you like to enable the required services?</source>
     <name>QAndroidPlatformTheme</name>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation>是</translation>
     </message>
     <message>
         <source>Yes to All</source>
@@ -513,7 +596,7 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation>否</translation>
     </message>
     <message>
         <source>No to All</source>
@@ -1054,12 +1137,16 @@ Do you want to update QZ settings?</source>
         <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
         <translation>附近找不到心率感測器。請確認裝置已開啟並正在廣播心率資料。</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S 已連線！</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">確定</translation>
     </message>
     <message>
         <source>Save</source>
@@ -1071,7 +1158,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">開啟</translation>
     </message>
     <message>
         <source>&amp;Yes</source>
@@ -1107,7 +1194,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
     <message>
         <source>Discard</source>
@@ -1166,6 +1253,22 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Other folders</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>點選檔案以選取，再點選載入。</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>載入</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>沒有已儲存的設定</translation>
     </message>
 </context>
 <context>
@@ -1259,6 +1362,21 @@ Do you want to update QZ settings?</source>
     </message>
 </context>
 <context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>購買中...</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>購買失敗</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>購買成功</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -1335,7 +1453,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>刪除</translation>
     </message>
     <message>
         <source>Other folders</source>
@@ -1377,7 +1495,7 @@ Do you want to update QZ settings?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Restore programs</source>
+        <source>Restore files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1386,11 +1504,87 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">刪除</translation>
     </message>
     <message>
         <source>Start Workout</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>上層資料夾</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>找不到訓練</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>這裡沒有訓練</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>顯示較少</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>顯示更多</translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>是</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>否</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>確定</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>已展開</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>已收合</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>小時</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>分鐘</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>秒</translation>
     </message>
 </context>
 <context>
@@ -1418,7 +1612,7 @@ Do you want to update QZ settings?</source>
     <name>WebTranslations</name>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">確定</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -1442,11 +1636,11 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">刪除</translation>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation>載入</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -1462,7 +1656,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>返回</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -1486,27 +1680,27 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">是</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">否</translation>
     </message>
     <message>
         <source>Bike</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">健身車</translation>
     </message>
     <message>
         <source>Treadmill</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">跑步機</translation>
     </message>
     <message>
         <source>Elliptical</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">橢圓機</translation>
     </message>
     <message>
         <source>Rower</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">划船機</translation>
     </message>
     <message>
         <source>Workout Editor</source>
@@ -1898,6 +2092,11 @@ Do you want to update QZ settings?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation type="unfinished"></translation>
@@ -2264,7 +2463,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">停止</translation>
     </message>
     <message>
         <source>Auto Resistance</source>
@@ -2358,6 +2557,16 @@ Do you want to update QZ settings?</source>
         <source>Interval {number}, {field}: {error}</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>心率 PID 致動器</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>預設</translation>
+    </message>
 </context>
 <context>
     <name>Wizard</name>
@@ -2401,7 +2610,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">返回</translation>
     </message>
     <message>
         <source>Choose your preferred app</source>
@@ -2501,11 +2710,11 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Zwift Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
         <source>Zwift Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Play</translation>
     </message>
     <message>
         <source>Correct startup phase:
@@ -2591,19 +2800,19 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Bike</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">健身車</translation>
     </message>
     <message>
         <source>Treadmill</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">跑步機</translation>
     </message>
     <message>
         <source>Rower</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">划船機</translation>
     </message>
     <message>
         <source>Elliptical</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">橢圓機</translation>
     </message>
     <message>
         <source>Other app</source>
@@ -2660,6 +2869,18 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <source>kg</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>逐步設定您的設備、單位和個人資料</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>選擇主題並直接前往其設定</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>關閉設定精靈</translation>
     </message>
 </context>
 <context>
@@ -2767,17 +2988,8 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Importing workouts...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Processing workout files...
-This may take a few moments on first startup.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">刪除</translation>
     </message>
     <message>
         <source>Success</source>
@@ -2896,6 +3108,22 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Adding workouts to the history</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Open on Peloton</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2930,6 +3158,22 @@ This may take a few moments on first startup.</source>
     <message>
         <source>has a workout</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Calendar</source>
+        <translation>行事曆</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>當天沒有訓練</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>尚無訓練</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>已完成的訓練會顯示在這裡：開啟一項即可查看圖表。</translation>
     </message>
 </context>
 <context>
@@ -2989,6 +3233,14 @@ This may take a few moments on first startup.</source>
         <source>Offset</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>減少檔位 %1 的偏移量</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>增加檔位 %1 的偏移量</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
@@ -3015,6 +3267,18 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Reset Example</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Decrease %1</source>
+        <translation>減少 %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>增加 %1</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>移除坡度為 %1 的點</translation>
     </message>
 </context>
 <context>
@@ -3094,6 +3358,10 @@ This may take a few moments on first startup.</source>
 </context>
 <context>
     <name>homeform</name>
+    <message>
+        <source>No enabled metrics</source>
+        <translation>沒有已啟用的指標</translation>
+    </message>
     <message>
         <source>Speed (%1/h)</source>
         <translation type="unfinished"></translation>
@@ -3313,7 +3581,7 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">停止</translation>
     </message>
     <message>
         <source>Start</source>
@@ -3547,6 +3815,14 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3580,14 +3856,6 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>The file could not be copied to the QZ folder.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Training programs restored: %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No training programs of a previous installation were found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4009,9 +4277,17 @@ This may take a few moments on first startup.</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ 正在執行</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>藍牙已關閉</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>浮動指標（子母畫面）</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation type="unfinished"></translation>
@@ -4126,6 +4402,17 @@ Do you want to start it now?</source>
     </message>
     <message>
         <source>Peloton</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4255,17 +4542,6 @@ In the next window, allow access to the QZ folder.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Training Programs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Training programs of a previous installation may still be in the QZ folder.
-Do you want to look for them?
-
-In the next window, allow access to the QZ folder.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Restart now?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4328,11 +4604,11 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">是</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">否</translation>
     </message>
     <message>
         <source>Connection lost in the background</source>
@@ -4354,11 +4630,11 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Not now</source>
-        <translation type="unfinished"></translation>
+        <translation>暫時不要</translation>
     </message>
     <message>
         <source>Don&apos;t ask again</source>
-        <translation type="unfinished"></translation>
+        <translation>不再詢問</translation>
     </message>
     <message>
         <source>Auto Resistance enabled</source>
@@ -4371,6 +4647,138 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Please choose a file</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>已儲存！請到「檔案」App 查看。</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>已儲存！請到 App 的私人資料夾查看。</translation>
+    </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Wahoo 虛擬變速</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>為了模擬虛擬變速，QZ 會修改訓練台內儲存的輪圈周長。關閉 QZ 後，此數值可能仍保留在訓練台內，並影響其他 App 的使用。
+
+要允許 QZ 修改嗎？
+
+選擇「否」：QZ 將啟用 Without Wheel Diameter Protocol（設定 &gt; 自行車選項 &gt; Wahoo 選項），虛擬變速將透過坡度運作。若選擇「是」，稍後仍可還原：啟用該選項，並在訓練台連線時點選 Restore Default Setting to the Trainer。</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>返回</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>主選單</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>浮動視窗</translation>
+    </message>
+    <message>
+        <source>Load settings</source>
+        <translation>載入設定</translation>
+    </message>
+    <message>
+        <source>Save settings</source>
+        <translation>儲存設定</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>地圖</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>影片</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>圖表</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>鎖定資訊磚</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>解除鎖定資訊磚</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>停用自動阻力</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>啟用自動阻力</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>中斷 Strava 連線</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>連線至 Strava</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>中斷 Peloton 連線</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>連線至 Peloton</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Garmin Connect 設定</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>中斷 Intervals.icu 連線</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>連線至 Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>訓練</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>App</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>服務</translation>
+    </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>模擬裝置（%1）已啟用。如果不是刻意啟用，請在設定中關閉。</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>健身車</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>跑步機</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>橢圓機</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>划船機</translation>
     </message>
 </context>
 <context>
@@ -4447,12 +4855,40 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Other folders</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>刪除</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>新增個人檔案</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>已儲存的個人檔案</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>點選個人檔案以選取，再點選載入。長按即可刪除。</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>使用中</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>載入</translation>
     </message>
 </context>
 <context>
@@ -4627,7 +5063,7 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">確定</translation>
     </message>
     <message>
         <source>Setting saved!</source>
@@ -4635,6 +5071,30 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>App Language:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5454,7 +5914,7 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Tiles Options</source>
-        <translation type="unfinished"></translation>
+        <translation>資訊磚選項</translation>
     </message>
     <message>
         <source>General UI Options</source>
@@ -6631,6 +7091,14 @@ Please enter it below:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Strava 模擬 GPS 軌跡</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>為沒有 GPS 的虛擬活動寫入模擬 GPS 軌跡。Strava 可能因此顯示爬升高度，但路線並非真實路線。</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6751,6 +7219,14 @@ IMPORTANT NOTES:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>阻力相容模式</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>如果在 QZ 中調整阻力時，單車只能跳到第 1 級或最大級別，請啟用此選項。FTMS 阻力值將乘以 10 後傳送。預設：關閉。</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>
@@ -7060,7 +7536,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Zwift Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
         <source>Use it to change the gears on QZ!</source>
@@ -7068,7 +7544,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Zwift Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Play</translation>
     </message>
     <message>
         <source>Also for Elite Square. Use it to change the gears on QZ!</source>
@@ -8162,6 +8638,14 @@ Default: A = -0.96, B = 1.33</source>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>在 GPX 訓練中，忽略小於此值的坡度變化。只有與上次傳送的數值差距達到設定門檻時，才會傳送新的坡度指令。預設：0（停用）。</translation>
     </message>
+    <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>在設定頁面中找不到這個選項</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>使用控制台檔位</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>
@@ -8191,7 +8675,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">停止</translation>
     </message>
     <message>
         <source>Lap</source>
@@ -8326,7 +8810,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">確定</translation>
     </message>
     <message>
         <source>Setting saved!</source>
@@ -8974,6 +9458,10 @@ Default: A = -0.96, B = 1.33</source>
         <source>km/h</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>資訊磚選項</translation>
+    </message>
 </context>
 <context>
     <name>settings-treadmill-inclination-override</name>
@@ -8988,7 +9476,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">確定</translation>
     </message>
     <message>
         <source>Setting saved!</source>
@@ -9170,7 +9658,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">確定</translation>
     </message>
     <message>
         <source>Setting saved!</source>

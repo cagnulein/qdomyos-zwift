@@ -11,7 +11,7 @@
 //
 // "connect" only connects (which turns accessibility on in QZ), reads the tree once and leaves: run
 // many times, it turns accessibility on and off while QZ runs (QTBUG-144911).
-// Lines start with OK, FAIL or INFO; the last one is DONE.
+// Lines start with OK, FAIL, INFO or DUMP (the output of "dumpsys input"); the last one is DONE.
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.UiAutomation;
@@ -22,10 +22,15 @@ import android.os.SystemClock;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class AccessibilityStressTest {
     private static final String PACKAGE = "org.cagnulen.qdomyoszwift";
@@ -34,6 +39,8 @@ public class AccessibilityStressTest {
     private static volatile boolean reading = true;
     private static volatile long reads = 0;
     private static int cacheClears = 0;
+    private static int presses = 0;
+    private static boolean inputDumped = false;
 
     public static void main(String[] args) throws Exception {
         Looper.prepareMainLooper();
@@ -108,10 +115,27 @@ public class AccessibilityStressTest {
             for (int i = 1; i <= cycles; i++) {
                 // From wherever QZ is (home, menu, settings): a finger's tap on the next step to the
                 // tiles page, again if a tap was lost, up to 45 s. Finger taps and not the press of
-                // the accessibility action: this test is about the reads.
+                // the accessibility action (but for taps Android gave to the input sink, below): this test is
+                // about the reads.
                 long end = SystemClock.uptimeMillis() + 45000;
                 long emptySince = 0;
                 boolean shown = false;
+                // The step of the last tap, how many taps in a row before it were on the same step (two
+                // can be normal: "◄" from the settings to home, then "◄" to the menu) and the time of
+                // the first of them. Once on API 33 Android gave every finger tap for 33 s to the input
+                // sink of the activity (InputDispatcher: "Not sending touch gesture to ...
+                // ActivityRecordInputSink ... because it is not responsive") and not to the window of
+                // QZ, with no crash or ANR, and the test stood on one page for 45 s. After 3 taps on
+                // the same step, if the logcat has such lines for QZ since the first of them, the step
+                // is pressed with the accessibility action, which does not go through the input
+                // dispatcher; the first time "dumpsys input" tells which windows took the touch.
+                // Taps with no such line are not pressed: they may have reached QZ and done nothing, and
+                // the page that does not open fails the test. Each step Android gave to the input sink
+                // (pressed or not) is a warning of the run (android_accessibility_stress_test.sh): why
+                // the window of QZ did not take the touch is not known
+                String lastStep = null;
+                String stepSince = null;
+                int repeats = 0;
                 while (SystemClock.uptimeMillis() < end) {
                     // a screen of another app over QZ (Health Connect on API 35+ after a start)
                     String active = activePackage();
@@ -140,7 +164,40 @@ public class AccessibilityStressTest {
                         next = find(nodes, "Settings", false);
                     if (next == null)
                         next = find(nodes, "◄", true);
-                    if (next != null && tap(next)) {
+                    if (next == null) {
+                        Thread.sleep(300);
+                        continue;
+                    }
+                    String step = String.valueOf(next.getContentDescription());
+                    repeats = step.equals(lastStep) ? repeats + 1 : 0;
+                    lastStep = step;
+                    if (repeats == 0)
+                        stepSince = logcatTime();
+                    boolean done;
+                    if (repeats >= 3 && sinkTouches(stepSince) > 0) {
+                        if (!inputDumped) {
+                            inputDumped = true;
+                            dumpInput();
+                        }
+                        // CustomQtActivity presses a node that is not marked clickable too ("Settings"
+                        // of the menu, an ItemDelegate) and answers true only when main.cpp pressed it
+                        done = next.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                        System.out.println("INFO Android gave " + repeats + " finger taps in a row on '" + step
+                                + "' to the input sink, " + (done ? "pressed it with the accessibility action"
+                                : "the accessibility action pressed nothing, tapping it again"));
+                        if (done)
+                            presses++;
+                        else
+                            done = tap(next);
+                        // the next taps are counted anew
+                        lastStep = null;
+                    } else {
+                        if (repeats == 3)
+                            System.out.println("INFO 3 finger taps in a row on '" + step
+                                    + "' did not take QZ further, with no line of the input dispatcher about its input sink");
+                        done = tap(next);
+                    }
+                    if (done) {
                         taps++;
                         Thread.sleep(1500);
                     } else {
@@ -150,6 +207,7 @@ public class AccessibilityStressTest {
                 if (!shown) {
                     System.out.println("FAIL the tiles page did not show in cycle " + i + " in 45 s, the active window is "
                             + activePackage() + ", it shows: " + shownTexts() + "; the tree:" + outline());
+                    dumpInput();
                     return;
                 }
                 automation.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
@@ -173,8 +231,48 @@ public class AccessibilityStressTest {
                     + cacheClears + " clears of the accessibility cache");
             return;
         }
-        System.out.println("OK opened and closed the tiles page " + cycles + " times, " + taps + " taps, " + reads
+        System.out.println("OK opened and closed the tiles page " + cycles + " times, " + taps + " taps (" + presses
+                + " of them with the accessibility action after Android gave finger taps to the input sink), " + reads
                 + " reads of the tree, " + cacheClears + " clears of the accessibility cache");
+    }
+
+    // Now, as the logcat writes its time
+    private static String logcatTime() {
+        return new SimpleDateFormat("MM-dd HH:mm:ss.SSS", Locale.US).format(new Date());
+    }
+
+    // The lines of the input dispatcher since the given time that tell it gave a touch to the input
+    // sink of the activity of QZ and not to its window
+    private static int sinkTouches(String since) {
+        int count = 0;
+        try {
+            Process logcat = new ProcessBuilder("logcat", "-d", "-t", since, "-s", "InputDispatcher:W")
+                    .redirectErrorStream(true).start();
+            BufferedReader output = new BufferedReader(new InputStreamReader(logcat.getInputStream()));
+            String line;
+            while ((line = output.readLine()) != null) {
+                if (line.contains("ActivityRecordInputSink") && line.contains(PACKAGE))
+                    count++;
+            }
+            logcat.waitFor();
+        } catch (Exception e) {
+            System.out.println("INFO cannot read the logcat: " + e);
+        }
+        return count;
+    }
+
+    // The windows of the input dispatcher, which of them take touches and where, as DUMP lines
+    private static void dumpInput() {
+        try {
+            Process dumpsys = new ProcessBuilder("dumpsys", "input").redirectErrorStream(true).start();
+            BufferedReader output = new BufferedReader(new InputStreamReader(dumpsys.getInputStream()));
+            String line;
+            while ((line = output.readLine()) != null)
+                System.out.println("DUMP " + line);
+            dumpsys.waitFor();
+        } catch (Exception e) {
+            System.out.println("INFO cannot run dumpsys input: " + e);
+        }
     }
 
     private static String activePackage() {

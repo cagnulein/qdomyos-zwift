@@ -7,6 +7,7 @@
 #include "ios/lockscreen.h"
 #include "ios/ios_liveactivity.h"
 #include "ios/ios_background_keepalive.h"
+#include "ios/ios_floating_metrics.h"
 #endif
 #include "localipaddress.h"
 #ifdef Q_OS_ANDROID
@@ -68,6 +69,9 @@
 #include <QDataStream>
 #include <algorithm>
 #include <chrono>
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
 
 #ifdef Q_OS_IOS
 // Implemented by ios/support_email.mm; always built for Qt iOS including IO_UNDER_QT.
@@ -79,6 +83,16 @@ homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
 
 namespace {
+// QFile::copy() gives the copy the permissions of the source, and a file in the resources is
+// read-only: on Windows a bundled program copied that way cannot be deleted. Copies made by
+// earlier versions are fixed too, as this runs at every start.
+void makeBundledCopyWritable(const QString &path) {
+    QFile file(path);
+    if (file.exists() && !(file.permissions() & QFileDevice::WriteOwner)) {
+        file.setPermissions(file.permissions() | QFileDevice::WriteOwner);
+    }
+}
+
 QString uploadActivityLabelFromSport(FIT_SPORT sport) {
     switch (sport) {
     case FIT_SPORT_RUNNING:
@@ -241,7 +255,7 @@ constexpr int AndroidDocumentPickerGpxRequestCode = 4103;
 constexpr int AndroidDocumentPickerSettingsRequestCode = 4104;
 constexpr int AndroidDocumentPickerFitRequestCode = 4105;
 constexpr int AndroidDocumentPickerFitFolderRequestCode = 4106;
-constexpr int AndroidDocumentPickerTrainingFolderRequestCode = 4107;
+constexpr int AndroidDocumentPickerRestoreFolderRequestCode = 4107;
 constexpr jint AndroidActivityResultOk = -1;
 #endif
 double interpolatedHeartZone(double percentHeartRate, double zone1, double zone2, double zone3, double zone4) {
@@ -872,6 +886,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         m_topBarHeight = 0;
         emit topBarHeightChanged(m_topBarHeight); // NOTE: clazy-incorrecrt-emit
         m_info = QLatin1String("");
+        m_infoFoundDevice.clear();
         emit infoChanged(m_info); // NOTE: clazy-incorrecrt-emit
     }
 
@@ -1064,6 +1079,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         if (!QFile(targetPath).exists() && !QFile(markerPath).exists()) {
             QFile::copy(":/zwo/" + itZwo.fileName(), targetPath);
         }
+        makeBundledCopyWritable(targetPath);
     }
 
     QDirIterator itGpx(":/gpx/");
@@ -1076,7 +1092,17 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         if (!QFile(targetPath).exists() && !QFile(markerPath).exists()) {
             QFile::copy(":/gpx/" + itGpx.fileName(), targetPath);
         }
+        makeBundledCopyWritable(targetPath);
     }
+
+#ifdef Q_OS_WIN
+    // deletion markers that earlier versions left visible
+    QDirIterator itMarker(getWritableAppDir() + "training", QStringList() << QStringLiteral(".deleted_*"),
+                          QDir::Files | QDir::Hidden, QDirIterator::Subdirectories);
+    while (itMarker.hasNext()) {
+        hideDeletionMarker(itMarker.next());
+    }
+#endif
 
     removeOldWorkoutImages();
 
@@ -1124,9 +1150,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             this, [](const QString& filename) {
                 qDebug() << "FitDatabaseProcessor Processing:" << filename;
             });
+    // the history page shows it: the new files of the fit folder at start, the files of an import
     connect(fitProcessor, &FitDatabaseProcessor::progress,
-            this, [](int processed, int total) {
+            this, [this](int processed, int total) {
                 qDebug() << "FitDatabaseProcessor Progress:" << processed << "/" << total;
+                setFitImportProgress(true, processed, total);
             });
     connect(fitProcessor, &FitDatabaseProcessor::error,
             this, [](const QString& error) {
@@ -1138,6 +1166,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(fitProcessor, &FitDatabaseProcessor::processingStopped,
             this, [this]() {
                 qDebug() << "FitDatabaseProcessor Processing stopped - refreshing workout model";
+                setFitImportProgress(true, 0, 0);
                 workoutModel->setDatabaseProcessing(false);
                 workoutModel->refresh();
                 if (!m_historyRecoveryChecked) {
@@ -1156,6 +1185,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             this, [this](int added, int alreadyInHistory, int unreadable, bool databaseOpen) {
                 qDebug() << "FitDatabaseProcessor import: added" << added << "already" << alreadyInHistory
                          << "unreadable" << unreadable << "database open" << databaseOpen;
+                setFitImportProgress(true, 0, 0);
                 setFitImportRunning(false);
                 const bool quiet = m_fitImportQuiet;
                 m_fitImportQuiet = false;
@@ -1363,7 +1393,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         }
     });
 
-    bluetoothManager->homeformLoaded = true;
+    // The Bluetooth manager exists before this object. Start any deferred
+    // discovery/direct SPP connection only now that UI slots are connected.
+    bluetoothManager->onHomeformReady();
 }
 
 #ifdef Q_OS_ANDROID
@@ -1384,6 +1416,30 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnOAuthCallback(JNIEnv *en
     if (homeform::singleton()) {
         QMetaObject::invokeMethod(homeform::singleton(), "handleOAuthCallbackUrl", Qt::QueuedConnection,
                                   Q_ARG(QString, url));
+    }
+}
+
+// a restore of the QZ folder is copying file done of total: the list pages show how far it is
+JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnFolderRestoreProgress(JNIEnv *env, jclass clazz, jint done,
+                                                                              jint total) {
+    Q_UNUSED(env)
+    Q_UNUSED(clazz)
+    if (homeform::singleton()) {
+        QMetaObject::invokeMethod(homeform::singleton(), "setFolderRestoreProgress", Qt::QueuedConnection,
+                                  Q_ARG(int, done), Q_ARG(int, total));
+    }
+}
+
+// a workout import from a folder is copying file done of total out of it; 0, 0 when the copy is over
+JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnFitImportProgress(JNIEnv *env, jclass clazz, jint done,
+                                                                          jint total) {
+    Q_UNUSED(env)
+    Q_UNUSED(clazz)
+    if (homeform::singleton()) {
+        QMetaObject::invokeMethod(homeform::singleton(), "setFitImportProgress", Qt::QueuedConnection,
+                                  Q_ARG(bool, false), Q_ARG(int, done), Q_ARG(int, total));
     }
 }
 
@@ -1666,6 +1722,7 @@ void homeform::peloton_start_workout() {
 
     if (settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
         m_info = stravaPelotonActivityName;
+        m_infoFoundDevice.clear();
         emit infoChanged(m_info);
     }
 
@@ -1813,6 +1870,13 @@ QString homeform::getWritableAppDir() {
     path = QDir::currentPath() + "/";
 #endif
     return path;
+}
+
+// "file://" + path is not a valid URL when the path starts with a drive letter ("file://C:/..." makes C the
+// host) or is relative (Linux: getWritableAppDir() is empty), so QML folder lists built that way show the
+// working directory or nothing; QUrl::fromLocalFile builds the right one on every platform
+QUrl homeform::localFileUrl(const QString &path) {
+    return QUrl::fromLocalFile(QFileInfo(path).absoluteFilePath());
 }
 
 // Keep any letters (Cyrillic, accents, CJK...): only replace characters a file name cannot hold
@@ -1974,6 +2038,16 @@ void homeform::refresh_bluetooth_devices_clicked() {
 QString homeform::bluetoothSearchStatus() {
     if (!bluetoothManager || bluetoothManager->device())
         return QString();
+    // with Bluetooth off no Bluetooth search runs: the line said "Searching for the device..." (or the
+    // start value "Connecting...") until it was switched on
+    if (bluetoothManager->bluetoothOff())
+        return tr("Bluetooth is off");
+    // Gym mode: the trainer is picked, QZ looks for it and connects - say which one, while a search runs
+    // or is due. A search that has given up still says to tap the Bluetooth icon; after a scan that
+    // failed (Location off) none runs or is due, and the line stays empty as before
+    if (!bluetoothManager->gymModeDevice().isEmpty() &&
+        (bluetoothManager->isSearching() || bluetoothManager->nextSearchMs()))
+        return tr("Connecting to %1...").arg(bluetoothManager->gymModeDevice());
     // while scanning, the last device found shows that QZ is finding something (useful for troubleshooting)
     const QString scanning = lastFoundDevice.isEmpty() ? tr("Searching for the device...")
                                                        : tr("%1 found").arg(lastFoundDevice);
@@ -1994,12 +2068,33 @@ QString homeform::bluetoothSearchStatus() {
     return tr("%1 found").arg(lastFoundDevice) + QStringLiteral("\n") + countdown;
 }
 
+bool homeform::bluetoothSearchStopped() {
+    return bluetoothManager && !bluetoothManager->device() && !bluetoothManager->isSearching() &&
+           bluetoothManager->searchStopped();
+}
+
+bool homeform::bluetoothSearchOff() {
+    return bluetoothManager && !bluetoothManager->device() && bluetoothManager->bluetoothOff();
+}
+
 void homeform::bluetoothSearchNow() {
     if (!bluetoothManager || bluetoothManager->device())
         return;
     const int waitSec = bluetoothManager->searchNow();
     if (waitSec > 0)
         setToastRequested(tr("Android allows 5 Bluetooth searches in 30 s, the next one starts in %1 s").arg(waitSec));
+}
+
+int homeform::bluetoothNextSearchSeconds() {
+    if (!bluetoothManager || bluetoothManager->device())
+        return -1;
+    if (bluetoothManager->isSearching())
+        return 0;
+    if (!bluetoothManager->nextSearchMs())
+        return -1;
+    const qint64 left = bluetoothManager->nextSearchMs() - QDateTime::currentMSecsSinceEpoch();
+    // rounded up as in bluetoothSearchStatus(): both say the same number
+    return left > 0 ? int((left + 999) / 1000) : 0;
 }
 
 void homeform::selectGymModeDevice(const QString &deviceName) {
@@ -2788,6 +2883,40 @@ void homeform::setTileNames() {
     groundContactMS->setName(tr("Ground C.(ms)"));
     verticalOscillationMM->setName(tr("Vert.Osc.(mm)"));
     stepCount->setName(tr("Step Count"));
+}
+
+bool homeform::floatingMetricsSupported() {
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+    return iosFloatingMetrics::supported();
+#else
+    return false;
+#endif
+}
+
+void homeform::toggleFloatingMetrics() {
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+    const bool running = iosFloatingMetrics::running();
+    const bool supported = iosFloatingMetrics::supported();
+    qDebug() << "Floating metrics: toggle requested, running" << running << "supported" << supported;
+    if (running) {
+        iosFloatingMetrics::stop();
+    } else if (supported) {
+        updateFloatingMetrics();
+        iosFloatingMetrics::start();
+    }
+#endif
+}
+
+void homeform::updateFloatingMetrics() {
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+    QList<QPair<QString, QString>> metrics;
+    for (QObject *object : dataList) {
+        DataObject *tile = static_cast<DataObject *>(object);
+        if (tile->visibleItem() && !tile->largeButton() && !tile->value().isEmpty())
+            metrics.append(qMakePair(tile->name(), tile->value()));
+    }
+    iosFloatingMetrics::update(metrics, tr("No enabled metrics"));
+#endif
 }
 
 void homeform::sortTiles() {
@@ -5353,8 +5482,8 @@ void homeform::deviceFound(const QString &name) {
     if (!settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
         return;
     }
-    m_info = name + QStringLiteral(" found");
-    emit infoChanged(m_info);
+    m_infoFoundDevice = name;
+    emit infoChanged(info());
 }
 
 void homeform::LargeButton(const QString &name) {
@@ -6076,6 +6205,7 @@ void homeform::Plus(const QString &name) {
                 if (trainProgram) {
                     trainProgram->adjustPowerOffsetForTrainingProgram(powerJog);
                 }
+                updateTargetPowerOverride((bike *)bluetoothManager->device());
             } else if (bluetoothManager->device()->deviceType() == TREADMILL) {
                 m_overridePower = true;
                 ((treadmill *)bluetoothManager->device())
@@ -6386,6 +6516,7 @@ void homeform::Minus(const QString &name) {
                 if (trainProgram) {
                     trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
                 }
+                updateTargetPowerOverride((bike *)bluetoothManager->device());
             } else if (bluetoothManager->device()->deviceType() == TREADMILL) {
                 const int32_t currentPower = qRound(((treadmill *)bluetoothManager->device())->lastRequestedPower().value());
                 const int32_t nextPower = currentPower > 0 ? qMax(1, currentPower - qRound(powerJog)) : 0;
@@ -6450,12 +6581,47 @@ void homeform::Minus(const QString &name) {
 
 void homeform::Start() { Start_inner(true); }
 
+void homeform::setTargetPowerReleaseVisible(bool value) {
+    if (m_targetPowerReleaseVisible == value) {
+        return;
+    }
+    m_targetPowerReleaseVisible = value;
+    emit targetPowerReleaseVisibleChanged(value);
+}
+
+bool homeform::updateTargetPowerOverride(bike *device) {
+    // the condition of the T.Power(W) loop in update(); also called right after +/- on the tile, so the app's
+    // resistance is held from the first press and not only from the next update() tick
+    const bool loop = (!trainProgram || !trainProgram->isStarted()) && !device->ergModeSupportedAvailableBySoftware() &&
+                      device->lastRequestedPower().value() > 0 && m_overridePower;
+    device->setTargetPowerOverrideActive(loop);
+    setTargetPowerReleaseVisible(device->targetPowerReleaseAvailable());
+    return loop;
+}
+
+void homeform::clearTargetPowerOverride() {
+    m_overridePower = false;
+    m_overridePowerWarned = false;
+    if (bluetoothManager && bluetoothManager->device() && bluetoothManager->device()->deviceType() == BIKE) {
+        ((bike *)bluetoothManager->device())->setTargetPowerOverrideActive(false);
+    }
+    setTargetPowerReleaseVisible(false);
+}
+
+void homeform::releaseTargetPower() {
+    qDebug() << QStringLiteral("Return to app pressed");
+    // unlike Start/Pause/Stop, the app's last command is applied now, not at its next frame
+    clearTargetPowerOverride();
+    if (bluetoothManager && bluetoothManager->device() && bluetoothManager->device()->deviceType() == BIKE) {
+        ((bike *)bluetoothManager->device())->releaseTargetPowerToApp();
+    }
+}
+
 void homeform::Start_inner(bool send_event_to_device) {
     QSettings settings;
     qDebug() << QStringLiteral("Start pressed - paused") << paused << QStringLiteral("stopped") << stopped;
 
-    m_overridePower = false;
-    m_overridePowerWarned = false;
+    clearTargetPowerOverride();
 
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
         m_speech.say("Start pressed");
@@ -6566,6 +6732,28 @@ void homeform::PauseFromDevice() {
 
 void homeform::StopFromDevice() {
     qDebug() << QStringLiteral("Physical stop button pressed on device - stopping app");
+
+    // An idle/repeated status notification must not open an empty workout summary.
+    // Keep the same no-workout guards used by Stop(), before entering the QML UI flow.
+    auto *device = bluetoothManager ? bluetoothManager->device() : nullptr;
+    if (stopped || !device)
+        return;
+
+    if (device->deviceType() == TREADMILL && device->currentSpeed().value() == 0.0 &&
+        QTime(0, 0, 0, 0).secsTo(device->elapsedTime()) == 0)
+        return;
+
+    // Home.qml::inner_stop() invokes the normal Stop() slot, then displays the
+    // workout summary (or the optional RPE/feel dialog). Calling Stop() alone
+    // saves the session but misses that UI flow. Physical Stop is definitive,
+    // so there is no need for an additional confirmation dialog.
+    QObject *home = engine && !engine->rootObjects().isEmpty()
+                        ? engine->rootObjects().constFirst()->findChild<QObject *>(QStringLiteral("home"))
+                        : nullptr;
+    if (home && QMetaObject::invokeMethod(home, "inner_stop", Qt::DirectConnection))
+        return;
+
+    qWarning() << QStringLiteral("Physical stop: Home.qml unavailable, saving workout without summary");
     Stop();
 }
 
@@ -6593,8 +6781,7 @@ void homeform::Stop() {
 
     m_startRequested = false;
     // like Start/Pause, Stop gives the load back to the external app or the bike
-    m_overridePower = false;
-    m_overridePowerWarned = false;
+    clearTargetPowerOverride();
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -6676,6 +6863,7 @@ void homeform::Stop() {
 
         // clearing the label on top because if it was running a training program, with stop the program will be terminated
         m_info = workoutName();
+        m_infoFoundDevice.clear();
         emit infoChanged(m_info);
     }
 
@@ -6782,6 +6970,34 @@ QString homeform::signal() {
     }
 
     return QStringLiteral("icons/icons/signal-1.png");
+}
+
+// A Wahoo trainer gets its wheel circumference written at connection: at the first connection the
+// driver holds its init until the user says whether QZ may do it. bluetooth.cpp marks as answered those
+// whose last device already was that trainer (they connected it before the question existed). The flag
+// lives only in QSettings, not in a QML Settings: writing a property of a Qt.labs.settings copy saves
+// all the properties of that copy, which would bring back the values it read at startup
+bool homeform::wahooWheelQuestionPending() {
+    QSettings settings;
+    if (settings.value(QZSettings::wahoo_wheel_question_answered, QZSettings::default_wahoo_wheel_question_answered)
+            .toBool())
+        return false;
+    if (!m_wahooWheelQuestionShown) {
+        m_wahooWheelQuestionShown = true;
+        emit wahooWheelQuestionRequested();
+    }
+    return true;
+}
+
+void homeform::wahooWheelAnswer(bool writeWheelCircumference) {
+    QSettings settings;
+    if (!writeWheelCircumference)
+        settings.setValue(QZSettings::wahoo_without_wheel_diameter, true);
+    settings.setValue(QZSettings::wahoo_wheel_question_answered, true);
+    qDebug() << QStringLiteral("Wahoo wheel circumference question answered, write:") << writeWheelCircumference;
+    emit wahooWheelAnswered(settings.value(QZSettings::wahoo_without_wheel_diameter,
+                                           QZSettings::default_wahoo_without_wheel_diameter)
+                                .toBool());
 }
 
 void homeform::handleRestoreDefaultWheelDiameter() {
@@ -7666,9 +7882,7 @@ void homeform::update() {
             this->steeringAngle->setValue(
                 QString::number(((bike *)bluetoothManager->device())->currentSteeringAngle().value(), 'f', 1));
 
-            if ((!trainProgram || (trainProgram && !trainProgram->isStarted())) &&
-                !((bike *)bluetoothManager->device())->ergModeSupportedAvailableBySoftware() &&
-                ((bike *)bluetoothManager->device())->lastRequestedPower().value() > 0 && m_overridePower) {
+            if (updateTargetPowerOverride((bike *)bluetoothManager->device())) {
                 qDebug() << QStringLiteral("using target power tile for ERG workout manually");
                 ((bike *)bluetoothManager->device())
                     ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value());
@@ -8379,6 +8593,10 @@ void homeform::update() {
                 }
         */
 
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+        if (iosFloatingMetrics::running())
+            updateFloatingMetrics();
+#endif
         qDebug() << "homeform::update tiles updated!";
 
 #ifdef Q_OS_ANDROID
@@ -9626,23 +9844,27 @@ void homeform::handleAndroidDocumentPicked(int requestCode, const QString &local
         importFitFilesToHistory(localPath.split(QLatin1Char('\n'), Qt::SkipEmptyParts));
         return;
     }
-    if (requestCode == AndroidDocumentPickerTrainingFolderRequestCode) {
-        const int restored = restoredTrainingProgramCount(localPath);
-        qDebug() << "training programs restored:" << restored;
-        const bool quiet = m_trainingRestoreQuiet;
-        m_trainingRestoreQuiet = false;
+    if (requestCode == AndroidDocumentPickerRestoreFolderRequestCode) {
+        // the pass is over: the progress the Java side passed before this result goes away
+        setFolderRestoreProgress(0, 0);
+        const int restored = restoredFileCount(localPath);
+        qDebug() << "files of a previous install restored:" << restored;
+        const bool quiet = m_folderRestoreQuiet;
+        m_folderRestoreQuiet = false;
+        // the picker may have saved a grant on the QZ folder: the restore buttons go
+        updateQzFolderGrantSaved();
         if (restored > 0) {
-            setToastRequested(tr("Training programs restored: %1.").arg(restored));
+            setToastRequested(tr("Files of a previous installation restored: %1.").arg(restored));
         } else if (!quiet) {
             // nothing or only deletion markers (.deleted_) restored: the user asked, so say so
-            setToastRequested(tr("No training programs of a previous installation were found."));
-        } else if (quiet && trainingFolderHasLockedFiles()) {
+            setToastRequested(tr("No files of a previous installation were found."));
+        } else if (quiet && qzFolderHasLockedFiles()) {
             // the saved grant restored nothing (folder moved or renamed): the user picks it again
-            emit trainingRestoreOfferRequested();
+            emit folderRestoreOfferRequested();
         }
-        // nothing changed in the folder: the list keeps its place
+        // nothing changed in the folders: the lists keep their place
         if (!localPath.isEmpty()) {
-            emit trainingProgramsRestored();
+            emit folderFilesRestored();
         }
         return;
     }
@@ -9764,38 +9986,44 @@ QString homeform::historyDatabasePath() {
     return chosen;
 }
 
-// After a reinstall (Android 14+) the files a previous install left in the training folder
-// still answer to their names but cannot be opened, and the folder list leaves them out. The
-// bundled programs, always copied at the first start, show it: one of them (or its deletion
-// marker) that exists and does not open belongs to a previous install.
-bool homeform::trainingFolderHasLockedFiles() {
+// After a reinstall (Android 14+) the files a previous install left in the QZ folder still
+// answer to their names but cannot be opened, and the folder lists leave them out. The bundled
+// programs and GPX routes, always copied at the first start, show it: one of them (or a
+// deletion marker of one) that exists and does not open belongs to a previous install.
+// Settings files and profiles have no bundled ones; the same restore pass takes them along.
+bool homeform::qzFolderHasLockedFiles() {
 #ifdef Q_OS_ANDROID
     const QString trainingDir = getWritableAppDir() + QStringLiteral("training/");
+    QStringList paths;
     QDirIterator itZwo(QStringLiteral(":/zwo/"));
     while (itZwo.hasNext()) {
         itZwo.next();
-        const QStringList paths = {trainingDir + itZwo.fileName(),
-                                   trainingDir + QStringLiteral(".deleted_") + itZwo.fileName()};
-        for (const QString &path : paths) {
-            QFile file(path);
-            if (file.exists() && !file.open(QIODevice::ReadOnly)) {
-                qDebug() << "training folder: file of a previous install" << path;
-                return true;
-            }
+        paths << trainingDir + itZwo.fileName() << trainingDir + QStringLiteral(".deleted_") + itZwo.fileName();
+    }
+    const QString gpxDir = getWritableAppDir() + QStringLiteral("gpx/");
+    QDirIterator itGpx(QStringLiteral(":/gpx/"));
+    while (itGpx.hasNext()) {
+        itGpx.next();
+        paths << gpxDir + itGpx.fileName() << gpxDir + QStringLiteral(".deleted_") + itGpx.fileName();
+    }
+    for (const QString &path : paths) {
+        QFile file(path);
+        if (file.exists() && !file.open(QIODevice::ReadOnly)) {
+            qDebug() << "QZ folder: file of a previous install" << path;
+            return true;
         }
     }
 #endif
     return false;
 }
 
-bool homeform::startTrainingFolderRestore(bool allowPicker) {
+bool homeform::startFolderRestore(bool allowPicker) {
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject javaDestinationDir =
-        QAndroidJniObject::fromString(getWritableAppDir() + QStringLiteral("training/"));
+    QAndroidJniObject javaDestinationDir = QAndroidJniObject::fromString(getWritableAppDir());
     const jboolean started = QtAndroid::androidActivity().callMethod<jboolean>(
-        "openTrainingFolderPicker", "(ILjava/lang/String;Z)Z", AndroidDocumentPickerTrainingFolderRequestCode,
+        "openRestoreFolderPicker", "(ILjava/lang/String;Z)Z", AndroidDocumentPickerRestoreFolderRequestCode,
         javaDestinationDir.object<jstring>(), static_cast<jboolean>(allowPicker));
-    if (clearAndroidJniException("CustomQtActivity.openTrainingFolderPicker")) {
+    if (clearAndroidJniException("CustomQtActivity.openRestoreFolderPicker")) {
         return false;
     }
     return started;
@@ -9805,9 +10033,30 @@ bool homeform::startTrainingFolderRestore(bool allowPicker) {
 #endif
 }
 
-// restored programs among the paths, one per line, that the Java side passes; deletion
-// markers (.deleted_<name>) are restored too, but are not programs
-int homeform::restoredTrainingProgramCount(const QString &paths) {
+void homeform::updateQzFolderGrantSaved() {
+#ifdef Q_OS_ANDROID
+    const jboolean saved = QtAndroid::androidActivity().callMethod<jboolean>("hasQzFolderGrant", "()Z");
+    if (clearAndroidJniException("CustomQtActivity.hasQzFolderGrant")) {
+        return;
+    }
+    // the same choice of folder as getWritableAppDir(); before Android 11 the files of a
+    // previous install stay readable, and the folder in Android/data goes away with the app
+    QSettings settings;
+    const bool documentsFolder =
+        settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool() ||
+        QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14);
+    const bool restorable = documentsFolder && QtAndroid::androidSdkVersion() >= 30;
+    if (m_qzFolderGrantSaved != static_cast<bool>(saved) || m_qzFolderRestorable != restorable) {
+        m_qzFolderGrantSaved = saved;
+        m_qzFolderRestorable = restorable;
+        emit qzFolderGrantSavedChanged();
+    }
+#endif
+}
+
+// restored files among the paths, one per line, that the Java side passes; deletion markers
+// of programs (.deleted_<name>) are restored too, but are not files the user sees
+int homeform::restoredFileCount(const QString &paths) {
     int restored = 0;
     for (const QString &path : paths.split(QLatin1Char('\n'), Qt::SkipEmptyParts)) {
         if (!QFileInfo(path).fileName().startsWith(QLatin1Char('.'))) {
@@ -9818,60 +10067,69 @@ int homeform::restoredTrainingProgramCount(const QString &paths) {
 }
 
 // A copy that an earlier restore left under its temporary name (the old file already removed)
-// takes its real name; this needs no folder grant, so it runs on every visit of the list.
-void homeform::recoverTrainingRestoreCopies() {
+// takes its real name; this needs no folder grant, so it runs on every visit of a list.
+void homeform::recoverFolderRestoreCopies() {
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject javaDirectory =
-        QAndroidJniObject::fromString(getWritableAppDir() + QStringLiteral("training/"));
+    QAndroidJniObject javaDirectory = QAndroidJniObject::fromString(getWritableAppDir());
     const QAndroidJniObject recovered = QtAndroid::androidActivity().callObjectMethod(
-        "recoverTrainingRestoreCopies", "(Ljava/lang/String;)Ljava/lang/String;", javaDirectory.object<jstring>());
-    if (clearAndroidJniException("CustomQtActivity.recoverTrainingRestoreCopies") || !recovered.isValid()) {
+        "recoverFolderRestoreCopies", "(Ljava/lang/String;)Ljava/lang/String;", javaDirectory.object<jstring>());
+    if (clearAndroidJniException("CustomQtActivity.recoverFolderRestoreCopies") || !recovered.isValid()) {
         return;
     }
     const QString paths = recovered.toString();
     if (paths.isEmpty()) {
         return;
     }
-    const int restored = restoredTrainingProgramCount(paths);
-    qDebug() << "training programs recovered from temporary copies:" << restored;
+    const int restored = restoredFileCount(paths);
+    qDebug() << "files of a previous install recovered from temporary copies:" << restored;
     if (restored > 0) {
-        setToastRequested(tr("Training programs restored: %1.").arg(restored));
+        setToastRequested(tr("Files of a previous installation restored: %1.").arg(restored));
     }
-    emit trainingProgramsRestored();
+    emit folderFilesRestored();
 #endif
 }
 
-void homeform::trainingProgramsPageOpened() {
-    recoverTrainingRestoreCopies();
-    if (m_trainingRestoreTried) {
+void homeform::folderPageOpened() {
+    // the grant may have come or gone with the workout history recovery: it takes the same grant,
+    // and gives it back when an import through it finds no workout in the QZ folder
+    const bool hadGrant = m_qzFolderGrantSaved;
+    updateQzFolderGrantSaved();
+    recoverFolderRestoreCopies();
+    if (!m_qzFolderRestorable) {
         return;
     }
-    m_trainingRestoreTried = true;
-    const bool lockedFiles = trainingFolderHasLockedFiles();
-    // with a saved grant the folder is checked even when no bundled program shows a previous
-    // install: programs of the user alone cannot be told from the file API
-    m_trainingRestoreQuiet = true;
-    if (startTrainingFolderRestore(false)) {
+    // a grant given elsewhere since the last visit hides the restore button, so the folders
+    // are checked once more, quietly; a grant from this restore is already known here
+    const bool grantNew = m_qzFolderGrantSaved && !hadGrant;
+    if (m_folderRestoreTried && !grantNew) {
         return;
     }
-    m_trainingRestoreQuiet = false;
+    m_folderRestoreTried = true;
+    const bool lockedFiles = qzFolderHasLockedFiles();
+    // with a saved grant the folders are checked even when no bundled file shows a previous
+    // install: files of the user alone cannot be told from the file API
+    m_folderRestoreQuiet = true;
+    if (startFolderRestore(false)) {
+        return;
+    }
+    m_folderRestoreQuiet = false;
     if (lockedFiles) {
-        emit trainingRestoreOfferRequested();
+        emit folderRestoreOfferRequested();
     }
 }
 
-void homeform::offerTrainingRestore() {
+void homeform::offerFolderRestore() {
     // the quiet restore of this visit is still running: it reports what it restored itself
-    if (m_trainingRestoreQuiet) {
-        qDebug() << "training programs: a restore is running, no question";
+    if (m_folderRestoreQuiet) {
+        qDebug() << "QZ folder: a restore is running, no question";
         return;
     }
-    emit trainingRestoreOfferRequested();
+    emit folderRestoreOfferRequested();
 }
 
-void homeform::restoreTrainingPrograms() {
-    m_trainingRestoreQuiet = false;
-    startTrainingFolderRestore(true);
+void homeform::restoreFolderFiles() {
+    m_folderRestoreQuiet = false;
+    startFolderRestore(true);
 }
 
 bool homeform::startFitFolderImport(bool allowPicker) {
@@ -9977,6 +10235,21 @@ void homeform::importFitFilesToHistory(const QStringList &files) {
     QMetaObject::invokeMethod(fitProcessor, "importFiles", Qt::QueuedConnection, Q_ARG(QStringList, files));
 }
 
+// On Windows a leading dot does not hide a file, only the hidden attribute does: without it the
+// list of programs shows the deletion markers (.deleted_<name>.zwo matches *.zwo)
+void homeform::hideDeletionMarker(const QString &markerPath) {
+#ifdef Q_OS_WIN
+    const QString nativePath = QDir::toNativeSeparators(markerPath);
+    const wchar_t *path = reinterpret_cast<const wchar_t *>(nativePath.utf16());
+    const DWORD attributes = GetFileAttributesW(path);
+    if (attributes != INVALID_FILE_ATTRIBUTES && !(attributes & FILE_ATTRIBUTE_HIDDEN)) {
+        SetFileAttributesW(path, attributes | FILE_ATTRIBUTE_HIDDEN);
+    }
+#else
+    Q_UNUSED(markerPath)
+#endif
+}
+
 bool homeform::deleteTrainingProgramFile(const QString &fileUrl) {
     if (fileUrl.isEmpty()) {
         return false;
@@ -10009,6 +10282,7 @@ bool homeform::deleteTrainingProgramFile(const QString &fileUrl) {
     if (markerFile.open(QIODevice::WriteOnly)) {
         markerFile.write("This file was intentionally deleted by the user");
         markerFile.close();
+        hideDeletionMarker(markerFile.fileName());
     }
     return true;
 }
@@ -10045,7 +10319,7 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
                 trainingProgram()->setVideoAvailable(false);
             }
 
-            stravaWorkoutName = QFileInfo(file.fileName()).baseName();
+            stravaWorkoutName = QFileInfo(file.fileName()).completeBaseName();
             stravaPelotonInstructorName = QStringLiteral("");
             emit workoutNameChanged(workoutName());
             emit instructorNameChanged(instructorName());
@@ -10053,6 +10327,7 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
             QSettings settings;
             if (settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
                 m_info = workoutName();
+                m_infoFoundDevice.clear();
                 emit infoChanged(m_info);
             }
         }
@@ -10227,6 +10502,7 @@ void homeform::trainprogram_zwo_loaded(const QString &s) {
                     return;
                 }
                 m_info = workoutName();
+                m_infoFoundDevice.clear();
                 emit infoChanged(m_info);
             }
         }
@@ -10503,8 +10779,10 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
 
-    stravaWorkoutName = QFileInfo(file.fileName()).baseName();
+    stravaWorkoutName = QFileInfo(file.fileName()).completeBaseName();
+    emit workoutNameChanged(workoutName());
     if (!file.fileName().isEmpty()) {
+        bool hasRouteSegments = false;
         {
             if (trainProgram) {
 
@@ -10569,10 +10847,15 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
                 emit videoPathChanged(movieFileName);
                 setVideoIconVisible(true);
             }
+            hasRouteSegments = !list.isEmpty();
             trainProgram = new trainprogram(list, bluetoothManager, nullptr, nullptr, videoIconVisible());
         }
 
         trainProgramSignals();
+        if (hasRouteSegments) {
+            // Use the same QZ-only pause/resume as Start Workout, without stopping the equipment.
+            trainprogram_autostart_requested();
+        }
     }
 }
 
@@ -10629,6 +10912,12 @@ QStringList homeform::bluetoothDevices() {
     QStringList r;
     r.append(QStringLiteral("Disabled"));
     r.append(QStringLiteral("Wifi"));
+
+    // Include network-discovered DIRCON equipment alongside Bluetooth devices.
+    if (bluetoothManager) {
+        for (const DirconDeviceInfo &dev : bluetoothManager->dirconDevices())
+            r.append(dev.displayName);
+    }
 
     // Collect named devices and sort by RSSI descending (strongest signal first)
     QList<QBluetoothDeviceInfo> sorted;

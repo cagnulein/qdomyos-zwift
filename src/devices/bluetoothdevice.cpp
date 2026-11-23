@@ -452,6 +452,8 @@ void bluetoothdevice::clearStats() {
     activeKCal.clear(true);
     Distance.clear(true);
     Distance1s.clear(true);
+    // StepCount, like Distance, is a workout total and must start at zero for a new session.
+    StepCount.clear(true);
     Heart.clear(false);
     m_jouls.clear(true);
     elevationAcc = 0;

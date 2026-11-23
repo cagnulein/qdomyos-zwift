@@ -18,10 +18,23 @@ import QtQuick.Controls.Material 2.0
 // saved one (another spelling of it is, see normalized()), the OK button of the row is enabled
 // by `valid && dirty`: a grey OK means there is nothing to save. A field without `savedText` is
 // never dirty
-TextField {
+// Built on UiTextField: the modern look draws it as its other fields (filled, a red ring
+// instead of the red line, a time picked on wheels); the classic look is the Material
+// TextField as before
+UiTextField {
     id: field
 
+    invalid: !valid
+    // A time field by its format, not by its text: UiTextField guesses a time once, from the text the
+    // field is created with, and an address like "1:23" would pass the guess
+    timeShaped: format === "time"
+    // The guess of UiTextField sets true over the binding above: undone for the other formats
+    onTimeShapedChanged: if (timeShaped && format !== "time") timeShaped = false
+
     property string format: "time"
+    // an address: under the label in a settings row of the modern look (UiTextField.wideText); a
+    // time, a height is short and stays beside it
+    wideText: format === "ip" || format === "host"
     property var savedText: undefined
 
     readonly property bool valid: acceptableInput
@@ -45,8 +58,11 @@ TextField {
     }
     // Full keyboard on purpose: a number keyboard of Android may have no ':' and allow a single '.'
 
-    // Room for the reason under the line while the value is not valid
-    bottomPadding: valid ? 16 : 16 + reason.implicitHeight
+    // Room for the reason under the line (classic) or under the field (modern) while the
+    // value is not valid
+    readonly property real reasonRoom: valid ? 0 : reason.implicitHeight
+    bottomPadding: (modern ? 12 : 16) + reasonRoom
+    bottomInset: modernInset + reasonRoom
 
     onSavedTextChanged: if (savedText !== undefined) text = savedText
     Component.onCompleted: if (savedText !== undefined) text = savedText
@@ -77,8 +93,9 @@ TextField {
     }
 
     Rectangle {
-        // Over the underline of the Material TextField (same place, see its background)
-        visible: !field.valid
+        // Over the underline of the Material TextField (same place, see its background);
+        // the modern look has the red ring of UiTextField instead
+        visible: !field.valid && !field.modern
         x: field.leftPadding
         width: field.width - field.leftPadding - field.rightPadding
         height: 2
@@ -94,7 +111,8 @@ TextField {
         y: field.height - implicitHeight - 2
         wrapMode: Text.WordWrap
         horizontalAlignment: field.horizontalAlignment
-        font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize - 3 : window.fontPx(window.appFontPx - 3)
-        color: Material.color(Material.Red)
+        font.pixelSize: field.modern ? window.fontHint
+            : window.textScale === 1 ? Qt.application.font.pixelSize - 3 : window.fontPx(window.appFontPx - 3)
+        color: field.modern ? window.ui.danger : Material.color(Material.Red)
     }
 }

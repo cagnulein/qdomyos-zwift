@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="uk_UA">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Закрити</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -61,12 +68,36 @@
         <translation>Фільтр</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Тека вище</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Відкрити</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Тут немає GPX-файлів</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 км</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 м</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Дистанція: %1 км, набір висоти: %2 м</translation>
     </message>
     <message>
         <source>Other folders</source>
         <translation>Інші папки</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Відновити файли</translation>
     </message>
 </context>
 <context>
@@ -96,6 +127,22 @@
         <translation>Більше не питати</translation>
     </message>
     <message>
+        <source>Strong signal</source>
+        <translation>Сильний сигнал</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Добрий сигнал</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Середній сигнал</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Слабкий сигнал</translation>
+    </message>
+    <message>
         <source>Choose a heart rate sensor</source>
         <translation>Виберіть пульсометр</translation>
     </message>
@@ -121,6 +168,14 @@
     <message>
         <source>Do you really want to stop the current workout?</source>
         <translation>Зупинити поточне тренування?</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Стоп</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Скасувати</translation>
     </message>
     <message>
         <source>Rest</source>
@@ -276,6 +331,14 @@ Would you like to enable the required services?</source>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Нагадати про ввімкнення Bluetooth або служб геолокації наступного разу?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Повернути застосунку</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Повертає керування навантаженням застосунку</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -314,6 +377,26 @@ Would you like to enable the required services?</source>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>Застосунок має сам під’єднатися до вашого велотренажера, бігової доріжки чи гребного тренажера. &lt;b&gt;Якщо цього не сталося, перевірте&lt;/b&gt;:&lt;br&gt;1) застосунок Echelon/Domyos ОБОВ’ЯЗКОВО має бути закритий, поки працює qdomyos-zwift;&lt;br&gt;2) Bluetooth і дозволи для Bluetooth ОБОВ’ЯЗКОВО мають бути ввімкнені&lt;br&gt;3) тренажер слід увімкнути ДО запуску цього застосунку&lt;br&gt;4) спробуйте перезавантажити свій пристрій&lt;br&gt;&lt;br&gt;Якщо велотренажер або доріжка від’єднується кожні 30 секунд, спробуйте вимкнути налаштування «Увімкнути віртуальний пристрій» на лівій панелі.&lt;br&gt;&lt;br&gt;Якщо виникнуть проблеми, сміливо пишіть мені на roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Гарного тренування!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ прямо відмовляється від відповідальності за&lt;br&gt;випадкові чи непрямі збитки й не несе&lt;br&gt;жодної відповідальності за будь-які втрати&lt;br&gt;чи шкоду, завдані будь-кому внаслідок&lt;br&gt;використання або неправильного використання застосунку.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Шукаємо ваш тренажер…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Увімкніть велотренажер, бігову доріжку або гребний тренажер – QZ підключиться сам.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Не підключається?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Тренажер не знайдено</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Увімкніть велотренажер, бігову доріжку або гребний тренажер і натисніть значок Bluetooth угорі, щоб шукати знову.</translation>
     </message>
 </context>
 <context>
@@ -1077,6 +1160,10 @@ Do you want to update QZ settings?</source>
         <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
         <translation>Пульсометр поруч не знайдено. Перевірте, що він увімкнений і транслює пульс.</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S підключено!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1187,8 +1274,24 @@ Do you want to update QZ settings?</source>
         <translation>Папка налаштувань</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Натисніть на файл, щоб вибрати його, потім «Завантажити».</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Завантажити</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Немає збережених налаштувань</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Інші папки</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Відновити файли</translation>
     </message>
 </context>
 <context>
@@ -1279,6 +1382,21 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Open email</source>
         <translation>Відкрити пошту</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Оформлюємо покупку...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Покупку здійснено</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Не вдалося оплатити</translation>
     </message>
 </context>
 <context>
@@ -1396,16 +1514,40 @@ Do you want to update QZ settings?</source>
         <translation>Пошук (включно з підпапками)...</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Тека вище</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Тренувань не знайдено</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Тут немає тренувань</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Інші папки</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Відновити файли</translation>
+    </message>
+    <message>
         <source>Restore programs</source>
-        <translation>Відновити програми</translation>
+        <translation type="vanished">Відновити програми</translation>
     </message>
     <message>
         <source>← Back</source>
         <translation>← Назад</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>Згорнути</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Ще</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -1414,6 +1556,62 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Start Workout</source>
         <translation>Почати тренування</translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Так</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Ні</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Скасувати</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>Відновлення файлів попереднього встановлення</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>Відновлення файлів попереднього встановлення: %1 з %2</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Розгорнуто</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Згорнуто</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>години</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>хвилини</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>секунди</translation>
     </message>
 </context>
 <context>
@@ -1642,6 +1840,16 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Force Speed</source>
         <translation>Задати швидкість</translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>Утримання пульсу змінює</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>З налаштувань</translation>
     </message>
     <message>
         <source>Fan</source>
@@ -1971,6 +2179,11 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Inclination (%)</source>
         <translation>Нахил (%)</translation>
+    </message>
+    <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>На одному графіку:</translation>
     </message>
     <message>
         <source>Avg Output</source>
@@ -2509,6 +2722,18 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>Далі</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Тренажер, одиниці виміру та профіль – крок за кроком</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Оберіть тему й одразу перейдіть до її налаштувань</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Закрити майстер</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Індивідуальні налаштування</translation>
     </message>
@@ -2800,7 +3025,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Обробка файлів тренувань...
+        <translation type="vanished">Обробка файлів тренувань...
 Під час першого запуску це може тривати деякий час.</translation>
     </message>
     <message>
@@ -2872,6 +3097,22 @@ This may take a few moments on first startup.</source>
         <translation>Серія: %1 дн.</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Календар</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Цього дня тренувань немає</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Тренувань поки немає</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Тут з’являться завершені тренування: відкрийте будь-яке, щоб переглянути графіки.</translation>
+    </message>
+    <message>
         <source>Personal best: %1 days</source>
         <translation>Рекорд: %1 дн.</translation>
     </message>
@@ -2916,6 +3157,22 @@ This may take a few moments on first startup.</source>
         <translation>Імпортувати файл FIT...</translation>
     </message>
     <message>
+        <source>Adding workouts to the history</source>
+        <translation>Додавання тренувань до історії</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Копіювання файлів тренувань</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Додавання тренувань до історії: %1 з %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Копіювання файлів тренувань: %1 з %2</translation>
+    </message>
+    <message>
         <source>Import from QZ Folder...</source>
         <translation>Імпортувати з папки QZ...</translation>
     </message>
@@ -2933,7 +3190,7 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Імпорт тренувань...</translation>
+        <translation type="vanished">Імпорт тренувань...</translation>
     </message>
     <message>
         <source>Filter by date</source>
@@ -3021,9 +3278,25 @@ This may take a few moments on first startup.</source>
         <source>Offset</source>
         <translation>Зміщення</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Зменшити зміщення передачі %1</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Збільшити зміщення передачі %1</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Зменшити: %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Збільшити: %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Увімкнути власну таблицю «нахил – опір»</translation>
@@ -3039,6 +3312,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Resistance</source>
         <translation>Опір</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Видалити точку з нахилом %1</translation>
     </message>
     <message>
         <source>Add Point</source>
@@ -3126,6 +3403,10 @@ This may take a few moments on first startup.</source>
 </context>
 <context>
     <name>homeform</name>
+    <message>
+        <source>No enabled metrics</source>
+        <translation>Немає увімкнених показників</translation>
+    </message>
     <message>
         <source>Speed (%1/h)</source>
         <translation>Швидкість (%1/год)</translation>
@@ -3685,6 +3966,14 @@ This may take a few moments on first startup.</source>
         <translation>швидкість змінено на </translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>Відновлено файлів: %1.</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>Файлів попереднього встановлення не знайдено.</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>Помилка розбору JSON</translation>
     </message>
@@ -3730,11 +4019,11 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation>Відновлено програм тренувань: %1.</translation>
+        <translation type="vanished">Відновлено програм тренувань: %1.</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation>Програм тренувань попереднього встановлення не знайдено.</translation>
+        <translation type="vanished">Програм тренувань попереднього встановлення не знайдено.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -3751,6 +4040,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Searching for the device...</source>
         <translation>Пошук тренажера…</translation>
+    </message>
+    <message>
+        <source>Connecting to %1...</source>
+        <translation>Підключення до %1…</translation>
     </message>
     <message>
         <source>Search stopped, tap the Bluetooth icon</source>
@@ -4041,9 +4334,17 @@ This may take a few moments on first startup.</source>
         <source>Unable to open an email application</source>
         <translation>Не вдалося відкрити поштову програму</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth вимкнено</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Плаваючі показники (картинка в картинці)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -4279,6 +4580,40 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>Не забудьте зберегти профіль «%1», якщо хочете залишити в ньому ці зміни.</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>Збережено! Шукайте в застосунку «Файли».</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>Збережено! Шукайте в особистій папці застосунку.</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Відновити файли</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Програми тренувань, маршрути GPX, файли налаштувань і профілі попереднього встановлення можуть залишатися в папці QZ.
+Знайти їх?
+
+У наступному вікні дозвольте доступ до папки QZ.</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Назад</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>Головне меню</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>Плаваюче вікно</translation>
+    </message>
+    <message>
         <source>Auto Resistance enabled</source>
         <translation>Автоопір увімкнено</translation>
     </message>
@@ -4295,12 +4630,48 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>Плитки закріплено</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>Завантажити налаштування</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>Пошук налаштувань</translation>
     </message>
     <message>
+        <source>Save settings</source>
+        <translation>Зберегти налаштування</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Карта</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Відео</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>Графік</translation>
+    </message>
+    <message>
         <source>Share FIT file</source>
         <translation>Поділитися файлом FIT</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>Відкріпити плитки</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>Закріпити плитки</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>Вимкнути автоопір</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>Увімкнути автоопір</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4367,6 +4738,46 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>Виберіть файл</translation>
     </message>
     <message>
+        <source>Disconnect from Strava</source>
+        <translation>Від’єднати Strava</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Під’єднати Strava</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Від’єднати Peloton</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Під’єднати Peloton</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Налаштування Garmin Connect</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Від’єднати Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Під’єднати Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>Тренування</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>Застосунок</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>Сервіси</translation>
+    </message>
+    <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
         <translation>QDomyos-Zwift – міст між тренажерами та застосунками</translation>
     </message>
@@ -4400,14 +4811,14 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Training Programs</source>
-        <translation>Програми тренувань</translation>
+        <translation type="vanished">Програми тренувань</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation>Програми тренувань попереднього встановлення можуть залишатися в папці QZ.
+        <translation type="vanished">Програми тренувань попереднього встановлення можуть залишатися в папці QZ.
 Знайти їх?
 
 У наступному вікні дозвольте доступ до папки QZ.</translation>
@@ -4439,6 +4850,42 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>Don&apos;t ask again</source>
         <translation>Більше не питати</translation>
+    </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Віртуальні передачі Wahoo</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>Щоб імітувати віртуальні передачі, QZ змінює довжину кола колеса, збережену в тренажері. Це значення може залишитися в тренажері після закриття QZ і впливати на його роботу в інших застосунках.
+
+Дозволити QZ змінювати це значення?
+
+«Ні»: QZ увімкне «Без протоколу діаметра колеса» (Налаштування &gt; Параметри велотренажера &gt; Параметри Wahoo), і віртуальні передачі працюватимуть через ухил. Якщо обрати «Так», це можна згодом скасувати там само: увімкніть цей параметр і за підключеного тренажера натисніть «Відновити типові налаштування тренажера».</translation>
+    </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Віртуальний пристрій (%1) активний. Якщо це сталося ненавмисно, вимкніть його в налаштуваннях.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Велотренажер</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Бігова доріжка</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Еліптичний тренажер</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Гребний тренажер</translation>
     </message>
 </context>
 <context>
@@ -4479,6 +4926,10 @@ In the next window, allow access to the QZ folder.</source>
         <translation>Видалити цей профіль?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Видалити</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Профіль збережено</translation>
     </message>
@@ -4511,8 +4962,28 @@ In the next window, allow access to the QZ folder.</source>
         <translation>Назва профілю</translation>
     </message>
     <message>
+        <source>New profile</source>
+        <translation>Новий профіль</translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation>Зберегти</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Збережені профілі</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Натисніть на профіль, щоб вибрати його, потім «Завантажити». Довге натискання – видалити.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Активний</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Завантажити</translation>
     </message>
     <message>
         <source>Profiles</source>
@@ -4521,6 +4992,10 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>Other folders</source>
         <translation>Інші папки</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Відновити файли</translation>
     </message>
 </context>
 <context>
@@ -4716,6 +5191,30 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>App Language:</source>
         <translation>Мова застосунку:</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Налаштування скинуто</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Скинуто налаштувань: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Скинути все</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Скинути змінені налаштування?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Змінені налаштування (%1) повернуться до типових значень.</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Скинути</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -6674,6 +7173,10 @@ Please enter it below:</source>
         <translation>Нахил</translation>
     </message>
     <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>Це налаштування не знайдено на сторінках налаштувань</translation>
+    </message>
+    <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
         <translation>Налаштуйте, як нахил із віртуального застосунку переводиться в опір велотренажера.</translation>
     </message>
@@ -7194,6 +7697,14 @@ Please enter it below:</source>
         <translation>Мітка віртуальної активності Strava</translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Синтетичний GPS-трек Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Додає синтетичний GPS-трек до віртуальних тренувань без GPS. Strava може показати набір висоти, але маршрут несправжній.</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation>Додавати до активності Strava мітку віртуальної активності</translation>
     </message>
@@ -7332,6 +7843,14 @@ IMPORTANT NOTES:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>Для смарт-тренажерів: використовувати опір замість нахилу. Допомагає, якщо ви не хочете, щоб Wahoo Climb чи подібний пристрій змінював нахил під час перемикання передач. Типово: вимкнено</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>Сумісність опору</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Увімкніть, якщо зміна опору в QZ встановлює на велосипеді лише рівень 1 або максимум. Надсилає значення опору FTMS, помножене на 10. Типово: вимкнено.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>
@@ -8269,6 +8788,10 @@ Default: A = -0.96, B = 1.33</source>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>У тренуваннях GPX зміни нахилу, менші за це значення, ігноруються. Нова команда надсилається лише тоді, коли різниця від останнього надісланого значення досягає встановленого порога. Типово: 0 (вимкнено).</translation>
     </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Використовувати передачі консолі</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>
@@ -8760,6 +9283,10 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Displays target resistance in your bike’s resistance scale. For example, during a Peloton class or Zwift session, you want the resistance displayed in this tile to match the Resistance Tile. During a Peloton class (bike only), +/- shifts the class&apos;s resistance target up or down for the rest of the ride.</source>
         <translation>Показує цільовий опір у шкалі опору вашого велотренажера. Наприклад, на занятті Peloton або у Zwift потрібно, щоб значення на цій плитці збігалося з плиткою «Опір». На занятті Peloton (лише велотренажер) кнопки +/- зсувають цільовий опір заняття вгору або вниз до кінця тренування.</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Параметри плиток</translation>
     </message>
     <message>
         <source>Stroke Length</source>

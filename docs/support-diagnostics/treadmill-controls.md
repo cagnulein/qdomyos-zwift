@@ -122,3 +122,45 @@
 - Advertising the FTMS control point and an inclination range does **not** guarantee that firmware grants external control. Successful telemetry can coexist with rejected commands.
 - An explicit **Control Not Permitted** response narrows the issue to device-side permission or initialization rather than a missing incline range or an unrelated receiving-app pairing problem.
 - A demonstrated manufacturer-app control path is stronger evidence for investigating a proprietary initialization sequence than a manufacturer's general claim of app connectivity. Without such evidence, do not assume a hidden unlock exists.
+
+## FTMS command succeeds but only speed or incline responds physically
+
+### Provide first
+
+- Exact treadmill model, **advertised Bluetooth name**, QZ version, and whether other nearby FTMS machines are powered on.
+- Confirm that speed, incline, and distance **read correctly in QZ** before testing controls. Report **start, speed, and incline separately**: for each, did QZ issue a command, did the treadmill beep or acknowledge it, and did the belt or deck actually move?
+- Screenshot the selected **FTMS Treadmill** value and **Advanced Settings > Manual Device**. Record whether the intended treadmill or a different nearby fitness device connects at startup.
+- Provide one safe, low-speed test of speed and one small incline adjustment from QZ alone, noting which works in the **same connection**, before involving Runna, Zwift, or Kinomap.
+
+### If still unclear
+
+- With other fitness devices powered off, compare **separate QZ restarts** using the explicitly selected FTMS treadmill profile and the supported model-specific profile (if available). Record which profile handles speed versus incline; do not assume they provide identical control capabilities.
+- If nRF Connect data is already available, include the advertised **Fitness Machine Service (0x1826)**, **Control Point (0x2AD9)** and supported speed/incline ranges. A control-point success indication such as **80 02 01** or **80 03 01** should be recorded alongside the **actual physical response**, not treated as proof of movement.
+- If the difference persists, provide **two short, separately labeled QZ debug logs** with the active profile, connection target, and approximate time of each safe command. Request a manufacturer-app Bluetooth trace only if these comparisons cannot identify the command path.
+
+### Why it matters
+
+- Some treadmills advertise standard FTMS alongside a manufacturer-specific control path. Reading metrics and receiving a successful FTMS response do not establish that **both** physical actuators can be controlled through the same selected protocol.
+- Recording speed and incline independently, along with the selected profile, distinguishes **driver/protocol selection** from command rejection, an unexpected physical response, and a third-party app pairing issue.
+- Nearby fitness machines can be discovered instead of the intended treadmill; the actual connected Bluetooth name must be confirmed before interpreting control results. See [connection and discovery](connection-and-discovery.md) for device selection intake.
+
+## Physical treadmill Pause/Resume works, but the first Start does not begin QZ recording
+
+### Provide first
+
+- Exact treadmill and console model, advertised Bluetooth name, QZ platform and installed build. Say whether **Pause on Start (Treadmill)** is enabled, and whether QZ begins recording immediately on app launch.
+- Describe the physical controls available (one combined Start/Pause button versus separate Start, Pause, and Stop), preferably with a console photo. Explain whether Stop ends the workout or merely pauses the belt.
+- With QZ open and initially paused, report the **QZ timer/state and treadmill speed** at each step of one short sequence: first physical Start, physical Pause, physical Resume, then physical Stop. State whether the first Start fails while Resume works, and whether the belt moves even though QZ remains paused.
+
+### If still unclear
+
+- Enable QZ Debug Log and repeat the same sequence at a safe walking speed. Note approximate timestamps and **which physical button** was pressed at each step; stop QZ to finalize the log. Request the `debug-*.log` file, not the exported `.fit` workout.
+- Compare the FTMS Fitness Machine Status (`0x2ADA`) notifications with speed telemetry and QZ's session state. In particular, distinguish an initial belt-speed transition without an explicit Start/Resume event from a later FTMS Start/Resume (`0x04`), Pause (`0x02 0x02`), or Stop (`0x02 0x01`). Do not infer a Start event solely from a speed change.
+- If the failure is intermittent, repeat after a full QZ restart with the same **Pause on Start** value, and record whether QZ is foregrounded or backgrounded. If a test build is involved, provide its exact build number and a fresh log.
+- Check whether physical Stop **saves the workout and displays the completion screen** separately. A saved workout with no completion screen is a different failure from a missing Stop notification.
+
+### Why it matters
+
+- The first physical Start can produce different notifications from a subsequent Resume, even when the same console button is used. A verified treadmill case showed successful Pause/Resume while the initial Start was absent from the status stream; the button sequence and matching log identified that distinction.
+- QZ's current Run BT treadmill handler interprets FTMS status notifications and has a limited initial-speed fallback. Evidence of the first speed transition and the exact QZ state is needed before treating missing recording as a Bluetooth connection or generic session-reset issue.
+- **Pause on Start** affects the initial QZ recording state; it must be recorded before interpreting whether automatic Start failed. See also [workout session versus step-count reset](workout-recording.md#step-count-continues-after-stop-and-an-apparent-new-workout).

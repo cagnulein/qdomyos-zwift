@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="da_DK">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Luk</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -61,12 +68,36 @@
         <translation>Filter</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Overordnet mappe</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Åbn</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Ingen GPX-filer her</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Distance: %1 km, højdemeter: %2</translation>
     </message>
     <message>
         <source>Other folders</source>
         <translation>Andre mapper</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Gendan filer</translation>
     </message>
 </context>
 <context>
@@ -94,6 +125,22 @@
     <message>
         <source>Don&apos;t ask again</source>
         <translation>Spørg ikke igen</translation>
+    </message>
+    <message>
+        <source>Strong signal</source>
+        <translation>Stærkt signal</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Godt signal</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Middel signal</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Svagt signal</translation>
     </message>
     <message>
         <source>Choose a heart rate sensor</source>
@@ -167,6 +214,14 @@ Vil du gøre det nu?</translation>
     <message>
         <source>Rest</source>
         <translation>Hvile</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Stop</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuller</translation>
     </message>
     <message>
         <source>Very Light</source>
@@ -260,6 +315,14 @@ Vil du aktivere de nødvendige tjenester?</translation>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Vil du have en påmindelse om at aktivere Bluetooth eller placeringstjenester næste gang?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Tilbage til appen</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Giver styringen af belastningen tilbage til appen</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -298,6 +361,26 @@ Vil du aktivere de nødvendige tjenester?</translation>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>Denne app bør automatisk oprette forbindelse til din cykel, dit løbebånd eller din romaskine. &lt;b&gt;Hvis det ikke sker, skal du kontrollere følgende&lt;/b&gt;:&lt;br&gt;1) Echelon/Domyos-appen SKAL være lukket, mens qdomyos-zwift kører;&lt;br&gt;2) både Bluetooth og Bluetooth-tilladelser SKAL være aktiveret&lt;br&gt;3) cyklen, løbebåndet eller romaskinen skal være tændt, FØR du starter denne app&lt;br&gt;4) prøv at genstarte enheden&lt;br&gt;&lt;br&gt;Hvis cyklen eller løbebåndet afbryder forbindelsen hvert 30. sekund, kan du prøve at deaktivere indstillingen &quot;Aktivér virtuel enhed&quot; i menuen til venstre.&lt;br&gt;&lt;br&gt;Hvis du har problemer, er du velkommen til at kontakte mig på roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;God tur!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ fraskriver sig udtrykkeligt ansvaret for&lt;br&gt;hændelige skader og følgeskader og påtager sig&lt;br&gt;intet ansvar for tab&lt;br&gt;eller skader, som nogen måtte lide som følge af&lt;br&gt;brug eller misbrug af appen.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Søger efter træningsudstyret…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Tænd for cyklen, løbebåndet eller romaskinen: QZ opretter automatisk forbindelse.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Ingen forbindelse?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Træningsudstyret blev ikke fundet</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Tænd for cyklen, løbebåndet eller romaskinen, og tryk på Bluetooth-ikonet øverst for at søge igen.</translation>
     </message>
 </context>
 <context>
@@ -1061,6 +1144,10 @@ Vil du opdatere QZ-indstillingerne?</translation>
         <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
         <translation>%1 (pulssensor) blev ikke fundet. Sørg for, at den er tændt og udsender pulsmålinger.</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S tilsluttet!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1171,8 +1258,24 @@ Vil du opdatere QZ-indstillingerne?</translation>
         <translation>Vælg en fil</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Tryk på en fil for at vælge den, og tryk derefter på &quot;Indlæs&quot;.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Indlæs</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Ingen gemte indstillinger</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Andre mapper</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Gendan filer</translation>
     </message>
 </context>
 <context>
@@ -1263,6 +1366,21 @@ Vil du opdatere QZ-indstillingerne?</translation>
     <message>
         <source>Open email</source>
         <translation>Åbn mail</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Gennemfører køb...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Købet er gennemført</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Købet mislykkedes</translation>
     </message>
 </context>
 <context>
@@ -1380,16 +1498,40 @@ Vil du opdatere QZ-indstillingerne?</translation>
         <translation>Søg (inkl. undermapper)...</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Overordnet mappe</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Ingen træningspas fundet</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Ingen træningspas her</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Andre mapper</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Gendan filer</translation>
+    </message>
+    <message>
         <source>Restore programs</source>
-        <translation>Gendan programmer</translation>
+        <translation type="vanished">Gendan programmer</translation>
     </message>
     <message>
         <source>← Back</source>
         <translation>← Tilbage</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>Vis mindre</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Vis mere</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -1398,6 +1540,62 @@ Vil du opdatere QZ-indstillingerne?</translation>
     <message>
         <source>Start Workout</source>
         <translation>Start træning</translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Ja</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nej</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuller</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>Gendanner filer fra den tidligere installation</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>Gendanner filer fra den tidligere installation: %1 af %2</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Udvidet</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Skjult</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>timer</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>minutter</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>sekunder</translation>
     </message>
 </context>
 <context>
@@ -1618,6 +1816,16 @@ Vil du opdatere QZ-indstillingerne?</translation>
     <message>
         <source>Force Speed</source>
         <translation>Angiv hastighed</translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>Hold puls (PID) ændrer</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>Som indstillet</translation>
     </message>
     <message>
         <source>Fan</source>
@@ -1903,6 +2111,11 @@ Vil du opdatere QZ-indstillingerne?</translation>
     <message>
         <source>Inclination (%)</source>
         <translation>Hældning (%)</translation>
+    </message>
+    <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>I én graf:</translation>
     </message>
     <message>
         <source>Avg Output</source>
@@ -2457,6 +2670,18 @@ De følgende spørgsmål tilpasser QZ til dit udstyr og dine mål.</translation>
         <translation>Næste</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Træningsudstyr, måleenheder og profil – trin for trin</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Vælg et emne, og gå direkte til dets indstillinger</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Luk guiden</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Tilpassede indstillinger</translation>
     </message>
@@ -2783,12 +3008,12 @@ De følgende spørgsmål tilpasser QZ til dit udstyr og dine mål.</translation>
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Importerer træningspas...</translation>
+        <translation type="vanished">Importerer træningspas...</translation>
     </message>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Behandler træningsfiler...
+        <translation type="vanished">Behandler træningsfiler...
 Det kan tage et øjeblik ved første start.</translation>
     </message>
     <message>
@@ -2912,8 +3137,40 @@ Det kan tage et øjeblik ved første start.</translation>
         <translation>Filtrer efter dato</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Kalender</translation>
+    </message>
+    <message>
         <source>Import workouts</source>
         <translation>Importér træningspas</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>Tilføjer træningspas til historikken</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Kopierer træningsfiler</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Tilføjer træningspas til historikken: %1 af %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Kopierer træningsfiler: %1 af %2</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Ingen træningspas denne dag</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Ingen træningspas endnu</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Afsluttede træningspas vises her: åbn et for at se graferne.</translation>
     </message>
     <message>
         <source>Open on Peloton</source>
@@ -3005,9 +3262,25 @@ Det kan tage et øjeblik ved første start.</translation>
         <source>Offset</source>
         <translation>Justering</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Formindsk justering for gear %1</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Øg justering for gear %1</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Formindsk: %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Øg: %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Aktivér egen tabel for hældning til modstand</translation>
@@ -3023,6 +3296,10 @@ Det kan tage et øjeblik ved første start.</translation>
     <message>
         <source>Resistance</source>
         <translation>Modstand</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Fjern punktet ved hældning %1</translation>
     </message>
     <message>
         <source>Add Point</source>
@@ -3110,6 +3387,10 @@ Det kan tage et øjeblik ved første start.</translation>
 </context>
 <context>
     <name>homeform</name>
+    <message>
+        <source>No enabled metrics</source>
+        <translation>Ingen aktiverede målinger</translation>
+    </message>
     <message>
         <source>Speed (%1/h)</source>
         <translation>Hastighed (%1/t)</translation>
@@ -3563,6 +3844,14 @@ Det kan tage et øjeblik ved første start.</translation>
         <translation>hastighed ændret til </translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>Gendannede filer: %1.</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>Der blev ikke fundet filer fra en tidligere installation.</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>JSON-parserfejl</translation>
     </message>
@@ -3592,11 +3881,11 @@ Det kan tage et øjeblik ved første start.</translation>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation>Gendannede træningsprogrammer: %1.</translation>
+        <translation type="vanished">Gendannede træningsprogrammer: %1.</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation>Der blev ikke fundet træningsprogrammer fra en tidligere installation.</translation>
+        <translation type="vanished">Der blev ikke fundet træningsprogrammer fra en tidligere installation.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -3671,6 +3960,10 @@ Det kan tage et øjeblik ved første start.</translation>
     <message>
         <source>Searching for the device...</source>
         <translation>Søger efter enheden...</translation>
+    </message>
+    <message>
+        <source>Connecting to %1...</source>
+        <translation>Opretter forbindelse til %1...</translation>
     </message>
     <message>
         <source>%1 found</source>
@@ -4025,9 +4318,17 @@ Det kan tage et øjeblik ved første start.</translation>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ kører</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth er slået fra</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Flydende målinger (billede i billede)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -4157,6 +4458,28 @@ Vil du starte det nu?</translation>
         <translation>Peloton</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>Gemt! Se i appen Filer.</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>Gemt! Se i appens private mappe.</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Gendan filer</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Træningsprogrammer, GPX-ruter, indstillingsfiler og profiler fra en tidligere installation ligger muligvis stadig i QZ-mappen.
+Vil du søge efter dem?
+
+Tillad adgang til QZ-mappen i det næste vindue.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Du er allerede tilsluttet Peloton. Vil du logge ud?</translation>
     </message>
@@ -4169,6 +4492,18 @@ Vil du starte det nu?</translation>
         <translation>Du er allerede tilsluttet Intervals.icu. Vil du logge ud?</translation>
     </message>
     <message>
+        <source>Back</source>
+        <translation>Tilbage</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>Hovedmenu</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>Flydende vindue</translation>
+    </message>
+    <message>
         <source>You can move the tiles!</source>
         <translation>Du kan flytte felterne!</translation>
     </message>
@@ -4177,12 +4512,48 @@ Vil du starte det nu?</translation>
         <translation>Felterne er nu låst</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>Indlæs indstillinger</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>Søg i indstillinger</translation>
     </message>
     <message>
+        <source>Save settings</source>
+        <translation>Gem indstillinger</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Kort</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Video</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>Graf</translation>
+    </message>
+    <message>
         <source>Share FIT file</source>
         <translation>Del FIT-fil</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>Lås felterne op</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>Lås felterne</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>Deaktiver automatisk modstand</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>Aktivér automatisk modstand</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4245,6 +4616,46 @@ Vil du starte det nu?</translation>
         <translation>Afslut</translation>
     </message>
     <message>
+        <source>Disconnect from Strava</source>
+        <translation>Afbryd forbindelsen til Strava</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Opret forbindelse til Strava</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Afbryd forbindelsen til Peloton</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Opret forbindelse til Peloton</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Indstillinger for Garmin Connect</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Afbryd forbindelsen til Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Opret forbindelse til Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>Træning</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>App</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>Tjenester</translation>
+    </message>
+    <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
         <translation>QDomyos-Zwift – bro til træningsudstyr</translation>
     </message>
@@ -4290,14 +4701,14 @@ Tillad adgang til QZ-mappen i det næste vindue.</translation>
     </message>
     <message>
         <source>Training Programs</source>
-        <translation>Træningsprogrammer</translation>
+        <translation type="vanished">Træningsprogrammer</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation>Træningsprogrammer fra en tidligere installation ligger muligvis stadig i QZ-mappen.
+        <translation type="vanished">Træningsprogrammer fra en tidligere installation ligger muligvis stadig i QZ-mappen.
 Vil du søge efter dem?
 
 Tillad adgang til QZ-mappen i det næste vindue.</translation>
@@ -4424,6 +4835,42 @@ Vil du skifte til den klassiske virtuelle Bluetooth-enhed i denne session?</tran
         <source>Please choose a file</source>
         <translation>Vælg en fil</translation>
     </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Virtuelle gear på Wahoo</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>For at simulere virtuelle gear ændrer QZ den hjulomkreds, der er gemt i hometraineren. Værdien kan blive i hometraineren, efter at QZ er lukket, og påvirke hometraineren i andre apps.
+
+Må QZ ændre værdien?
+
+»Nej«: QZ slår »Uden hjuldiameterprotokol« til (Indstillinger &gt; Cykelindstillinger &gt; Wahoo-indstillinger), og virtuelle gear virker via stigningen. Med »Ja« kan du senere fortryde det samme sted: slå denne indstilling til, og tryk, mens hometraineren er forbundet, på »Gendan hometrainerens standardindstilling«.</translation>
+    </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Den simulerede enhed (%1) er aktiv. Hvis det ikke var meningen, skal du deaktivere den under Indstillinger.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Cykel</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Løbebånd</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Crosstrainer</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Romaskine</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -4463,6 +4910,10 @@ Vil du skifte til den klassiske virtuelle Bluetooth-enhed i denne session?</tran
         <translation>Er du sikker på, at du vil slette denne profil?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Slet</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Profilen er gemt</translation>
     </message>
@@ -4495,8 +4946,32 @@ Vil du skifte til den klassiske virtuelle Bluetooth-enhed i denne session?</tran
         <translation>Profilnavn</translation>
     </message>
     <message>
+        <source>New profile</source>
+        <translation>Ny profil</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Gemte profiler</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Tryk på en profil for at vælge den, og tryk derefter på &quot;Indlæs&quot;. Hold nede for at slette den.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Aktiv</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Indlæs</translation>
+    </message>
+    <message>
         <source>Profiles</source>
         <translation>Profiler</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Gendan filer</translation>
     </message>
     <message>
         <source>Save</source>
@@ -4694,6 +5169,10 @@ Vil du skifte til den klassiske virtuelle Bluetooth-enhed i denne session?</tran
         <translation>Appsprog:</translation>
     </message>
     <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>Denne indstilling blev ikke fundet på indstillingssiderne</translation>
+    </message>
+    <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
         <translation>Indstil, hvordan hældningen fra den virtuelle app omsættes til cyklens modstand.</translation>
     </message>
@@ -4756,6 +5235,30 @@ Vil du skifte til den klassiske virtuelle Bluetooth-enhed i denne session?</tran
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>Grafens plads i rækkefølgen i træningshistorikken. Rækkefølgen ændres med op- og ned-knapperne i Generelle indstillinger for brugerflade.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Indstillingen er nulstillet</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Nulstillede indstillinger: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Nulstil alle</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Nulstil ændrede indstillinger?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Indstillinger, der nulstilles til standardværdierne: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Nulstil</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -6762,6 +7265,14 @@ Indtast den herunder:</translation>
         <translation>Strava-mærke for virtuel aktivitet</translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Syntetisk GPS-spor til Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Tilføjer et syntetisk GPS-spor til virtuelle aktiviteter uden GPS. Strava kan derefter vise højdemeter, men ruten er ikke ægte.</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation>Føjer mærket for virtuel aktivitet til Strava-aktiviteten.</translation>
     </message>
@@ -6888,6 +7399,14 @@ VIGTIGT:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>Bruger modstand i stedet for hældning på smart-hometrainere. Det hjælper, hvis du ikke vil have, at Wahoo Climb eller lignende ændrer hældningen, når du skifter gear. Standard: deaktiveret.</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>Modstandskompatibilitet</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Aktivér dette, hvis ændring af modstand i QZ kun sætter cyklen til niveau 1 eller maksimum. Sender FTMS-modstand ganget med 10. Standard: deaktiveret.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>
@@ -8241,6 +8760,10 @@ Standard: A = -0.96, B = 1.33</translation>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>Ved GPX-træning ignoreres ændringer i hældning under denne værdi, og en ny kommando sendes først, når forskellen fra den sidst sendte værdi når den angivne grænse. Standard: 0 (deaktiveret).</translation>
     </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Brug gear fra konsollen</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>
@@ -8674,6 +9197,10 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>It shows 2 big gear buttons on the UI</source>
         <translation>Viser 2 store gearknapper i brugerfladen.</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Indstillinger for felter</translation>
     </message>
     <message>
         <source>Remaining Time/Row</source>

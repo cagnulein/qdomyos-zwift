@@ -19,8 +19,13 @@ import QtQuick.Controls.Material 2.0
 //   `savedText` is never dirty
 // The rule is a regular expression, not IntValidator/DoubleValidator: those follow the
 // locale of the phone (comma or point), the very thing that broke the decimal input
-TextField {
+// Built on UiTextField: the modern look draws it as its other fields (filled, a red ring
+// instead of the red line); the classic look is the Material TextField as before
+UiTextField {
     id: field
+
+    numberField: true
+    invalid: !valid
 
     property bool signed: false
     property int decimals: 2
@@ -54,8 +59,11 @@ TextField {
                       ? (signed || decimals > 0 ? Qt.ImhFormattedNumbersOnly : Qt.ImhDigitsOnly)
                       : Qt.ImhNone
 
-    // Room for the reason under the line while the value is not valid
-    bottomPadding: valid ? 16 : 16 + reason.implicitHeight
+    // Room for the reason under the line (classic) or under the field (modern) while the
+    // value is not valid
+    readonly property real reasonRoom: valid ? 0 : reason.implicitHeight
+    bottomPadding: (modern ? 12 : 16) + reasonRoom
+    bottomInset: modernInset + reasonRoom
 
     onSavedTextChanged: if (savedText !== undefined) text = savedText
     Component.onCompleted: if (savedText !== undefined) text = savedText
@@ -72,8 +80,9 @@ TextField {
     }
 
     Rectangle {
-        // Over the underline of the Material TextField (same place, see its background)
-        visible: !field.valid
+        // Over the underline of the Material TextField (same place, see its background);
+        // the modern look has the red ring of UiTextField instead
+        visible: !field.valid && !field.modern
         x: field.leftPadding
         width: field.width - field.leftPadding - field.rightPadding
         height: 2
@@ -84,12 +93,17 @@ TextField {
         id: reason
         visible: !field.valid
         text: field.errorText
-        x: field.leftPadding
-        width: field.width - field.leftPadding - field.rightPadding
+        // Modern look: the number field is the narrow one of UiTextField (88), where "Allowed range: 1 to 120" took
+        // three lines between the paddings; the reason takes the left padding too, from the left edge of the field
+        // to the right edge of the digits. Not wider: past the field it would run into the label next to it
+        x: field.modern ? 0 : field.leftPadding
+        width: field.width - x - field.rightPadding
         y: field.height - implicitHeight - 2
-        wrapMode: Text.WordWrap
+        // Modern look: Text.Wrap breaks a translated word longer than the narrow column instead of running past it
+        wrapMode: field.modern ? Text.Wrap : Text.WordWrap
         horizontalAlignment: field.horizontalAlignment
-        font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize - 3 : window.fontPx(window.appFontPx - 3)
-        color: Material.color(Material.Red)
+        font.pixelSize: field.modern ? window.fontHint
+            : window.textScale === 1 ? Qt.application.font.pixelSize - 3 : window.fontPx(window.appFontPx - 3)
+        color: field.modern ? window.ui.danger : Material.color(Material.Red)
     }
 }

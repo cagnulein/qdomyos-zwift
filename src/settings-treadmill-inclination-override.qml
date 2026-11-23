@@ -1,14 +1,19 @@
 import QtQuick 2.7
+import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 
 ScrollView {
+    // Modern look: the rows Body Large, as on the settings page
+    font: window.ui.modern ? window.ui.rowFont : window.font
+    // Buttons and lists of this page take Label Large (window.ui.onTypeScalePage)
+    readonly property bool typeScalePage: true
     contentWidth: -1
-    leftPadding: window.contentSideMargin
-    rightPadding: window.contentSideMargin
+    // Modern look: the page margin of Material 3, 16
+    leftPadding: window.ui.modern ? Math.max(16, window.contentSideMargin) : window.contentSideMargin
+    rightPadding: window.ui.modern ? Math.max(16, window.contentSideMargin) : window.contentSideMargin
     focus: true
-    anchors.horizontalCenter: parent.horizontalCenter
     anchors.fill: parent
     //anchors.bottom: footerSettings.top
     //anchors.bottomMargin: footerSettings.height + 10
@@ -23,7 +28,22 @@ ScrollView {
     ColumnLayout {
         id: column1
         spacing: 0
-        anchors.fill: parent
+        // Modern look: no bottom anchor - the height comes from the column itself, and the
+        // ScrollView takes its content height from it (anchored to fill, the column looped on it)
+        anchors.fill: window.ui.modern ? undefined : parent
+        anchors.left: window.ui.modern ? parent.left : undefined
+        anchors.right: window.ui.modern ? parent.right : undefined
+        anchors.top: window.ui.modern ? parent.top : undefined
+        // Modern look: a thin frame around every setting, as in the settings sections; the
+        // column moves in by the width of the frame padding, the page clips at its edge
+        anchors.leftMargin: window.ui.modern ? 16 : 0 // framePadH of UiSettingFrames
+        anchors.rightMargin: window.ui.modern ? 16 : 0 // framePadH of UiSettingFrames
+
+        UiSettingFrames {
+            content: column1
+            exclude: [ttsLabel]
+            Layout.preferredHeight: 0
+        }
 
         Label {
             Layout.preferredWidth: parent.width
@@ -33,7 +53,13 @@ ScrollView {
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
-            color: Material.color(Material.Red)
+            // Modern look: a page title like the TTS page instead of the red caption
+            color: window.ui.ink(Material.color(Material.Red))
+            // the classic look keeps the size it inherits
+            Binding on font.pixelSize { when: window.ui.modern; value: window.ui.fontHeadline; restoreMode: Binding.RestoreBindingOrValue }
+            font.weight: window.ui.modern ? Font.DemiBold : Font.Normal
+            topPadding: window.ui.modern ? 12 : 0
+            bottomPadding: window.ui.modern ? 8 : 0
         }
 
         RowLayout {
@@ -55,7 +81,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_ovveride_gain = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverrideGainTextField.valid && treadmillOverrideGainTextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -82,7 +108,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_ovveride_offset = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverrideOffsetTextField.valid && treadmillOverrideOffsetTextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -110,7 +136,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_0 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride0TextField.valid && treadmillOverride0TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -137,7 +163,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_05 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride05TextField.valid && treadmillOverride05TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -164,7 +190,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_10 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride10TextField.valid && treadmillOverride10TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -191,7 +217,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_15 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride15TextField.valid && treadmillOverride15TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -218,7 +244,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_20 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride20TextField.valid && treadmillOverride20TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -245,7 +271,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_25 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride25TextField.valid && treadmillOverride25TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -272,7 +298,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_30 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride30TextField.valid && treadmillOverride30TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -299,7 +325,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_35 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride35TextField.valid && treadmillOverride35TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -326,7 +352,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_40 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride40TextField.valid && treadmillOverride40TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -353,7 +379,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_45 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride45TextField.valid && treadmillOverride45TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -380,7 +406,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_50 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride50TextField.valid && treadmillOverride50TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -407,7 +433,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_55 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride55TextField.valid && treadmillOverride55TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -434,7 +460,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_60 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride60TextField.valid && treadmillOverride60TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -461,7 +487,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_65 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride65TextField.valid && treadmillOverride65TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -488,7 +514,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_70 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride70TextField.valid && treadmillOverride70TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -515,7 +541,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_75 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride75TextField.valid && treadmillOverride75TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -542,7 +568,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_80 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride80TextField.valid && treadmillOverride80TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -569,7 +595,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_85 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride85TextField.valid && treadmillOverride85TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -596,7 +622,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_90 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride90TextField.valid && treadmillOverride90TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -623,7 +649,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_95 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride95TextField.valid && treadmillOverride95TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -650,7 +676,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_100 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride100TextField.valid && treadmillOverride100TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -677,7 +703,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_105 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride105TextField.valid && treadmillOverride105TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -704,7 +730,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_110 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride110TextField.valid && treadmillOverride110TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -731,7 +757,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_115 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride115TextField.valid && treadmillOverride115TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -758,7 +784,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_120 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride120TextField.valid && treadmillOverride120TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -785,7 +811,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_125 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride125TextField.valid && treadmillOverride125TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -812,7 +838,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_130 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride130TextField.valid && treadmillOverride130TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -839,7 +865,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_135 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride135TextField.valid && treadmillOverride135TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -866,7 +892,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_140 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride140TextField.valid && treadmillOverride140TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -893,7 +919,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_145 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride145TextField.valid && treadmillOverride145TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -920,7 +946,7 @@ ScrollView {
                 onAccepted: settings.treadmill_inclination_override_150 = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button {
+            UiButton {
                 text: qsTr("OK")
                 enabled: treadmillOverride150TextField.valid && treadmillOverride150TextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter

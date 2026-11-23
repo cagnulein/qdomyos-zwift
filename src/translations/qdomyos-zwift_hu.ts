@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="hu_HU">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Bezárás</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -61,12 +68,36 @@
         <translation>Szűrő</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Szülőmappa</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Megnyitás</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Itt nincsenek GPX-fájlok</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Távolság: %1 km, szintemelkedés: %2 méter</translation>
     </message>
     <message>
         <source>Other folders</source>
         <translation>Egyéb mappák</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Fájlok visszaállítása</translation>
     </message>
 </context>
 <context>
@@ -94,6 +125,22 @@
     <message>
         <source>Don&apos;t ask again</source>
         <translation>Ne kérdezze újra</translation>
+    </message>
+    <message>
+        <source>Strong signal</source>
+        <translation>Erős jel</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Jó jel</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Közepes jel</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Gyenge jel</translation>
     </message>
     <message>
         <source>Choose a heart rate sensor</source>
@@ -167,6 +214,14 @@ Szeretné most újraindítani?</translation>
     <message>
         <source>Rest</source>
         <translation>Pihenő</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Stop</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Mégse</translation>
     </message>
     <message>
         <source>Very Light</source>
@@ -260,6 +315,14 @@ Szeretné bekapcsolni a szükséges szolgáltatásokat?</translation>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Szeretne a következő alkalommal emlékeztetőt kapni a Bluetooth vagy a helyszolgáltatások bekapcsolásáról?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Vissza az alkalmazásnak</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Visszaadja a terhelés vezérlését az alkalmazásnak</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -298,6 +361,26 @@ Szeretné bekapcsolni a szükséges szolgáltatásokat?</translation>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>Az alkalmazásnak automatikusan csatlakoznia kell a kerékpárhoz, futópadhoz vagy evezőgéphez. &lt;b&gt;Ha ez nem történik meg, ellenőrizze a következőket&lt;/b&gt;:&lt;br&gt;1) az Echelon/Domyos alkalmazás legyen BEZÁRVA, amíg a qdomyos-zwift fut;&lt;br&gt;2) a Bluetooth és a Bluetooth-engedélyek legyenek BEKAPCSOLVA&lt;br&gt;3) a kerékpárt, futópadot vagy evezőgépet az alkalmazás indítása ELŐTT kapcsolja be&lt;br&gt;4) próbálja meg újraindítani az eszközét&lt;br&gt;&lt;br&gt;Ha a kerékpár vagy a futópad 30 másodpercenként leválik, próbálja meg kikapcsolni a bal oldali sávban a „virtuális eszköz” beállítást.&lt;br&gt;&lt;br&gt;Probléma esetén nyugodtan írjon nekem: roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Jó edzést!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;A QZ kifejezetten kizár minden felelősséget&lt;br&gt;a véletlen vagy következményes károkért, és nem vállal&lt;br&gt;felelősséget semmilyen veszteségért&lt;br&gt;vagy kárért, amely bárkit&lt;br&gt;az alkalmazás használata vagy helytelen használata miatt ér.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Edzőgép keresése…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Kapcsolja be a kerékpárt, a futópadot vagy az evezőgépet: a QZ automatikusan csatlakozik hozzá.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Nem sikerül csatlakozni?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Az edzőgép nem található</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Kapcsolja be a kerékpárt, a futópadot vagy az evezőgépet, majd az újbóli kereséshez koppintson a felül található Bluetooth-ikonra.</translation>
     </message>
 </context>
 <context>
@@ -1061,6 +1144,10 @@ Szeretné frissíteni a QZ beállításait?</translation>
         <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
         <translation>%1 (pulzusérzékelő) nem található. Ellenőrizd, hogy be van-e kapcsolva és sugározza-e a pulzusadatokat.</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S csatlakoztatva!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1171,8 +1258,24 @@ Szeretné frissíteni a QZ beállításait?</translation>
         <translation>Válasszon fájlt</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Koppintson egy fájlra a kiválasztásához, majd a Betöltés gombra.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Betöltés</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Nincs mentett beállítás</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Egyéb mappák</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Fájlok visszaállítása</translation>
     </message>
 </context>
 <context>
@@ -1263,6 +1366,21 @@ Szeretné frissíteni a QZ beállításait?</translation>
     <message>
         <source>Open email</source>
         <translation>E-mail megnyitása</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Vásárlás...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Sikeres vásárlás</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Sikertelen vásárlás</translation>
     </message>
 </context>
 <context>
@@ -1380,16 +1498,40 @@ Szeretné frissíteni a QZ beállításait?</translation>
         <translation>Keresés (almappákkal)...</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Szülőmappa</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Nem található edzés</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Itt nincs edzés</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Egyéb mappák</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Fájlok visszaállítása</translation>
+    </message>
+    <message>
         <source>Restore programs</source>
-        <translation>Programok visszaállítása</translation>
+        <translation type="vanished">Programok visszaállítása</translation>
     </message>
     <message>
         <source>← Back</source>
         <translation>← Vissza</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>Kevesebb</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Több</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -1398,6 +1540,62 @@ Szeretné frissíteni a QZ beállításait?</translation>
     <message>
         <source>Start Workout</source>
         <translation>Edzés indítása</translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Igen</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nem</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Mégse</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>A korábbi telepítés fájljainak visszaállítása</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>A korábbi telepítés fájljainak visszaállítása: %1 / %2</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Kibontva</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Összecsukva</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>óra</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>perc</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>másodperc</translation>
     </message>
 </context>
 <context>
@@ -1618,6 +1816,16 @@ Szeretné frissíteni a QZ beállításait?</translation>
     <message>
         <source>Force Speed</source>
         <translation>Sebesség beállítása</translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>PID-pulzusszabályozás módja</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>Beállítás szerint</translation>
     </message>
     <message>
         <source>Fan</source>
@@ -1903,6 +2111,11 @@ Szeretné frissíteni a QZ beállításait?</translation>
     <message>
         <source>Inclination (%)</source>
         <translation>Emelkedés (%)</translation>
+    </message>
+    <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>Egy grafikonon:</translation>
     </message>
     <message>
         <source>Avg Output</source>
@@ -2457,6 +2670,18 @@ A következő kérdésekkel a QZ-t az edzőgépéhez és a céljaihoz szabhatja.
         <translation>Tovább</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Edzőgép, mértékegységek és profil lépésről lépésre</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Válasszon témát, és lépjen közvetlenül a beállításaihoz</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>A varázsló bezárása</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Egyéni konfigurációk</translation>
     </message>
@@ -2783,12 +3008,12 @@ A következő kérdésekkel a QZ-t az edzőgépéhez és a céljaihoz szabhatja.
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Edzések importálása...</translation>
+        <translation type="vanished">Edzések importálása...</translation>
     </message>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Edzésfájlok feldolgozása...
+        <translation type="vanished">Edzésfájlok feldolgozása...
 Az első indításkor ez eltarthat néhány pillanatig.</translation>
     </message>
     <message>
@@ -2912,8 +3137,40 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <translation>Szűrés dátum szerint</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Naptár</translation>
+    </message>
+    <message>
         <source>Import workouts</source>
         <translation>Edzések importálása</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>Edzések hozzáadása az előzményekhez</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Edzésfájlok másolása</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Edzések hozzáadása az előzményekhez: %1 / %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Edzésfájlok másolása: %1 / %2</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Ezen a napon nincs edzés</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Még nincs edzés</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>A befejezett edzések itt jelennek meg: nyisson meg egyet a diagramjai megtekintéséhez.</translation>
     </message>
     <message>
         <source>Open on Peloton</source>
@@ -3005,9 +3262,25 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <source>Offset</source>
         <translation>Eltolás</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>%1. fokozat eltolásának csökkentése</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>%1. fokozat eltolásának növelése</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Csökkentés: %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Növelés: %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Egyéni emelkedés–ellenállás táblázat bekapcsolása</translation>
@@ -3023,6 +3296,10 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
     <message>
         <source>Resistance</source>
         <translation>Ellenállás</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Pont törlése (emelkedés: %1)</translation>
     </message>
     <message>
         <source>Add Point</source>
@@ -3110,6 +3387,10 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
 </context>
 <context>
     <name>homeform</name>
+    <message>
+        <source>No enabled metrics</source>
+        <translation>Nincs engedélyezett mérőszám</translation>
+    </message>
     <message>
         <source>Speed (%1/h)</source>
         <translation>Sebesség(%1/h)</translation>
@@ -3563,6 +3844,14 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <translation>új sebesség: </translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>Visszaállított fájlok: %1.</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>Nem található fájl egy korábbi telepítésből.</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>JSON-elemzési hiba</translation>
     </message>
@@ -3592,11 +3881,11 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation>Visszaállított edzésprogramok: %1.</translation>
+        <translation type="vanished">Visszaállított edzésprogramok: %1.</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation>Nem található edzésprogram egy korábbi telepítésből.</translation>
+        <translation type="vanished">Nem található edzésprogram egy korábbi telepítésből.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -3671,6 +3960,10 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
     <message>
         <source>Searching for the device...</source>
         <translation>Eszköz keresése...</translation>
+    </message>
+    <message>
+        <source>Connecting to %1...</source>
+        <translation>Csatlakozás: %1...</translation>
     </message>
     <message>
         <source>%1 found</source>
@@ -4025,9 +4318,17 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>A QZ fut</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>A Bluetooth ki van kapcsolva</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Lebegő mérőszámok (kép a képben)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -4157,6 +4458,28 @@ Szeretné most elindítani?</translation>
         <translation>Peloton</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>Mentve. A Fájlok alkalmazásban találja.</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>Mentve. Az alkalmazás saját mappájában találja.</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Fájlok visszaállítása</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Előfordulhat, hogy egy korábbi telepítés edzésprogramjai, GPX-útvonalai, beállításfájljai és profiljai még a QZ-mappában vannak.
+Megkeresi őket?
+
+A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Már csatlakozott a Pelotonhoz. Szeretne kijelentkezni?</translation>
     </message>
@@ -4169,6 +4492,18 @@ Szeretné most elindítani?</translation>
         <translation>Már csatlakozott az Intervals.icu szolgáltatáshoz. Szeretne kijelentkezni?</translation>
     </message>
     <message>
+        <source>Back</source>
+        <translation>Vissza</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>Főmenü</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>Lebegő ablak</translation>
+    </message>
+    <message>
         <source>You can move the tiles!</source>
         <translation>A csempék mozgathatók.</translation>
     </message>
@@ -4177,12 +4512,48 @@ Szeretné most elindítani?</translation>
         <translation>A csempék rögzítve vannak.</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>Beállítások betöltése</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>Keresés a beállításokban</translation>
     </message>
     <message>
+        <source>Save settings</source>
+        <translation>Beállítások mentése</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Térkép</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Videó</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>Diagram</translation>
+    </message>
+    <message>
         <source>Share FIT file</source>
         <translation>FIT-fájl megosztása</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>Csempék feloldása</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>Csempék rögzítése</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>Automatikus ellenállás kikapcsolása</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>Automatikus ellenállás bekapcsolása</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4245,6 +4616,46 @@ Szeretné most elindítani?</translation>
         <translation>Kilépés</translation>
     </message>
     <message>
+        <source>Disconnect from Strava</source>
+        <translation>Strava leválasztása</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Csatlakozás a Stravához</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Peloton leválasztása</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Csatlakozás a Pelotonhoz</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Garmin Connect-beállítások</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Intervals.icu leválasztása</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Csatlakozás az Intervals.icu szolgáltatáshoz</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>Edzés</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>Alkalmazás</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>Szolgáltatások</translation>
+    </message>
+    <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
         <translation>QDomyos-Zwift – híd az edzőgépek és az alkalmazások között</translation>
     </message>
@@ -4290,14 +4701,14 @@ A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translati
     </message>
     <message>
         <source>Training Programs</source>
-        <translation>Edzésprogramok</translation>
+        <translation type="vanished">Edzésprogramok</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation>Előfordulhat, hogy egy korábbi telepítés edzésprogramjai még a QZ-mappában vannak.
+        <translation type="vanished">Előfordulhat, hogy egy korábbi telepítés edzésprogramjai még a QZ-mappában vannak.
 Megkeresi őket?
 
 A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translation>
@@ -4424,6 +4835,42 @@ Szeretne ebben a munkamenetben átváltani a klasszikus virtuális Bluetooth-esz
         <source>Please choose a file</source>
         <translation>Válasszon fájlt</translation>
     </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Wahoo virtuális fokozatok</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>A virtuális fokozatok szimulálásához a QZ módosítja az edzőgépben tárolt kerékkerületet. Ez az érték a QZ bezárása után is az edzőgépben maradhat, és befolyásolhatja az edzőgép működését más alkalmazásokban.
+
+Engedélyezi, hogy a QZ módosítsa ezt az értéket?
+
+„Nem”: a QZ bekapcsolja a „Kerékátmérő-protokoll nélkül” lehetőséget (Beállítások &gt; Kerékpár beállításai &gt; Wahoo beállításai), és a virtuális fokozatok a meredekségen keresztül működnek. „Igen” esetén ezt később ugyanott visszavonhatja: kapcsolja be ezt a lehetőséget, majd csatlakoztatott edzőgép mellett koppintson az „Alapértelmezett beállítás visszaállítása az edzőgépen” gombra.</translation>
+    </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>A szimulált eszköz (%1) aktív. Ha ez nem volt szándékos, kapcsold ki a Beállításokban.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Kerékpár</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Futópad</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Elliptikus tréner</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Evezőpad</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -4463,6 +4910,10 @@ Szeretne ebben a munkamenetben átváltani a klasszikus virtuális Bluetooth-esz
         <translation>Szeretné törölni ezt a profilt?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Törlés</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Profil mentve</translation>
     </message>
@@ -4495,8 +4946,32 @@ Szeretne ebben a munkamenetben átváltani a klasszikus virtuális Bluetooth-esz
         <translation>Profilnév</translation>
     </message>
     <message>
+        <source>New profile</source>
+        <translation>Új profil</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Mentett profilok</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Koppintson egy profilra a kiválasztásához, majd a Betöltés gombra. A törléshez tartsa lenyomva.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Aktív</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Betöltés</translation>
+    </message>
+    <message>
         <source>Profiles</source>
         <translation>Profilok</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Fájlok visszaállítása</translation>
     </message>
     <message>
         <source>Save</source>
@@ -4694,6 +5169,10 @@ Szeretne ebben a munkamenetben átváltani a klasszikus virtuális Bluetooth-esz
         <translation>Alkalmazás nyelve:</translation>
     </message>
     <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>Ez a beállítás nem található a beállítási oldalakon</translation>
+    </message>
+    <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
         <translation>Beállítja, hogyan alakul át a virtuális alkalmazás emelkedése a kerékpár ellenállásává.</translation>
     </message>
@@ -4756,6 +5235,30 @@ Szeretne ebben a munkamenetben átváltani a klasszikus virtuális Bluetooth-esz
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>A diagram sorszáma az edzéselőzményekben. A sorrend a felület általános beállításaiban, a fel és le gombokkal módosítható.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Beállítás visszaállítva</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Visszaállított beállítások: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Összes visszaállítása</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Visszaállítja a módosított beállításokat?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Az alapértelmezett értékre visszaálló beállítások: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Visszaállítás</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -6762,6 +7265,14 @@ Please enter it below:</source>
         <translation>Strava-címke virtuális tevékenységhez</translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Szintetikus GPS-útvonal Stravához</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Szintetikus GPS-nyomvonalat ad a GPS nélküli virtuális tevékenységekhez. A Strava így megjelenítheti a szintemelkedést, de az útvonal nem valós.</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation>Hozzáadja a virtuális címkét a Strava-tevékenységhez.</translation>
     </message>
@@ -6888,6 +7399,14 @@ FONTOS MEGJEGYZÉSEK:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>Okosgörgőknél ellenállást használ emelkedés helyett. Ez akkor segít, ha nem szeretné, hogy a Wahoo Climb vagy hasonló eszköz fokozatváltáskor módosítsa az emelkedést. Alapértelmezett: ki.</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>Ellenállás-kompatibilitás</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Kapcsold be, ha a QZ-ben állított ellenállás a kerékpárt csak az 1. vagy a maximális szintre állítja. Az FTMS-ellenállást tízszeres értékként küldi. Alapértelmezés: kikapcsolva.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>
@@ -8241,6 +8760,10 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>GPX-edzéseknél az ennél kisebb dőlésszög-változásokat figyelmen kívül hagyja. Új parancsot csak akkor küld, ha az utoljára küldött értékhez képest a változás eléri a megadott küszöböt. Alapértelmezés: 0 (kikapcsolva).</translation>
     </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Konzol fokozatainak használata</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>
@@ -8674,6 +9197,10 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     <message>
         <source>It shows 2 big gear buttons on the UI</source>
         <translation>2 nagy fokozatgombot jelenít meg a felületen.</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Csempék beállításai</translation>
     </message>
     <message>
         <source>Remaining Time/Row</source>

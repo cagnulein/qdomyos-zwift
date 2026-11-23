@@ -146,7 +146,11 @@ void ypootreadmill::updateYpooM5Control() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
-            const double target = treadmillInclinationOverrideReverse(requestInclination);
+            // The inclination override table stops at 15 %: its reverse lookup returns 15 for anything
+            // above, while the forward one leaves those values unchanged. So the M3 MAX takes them as is.
+            const double target = (YP_M3_MAX && requestInclination > 15.0)
+                                      ? requestInclination
+                                      : treadmillInclinationOverrideReverse(requestInclination);
             if (YP_M1552 && (target < 0.0 || target > 12.0)) {
                 emit debug(QStringLiteral("YP-M1552: incline target outside 0-12% range"));
             } else if (!ypooM5Control.requestIncline(target)) {
@@ -323,7 +327,9 @@ bluetoothdevice::VirtualTreadmillControl ypootreadmill::virtualTreadmillControl(
     VirtualTreadmillControl control;
     control.enabled = true;
     control.speedRange = QByteArray::fromHex("640058070a00");
-    control.inclineRange = QByteArray::fromHex(YP_M1552 ? "000078000a00" : "c4ff96000a00");
+    // Minimum, maximum and step in 0.1 %: 0-12 (YP-M1552), -6-42 (M3 MAX), -6-15 (M5).
+    control.inclineRange =
+        QByteArray::fromHex(YP_M1552 ? "000078000a00" : (YP_M3_MAX ? "c4ffa4010a00" : "c4ff96000a00"));
     return control;
 }
 
@@ -344,6 +350,8 @@ void ypootreadmill::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &ch
 void ypootreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bluetoothDevice = device;
     YP_M1552 = device.name().startsWith(QStringLiteral("YP-M1552-"), Qt::CaseInsensitive);
+    YP_M3_MAX = !YP_M1552 && !device.name().startsWith(QStringLiteral("YPTM-U0"), Qt::CaseInsensitive);
+    ypooM5Control.setMaxIncline(YP_M3_MAX ? 42.0 : 15.0);
 #ifdef Q_OS_IOS
     QZ_EnableDiscoveryCharsAndDescripttors = true;
 #endif

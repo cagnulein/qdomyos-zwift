@@ -45,7 +45,7 @@ esac
     -o "$BUILD_DIR/Makefile" \
     "QIOS_SOURCE_DIR=$QTBASE_SOURCE_DIR/src/plugins/platforms/ios" \
     "QMAKE_XCODE_DEVELOPER_PATH=/Applications/Xcode.app/Contents/Developer" \
-    "QMAKE_IOS_DEPLOYMENT_TARGET=12.0" \
+    "QMAKE_IOS_DEPLOYMENT_TARGET=15.0" \
     "QMAKE_APPLE_DEVICE_ARCHS=arm64 x86_64" \
     "${CONFIG_ARGS[@]}"
 

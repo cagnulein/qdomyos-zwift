@@ -14,7 +14,15 @@ ApplicationWindow {
     id: window
     width: 640
     height: 480
-    visibility: Qt.WindowFullScreen
+    // Qt.WindowFullScreen is 4, Window.Maximized as a visibility. iOS: Qt fits a maximized window
+    // into the safe area (QIOSWindow; the iOS plugin of qt-patches/ios/5.15.2 does it whatever the
+    // window flags), and the system paints the areas under the status bar and the home indicator.
+    // The modern look takes the whole screen as a full screen window, as on Android 12+: the drawer
+    // and the dimming of popups reach the edges, the content keeps clear of them by
+    // getTopPadding()/getBottomPadding(), and the status bar stays
+    // (AndroidStatusBar.setSystemBarsColor). Qt 6.9+ does this itself with
+    // Qt::ExpandedClientAreaHint and QWindow::safeAreaMargins(), none of it in Qt 5.15
+    visibility: Qt.platform.os === "ios" && settings.ui_modern ? Window.FullScreen : Qt.WindowFullScreen
     visible: true
 	 objectName: "stack"
     title: Qt.platform.os === "ios" ? "" : qsTr("qDomyos-Zwift")
@@ -28,18 +36,54 @@ ApplicationWindow {
             var temp = AndroidStatusBar.height + AndroidStatusBar.navigationBarHeight + AndroidStatusBar.leftInset + AndroidStatusBar.rightInset
         }
     }
-    
+
+    // iOS, the modern look: the safe area in points and the size of the UIWindow it belongs to, read
+    // again when the window changes size (it is put on the whole screen after start-up, and turned
+    // with the phone) and when the system reports a new one (the status bar shown again over the
+    // full screen window). The paddings take only the part of it inside the window. The classic look
+    // keeps its window in the safe area and its paddings as before: none
+    property var iosSafeArea: ({ top: 0, bottom: 0, left: 0, right: 0, width: 0, height: 0 })
+    // rootItem.iPadMultiWindowMode has no NOTIFY signal: read in a binding, it gives the warning
+    // "depends on non-NOTIFYable properties" each time the binding is evaluated again, so it is
+    // read here, at the same moments as the safe area, and the paddings read this copy
+    property bool iosMultiWindowMode: false
+    function refreshIosSafeArea() {
+        if (Qt.platform.os !== "ios")
+            return
+        iosMultiWindowMode = typeof rootItem !== "undefined" && rootItem && rootItem.iPadMultiWindowMode ? true : false
+        iosSafeArea = AndroidStatusBar.safeAreaInsets()
+    }
+    onWidthChanged: refreshIosSafeArea()
+    onHeightChanged: refreshIosSafeArea()
+    Connections {
+        target: AndroidStatusBar
+        function onSafeAreaChanged() { window.refreshIosSafeArea() }
+    }
+    function iosInsetTop() { return ui.modern ? Math.max(0, iosSafeArea.top - window.y) : 0 }
+    function iosInsetBottom() {
+        var h = iosSafeArea.height > 0 ? iosSafeArea.height : Screen.height
+        return ui.modern ? Math.max(0, iosSafeArea.bottom - (h - window.y - window.height)) : 0
+    }
+    function iosInsetLeft() { return ui.modern ? Math.max(0, iosSafeArea.left - window.x) : 0 }
+    function iosInsetRight() {
+        var w = iosSafeArea.width > 0 ? iosSafeArea.width : Screen.width
+        return ui.modern ? Math.max(0, iosSafeArea.right - (w - window.x - window.width)) : 0
+    }
+
     // Helper functions for cleaner padding calculations
     function getTopPadding() {
         // Add padding for iPadOS multi-window mode (Stage Manager, Split View, Slide Over)
         // to avoid overlap with window control buttons (red/yellow/green)
         // Check both the native detection and window size comparison for reactivity
         if (Qt.platform.os === "ios") {
-            var isMultiWindow = (typeof rootItem !== "undefined" && rootItem && rootItem.iPadMultiWindowMode) ||
+            var isMultiWindow = window.iosMultiWindowMode ||
                                 (window.width < Screen.width - 10);  // Window smaller than screen = multi-window
             if (isMultiWindow) {
-                return 15;  // Space for window control buttons
+                // Space for window control buttons, below the status bar in the modern look,
+                // whose window starts at the top of the screen
+                return Math.max(15, iosInsetTop());
             }
+            return iosInsetTop();
         }
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         // AndroidStatusBar.height is always the top inset in the current orientation
@@ -48,18 +92,21 @@ ApplicationWindow {
     }
 
     function getBottomPadding() {
+        if (Qt.platform.os === "ios") return iosInsetBottom();
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         // navigationBarHeight is always the bottom inset in the current orientation
         return AndroidStatusBar.navigationBarHeight;
     }
 
     function getLeftPadding() {
+        if (Qt.platform.os === "ios") return iosInsetLeft();
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
                (settings.android_landscape_cutout_margin ? AndroidStatusBar.leftInset : AndroidStatusBar.systemBarLeftInset) : 0;
     }
 
     function getRightPadding() {
+        if (Qt.platform.os === "ios") return iosInsetRight();
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
                (settings.android_landscape_cutout_margin ? AndroidStatusBar.rightInset : AndroidStatusBar.systemBarRightInset) : 0;
@@ -147,6 +194,9 @@ ApplicationWindow {
     signal restart()
     // Sent by the settings page when a key of the home page copy changes (Home.qml)
     signal tileSettingChanged(string key, var value)
+    // Sent by the home page each time it reads the state of the Bluetooth search (once a second): the
+    // Gym mode window reads it on the same tick, so both show the same countdown
+    signal bluetoothSearchPolled()
     signal volumeUp()
     signal volumeDown()
     signal keyMediaPrevious()
@@ -156,7 +206,18 @@ ApplicationWindow {
     signal strava_upload_file_prepare();
 
     property bool lockTiles: false
+    // The support button "?" (SupportHelpButton) is in the bottom right corner of the home page
+    readonly property bool supportHelpShown: supportHelpButton.shown
     property bool settings_restart_to_apply: false
+    // Modern look: the workout editor page, made on its first opening and kept while the app runs
+    // (see "editor")
+    property var keptWorkoutEditor: null
+    // Save & Start in the kept editor closes it, as in the classic look. One handler for the one
+    // editor: a closure connected per opening would pile up
+    onTrainprogram_autostart_requested: {
+        if (keptWorkoutEditor && stackView.currentItem === keptWorkoutEditor)
+            keptWorkoutEditor.closeRequested()
+    }
     property bool gymModePopupDismissed: false
 
     // rootItem comes from homeform, created only after this file is loaded (main.cpp): for about
@@ -309,8 +370,15 @@ ApplicationWindow {
         readonly property color textMain: t.textMain
         readonly property color textMuted: t.textMuted
         readonly property color accent: a[settings.ui_accent] || a["violet"]
+        // the name of the accent: UiButton.inverse takes the one of the opposite theme
+        readonly property string accentName: settings.ui_accent
         readonly property color accentInk: dark ? "#12101A" : "#FFFFFF"
         readonly property color danger: dark ? "#FF8A80" : "#C62828"
+        readonly property color ok: dark ? "#7EDC8A" : "#2E7D32"
+        // Notes that ask for attention but are not errors: the orange pair of the accents above
+        readonly property color warning: dark ? "#FFB36B" : "#984200"
+        // Mark drawn on a warning-coloured badge ("!")
+        readonly property color warningInk: dark ? "#000000" : "#FFFFFF"
         // Dimming behind a modal popup
         readonly property color scrim: Qt.rgba(0, 0, 0, dark ? 0.6 : 0.4)
 
@@ -325,11 +393,109 @@ ApplicationWindow {
         }
         readonly property int fontHeadline: fontPx(22) // page titles
         readonly property int fontTitle: fontPx(20)    // dialog titles, empty states
+        readonly property int fontTitleSmall: fontPx(18) // toolbar title
         readonly property int fontBody: fontPx(16)     // dialog text, list titles, fields
         readonly property int fontLabel: fontPx(15)    // drawer entries, group titles
         readonly property int fontCaption: fontPx(13)  // secondary lines, chips, captions
+        // Material 3 roles of the settings pages: a row - its label, the
+        // value of its field or list - is Body Large (fontBody); buttons, the items of an open list,
+        // nested headers and table headers Label Large / Title Small 14; the hint under a setting
+        // Body Small 12
+        readonly property int fontLabelLarge: fontPx(14)
+        readonly property int fontBodySmall: fontPx(12)
+        // The font of a settings page (its root sets it, the rows inherit it): the size of Body
+        // Large only. A control takes from its parent only what the parent font sets, the rest
+        // from the font of its style (Qt 5.15.0 QQuickControlPrivate::inheritFont,
+        // qquickcontrol.cpp:555-571; Qt.font sets only the fields given, qquickglobal.cpp:322-419):
+        // a button keeps the weight Medium of the Material style
+        readonly property font rowFont: Qt.font({ pixelSize: fontBody })
+        // The item lies on a settings page of the modern look: a root with typeScalePage (the
+        // pages that set rowFont). The parents are read in the binding that calls it, so it
+        // follows a move of the item
+        function onTypeScalePage(item) {
+            for (var p = item ? item.parent : null; p; p = p.parent)
+                if (p.typeScalePage === true)
+                    return true
+            return false
+        }
+        // A button or a list item takes Label Large where the text around it is Body Large (a
+        // settings page, onTypeScalePage); elsewhere it keeps the size it inherits
+        function labelPx(px) { return px === fontBody ? fontLabelLarge : px }
+        // The app font (12 on the emulator, not the Material 14): labels, fields, buttons, lists
+        readonly property int fontBase: fontPx(window.appFontPx)
 
         function alpha(c, a) { return Qt.rgba(c.r, c.g, c.b, a) }
+        // A title without its emoji ("Maps 🗺️", "Video 🎥"): Qt 5 on Android draws no colour emoji
+        // with the app font, they showed as boxes. For the headers of the modern look and the
+        // toast and search results of the settings page (its plainTitle() calls this). Drops a
+        // pictograph (a surrogate pair in U+1F000-1FBFF, or U+2300-23FF, U+2600-27BF) with the
+        // spaces before it and the emoji style mark (U+FE0F) after it
+        function plainTitle(text) {
+            var s = String(text)
+            var out = ""
+            var gap = ""
+            for (var i = 0; i < s.length; i++) {
+                var c = s.charCodeAt(i)
+                var n = 0
+                if (c >= 0xD83C && c <= 0xD83E && i + 1 < s.length
+                        && s.charCodeAt(i + 1) >= 0xDC00 && s.charCodeAt(i + 1) <= 0xDFFF)
+                    n = 2
+                else if ((c >= 0x2300 && c <= 0x23FF) || (c >= 0x2600 && c <= 0x27BF))
+                    n = 1
+                if (n > 0) {
+                    gap = ""
+                    i += n - 1
+                    if (i + 1 < s.length && s.charCodeAt(i + 1) === 0xFE0F)
+                        i++
+                } else if (s[i].trim() === "") {
+                    gap += s[i]
+                } else {
+                    out += gap + s[i]
+                    gap = ""
+                }
+            }
+            return (out + gap).trim()
+        }
+        // Text that the classic look paints in a fixed colour (mostly white) on the page
+        // background: the theme text colour in the modern look, the old colour otherwise
+        function ink(classic) { return modern ? textMain : classic }
+        // Zone colours of the tiles are made for a dark page: darker ones on a light page
+        function zoneInk(c) { return dark ? c : Qt.darker(c, 1.7) }
+
+        // Theme of the web pages in a WebView (charts, workout history, maps, workout editor and
+        // preview): their qz-theme-bridge.js maps these onto CSS variables. Null in the classic
+        // look, so the pages keep their own palette. All tokens are opaque: toString() gives "#rrggbb", which CSS
+        // reads; a translucent one would come out as "#aarrggbb", which CSS misreads.
+        readonly property var webTheme: !modern ? null : ({
+            modern: "1",
+            dark: dark,
+            bg: bg.toString(),
+            surface: surface.toString(),
+            surfaceHigh: surfaceHigh.toString(),
+            surfaceHighest: surfaceHighest.toString(),
+            outline: outline.toString(),
+            text: textMain.toString(),
+            muted: textMuted.toString(),
+            accent: accent.toString(),
+            accentInk: accentInk.toString(),
+            danger: danger.toString()
+        })
+        // The theme as a URL fragment for the first load of such a page ("" in the classic look)
+        function webThemeFragment() {
+            if (!webTheme)
+                return ""
+            var parts = []
+            for (var key in webTheme) {
+                var value = key === "dark" ? (webTheme.dark ? "1" : "0") : webTheme[key]
+                parts.push(key + "=" + encodeURIComponent(value))
+            }
+            return "#" + parts.join("&")
+        }
+        // Script that applies the current theme to an open page, for WebView.runJavaScript():
+        // qzApplyTheme(null) takes it off when the modern look is switched off
+        function webThemeScript() {
+            return "window.qzApplyTheme && window.qzApplyTheme(" + JSON.stringify(webTheme) + ")"
+        }
     }
 
     // Classic look: undefined resets them to the style (qtquickcontrols2.conf), as without these lines
@@ -338,11 +504,32 @@ ApplicationWindow {
     Material.background: ui.modern ? ui.bg : undefined
 
     // The phone can switch its night mode while the app runs (by schedule or from the quick
-    // settings): Android reports it as a configuration change, iOS through the return to the
-    // foreground (onStateChanged below)
+    // settings): Android reports it as a configuration change, iOS as a change of the window traits.
+    // Both are read again on the return to the foreground too (onStateChanged below)
     Connections {
         target: AndroidStatusBar
         function onSystemThemeChanged() { window.ui.refreshSystemTheme() }
+    }
+
+    // iOS: around a window in the safe area the system paints the areas under the status bar and
+    // the home indicator black. The modern look gives them the page colour (seen until its window
+    // takes the whole screen) and the status bar text its contrast; the classic look keeps them as
+    // they are, unless the modern one was on.
+    // Android: the theme Qt 5.15 sets paints the status bar black over the app. The modern look
+    // makes it transparent (the page and the drawer sheet reach the top of the screen) with icons in
+    // the contrast of the page; the classic look keeps the black bar, as before
+    property bool systemBarsColored: false
+    function applySystemBars() {
+        if ((Qt.platform.os !== "ios" && Qt.platform.os !== "android") || (!ui.modern && !systemBarsColored))
+            return
+        AndroidStatusBar.setSystemBarsColor(ui.modern ? ui.bg : "black", ui.dark, ui.modern)
+        systemBarsColored = ui.modern
+    }
+    Connections {
+        target: window.ui
+        function onBgChanged() { window.applySystemBars() }
+        function onDarkChanged() { window.applySystemBars() }
+        function onModernChanged() { window.applySystemBars() }
     }
 
     // Text size of the app (not the tiles, they follow ui_zoom). On Android and iOS it follows the
@@ -365,11 +552,17 @@ ApplicationWindow {
     readonly property int appFontPx: iosTextSize ? 14 : Qt.application.font.pixelSize > 0 ? Qt.application.font.pixelSize : 14
     // Size of the hints under the settings. Where the app font has no pixel size (desktop)
     // "pixelSize - 2" is ignored and the hints have the size of the text: kept so when scaled
-    readonly property int fontHint: textScale === 1 ? Qt.application.font.pixelSize - 2
+    // Modern look: Body Small; the pages that use it are the settings
+    readonly property int fontHint: ui.modern ? ui.fontBodySmall
+        : textScale === 1 ? Qt.application.font.pixelSize - 2
         : iosTextSize ? Math.round((iosBodyPx - 2) * textScale)
         : fontPx(Qt.application.font.pixelSize > 0 ? Qt.application.font.pixelSize - 2 : appFontPx)
     // The window font is set only for a size other than 100 % and reset otherwise
     readonly property int scaledFontPx: textScale !== 1 ? fontPx(appFontPx) : 0
+    // The size a row of a settings page sets on itself with a size other than 100 % (its Binding
+    // on scaledFontPx > 0): the window font in the classic look, Body Large in the modern one -
+    // the size its page gives it at 100 %
+    readonly property int rowScaledPx: ui.modern ? ui.fontBody : scaledFontPx
     // Size of a plain Text, which takes the app font, not the window font (0 at 100 %). On Android
     // the app font has a pixel size, the one of the controls. On iOS a Text is scaled from the body
     // size (above); on desktop the app font has a point size (in QML "pointSize": there is no
@@ -386,8 +579,10 @@ ApplicationWindow {
         : Qt.font({ family: Qt.application.font.family, pixelSize: plainFontPx })
     // Wrap mode of a label next to a field: with a bigger text it no longer fits in one line
     // and ran under the field and the OK button. The fixed-size popups below wrap their text too,
-    // and then take the width of the screen and the height of the text
-    readonly property int labelWrap: textScale === 1 ? Text.NoWrap : Text.WordWrap
+    // and then take the width of the screen and the height of the text.
+    // Modern look: always wraps - the labels of the settings take Body Large (16), and a long one
+    // no longer fits beside its field at 100 % either; the classic look as before
+    readonly property int labelWrap: textScale === 1 && !ui.modern ? Text.NoWrap : Text.WordWrap
     // Space under the hint of a setting: a wrapped label of the next one fills its row and
     // touched the hint above it, the two read as one block
     readonly property int hintGap: textScale === 1 ? 0 : Math.round(6 * textScale)
@@ -411,6 +606,9 @@ ApplicationWindow {
             if (Qt.application.state === Qt.ApplicationActive) {
                 window.systemTextScale = AndroidStatusBar.systemFontScale()
                 window.ui.refreshSystemTheme()
+                // the first time at start-up, when the native window is there
+                window.applySystemBars()
+                window.refreshIosSafeArea()
             }
         }
     }
@@ -461,8 +659,6 @@ ApplicationWindow {
         id: toast
     }
 
-    HeartRateSuggestion {}
-
     property bool lapPromptVisible: false
     property string lapPromptText: ""
 
@@ -480,20 +676,31 @@ ApplicationWindow {
         anchors.centerIn: parent
         width: Math.min(parent.width - 32, 520)
         height: Math.max(96, lapPromptLabel.implicitHeight + 44)
-        radius: 8
-        color: "#9C27B0"
+        // modern look: the accent of the theme with its ink, corner 28 and the shadow of an element over the
+        // content instead of the white border
+        radius: window.ui.modern ? 28 : 8
+        color: window.ui.modern ? window.ui.accent : "#9C27B0"
         border.color: "white"
-        border.width: 3
+        border.width: window.ui.modern ? 0 : 3
         opacity: visible ? 1 : 0
+        layer.enabled: window.ui.modern && visible
+        layer.effect: DropShadow {
+            transparentBorder: true
+            horizontalOffset: 0
+            verticalOffset: 2
+            radius: 8
+            samples: 17
+            color: Qt.rgba(0, 0, 0, window.ui.dark ? 0.5 : 0.25)
+        }
 
         Label {
             id: lapPromptLabel
             anchors.fill: parent
             anchors.margins: 16
             text: window.lapPromptText
-            color: "white"
+            color: window.ui.modern ? window.ui.accentInk : "white"
             font.bold: true
-            font.pixelSize: window.fontPx(26)
+            font.pixelSize: window.ui.modern ? window.ui.fontHeadline : window.fontPx(26)
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             wrapMode: Text.WordWrap
@@ -592,8 +799,11 @@ ApplicationWindow {
         }
 
         stackView.pop()
-        toolButtonLoadSettings.visible = false;
-        toolButtonSaveSettings.visible = false;
+        // Back from a page opened out of the settings (Tiles Options...) the settings keep their
+        // load and save buttons, and with them the tile lock, map, video and chart stay hidden
+        var backOnSettings = stackView.depth > 1 && headerToolbar.settingsPageActive
+        toolButtonLoadSettings.visible = backOnSettings;
+        toolButtonSaveSettings.visible = backOnSettings;
         rootItem.sortTiles()
         if (remindToSaveProfile) {
             toast.show(qsTr("Remember to save profile \"%1\" if you want to keep these changes in this profile.").arg(activeProfileName))
@@ -628,39 +838,12 @@ ApplicationWindow {
         interval: 2000 // ms
     }
 
-    Popup {
-	    id: popup
-		 parent: Overlay.overlay
+    UiNotice {
+        id: popup
+        text: qsTr("Program has been loaded correctly. Press start to begin!")
+    }
 
-       x: Math.round((parent.width - width) / 2)
-		 y: Math.round((parent.height - height) / 2)
-		 width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
-         height: window.textScale !== 1 ? Math.max(60, popupText.height + topPadding + bottomPadding) : 60
-		 modal: true
-		 focus: true
-		 palette.text: "white"
-		 closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-		 enter: Transition
-		 {
-		     NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
-		 }
-		 exit: Transition
-		 {
-		     NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
-		 }
-		 Column {
-             anchors.horizontalCenter: parent.horizontalCenter
-		 Label {
-		     id: popupText
-             anchors.horizontalCenter: parent.horizontalCenter
-		     text: qsTr("Program has been loaded correctly. Press start to begin!")
-		     width: window.textScale !== 1 ? popup.availableWidth : implicitWidth
-		     wrapMode: window.labelWrap
-		 }
-		 }
-	}
-
-    MessageDialog {
+    UiMessageDialog {
            id: popupPelotonAuth
            text: qsTr("Peloton Authentication Change")
            informativeText: qsTr("Peloton has moved to a new authentication system. Username and password are no longer required.\n\nWould you like to switch to the new authentication method now?")
@@ -687,53 +870,90 @@ ApplicationWindow {
        }
     }
 
-    Popup {
+    UiInfoPopup {
         id: popupClassificaHelper
-         parent: Overlay.overlay
-
-       x: Math.round((parent.width - width) / 2)
-         y: Math.round((parent.height - height) / 2)
-         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
-         height: window.textScale !== 1 ? Math.max(130, popupClassificaHelperText.height + topPadding + bottomPadding) : 130
-         modal: true
-         focus: true
-         palette.text: "white"
-         onClosed: stackView.push("Classifica.qml");
-         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-         enter: Transition
-         {
-             NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
-         }
-         exit: Transition
-         {
-             NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
-         }
-         Column {
-             anchors.horizontalCenter: parent.horizontalCenter
-         Label {
-             id: popupClassificaHelperText
-             anchors.horizontalCenter: parent.horizontalCenter
-             text: qsTr("QZ Classifica is a realtime viewer about the actual\neffort of every QZ users! If you want to join in,\nchoose a nickname in the general settings\nand enable the QZ Classifica setting in the\nexperimental settings section and\nrestart the app.")
-             width: window.textScale !== 1 ? popupClassificaHelper.availableWidth : implicitWidth
-             wrapMode: window.labelWrap
-            }
-         }
+        onClosed: stackView.push("Classifica.qml");
+        text: qsTr("QZ Classifica is a realtime viewer about the actual\neffort of every QZ users! If you want to join in,\nchoose a nickname in the general settings\nand enable the QZ Classifica setting in the\nexperimental settings section and\nrestart the app.")
     }
 
-    Popup {
+    UiPopup {
         id: popupGymMode
         parent: Overlay.overlay
         x: Math.round((parent.width - width) / 2)
         y: Math.round((parent.height - height) / 2)
         width: Math.min(parent.width - 30, 720)
-        // with a bigger text the content is taller: Skip fell out
-        height: window.textScale !== 1
-            ? Math.min(parent.height - 40, Math.max(260, gymModeColumn.implicitHeight + 36 + topPadding + bottomPadding))
+        // with a bigger text the content is taller: Skip fell out. Modern: the height of the content, as a
+        // Material 3 dialog - the fonts of the type scale are bigger than the classic ones (Skip and Next
+        // fell below the window at 100 % too), and with Bluetooth off a minimum left an empty band
+        readonly property real contentFitHeight: gymModeColumn.implicitHeight + 36 + topPadding + bottomPadding
+        height: modern ? Math.min(parent.height - 40, contentFitHeight)
+            : window.textScale !== 1
+            ? Math.min(parent.height - 40, Math.max(260, contentFitHeight))
             : Math.min(parent.height - 40, 260)
+        // Modern: the window grows smoothly when the list comes (Bluetooth switched on); not at opening
+        Behavior on height {
+            enabled: popupGymMode.modern && popupGymMode.opened
+            NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+        }
         modal: true
         focus: true
         closePolicy: Popup.NoAutoClose
-        onOpened: refresh_bluetooth_devices_clicked()
+        // Bluetooth off before the window comes in, not after (opened is already true in onOpened):
+        // the window enters with "Bluetooth is off", not with the search shown for a moment
+        onAboutToShow: bluetoothOff = rootItem.bluetoothSearchOff()
+        onOpened: {
+            pickedDevice = ""
+            // opened again after a disconnection: no row of the last pick marked in the list
+            gymModeDeviceComboBox.value = ""
+            idleSeconds = 0
+            // the search of the home page keeps its pauses at most 10 s while the window is open
+            rootItem.setGymModeWindowOpen(true)
+            if (!rootItem.bluetoothSearchOff())
+                rootItem.bluetoothSearchNow()
+            pollState()
+        }
+        onClosed: rootItem.setGymModeWindowOpen(false)
+
+        // The window shows the countdown of the search of the home page (one number on both). With
+        // Bluetooth off there is no search, so the window says so instead
+        readonly property int refreshSeconds: 10
+        property int secondsLeft: 0
+        // No search running or due although Bluetooth is on (a scan that failed: Location off, or any
+        // error on iOS): as before, the window starts one every refreshSeconds
+        property int idleSeconds: 0
+        property bool bluetoothOff: false
+        // The trainer marked in the list: Next connects to it. The list is sorted by signal and
+        // filled again at every opening, so a tap only marks and the name is kept apart
+        property string pickedDevice: ""
+        // Only the found trainers: "Disabled" and "Wifi" of the settings list mean nothing here
+        readonly property var devices: {
+            var r = []
+            // rootItem appears after the window is built: until then, an empty list
+            if (typeof rootItem === "undefined" || !rootItem || !rootItem.bluetoothDevices)
+                return r
+            var all = rootItem.bluetoothDevices
+            for (var i = 0; i < all.length; i++)
+                if (all[i] !== "Disabled" && all[i] !== "Wifi")
+                    r.push(all[i])
+            return r
+        }
+        function pollState() {
+            // switched on: the search starts by itself right now
+            bluetoothOff = rootItem.bluetoothSearchOff()
+            var next = rootItem.bluetoothNextSearchSeconds()
+            // connected while the window is open (a DirCon trainer): no search to wait for
+            if (bluetoothOff || next >= 0 || rootItem.hasConnectedDevice()) {
+                idleSeconds = 0
+                secondsLeft = Math.max(next, 0)
+                return
+            }
+            idleSeconds++
+            secondsLeft = refreshSeconds - idleSeconds
+            if (idleSeconds < refreshSeconds)
+                return
+            idleSeconds = 0
+            rootItem.bluetoothSearchNow()
+        }
 
         Column {
             id: gymModeColumn
@@ -744,77 +964,161 @@ ApplicationWindow {
             Label {
                 width: parent.width
                 text: qsTr("Select Your Gym Device")
-                font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 10)
-                font.bold: true
+                // Modern: the title of UiMessageDialog
+                font.pixelSize: popupGymMode.modern ? window.ui.fontTitle : window.fontPx(Qt.application.font.pixelSize + 10)
+                font.weight: popupGymMode.modern ? Font.DemiBold : Font.Bold
+                color: window.ui.ink(Material.foreground)
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.WordWrap
             }
 
-            Label {
-                width: parent.width
-                text: qsTr("QZ found the nearby Bluetooth trainers. Choose the machine you want to use for this session.")
-                wrapMode: Text.WordWrap
-                horizontalAlignment: Text.AlignHCenter
+            Row {
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: 8
+
+                // Bluetooth is off: a warning, not an error (the user switched it off), the sign of
+                // the home page, drawn because the app font has no warning sign
+                Rectangle {
+                    id: gymModeOffMark
+                    visible: popupGymMode.bluetoothOff
+                    anchors.verticalCenter: parent.verticalCenter
+                    // follows the size of the sign, so the "!" stays inside with a bigger text
+                    width: Math.round(gymModeOffSign.font.pixelSize * 1.4)
+                    height: width
+                    radius: width / 2
+                    color: window.ui.warning
+                    Accessible.ignored: true
+                    Label {
+                        id: gymModeOffSign
+                        anchors.centerIn: parent
+                        text: "!"
+                        color: window.ui.warningInk
+                        font.pixelSize: popupGymMode.modern ? window.ui.fontBody : window.fontPx(16)
+                        font.bold: true
+                        // Qt 5.15 lifts the children of an ignored item into the tree: the sign has
+                        // to be ignored itself, the status text next to it says the words
+                        Accessible.ignored: true
+                    }
+                }
+
+                Label {
+                    width: Math.min(implicitWidth, gymModeColumn.width - (popupGymMode.bluetoothOff ? gymModeOffMark.width + 8 : 0))
+                    // Bluetooth is off: the one thing to do here, so larger and bold (modern: Title
+                    // Small, under the Title of the window, and Body of the type scale). appFontPx: the
+                    // size of the controls this label had before (on iOS the app font is bigger)
+                    font.pixelSize: popupGymMode.modern ? (popupGymMode.bluetoothOff ? window.ui.fontTitleSmall : window.ui.fontBody)
+                                    : window.fontPx(popupGymMode.bluetoothOff ? window.appFontPx + 6 : window.appFontPx)
+                    font.bold: popupGymMode.bluetoothOff
+                    text: popupGymMode.bluetoothOff ? qsTranslate("homeform", "Bluetooth is off")
+                          : popupGymMode.devices.length === 0 ? qsTranslate("homeform", "Searching for the device...")
+                          : qsTr("QZ found the nearby Bluetooth trainers. Choose the machine you want to use for this session.")
+                    wrapMode: Text.WordWrap
+                    horizontalAlignment: Text.AlignHCenter
+                    color: window.ui.ink(Material.foreground)
+                }
             }
 
-            ValueComboBox {
+            // The search goes on while the window is open: the rows of the open list must stay where they
+            // are (DeviceComboBox, devices found while it is open go to the end). The shown text
+            // follows the marked trainer, not currentIndex: the list is filled again on every opening
+            DeviceComboBox {
                 id: gymModeDeviceComboBox
+                // Nothing to choose (Bluetooth off, also after devices were found; nothing found yet): no
+                // box, the devices found before stay in rootItem.bluetoothDevices
+                visible: !popupGymMode.bluetoothOff && popupGymMode.devices.length > 0
                 width: parent.width
-                model: rootItem.bluetoothDevices
-                labels: ({ "Disabled": qsTr("Disabled") })
-                displayText: currentIndex >= 0 ? labelFor(currentValue) : qsTr("Select a device")
-                currentIndex: -1
-                font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 8)
+                // "Disabled" and "Wifi" of the settings list mean nothing here
+                hidden: ["Disabled", "Wifi"]
+                displayText: popupGymMode.pickedDevice !== "" ? popupGymMode.pickedDevice : qsTr("Select a device")
+                // The size of master; a text wider than the box (a long name, a bigger text, de at 170 %
+                // was cut to "Wählen Sie ein Ge") is made smaller to fit, down to the size of the
+                // window text. The field is a TextField: it has no elide and no fontSizeMode
+                readonly property real fullPx: popupGymMode.modern ? window.ui.fontBody : window.fontPx(Qt.application.font.pixelSize + 8)
+                readonly property real textRoom: contentItem ? contentItem.width - contentItem.leftPadding - contentItem.rightPadding : 0
+                font.pixelSize: textRoom > 0 && gymModeFieldMetrics.advanceWidth > textRoom
+                    ? Math.max(window.fontPx(window.appFontPx), Math.floor(fullPx * textRoom / gymModeFieldMetrics.advanceWidth))
+                    : fullPx
+                // Modern: the popup is surfaceHigh, the list one tone below it (as the RPE list)
+                menuColor: window.ui.surface
+
+                TextMetrics {
+                    id: gymModeFieldMetrics
+                    font.family: gymModeDeviceComboBox.font.family
+                    font.weight: gymModeDeviceComboBox.font.weight
+                    font.capitalization: gymModeDeviceComboBox.font.capitalization
+                    font.pixelSize: gymModeDeviceComboBox.fullPx
+                    text: gymModeDeviceComboBox.displayText
+                }
 
                 onActivated: {
-                    var selectedDevice = stripBluetoothDeviceName(currentValue)
-                    if (selectedDevice === "Disabled" || selectedDevice === "Wifi" || selectedDevice.length === 0) {
+                    // Enter with no row highlighted: nothing marked
+                    if (index < 0)
                         return
-                    }
-                    popupGymMode.close()
-                    rootItem.selectGymModeDevice(selectedDevice)
+                    var picked = currentValue
+                    var selectedDevice = stripBluetoothDeviceName(picked)
+                    console.log("gym mode: picked '" + picked + "' -> '" + selectedDevice + "'")
+                    if (selectedDevice.length === 0)
+                        return
+                    popupGymMode.pickedDevice = selectedDevice
                 }
             }
 
             Label {
                 width: parent.width
-                text: qsTr("The list refreshes automatically every 10 seconds.")
+                visible: !popupGymMode.bluetoothOff
+                // while a search runs: the line above says "Searching for the device..." or the list
+                // fills, so no text here; an empty Label keeps its one line, the buttons stay put
+                text: popupGymMode.secondsLeft > 0 ? qsTranslate("homeform", "Next search in %1 s").arg(popupGymMode.secondsLeft) : ""
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignHCenter
-                color: Material.color(Material.Grey)
+                color: popupGymMode.modern ? window.ui.textMuted : Material.color(Material.Grey)
             }
 
-            Button {
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: qsTr("Skip")
-                onClicked: {
-                    gymModePopupDismissed = true
-                    popupGymMode.close()
+            // Skip on the left, Next on the right: Next stays grey until a trainer is marked
+            Item {
+                width: parent.width
+                height: gymModeNextButton.implicitHeight
+
+                UiButton {
+                    anchors.left: parent.left
+                    text: qsTr("Skip")
+                    cardSurface: true
+                    onClicked: {
+                        gymModePopupDismissed = true
+                        popupGymMode.close()
+                    }
+                }
+
+                UiButton {
+                    id: gymModeNextButton
+                    anchors.right: parent.right
+                    highlighted: true
+                    enabled: !popupGymMode.bluetoothOff && popupGymMode.pickedDevice !== ""
+                    text: qsTranslate("Wizard", "Next")
+                    onClicked: {
+                        var device = popupGymMode.pickedDevice
+                        popupGymMode.close()
+                        rootItem.selectGymModeDevice(device)
+                    }
                 }
             }
         }
     }
 
-    Timer {
-        id: gymModeRefreshTimer
-        interval: 10000
-        repeat: true
-        running: popupGymMode.visible
-        onTriggered: refresh_bluetooth_devices_clicked()
+    // The countdown of the window and the state of Bluetooth, on the tick of the home page status line
+    // behind it: a timer of its own showed its number up to a second apart ("5 s" over "4 s")
+    Connections {
+        target: window
+        function onBluetoothSearchPolled() {
+            if (popupGymMode.visible)
+                popupGymMode.pollState()
+        }
     }
 
-    Popup {
+    UiInfoPopup {
         id: popupWhatsOnZwiftHelper
-         parent: Overlay.overlay
-
-       x: Math.round((parent.width - width) / 2)
-         y: Math.round((parent.height - height) / 2)
-         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
-         height: window.textScale !== 1 ? Math.max(130, popupWhatsOnZwiftHelperText.height + topPadding + bottomPadding) : 130
-         modal: true
-         focus: true
-         palette.text: "white"
-         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        // the address is only named: "not affiliated with ... website"
+        links: false
          onClosed: {
              stackView.push("WebEngineTest.qml")
              drawer.close()
@@ -823,161 +1127,44 @@ ApplicationWindow {
                  stackView.pop();
               });
          }
-
-         enter: Transition
-         {
-             NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
-         }
-         exit: Transition
-         {
-             NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
-         }
-         Column {
-             anchors.horizontalCenter: parent.horizontalCenter
-         Label {
-             id: popupWhatsOnZwiftHelperText
-             anchors.horizontalCenter: parent.horizontalCenter
-             text: qsTr("Browse the What's on Zwift workout library<br>and choose your workout. It will<br> be automatically loaded on QZ when you will<br>press the load button on the top!<br><br>QZ is not affiliated with Zwift<br>or https://whatsonzwift.com/ website.")
-             width: window.textScale !== 1 ? popupWhatsOnZwiftHelper.availableWidth : implicitWidth
-             wrapMode: window.labelWrap
-            }
-         }
+        text: qsTr("Browse the What's on Zwift workout library<br>and choose your workout. It will<br> be automatically loaded on QZ when you will<br>press the load button on the top!<br><br>QZ is not affiliated with Zwift<br>or https://whatsonzwift.com/ website.")
     }
 
-    Popup {
+    UiNotice {
         id: popupLoadSettings
-         parent: Overlay.overlay
-
-       x: Math.round((parent.width - width) / 2)
-         y: Math.round((parent.height - height) / 2)
-         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
-         height: window.textScale !== 1 ? Math.max(60, popupLoadSettingsText.height + topPadding + bottomPadding) : 60
-         modal: true
-         focus: true
-         palette.text: "white"
-         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-         enter: Transition
-         {
-             NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
-         }
-         exit: Transition
-         {
-             NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
-         }
-         Column {
-             anchors.horizontalCenter: parent.horizontalCenter
-         Label {
-             id: popupLoadSettingsText
-             anchors.horizontalCenter: parent.horizontalCenter
-             text: qsTr("Settings has been loaded correctly. Restart the app!")
-             width: window.textScale !== 1 ? popupLoadSettings.availableWidth : implicitWidth
-             wrapMode: window.labelWrap
-            }
-         }
+        text: qsTr("Settings has been loaded correctly. Restart the app!")
     }
 
-    Popup {
+    UiNotice {
         id: popupSaveFile
-         parent: Overlay.overlay
-
-         x: Math.round((parent.width - width) / 2)
-         y: Math.round((parent.height - height) / 2)
-         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
-         height: window.textScale !== 1 ? Math.max(60, popupSaveFileText.height + topPadding + bottomPadding) : 60
-         modal: true
-         focus: true
-         palette.text: "white"
-         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-         enter: Transition
-         {
-             NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
-         }
-         exit: Transition
-         {
-             NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
-         }
-         Column {
-             anchors.horizontalCenter: parent.horizontalCenter
-         Label {
-             id: popupSaveFileText
-             anchors.horizontalCenter: parent.horizontalCenter
-             text: qsTr("Saved! Check your private folder (Android)<br>or Files App (iOS)")
-             width: window.textScale !== 1 ? popupSaveFile.availableWidth : implicitWidth
-             wrapMode: window.labelWrap
-            }
-         }
+        // Modern look: only the place of this phone's system, one line that wraps by itself
+        text: !window.ui.modern ? qsTr("Saved! Check your private folder (Android)<br>or Files App (iOS)")
+              : Qt.platform.os === "ios" ? qsTr("Saved! Look in the Files app.")
+              : qsTr("Saved! Look in the app's private folder.")
     }
 
-    Popup {
+    UiInfoPopup {
         id: popupStravaConnected
-         parent: Overlay.overlay
          enabled: rootItem.generalPopupVisible
          onEnabledChanged: { if(rootItem.generalPopupVisible) popupStravaConnected.open() }
          onClosed: { rootItem.generalPopupVisible = false; }
-
-         x: Math.round((parent.width - width) / 2)
-         y: Math.round((parent.height - height) / 2)
-         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
-         height: window.textScale !== 1 ? Math.max(120, popupStravaConnectedText.height + topPadding + bottomPadding) : 120
-         modal: true
-         focus: true
-         palette.text: "white"
-         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-         enter: Transition
-         {
-             NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
-         }
-         exit: Transition
-         {
-             NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
-         }
-         Column {
-             anchors.horizontalCenter: parent.horizontalCenter
-         Label {
-             id: popupStravaConnectedText
-             anchors.horizontalCenter: parent.horizontalCenter
-             width: window.textScale !== 1 ? popupStravaConnected.availableWidth : 370
-             height: window.textScale !== 1 ? undefined : 120
-             text: qsTr("Your Strava account is now connected!<br><br>When you will save a FIT file it will<br>automatically uploaded to Strava!")
-             wrapMode: window.labelWrap
-            }
-         }
+        classicHeight: 120
+        classicLabelWidth: 370
+        classicLabelHeight: 120
+        title: qsTr("Strava")
+        text: qsTr("Your Strava account is now connected!<br><br>When you will save a FIT file it will<br>automatically uploaded to Strava!")
     }
 
-    Popup {
+    UiInfoPopup {
         id: popupPelotonConnected
-         parent: Overlay.overlay
          enabled: rootItem.pelotonPopupVisible
          onEnabledChanged: { if(rootItem.pelotonPopupVisible) popupPelotonConnected.open() }
          onClosed: { rootItem.pelotonPopupVisible = false; }
-
-         x: Math.round((parent.width - width) / 2)
-         y: Math.round((parent.height - height) / 2)
-         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
-         height: window.textScale !== 1 ? Math.max(120, popupPelotonConnectedText.height + topPadding + bottomPadding) : 120
-         modal: true
-         focus: true
-         palette.text: "white"
-         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-         enter: Transition
-         {
-             NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
-         }
-         exit: Transition
-         {
-             NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
-         }
-         Column {
-             anchors.horizontalCenter: parent.horizontalCenter
-         Label {
-             id: popupPelotonConnectedText
-             anchors.horizontalCenter: parent.horizontalCenter
-             width: window.textScale !== 1 ? popupPelotonConnected.availableWidth : 370
-             height: window.textScale !== 1 ? undefined : 120
-             text: qsTr("Your Peloton account is now connected!<br><br>Restart the app to apply this change!")
-             wrapMode: window.labelWrap
-            }
-         }
+        classicHeight: 120
+        classicLabelWidth: 370
+        classicLabelHeight: 120
+        title: qsTr("Peloton")
+        text: qsTr("Your Peloton account is now connected!<br><br>Restart the app to apply this change!")
     }
 
     Timer {
@@ -986,43 +1173,19 @@ ApplicationWindow {
         onTriggered: popupLicense.close();
     }
 
-    Popup {
+    UiInfoPopup {
         id: popupLicense
-         parent: Overlay.overlay
          enabled: rootItem.licensePopupVisible
          onEnabledChanged: { if(rootItem.licensePopupVisible) popupLicense.open() }
          onClosed: { Qt.openUrlExternally("https://www.patreon.com/bePatron?u=45290147"); Qt.callLater(Qt.quit); }
-
-         x: Math.round((parent.width - width) / 2)
-         y: Math.round((parent.height - height) / 2)
-         width: window.textScale !== 1 ? Math.min(580, parent.width - 32) : 580
-         height: window.textScale !== 1 ? Math.max(230, popupLicenseText.height + topPadding + bottomPadding) : 230
-         modal: true
-         focus: true
-         palette.text: "white"
-         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-         enter: Transition
-         {
-             NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
-         }
-         exit: Transition
-         {
-             NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
-         }
-         Column {
-             anchors.horizontalCenter: parent.horizontalCenter
-         Label {
-             id: popupLicenseText
-             anchors.horizontalCenter: parent.horizontalCenter
-             width: window.textScale !== 1 ? popupLicense.availableWidth : 570
-             height: window.textScale !== 1 ? undefined : 220
-             text: qsTr("Trial time expired!<br><br>Please join the QZ Patreon Membership to unlock the full license!<br>https://www.patreon.com/bePatron?u=45290147<br><br>Then add your patreon email in the email field in the general settings.<br>The App will now close.")
-             wrapMode: window.labelWrap
-            }
-         }
+        classicWidth: 580
+        classicHeight: 230
+        classicLabelWidth: 570
+        classicLabelHeight: 220
+        text: qsTr("Trial time expired!<br><br>Please join the QZ Patreon Membership to unlock the full license!<br>https://www.patreon.com/bePatron?u=45290147<br><br>Then add your patreon email in the email field in the general settings.<br>The App will now close.")
     }
 
-    MessageDialog {
+    UiMessageDialog {
         id: popupRestartApp
         text: qsTr("Settings changed")
         informativeText: qsTr("In order to apply the changes you need to restart the app.\nDo you want to do it now?")
@@ -1051,7 +1214,7 @@ ApplicationWindow {
         }
     }
 
-    MessageDialog {
+    UiMessageDialog {
         id: popupLandscapeCutout
         text: qsTr("Camera Cutout")
         informativeText: qsTr("In landscape, QZ keeps a margin on the camera side so the camera hole does not cover the content.\nDo you want to use the full screen width instead?\n\nYou can change it later in Settings > General UI Options > Keep Content Clear of the Camera Cutout.")
@@ -1061,9 +1224,34 @@ ApplicationWindow {
         visible: false
     }
 
+    // virtual gears on a Wahoo trainer change a value stored in the trainer: at the first connection
+    // the trainer gets nothing until this is answered (homeform::wahooWheelQuestionPending)
+    UiMessageDialog {
+        id: popupWahooWheel
+        text: qsTr("Wahoo Virtual Gears")
+        informativeText: qsTr("To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.\n\nAllow QZ to change it?\n\nNo: QZ turns on Without Wheel Diameter Protocol (Settings > Bike Options > Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        // the modern card: the text names these buttons, so they are translated as in main.qml
+        yesText: qsTr("Yes")
+        noText: qsTr("No")
+        onYesClicked: rootItem.wahooWheelAnswer(true)
+        onNoClicked: rootItem.wahooWheelAnswer(false)
+        // the back key closes it without an answer, and the trainer would wait until the next start
+        onClosed: if (!answered) Qt.callLater(popupWahooWheel.open)
+        visible: false
+    }
+
+    Connections {
+        target: rootItem
+        ignoreUnknownSignals: true
+        function onWahooWheelQuestionRequested() {
+            popupWahooWheel.open()
+        }
+    }
+
     // a new workout history database was started (first start, reinstall, database removed):
     // the workouts of a previous install may still be in the QZ folder, hidden from the app
-    MessageDialog {
+    UiMessageDialog {
         id: popupHistoryRecovery
         text: qsTr("Workout History")
         informativeText: qsTr("Workouts of a previous installation may still be in the QZ folder.\nDo you want to look for them?\n\nIn the next window, allow access to the QZ folder.")
@@ -1079,25 +1267,33 @@ ApplicationWindow {
         function onHistoryRecoveryOfferRequested() {
             popupHistoryRecovery.visible = true
         }
-        function onTrainingRestoreOfferRequested() {
-            popupTrainingRestore.visible = true
+        function onFolderRestoreOfferRequested() {
+            popupFolderRestore.visible = true
+        }
+        function onChangeOfdevice() {
+            window.equipmentConnected = window.ui.modern && rootItem.supportDeviceConnected()
         }
     }
 
-    // after a reinstall the training programs of the previous install are hidden in the
-    // training folder: with access to the QZ folder QZ copies them back as its own
-    MessageDialog {
-        id: popupTrainingRestore
-        text: qsTr("Training Programs")
-        informativeText: qsTr("Training programs of a previous installation may still be in the QZ folder.\nDo you want to look for them?\n\nIn the next window, allow access to the QZ folder.")
+    // Modern look: equipment connected, for the header and the drawer, set by onChangeOfdevice
+    // above. Not rootItem.device: with no equipment its getter flips on every read to blink the
+    // Bluetooth icon of the home page, and one more binding reading it would stop the blinking
+    property bool equipmentConnected: false
+
+    // after a reinstall the training programs, GPX routes, settings files and profiles of the
+    // previous install are hidden in the QZ folder: with access to it QZ copies them back as its own
+    UiMessageDialog {
+        id: popupFolderRestore
+        text: qsTr("Restore files")
+        informativeText: qsTr("Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.\nDo you want to look for them?\n\nIn the next window, allow access to the QZ folder.")
         buttons: (MessageDialog.Yes | MessageDialog.No)
-        onYesClicked: rootItem.restoreTrainingPrograms()
+        onYesClicked: rootItem.restoreFolderFiles()
         onNoClicked: this.visible = false
         visible: false
     }
 
     // a device changed a setting on its own (auto-detection): the message says what QZ found and why it must restart
-    MessageDialog {
+    UiMessageDialog {
         id: popupRestartAppDetected
         text: ""
         informativeText: qsTr("Restart now?")
@@ -1116,16 +1312,17 @@ ApplicationWindow {
         }
     }
 
-    MessageDialog {
+    UiMessageDialog {
         text: qsTr("Strava")
         informativeText: qsTr("Do you want to upload the workout to Strava?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {strava_upload_file_prepare(); rootItem.stravaUploadRequested = false;}
         onNoClicked: {rootItem.stravaUploadRequested = false;}
+        backAnswersNo: window.ui.modern
         visible: rootItem.stravaUploadRequested
     }
 
-    MessageDialog {
+    UiMessageDialog {
         text: qsTr("Garmin Workout Planned")
         informativeText: qsTr("Workout found:\n") + rootItem.garminWorkoutPromptName +
                          (rootItem.garminWorkoutPromptDate.length > 0 ? qsTr("\nDate: ") + rootItem.garminWorkoutPromptDate : "") +
@@ -1133,19 +1330,21 @@ ApplicationWindow {
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: { rootItem.garmin_start_downloaded_workout(); }
         onNoClicked: { rootItem.garmin_dismiss_downloaded_workout_prompt(); }
+        backAnswersNo: window.ui.modern
         visible: rootItem.garminWorkoutPromptRequested
     }
 
-    MessageDialog {
+    UiMessageDialog {
         text: qsTr("Garmin FTP Update")
         informativeText: rootItem.garminFtpPromptMessage
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: { rootItem.garmin_accept_ftp_update(); }
         onNoClicked: { rootItem.garmin_dismiss_ftp_update(); }
+        backAnswersNo: window.ui.modern
         visible: rootItem.garminFtpPromptRequested
     }
 
-    MessageDialog {
+    UiMessageDialog {
         text: qsTr("Clipboard Workout")
         informativeText: qsTr("Workout found in clipboard:\n%1\n\nDo you want to open the workout preview?").arg(rootItem.clipboardWorkoutPromptName)
         buttons: (MessageDialog.Yes | MessageDialog.No)
@@ -1166,24 +1365,27 @@ ApplicationWindow {
             });
         }
         onNoClicked: { rootItem.clipboard_dismiss_workout_prompt(); }
+        backAnswersNo: window.ui.modern
         visible: rootItem.clipboardWorkoutPromptRequested
     }
 
-    MessageDialog {
+    UiMessageDialog {
         text: qsTr("Clipboard Workout")
         informativeText: qsTr("The clipboard workout has ended.\n\nDo you want to delete the file?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: rootItem.clipboard_delete_finished_workout()
         onNoClicked: rootItem.clipboard_keep_finished_workout()
+        backAnswersNo: window.ui.modern
         visible: rootItem.clipboardWorkoutDeletePromptRequested
     }
 
-    MessageDialog {
+    UiMessageDialog {
         text: qsTr("Echelon Unlock")
         informativeText: qsTr("The bike has been unlocked and cadence is flowing.\n\nDo you want to switch to the classic Bluetooth bridge for this session?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: { rootItem.echelon_switch_to_classic_bridge(); }
         onNoClicked: { rootItem.echelon_dismiss_bridge_switch_prompt(); }
+        backAnswersNo: window.ui.modern
         visible: rootItem.echelonBridgeSwitchPromptRequested
     }
 
@@ -1197,7 +1399,8 @@ ApplicationWindow {
         height: Math.min(window.height - 60, 420)
         x: Math.round((parent.width - width) / 2)
         y: Math.round((parent.height - height) / 2)
-        visible: rootItem.echelonEnablePromptRequested
+        // Modern look: the card below (echelonEnableDialog)
+        visible: rootItem.echelonEnablePromptRequested && !window.ui.modern
 
         background: Rectangle {
             radius: 8
@@ -1270,7 +1473,7 @@ ApplicationWindow {
         height: Math.min(window.height - 60, 380)
         x: Math.round((parent.width - width) / 2)
         y: Math.round((parent.height - height) / 2)
-        visible: rootItem.androidNotificationPromptRequested
+        visible: rootItem.androidNotificationPromptRequested && !window.ui.modern
 
         background: Rectangle {
             radius: 8
@@ -1336,7 +1539,43 @@ ApplicationWindow {
         }
     }
 
-    MessageDialog {
+    // Modern look of androidNotificationPopup. Yes = enable, No = never ask again, Cancel = not now;
+    // back answers nothing, so it counts as "not now" too
+    UiMessageDialog {
+        id: androidNotificationDialog
+        text: qsTr("Connection lost in the background")
+        informativeText:
+            qsTr("Android cut QZ's network while it was in the background, so the app connected to QZ over Wi-Fi (Zwift, for example) lost it.\n\n") +
+            qsTr("The Android notification keeps QZ running in the background. Enable it now? The workout keeps going, no restart needed.")
+        buttons: (MessageDialog.Yes | MessageDialog.No | MessageDialog.Cancel)
+        yesText: qsTr("Enable")
+        noText: qsTr("Don't ask again")
+        cancelText: qsTr("Not now")
+        onYesClicked: rootItem.android_notification_prompt_enable()
+        onNoClicked: rootItem.android_notification_prompt_dismiss(true)
+        onCancelClicked: rootItem.android_notification_prompt_dismiss(false)
+        onClosed: if (!answered) rootItem.android_notification_prompt_dismiss(false)
+        visible: window.ui.modern && rootItem.androidNotificationPromptRequested
+    }
+
+    // Modern look of echelonEnablePopup: the card of the other questions, the same texts.
+    // Classic look keeps the popup above (here the native dialog would replace it).
+    UiMessageDialog {
+        id: echelonEnableDialog
+        text: qsTr("Echelon Locked Bike")
+        informativeText:
+            qsTr("Your bike is locked by Echelon, but QZ can unlock it.\n\n") +
+            qsTr("Enable Virtual Echelon in the experimental settings and restart qz, then open the official Echelon app on a separate device and connect to the bike once.\n\n") +
+            qsTr("After initialization, return to QZ and everything will work normally.\n\n") +
+            qsTr("You have to repeat this for each session, would you like to enable the Virtual Echelon setting now for this?")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: rootItem.echelon_enable_virtual_bridge()
+        onNoClicked: rootItem.echelon_dismiss_enable_prompt()
+        backAnswersNo: true
+        visible: window.ui.modern && rootItem.echelonEnablePromptRequested
+    }
+
+    UiMessageDialog {
         id: stravaLogoutConfirm
         text: qsTr("Strava")
         informativeText: qsTr("You are already connected to Strava. Do you want to log out?")
@@ -1346,7 +1585,7 @@ ApplicationWindow {
         visible: false
     }
 
-    MessageDialog {
+    UiMessageDialog {
         id: pelotonLogoutConfirm
         text: qsTr("Peloton")
         informativeText: qsTr("You are already connected to Peloton. Do you want to log out?")
@@ -1356,7 +1595,7 @@ ApplicationWindow {
         visible: false
     }
 
-    MessageDialog {
+    UiMessageDialog {
         id: intervalsICULogoutConfirm
         text: qsTr("Intervals.icu")
         informativeText: qsTr("You are already connected to Intervals.icu. Do you want to log out?")
@@ -1368,11 +1607,26 @@ ApplicationWindow {
 
     header: ToolBar {
         contentHeight: toolButton.implicitHeight
-        Material.primary: settings.theme_status_bar_background_color
+        Material.primary: window.ui.modern ? window.ui.bg : settings.theme_status_bar_background_color
+        Material.elevation: window.ui.modern ? 0 : 4
         id: headerToolbar
         // Opacity, not visible: some pages set headerToolbar.visible themselves
         opacity: window.rootReady ? 1 : 0
         property bool settingsPageActive: stackView.currentItem && typeof stackView.currentItem.showSettingsSearch === "function"
+        // The map, video and chart buttons: everywhere in the classic look, on the home page only
+        // in the modern one
+        readonly property bool workoutButtonsShown: !window.ui.modern || stackView.depth === 1
+        // Modern look: load and save belong to the settings page itself. The pages opened from
+        // it (the settings files of the load button among them) kept both, and load could open
+        // the list again and again. The profiles page has its own buttons and none of these.
+        // The classic look sets them where it always did
+        onSettingsPageActiveChanged: {
+            if (window.ui.modern) {
+                var keep = settingsPageActive
+                toolButtonLoadSettings.visible = keep
+                toolButtonSaveSettings.visible = keep
+            }
+        }
         // The toolbar hangs over the pages: in the window layout it is only as tall as the status
         // bar inset, and the page stack below leaves room for the rest of it (stackView
         // anchors.topMargin), so every page sits where it did. The tile grid in Home.qml reaches
@@ -1395,10 +1649,12 @@ ApplicationWindow {
         topInset: -barHidden
         bottomInset: barHidden - contentHeight
         // The buttons fade out as the bar goes and are hidden once it is gone, from TalkBack as
-        // well; the background goes then too
+        // well; the background goes then too. Android, modern look: it stays – the status bar is
+        // transparent there (applySystemBars), and the tiles would slide under its icons
         contentItem.opacity: 1 - barHidden / contentHeight
         contentItem.visible: barHidden < contentHeight
         background.visible: barHidden < contentHeight
+                            || (window.ui.modern && Qt.platform.os === "android")
 
         // The bar takes the touches on it, as a toolbar the height of its content did: drawn
         // past the height of the header, it would let a tap on the title reach the tiles below
@@ -1413,17 +1669,23 @@ ApplicationWindow {
 
         ToolButton {
             id: toolButton
-            icon.source: "icons/icons/icon.png"
-            text: stackView.depth > 1 ? "◄" : "◄"
+            // Modern look: the buttons of the bar are icons without a text, each named for the
+            // screen reader; the classic look keeps the name it had (the text, if any)
+            Accessible.name: window.ui.modern ? (stackView.depth > 1 ? qsTr("Back") : qsTr("Main menu")) : text
+            icon.source: window.ui.modern ? "" : "icons/icons/icon.png"
+            text: window.ui.modern ? "" : (stackView.depth > 1 ? "◄" : "◄")
+            UiIcon { anchors.centerIn: parent; width: 24; height: 24; name: stackView.depth > 1 ? "arrow_back" : "menu"; color: window.ui.textMain; visible: window.ui.modern }
             // The header is as tall as this button. On iOS the app font already carries the system
             // text size (53 px at the largest one), so the arrow is scaled from the body size, as
             // the rest of the text, and keeps the same cap
             font.pixelSize: window.iosTextSize ? window.fontPx(Math.round(window.iosBodyPx * 1.6)) : Qt.application.font.pixelSize * 1.6
             onClicked: {
                 if (stackView.depth > 1) {
-                    // Back to the settings search results after one of them was opened, as the
-                    // back key does; the other pages keep their own back buttons
-                    navigateBack(!!(stackView.currentItem && stackView.currentItem.searchReturn))
+                    // Modern look: the arrow goes back one step inside the page as the back
+                    // gesture does (settings search results, wizard, workout preview), so
+                    // those pages need no back button of their own. Classic look: only back to
+                    // the settings search results, the other pages keep their own back buttons
+                    navigateBack(window.ui.modern || !!(stackView.currentItem && stackView.currentItem.searchReturn))
                 } else {
                     drawer.open()
                 }
@@ -1432,45 +1694,31 @@ ApplicationWindow {
 
         ToolButton {
             id: toolButtonFloating
-            icon.source: "icons/icons/mini-display.png"
-            onClicked: { console.log("floating!"); floatingOpen(); }
+            Accessible.name: OS_VERSION === "iOS" ? qsTr("Floating Metrics (Picture in Picture)") : (window.ui.modern ? qsTr("Floating window") : text)
+            icon.source: window.ui.modern ? "" : "icons/icons/mini-display.png"
+            UiIcon { anchors.centerIn: parent; width: 24; height: 24; name: "picture_in_picture_alt"; color: window.ui.textMain; visible: window.ui.modern }
+            function toggleFloating() {
+                if (OS_VERSION === "iOS") {
+                    console.log("Floating metrics: toolbar activated")
+                    rootItem.toggleFloatingMetrics();
+                }
+                else { console.log("floating!"); floatingOpen(); }
+            }
+            onClicked: toggleFloating()
+            Accessible.onPressAction: toggleFloating()
             anchors.left: toolButton.right
             // The header is as tall as the back arrow, which grows with the text size (iOS):
             // the icon buttons stay in its middle, in line with the arrow and the title
             anchors.verticalCenter: parent.verticalCenter
-            visible: OS_VERSION === "Android" ? true : false
+            // The iOS PiP displays workout metrics and is available on the home page.
+            // Keep the existing Android visibility in both looks.
+            visible: OS_VERSION === "Android" ? (!window.ui.modern || stackView.depth === 1)
+                     : OS_VERSION === "iOS" && window.rootReady && stackView.depth === 1 && rootItem.floatingMetricsSupported()
         }
 
-        Popup {
+        UiNotice {
             id: popupAutoResistance
-             parent: Overlay.overlay
-
-             x: Math.round((parent.width - width) / 2)
-             y: Math.round((parent.height - height) / 2)
-             width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
-             height: window.textScale !== 1 ? Math.max(60, popupAutoResistanceText.height + topPadding + bottomPadding) : 60
-             modal: true
-             focus: true
-             palette.text: "white"
-             closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-             enter: Transition
-             {
-                 NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
-             }
-             exit: Transition
-             {
-                 NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
-             }
-             Column {
-                 anchors.horizontalCenter: parent.horizontalCenter
-             Label {
-                 id: popupAutoResistanceText
-                 anchors.horizontalCenter: parent.horizontalCenter
-                 text: rootItem.autoResistance ? qsTr("Auto Resistance enabled") : qsTr("Auto Resistance disabled")
-                 width: window.textScale !== 1 ? popupAutoResistance.availableWidth : implicitWidth
-                 wrapMode: window.labelWrap
-                }
-             }
+            text: rootItem.autoResistance ? qsTr("Auto Resistance enabled") : qsTr("Auto Resistance disabled")
         }
 
         Timer {
@@ -1479,36 +1727,9 @@ ApplicationWindow {
             onTriggered: popupAutoResistance.close();
         }
 
-        Popup {
+        UiNotice {
             id: popuplockTiles
-             parent: Overlay.overlay
-
-             x: Math.round((parent.width - width) / 2)
-             y: Math.round((parent.height - height) / 2)
-             width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
-             height: window.textScale !== 1 ? Math.max(60, popuplockTilesText.height + topPadding + bottomPadding) : 60
-             modal: true
-             focus: true
-             palette.text: "white"
-             closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-             enter: Transition
-             {
-                 NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
-             }
-             exit: Transition
-             {
-                 NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
-             }
-             Column {
-                 anchors.horizontalCenter: parent.horizontalCenter
-             Label {
-                 id: popuplockTilesText
-                 anchors.horizontalCenter: parent.horizontalCenter
-                 text: window.lockTiles ? qsTr("You can move the tiles!") : qsTr("The tiles are locked now")
-                 width: window.textScale !== 1 ? popuplockTiles.availableWidth : implicitWidth
-                 wrapMode: window.labelWrap
-                }
-             }
+            text: window.lockTiles ? qsTr("You can move the tiles!") : qsTr("The tiles are locked now")
         }
 
         Timer {
@@ -1519,7 +1740,9 @@ ApplicationWindow {
 
         ToolButton {
             id: toolButtonLoadSettings
-            icon.source: "icons/icons/tray-arrow-up.png"
+            Accessible.name: window.ui.modern ? qsTr("Load settings") : text
+            icon.source: window.ui.modern ? "" : "icons/icons/tray-arrow-up.png"
+            UiIcon { anchors.centerIn: parent; width: 24; height: 24; name: "upload_file"; color: window.ui.textMain; visible: window.ui.modern }
             onClicked: {
                 stackView.push("SettingsList.qml")
                 stackView.currentItem.loadSettings.connect(loadSettings)
@@ -1528,7 +1751,12 @@ ApplicationWindow {
                     if (stackView.depth > 1) {
                         stackView.pop()
                     }
-                    popupLoadSettings.open();
+                    // Modern: the restart asked right away (Yes/No) rather than a notice
+                    // at the bottom that only says to do it
+                    if (window.ui.modern)
+                        popupRestartApp.visible = true;
+                    else
+                        popupLoadSettings.open();
                  });
                 drawer.close()
             }
@@ -1545,6 +1773,7 @@ ApplicationWindow {
             Canvas {
                 id: settingsSearchIcon
                 property color color: toolButtonSettingsSearch.Material.foreground
+                visible: !window.ui.modern
                 anchors.centerIn: parent
                 // Drawn at the pixel density of the screen and scaled down, so it stays sharp
                 width: 24 * Screen.devicePixelRatio
@@ -1562,20 +1791,34 @@ ApplicationWindow {
                     ctx.fill()
                 }
             }
+            UiIcon { anchors.centerIn: parent; width: 24; height: 24; name: "search"; color: window.ui.textMain; visible: window.ui.modern }
             onClicked: {
                 if (headerToolbar.settingsPageActive)
                     stackView.currentItem.showSettingsSearch()
             }
             anchors.right: toolButtonLoadSettings.left
             anchors.verticalCenter: parent.verticalCenter
-            visible: headerToolbar.settingsPageActive
+            // Modern look: the settings keep their search field on the page itself; the button
+            // shows once that field has scrolled off the top and brings it back. It fades and
+            // grows in, and out the same way, instead of popping up under the finger
+            readonly property bool shown: headerToolbar.settingsPageActive &&
+                (!window.ui.modern || stackView.currentItem.searchBarScrolledAway === true)
+            // Fading out only on the settings: leaving them it goes at once, not over the next page
+            visible: shown || (opacity > 0 && headerToolbar.settingsPageActive)
+            enabled: shown
+            opacity: shown ? 1 : 0
+            scale: shown ? 1 : 0.6
+            Behavior on opacity { enabled: window.ui.modern; NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+            Behavior on scale { enabled: window.ui.modern; NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Search settings")
         }
 
         ToolButton {
             id: toolButtonSaveSettings
-            icon.source: "icons/icons/tray-arrow-down.png"
+            Accessible.name: window.ui.modern ? qsTr("Save settings") : text
+            icon.source: window.ui.modern ? "" : "icons/icons/tray-arrow-down.png"
+            UiIcon { anchors.centerIn: parent; width: 24; height: 24; name: "save"; color: window.ui.textMain; visible: window.ui.modern }
             onClicked: {
                 saveSettings("settings");
                 popupSaveFile.open()
@@ -1606,11 +1849,20 @@ ApplicationWindow {
                 }
             }
             id: toolButtonMaps
-            icon.source: ( "icons/icons/maps-icon-16.png" )
+            Accessible.name: window.ui.modern ? qsTr("Map") : text
+            icon.source: window.ui.modern ? "" : ( "icons/icons/maps-icon-16.png" )
+            UiIcon { anchors.centerIn: parent; width: 24; height: 24; name: "map"; color: window.ui.textMain; visible: window.ui.modern }
             onClicked: { loadMaps(); }
             anchors.right: toolButtonChart.left
             anchors.verticalCenter: parent.verticalCenter
-            visible: rootItem.mapsVisible
+            // Hidden where load and save are shown (settings, profiles), as the tile lock: there the
+            // map, video and chart buttons lie over search, load and the title.
+            // Modern look: the map, video and chart buttons belong to the workout of the home page,
+            // as the lock and the auto resistance. Elsewhere video and chart toggled what is under
+            // the tiles, out of sight, and the map pushed itself again. Hidden, they leave
+            // no gap
+            visible: rootItem.mapsVisible && headerToolbar.workoutButtonsShown && !toolButtonSaveSettings.visible
+            width: window.ui.modern && !visible ? 0 : implicitWidth
         }      
 
         ToolButton {
@@ -1624,20 +1876,28 @@ ApplicationWindow {
                 }
             }
             id: toolButtonVideo
-            icon.source: ( "icons/icons/video.png" )
+            Accessible.name: window.ui.modern ? qsTr("Video") : text
+            icon.source: window.ui.modern ? "" : ( "icons/icons/video.png" )
+            UiIcon { anchors.centerIn: parent; width: 24; height: 24; name: "videocam"; color: window.ui.textMain; visible: window.ui.modern }
             onClicked: { loadVideo(); }
             anchors.right: toolButtonMaps.left
             anchors.verticalCenter: parent.verticalCenter
-            visible: rootItem.videoIconVisible
+            // Modern look: on the home page only, as the map (above)
+            visible: rootItem.videoIconVisible && headerToolbar.workoutButtonsShown && !toolButtonSaveSettings.visible
+            width: window.ui.modern && !visible ? 0 : implicitWidth
         }
 
         ToolButton {
             id: toolButtonChart
-            icon.source: ( "icons/icons/chart.png" )
+            Accessible.name: window.ui.modern ? qsTr("Chart") : text
+            icon.source: window.ui.modern ? "" : ( "icons/icons/chart.png" )
+            UiIcon { anchors.centerIn: parent; width: 24; height: 24; name: "show_chart"; color: window.ui.textMain; visible: window.ui.modern }
             onClicked: { rootItem.chartFooterVisible = !rootItem.chartFooterVisible }
             anchors.right: toolButtonLockTiles.left
             anchors.verticalCenter: parent.verticalCenter
-            visible: rootItem.chartIconVisible
+            // Modern look: on the home page only, as the map (above)
+            visible: rootItem.chartIconVisible && headerToolbar.workoutButtonsShown && !toolButtonSaveSettings.visible
+            width: window.ui.modern && !visible ? 0 : implicitWidth
         }
 
         // Share the workout file of the page (PreviewChart.qml opened from the workout history)
@@ -1645,9 +1905,10 @@ ApplicationWindow {
             id: toolButtonShareFit
             readonly property string filePath: stackView.currentItem && stackView.currentItem.fitFilePath ? stackView.currentItem.fitFilePath : ""
             Accessible.name: qsTr("Share FIT file")
-            // drawn as the search button: no image file, sharp at any density
+            // drawn as the search button: no image file, sharp at any density. The icon font of the
+            // modern look has no share glyph: the same drawing there, in the colour of its icons
             Canvas {
-                property color color: toolButtonShareFit.Material.foreground
+                property color color: window.ui.modern ? window.ui.textMain : toolButtonShareFit.Material.foreground
                 anchors.centerIn: parent
                 width: 24 * Screen.devicePixelRatio
                 height: 24 * Screen.devicePixelRatio
@@ -1687,40 +1948,165 @@ ApplicationWindow {
 
         ToolButton {
             id: toolButtonLockTiles
-            icon.source: ( window.lockTiles ? "icons/icons/unlock.png" : "icons/icons/lock.png")
+            // the name says what a tap does, like auto resistance: lockTiles is the move mode
+            // ("You can move the tiles!"), so the fixed tiles of the default get "Unlock tiles"
+            Accessible.name: window.ui.modern ? (window.lockTiles ? qsTr("Lock tiles") : qsTr("Unlock tiles")) : text
+            icon.source: window.ui.modern ? "" : ( window.lockTiles ? "icons/icons/unlock.png" : "icons/icons/lock.png")
+            UiIcon { anchors.centerIn: parent; width: 24; height: 24; name: (window.lockTiles ? "lock_open" : "lock"); color: window.ui.textMain; visible: window.ui.modern }
             onClicked: { window.lockTiles = !window.lockTiles; console.log("lock tiles toggled " + window.lockTiles); popuplockTiles.open(); popuplockTilesAutoClose.running = true; }
             anchors.right: toolButtonAutoResistance.left
             anchors.verticalCenter: parent.verticalCenter
-            visible: !toolButtonSaveSettings.visible
+            // Modern look: the tiles are on the home page only, so is their lock; while the
+            // equipment is being searched (rootItem.labelHelp) there are no tiles yet
+            visible: window.ui.modern ? stackView.depth === 1 && typeof rootItem !== "undefined" && !rootItem.labelHelp : !toolButtonSaveSettings.visible
+            // Modern look: hidden, it leaves no gap. The classic bar keeps the gap: the chart,
+            // maps and video buttons are anchored to it and stay where they always were
+            width: window.ui.modern && !visible ? 0 : implicitWidth
         }
 
         ToolButton {
             id: toolButtonAutoResistance
-            icon.source: ( rootItem.autoResistance ? "icons/icons/resistance.png" : "icons/icons/pause.png")
+            Accessible.name: window.ui.modern ? (rootItem.autoResistance ? qsTr("Disable auto resistance") : qsTr("Enable auto resistance")) : text
+            icon.source: window.ui.modern ? "" : ( rootItem.autoResistance ? "icons/icons/resistance.png" : "icons/icons/pause.png")
+            UiIcon { anchors.centerIn: parent; width: 24; height: 24; name: (window.ui.modern && rootItem.autoResistance ? "motion_mode" : "pause_circle"); color: window.ui.textMain; visible: window.ui.modern }
             onClicked: { rootItem.autoResistance = !rootItem.autoResistance; console.log("auto resistance toggled " + rootItem.autoResistance); popupAutoResistance.open(); popupAutoResistanceAutoClose.running = true; }
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
-            visible: !headerToolbar.settingsPageActive
+            // Modern look: a workout control, on the home page only and while the equipment is
+            // connected (before that there is no resistance to follow)
+            visible: window.ui.modern ? stackView.depth === 1 && typeof rootItem !== "undefined" && !rootItem.labelHelp && window.equipmentConnected
+                                      : !headerToolbar.settingsPageActive
             width: visible ? implicitWidth : 0
         }
 
+        // Modern look, map page (GoogleMap.qml): 2D or 3D map without a trip to the settings. Two
+        // segments of 48 dp, 32 dp tall, the chosen one filled with the tone of the accent. Its text
+        // names it for the screen reader, checked tells which one is on
+        Row {
+            id: mapsTypeSwitch
+            readonly property var mapPage: stackView.currentItem && typeof stackView.currentItem.setMapsType === "function"
+                                           ? stackView.currentItem : null
+            visible: window.ui.modern && mapPage !== null
+            anchors.right: parent.right
+            anchors.rightMargin: 12
+            anchors.verticalCenter: parent.verticalCenter
+            Repeater {
+                model: ["2D", "3D"]
+                AbstractButton {
+                    id: mapsTypeSegment
+                    text: modelData
+                    checkable: true
+                    checked: mapsTypeSwitch.mapPage !== null && mapsTypeSwitch.mapPage.mapsType === modelData
+                    width: 48
+                    height: 48
+                    font: Qt.font({ family: headerToolbar.font.family, pixelSize: window.ui.fontPx(14),
+                                    weight: checked ? Font.DemiBold : Font.Medium,
+                                    hintingPreference: headerToolbar.font.hintingPreference })
+                    // A tap on the chosen one keeps it; the other one switches the page, which then
+                    // tells the new type back through checked
+                    onClicked: {
+                        if (mapsTypeSwitch.mapPage)
+                            mapsTypeSwitch.mapPage.setMapsType(modelData)
+                        checked = Qt.binding(function() {
+                            return mapsTypeSwitch.mapPage !== null && mapsTypeSwitch.mapPage.mapsType === modelData
+                        })
+                    }
+                    background: Item {
+                        // The pill as one outline: each half is a rounded rectangle twice its width,
+                        // clipped to its own half, so only the outer corners are round
+                        Item {
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: parent.width
+                            height: 32
+                            clip: true
+                            Rectangle {
+                                x: index === 0 ? 0 : -parent.width
+                                width: 2 * parent.width
+                                height: parent.height
+                                radius: height / 2
+                                color: mapsTypeSegment.checked ? Qt.tint(window.ui.surface, window.ui.alpha(window.ui.accent, 0.16))
+                                                               : "transparent"
+                                border.width: 1
+                                border.color: window.ui.outline
+                            }
+                        }
+                        // the line between the two halves
+                        Rectangle {
+                            visible: index === 1
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 1
+                            height: 32
+                            color: window.ui.outline
+                        }
+                    }
+                    contentItem: Text {
+                        text: mapsTypeSegment.text
+                        font: mapsTypeSegment.font
+                        color: window.ui.textMain
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+                }
+            }
+        }
+
         Label {
-            text: stackView.currentItem.title
-            anchors.centerIn: parent
-            // Grows with the text size, but no wider than the room between the nearest shown
-            // buttons, centred: a title that does not fit takes a smaller font down to its size at
-            // 100 %, and only then an ellipsis. At 100 % it stays as it was
-            width: window.textScale !== 1 ? Math.min(implicitWidth, titleRoom) : implicitWidth
-            fontSizeMode: window.textScale !== 1 ? Text.HorizontalFit : Text.FixedSize
-            minimumPixelSize: window.appFontPx
+            id: toolbarTitle
+            // Modern look, home page: more buttons on the right than on the left, and the title centred
+            // on the screen had room for one letter ("Q..."). It stays centred on the screen if it fits
+            // there, else it goes to the middle of the free room between the buttons, in its full
+            // size; the name that does not fit there either is cut to "QZ", not to "QZ Fi...".
+            // "QZ" goes too when it would not keep the width of a button of free room around it
+            readonly property bool homeTitle: window.ui.modern && stackView.depth === 1
+            readonly property bool fitsCentred: titleMetrics.advanceWidth <= titleSpan.centred
+            readonly property bool fitsFree: titleMetrics.advanceWidth <= titleSpan.to - titleSpan.from
+            readonly property bool fitsShort: shortTitleMetrics.advanceWidth + toolButton.width <= titleSpan.to - titleSpan.from
+            TextMetrics {
+                id: titleMetrics
+                font: toolbarTitle.font
+                // No page or no title yet at start-up: an empty one, not a warning in the log
+                text: stackView.currentItem && stackView.currentItem.title ? stackView.currentItem.title : ""
+            }
+            TextMetrics {
+                id: shortTitleMetrics
+                font: toolbarTitle.font
+                text: "QZ"
+            }
+            text: homeTitle && !fitsCentred && !fitsFree ? shortTitleMetrics.text : stackView.currentItem.title
+            visible: !homeTitle || fitsCentred || fitsFree || fitsShort
+            // Modern look only: the classic title keeps the font of the bar, as it inherited it. A
+            // plain binding to the bar font: not Binding (its restored value was the size at
+            // start-up, the scaled one after a text size), not Qt.font({}) (a default font with a
+            // size of its own, not an inherited one). Modern: its own font in mixed case - built
+            // from the bar font, the title came out in capitals on iOS
+            font: window.ui.modern ? Qt.font({ family: headerToolbar.font.family, pixelSize: window.ui.fontTitleSmall,
+                                               weight: Font.DemiBold, capitalization: Font.MixedCase,
+                                               hintingPreference: headerToolbar.font.hintingPreference })
+                                   : headerToolbar.font
+            color: window.ui.ink(Material.foreground)
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.horizontalCenterOffset: homeTitle && !fitsCentred ? (titleSpan.from + titleSpan.to - parent.width) / 2 : 0
+            // Modern look and a text size other than 100 %: no wider than the room between the
+            // nearest shown buttons, centred; a large text size ran the title into the search button. A
+            // longer title takes a smaller font down to 14 px of the text size, and only then an ellipsis. The home
+            // page keeps the full size (above); a title that fits is not cut by a pixel of rounding
+            // between titleMetrics and implicitWidth
+            width: homeTitle ? (fitsCentred || fitsFree ? implicitWidth : Math.min(implicitWidth, titleSpan.to - titleSpan.from))
+                 : window.ui.modern || window.textScale !== 1 ? Math.min(implicitWidth, titleSpan.centred) : implicitWidth
+            fontSizeMode: homeTitle ? Text.FixedSize : window.ui.modern || window.textScale !== 1 ? Text.HorizontalFit : Text.FixedSize
+            minimumPixelSize: window.ui.modern ? window.ui.fontPx(14) : window.appFontPx
             // The line keeps the height of the full size: a smaller font in its middle, not at its top
-            verticalAlignment: window.textScale !== 1 ? Text.AlignVCenter : Text.AlignTop
-            elide: window.textScale !== 1 ? Text.ElideRight : Text.ElideNone
-            readonly property real titleRoom: {
+            verticalAlignment: window.ui.modern || window.textScale !== 1 ? Text.AlignVCenter : Text.AlignTop
+            elide: window.ui.modern || window.textScale !== 1 ? Text.ElideRight : Text.ElideNone
+            // centred: the width of a title centred on the bar; from, to: the free room between the
+            // nearest shown buttons on the left and on the right
+            readonly property var titleSpan: {
                 var c = parent.width / 2, room = c
                 var left = [toolButton, toolButtonFloating]
                 var right = [toolButtonSettingsSearch, toolButtonLoadSettings, toolButtonSaveSettings, toolButtonMaps,
-                             toolButtonVideo, toolButtonChart, toolButtonShareFit, toolButtonLockTiles, toolButtonAutoResistance]
+                             toolButtonVideo, toolButtonChart, toolButtonShareFit, toolButtonLockTiles, toolButtonAutoResistance,
+                             mapsTypeSwitch]
                 for (var i = 0; i < left.length; i++)
                     if (left[i].visible && left[i].opacity > 0 && left[i].width > 0)
                         room = Math.min(room, c - (left[i].x + left[i].width))
@@ -1731,22 +2117,208 @@ ApplicationWindow {
                     if ((held || (right[j].visible && right[j].opacity > 0)) && right[j].width > 0)
                         room = Math.min(room, right[j].x - c)
                 }
-                return Math.max(0, 2 * (room - 4))
+                var from = 0, to = parent.width
+                for (var k = 0; k < left.length; k++)
+                    if (left[k].visible && left[k].opacity > 0 && left[k].width > 0)
+                        from = Math.max(from, left[k].x + left[k].width)
+                for (var n = 0; n < right.length; n++) {
+                    var kept = right[n] === toolButtonSettingsSearch && headerToolbar.settingsPageActive
+                    if ((kept || (right[n].visible && right[n].opacity > 0)) && right[n].width > 0)
+                        to = Math.min(to, right[n].x)
+                }
+                return { centred: Math.max(0, 2 * (room - 4)), from: from + 4, to: Math.max(from + 4, to - 4) }
             }
         }
     }
 
+    // Drawer entries, shared by the classic and the modern drawer
+    function drawerAction(key) {
+        switch (key) {
+        case "profile":
+            // Modern look: the settings file buttons belong to the settings page only
+            toolButtonLoadSettings.visible = !window.ui.modern;
+            toolButtonSaveSettings.visible = !window.ui.modern;
+            stackView.push("profiles.qml")
+            stackView.currentItem.profile_open_clicked.connect(profile_open_clicked)
+            break
+        case "settings":
+            toolButtonLoadSettings.visible = true;
+            toolButtonSaveSettings.visible = true;
+            stackView.push("settings.qml")
+            break
+        case "history":
+            stackView.push("WorkoutsHistory.qml")
+            stackView.currentItem.fitfile_preview_clicked.connect(fitfile_preview_clicked)
+            break
+        case "swagbag":
+            stackView.push("SwagBagView.qml")
+            break
+        case "charts":
+            console.log(CHARTJS)
+            if(CHARTJS)
+                stackView.push("ChartJsTest.qml")
+            else
+                stackView.push("ChartsEndWorkout.qml")
+            break
+        case "opengpx":
+            stackView.push("GPXList.qml")
+            stackView.currentItem.trainprogram_open_clicked.connect(gpx_open_clicked)
+            stackView.currentItem.trainprogram_open_other_folder.connect(gpx_open_other_folder)
+            stackView.currentItem.trainprogram_preview.connect(gpxpreview_open_clicked)
+            stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
+                stackView.pop();
+                popup.open();
+             });
+            break
+        case "trainprogram":
+            if(CHARTJS)
+                stackView.push("TrainingProgramsListJS.qml")
+            else
+                stackView.push("TrainingProgramsList.qml")
+            stackView.currentItem.trainprogram_open_clicked.connect(trainprogram_open_clicked)
+            stackView.currentItem.trainprogram_open_other_folder.connect(trainprogram_open_other_folder)
+            stackView.currentItem.trainprogram_preview.connect(trainprogram_preview)
+            stackView.currentItem.trainprogram_autostart_requested.connect(trainprogram_autostart_requested)
+            stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
+                stackView.pop();
+             });
+            break
+        case "editor":
+            // Modern look: the editor is made once and kept - StackView does not destroy a page it
+            // did not make, and hides it when it leaves the stack, its web view too - so opening it
+            // again shows it at once, with the workout as it was left, instead of loading the page anew
+            if (window.ui.modern) {
+                if (!keptWorkoutEditor) {
+                    keptWorkoutEditor = Qt.createComponent("WorkoutEditor.qml").createObject(window.contentItem, { visible: false })
+                    if (keptWorkoutEditor) {
+                        keptWorkoutEditor.closeRequested.connect(function() {
+                            if (stackView.currentItem === keptWorkoutEditor)
+                                stackView.pop()
+                        })
+                    }
+                }
+                if (keptWorkoutEditor) {
+                    // Already in the stack: back to it - pushing it again would only warn
+                    // "nothing to push". Page by page, as Back does, so a settings page above
+                    // still asks to restart or to save the profile
+                    if (stackView.find(function(item) { return item === keptWorkoutEditor }) === null)
+                        stackView.push(keptWorkoutEditor)
+                    else
+                        while (stackView.currentItem !== keptWorkoutEditor && navigateBack(false)) {}
+                    break
+                }
+            }
+            var editorPage = stackView.push("WorkoutEditor.qml")
+            if (editorPage) {
+                editorPage.closeRequested.connect(function() {
+                    stackView.pop()
+                })
+            }
+            break
+        case "savegpx":
+            gpx_save_clicked()
+            drawer.close()
+            popupSaveFile.open()
+            return
+        case "savefit":
+            fit_save_clicked()
+            drawer.close()
+            popupSaveFile.open()
+            return
+        case "wizard":
+            stackView.push("Wizard.qml")
+            break
+        case "help":
+            Qt.openUrlExternally("https://robertoviola.cloud/qdomyos-zwift-guide/");
+            break
+        case "community":
+            Qt.openUrlExternally("https://www.facebook.com/groups/149984563348738");
+            break
+        case "credits":
+            stackView.push("Credits.qml")
+            break
+        case "quit":
+            console.log("closing...")
+            Qt.callLater(Qt.quit)
+            return
+        case "strava":
+            if (rootItem.isStravaLoggedIn()) {
+                stravaLogoutConfirm.visible = true
+            } else {
+                stackView.push("WebStravaAuth.qml")
+                strava_connect_clicked()
+            }
+            break
+        case "peloton":
+            if (rootItem.isPelotonLoggedIn()) {
+                pelotonLogoutConfirm.visible = true
+            } else {
+                stackView.push("WebPelotonAuth.qml")
+                stackView.currentItem.goBack.connect(function() {
+                    stackView.pop();
+                })
+                peloton_connect_clicked()
+            }
+            break
+        case "garmin":
+            toolButtonLoadSettings.visible = true;
+            toolButtonSaveSettings.visible = true;
+            stackView.push("settings.qml")
+            if (stackView.currentItem) {
+                if (stackView.currentItem.openGarminSection) {
+                    stackView.currentItem.openGarminSection()
+                }
+            }
+            break
+        case "intervals":
+            if (rootItem.isIntervalsICULoggedIn()) {
+                intervalsICULogoutConfirm.visible = true
+            } else {
+                stackView.push("WebIntervalsICUAuth.qml")
+                intervalsicu_connect_clicked()
+            }
+            break
+        }
+        drawer.close()
+    }
+
     Drawer {
         id: drawer
-        width: window.width * 0.66
+        width: window.ui.modern ? Math.min(window.width * 0.82, 340 + getLeftPadding()) : window.width * 0.66
         height: window.height
         topPadding: getTopPadding()
         bottomPadding: getBottomPadding()
         leftPadding: getLeftPadding()
-        rightPadding: getRightPadding()
+        rightPadding: window.ui.modern ? 0 : getRightPadding()
         Accessible.ignored: !drawer.opened
 
+        // Classic look: the background of the style, untouched. Modern look: it is hidden (with
+        // it its shadow) and the sheet below takes its place
+        background.visible: !window.ui.modern
+
+        // The menu opens only by the menu button of the home page, not by a swipe from the left
+        // edge: on pages pushed on the stack the native web views (map, charts, workout editor)
+        // are drawn over the whole QML scene, the drawer included (QTBUG-58365, QTBUG-98574), and
+        // with gesture navigation that edge is the system Back. A swipe on the open menu still closes it
+        dragMargin: 0
+
+        // Modern: a sheet with rounded outer corners, over the whole drawer (paddings too). It
+        // runs past the left edge, so only the right-hand corners show. 16: the corner of the
+        // Material 3 navigation drawer (shape Corner Large). On Android the top one shows through
+        // the transparent status bar (applySystemBars)
+        Rectangle {
+            visible: window.ui.modern
+            anchors.fill: parent
+            anchors.topMargin: -drawer.topPadding
+            anchors.bottomMargin: -drawer.bottomPadding
+            anchors.leftMargin: -drawer.leftPadding - radius
+            anchors.rightMargin: -drawer.rightPadding
+            radius: 16
+            color: window.ui.surface
+        }
+
         ScrollView {
+            visible: !window.ui.modern
             contentWidth: -1
             focus: true
             anchors.horizontalCenter: parent.horizontalCenter
@@ -1759,108 +2331,47 @@ ApplicationWindow {
                 ItemDelegate {
                     text: qsTr("Profile: ") + settings.profile_name
                     width: parent.width
-                    onClicked: {
-                        toolButtonLoadSettings.visible = true;
-                        toolButtonSaveSettings.visible = true;
-                        stackView.push("profiles.qml")
-                        stackView.currentItem.profile_open_clicked.connect(profile_open_clicked)
-                        drawer.close()
-                    }
+                    onClicked: drawerAction("profile")
                 }
 
                 ItemDelegate {
                     text: qsTr("Settings")
                     width: parent.width
-                    onClicked: {
-                        toolButtonLoadSettings.visible = true;
-                        toolButtonSaveSettings.visible = true;                        
-                        stackView.push("settings.qml")
-                         drawer.close()
-                    }
+                    onClicked: drawerAction("settings")
                 }
 
             ItemDelegate {
                 text: qsTr("Workouts History")
                 width: parent.width
-                onClicked: {
-                    stackView.push("WorkoutsHistory.qml")
-                    stackView.currentItem.fitfile_preview_clicked.connect(fitfile_preview_clicked)
-                    drawer.close()
-                }
+                onClicked: drawerAction("history")
             }
                 ItemDelegate {
                     text: qsTr("Swag Bag")
                     width: parent.width
-                    onClicked: {
-                        stackView.push("SwagBagView.qml")
-                        drawer.close()
-                    }
+                    onClicked: drawerAction("swagbag")
                 }
 
                 ItemDelegate {
                     text: qsTr("Charts")
                     width: parent.width
-                    onClicked: {
-                        console.log(CHARTJS)
-                        if(CHARTJS)
-                            stackView.push("ChartJsTest.qml")
-                        else
-                            stackView.push("ChartsEndWorkout.qml")
-                        drawer.close()
-                    }
+                    onClicked: drawerAction("charts")
                 }
                 ItemDelegate {
                     id: gpx_open
                     text: qsTr("Open GPX")
                     width: parent.width
-                    onClicked: {
-                        stackView.push("GPXList.qml")
-                        stackView.currentItem.trainprogram_open_clicked.connect(gpx_open_clicked)
-                        stackView.currentItem.trainprogram_open_other_folder.connect(gpx_open_other_folder)
-                        stackView.currentItem.trainprogram_preview.connect(gpxpreview_open_clicked)
-                        stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
-                            stackView.pop();
-                            popup.open();
-                         });
-                        drawer.close()
-                    }
+                    onClicked: drawerAction("opengpx")
                 }
                 ItemDelegate {
                     id: trainprogram_open
                     text: qsTr("Open Train Program")
                     width: parent.width
-                    onClicked: {
-                        if(CHARTJS)
-                            stackView.push("TrainingProgramsListJS.qml")
-                        else
-                            stackView.push("TrainingProgramsList.qml")
-                        stackView.currentItem.trainprogram_open_clicked.connect(trainprogram_open_clicked)
-                        stackView.currentItem.trainprogram_open_other_folder.connect(trainprogram_open_other_folder)
-                        stackView.currentItem.trainprogram_preview.connect(trainprogram_preview)
-                        stackView.currentItem.trainprogram_autostart_requested.connect(trainprogram_autostart_requested)
-                        stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
-                            stackView.pop();
-                         });
-                        drawer.close()
-                    }
+                    onClicked: drawerAction("trainprogram")
                 }
                 ItemDelegate {
                     text: qsTr("Workout Editor")
                     width: parent.width
-                    onClicked: {
-                        var editorPage = stackView.push("WorkoutEditor.qml")
-                        if (editorPage) {
-                            editorPage.closeRequested.connect(function() {
-                                stackView.pop()
-                            })
-                            // Close editor when workout is started from Save & Start
-                            trainprogram_autostart_requested.connect(function() {
-                                console.log("[main.qml] trainprogram_autostart_requested received, closing editor")
-                                editorPage.closeRequested()
-                            })
-                        }
-                        drawer.close()
-                    }
+                    onClicked: drawerAction("editor")
                 }
                 /*
                 ItemDelegate {
@@ -1875,68 +2386,46 @@ ApplicationWindow {
                     id: gpx_save
                     text: qsTr("Save GPX")
                     width: parent.width
-                    onClicked: {
-                        gpx_save_clicked()
-                        drawer.close()
-                        popupSaveFile.open()
-                    }
+                    onClicked: drawerAction("savegpx")
                 }
                 ItemDelegate {
                     id: fit_save
                     text: qsTr("Save FIT")
                     width: parent.width
-                    onClicked: {
-                        fit_save_clicked()
-                        drawer.close()
-                        popupSaveFile.open()
-                    }
+                    onClicked: drawerAction("savefit")
                 }
                 ItemDelegate {
                     id: wizardItem
                     text: qsTr("Wizard")
                     width: parent.width
-                    onClicked: {
-                        stackView.push("Wizard.qml")
-                        drawer.close()
-                    }
+                    onClicked: drawerAction("wizard")
                 }
                 ItemDelegate {
                     id: help
                     text: qsTr("Help")
                     width: parent.width
-                    onClicked: {
-                        Qt.openUrlExternally("https://robertoviola.cloud/qdomyos-zwift-guide/");
-                        drawer.close()
-                    }
+                    onClicked: drawerAction("help")
                 }
                 ItemDelegate {
                     id: community
                     text: qsTr("Community")
                     width: parent.width
-                    onClicked: {
-                        Qt.openUrlExternally("https://www.facebook.com/groups/149984563348738");
-                        drawer.close()
-                    }
+                    onClicked: drawerAction("community")
                 }
                 ItemDelegate {
                     text: qsTr("Credits")
                     width: parent.width
-                    onClicked: {
-                        stackView.push("Credits.qml")
-                        drawer.close()
-                    }
+                    onClicked: drawerAction("credits")
                 }
                 ItemDelegate {
                     text: qsTr("Quit")
                     width: parent.width
                     visible: OS_VERSION === "Other" ? true : false
-                    onClicked: {
-                        console.log("closing...")
-                        Qt.callLater(Qt.quit)
-                    }
+                    onClicked: drawerAction("quit")
                 }
 
                 ItemDelegate {
+                    id: drawerVersion
                     text: "version 2.22.0"
                     width: parent.width
                 }
@@ -1952,16 +2441,7 @@ ApplicationWindow {
                         width: parent.width
                     }
                     width: parent.width
-                    onClicked: {
-                        if (rootItem.isStravaLoggedIn()) {
-                            stravaLogoutConfirm.visible = true
-                            drawer.close()
-                        } else {
-                            stackView.push("WebStravaAuth.qml")
-                            strava_connect_clicked()
-                            drawer.close()
-                        }
-                    }
+                    onClicked: drawerAction("strava")
                 }
 
                 ItemDelegate {
@@ -1974,19 +2454,7 @@ ApplicationWindow {
                         width: parent.width
                     }
                     width: parent.width
-                    onClicked: {
-                        if (rootItem.isPelotonLoggedIn()) {
-                            pelotonLogoutConfirm.visible = true
-                            drawer.close()
-                        } else {
-                            stackView.push("WebPelotonAuth.qml")
-                            stackView.currentItem.goBack.connect(function() {
-                                stackView.pop();
-                            })
-                            peloton_connect_clicked()
-                            drawer.close()
-                        }
-                    }
+                    onClicked: drawerAction("peloton")
                 }
 
                 ItemDelegate {
@@ -2000,17 +2468,7 @@ ApplicationWindow {
                         height: 48
                     }
                     width: parent.width
-                    onClicked: {
-                        toolButtonLoadSettings.visible = true;
-                        toolButtonSaveSettings.visible = true;
-                        stackView.push("settings.qml")
-                        if (stackView.currentItem) {
-                            if (stackView.currentItem.openGarminSection) {
-                                stackView.currentItem.openGarminSection()
-                            }
-                        }
-                        drawer.close()
-                    }
+                    onClicked: drawerAction("garmin")
                 }
 
 				ItemDelegate {
@@ -2023,22 +2481,13 @@ ApplicationWindow {
                         width: parent.width
                     }
                     width: parent.width
-                    onClicked: {
-                        if (rootItem.isIntervalsICULoggedIn()) {
-                            intervalsICULogoutConfirm.visible = true
-                            drawer.close()
-                        } else {
-                            stackView.push("WebIntervalsICUAuth.qml")
-                            intervalsicu_connect_clicked()
-                            drawer.close()
-                        }
-                    }
+                    onClicked: drawerAction("intervals")
                 }
 
                     FileDialog {
                         id: fileDialogGPX
                          title: qsTr("Please choose a file")
-                         folder: "file://" + rootItem.getWritableAppDir() + 'gpx'
+                         folder: rootItem.localFileUrl(rootItem.getWritableAppDir() + 'gpx')
                          onAccepted: {
                              console.log("You chose: " + fileDialogGPX.fileUrl)
                               gpx_open_clicked(fileDialogGPX.fileUrl)
@@ -2052,6 +2501,247 @@ ApplicationWindow {
                         }
             }
         }
+
+        // Modern drawer: header with the connection state and the profile, grouped entries,
+        // the service logins as cards at the bottom
+        Flickable {
+            id: modernDrawerList
+            visible: window.ui.modern
+            // Screen reader names of the service cards (images only)
+            function serviceName(key) {
+                switch (key) {
+                case "strava":
+                    return rootItem.isStravaLoggedIn() ? qsTr("Disconnect from Strava") : qsTr("Connect with Strava")
+                case "peloton":
+                    return rootItem.isPelotonLoggedIn() ? qsTr("Disconnect from Peloton") : qsTr("Connect with Peloton")
+                case "garmin":
+                    return qsTr("Garmin Connect settings")
+                case "intervals":
+                    return rootItem.isIntervalsICULoggedIn() ? qsTr("Disconnect from Intervals.icu") : qsTr("Connect with Intervals.icu")
+                }
+                return ""
+            }
+            anchors.fill: parent
+            contentHeight: modernDrawerColumn.height + 16
+            clip: true
+            boundsBehavior: Flickable.StopAtBounds
+            // Only vertical moves scroll: a slightly sideways one went to the drawer and the list
+            // did not move
+            flickableDirection: Flickable.VerticalFlick
+            ScrollIndicator.vertical: ScrollIndicator { }
+
+            Column {
+                id: modernDrawerColumn
+                width: modernDrawerList.width
+
+                Item {
+                    width: parent.width
+                    // 132 at 100 %: the chip and the header move down as the text grows
+                    height: profileChip.y + profileChip.height + 14
+
+                    Image {
+                        id: drawerLogo
+                        x: 24
+                        y: 22
+                        width: 44
+                        height: 44
+                        source: "qrc:/inner_templates/chartjs/qzlogo.png"
+                        fillMode: Image.PreserveAspectFit
+                        smooth: true
+                    }
+                    Label {
+                        id: drawerAppName
+                        anchors.left: drawerLogo.right
+                        anchors.leftMargin: 14
+                        anchors.right: parent.right
+                        anchors.rightMargin: 16
+                        y: drawerLogo.y + 1
+                        text: "QZ Fitness"
+                        font.pixelSize: window.ui.fontTitle
+                        font.weight: Font.DemiBold
+                        color: window.ui.textMain
+                    }
+                    Row {
+                        anchors.left: drawerAppName.left
+                        anchors.right: drawerAppName.right
+                        anchors.top: drawerAppName.bottom
+                        anchors.topMargin: 2
+                        spacing: 6
+                        Rectangle {
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 8
+                            height: 8
+                            radius: 4
+                            color: window.equipmentConnected ? window.ui.ok : window.ui.textMuted
+                        }
+                        Label {
+                            // the dot and its gap; with the bars also their 13 and the gap before them.
+                            // Their own condition, not drawerSignal.visible: that one is false while the
+                            // drawer is closed, and Row places what is not hidden by itself (explicitVisible)
+                            width: parent.width - 14 - (window.equipmentConnected ? 13 + 6 : 0)
+                            // "Connecting..." - the untranslated start value of homeform::m_info, kept until the
+                            // equipment writes its own status: shown as the search, or as connected next to the green dot
+                            text: (typeof rootItem !== "undefined" && rootItem) ? (rootItem.info !== "Connecting..." ? rootItem.info
+                                  : window.equipmentConnected ? qsTranslate("HomeForm.ui", "Device connected")
+                                  : qsTranslate("homeform", "Searching for the device...")) : ""
+                            font.pixelSize: window.ui.fontCaption
+                            color: window.ui.textMuted
+                            elide: Text.ElideRight
+                        }
+                        // The signal of the connected equipment at the end of the line, as a trailing icon:
+                        // the home page shows it only with its status line, which is hidden while connected.
+                        // The bars of the home status line (signal-1..3, the RSSI of the search)
+                        Image {
+                            id: drawerSignal
+                            visible: window.equipmentConnected
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 13
+                            height: 13
+                            fillMode: Image.PreserveAspectFit
+                            source: visible ? rootItem.signal : ""
+                            smooth: true
+                            Accessible.ignored: true
+                            // The bars are white: on a light page paint them in the text colour
+                            layer.enabled: !window.ui.dark
+                            layer.effect: ColorOverlay { color: window.ui.textMuted }
+                        }
+                    }
+
+                    // Profile chip
+                    Rectangle {
+                        id: profileChip
+                        x: 24
+                        // 82 and 36 at 100 %, lower and taller as the text grows: from the sizes, not
+                        // from the labels, which are taller in a CJK fallback font
+                        y: 82 + Math.round(1.2 * (window.ui.fontTitle - 20 + window.ui.fontCaption - 13))
+                        height: Math.max(36, Math.round(window.ui.fontLabel * 1.2) + 16)
+                        width: Math.min(parent.width - 48, profileChipRow.implicitWidth + 28)
+                        radius: height / 2
+                        color: profileChipArea.pressed ? window.ui.alpha(window.ui.accent, 0.28) : window.ui.alpha(window.ui.accent, 0.16)
+                        Row {
+                            id: profileChipRow
+                            anchors.verticalCenter: parent.verticalCenter
+                            x: 12
+                            spacing: 8
+                            UiIcon {
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: 18
+                                height: 18
+                                name: "person"
+                                color: window.ui.accent
+                            }
+                            Label {
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: Math.min(implicitWidth, drawer.width - 110)
+                                text: qsTr("Profile: ") + settings.profile_name
+                                font.pixelSize: window.ui.fontLabel
+                                font.weight: Font.Medium
+                                color: window.ui.textMain
+                                elide: Text.ElideRight
+                            }
+                        }
+                        MouseArea {
+                            id: profileChipArea
+                            anchors.fill: parent
+                            onClicked: drawerAction("profile")
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Profile: ") + settings.profile_name
+                            Accessible.onPressAction: drawerAction("profile")
+                        }
+                    }
+                }
+
+                Component {
+                    id: drawerSectionHeader
+                    Label {
+                        leftPadding: 28
+                        topPadding: 14
+                        bottomPadding: 6
+                        font.pixelSize: window.ui.fontCaption
+                        font.weight: Font.DemiBold
+                        font.letterSpacing: 0.4
+                        color: window.ui.accent
+                        // a binding, not set once: it follows a change of the app language
+                        text: parent ? parent.title : ""
+                    }
+                }
+
+                Loader { property string title: qsTr("Workout"); sourceComponent: drawerSectionHeader }
+                UiDrawerItem { text: qsTr("Open Train Program"); iconName: "list_alt"; onClicked: drawerAction("trainprogram") }
+                UiDrawerItem { text: qsTr("Workout Editor"); iconName: "edit_note"; onClicked: drawerAction("editor") }
+                UiDrawerItem { text: qsTr("Open GPX"); iconName: "route"; onClicked: drawerAction("opengpx") }
+                UiDrawerItem { text: qsTr("Charts"); iconName: "bar_chart"; onClicked: drawerAction("charts") }
+                UiDrawerItem { text: qsTr("Workouts History"); iconName: "history"; onClicked: drawerAction("history") }
+                UiDrawerItem { text: qsTr("Save FIT"); iconName: "download"; onClicked: drawerAction("savefit") }
+                UiDrawerItem { text: qsTr("Save GPX"); iconName: "download"; onClicked: drawerAction("savegpx") }
+
+                Rectangle { x: 28; width: parent.width - 56; height: 1; color: window.ui.outline; opacity: 0.6 }
+
+                Loader { property string title: qsTr("App"); sourceComponent: drawerSectionHeader }
+                UiDrawerItem { text: qsTr("Settings"); iconName: "settings"; onClicked: drawerAction("settings") }
+                UiDrawerItem { text: qsTr("Wizard"); iconName: "rocket_launch"; onClicked: drawerAction("wizard") }
+                UiDrawerItem { text: qsTr("Swag Bag"); iconName: "redeem"; onClicked: drawerAction("swagbag") }
+                UiDrawerItem { text: qsTr("Help"); iconName: "help"; external: true; onClicked: drawerAction("help") }
+                UiDrawerItem { text: qsTr("Community"); iconName: "groups"; external: true; onClicked: drawerAction("community") }
+                UiDrawerItem { text: qsTr("Credits"); iconName: "info"; onClicked: drawerAction("credits") }
+                UiDrawerItem { text: qsTr("Quit"); iconName: "power_settings_new"; visible: OS_VERSION === "Other"; onClicked: drawerAction("quit") }
+
+                Rectangle { x: 28; width: parent.width - 56; height: 1; color: window.ui.outline; opacity: 0.6 }
+
+                Loader { property string title: qsTr("Services"); sourceComponent: drawerSectionHeader }
+
+                Grid {
+                    x: 16
+                    width: parent.width - 32
+                    columns: 2
+                    spacing: 8
+                    Repeater {
+                        model: [
+                            { key: "strava", image: "icons/icons/btn_strava_connectwith_orange.png" },
+                            { key: "peloton", image: "icons/icons/Button_Connect_Rect_DarkMode.png" },
+                            { key: "garmin", image: "icons/icons/garmin-connect-badge.png" },
+                            // White lettering on a transparent background, unreadable on a light
+                            // card (1.2:1): there the dark-lettering variant, as intervals.icu shows
+                            // its logo in its own light theme
+                            { key: "intervals", image: "icons/icons/intervals-logo-with-name.png",
+                              lightImage: "icons/icons/intervals-logo-with-name-light.png" }
+                        ]
+                        delegate: Rectangle {
+                            width: (parent.width - 8) / 2
+                            height: 52
+                            radius: 14
+                            color: serviceArea.pressed ? window.ui.surfaceHighest : window.ui.surfaceHigh
+                            Image {
+                                anchors.fill: parent
+                                anchors.margins: 8
+                                source: !window.ui.dark && modelData.lightImage ? modelData.lightImage : modelData.image
+                                fillMode: Image.PreserveAspectFit
+                                smooth: true
+                            }
+                            MouseArea {
+                                id: serviceArea
+                                anchors.fill: parent
+                                onClicked: drawerAction(modelData.key)
+                                Accessible.role: Accessible.Button
+                                // The login state has no change signal: read again on every
+                                // opening of the drawer
+                                Accessible.name: window.ui.modern && drawer.opened ? modernDrawerList.serviceName(modelData.key) : ""
+                                Accessible.onPressAction: drawerAction(modelData.key)
+                            }
+                        }
+                    }
+                }
+
+                Label {
+                    width: parent.width
+                    leftPadding: 28
+                    topPadding: 16
+                    text: drawerVersion.text
+                    font.pixelSize: window.ui.fontCaption
+                    color: window.ui.textMuted
+                }
+            }
+        }
     }
 
     // Wrapper Item to prevent ApplicationWindow from capturing all VoiceOver focus
@@ -2063,6 +2753,14 @@ ApplicationWindow {
         StackView {
             id: stackView
             initialItem: "Home.qml"
+            // The home page has no load and save buttons, whichever way it is reached (a profile
+            // saved, a settings file loaded): with them shown the lock, map, video and chart hide
+            onDepthChanged: {
+                if (depth === 1) {
+                    toolButtonLoadSettings.visible = false;
+                    toolButtonSaveSettings.visible = false;
+                }
+            }
             anchors.fill: parent
             // Below the toolbar, which hangs over the pages (headerToolbar)
             anchors.topMargin: headerToolbar.contentHeight
@@ -2170,6 +2868,7 @@ ApplicationWindow {
         }
 
         SupportHelpButton {
+            id: supportHelpButton
             activeOnHome: window.rootReady && stackView.depth === 1 && !window.lockTiles
             anchors.right: parent.right
             anchors.bottom: parent.bottom
@@ -2177,6 +2876,13 @@ ApplicationWindow {
             anchors.bottomMargin: 16 + window.getBottomPadding()
         }
     }
+
+    // After the pages, not before them: TalkBack finds the item under a finger among the window's
+    // items from the last declared to the first, whatever their z (Qt 5.15; Qt 6.10.3 and 6.11
+    // take the drawing order, QTBUG-137823, qtdeclarative 292896c799). Declared before the pages, a
+    // touch on the bar reached the tile or the support button under it. Anything else with buttons drawn
+    // over the pages and not in a Popup goes here too (the toasts and the lap prompt above have none).
+    HeartRateSuggestion {}
 }
 
 /*##^##

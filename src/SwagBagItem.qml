@@ -58,49 +58,115 @@ Rectangle {
 
     property Product product: undefined
 
+    // Modern look: the purchase is shown inside the card ("" – no purchase yet, "buying",
+    // "failed", "done"): the status in place of the description, the spinner in place of the
+    // price. The classic look keeps its own overlay (pendingRect)
+    property string purchaseState: ""
+    readonly property bool modernStatus: window.ui.modern && purchaseState !== ""
+
     state: "NORMAL"
 
     visible: product.status == Product.Registered
-    radius: 10
-    color: "white"
+    // Modern look: a filled card of the theme with room around the text
+    readonly property int pad: window.ui.modern ? 16 : 0
+    radius: window.ui.modern ? 16 : 10
+    color: window.ui.modern ? window.ui.surface : "white"
 
-    height: titleText.contentHeight + descriptionText.contentHeight +  2
+    height: titleText.contentHeight + descriptionText.contentHeight +  2 + 2 * pad
     // ![0]
     Text {
-        // a plain Text does not inherit the window font: the text size while it is not 100 %
-        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+        // a plain Text does not inherit the window font: the text size while it is not 100 %.
+        // Modern look: the sizes of the type scale, as the profile cards (the platform default
+        // of a plain Text is smaller than the page text on Android and larger on iOS)
+        Binding on font.pixelSize { when: !window.ui.modern && window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+        Binding on font.pixelSize { when: window.ui.modern; value: window.ui.fontBody; restoreMode: Binding.RestoreBindingOrValue }
         id: titleText
         text: product.title
-        font.bold: true
+        font.weight: window.ui.modern ? Font.DemiBold : Font.Bold
         anchors.right: priceText.left
         anchors.top: parent.top
         anchors.left: parent.left
+        anchors.topMargin: storeItem.pad
+        anchors.leftMargin: storeItem.pad
+        anchors.rightMargin: storeItem.pad
+        color: window.ui.ink("black")
     }
 
     Text {
-        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+        Binding on font.pixelSize { when: !window.ui.modern && window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+        Binding on font.pixelSize { when: window.ui.modern; value: window.ui.fontCaption; restoreMode: Binding.RestoreBindingOrValue }
         id: descriptionText
-        text: product.description
+        text: !storeItem.modernStatus ? product.description
+            : storeItem.purchaseState === "buying" ? qsTr("Purchasing...")
+            : storeItem.purchaseState === "failed" ? qsTr("Purchase Failed")
+            : qsTr("Purchase Succeeded")
         anchors.right: priceText.left
         anchors.left: parent.left
         anchors.top: titleText.bottom
+        // Modern look: room for the status icon before the text
+        anchors.leftMargin: storeItem.pad + (statusIcon.visible ? statusIcon.size + 6 : 0)
+        anchors.rightMargin: storeItem.pad
+        anchors.topMargin: window.ui.modern ? 4 : 0
         wrapMode: Text.WordWrap
+        color: !window.ui.modern ? "black"
+            : storeItem.purchaseState === "failed" && storeItem.modernStatus ? window.ui.danger
+            : storeItem.purchaseState === "done" && storeItem.modernStatus ? window.ui.ok
+            : window.ui.textMuted
+    }
+
+    // Modern look: the result of the purchase is told by an icon too, not by the colour alone
+    // (the same icons as the login state of the services on the settings page)
+    ShapeIcon {
+        id: statusIcon
+        visible: storeItem.modernStatus && storeItem.purchaseState !== "buying"
+        name: storeItem.purchaseState === "done" ? "check_circle" : "cancel"
+        color: descriptionText.color
+        // 16 at the 100 % text size, growing with the caption
+        size: Math.round(descriptionText.font.pixelSize * 1.2)
+        x: storeItem.pad
+        // centred on the first line of the status
+        y: descriptionText.y + (descriptionText.contentHeight / Math.max(1, descriptionText.lineCount) - size) / 2
     }
 
     Text {
-        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+        Binding on font.pixelSize { when: !window.ui.modern && window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+        Binding on font.pixelSize { when: window.ui.modern; value: window.ui.fontBody; restoreMode: Binding.RestoreBindingOrValue }
         id: priceText
         text: product.price
+        // Modern look: the spinner takes its place while buying
+        visible: !(storeItem.modernStatus && storeItem.purchaseState === "buying")
         anchors.right: parent.right
+        anchors.rightMargin: storeItem.pad
+        anchors.verticalCenter: parent.verticalCenter
+        color: window.ui.modern ? window.ui.accent : "black"
+        font.weight: window.ui.modern ? Font.DemiBold : Font.Normal
+    }
+
+    BusyIndicator {
+        id: modernSpinner
+        visible: storeItem.modernStatus && storeItem.purchaseState === "buying"
+        running: visible
+        width: 32
+        height: 32
+        padding: 0
+        anchors.right: parent.right
+        anchors.rightMargin: storeItem.pad
         anchors.verticalCenter: parent.verticalCenter
     }
 
     MouseArea {
         anchors.fill: parent
+        // Modern look: the card stays tappable while buying, as on the classic look: an iOS
+        // "Ask to Buy" request sends no result, so a disabled card would stay stuck
         onClicked: {
+            if (window.ui.modern) {
+                storeItem.purchaseState = "buying";
+                product.purchase();
+                return;
+            }
             pendingRect.visible = true;
             spinBox.visible = true;
-            statusText.text = "Purchasing...";
+            statusText.text = qsTr("Purchasing...");
             storeItem.state = "PURCHASING";
             product.purchase();
         }
@@ -117,7 +183,7 @@ Rectangle {
         id: pendingRect
         anchors.fill: parent
         opacity: 0.0
-        color: "white"
+        color: window.ui.modern ? window.ui.surfaceHigh : "white"
         radius: parent.radius
         Text {
             Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
@@ -126,7 +192,9 @@ Rectangle {
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: spinBox.left
+            anchors.leftMargin: storeItem.pad
             verticalAlignment: Text.AlignVCenter
+            color: window.ui.ink("black")
         }
         BusyIndicator {
             id: spinBox
@@ -139,12 +207,21 @@ Rectangle {
         Connections {
             target: product
             function onPurchaseSucceeded() {
-                statusText.text = "Purchase Succeeded";
+                // Modern look: only the answer to a tap (a renewal can arrive on its own on iOS)
+                if (storeItem.purchaseState === "buying")
+                    storeItem.purchaseState = "done";
+                statusText.text = qsTr("Purchase Succeeded");
                 spinBox.visible = false;
 
             }
-            function onPurchaseFailed() {
-                statusText.text = "Purchase Failed";
+            function onPurchaseFailed(transaction) {
+                // Modern look: a purchase the user cancelled in the store sheet is not an error –
+                // the card goes back as it was. 1 is InAppTransaction::CanceledByUser: the type is
+                // QML_UNAVAILABLE, so Transaction.CanceledByUser is undefined in QML
+                if (storeItem.purchaseState === "buying")
+                    storeItem.purchaseState = transaction && transaction.failureReason === 1
+                        ? "" : "failed";
+                statusText.text = qsTr("Purchase Failed");
                 spinBox.visible = false;
                 storeItem.state = "NORMAL";
             }
@@ -156,7 +233,7 @@ Rectangle {
             name: "NORMAL"
             PropertyChanges {
                 target: storeItem
-                color: "white"
+                color: window.ui.modern ? window.ui.surface : "white"
                 border.color: "transparent"
             }
             PropertyChanges {
@@ -168,8 +245,8 @@ Rectangle {
             name: "PRESSED"
             PropertyChanges {
                 target: storeItem
-                color: "transparent"
-                border.color: "white"
+                color: window.ui.modern ? window.ui.surfaceHigh : "transparent"
+                border.color: window.ui.modern ? "transparent" : window.ui.ink("white")
             }
         },
         State {

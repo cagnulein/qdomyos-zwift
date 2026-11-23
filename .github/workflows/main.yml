@@ -23,6 +23,15 @@ concurrency:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  ios-release-requirements:
+    name: Validate Xcode 27 and iOS 15 release settings
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check iOS release configuration and regressions
+        run: python3 tools/check_ios_release_requirements.py
+
   window-build:
     runs-on: windows-2022
     strategy:
@@ -79,7 +88,7 @@ jobs:
 
       - uses: msys2/setup-msys2@v2
         with:
-          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview perl
+          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-make perl
           msystem: mingw64
           release: false
 
@@ -508,6 +517,9 @@ jobs:
 
       - name: Test
         run: cd tst; GTEST_OUTPUT=xml:test-results/ GTEST_COLOR=1 ./qdomyos-zwift-tests; cd ..
+
+      - name: Test DirCon loopback integration
+        run: cd tst; GTEST_OUTPUT=xml:test-results/dircon-loopback.xml GTEST_COLOR=1 ./qdomyos-zwift-tests --gtest_filter=DirconLoopbackTestSuite.*; cd ..
 
       - name: Upload test results
         uses: actions/upload-artifact@v4

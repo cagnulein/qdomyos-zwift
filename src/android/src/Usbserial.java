@@ -73,14 +73,24 @@ public class Usbserial {
         open(context, 2400); // Default baud rate for Computrainer
     }
 
+    // Keep the original JNI void signatures for Daum, Computrainer and CSAFE.
     public static void open(Context context, int baudRate) {
-        open(context, baudRate, "");
+        openInternal(context, baudRate, "", false);
     }
 
     public static void open(Context context, int baudRate, String devicePath) {
+        openInternal(context, baudRate, devicePath, false);
+    }
+
+    public static boolean openKettler(Context context, int baudRate) {
+        return openInternal(context, baudRate, "", true);
+    }
+
+    private static boolean openInternal(Context context, int baudRate, String devicePath, boolean configureControlLines) {
+        close();
+
         if (devicePath != null && (devicePath.startsWith("/dev/") || devicePath.equalsIgnoreCase("auto"))) {
-            openLocalSerial(devicePath, baudRate);
-            return;
+            return openLocalSerial(devicePath, baudRate);
         }
 
         QLog.d("QZ","UsbSerial open with baud rate: " + baudRate);
@@ -91,7 +101,7 @@ public class Usbserial {
         List<UsbSerialDriver> availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager);
         if (availableDrivers.isEmpty()) {
             QLog.d("QZ","UsbSerial no available drivers");
-            return;
+            return false;
         }
 
         // Open a connection to the first available driver.
@@ -134,21 +144,36 @@ public class Usbserial {
         if (connection == null) {
             QLog.d("QZ","UsbSerial no permissions");
             // add UsbManager.requestPermission(driver.getDevice(), ..) handling here
-            return;
+            return false;
         }
 
         port = driver.getPorts().get(0); // Most devices have just one port (port 0)
         try {
             port.open(connection);
             port.setParameters(baudRate, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
+            // AX1 uses an FTDI adapter. Do not alter control-line behavior of
+            // older E7 CP210x USB serial adapters (which already work).
+            if (configureControlLines && driver instanceof FtdiSerialDriver) {
+                port.setDTR(false);
+                port.setRTS(false);
+            }
             QLog.d("QZ","UsbSerial port opened successfully at " + baudRate + " baud");
+            return true;
         }
-        catch (IOException e) {
+        catch (Exception e) {
             QLog.d("QZ","UsbSerial port open failed: " + e.getMessage());
+            try {
+                port.close();
+            }
+            catch (Exception closeException) {
+                QLog.d("QZ", "UsbSerial port cleanup failed: " + closeException.getMessage());
+            }
+            port = null;
+            return false;
         }
     }
 
-    private static void openLocalSerial(String devicePath, int baudRate) {
+    private static boolean openLocalSerial(String devicePath, int baudRate) {
         QLog.d("QZ","UsbSerial local serial open " + devicePath + " with baud rate: " + baudRate);
         port = null;
         localSerialFd = null;
@@ -158,14 +183,14 @@ public class Usbserial {
         if (devicePath.equalsIgnoreCase("auto")) {
             for (String candidate : localSerialCandidates) {
                 if (openLocalSerialPath(candidate, baudRate)) {
-                    return;
+                    return true;
                 }
             }
             QLog.d("QZ","UsbSerial local serial auto open failed");
-            return;
+            return false;
         }
 
-        openLocalSerialPath(devicePath, baudRate);
+        return openLocalSerialPath(devicePath, baudRate);
     }
 
     private static boolean openLocalSerialPath(String devicePath, int baudRate) {
@@ -204,31 +229,82 @@ public class Usbserial {
         }
     }
 
-    public static void write (byte[] bytes) {
+    private static int writeInternal(byte[] bytes) {
+        if (bytes == null)
+            return -1;
+
         if(localSerialMode) {
             if(localSerialFd == null)
-               return;
+               return -1;
 
             try {
-                Os.write(localSerialFd, bytes, 0, bytes.length);
+                int written = 0;
+                while (written < bytes.length) {
+                    int chunk = Os.write(localSerialFd, bytes, written, bytes.length - written);
+                    if (chunk <= 0)
+                        return -1;
+                    written += chunk;
+                }
+                return written;
             }
             catch (ErrnoException | IOException e) {
                 QLog.d("QZ","UsbSerial local serial write failed: " + e.getMessage());
+                return -1;
             }
-            return;
         }
 
         if(port == null)
-           return;
+           return -1;
 
         QLog.d("QZ", "UsbSerial writing " + bytes.length + " bytes: " +
                 bytesToHex(bytes, bytes.length));
         try {
             port.write(bytes, 2000);
+            return bytes.length;
         }
         catch (IOException e) {
-            // Do something here
+            QLog.d("QZ", "UsbSerial write failed: " + e.getMessage());
+            return -1;
         }
+    }
+
+    public static void write (byte[] bytes) {
+        writeInternal(bytes);
+    }
+
+    public static int writeKettler(byte[] bytes) {
+        return writeInternal(bytes);
+    }
+
+    public static boolean close() {
+        boolean success = true;
+
+        if (localSerialFd != null) {
+            try {
+                Os.close(localSerialFd);
+            }
+            catch (ErrnoException e) {
+                QLog.d("QZ", "UsbSerial local serial close failed: " + e.getMessage());
+                success = false;
+            }
+        }
+
+        localSerialFd = null;
+        localSerialMode = false;
+
+        if (port != null) {
+            try {
+                port.close();
+            }
+            catch (IOException e) {
+                QLog.d("QZ", "UsbSerial port close failed: " + e.getMessage());
+                success = false;
+            }
+            port = null;
+        }
+
+        lastReadLen = 0;
+        return success;
     }
 
     public static int readLen() {
@@ -273,7 +349,8 @@ public class Usbserial {
                     bytesToHex(receiveData, lastReadLen));
         }
         catch (IOException e) {
-            // Do something here
+            lastReadLen = 0;
+            QLog.d("QZ", "UsbSerial read failed: " + e.getMessage());
         }
         return receiveData;
     }

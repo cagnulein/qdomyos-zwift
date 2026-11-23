@@ -5,6 +5,10 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 
 ScrollView {
+    // Modern look: the rows Body Large, the role of a settings row (window.ui.rowFont)
+    font: window.ui.modern ? window.ui.rowFont : window.font
+    // Buttons and lists of this page take Label Large (window.ui.onTypeScalePage)
+    readonly property bool typeScalePage: true
     contentWidth: -1
     // The column with its margins, which are not in its implicit height
     contentHeight: chainringColumn.implicitHeight + 2 * chainringColumn.anchors.margins
@@ -118,6 +122,21 @@ ScrollView {
             gearRows = temp
             gearConfigurationChanged(gearRows)
         }
+    }
+
+    // The preset with the gears of this table, -1 if none. Only the table is saved, not the pick,
+    // so the list went back to "Select a profile..." every time the page opened and the preset
+    // looked lost. Rows taken out of the table stay in the string as inactive and do not count
+    function gearProfileIndex(gearString) {
+        const table = gearRowsToString(stringToGearRows(gearString).filter(function(row) {
+            return row.active
+        }))
+        for (var i = 0; i < profileModel.count; i++) {
+            if (gearRowsToString(gearProfiles[profileModel.get(i).value].gears) === table) {
+                return i
+            }
+        }
+        return -1
     }
 
     property var gearProfiles: {
@@ -324,12 +343,13 @@ ScrollView {
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.margins: 20
-        spacing: 20
+        anchors.margins: window.ui.modern ? Math.max(16, window.contentSideMargin) : 20
+        spacing: window.ui.modern ? 8 : 20 // modern: 8 between the cards, as Material 3
         id: chainringColumn
 
         // Wahoo Options
-        GroupBox {
+        UiGroupBox {
+            framed: true
             title: qsTr("Wahoo Options")
             // the title is a stop of its own, as the controls in the group are
             Accessible.focusable: true
@@ -369,15 +389,16 @@ ScrollView {
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
                     Layout.maximumWidth: chainringColumn.width - 20
-                    font.pixelSize: window.fontHint
+                    font.pixelSize: window.fontHint // modern look: Body Small, as the hints of the settings
                     bottomPadding: window.hintGap
-                    color: Material.accent
+                    color: window.ui.modern ? window.ui.textMuted : Material.accent
                 }
             }
         }
 
         // Crankset Size
-        GroupBox {
+        UiGroupBox {
+            framed: true
             title: qsTr("Chainring Size")
             Accessible.focusable: true
             Layout.fillWidth: true
@@ -389,9 +410,14 @@ ScrollView {
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
                     Layout.maximumWidth: chainringColumn.width - 20
+                    color: window.ui.modern ? window.ui.textMuted : Material.foreground
+                    // Modern look: the note of the group is a hint, Body Small; the classic keeps the
+                    // page font. The page is made while the look is set
+                    Binding on font.pixelSize { when: window.ui.modern; value: window.fontHint; restoreMode: Binding.RestoreBindingOrValue }
                 }
 
                 SpinBox {
+                    visible: !window.ui.modern
                     Accessible.name: qsTr("Chainring Size") + ": " + value
                     from: 1
                     to: 999
@@ -402,11 +428,36 @@ ScrollView {
                         gearSettingsChanged()
                     }
                 }
+                // Modern look: the buttons of the table below. The Material one kept its +/- lit
+                // after a tap and did not match the rest of the page
+                UiSpinBox {
+                    visible: window.ui.modern
+                    Accessible.name: qsTr("Chainring Size") + ": " + value
+                    // TalkBack changes the value with increase()/decrease(), which do not emit
+                    // valueModified, the signal that saves the field
+                    Accessible.onIncreaseAction: {
+                        increase()
+                        valueModified()
+                    }
+                    Accessible.onDecreaseAction: {
+                        decrease()
+                        valueModified()
+                    }
+                    from: 1
+                    to: 999
+                    value: selectedCranksetSize
+                    onValueModified: {
+                        selectedCranksetSize = value
+                        console.log("Crankset Size changed");
+                        gearSettingsChanged()
+                    }
+                }
             }
         }
 
         // Cog Size
-        GroupBox {
+        UiGroupBox {
+            framed: true
             title: qsTr("Cog Size")
             Accessible.focusable: true
             Layout.fillWidth: true
@@ -418,8 +469,13 @@ ScrollView {
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
                     Layout.maximumWidth: chainringColumn.width - 20
+                    color: window.ui.modern ? window.ui.textMuted : Material.foreground
+                    // Modern look: the note of the group is a hint, Body Small; the classic keeps the
+                    // page font. The page is made while the look is set
+                    Binding on font.pixelSize { when: window.ui.modern; value: window.fontHint; restoreMode: Binding.RestoreBindingOrValue }
                 }
                 SpinBox {
+                    visible: !window.ui.modern
                     Accessible.name: qsTr("Cog Size") + ": " + value
                     from: 1
                     to: 999
@@ -430,25 +486,52 @@ ScrollView {
                         gearSettingsChanged()
                     }
                 }
+                // Modern look: the buttons of the table below. The Material one kept its +/- lit
+                // after a tap and did not match the rest of the page
+                UiSpinBox {
+                    visible: window.ui.modern
+                    Accessible.name: qsTr("Cog Size") + ": " + value
+                    // TalkBack changes the value with increase()/decrease(), which do not emit
+                    // valueModified, the signal that saves the field
+                    Accessible.onIncreaseAction: {
+                        increase()
+                        valueModified()
+                    }
+                    Accessible.onDecreaseAction: {
+                        decrease()
+                        valueModified()
+                    }
+                    from: 1
+                    to: 999
+                    value: selectedCogSize
+                    onValueModified: {
+                        selectedCogSize = value
+                        console.log("Cog Size changed");
+                        gearSettingsChanged()
+                    }
+                }
             }
         }
 
         // Wheel Size
-        GroupBox {
+        UiGroupBox {
+            framed: true
             title: qsTr("Virtual Wheel Size")
             Accessible.focusable: true
             Layout.fillWidth: true
 
+            // Modern look: across the card like the profile list below; without a width the
+            // layout was as wide as the button text, and the button hung off to the left
             ColumnLayout {
                 // With a bigger text the column took the width of the button label in one line and
                 // the button ran past the screen edge: it takes the width of the box instead
-                width: window.textScale !== 1 ? parent.width : implicitWidth
+                width: window.ui.modern || window.textScale !== 1 ? parent.width : implicitWidth
                 UiComboBox {
                        id: wheelSizeCombo
                        Accessible.name: qsTr("Virtual Wheel Size") + ": " + displayText
                        width: parent.width
                        // the box was as wide as at 100 % and cut the wheel size ("700 x 1…")
-                       Layout.fillWidth: window.textScale !== 1
+                       Layout.fillWidth: window.ui.modern || window.textScale !== 1
                        currentIndex: initialWheelSizeIndex
                        textRole: "text"
                        model: ListModel {
@@ -550,21 +633,27 @@ ScrollView {
                 }
 
                 // Restore Default Wheel Diameter Button
-                Button {
+                UiButton {
+                    applyOnSelect: false
                     text: qsTr("Restore Default Setting to the Trainer")
                     Layout.fillWidth: true
+                    // Modern look: a long label at a large text size takes two lines, not the
+                    // width of the page
                     // with a bigger text the label wraps in two lines
-                    Layout.preferredHeight: window.textScale !== 1 ? Math.max(50, contentItem.implicitHeight + 16) : 50
+                    Layout.preferredHeight: window.ui.modern ? Math.max(48, contentItem.implicitHeight + 24) : (window.textScale !== 1 ? Math.max(50, contentItem.implicitHeight + 16) : 50)
                     font.bold: true
                     background: Rectangle {
-                        color: "#9C27B0"
-                        radius: 4
+                        // Modern look: the tonal pill of the other buttons, the bright purple
+                        // stood out of the page palette for a reset
+                        color: window.ui.modern ? (parent.down ? window.ui.surfaceHigh : window.ui.surfaceHighest)
+                                                : "#9C27B0"
+                        radius: window.ui.modern ? height / 2 : 4
                     }
                     contentItem: Text {
-                        wrapMode: window.labelWrap
                         text: parent.text
-                        font: parent.font
-                        color: "white"
+                        font: parent.labelFont
+                        color: window.ui.ink("white")
+                        wrapMode: window.ui.modern ? Text.WordWrap : window.labelWrap
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                     }
@@ -576,7 +665,8 @@ ScrollView {
             }
         }
 
-        GroupBox {
+        UiGroupBox {
+            framed: true
         title: qsTr("Preset Gear Profiles")
         Accessible.focusable: true
         Layout.fillWidth: true
@@ -586,6 +676,7 @@ ScrollView {
                 Accessible.name: qsTr("Preset Gear Profiles") + ": " + displayText
                 width: parent.width
                 textRole: "text"
+                savedIndex: gearProfileIndex(settings.gear_configuration)
                 displayText: currentIndex < 0 ? qsTr("Select a profile...") : model.get(currentIndex).text
                 model: ListModel {
                  id: profileModel
@@ -600,9 +691,10 @@ ScrollView {
                  }
                 }
 
-                onCurrentIndexChanged: {
-                 if (currentIndex >= 0) {
-                     loadGearProfile(profileModel.get(currentIndex).value)
+                // Only a pick loads a preset, not the list showing the saved one
+                onActivated: {
+                 if (index >= 0) {
+                     loadGearProfile(profileModel.get(index).value)
                  }
                 }
                 }
@@ -610,39 +702,43 @@ ScrollView {
 
 
         // Gear Table GroupBox
-        GroupBox {
+        UiGroupBox {
+            framed: true
             title: qsTr("Virtual Gear Table")
             Accessible.focusable: true
             Layout.fillWidth: true
-            // The table is as tall as its rows and the page scrolls as one: the table had the rest
-            // of the page, but the page is as tall as its content, so the rest was nothing and only
-            // the header of the table showed
+            // The table is as tall as its rows and the page scrolls as one: a list scrolling inside
+            // the scrolling page caught the finger half way down, and in the classic look, which
+            // gave the table the rest of the page, the rest was nothing and the rows were not shown
 
             ColumnLayout {
                 width: parent.width
                 spacing: 10
 
-                // Updated Buttons Row
+                // Updated Buttons Row. Modern look: one button per line, three long labels
+                // side by side were cut on a phone
                 // With a bigger text three buttons in a row cut their labels ("Add…"): one under
                 // another, each the full width
                 GridLayout {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: window.textScale > 1 ? -1 : 40
-                    columns: window.textScale > 1 ? 1 : 3
+                    Layout.preferredHeight: window.ui.modern ? -1 : (window.textScale > 1 ? -1 : 40)
+                    columns: window.ui.modern ? 1 : (window.textScale > 1 ? 1 : 3)
                     columnSpacing: 10
-                    rowSpacing: 10
+                    rowSpacing: window.ui.modern ? 8 : 10
 
-                    Button {
+                    UiButton {
+                        wrapsText: true
                         text: qsTr("Add Gear")
                         Layout.fillWidth: true
-                        Layout.preferredHeight: window.fontPx(40)
+                        Layout.preferredHeight: window.ui.modern ? Math.max(48, contentItem.implicitHeight + 24) : window.fontPx(40)
                         onClicked: addNewGear()
                     }
 
-                    Button {
+                    UiButton {
+                        wrapsText: true
                         text: qsTr("Clear Selected Gear and Following")
                         Layout.fillWidth: true
-                        Layout.preferredHeight: window.fontPx(40)
+                        Layout.preferredHeight: window.ui.modern ? Math.max(48, contentItem.implicitHeight + 24) : window.fontPx(40)
                         onClicked: {
                             if (gearTable.currentRow >= 0) {
                                 clearGearsFromIndex(gearTable.currentRow)
@@ -650,10 +746,11 @@ ScrollView {
                         }
                     }
 
-                    Button {
+                    UiButton {
+                        wrapsText: true
                         text: qsTr("Reset All Gears")
                         Layout.fillWidth: true
-                        Layout.preferredHeight: window.fontPx(40)
+                        Layout.preferredHeight: window.ui.modern ? Math.max(48, contentItem.implicitHeight + 24) : window.fontPx(40)
                         onClicked: initializeGearRows()
                     }
                 }
@@ -662,59 +759,85 @@ ScrollView {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: window.fontPx(40)
-                    color: "#f0f0f0"
-                    border.width: 1
-                    border.color: "#cccccc"
+                    color: window.ui.modern ? window.ui.surfaceHigh : "#f0f0f0"
+                    border.width: window.ui.modern ? 0 : 1
+                    border.color: window.ui.modern ? window.ui.alpha(window.ui.outline, 0.4) : "#cccccc"
+                    radius: window.ui.modern ? 12 : 0
 
+                    // Modern look: a narrow gear number, the chainring and cog fields get the room
                     Row {
                         anchors.fill: parent
 
                         Rectangle {
-                            width: parent.width / 3
+                            width: parent.width * (window.ui.modern ? 0.24 : 1 / 3)
                             height: parent.height
-                            border.width: 1
-                            border.color: "#cccccc"
+                            border.width: window.ui.modern ? 0 : 1
+                            border.color: window.ui.modern ? window.ui.alpha(window.ui.outline, 0.4) : "#cccccc"
                             color: "transparent"
 
                             Text {
-                                // a plain Text does not inherit the window font: the text size while it is not 100 %
-                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                // a plain Text does not inherit the window font: the text size while it is not 100 %; modern look: the table header and the gear number Label Large 14
+                                Binding on font.pixelSize { when: window.ui.modern || window.scaledFontPx > 0; value: window.ui.modern ? window.ui.fontLabelLarge : window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                 anchors.centerIn: parent
+                                // Modern look: one line inside its column, smaller if it does not fit
+                                width: window.ui.modern ? parent.width - 8 : implicitWidth
+                                horizontalAlignment: window.ui.modern ? Text.AlignHCenter : Text.AlignLeft
+                                fontSizeMode: window.ui.modern ? Text.HorizontalFit : Text.FixedSize
+                                // A shrunk text keeps the height of the full size: it fills the cell and stays in the middle
+                                height: window.ui.modern ? parent.height : implicitHeight
+                                verticalAlignment: window.ui.modern ? Text.AlignVCenter : Text.AlignTop
+                                minimumPixelSize: 9
                                 text: qsTr("Gear")
                                 font.bold: true
-                                color: "black"
+                                color: window.ui.ink("black")
                             }
                         }
 
                         Rectangle {
-                            width: parent.width / 3
+                            width: parent.width * (window.ui.modern ? 0.38 : 1 / 3)
                             height: parent.height
-                            border.width: 1
-                            border.color: "#cccccc"
+                            border.width: window.ui.modern ? 0 : 1
+                            border.color: window.ui.modern ? window.ui.alpha(window.ui.outline, 0.4) : "#cccccc"
                             color: "transparent"
 
                             Text {
-                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                Binding on font.pixelSize { when: window.ui.modern || window.scaledFontPx > 0; value: window.ui.modern ? window.ui.fontLabelLarge : window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                 anchors.centerIn: parent
+                                // Modern look: one line inside its column, smaller if it does not fit
+                                width: window.ui.modern ? parent.width - 8 : implicitWidth
+                                horizontalAlignment: window.ui.modern ? Text.AlignHCenter : Text.AlignLeft
+                                fontSizeMode: window.ui.modern ? Text.HorizontalFit : Text.FixedSize
+                                // A shrunk text keeps the height of the full size: it fills the cell and stays in the middle
+                                height: window.ui.modern ? parent.height : implicitHeight
+                                verticalAlignment: window.ui.modern ? Text.AlignVCenter : Text.AlignTop
+                                minimumPixelSize: 9
                                 text: qsTr("Chainring")
                                 font.bold: true
-                                color: "black"
+                                color: window.ui.ink("black")
                             }
                         }
 
                         Rectangle {
-                            width: parent.width / 3
+                            width: parent.width * (window.ui.modern ? 0.38 : 1 / 3)
                             height: parent.height
-                            border.width: 1
-                            border.color: "#cccccc"
+                            border.width: window.ui.modern ? 0 : 1
+                            border.color: window.ui.modern ? window.ui.alpha(window.ui.outline, 0.4) : "#cccccc"
                             color: "transparent"
 
                             Text {
-                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                Binding on font.pixelSize { when: window.ui.modern || window.scaledFontPx > 0; value: window.ui.modern ? window.ui.fontLabelLarge : window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                 anchors.centerIn: parent
+                                // Modern look: one line inside its column, smaller if it does not fit
+                                width: window.ui.modern ? parent.width - 8 : implicitWidth
+                                horizontalAlignment: window.ui.modern ? Text.AlignHCenter : Text.AlignLeft
+                                fontSizeMode: window.ui.modern ? Text.HorizontalFit : Text.FixedSize
+                                // A shrunk text keeps the height of the full size: it fills the cell and stays in the middle
+                                height: window.ui.modern ? parent.height : implicitHeight
+                                verticalAlignment: window.ui.modern ? Text.AlignVCenter : Text.AlignTop
+                                minimumPixelSize: 9
                                 text: qsTr("Rear Cog")
                                 font.bold: true
-                                color: "black"
+                                color: window.ui.ink("black")
                             }
                         }
                     }
@@ -729,6 +852,8 @@ ScrollView {
                     Layout.minimumHeight: contentHeight
                     interactive: false
                     clip: true
+                    // Modern look: rounded rows apart from each other
+                    spacing: window.ui.modern ? 8 : 0
                     property int currentRow: -1
                     model: ListModel {
                         id: gearListModel
@@ -778,8 +903,9 @@ ScrollView {
                     delegate: Rectangle {
                         width: gearTable.width
                         // the rows, the fields and their -/+ grow with the text
-                        height: window.fontPx(40)
-                        color: gearTable.currentRow === index ? "#e0e0e0" : "white"
+                        height: window.ui.modern ? 52 : window.fontPx(40)
+                        radius: window.ui.modern ? 12 : 0
+                        color: window.ui.modern ? (gearTable.currentRow === index ? window.ui.alpha(window.ui.accent, 0.14) : window.ui.surface) : (gearTable.currentRow === index ? "#e0e0e0" : "white")
 
                         MouseArea {
                             anchors.fill: parent
@@ -793,7 +919,7 @@ ScrollView {
                             // MouseArea above); for a screen reader the number is the button that
                             // does, so "Delete Selected and Following" can be used with TalkBack too
                             AbstractButton {
-                                width: parent.width / 3
+                                width: parent.width * (window.ui.modern ? 0.24 : 1 / 3)
                                 height: parent.height
                                 focusPolicy: Qt.NoFocus
                                 Accessible.name: qsTr("Gear") + " " + gear
@@ -807,16 +933,16 @@ ScrollView {
                                 }
 
                                 background: Rectangle {
-                                    border.width: 1
-                                    border.color: "#cccccc"
+                                    border.width: window.ui.modern ? 0 : 1
+                                    border.color: window.ui.modern ? window.ui.alpha(window.ui.outline, 0.4) : "#cccccc"
                                     color: "transparent"
                                 }
 
                                 contentItem: Text {
-                                    // a plain Text does not inherit the window font: the text size while it is not 100 %
-                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                    // a plain Text does not inherit the window font: the text size while it is not 100 %; modern look: the table header and the gear number Label Large 14
+                                    Binding on font.pixelSize { when: window.ui.modern || window.scaledFontPx > 0; value: window.ui.modern ? window.ui.fontLabelLarge : window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                     text: gear
-                                    color: "black"
+                                    color: window.ui.ink("black")
                                     horizontalAlignment: Text.AlignHCenter
                                     verticalAlignment: Text.AlignVCenter
                                     Accessible.ignored: true
@@ -825,10 +951,10 @@ ScrollView {
 
                             // Crankset (editable)
                             Rectangle {
-                                width: parent.width / 3
+                                width: parent.width * (window.ui.modern ? 0.38 : 1 / 3)
                                 height: parent.height
-                                border.width: 1
-                                border.color: "#cccccc"
+                                border.width: window.ui.modern ? 0 : 1
+                                border.color: window.ui.modern ? window.ui.alpha(window.ui.outline, 0.4) : "#cccccc"
                                 color: "transparent"
 
                                 SpinBox {
@@ -847,9 +973,17 @@ ScrollView {
                                         valueModified()
                                     }
                                     anchors.centerIn: parent
+                                    // Modern look: no Material paddings and insets, they differ above and below
+                                    // and the number sat high in the low field. Bindings that act only then:
+                                    // "undefined" in the classic look reset them to the Qt defaults, not to the
+                                    // Material ones the classic field had
                                     // with a bigger text the field takes the cell and grows with the row
                                     width: window.textScale !== 1 ? parent.width - 8 : parent.width * 0.8
-                                    height: window.fontPx(30)
+                                    height: window.ui.modern ? 36 : window.fontPx(30)
+                                    Binding on topPadding { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
+                                    Binding on bottomPadding { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
+                                    Binding on topInset { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
+                                    Binding on bottomInset { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
                                     // Material pads 8 above and 16 below: the number sat 4 px over the middle
                                     topPadding: window.textScale !== 1 ? 0 : 8
                                     bottomPadding: window.textScale !== 1 ? 0 : 16
@@ -862,13 +996,14 @@ ScrollView {
                                     }
 
                                     // Style the SpinBox
-                                    contentItem: TextInput {
+                                    contentItem: UiSpinInput {
                                         z: 2
                                         text: cranksetSpinBox.textFromValue(cranksetSpinBox.value, cranksetSpinBox.locale)
-                                        font: cranksetSpinBox.font
-                                        color: "black"
-                                        selectionColor: "#21be2b"
-                                        selectedTextColor: "#ffffff"
+                                        // Modern look: the 16 px of the +/- fields (UiSpinBox, the inclination table)
+                                        font: window.ui.modern ? Qt.font({ family: cranksetSpinBox.font.family, pixelSize: window.ui.fontBody }) : cranksetSpinBox.font
+                                        color: window.ui.ink("black")
+                                        selectionColor: window.ui.modern ? window.ui.accent : "#21be2b"
+                                        selectedTextColor: window.ui.modern ? window.ui.accentInk : "#ffffff"
                                         horizontalAlignment: Qt.AlignHCenter
                                         verticalAlignment: Qt.AlignVCenter
                                     }
@@ -878,14 +1013,30 @@ ScrollView {
                                         height: parent.height
                                         // square, but at most a quarter of the field: the number keeps the middle
                                         width: window.textScale !== 1 ? Math.min(height, parent.width / 4) : height
-                                        color: parent.up.pressed ? "#e4e4e4" : "#f6f6f6"
-                                        border.color: "#cccccc"
+                                        color: window.ui.modern ? (parent.up.pressed ? window.ui.surfaceHigh : window.ui.surfaceHighest) : (parent.up.pressed ? "#e4e4e4" : "#f6f6f6")
+                                        border.color: window.ui.modern ? window.ui.alpha(window.ui.outline, 0.4) : "#cccccc"
+                                        border.width: window.ui.modern ? 0 : 1
+                                        radius: window.ui.modern ? 8 : 0
 
                                         Text {
+                                            visible: !window.ui.modern
                                             text: "+"
-                                            color: "black"
+                                            color: window.ui.ink("black")
                                             anchors.centerIn: parent
-                                            font.pixelSize: window.fontPx(12)
+                                            font.pixelSize: window.ui.modern ? 18 : window.fontPx(12)
+                                        }
+                                        // Modern look: drawn, the glyph sat off the centre of the button
+                                        Rectangle {
+                                            visible: window.ui.modern
+                                            anchors.centerIn: parent
+                                            width: 12; height: 2; radius: 1
+                                            color: window.ui.textMain
+                                        }
+                                        Rectangle {
+                                            visible: window.ui.modern
+                                            anchors.centerIn: parent
+                                            width: 2; height: 12; radius: 1
+                                            color: window.ui.textMain
                                         }
                                     }
 
@@ -894,30 +1045,42 @@ ScrollView {
                                         height: parent.height
                                         // square, but at most a quarter of the field: the number keeps the middle
                                         width: window.textScale !== 1 ? Math.min(height, parent.width / 4) : height
-                                        color: parent.down.pressed ? "#e4e4e4" : "#f6f6f6"
-                                        border.color: "#cccccc"
+                                        color: window.ui.modern ? (parent.down.pressed ? window.ui.surfaceHigh : window.ui.surfaceHighest) : (parent.down.pressed ? "#e4e4e4" : "#f6f6f6")
+                                        border.color: window.ui.modern ? window.ui.alpha(window.ui.outline, 0.4) : "#cccccc"
+                                        border.width: window.ui.modern ? 0 : 1
+                                        radius: window.ui.modern ? 8 : 0
 
                                         Text {
+                                            visible: !window.ui.modern
                                             text: "-"
-                                            color: "black"
+                                            color: window.ui.ink("black")
                                             anchors.centerIn: parent
-                                            font.pixelSize: window.fontPx(12)
+                                            font.pixelSize: window.ui.modern ? 18 : window.fontPx(12)
+                                        }
+                                        // Modern look: drawn, the glyph sat off the centre of the button
+                                        Rectangle {
+                                            visible: window.ui.modern
+                                            anchors.centerIn: parent
+                                            width: 12; height: 2; radius: 1
+                                            color: window.ui.textMain
                                         }
                                     }
 
                                     background: Rectangle {
-                                        color: "white"
-                                        border.color: "#cccccc"
+                                        color: window.ui.modern ? window.ui.surfaceHighest : "white"
+                                        border.color: window.ui.modern ? window.ui.alpha(window.ui.outline, 0.4) : "#cccccc"
+                                        border.width: window.ui.modern ? 0 : 1
+                                        radius: window.ui.modern ? 8 : 0
                                     }
                                 }
                             }
 
                             // Rear Cog (editable)
                             Rectangle {
-                                width: parent.width / 3
+                                width: parent.width * (window.ui.modern ? 0.38 : 1 / 3)
                                 height: parent.height
-                                border.width: 1
-                                border.color: "#cccccc"
+                                border.width: window.ui.modern ? 0 : 1
+                                border.color: window.ui.modern ? window.ui.alpha(window.ui.outline, 0.4) : "#cccccc"
                                 color: "transparent"
 
                                 SpinBox {
@@ -932,8 +1095,16 @@ ScrollView {
                                         valueModified()
                                     }
                                     anchors.centerIn: parent
+                                    // Modern look: no Material paddings and insets, they differ above and below
+                                    // and the number sat high in the low field. Bindings that act only then:
+                                    // "undefined" in the classic look reset them to the Qt defaults, not to the
+                                    // Material ones the classic field had
                                     width: window.textScale !== 1 ? parent.width - 8 : parent.width * 0.8
-                                    height: window.fontPx(30)
+                                    height: window.ui.modern ? 36 : window.fontPx(30)
+                                    Binding on topPadding { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
+                                    Binding on bottomPadding { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
+                                    Binding on topInset { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
+                                    Binding on bottomInset { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
                                     topPadding: window.textScale !== 1 ? 0 : 8
                                     bottomPadding: window.textScale !== 1 ? 0 : 16
                                     from: 1
@@ -945,13 +1116,13 @@ ScrollView {
                                     }
 
                                     // Style the SpinBox (same as cranksetSpinBox)
-                                    contentItem: TextInput {
+                                    contentItem: UiSpinInput {
                                         z: 2
                                         text: cogSpinBox.textFromValue(cogSpinBox.value, cogSpinBox.locale)
-                                        font: cogSpinBox.font
-                                        color: "black"
-                                        selectionColor: "#21be2b"
-                                        selectedTextColor: "#ffffff"
+                                        font: window.ui.modern ? Qt.font({ family: cogSpinBox.font.family, pixelSize: window.ui.fontBody }) : cogSpinBox.font
+                                        color: window.ui.ink("black")
+                                        selectionColor: window.ui.modern ? window.ui.accent : "#21be2b"
+                                        selectedTextColor: window.ui.modern ? window.ui.accentInk : "#ffffff"
                                         horizontalAlignment: Qt.AlignHCenter
                                         verticalAlignment: Qt.AlignVCenter
                                     }
@@ -961,14 +1132,30 @@ ScrollView {
                                         height: parent.height
                                         // square, but at most a quarter of the field: the number keeps the middle
                                         width: window.textScale !== 1 ? Math.min(height, parent.width / 4) : height
-                                        color: parent.up.pressed ? "#e4e4e4" : "#f6f6f6"
-                                        border.color: "#cccccc"
+                                        color: window.ui.modern ? (parent.up.pressed ? window.ui.surfaceHigh : window.ui.surfaceHighest) : (parent.up.pressed ? "#e4e4e4" : "#f6f6f6")
+                                        border.color: window.ui.modern ? window.ui.alpha(window.ui.outline, 0.4) : "#cccccc"
+                                        border.width: window.ui.modern ? 0 : 1
+                                        radius: window.ui.modern ? 8 : 0
 
                                         Text {
+                                            visible: !window.ui.modern
                                             text: "+"
-                                            color: "black"
+                                            color: window.ui.ink("black")
                                             anchors.centerIn: parent
-                                            font.pixelSize: window.fontPx(12)
+                                            font.pixelSize: window.ui.modern ? 18 : window.fontPx(12)
+                                        }
+                                        // Modern look: drawn, the glyph sat off the centre of the button
+                                        Rectangle {
+                                            visible: window.ui.modern
+                                            anchors.centerIn: parent
+                                            width: 12; height: 2; radius: 1
+                                            color: window.ui.textMain
+                                        }
+                                        Rectangle {
+                                            visible: window.ui.modern
+                                            anchors.centerIn: parent
+                                            width: 2; height: 12; radius: 1
+                                            color: window.ui.textMain
                                         }
                                     }
 
@@ -977,20 +1164,32 @@ ScrollView {
                                         height: parent.height
                                         // square, but at most a quarter of the field: the number keeps the middle
                                         width: window.textScale !== 1 ? Math.min(height, parent.width / 4) : height
-                                        color: parent.down.pressed ? "#e4e4e4" : "#f6f6f6"
-                                        border.color: "#cccccc"
+                                        color: window.ui.modern ? (parent.down.pressed ? window.ui.surfaceHigh : window.ui.surfaceHighest) : (parent.down.pressed ? "#e4e4e4" : "#f6f6f6")
+                                        border.color: window.ui.modern ? window.ui.alpha(window.ui.outline, 0.4) : "#cccccc"
+                                        border.width: window.ui.modern ? 0 : 1
+                                        radius: window.ui.modern ? 8 : 0
 
                                         Text {
+                                            visible: !window.ui.modern
                                             text: "-"
-                                            color: "black"
+                                            color: window.ui.ink("black")
                                             anchors.centerIn: parent
-                                            font.pixelSize: window.fontPx(12)
+                                            font.pixelSize: window.ui.modern ? 18 : window.fontPx(12)
+                                        }
+                                        // Modern look: drawn, the glyph sat off the centre of the button
+                                        Rectangle {
+                                            visible: window.ui.modern
+                                            anchors.centerIn: parent
+                                            width: 12; height: 2; radius: 1
+                                            color: window.ui.textMain
                                         }
                                     }
 
                                     background: Rectangle {
-                                        color: "white"
-                                        border.color: "#cccccc"
+                                        color: window.ui.modern ? window.ui.surfaceHighest : "white"
+                                        border.color: window.ui.modern ? window.ui.alpha(window.ui.outline, 0.4) : "#cccccc"
+                                        border.width: window.ui.modern ? 0 : 1
+                                        radius: window.ui.modern ? 8 : 0
                                     }
                                 }
                             }

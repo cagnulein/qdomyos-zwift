@@ -1,8 +1,10 @@
 #include "fakerower.h"
 #include "virtualdevices/virtualbike.h"
+#include "homeform.h"
 #include "virtualdevices/virtualrower.h"
 
 #include <QBluetoothLocalDevice>
+#include <QCoreApplication>
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
@@ -27,6 +29,14 @@ fakerower::fakerower(bool noWriteResistance, bool noHeartService, bool noVirtual
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &fakerower::update);
     refresh->start(200ms);
+
+    QTimer::singleShot(5000, this, []() {
+        if (homeform::singleton()) {
+            homeform::singleton()->setToastRequested(
+                QCoreApplication::translate("main", "Fake device (%1) is active. If this was unintentional, disable it in Settings.")
+                    .arg(QCoreApplication::translate("main", "Rower")));
+        }
+    });
 }
 
 void fakerower::update() {

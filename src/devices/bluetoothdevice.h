@@ -240,11 +240,16 @@ class bluetoothdevice : public QObject {
 
     /**
      * @brief wattsMetricforUi Show the wattage applying averaging in case the user requested this.  Units: watts
+     * While paused it returns 0 unless instant_power_on_pause is enabled: update_metrics() zeroes m_watt on pause,
+     * but drivers that read the power from the device packets write it back on every packet, so the raw value
+     * alternates between 0 and the real power.
      */
     double wattsMetricforUI() {
         QSettings settings;
-        if (paused && settings.value(QZSettings::instant_power_on_pause, QZSettings::default_instant_power_on_pause).toBool()) {
-            return wattsMetric().value();
+        if (paused) {
+            if (settings.value(QZSettings::instant_power_on_pause, QZSettings::default_instant_power_on_pause).toBool())
+                return wattsMetric().value();
+            return 0;
         }
         bool power3s = settings.value(QZSettings::power_avg_3s, QZSettings::default_power_avg_3s).toBool();
         bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();

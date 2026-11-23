@@ -154,6 +154,7 @@
 #ifndef Q_OS_IOS
 #include "devices/kettlerrun7treadmill/kettlerrun7treadmill.h"
 #endif
+#include "devices/kettlercoachrower/kettlercoachrower.h"
 #include "devices/iconsolebike/iconsolebike.h"
 #include "devices/treadmill.h"
 #include "devices/truetreadmill/truetreadmill.h"
@@ -165,6 +166,9 @@
 #include "devices/ultrasportbike/ultrasportbike.h"
 #include "devices/wahookickrheadwind/wahookickrheadwind.h"
 #include "devices/wahookickrsnapbike/wahookickrsnapbike.h"
+#include "devices/dircon/wahoodirconbike.h"
+#include "devices/dircon/wahoodircontreadmill.h"
+#include "devices/dircon/dircondiscovery.h"
 #include "devices/wahookickruntreadmill/wahookickruntreadmill.h"
 #include "devices/xcxbike/xcxbike.h"
 #include "devices/yesoulbike/yesoulbike.h"
@@ -194,13 +198,33 @@ class bluetooth : public QObject, public SignalHandler {
     bluetoothdevice *externalInclination() { return eliteRizer; }
     bluetoothdevice *heartRateDevice() { return heartRateBelt; }
     QList<QBluetoothDeviceInfo> devices;
+    QList<DirconDeviceInfo> dirconDevices() const;
     bool onlyDiscover = false;
     volatile bool homeformLoaded = false;
+    // Notifies the Bluetooth manager when UI slots have been installed.
+    // Defers only bonded Coach S direct SPP; fake devices retain normal startup.
+    void onHomeformReady();
 
     // Search for the equipment, for the status line on the home page
     bool isSearching() const;
     qint64 nextSearchMs() const { return nextRescanMs; }
     bool searchStopped() const { return rescanStopped; }
+    // Android: Bluetooth is off; the search starts by itself as soon as it is switched on (a search
+    // started by a tap before the poll noticed it is on means it is on already)
+    bool bluetoothOff() const { return bluetoothOffPoll.isActive() && !isSearching(); }
+    // Gym mode: the trainer picked in the window, empty until then
+    QString gymModeDevice() const { return gymModeSessionDevice; }
+    // Gym mode: the window waits for the trainer to be picked; while it is open the pause between two
+    // automatic searches stays short and the search does not give up after 10 minutes. Closed: the
+    // pauses and the 10 minutes count from now (the window restarted the search every 10 s before),
+    // otherwise a window open for 10 minutes would leave a search that gives up at once
+    void setGymModeWindowOpen(bool open) {
+        gymModeWindowOpen = open;
+        if (!open) {
+            rescanCount = 0;
+            rescanStartedMs = 0;
+        }
+    }
     /**
      * @brief searchNow Starts a search right away and resets the pause between the automatic ones.
      * Android 7.0 and later ignore the 6th scan start in 30 s: then the search is scheduled for when it is allowed.
@@ -208,6 +232,12 @@ class bluetooth : public QObject, public SignalHandler {
      * already running), otherwise the seconds until the scheduled search.
      */
     int searchNow();
+    /**
+     * @brief searchForDeviceList Searches for the devices of an opened list of devices. With a device connected the
+     * search only fills the list and connects nothing, and it is skipped near the Android limit; without one it is
+     * searchNow(). Does nothing if a search is running or discovery is off.
+     */
+    void searchForDeviceList();
 
     // True when the advertised services include one of a fitness machine (FTMS, Cycling Power, Cycling Speed and
     // Cadence, the Concept2 PM5 or Echelon service), as QZ's own virtual devices and most machines advertise next
@@ -224,6 +254,15 @@ class bluetooth : public QObject, public SignalHandler {
 
   private:
     bool useDiscovery = false;
+#ifdef Q_OS_ANDROID
+    // Only the already-bonded Coach S direct SPP path is deferred.
+    // Do not delay normal Bluetooth discovery, fake equipment, or DirCon.
+    bool coachSDirectPendingHomeform = false;
+    // Try the selected, previously bonded Coach S directly once before
+    // falling back to the existing Bluetooth discovery/reconnect loop.
+    bool coachSDirectAttempted = false;
+    bool coachSDirectInProgress = false;
+#endif
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
     QBluetoothDeviceDiscoveryAgent *hrmDiscoveryAgent = nullptr;
@@ -264,6 +303,7 @@ class bluetooth : public QObject, public SignalHandler {
 #ifndef Q_OS_IOS
     kettlerrun7treadmill *kettlerRun7Treadmill = nullptr;
 #endif
+    kettlercoachrower *kettlerCoachRower = nullptr;
     iconceptelliptical *iConceptElliptical = nullptr;
     trxappgateusbtreadmill *trxappgateusb = nullptr;
     spirittreadmill *spiritTreadmill = nullptr;
@@ -357,6 +397,9 @@ class bluetooth : public QObject, public SignalHandler {
     stagesbike *powerBike = nullptr;
     ultrasportbike *ultraSportBike = nullptr;
     wahookickrsnapbike *wahooKickrSnapBike = nullptr;
+    wahoodirconbike *wahooDirconBike = nullptr;
+    wahoodircontreadmill *wahooDirconTreadmill = nullptr;
+    DirconDiscovery *dirconDiscovery = nullptr;
     wahookickruntreadmill *wahooKickRunTreadmill = nullptr;
     xcxbike *xcxBike = nullptr;
     ypooelliptical *ypooElliptical = nullptr;
@@ -395,6 +438,9 @@ class bluetooth : public QObject, public SignalHandler {
      * @brief Start the Bluetooth discovery agent.
      */
     void startDiscovery();
+#ifdef Q_OS_ANDROID
+    bool tryConnectBondedCoachS();
+#endif
 
     /**
      * @brief Stop the Bluetooth discovery agent.
@@ -416,6 +462,8 @@ class bluetooth : public QObject, public SignalHandler {
     bool sramDeviceAvaiable();
     bool cycplusBC2DeviceAvaiable();
     bool thinkriderDeviceAvaiable();
+    bool tryConnectSelectedDirconDevice();
+    void connectDirconDevice(const DirconDeviceInfo &deviceInfo);
     bool fitmetria_fanfit_isconnected(const QBluetoothDeviceInfo &device);
     bool gymModeEnabled() const;
     void handleControllerGearChange(bool increase, bool allowMyWhooshOverride);
@@ -448,10 +496,13 @@ class bluetooth : public QObject, public SignalHandler {
     QTimer rescanTimer;
     qint64 nextRescanMs = 0;
     bool rescanStopped = false;
+    bool gymModeWindowOpen = false;
     // Android 7.0 and later ignore the scan starts after the 5th one in this window
     static constexpr qint64 scanStartWindowMs = 30000;
     QList<qint64> scanStartsMs;
     void pruneScanStarts(qint64 now);
+    // The search of searchForDeviceList() with a device connected: what it finds is not connected
+    bool deviceListScan = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = nullptr;
@@ -517,6 +568,7 @@ class bluetooth : public QObject, public SignalHandler {
     void heartRate(uint8_t heart);
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
   private slots:
+    void onDirconDeviceDiscovered(const QString &displayName);
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
     void deviceUpdated(const QBluetoothDeviceInfo &device, QBluetoothDeviceInfo::Fields updateFields);
 #endif
