@@ -59,7 +59,7 @@ HomeForm {
     signal largeButton_clicked(string name)
 
     // Tile buttons. With Auto Resistance off the Resistance and Target R. tiles and the resistance presets
-    // would do nothing on a bike or a rower: the rider is asked once per session (homeform::resistanceTilePressed)
+    // would do nothing on a bike or a rower: the rider is asked until Apply, then not again until a restart (homeform::resistanceTilePressed)
     function tileButtonPressed(kind, name) {
         var result = rootItem.resistanceTilePressed(kind, name)
         if (result === 2) {

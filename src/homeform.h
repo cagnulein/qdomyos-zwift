@@ -510,7 +510,7 @@ class homeform : public QObject {
     Q_INVOKABLE bool firstSetupLogActive() const { return firstSetupLog; }
 
     // With Auto Resistance off the Resistance and Target R. tiles and the resistance presets send nothing to a
-    // bike or a rower. Home.qml asks the rider once per session; the keyboard, the web page and external remotes call
+    // bike or a rower. Home.qml asks the rider until Apply, then not again until a restart; the keyboard, the web page and external remotes call
     // Plus/Minus/LargeButton directly and are not affected.
     // Returns 0: send the press as usual, 1: applied here, 2: ask the rider first.
     Q_INVOKABLE int resistanceTilePressed(const QString &kind, const QString &name);
