@@ -50,6 +50,9 @@ class keepbike : public bike {
     static uint16_t newProtocolCrc(const QByteArray &packet);
     static QByteArray buildNewProtocolFrame(uint16_t sequence, quint32 session, const QByteArray &payload);
     static QByteArray buildNewProtocolResistancePayload(resistance_t resistance);
+    static QByteArray buildNewProtocolC1MiniResistancePayload(resistance_t resistance);
+    static QByteArray buildNewProtocolC1MiniControlFrame(uint16_t sequence, uint8_t controlCounter,
+                                                        const QByteArray &payload);
     static NewProtocolMetrics parseNewProtocolMetricsFrame(const QByteArray &packet);
     static resistance_t parseNewProtocolResistanceFrame(const QByteArray &packet);
 
@@ -59,7 +62,8 @@ class keepbike : public bike {
     bool connected() override;
 
   private:
-    const resistance_t max_resistance = 36;
+    resistance_t max_resistance = 36;
+    bool keepC1Mini = false;
     double bikeResistanceToPeloton(double resistance);
     double GetDistanceFromPacket(const QByteArray &packet);
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -70,6 +74,7 @@ class keepbike : public bike {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void writeNewProtocolCommand(const QByteArray &payload, const QString &info, bool wait_for_response = true);
+    void writeNewProtocolC1MiniCommand(const QByteArray &payload, const QString &info);
     void startDiscover();
     void forceResistance(resistance_t requestResistance);
     void sendPoll();
@@ -88,6 +93,7 @@ class keepbike : public bike {
     uint8_t counterPoll = 1;
     uint16_t newProtocolSequence = 0x00a0;
     quint32 newProtocolSession = 0;
+    uint8_t newProtocolControlCounter = 0x06;
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();

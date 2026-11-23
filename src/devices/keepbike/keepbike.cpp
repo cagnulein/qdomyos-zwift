@@ -115,6 +115,34 @@ QByteArray keepbike::buildNewProtocolResistancePayload(resistance_t resistance) 
     return payload;
 }
 
+// BikeCon's C1 Mini control protocol uses a different command, field and frame body.
+// Keep this separate from the existing 2f37 command so other Keep bikes are unchanged.
+QByteArray keepbike::buildNewProtocolC1MiniResistancePayload(resistance_t resistance) {
+    QByteArray payload = QByteArray::fromHex("02b53130362f36ff08");
+    payload.append(static_cast<char>(resistance));
+    return payload;
+}
+
+QByteArray keepbike::buildNewProtocolC1MiniControlFrame(uint16_t sequence, uint8_t controlCounter,
+                                                        const QByteArray &payload) {
+    QByteArray body = QByteArray::fromHex("3216ef235503b0");
+    body.append(static_cast<char>(controlCounter));
+    body.append(static_cast<char>(static_cast<uint8_t>(controlCounter + 9)));
+    body.append(QByteArray::fromHex("040000"));
+    body.append(payload);
+
+    QByteArray frame = QByteArray::fromHex("a5a5");
+    frame.append(static_cast<char>(sequence & 0xff));
+    frame.append(static_cast<char>((sequence >> 8) & 0xff));
+    frame.append(static_cast<char>(body.size() & 0xff));
+    frame.append(static_cast<char>((body.size() >> 8) & 0xff));
+    frame.append(body);
+    const uint16_t crc = newProtocolCrc(frame);
+    frame.append(static_cast<char>(crc & 0xff));
+    frame.append(static_cast<char>((crc >> 8) & 0xff));
+    return frame;
+}
+
 keepbike::NewProtocolMetrics keepbike::parseNewProtocolMetricsFrame(const QByteArray &packet) {
     NewProtocolMetrics metrics;
     if (!isNewProtocolFrame(packet)) {
@@ -243,6 +271,10 @@ keepbike::keepbike(bool noWriteResistance, bool noHeartService, int8_t bikeResis
     this->noHeartService = noHeartService;
     this->bikeResistanceGain = bikeResistanceGain;
     this->bikeResistanceOffset = bikeResistanceOffset;
+    QSettings settings;
+    keepC1Mini = settings.value(QZSettings::keep_bike_c1_mini, QZSettings::default_keep_bike_c1_mini).toBool();
+    if (keepC1Mini)
+        max_resistance = 18;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &keepbike::update);
     refresh->start(300ms);
@@ -296,8 +328,13 @@ void keepbike::forceResistance(resistance_t requestResistance) {
         else if (requestResistance <= 0)
             requestResistance = 1;
 
-        writeNewProtocolCommand(buildNewProtocolResistancePayload(requestResistance),
-                                QStringLiteral("new protocol resistance"));
+        if (keepC1Mini) {
+            writeNewProtocolC1MiniCommand(buildNewProtocolC1MiniResistancePayload(requestResistance),
+                                          QStringLiteral("Keep C1 Mini resistance"));
+        } else {
+            writeNewProtocolCommand(buildNewProtocolResistancePayload(requestResistance),
+                                    QStringLiteral("new protocol resistance"));
+        }
         return;
     }
 
@@ -376,6 +413,9 @@ void keepbike::update() {
             qDebug() << QStringLiteral("starting...");
 
             // btinit();
+            if (newProtocol && keepC1Mini)
+                writeNewProtocolC1MiniCommand(QByteArray::fromHex("02b53130362f34ff0803"),
+                                              QStringLiteral("Keep C1 Mini start"));
 
             requestStart = -1;
             emit bikeStarted();
@@ -383,6 +423,9 @@ void keepbike::update() {
         if (requestStop != -1) {
             qDebug() << QStringLiteral("stopping...");
             // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
+            if (newProtocol && keepC1Mini)
+                writeNewProtocolC1MiniCommand(QByteArray::fromHex("02b53130362f34ff0801"),
+                                              QStringLiteral("Keep C1 Mini stop"));
             requestStop = -1;
         }
     }
@@ -663,9 +706,18 @@ void keepbike::writeNewProtocolCommand(const QByteArray &payload, const QString 
     writeCharacteristic(reinterpret_cast<uint8_t *>(frame.data()), frame.length(), info, false, wait_for_response);
 }
 
+void keepbike::writeNewProtocolC1MiniCommand(const QByteArray &payload, const QString &info) {
+    QByteArray frame = buildNewProtocolC1MiniControlFrame(newProtocolSequence,
+                                                                ++newProtocolControlCounter, payload);
+    newProtocolSequence += 0x0100;
+    writeCharacteristic(reinterpret_cast<uint8_t *>(frame.data()), frame.size(),
+                        info, false, false);
+}
+
 void keepbike::btinitNewProtocol() {
     newProtocolSession = static_cast<quint32>(QDateTime::currentMSecsSinceEpoch() & 0xffffffff);
     newProtocolSequence = 0x00a0;
+    newProtocolControlCounter = 0x06;
 
     writeNewProtocolCommand(QByteArray::fromHex("01b3312f31ff6134633664323438353566623930376300"),
                             QStringLiteral("new protocol device id"));
