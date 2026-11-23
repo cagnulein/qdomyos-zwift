@@ -783,12 +783,24 @@ void ftmsbike::update() {
                 settings.value(QZSettings::gears_custom_table_enabled,
                                QZSettings::default_gears_custom_table_enabled).toBool()
                     ? 0 : static_cast<resistance_t>(gearsModifier() * gearMultiplier);
-            // bike::changeResistance() already includes the gear modifier in
-            // requestResistance. The BI9200 must not apply it a second time.
-            // Keep the legacy gear-only QZ UI path when there is no request.
+            // bike::changeResistance() already included the gear modifier.
+            // Preserve the latest Zwift grade's base so that on-screen QZ
+            // gear-only changes use the same scale instead of a second *5.
+            const bool physicalGearResistanceMode = physicalGearFeatureEnabled && resistance_lvl_mode;
+            if (physicalGearResistanceMode && requestResistance != -1) {
+                lastPhysicalGearAutomaticBase =
+                    requestResistance - static_cast<resistance_t>(applyGearModifier() ? gearsModifier() : 0);
+            } else if (physicalGearResistanceMode && (!virtualBike || !virtualBike->ftmsDeviceConnected())) {
+                lastPhysicalGearAutomaticBase = -1;
+            }
             resistance_t rR = effectiveRequestedResistance(
                 requestResistance, additionalGearResistance,
-                physicalGearFeatureEnabled && resistance_lvl_mode && requestResistance != -1);
+                physicalGearResistanceMode && requestResistance != -1);
+            if (physicalGearResistanceMode && requestResistance == -1 &&
+                lastPhysicalGearAutomaticBase >= 0 && virtualBike && virtualBike->ftmsDeviceConnected()) {
+                rR = lastPhysicalGearAutomaticBase +
+                     static_cast<resistance_t>(applyGearModifier() ? gearsModifier() : 0);
+            }
 
             if (rR != currentResistance().value() || lastGearValue != gears()) {
                 bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
@@ -1877,6 +1889,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 // A runtime opt-out must not leave a pending shift or stale baseline.
                 lastPhysicalGearResistance = -1;
                 lastPhysicalGearTarget = -1;
+                lastPhysicalGearAutomaticBase = -1;
                 pendingPhysicalGearEchoTarget = -1;
                 pendingPhysicalGearEchoStart = -1;
                 lastPhysicalGearCommandWasResistance = false;
@@ -2520,6 +2533,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         lastPhysicalGearResistance = -1;
         lastPhysicalGearControlCommand = QDateTime();
         lastPhysicalGearTarget = -1;
+        lastPhysicalGearAutomaticBase = -1;
         pendingPhysicalGearEchoTarget = -1;
         pendingPhysicalGearEchoStart = -1;
         lastPhysicalGearCommandWasResistance = false;
