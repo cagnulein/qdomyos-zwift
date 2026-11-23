@@ -29,6 +29,7 @@ public:
     void handleZwiftGear(const QByteArray &array);
     double currentGear();
     QByteArray gearStatusResponse() const;
+    QByteArray gearAckResponse(const QByteArray &ratioBytes) const;
     qint64 hubRidingDataIdleMs() const;
     QByteArray buildCurrentHubRidingData();
 
