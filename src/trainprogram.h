@@ -116,6 +116,8 @@ class trainprogram : public QObject {
     trainrow getRowFromCurrent(uint32_t offset);
     void increaseElapsedTime(int32_t i);
     void decreaseElapsedTime(int32_t i);
+    // Seek only within a purely time-based workout; never skip distance/lap/HR steps.
+    bool seekToElapsedSeconds(int seconds);
     void goToPreviousRow();
     void applyCurrentStepSettings();
     int currentRowIndex() const { return currentStep; }
