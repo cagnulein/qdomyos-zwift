@@ -90,6 +90,15 @@ class ftmsbike : public bike {
                                             qint64 millisecondsSinceControlCommand,
                                             const PhysicalResistanceGearLimits &limits, resistance_t *delta);
     static bool shouldReplayPhysicalGearChange(bool featureEnabled, bool physicalShiftPending);
+    static bool isExpectedResistanceCommandEcho(resistance_t nativeLevel, resistance_t levelBeforeCommand,
+                                               resistance_t targetLevel, qint64 millisecondsSinceCommand,
+                                               qint64 echoGuardMs);
+    static bool shouldWriteResistanceTarget(resistance_t targetLevel, resistance_t previousTargetLevel,
+                                           resistance_t nativeLevel);
+    static QByteArray ftmsResistanceTargetPacket(resistance_t targetLevel, resistance_t minimumLevel,
+                                                 resistance_t maximumLevel);
+    static resistance_t effectiveRequestedResistance(resistance_t request, resistance_t additionalGearResistance,
+                                                     bool alreadyIncludesGear);
     bool connected() override;
 
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
@@ -208,6 +217,12 @@ class ftmsbike : public bike {
     // BI9200 FTMS resistance notifications can represent physical handlebar shifts.
     resistance_t lastPhysicalGearResistance = -1;
     QDateTime lastPhysicalGearControlCommand;
+    // Last desired native level prevents repeated 0x04 writes on every Zwift slope update.
+    resistance_t lastPhysicalGearTarget = -1;
+    // Suppress only telemetry belonging to the current command, not every
+    // native shift during the following 3 seconds.
+    resistance_t pendingPhysicalGearEchoTarget = -1;
+    resistance_t pendingPhysicalGearEchoStart = -1;
     bool physicalGearChangePending = false;
 
     inclinationResistanceTable _inclinationResistanceTable;
