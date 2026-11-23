@@ -75,9 +75,11 @@ import AndroidStatusBar 1.0
         // The search a result was opened from: back returns to it
         property var searchReturn: null
         // Modern look: the search bar stays on top of the page; once it has scrolled off the top
-        // the toolbar shows its search button, which brings the bar back (main.qml)
+        // the toolbar shows its search button, which brings the bar back (main.qml). The bottom of
+        // the field, not of the row: the row ends with the empty bottom inset of the "Changed"
+        // button, and a short list of results stops scrolling with only that inset still in view
         readonly property bool searchBarScrolledAway: window.ui.modern && contentItem !== null &&
-            contentItem.contentY > settingsSearchBar.y + settingsSearchBar.height
+            contentItem.contentY > settingsSearchBar.y + settingsSearchTextField.y + settingsSearchTextField.height
         // The glow of the last jump: gone at once when back returns to the results
         property var activeGlow: null
         // Set while back puts the old query into the field: its onTextChanged must not search
