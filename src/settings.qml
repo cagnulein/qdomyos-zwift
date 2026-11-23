@@ -3134,7 +3134,8 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                         Layout.minimumWidth: 0
                         Layout.preferredWidth: width
-                        Layout.preferredHeight: implicitHeight
+                        // Classic look: from the layout's own implicitHeight, as before
+                        Layout.preferredHeight: window.ui.modern ? implicitHeight : searchResultContent.implicitHeight + 8
                         implicitWidth: width
                         // Modern look: the Reset button of "Changed" makes the title row 48 px high,
                         // the title sits in its middle, and 12 on top of that looked like a gap: 6
