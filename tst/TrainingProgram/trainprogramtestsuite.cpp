@@ -98,3 +98,28 @@ void TrainProgramTestSuite::test_pidHrModeAndMaxInclinationRoundTripThroughXml()
     EXPECT_EQ(loaded.first().pidHrMode, treadmill_pid_hr_mode::Inclination);
     EXPECT_DOUBLE_EQ(loaded.first().maxInclination, 12.5);
 }
+
+void TrainProgramTestSuite::test_ziproShredHighInclineXmlValuesArePreserved() {
+    QTemporaryDir temporaryDir;
+    ASSERT_TRUE(temporaryDir.isValid());
+    QList<trainrow> rows;
+    for (double incline : {5.0, 15.0, 22.0, 25.0, 40.0}) {
+        trainrow row;
+        row.duration = QTime(0, 0, 30);
+        row.speed = 3.0;
+        row.inclination = incline;
+        row.zoneHR = 0;
+        row.forcespeed = true;
+        rows.append(row);
+    }
+    const QString filename = temporaryDir.filePath(QStringLiteral("zipro-shred-high-incline.xml"));
+    ASSERT_TRUE(trainprogram::saveXML(filename, rows, TREADMILL));
+    const QList<trainrow> loaded = trainprogram::loadXML(filename, TREADMILL);
+    ASSERT_EQ(loaded.size(), rows.size());
+    for (int i = 0; i < rows.size(); ++i) {
+        EXPECT_DOUBLE_EQ(loaded.at(i).inclination, rows.at(i).inclination);
+        EXPECT_DOUBLE_EQ(loaded.at(i).speed, 3.0);
+        EXPECT_TRUE(loaded.at(i).forcespeed);
+        EXPECT_EQ(loaded.at(i).zoneHR, 0);
+    }
+}

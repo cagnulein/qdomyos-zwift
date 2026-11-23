@@ -1765,9 +1765,8 @@ Page {
                         // look); modern look: Refresh beside it, as on the heart rate step
                         Layout.fillWidth: true
                         Layout.topMargin: window.ui.modern ? 12 : 0
-                        ValueComboBox {
+                        DeviceComboBox {
                             id: filterDeviceTextField
-                            model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             value: settings.filter_device
                             Layout.fillHeight: false
@@ -2166,9 +2165,8 @@ Page {
                         Layout.fillWidth: true
                         Layout.topMargin: window.ui.modern ? 12 : 0
 
-                        ValueComboBox {
+                        DeviceComboBox {
                             id: heartBeltNameTextField
-                            model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             value: settings.heart_rate_belt_name
                             Layout.fillHeight: false

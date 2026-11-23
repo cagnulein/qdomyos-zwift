@@ -27,8 +27,8 @@ ColumnLayout {
     property var selectedFileUrl: ""
     property bool isSearching: false
 
-    // Modern look: a filled search field, the workouts as cards and pill buttons; the classic
-    // look keeps its list and buttons
+    // Modern look: a filled search field, the workouts as cards, pill buttons and the
+    // preview page in the app theme; the classic look keeps its list and buttons
     readonly property int modernMargin: Math.max(16, window.contentSideMargin)
 
     Connections {
@@ -218,7 +218,7 @@ ColumnLayout {
                                 isSearching = false
                             } else {
                                 // Trigger recursive C++ search
-                                var baseFolder = "file://" + rootItem.getWritableAppDir() + 'training'
+                                var baseFolder = rootItem.getWritableAppDir() + 'training'
                                 searchRecursively(baseFolder, text)
                             }
                         }
@@ -299,7 +299,7 @@ ColumnLayout {
                         FolderListModel {
                             id: folderModel
                             nameFilters: ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr"]
-                            folder: "file://" + rootItem.getWritableAppDir() + 'training'
+                            folder: rootItem.localFileUrl(rootItem.getWritableAppDir() + 'training')
                             showDotAndDotDot: false
                             showDirs: true
                             sortField: "Name"
@@ -815,12 +815,20 @@ ColumnLayout {
                             Layout.margins: 5
                             Layout.leftMargin: 5
                             Layout.rightMargin: window.ui.modern ? programsPage.modernMargin : 5
+                            // modern look: the chart card right under the buttons (15 to the pill: the
+                            // inset of the pill in its button and the spacing), not 28 with this margin
+                            Layout.bottomMargin: window.ui.modern ? 0 : 5
                             sourceComponent: detailButtons
                         }
 
                         Item {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
+                            // Modern look: the chart card 16 from the sides of the page, as the cards of
+                            // the other pages (the web page draws the card edge to edge); side by side
+                            // 8 from the text column - its spacing 6 and 2 here
+                            Layout.leftMargin: window.ui.modern ? (detailBody.split ? 2 : programsPage.modernMargin) : 0
+                            Layout.rightMargin: window.ui.modern ? programsPage.modernMargin : 0
 
                             // Modern look: the native view is white until the page is loaded, so it is
                             // kept hidden till then, as in WorkoutEditor.qml. It is also drawn above every
@@ -835,16 +843,26 @@ ColumnLayout {
                                 id: previewWebView
                                 anchors.fill: parent
                                 visible: !window.ui.modern || (pageLoaded && !deleteDialog.visible)
-                                // modern look: the page colour for the frame around the chart, so it merges
-                                // with the page; the classic look keeps the dark frame of the page
+                                // modern look: the page in the app theme (qz-theme-bridge.js), so the frame
+                                // merges with the page; the classic look keeps the dark frame of the page.
+                                // The theme reaches the page in the URL fragment; a later change of the theme
+                                // only moves the fragment (no reload), so it also goes through runJavaScript.
+                                // Switching the modern look off drops the fragment and loads the page again,
+                                // which asks for its program itself (below)
                                 url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
-                                    + (window.ui.modern ? "?bg=" + encodeURIComponent(String(window.ui.bg)) : "")
+                                    + window.ui.webThemeFragment()
                                 property bool pageLoaded: false
+                                // null (the modern look switched off) takes the theme off the page
+                                readonly property var pageTheme: window.ui.webTheme
+                                onPageThemeChanged: if (pageLoaded) runJavaScript(window.ui.webThemeScript())
                                 // a failed load is shown too: the page tells why, not an endless spinner
                                 onLoadingChanged: {
                                     if (loadRequest.status === WebView.LoadSucceededStatus
-                                            || loadRequest.status === WebView.LoadFailedStatus)
+                                            || loadRequest.status === WebView.LoadFailedStatus) {
                                         pageLoaded = true
+                                        if (pageTheme)
+                                            runJavaScript(window.ui.webThemeScript())
+                                    }
                                 }
 
                                 // a new app language: the page takes its texts when loaded and asks the server

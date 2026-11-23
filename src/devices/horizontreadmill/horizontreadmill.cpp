@@ -1014,8 +1014,12 @@ void horizontreadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
-            if (!adidas_treadmill && (!FS_TREADMILL || !areInclinationSettingsDefault())) {
-                requestInclination = treadmillInclinationOverrideReverse(requestInclination);
+            // The generic override table only covers 0..15%. Do not clamp ZIPRO Shred's
+            // higher FTMS grades through the reverse lookup.
+            if (!adidas_treadmill && (!FS_TREADMILL || !areInclinationSettingsDefault()) &&
+                !(zipro_shred_treadmill && requestInclination > 15.0)) {
+                requestInclination = treadmillInclinationOverrideReverse(requestInclination,
+                                                                          ks_esp_treadmill ? maxInclination : 15.0);
             }
 
             // this treadmill doesn't send the incline, so i'm forcing it manually
@@ -1633,6 +1637,35 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
+
+    // Run BT-* treadmills report physical console actions through the FTMS
+    // Fitness Machine Status characteristic. These existing treadmill signals
+    // are connected to HomeForm's Start/Pause/StopFromDevice slots.
+    if (run_bt_treadmill && characteristic.uuid() == QBluetoothUuid((quint16)0x2ADA)) {
+        if (newValue.size() == 1 && (uint8_t)newValue.at(0) == 0x04) {
+            // A genuine FTMS Start/Resume supersedes the one-time speed fallback.
+            runBtInitialStartPending = false;
+            if (isPaused()) {
+                emit debug(QStringLiteral("RUN BT- FTMS physical Start/Resume"));
+                emit buttonHWStart();
+            }
+        } else if (newValue.size() == 2 && (uint8_t)newValue.at(0) == 0x02) {
+            // Fitness Machine Stopped or Paused by User.
+            if ((uint8_t)newValue.at(1) == 0x01) {
+                // Do not start another session from speed after a definitive Stop.
+                runBtInitialStartPending = false;
+                emit debug(QStringLiteral("RUN BT- FTMS physical Stop"));
+                emit buttonHWStop();
+            } else if ((uint8_t)newValue.at(1) == 0x02) {
+                // Subsequent resumes must use the explicit FTMS 0x04 event.
+                runBtInitialStartPending = false;
+                if (!isPaused()) {
+                    emit debug(QStringLiteral("RUN BT- FTMS physical Pause"));
+                    emit buttonHWPause();
+                }
+            }
+        }
+    }
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4)) {
         if (newValue.at(0) == 0x55 && newValue.length() > 7) {
@@ -2741,6 +2774,11 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     {
         QSettings settings;
         bluetoothDevice = device;
+        ks_esp_treadmill = device.name().toUpper().startsWith(QStringLiteral("KS-ESP-"));
+        if (ks_esp_treadmill) {
+            maxInclination = 25.0;
+            qDebug() << QStringLiteral("KS-ESP treadmill: 25% max inclination");
+        }
         JFTM_T202 = device.name().toUpper().startsWith(QStringLiteral("JFTM T202"));
         SW3925EAI_TREADMILL = device.name().toUpper().startsWith(QStringLiteral("SW3925EAI-"));
         if (SW3925EAI_TREADMILL) {
@@ -2787,6 +2825,10 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             minInclination = -6.0;
             maxInclination = 40.0;
             qDebug() << QStringLiteral("ADIDAS TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("SHRED"))) {
+            zipro_shred_treadmill = true;
+            maxInclination = 40.0;
+            qDebug() << QStringLiteral("ZIPRO SHRED TREADMILL 40% inclination enabled");
         } else if (device.name().toUpper().startsWith(QStringLiteral("S77"))) {
             sole_s77_treadmill = true;
             qDebug() << QStringLiteral("SOLE S77 TREADMILL workaround ON!");
@@ -2825,7 +2867,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             if(domyos_treadmill_ts100) {
                 qDebug() << QStringLiteral("Domyos TS100 mode ON - Fixed 15° inclination");
             }
-        } else if ((device.name().toUpper().startsWith(QStringLiteral("BFX_T9_")))) {
+        } else if ((device.name().toUpper().startsWith(QStringLiteral("BFX_T9")))) {
             qDebug() << QStringLiteral("BOWFLEX T9 found");
             BOWFLEX_T9 = true;
         } else if ((device.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")))) {
@@ -2984,6 +3026,9 @@ int horizontreadmill::GenerateCRC_CCITT(uint8_t *PUPtr8, int PU16_Count, int crc
 }
 
 bool horizontreadmill::autoPauseWhenSpeedIsZero() {
+    // RUN BT- uses explicit FTMS console events instead of zero-speed heuristics.
+    if (run_bt_treadmill)
+        return false;
     if(disableAutoPause == true)
         return false;
 
@@ -3000,6 +3045,23 @@ bool horizontreadmill::autoPauseWhenSpeedIsZero() {
 }
 
 bool horizontreadmill::autoStartWhenSpeedIsGreaterThenZero() {
+    if (run_bt_treadmill) {
+        // RUN BT- does not send FTMS 0x04 for the first physical Start.
+        // HomeForm polls this method even at zero speed, so require an observed
+        // zero -> positive transition and consume it just once per connection.
+        // Do not use speed for later Pause/Resume cycles or after Stop.
+        if (!runBtInitialStartPending)
+            return false;
+        if (currentSpeed().value() <= 0.0) {
+            runBtSeenZeroSpeed = true;
+            return false;
+        }
+        if (!runBtSeenZeroSpeed)
+            return false;
+        runBtInitialStartPending = false;
+        emit debug(QStringLiteral("RUN BT- initial belt motion: starting QZ workout"));
+        return true;
+    }
     QSettings settings;
     bool horizon_treadmill_omega_z =
         settings.value(QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z).toBool();

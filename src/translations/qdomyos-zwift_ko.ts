@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ko_KR">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>닫기</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -426,6 +433,14 @@ Roberto Viola</translation>
     <message>
         <source>Not connecting?</source>
         <translation>연결되지 않나요?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>운동 기구를 찾을 수 없습니다</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>자전거, 트레드밀 또는 로잉 머신의 전원을 켠 다음 상단의 Bluetooth 아이콘을 눌러 다시 검색하세요.</translation>
     </message>
 </context>
 <context>
@@ -1189,6 +1204,10 @@ QZ 설정을 업데이트하시겠습니까?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>YPOO M5 초기화에 실패했습니다. 다시 연결해야 합니다</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S 연결됨!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1407,6 +1426,21 @@ QZ 설정을 업데이트하시겠습니까?</translation>
     <message>
         <source>Open email</source>
         <translation>이메일 열기</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>구매 중...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>구매 완료</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>구매 실패</translation>
     </message>
 </context>
 <context>
@@ -2259,6 +2293,11 @@ QZ 설정을 업데이트하시겠습니까?</translation>
     <message>
         <source>Inclination (%)</source>
         <translation>경사도 (%)</translation>
+    </message>
+    <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>한 차트에:</translation>
     </message>
     <message>
         <source>Avg Output</source>
@@ -3368,6 +3407,10 @@ This may take a few moments on first startup.</source>
         <translation>날짜로 필터</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>캘린더</translation>
+    </message>
+    <message>
         <source>Import workouts</source>
         <translation>운동 가져오기</translation>
     </message>
@@ -3386,6 +3429,18 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Copying workout files: %1 of %2</source>
         <translation>운동 파일 복사 중: %1/%2</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>이 날에는 운동이 없습니다</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>아직 운동이 없습니다</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>완료한 운동이 여기에 표시됩니다. 운동을 열면 그래프를 볼 수 있습니다.</translation>
     </message>
     <message>
         <source>Open on Peloton</source>
@@ -3602,6 +3657,10 @@ This may take a few moments on first startup.</source>
 </context>
 <context>
     <name>homeform</name>
+    <message>
+        <source>No enabled metrics</source>
+        <translation>활성화된 지표가 없습니다</translation>
+    </message>
     <message>
         <source>Speed (%1/h)</source>
         <translation>속도 (%1/h)</translation>
@@ -4189,6 +4248,10 @@ This may take a few moments on first startup.</source>
         <translation>기기를 검색하는 중…</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>%1에 연결하는 중…</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>%1 찾음</translation>
     </message>
@@ -4541,9 +4604,17 @@ This may take a few moments on first startup.</source>
         <source>Unable to open an email application</source>
         <translation>이메일 앱을 열 수 없습니다</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth가 꺼져 있습니다</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>플로팅 지표 (화면 속 화면)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -5138,6 +5209,26 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
 
 [아니요]: QZ가 [휠 지름 없는 프로토콜]을 켜고([설정] &gt; [자전거 옵션] &gt; [Wahoo 옵션]), 가상 기어는 경사를 통해 작동합니다. [예]를 선택하면 나중에 같은 곳에서 되돌릴 수 있습니다. 이 옵션을 켜고 트레이너가 연결된 상태에서 [트레이너 기본 설정 복원]을 누르세요.</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>가상 기기(%1)가 활성화되었습니다. 의도한 설정이 아니라면 설정에서 비활성화하세요.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>자전거</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>러닝머신</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>일립티컬</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>로잉머신</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -5510,6 +5601,30 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>운동 기록에서 이 그래프의 순서입니다. 순서는 일반 UI 옵션의 위로/아래로 버튼으로 바꿉니다.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>설정을 초기화했습니다</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>초기화한 설정: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>모두 초기화</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>변경된 설정을 초기화하시겠습니까?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>기본값으로 돌아갈 설정: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>초기화</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -8666,6 +8781,14 @@ Please enter it below:</source>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation>Strava 가상 활동 태그</translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Strava 합성 GPS 경로</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>GPS가 없는 가상 활동에 합성 GPS 경로를 기록합니다. Strava에 누적 상승고도가 표시될 수 있지만 실제 경로는 아닙니다.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

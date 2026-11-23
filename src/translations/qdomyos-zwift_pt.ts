@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="pt_PT">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Fechar</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -426,6 +433,14 @@ Roberto Viola</translation>
     <message>
         <source>Not connecting?</source>
         <translation>Não conecta?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Equipamento não encontrado</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Ligue a bicicleta, a esteira ou o remo e toque no ícone Bluetooth no topo para procurar de novo.</translation>
     </message>
 </context>
 <context>
@@ -1189,6 +1204,10 @@ Deseja atualizar as configurações do QZ?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>Falha ao inicializar a YPOO M5; é necessário reconectar</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S conectado!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1407,6 +1426,21 @@ Deseja atualizar as configurações do QZ?</translation>
     <message>
         <source>Open email</source>
         <translation>Abrir e-mail</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Comprando...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Compra concluída</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Falha na compra</translation>
     </message>
 </context>
 <context>
@@ -2311,6 +2345,11 @@ Deseja atualizar as configurações do QZ?</translation>
     <message>
         <source>Inclination (%)</source>
         <translation>Inclinação (%)</translation>
+    </message>
+    <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>Em um gráfico:</translation>
     </message>
     <message>
         <source>Avg Output</source>
@@ -3332,6 +3371,22 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <translation>Sequência de %1 dia</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Calendário</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Sem treinos neste dia</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Ainda sem treinos</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Os treinos concluídos aparecem aqui: abra um para ver os gráficos.</translation>
+    </message>
+    <message>
         <source>Personal best: %1 days</source>
         <translation>Recorde pessoal: %1 dias</translation>
     </message>
@@ -3602,6 +3657,10 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
 </context>
 <context>
     <name>homeform</name>
+    <message>
+        <source>No enabled metrics</source>
+        <translation>Nenhuma métrica ativada</translation>
+    </message>
     <message>
         <source>Speed (%1/h)</source>
         <translation>Velocidade (%1/h)</translation>
@@ -4261,6 +4320,10 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <translation>Procurando o dispositivo...</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Conectando a %1...</translation>
+    </message>
+    <message>
         <source>Search stopped, tap the Bluetooth icon</source>
         <translation>Pesquisa parada, toque no ícone Bluetooth</translation>
     </message>
@@ -4549,9 +4612,17 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <source>Unable to open an email application</source>
         <translation>Não foi possível abrir uma aplicação de e-mail</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>O Bluetooth está desligado</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Métricas flutuantes (imagem sobre imagem)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -5145,6 +5216,26 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
 Permitir que o QZ altere esse valor?
 
 “Não”: o QZ ativa “Sem protocolo de diâmetro da roda” (Configurações &gt; Opções de Bicicleta &gt; Opções Wahoo), e as marchas virtuais funcionam pela inclinação. Com “Sim”, você pode desfazer isso depois no mesmo lugar: ative essa opção e, com o rolo conectado, toque em “Restaurar a configuração padrão no rolo”.</translation>
+    </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>O dispositivo simulado (%1) está ativo. Se não foi intencional, desative-o nas Definições.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Bicicleta</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Passadeira</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Elíptica</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Máquina de remo</translation>
     </message>
 </context>
 <context>
@@ -7337,6 +7428,30 @@ Permitir que o QZ altere esse valor?
         <translation>Posição deste gráfico no histórico de treinos. A ordem é alterada com os botões para cima e para baixo em Opções gerais da interface.</translation>
     </message>
     <message>
+        <source>Setting reset</source>
+        <translation>Configuração redefinida</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Configurações redefinidas: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Redefinir tudo</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Redefinir configurações alteradas?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Configurações que voltam aos valores padrão: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Redefinir</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Escolha Automático para seguir o idioma do seu dispositivo, ou selecione um idioma específico para QZ.</translation>
     </message>
@@ -8610,6 +8725,14 @@ Insira-o abaixo:</translation>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation>Tag de atividade virtual do Strava</translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Trajeto GPS sintético no Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Adiciona um trajeto GPS sintético a atividades virtuais sem GPS. O Strava poderá mostrar o ganho de elevação, mas o percurso não é real.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

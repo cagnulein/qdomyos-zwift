@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ja_JP">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>閉じる</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -426,6 +433,14 @@ Roberto Viola</translation>
     <message>
         <source>Not connecting?</source>
         <translation>接続できませんか？</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>機器が見つかりません</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>バイク、トレッドミル、またはローイングマシンの電源を入れ、上部のBluetoothアイコンをタップして再検索してください。</translation>
     </message>
 </context>
 <context>
@@ -1189,6 +1204,10 @@ QZの設定を更新しますか?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>YPOO M5の初期化に失敗しました。再接続が必要です</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach Sに接続しました！</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1407,6 +1426,21 @@ QZの設定を更新しますか?</translation>
     <message>
         <source>Open email</source>
         <translation>メールを開く</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>購入処理中...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>購入が完了しました</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>購入に失敗しました</translation>
     </message>
 </context>
 <context>
@@ -2311,6 +2345,11 @@ QZの設定を更新しますか?</translation>
     <message>
         <source>Inclination (%)</source>
         <translation>傾斜度 (%)</translation>
+    </message>
+    <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>1つのグラフに:</translation>
     </message>
     <message>
         <source>Avg Output</source>
@@ -3332,6 +3371,22 @@ This may take a few moments on first startup.</source>
         <translation>%1日連続</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>カレンダー</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>この日のワークアウトはありません</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>まだワークアウトはありません</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>完了したワークアウトがここに表示されます。開くとグラフを確認できます。</translation>
+    </message>
+    <message>
         <source>Personal best: %1 days</source>
         <translation>自己ベスト: %1日</translation>
     </message>
@@ -3602,6 +3657,10 @@ This may take a few moments on first startup.</source>
 </context>
 <context>
     <name>homeform</name>
+    <message>
+        <source>No enabled metrics</source>
+        <translation>有効な指標はありません</translation>
+    </message>
     <message>
         <source>Speed (%1/h)</source>
         <translation>速度 (%1/h)</translation>
@@ -4265,6 +4324,10 @@ This may take a few moments on first startup.</source>
         <translation>機器を検索しています...</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>%1 に接続中...</translation>
+    </message>
+    <message>
         <source>Search stopped, tap the Bluetooth icon</source>
         <translation>検索を停止しました。Bluetoothアイコンをタップしてください</translation>
     </message>
@@ -4553,9 +4616,17 @@ This may take a few moments on first startup.</source>
         <source>Unable to open an email application</source>
         <translation>メールアプリを開けませんでした</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetoothがオフです</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>フローティング指標（ピクチャ・イン・ピクチャ）</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -5149,6 +5220,26 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
 QZ がこの値を変更することを許可しますか？
 
 「いいえ」：QZ が「簡易Wahoo互換プロトコルを使用」をオンにし（設定 &gt; バイク設定 &gt; Wahooスマートトレーナー連携設定）、バーチャルギアは勾配を通じて動作します。「はい」を選んだ場合は、後で同じ場所で元に戻せます：この設定をオンにし、トレーナーを接続した状態で「トレーナーをデフォルト設定に戻す」をタップしてください。</translation>
+    </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>仮想デバイス（%1）が有効です。意図した設定でない場合は、設定から無効にしてください。</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>バイク</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>トレッドミル</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>エリプティカル</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>ローイングマシン</translation>
     </message>
 </context>
 <context>
@@ -7237,6 +7328,30 @@ QZ がこの値を変更することを許可しますか？
         <translation>アプリ言語:</translation>
     </message>
     <message>
+        <source>Setting reset</source>
+        <translation>設定をリセットしました</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>リセットした設定: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>すべてリセット</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>変更した設定をリセットしますか？</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>既定値に戻る設定: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>リセット</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>デバイスの言語設定に従う場合は「自動（システム）」を選択するか、QZ用の特定の言語を選択してください。</translation>
     </message>
@@ -9098,6 +9213,14 @@ Please enter it below:</source>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation>Strava バーチャルアクティビティタグ</translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Strava 用の合成 GPS トラック</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>GPS のないバーチャルアクティビティに合成 GPS トラックを書き込みます。Strava で獲得標高が表示される可能性がありますが、ルートは実在しません。</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

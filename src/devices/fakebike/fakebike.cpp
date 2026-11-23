@@ -3,6 +3,7 @@
 #include "virtualdevices/virtualbike.h"
 
 #include <QBluetoothLocalDevice>
+#include <QCoreApplication>
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
@@ -27,6 +28,14 @@ fakebike::fakebike(bool noWriteResistance, bool noHeartService, bool noVirtualDe
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &fakebike::update);
     refresh->start(200ms);
+
+    QTimer::singleShot(5000, this, []() {
+        if (homeform::singleton()) {
+            homeform::singleton()->setToastRequested(
+                QCoreApplication::translate("main", "Fake device (%1) is active. If this was unintentional, disable it in Settings.")
+                    .arg(QCoreApplication::translate("main", "Bike")));
+        }
+    });
 }
 
 void fakebike::update() {

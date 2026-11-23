@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="fr_FR">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Fermer</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -426,6 +433,14 @@ Roberto Viola</translation>
     <message>
         <source>Not connecting?</source>
         <translation>Pas de connexion ?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Appareil introuvable</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Allumez votre vélo, tapis de course ou rameur, puis touchez l’icône Bluetooth en haut pour relancer la recherche.</translation>
     </message>
 </context>
 <context>
@@ -1189,6 +1204,10 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>Échec de l&apos;initialisation du YPOO M5 ; reconnexion nécessaire</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S connecté !</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1407,6 +1426,21 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
     <message>
         <source>Open email</source>
         <translation>Ouvrir l’e-mail</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Achat en cours...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Achat réussi</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Échec de l’achat</translation>
     </message>
 </context>
 <context>
@@ -2313,6 +2347,11 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
         <translation>Pente (%)</translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>Sur un graphique :</translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation>Puissance moyenne</translation>
@@ -2942,7 +2981,7 @@ Les questions suivantes personnaliseront QZ pour votre équipement et vos object
     </message>
     <message>
         <source>Zwift Click</source>
-        <translation>Zwift Clic</translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
         <source>Enabled</source>
@@ -3332,6 +3371,22 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
         <translation>Série de %1 jour</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Calendrier</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Aucun entraînement ce jour-là</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Aucun entraînement pour l’instant</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Les entraînements terminés apparaissent ici : ouvrez-en un pour voir ses graphiques.</translation>
+    </message>
+    <message>
         <source>Personal best: %1 days</source>
         <translation>Record personnel : %1 jours</translation>
     </message>
@@ -3602,6 +3657,10 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
 </context>
 <context>
     <name>homeform</name>
+    <message>
+        <source>No enabled metrics</source>
+        <translation>Aucune mesure activée</translation>
+    </message>
     <message>
         <source>Speed (%1/h)</source>
         <translation>Vitesse (%1/h)</translation>
@@ -4261,6 +4320,10 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
         <translation>Recherche de l’appareil...</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Connexion à %1...</translation>
+    </message>
+    <message>
         <source>Search stopped, tap the Bluetooth icon</source>
         <translation>Recherche arrêtée, touchez l’icône Bluetooth</translation>
     </message>
@@ -4549,9 +4612,17 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
         <source>Unable to open an email application</source>
         <translation>Impossible d’ouvrir une application de messagerie</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth désactivé</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Mesures flottantes (image dans l’image)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -5145,6 +5216,26 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
 Autoriser QZ à modifier cette valeur ?
 
 « Non » : QZ active « Sans protocole de diamètre de roue » (Paramètres &gt; Options de vélo &gt; Options Wahoo) et les vitesses virtuelles passent par la pente. Avec « Oui », vous pourrez l&apos;annuler plus tard au même endroit : activez cette option puis, avec le home trainer connecté, appuyez sur « Restaurer les réglages par défaut du home trainer ».</translation>
+    </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>L&apos;appareil simulé (%1) est actif. Si ce n&apos;était pas voulu, désactivez-le dans les paramètres.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Vélo</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Tapis de course</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Vélo elliptique</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Rameur</translation>
     </message>
 </context>
 <context>
@@ -7229,6 +7320,30 @@ Autoriser QZ à modifier cette valeur ?
         <translation>Langue de l&apos;application :</translation>
     </message>
     <message>
+        <source>Setting reset</source>
+        <translation>Paramètre réinitialisé</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Paramètres réinitialisés : %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Tout réinitialiser</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Réinitialiser les paramètres modifiés ?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Paramètres qui reviennent à leurs valeurs par défaut : %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Réinitialiser</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Choisissez Auto pour suivre la langue de votre appareil, ou sélectionnez une langue spécifique pour QZ.</translation>
     </message>
@@ -8892,6 +9007,14 @@ Veuillez le saisir ci-dessous :</translation>
         <translation>Étiquette d&apos;activité virtuelle Strava</translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Tracé GPS synthétique Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Ajoute un tracé GPS synthétique aux activités virtuelles sans GPS. Strava peut alors afficher le dénivelé, mais l&apos;itinéraire est fictif.</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation>Ajouter le tag virtuel à l&apos;activité Strava</translation>
     </message>
@@ -9725,7 +9848,7 @@ Par défaut : A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Zwift Click</source>
-        <translation>Zwift Clic</translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
         <source>Use it to change the gears on QZ!</source>

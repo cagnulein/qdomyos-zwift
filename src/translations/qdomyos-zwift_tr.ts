@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="tr_TR">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Kapat</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -426,6 +433,14 @@ Roberto Viola</translation>
     <message>
         <source>Not connecting?</source>
         <translation>Bağlanmıyor mu?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Cihaz bulunamadı</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Bisikletinizi, koşu bandınızı veya kürek makinenizi açın, ardından yeniden aramak için üstteki Bluetooth simgesine dokunun.</translation>
     </message>
 </context>
 <context>
@@ -1189,6 +1204,10 @@ QZ ayarları güncellensin mi?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>YPOO M5 başlatılamadı; yeniden bağlanmak gerekiyor</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S bağlandı!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1407,6 +1426,21 @@ QZ ayarları güncellensin mi?</translation>
     <message>
         <source>Open email</source>
         <translation>E-postayı aç</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Satın alınıyor...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Satın alma başarılı</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Satın alma başarısız</translation>
     </message>
 </context>
 <context>
@@ -2259,6 +2293,11 @@ QZ ayarları güncellensin mi?</translation>
     <message>
         <source>Inclination (%)</source>
         <translation>Eğim (%)</translation>
+    </message>
+    <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>Tek grafikte:</translation>
     </message>
     <message>
         <source>Avg Output</source>
@@ -3368,6 +3407,10 @@ This may take a few moments on first startup.</source>
         <translation>Tarihe göre filtrele</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Takvim</translation>
+    </message>
+    <message>
         <source>Import workouts</source>
         <translation>Antrenmanları içe aktar</translation>
     </message>
@@ -3386,6 +3429,18 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Copying workout files: %1 of %2</source>
         <translation>Antrenman dosyaları kopyalanıyor: %1 / %2</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Bu gün antrenman yok</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Henüz antrenman yok</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Tamamlanan antrenmanlar burada görünür: grafiklerini görmek için birini açın.</translation>
     </message>
     <message>
         <source>Open on Peloton</source>
@@ -3602,6 +3657,10 @@ This may take a few moments on first startup.</source>
 </context>
 <context>
     <name>homeform</name>
+    <message>
+        <source>No enabled metrics</source>
+        <translation>Etkin ölçüm yok</translation>
+    </message>
     <message>
         <source>Speed (%1/h)</source>
         <translation>Hız (%1/h)</translation>
@@ -4189,6 +4248,10 @@ This may take a few moments on first startup.</source>
         <translation>Cihaz aranıyor…</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>%1 cihazına bağlanılıyor…</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>Bulundu: %1</translation>
     </message>
@@ -4541,9 +4604,17 @@ This may take a few moments on first startup.</source>
         <source>Unable to open an email application</source>
         <translation>Bir e-posta uygulaması açılamadı</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth kapalı</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Yüzen ölçümler (resim içinde resim)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -5138,6 +5209,26 @@ QZ&apos;nin bu değeri değiştirmesine izin verilsin mi?
 
 “Hayır”: QZ, “Tekerlek çapı protokolü olmadan” seçeneğini açar (Ayarlar &gt; Bisiklet seçenekleri &gt; Wahoo seçenekleri) ve sanal vitesler eğim üzerinden çalışır. “Evet” derseniz bunu daha sonra aynı yerden geri alabilirsiniz: bu seçeneği açın ve cihaz bağlıyken “Antrenman cihazının varsayılan ayarını geri yükle” düğmesine dokunun.</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Sanal cihaz (%1) etkin. Bunu istemediyseniz Ayarlar&apos;dan devre dışı bırakın.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Bisiklet</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Koşu bandı</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Eliptik bisiklet</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Kürek makinesi</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -5510,6 +5601,30 @@ QZ&apos;nin bu değeri değiştirmesine izin verilsin mi?
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>Bu grafiğin antrenman geçmişindeki sırası. Sıra, Genel arayüz seçeneklerindeki yukarı ve aşağı düğmeleriyle değiştirilir.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Ayar sıfırlandı</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Sıfırlanan ayarlar: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Tümünü sıfırla</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Değiştirilmiş ayarlar sıfırlansın mı?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Varsayılan değerlerine dönecek ayarlar: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Sıfırla</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -8668,6 +8783,14 @@ Kodu aşağıya girin:</translation>
         <translation>Strava sanal aktivite etiketi</translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Strava Sentetik GPS Rotası</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>GPS verisi olmayan sanal etkinliklere sentetik bir GPS rotası ekler. Strava irtifa kazanımını gösterebilir, ancak rota gerçek değildir.</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation>Strava aktivitesine sanal aktivite etiketi eklenir</translation>
     </message>
@@ -8837,7 +8960,7 @@ IMPORTANT NOTES:
     </message>
     <message>
         <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
-        <translation>QZ'de direnç değiştirildiğinde bisiklet yalnızca 1. seviyeye veya en yüksek seviyeye geçiyorsa etkinleştirin. FTMS direnç değerini 10 ile çarparak gönderir. Varsayılan: kapalı.</translation>
+        <translation>QZ&apos;de direnç değiştirildiğinde bisiklet yalnızca 1. seviyeye veya en yüksek seviyeye geçiyorsa etkinleştirin. FTMS direnç değerini 10 ile çarparak gönderir. Varsayılan: kapalı.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>

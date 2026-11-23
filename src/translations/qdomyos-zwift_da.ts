@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="da_DK">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Luk</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -410,6 +417,14 @@ Roberto Viola</translation>
     <message>
         <source>Not connecting?</source>
         <translation>Ingen forbindelse?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Træningsudstyret blev ikke fundet</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Tænd for cyklen, løbebåndet eller romaskinen, og tryk på Bluetooth-ikonet øverst for at søge igen.</translation>
     </message>
 </context>
 <context>
@@ -1173,6 +1188,10 @@ Vil du opdatere QZ-indstillingerne?</translation>
         <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
         <translation>%1 (pulssensor) blev ikke fundet. Sørg for, at den er tændt og udsender pulsmålinger.</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S tilsluttet!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1391,6 +1410,21 @@ Vil du opdatere QZ-indstillingerne?</translation>
     <message>
         <source>Open email</source>
         <translation>Åbn mail</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Gennemfører køb...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Købet er gennemført</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Købet mislykkedes</translation>
     </message>
 </context>
 <context>
@@ -2243,6 +2277,11 @@ Vil du opdatere QZ-indstillingerne?</translation>
     <message>
         <source>Inclination (%)</source>
         <translation>Hældning (%)</translation>
+    </message>
+    <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>I én graf:</translation>
     </message>
     <message>
         <source>Avg Output</source>
@@ -3352,6 +3391,10 @@ Det kan tage et øjeblik ved første start.</translation>
         <translation>Filtrer efter dato</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Kalender</translation>
+    </message>
+    <message>
         <source>Import workouts</source>
         <translation>Importér træningspas</translation>
     </message>
@@ -3370,6 +3413,18 @@ Det kan tage et øjeblik ved første start.</translation>
     <message>
         <source>Copying workout files: %1 of %2</source>
         <translation>Kopierer træningsfiler: %1 af %2</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Ingen træningspas denne dag</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Ingen træningspas endnu</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Afsluttede træningspas vises her: åbn et for at se graferne.</translation>
     </message>
     <message>
         <source>Open on Peloton</source>
@@ -3586,6 +3641,10 @@ Det kan tage et øjeblik ved første start.</translation>
 </context>
 <context>
     <name>homeform</name>
+    <message>
+        <source>No enabled metrics</source>
+        <translation>Ingen aktiverede målinger</translation>
+    </message>
     <message>
         <source>Speed (%1/h)</source>
         <translation>Hastighed (%1/t)</translation>
@@ -4173,6 +4232,10 @@ Det kan tage et øjeblik ved første start.</translation>
         <translation>Søger efter enheden...</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Opretter forbindelse til %1...</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>%1 fundet</translation>
     </message>
@@ -4525,9 +4588,17 @@ Det kan tage et øjeblik ved første start.</translation>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ kører</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth er slået fra</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Flydende målinger (billede i billede)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -5122,6 +5193,26 @@ Må QZ ændre værdien?
 
 »Nej«: QZ slår »Uden hjuldiameterprotokol« til (Indstillinger &gt; Cykelindstillinger &gt; Wahoo-indstillinger), og virtuelle gear virker via stigningen. Med »Ja« kan du senere fortryde det samme sted: slå denne indstilling til, og tryk, mens hometraineren er forbundet, på »Gendan hometrainerens standardindstilling«.</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Den simulerede enhed (%1) er aktiv. Hvis det ikke var meningen, skal du deaktivere den under Indstillinger.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Cykel</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Løbebånd</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Crosstrainer</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Romaskine</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -5486,6 +5577,30 @@ Må QZ ændre værdien?
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>Grafens plads i rækkefølgen i træningshistorikken. Rækkefølgen ændres med op- og ned-knapperne i Generelle indstillinger for brugerflade.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Indstillingen er nulstillet</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Nulstillede indstillinger: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Nulstil alle</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Nulstil ændrede indstillinger?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Indstillinger, der nulstilles til standardværdierne: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Nulstil</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -8618,6 +8733,14 @@ Indtast den herunder:</translation>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation>Strava-mærke for virtuel aktivitet</translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Syntetisk GPS-spor til Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Tilføjer et syntetisk GPS-spor til virtuelle aktiviteter uden GPS. Strava kan derefter vise højdemeter, men ruten er ikke ægte.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

@@ -20,6 +20,8 @@ ColumnLayout {
     default property alias accordionContent: contentPlaceholder.data
     spacing: 0
     readonly property bool modernCard: window.ui.modern && card
+    // The corners of the card; the search lights a card found in it with the same (settings.qml)
+    readonly property int cardRadius: 16
     // A card keeps a little room from the cards around it
     Layout.topMargin: modernCard ? 4 : 0
     Layout.bottomMargin: modernCard ? 4 : 0
@@ -117,6 +119,8 @@ ColumnLayout {
 
             Label {
                 id: modernTitle
+                // settings.qml (search): a result named as the title lights the element
+                objectName: "accordionTitle"
                 anchors.left: parent.left
                 // Open, the element is a block out to the edges of the setting frames: the title as
                 // far in as the text of a setting in its frame. Closed, it is a setting in a frame
@@ -130,10 +134,12 @@ ColumnLayout {
                 wrapMode: Text.WordWrap
                 // A tile card: its title stands out, in the accent while the tile is on
                 color: rootElement.modernCard && rootElement.isOpen ? window.ui.accent : window.ui.textMain
-                font.weight: rootElement.modernCard ? Font.DemiBold : Font.Normal
+                // A tile card: the title of a group, Title Medium
+                font.weight: rootElement.modernCard ? Font.Medium : Font.Normal
                 // The size as well: in Qt 5 a write of the weight alone keeps the size the label
-                // inherits at that moment, and a change of the text size missed it
-                font.pixelSize: window.ui.fontBase
+                // inherits at that moment, and a change of the text size missed it. Modern look:
+                // Body Large, as the other rows
+                font.pixelSize: window.ui.modern ? window.ui.fontBody : window.ui.fontBase
             }
 
             UiSwitch {
@@ -244,6 +250,7 @@ ColumnLayout {
             active: contentBox.framed || used
             onLoaded: used = true
             z: -1
+            visible: contentBox.framed
             readonly property int insetLeft: item ? item.insetLeft : 0
             readonly property int insetRight: item ? item.insetRight : 0
             readonly property int insetTop: item ? item.insetTop : 0
@@ -269,8 +276,8 @@ ColumnLayout {
     Label {
         visible: !rootElement.modernCard && rootElement.description.length > 0
         text: rootElement.description
-        font.bold: true
-        font.italic: true
+        font.bold: !window.ui.modern
+        font.italic: !window.ui.modern
         font.pixelSize: window.fontHint
         bottomPadding: window.hintGap
         textFormat: Text.PlainText
@@ -278,7 +285,7 @@ ColumnLayout {
         verticalAlignment: Text.AlignVCenter
         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
         Layout.fillWidth: true
-        color: Material.color(Material.Lime)
+        color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
     }
 
     // A tile card: its frame around the whole element. Laid out as the last row, 12 high - the room
@@ -297,7 +304,7 @@ ColumnLayout {
                 y: -cardFrame.y
                 width: parent.width
                 height: rootElement.height
-                radius: 16
+                radius: rootElement.cardRadius
                 strokeWidth: 1
                 // A tile that is on (shown on the main page) in the toned-down accent: still marked,
                 // not as bright as an open section

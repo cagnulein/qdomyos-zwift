@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 1050,
+  "settingCount": 1051,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -2902,7 +2902,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "jtx_fitness_sprint_treadmill",
@@ -3886,7 +3886,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "battery_service",
@@ -4593,7 +4593,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "bike_weight",
@@ -7023,6 +7023,20 @@
       "restartRequired": false
     },
     {
+      "key": "strava_synthetic_gps_track",
+      "name": "Strava Synthetic GPS Track",
+      "description": "Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.",
+      "parent": "Advanced Settings",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "restartRequired": false
+    },
+    {
       "key": "powr_sensor_running_cadence_half_on_strava",
       "name": "Half Cadence on Strava",
       "description": "Divide the cadence sent to Strava by 2.",
@@ -7190,7 +7204,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "proform_hybrid_trainer_xt",
@@ -7923,7 +7937,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "gears_from_bike",
@@ -8007,7 +8021,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "tacx_neo2_peloton",
@@ -8260,7 +8274,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "kingsmith_encrypt_v5",
@@ -8958,7 +8972,7 @@
       "defaultValue": true,
       "defaultExpression": "true",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "domyos_treadmill_button_5kmh",
@@ -8972,7 +8986,7 @@
       "defaultValue": 5.0,
       "defaultExpression": "5.0",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "domyos_treadmill_button_10kmh",
@@ -8986,7 +9000,7 @@
       "defaultValue": 10.0,
       "defaultExpression": "10.0",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "domyos_treadmill_button_16kmh",
@@ -9000,7 +9014,7 @@
       "defaultValue": 16.0,
       "defaultExpression": "16.0",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "domyos_treadmill_button_22kmh",
@@ -9014,7 +9028,7 @@
       "defaultValue": 22.0,
       "defaultExpression": "22.0",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "proform_treadmill_sport_8_5",
@@ -9173,7 +9187,7 @@
       "defaultValue": 5,
       "defaultExpression": "5",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "tile_step_count_enabled",
@@ -9902,13 +9916,13 @@
     },
     {
       "key": "gear_crankset_size",
-      "name": "Gear Crankset Size",
-      "description": null,
-      "parent": "General",
+      "name": "Chainring Size",
+      "description": "Tooth count of your chainring on the bike you are currently riding on your trainer - enter 42 for Zwift Ride",
+      "parent": "Wahoo Options",
       "type": "integer",
       "qmlType": "int",
       "control": "text",
-      "visible": false,
+      "visible": true,
       "defaultValue": 42,
       "defaultExpression": "42",
       "options": null,
@@ -9916,13 +9930,13 @@
     },
     {
       "key": "gear_cog_size",
-      "name": "Gear Cog Size",
-      "description": null,
-      "parent": "General",
+      "name": "Cog Size",
+      "description": "Tooth count of your rear cog on your trainer - enter 14 if you have the Zwift Cog",
+      "parent": "Wahoo Options",
       "type": "integer",
       "qmlType": "int",
       "control": "text",
-      "visible": false,
+      "visible": true,
       "defaultValue": 14,
       "defaultExpression": "14",
       "options": null,
@@ -9930,13 +9944,13 @@
     },
     {
       "key": "gear_wheel_size",
-      "name": "Gear Wheel Size",
+      "name": "Virtual Wheel Size",
       "description": null,
-      "parent": "General",
+      "parent": "Wahoo Options",
       "type": "string",
       "qmlType": "string",
       "control": "text",
-      "visible": false,
+      "visible": true,
       "defaultValue": "700 x 18C",
       "defaultExpression": "\"700 x 18C\"",
       "options": null,
@@ -11658,7 +11672,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "fit_file_garmin_device_training_effect_device",
@@ -11820,13 +11834,13 @@
     },
     {
       "key": "wahoo_without_wheel_diameter",
-      "name": "Wahoo Without Wheel Diameter",
-      "description": null,
-      "parent": "General",
+      "name": "Without Wheel Diameter Protocol",
+      "description": "Enable this for simplified Wahoo protocol that adds gears directly to grade instead of using wheel diameter changes. Default is false.",
+      "parent": "Wahoo Options",
       "type": "boolean",
       "qmlType": "bool",
       "control": "switch",
-      "visible": false,
+      "visible": true,
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
@@ -13128,7 +13142,7 @@
       "defaultValue": "",
       "defaultExpression": "\"\"",
       "options": null,
-      "restartRequired": false
+      "restartRequired": true
     },
     {
       "key": "life_fitness_password",
@@ -13142,7 +13156,7 @@
       "defaultValue": "",
       "defaultExpression": "\"\"",
       "options": null,
-      "restartRequired": false
+      "restartRequired": true
     },
     {
       "key": "life_fitness_api_key",
@@ -13212,7 +13226,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "treadmill_direct_distance",
@@ -13370,7 +13384,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "proform_bike_325_csx_PFEX439210INT_0",
@@ -13565,7 +13579,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "gym_mode",
@@ -13695,7 +13709,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "cscbike_custom_resistance_level_1",
@@ -13765,7 +13779,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "gears_custom_table_enabled",
@@ -16059,7 +16073,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "custom_inclination_resistance_table",
@@ -16073,7 +16087,7 @@
       "defaultValue": "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16",
       "defaultExpression": "\"0|4\\n1|6\\n2|8\\n3|10\\n4|11\\n5|11.5\\n6|12\\n8|13\\n10|14\\n12|15\\n15|16\"",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "watt_max",
@@ -16215,7 +16229,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": false
+      "restartRequired": true
     },
     {
       "key": "ui_text_scale",
@@ -17633,6 +17647,7 @@
       "strava_auth_external_webbrowser": "advancedSettingsAccordion",
       "strava_date_prefix": "advancedSettingsAccordion",
       "strava_suffix": "advancedSettingsAccordion",
+      "strava_synthetic_gps_track": "advancedSettingsAccordion",
       "strava_treadmill": "advancedSettingsAccordion",
       "strava_upload_mode": "advancedSettingsAccordion",
       "strava_virtual_activity": "advancedSettingsAccordion",
@@ -18347,6 +18362,7 @@
       "strava_auth_external_webbrowser": "settings.qml",
       "strava_date_prefix": "settings.qml",
       "strava_suffix": "settings.qml",
+      "strava_synthetic_gps_track": "settings.qml",
       "strava_treadmill": "settings.qml",
       "strava_upload_mode": "settings.qml",
       "strava_virtual_activity": "settings.qml",
@@ -19337,6 +19353,7 @@
       "strava_auth_external_webbrowser": 13721,
       "strava_date_prefix": 13803,
       "strava_suffix": 13685,
+      "strava_synthetic_gps_track": 13760,
       "strava_treadmill": 13776,
       "strava_upload_mode": 13660,
       "strava_virtual_activity": 13749,

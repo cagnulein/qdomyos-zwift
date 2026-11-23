@@ -355,6 +355,43 @@ Allows you to control the fan bike / treadmill speed.
 }
 ```
 
+## Automatic WebSocket discovery (mDNS / DNS-SD)
+
+When QZ's built-in WebSocket server (`inner_QZWS`) is enabled and successfully listening,
+QZ advertises it on the local network using the DNS-SD service type
+`_qzws._tcp.local.`. This uses the actual TCP listening port, including when QZ
+chooses a dynamic port. An external application such as TreadCraft can discover
+QZ without requiring the user to copy its IP address and port.
+
+- **Service type:** `_qzws._tcp.local.`
+- **Instance name:** `QZ Fitness WebSocket` (DNS-SD may append a suffix if there is a name conflict)
+- **SRV port:** the current WebSocket/HTTP server listening port
+- **TXT keys:** `path=/`, `protocol=ws`, `version=1`
+- **Connection:** `ws://<resolved-IPv4-address>:<SRV-port>/`
+
+The service is *not* published when the server is disabled or fails to bind.
+It is withdrawn when the WebSocket server stops; after a restart, resolve the
+service again rather than relying on a previously cached IP address or port.
+The discovery protocol does not automatically start an uploaded workout.
+
+To verify discovery from another computer on the same Wi-Fi/LAN:
+
+```bash
+# Linux with Avahi
+avahi-browse -rt _qzws._tcp
+
+# macOS
+dns-sd -B _qzws._tcp local
+```
+
+A DNS-SD client should browse the service type, resolve its SRV and A records,
+then use the advertised port for a normal QZ WebSocket connection. mDNS uses
+multicast UDP 5353; client and phone need a network that permits multicast
+(and Android may require Wi-Fi multicast reception to be enabled). There is
+no Internet discovery or cloud dependency. QZ's WebSocket API can control fitness
+equipment, so use this only on a trusted local network; discovery is not
+authentication or encryption.
+
 # Source
 How compile Qt 5.12.10 on Raspberry Pi : https://www.tal.org/tutorials/building-qt-512-raspberry-pi
 
