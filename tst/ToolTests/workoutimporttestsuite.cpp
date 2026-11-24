@@ -2,6 +2,10 @@
 
 #include "trainprogram.h"
 #include "workoutimport.h"
+#include "fit-sdk/fit_buffer_encode.hpp"
+#include "fit-sdk/fit_file_id_mesg.hpp"
+#include "fit-sdk/fit_workout_mesg.hpp"
+#include "fit-sdk/fit_workout_step_mesg.hpp"
 
 #include <QDir>
 #include <QTemporaryFile>
@@ -192,4 +196,123 @@ TEST(WorkoutImport, OtherJsonIsNotAWorkout) {
     file.close();
 
     EXPECT_FALSE(workoutimport::isSupportedFile(file.fileName()));
+}
+
+namespace {
+QByteArray makeFitWorkout(const QList<fit::WorkoutStepMesg> &steps, FIT_FILE fileType = FIT_FILE_WORKOUT) {
+    fit::BufferEncode encode;
+    encode.Open();
+    fit::FileIdMesg id;
+    id.SetType(fileType);
+    encode.Write(id);
+    fit::WorkoutMesg workout;
+    workout.SetSport(FIT_SPORT_RUNNING);
+    workout.SetNumValidSteps(FIT_UINT16(steps.size()));
+    encode.Write(workout);
+    for (const auto &step : steps)
+        encode.Write(step);
+    const std::string result = encode.Close();
+    return QByteArray(result.data(), int(result.size()));
+}
+
+fit::WorkoutStepMesg timedFitStep(int index, int seconds, FIT_WKT_STEP_TARGET target,
+                                FIT_UINT32 low = 0, FIT_UINT32 high = 0) {
+    fit::WorkoutStepMesg step;
+    step.SetMessageIndex(FIT_MESSAGE_INDEX(index));
+    step.SetDurationType(FIT_WKT_STEP_DURATION_TIME);
+    step.SetDurationValue(FIT_UINT32(seconds * 1000));
+    step.SetTargetType(target);
+    step.SetTargetValue(0);
+    step.SetCustomTargetValueLow(low);
+    step.SetCustomTargetValueHigh(high);
+    return step;
+}
+
+fit::WorkoutStepMesg fitRepeat(int index, int first, int count) {
+    fit::WorkoutStepMesg step;
+    step.SetMessageIndex(FIT_MESSAGE_INDEX(index));
+    step.SetDurationType(FIT_WKT_STEP_DURATION_REPEAT_UNTIL_STEPS_CMPLT);
+    step.SetDurationValue(FIT_UINT32(first));
+    step.SetTargetType(FIT_WKT_STEP_TARGET_OPEN);
+    step.SetTargetValue(FIT_UINT32(count));
+    return step;
+}
+} // namespace
+
+TEST(WorkoutImport, FitNorwegianFourByFourHeartRate) {
+    // Synthetic FIT exercising the common 4 x 4 structure; not a downloaded FitFileForge file.
+    const auto bytes = makeFitWorkout({
+        timedFitStep(0, 600, FIT_WKT_STEP_TARGET_OPEN),
+        timedFitStep(1, 240, FIT_WKT_STEP_TARGET_HEART_RATE, 85, 95),
+        timedFitStep(2, 180, FIT_WKT_STEP_TARGET_HEART_RATE, 60, 70),
+        fitRepeat(3, 1, 4),
+        timedFitStep(4, 300, FIT_WKT_STEP_TARGET_OPEN)
+    });
+    const auto rows = workoutimport::loadFit(bytes, 250, 200);
+    ASSERT_EQ(rows.size(), 10);
+    EXPECT_EQ(rows.first().duration, QTime(0, 10, 0));
+    for (int i = 0; i < 4; ++i) {
+        const auto &hard = rows.at(1 + 2 * i);
+        const auto &easy = rows.at(2 + 2 * i);
+        EXPECT_EQ(hard.duration, QTime(0, 4, 0));
+        EXPECT_EQ(hard.HRmin, 170);
+        EXPECT_EQ(hard.HRmax, 190);
+        EXPECT_EQ(easy.duration, QTime(0, 3, 0));
+        EXPECT_EQ(easy.HRmin, 120);
+        EXPECT_EQ(easy.HRmax, 140);
+    }
+    EXPECT_EQ(rows.last().duration, QTime(0, 5, 0));
+}
+
+TEST(WorkoutImport, FitPowerSpeedCadenceAndAbsoluteHeartRate) {
+    const auto rows = workoutimport::loadFit(makeFitWorkout({
+        timedFitStep(0, 60, FIT_WKT_STEP_TARGET_POWER, 80, 100),
+        timedFitStep(1, 60, FIT_WKT_STEP_TARGET_POWER, 1200, 1250),
+        timedFitStep(2, 60, FIT_WKT_STEP_TARGET_SPEED, 2500, 3500),
+        timedFitStep(3, 60, FIT_WKT_STEP_TARGET_CADENCE, 80, 100),
+        timedFitStep(4, 60, FIT_WKT_STEP_TARGET_HEART_RATE, 250, 270)
+    }), 250, 200);
+    ASSERT_EQ(rows.size(), 5);
+    EXPECT_EQ(rows.at(0).power, 225);
+    EXPECT_EQ(rows.at(1).power, 225);
+    EXPECT_NEAR(rows.at(2).speed, 10.8, 1e-6);
+    EXPECT_TRUE(rows.at(2).forcespeed);
+    EXPECT_EQ(rows.at(3).cadence, 90);
+    EXPECT_EQ(rows.at(4).HRmin, 150);
+    EXPECT_EQ(rows.at(4).HRmax, 170);
+}
+
+TEST(WorkoutImport, FitDistanceAndLap) {
+    auto distance = timedFitStep(0, 60, FIT_WKT_STEP_TARGET_OPEN);
+    distance.SetDurationType(FIT_WKT_STEP_DURATION_DISTANCE);
+    distance.SetDurationDistance(1000);
+    auto lap = timedFitStep(1, 60, FIT_WKT_STEP_TARGET_OPEN);
+    lap.SetDurationType(FIT_WKT_STEP_DURATION_OPEN);
+    const auto rows = workoutimport::loadFit(makeFitWorkout({distance, lap}), 250, 200);
+    ASSERT_EQ(rows.size(), 2);
+    EXPECT_DOUBLE_EQ(rows.first().distance, 1.0);
+    EXPECT_TRUE(rows.last().waitForLap);
+}
+
+TEST(WorkoutImport, FitRejectsActivityTruncationAndInvalidRepeats) {
+    const auto step = timedFitStep(0, 60, FIT_WKT_STEP_TARGET_OPEN);
+    EXPECT_TRUE(workoutimport::loadFit(makeFitWorkout({step}, FIT_FILE_ACTIVITY), 250, 200).isEmpty());
+    const auto valid = makeFitWorkout({step});
+    EXPECT_TRUE(workoutimport::loadFit(valid.left(valid.size() - 1), 250, 200).isEmpty());
+    EXPECT_TRUE(workoutimport::loadFit(makeFitWorkout({step, fitRepeat(1, 1, 4)}), 250, 200).isEmpty());
+    EXPECT_TRUE(workoutimport::loadFit(makeFitWorkout({step, fitRepeat(1, 0, 10001)}), 250, 200).isEmpty());
+    EXPECT_TRUE(workoutimport::loadFit(makeFitWorkout({step, timedFitStep(1, 60, FIT_WKT_STEP_TARGET_GRADE)}),
+                                       250, 200).isEmpty());
+}
+
+TEST(WorkoutImport, FitFileDispatch) {
+    QTemporaryFile file(QDir::tempPath() + QStringLiteral("/qz-workout-XXXXXX.fit"));
+    ASSERT_TRUE(file.open());
+    const auto bytes = makeFitWorkout({timedFitStep(0, 60, FIT_WKT_STEP_TARGET_OPEN)});
+    ASSERT_EQ(file.write(bytes), bytes.size());
+    file.flush();
+    EXPECT_TRUE(workoutimport::isSupportedFile(file.fileName()));
+    const auto rows = workoutimport::load(file.fileName(), QStringLiteral("FIT"));
+    ASSERT_EQ(rows.size(), 1);
+    EXPECT_EQ(rows.first().duration, QTime(0, 1, 0));
 }

@@ -10303,6 +10303,10 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
             }
 
             trainProgram = trainprogram::load(file.fileName(), bluetoothManager, file.fileName().right(3).toUpper());
+            if (file.fileName().endsWith(QStringLiteral(".fit"), Qt::CaseInsensitive) &&
+                trainProgram->totalLogicalSteps() == 0) {
+                setToastRequested(tr("The workout file could not be opened."));
+            }
 
             QString movieName = file.fileName().left(file.fileName().length() - 3) + "mp4";
             if (QFile::exists(movieName)) {
@@ -10338,6 +10342,9 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
 
 void homeform::trainprogram_autostart_requested() {
     qDebug() << QStringLiteral("trainprogram_autostart_requested");
+    // A rejected structured workout must not start a physical device.
+    if (trainProgram && trainProgram->totalLogicalSteps() == 0)
+        return;
 
     bluetoothdevice *dev = nullptr;
     if (bluetoothManager) {

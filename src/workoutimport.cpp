@@ -1,5 +1,11 @@
 #include "workoutimport.h"
 #include "qzsettings.h"
+#include "fit-sdk/fit_decode.hpp"
+#include "fit-sdk/fit_file_id_mesg.hpp"
+#include "fit-sdk/fit_workout_mesg.hpp"
+#include "fit-sdk/fit_workout_step_mesg.hpp"
+#include <cmath>
+#include <sstream>
 #include <QDebug>
 #include <QFile>
 #include <QFileInfo>
@@ -40,7 +46,7 @@ static QTime secondsToTime(int seconds) { return QTime(0, 0, 0, 0).addSecs(secon
 
 QString workoutimport::fileKind(const QString &filename, const QString &extension) {
     static const QStringList kinds = {QStringLiteral("MRC"), QStringLiteral("ERG"), QStringLiteral("JSON"),
-                                      QStringLiteral("XSR")};
+                                      QStringLiteral("XSR"), QStringLiteral("FIT")};
     QString ext = QFileInfo(filename).suffix().toUpper();
     if (kinds.contains(ext))
         return ext;
@@ -55,7 +61,7 @@ bool workoutimport::isSupportedFile(const QString &filename, const QString &exte
     const QString kind = fileKind(filename, extension);
     if (kind.isEmpty())
         return false;
-    if (kind == QStringLiteral("MRC") || kind == QStringLiteral("ERG"))
+    if (kind == QStringLiteral("MRC") || kind == QStringLiteral("ERG") || kind == QStringLiteral("FIT"))
         return true;
 
     QFile input(filename);
@@ -74,7 +80,16 @@ QList<trainrow> workoutimport::load(const QString &filename, const QString &exte
 
     QSettings settings;
     const double ftp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+    if (kind == QStringLiteral("FIT") && input.size() > 4 * 1024 * 1024)
+        return {};
     const QByteArray content = input.readAll();
+    if (kind == QStringLiteral("FIT")) {
+        const double maxHr = settings.value(QZSettings::heart_max_override_enable,
+                                             QZSettings::default_heart_max_override_enable).toBool()
+            ? settings.value(QZSettings::heart_max_override_value, QZSettings::default_heart_max_override_value).toDouble()
+            : 220.0 - settings.value(QZSettings::age, QZSettings::default_age).toDouble();
+        return loadFit(content, ftp, maxHr, description);
+    }
     const bool courseFile = kind == QStringLiteral("MRC") || kind == QStringLiteral("ERG");
     const QList<trainrow> rows = courseFile ? loadErgMrc(content, kind == QStringLiteral("MRC"), ftp, description)
                                             : loadExr(content, ftp, description);
@@ -261,4 +276,223 @@ QList<trainrow> workoutimport::loadExr(const QByteArray &input, double ftp, QStr
     if (description != nullptr)
         *description = exrField(data, QStringLiteral("description")).toString().trimmed();
     return list;
+}
+
+namespace {
+constexpr int MaxFitRows = 10000;
+
+class FitWorkoutListener : public fit::MesgListener {
+public:
+    bool workoutFile = false;
+    bool seenFileId = false;
+    bool seenWorkout = false;
+    bool invalid = false;
+    fit::WorkoutMesg workout;
+    QMap<int, fit::WorkoutStepMesg> steps;
+
+    void OnMesg(fit::Mesg &mesg) override {
+        switch (mesg.GetNum()) {
+        case FIT_MESG_NUM_FILE_ID: {
+            fit::FileIdMesg id(mesg);
+            if (seenFileId)
+                invalid = true;
+            seenFileId = true;
+            workoutFile = id.IsTypeValid() && id.GetType() == FIT_FILE_WORKOUT;
+            break;
+        }
+        case FIT_MESG_NUM_WORKOUT:
+            if (seenWorkout)
+                invalid = true;
+            seenWorkout = true;
+            workout = fit::WorkoutMesg(mesg);
+            break;
+        case FIT_MESG_NUM_WORKOUT_STEP: {
+            fit::WorkoutStepMesg step(mesg);
+            if (!step.IsMessageIndexValid() || steps.contains(step.GetMessageIndex()) ||
+                steps.size() >= MaxFitRows) {
+                invalid = true;
+                break;
+            }
+            steps.insert(step.GetMessageIndex(), step);
+            break;
+        }
+        default:
+            break;
+        }
+    }
+};
+
+double fitPower(FIT_UINT32 value, double ftp) {
+    return value > FIT_WORKOUT_POWER_WATTS_OFFSET
+        ? double(value - FIT_WORKOUT_POWER_WATTS_OFFSET) : value * ftp / 100.0;
+}
+
+double fitHr(FIT_UINT32 value, double maxHr) {
+    return value > FIT_WORKOUT_HR_BPM_OFFSET
+        ? double(value - FIT_WORKOUT_HR_BPM_OFFSET) : value * maxHr / 100.0;
+}
+
+bool fitStepToRow(const fit::WorkoutStepMesg &step, double ftp, double maxHr, trainrow &row) {
+    if (!step.IsDurationTypeValid() || !step.IsTargetTypeValid())
+        return false;
+    switch (step.GetDurationType()) {
+    case FIT_WKT_STEP_DURATION_TIME:
+    case FIT_WKT_STEP_DURATION_TIME_ONLY: {
+        if (!step.IsDurationValueValid())
+            return false;
+        const double seconds = step.GetDurationValue() / 1000.0;
+        if (seconds < 0.5 || seconds >= 86399.5)
+            return false;
+        row.duration = secondsToTime(qRound(seconds));
+        break;
+    }
+    case FIT_WKT_STEP_DURATION_DISTANCE:
+        if (!step.IsDurationDistanceValid() || step.GetDurationDistance() <= 0)
+            return false;
+        row.distance = step.GetDurationDistance() / 1000.0;
+        break;
+    case FIT_WKT_STEP_DURATION_OPEN:
+        row.waitForLap = true;
+        break;
+    default:
+        return false; // Do not silently change unsupported end conditions.
+    }
+
+    const auto target = step.GetTargetType();
+    if (target == FIT_WKT_STEP_TARGET_OPEN)
+        return true;
+
+    const auto zone = step.IsTargetValueValid() ? step.GetTargetValue() : 0;
+    if (zone != 0) {
+        // QZ has configurable HR zones. FIT speed/power/cadence zone numbers do not
+        // contain their boundaries, so don't invent a target for them.
+        if (target == FIT_WKT_STEP_TARGET_HEART_RATE && zone <= 5) {
+            row.zoneHR = int8_t(zone);
+            return true;
+        }
+        return false;
+    }
+
+    if (!step.IsCustomTargetValueLowValid() || !step.IsCustomTargetValueHighValid())
+        return false;
+    const FIT_UINT32 low = step.GetCustomTargetValueLow();
+    const FIT_UINT32 high = step.GetCustomTargetValueHigh();
+
+    switch (target) {
+    case FIT_WKT_STEP_TARGET_POWER: {
+        const double a = fitPower(low, ftp), b = fitPower(high, ftp);
+        if (!std::isfinite(a) || !std::isfinite(b) || a < 0 || b < a || b > 3000 ||
+            ((low <= 1000 || high <= 1000) && (!std::isfinite(ftp) || ftp <= 0)))
+            return false;
+        row.power = qRound((a + b) / 2.0);
+        break;
+    }
+    case FIT_WKT_STEP_TARGET_HEART_RATE: {
+        const double a = fitHr(low, maxHr), b = fitHr(high, maxHr);
+        if (!std::isfinite(a) || !std::isfinite(b) || a < 1 || b < a || b > 255 ||
+            ((low <= 100 || high <= 100) && (!std::isfinite(maxHr) || maxHr <= 0 || maxHr > 255)))
+            return false;
+        row.HRmin = qRound(a);
+        row.HRmax = qRound(b);
+        break;
+    }
+    case FIT_WKT_STEP_TARGET_SPEED: {
+        // FIT stores custom speed in millimetres per second.
+        const double a = low * 0.0036, b = high * 0.0036;
+        if (b < a || b > 100)
+            return false;
+        row.speed = (a + b) / 2.0;
+        row.forcespeed = true;
+        break;
+    }
+    case FIT_WKT_STEP_TARGET_CADENCE:
+        if (high < low || high > 300)
+            return false;
+        row.lower_cadence = int16_t(low);
+        row.upper_cadence = int16_t(high);
+        row.cadence = qRound((double(low) + high) / 2.0);
+        break;
+    default:
+        return false;
+    }
+    return true;
+}
+} // namespace
+
+QList<trainrow> workoutimport::loadFit(const QByteArray &input, double ftp, double maxHr, QString *description) {
+    if (description)
+        description->clear();
+    if (input.size() < 14 || input.size() > 4 * 1024 * 1024)
+        return {};
+    // Reject a truncated file before decoding. FIT's data size excludes header and trailing CRC.
+    const auto *bytes = reinterpret_cast<const unsigned char *>(input.constData());
+    const quint32 dataSize = quint32(bytes[4]) | (quint32(bytes[5]) << 8) |
+                             (quint32(bytes[6]) << 16) | (quint32(bytes[7]) << 24);
+    if (bytes[0] < 12 || quint64(bytes[0]) + dataSize + 2 != quint64(input.size()))
+        return {};
+
+    FitWorkoutListener listener;
+    try {
+        std::istringstream stream(std::string(input.constData(), size_t(input.size())),
+                                  std::ios::in | std::ios::binary);
+        fit::Decode decoder;
+        if (!decoder.CheckIntegrity(stream))
+            return {};
+        stream.clear();
+        stream.seekg(0);
+        fit::Decode reader;
+        if (!reader.Read(stream, listener))
+            return {};
+    } catch (const std::exception &e) {
+        qWarning() << "workoutimport: invalid FIT" << e.what();
+        return {};
+    }
+
+    if (listener.invalid || !listener.workoutFile || !listener.seenWorkout || listener.steps.isEmpty() ||
+        (listener.workout.IsNumValidStepsValid() &&
+         listener.workout.GetNumValidSteps() != listener.steps.size()))
+        return {};
+
+    QList<trainrow> rows;
+    QMap<int, int> rowOffsets;
+    int expectedIndex = 0;
+    for (auto it = listener.steps.constBegin(); it != listener.steps.constEnd(); ++it) {
+        const auto &step = it.value();
+        if (it.key() != expectedIndex++ || !step.IsDurationTypeValid())
+            return {};
+        rowOffsets.insert(it.key(), rows.size());
+        if (step.GetDurationType() == FIT_WKT_STEP_DURATION_REPEAT_UNTIL_STEPS_CMPLT) {
+            if (!step.IsDurationValueValid() || !step.IsTargetValueValid())
+                return {};
+            const auto first = step.GetDurationValue();
+            const auto count = step.GetTargetValue();
+            if (first >= quint32(it.key()) || !rowOffsets.contains(int(first)) || count < 1 || count > MaxFitRows)
+                return {};
+            const int start = rowOffsets.value(int(first));
+            const int length = rows.size() - start;
+            if (length <= 0 || quint64(rows.size()) + quint64(length) * (count - 1) > MaxFitRows)
+                return {};
+            const QList<trainrow> block = rows.mid(start, length);
+            for (quint32 n = 1; n < count; ++n)
+                rows.append(block);
+        } else {
+            trainrow row;
+            if (rows.size() >= MaxFitRows || !fitStepToRow(step, ftp, maxHr, row))
+                return {};
+            if (step.IsWktStepNameValid()) {
+                const auto name = step.GetWktStepName();
+                trainrow::TextEvent event;
+                event.timeoffset = 0;
+                event.message = QString::fromWCharArray(name.data(), int(name.size()));
+                if (!event.message.isEmpty())
+                    row.textEvents.append(event);
+            }
+            rows.append(row);
+        }
+    }
+    if (description && listener.workout.IsWktNameValid()) {
+        const auto name = listener.workout.GetWktName();
+        *description = QString::fromWCharArray(name.data(), int(name.size()));
+    }
+    return rows;
 }
