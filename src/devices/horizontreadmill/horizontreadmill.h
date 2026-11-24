@@ -29,6 +29,7 @@
 #include <QString>
 
 #include "treadmill.h"
+#include "paragonxtelemetry.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -72,6 +73,7 @@ class horizontreadmill : public treadmill {
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QByteArray lastPacketComplete;
+    ParagonXTelemetry::NotificationAssembler paragonPacketAssembler;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     bool firstDistanceCalculated = false;
     double lastDirectDistance = -1;
