@@ -33,6 +33,162 @@ var maxHeartRate = 190;
 var heartZones = [];
 var miles = 1;
 
+// live update during a workout: the new points of the session are asked for once a second and
+// the charts are updated in place, only while a workout is running (see setLiveActive)
+var LIVE_REFRESH_MS = 1000;
+var liveTimer = null;
+var liveLoading = false;
+var liveActive = false;
+var liveStateKnown = false; // a 'workout' push has come
+var liveFinalPending = false;
+var lastSessionLength = -1;
+var sessionCache = null; // the session so far, grown by the parts the live update asks for
+var liveRefresh = false;
+var pendingLive = {}; // canvas id -> the config of a live refresh skipped while off screen
+var pendingLiveTimer = null;
+
+// the polling goes on: a chart off screen waits for the next refresh or for a scroll to it
+function livePolling() {
+    return liveActive;
+}
+
+function offScreen(canvas) {
+    var rect = canvas.getBoundingClientRect();
+    return rect.bottom < 0 || rect.top > window.innerHeight;
+}
+
+function isPointRow(row) {
+    return Array.isArray(row) && row.length > 0 && typeof row[0] === 'object' && row[0] !== null;
+}
+
+// the lines keep the lowest and the highest point of each slice of the time axis, one slice for
+// every 2 px of the screen: a long workout draws as fast as a short one, and the peaks stay.
+// The lines of a chart keep the same points (the union of their lowest and highest ones), so
+// the tooltip, which takes the point of one index from every line, shows them at one time.
+// Averages, maximums and zones are counted on the whole session before this
+function thinLines(datasets, slices) {
+    let rows = [], length = 0;
+    datasets.forEach(function (d) {
+        if (isPointRow(d.data))
+            length = Math.max(length, d.data.length);
+    });
+    datasets.forEach(function (d) {
+        if (isPointRow(d.data) && d.data.length === length)
+            rows.push(d.data);
+    });
+    if (length <= slices * 2)
+        return;
+    let keep = [], size = length / slices;
+    for (let b = 0; b < slices; b++) {
+        let from = Math.floor(b * size), to = Math.min(length, Math.floor((b + 1) * size));
+        let picked = [];
+        rows.forEach(function (row) {
+            let low = -1, high = -1, gap = -1;
+            for (let i = from; i < to; i++) {
+                let y = row[i].y;
+                if (y === null || y === undefined || y !== y) { // y !== y: NaN
+                    if (gap < 0)
+                        gap = i; // a gap in the slice (a point without a value) stays a break
+                    continue;
+                }
+                if (low < 0 || y < row[low].y)
+                    low = i;
+                if (high < 0 || y > row[high].y)
+                    high = i;
+            }
+            [low, high, gap].forEach(function (i) {
+                if (i >= 0 && picked.indexOf(i) < 0)
+                    picked.push(i);
+            });
+        });
+        if (picked.length === 0)
+            picked.push(from);
+        picked.sort(function (a, c) { return a - c; });
+        keep = keep.concat(picked);
+    }
+    datasets.forEach(function (d) {
+        if (rows.indexOf(d.data) >= 0)
+            d.data = keep.map(function (i) { return d.data[i]; });
+    });
+}
+
+function updateInPlace(old, config) {
+    config.options.animation = false;
+    if (lastTimeRepeats(config)) {
+        var ctx = old.ctx;
+        old.destroy();
+        return qzChartTheme.create(ctx, config);
+    }
+    // keep the dataset objects: the chart's per-dataset state is bound to them
+    for (var i = 0; i < config.data.datasets.length; i++)
+        old.data.datasets[i].data = config.data.datasets[i].data;
+    if (config.data.labels)
+        old.data.labels = config.data.labels;
+    qzChartTheme.restyle(old, config); // the new options in the app theme, like create()
+    old.options = config.options;
+    old.update('none');
+    return old;
+}
+
+// with the animation off Chart.js 3.4.1 updates only the points up to the first one at the x
+// axis max; when the last points share one time (a session that stands still) the points after
+// it keep no values, and drawing the line throws. Such a chart is made anew
+function lastTimeRepeats(config) {
+    return config.data.datasets.some(function (d) {
+        var n = d.data.length;
+        return n > 1 && d.data[n - 1] !== null && typeof d.data[n - 1] === 'object' && d.data[n - 2] !== null
+            && typeof d.data[n - 2] === 'object' && d.data[n - 1].x === d.data[n - 2].x;
+    });
+}
+
+// creates a chart on ctx; on a live refresh the existing chart gets the new data and options
+// in place instead, so an open tooltip stays and nothing flickers; the animation is off there,
+// so its onComplete (saving screenshots) does not run again. While the polling goes on, a chart
+// off screen is not drawn: drawing is most of the cost of a refresh, and only one or two of the
+// charts are on screen
+function makeChart(ctx, config) {
+    // by the longer side of the screen, not by the chart: the page turned to landscape keeps
+    // the same points
+    thinLines(config.data.datasets, Math.max(100, Math.round(Math.max(window.innerWidth, window.innerHeight) / 2)));
+    var old = Chart.getChart(ctx.canvas);
+    delete pendingLive[ctx.canvas.id];
+    if (old && liveRefresh && old.data.datasets.length === config.data.datasets.length) {
+        if (livePolling() && offScreen(ctx.canvas)) {
+            pendingLive[ctx.canvas.id] = config;
+            return old;
+        }
+        return updateInPlace(old, config);
+    }
+    if (old)
+        old.destroy();
+    if (liveRefresh)
+        config.options.animation = false;
+    return qzChartTheme.create(ctx, config);
+}
+
+// draws the skipped charts that came on screen, or all of them when the polling stops
+function drawPendingLive() {
+    for (var id in pendingLive) {
+        var canvas = document.getElementById(id);
+        var old = canvas && Chart.getChart(canvas);
+        if (old && livePolling() && offScreen(canvas))
+            continue;
+        if (old)
+            updateInPlace(old, pendingLive[id]);
+        delete pendingLive[id];
+    }
+}
+
+function schedulePendingLive() {
+    if (pendingLiveTimer === null)
+        pendingLiveTimer = setTimeout(function () {
+            pendingLiveTimer = null;
+            drawPendingLive();
+        }, 100);
+}
+window.addEventListener('scroll', schedulePendingLive);
+window.addEventListener('resize', schedulePendingLive);
+
 function t(key, fallback) {
     return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
 }
@@ -473,7 +629,7 @@ function process_arr(arr) {
     };
 
     let ctx = document.getElementById('canvas').getContext('2d');
-    var powerChart = qzChartTheme.create(ctx, config);
+    var powerChart = makeChart(ctx, config);
 
     const minRecordedHeart = heart.reduce(function(minValue, point) {
         return point.y > 0 ? Math.min(minValue, point.y) : minValue;
@@ -658,7 +814,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasHeart').getContext('2d');
-    var heartChart = qzChartTheme.create(ctx, config);
+    var heartChart = makeChart(ctx, config);
 
     config = {
         type: 'line',
@@ -775,7 +931,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasResistance').getContext('2d');
-    var resistanceChart = qzChartTheme.create(ctx, config);
+    var resistanceChart = makeChart(ctx, config);
 
     config = {
         type: 'line',
@@ -892,7 +1048,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasPelotonResistance').getContext('2d');
-    var pelotonresistanceChart = qzChartTheme.create(ctx, config);
+    var pelotonresistanceChart = makeChart(ctx, config);
 
     config = {
         type: 'line',
@@ -1009,7 +1165,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasCadence').getContext('2d');
-    var cadenceChart = qzChartTheme.create(ctx, config);
+    var cadenceChart = makeChart(ctx, config);
 
     config = {
         type: 'bar',
@@ -1089,7 +1245,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasPowerDistribution').getContext('2d');
-    var powerDistributionChart = qzChartTheme.create(ctx, config);
+    var powerDistributionChart = makeChart(ctx, config);
 
     config = {
         type: 'line',
@@ -1206,23 +1362,112 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasSpeedInclination').getContext('2d');
-    var speedInclinationChart = qzChartTheme.create(ctx, config);
+    var speedInclinationChart = makeChart(ctx, config);
 }
 
 function dochart_init() {
     keys_arr = ['ftp', 'miles_unit', 'age', 'heart_rate_zone1', 'heart_rate_zone2', 'heart_rate_zone3', 'heart_rate_zone4', 'heart_max_override_enable', 'heart_max_override_value']
 
-    function load_workout_data() {
+    function scheduleLiveRefresh() {
+        clearTimeout(liveTimer);
+        liveTimer = null;
+        // not before the first load: it runs after getsettings and draws with the right zones
+        if (livePolling() && !liveLoading && lastSessionLength >= 0 && !document.hidden)
+            liveTimer = setTimeout(load_workout_data, LIVE_REFRESH_MS);
+        else
+            drawPendingLive();
+    }
+
+    // the polling works only while a workout is running: device connected, not paused and not
+    // stopped (stop pauses the device); state comes with the 'workout' push
+    function setLiveActive(active) {
+        let firstState = !liveStateKnown;
+        liveStateKnown = true;
+        if (active === liveActive)
+            return;
+        liveActive = active;
+        if (!active) {
+            clearTimeout(liveTimer);
+            liveTimer = null;
+            // pick up the last points before going idle; a load in flight may predate the stop
+            if (liveLoading)
+                liveFinalPending = true;
+            else if (lastSessionLength >= 0)
+                load_workout_data();
+        } else {
+            // a start or a resume: the session may be a new one of any length (the app clears
+            // it on start only), so the next load takes it whole instead of appending a part.
+            // Not on the first state the page gets: the page has just loaded the session whole
+            if (!firstState)
+                sessionCache = null;
+            scheduleLiveRefresh();
+        }
+    }
+
+    function watchWorkoutState() {
         let el = new MainWSQueueElement({
-            msg: 'getsessionarray'
+            msg: null
         }, function(msg) {
-            if (msg.msg === 'R_getsessionarray') {
+            if (msg.msg === 'workout') {
                 return msg.content;
             }
             return null;
+        });
+        el.enqueue().then(function(w) {
+            setLiveActive(!!(w && w.deviceId && w.deviceConnected && !w.devicePaused));
+        }).catch(function(err) {
+            // {msg: null} is still sent, so the element times out (5 s) when no push comes;
+            // the state stays as it was and the watch goes on: without this catch it stopped
+        }).then(function() {
+            setTimeout(watchWorkoutState, 500);
+        });
+    }
+    watchWorkoutState();
+
+    // a page kept out of sight (the app may hide it instead of closing) does not poll
+    document.addEventListener('visibilitychange', scheduleLiveRefresh);
+
+    function load_workout_data() {
+        liveLoading = true;
+        let request = {
+            msg: 'getsessionarray'
+        };
+        // after the first load only the new points are asked for; an app that does not know
+        // "from" (or a session started anew) answers with the whole array, without "from"
+        if (sessionCache)
+            request.content = { from: sessionCache.length };
+        let el = new MainWSQueueElement(request, function(msg) {
+            if (msg.msg === 'R_getsessionarray' || msg.msg === 'R_getsessionarraypart') {
+                return msg;
+            }
+            return null;
         }, 15000, 3);
-        el.enqueue().then(process_arr).catch(function(err) {
+        el.enqueue().then(function(msg) {
+            let arr = msg && msg.content;
+            // a part fits only the cache it was asked for; one asked before the cache was
+            // dropped (a new start) is thrown away, the next load takes the whole session
+            if (arr && typeof msg.from === 'number')
+                arr = sessionCache && msg.from === sessionCache.length ? sessionCache.concat(arr) : null;
+            if (!arr && msg && msg.content)
+                liveFinalPending = true; // load again at once, whole
+            if (arr)
+                sessionCache = arr;
+            // redraw only when the session grew: after stop the array stays the same,
+            // so the end-of-workout screenshots are taken just once
+            if (arr && arr.length !== lastSessionLength) {
+                liveRefresh = lastSessionLength >= 0;
+                lastSessionLength = arr.length;
+                process_arr(arr);
+            }
+        }).catch(function(err) {
             console.error('Error is ' + err);
+        }).then(function() {
+            liveLoading = false;
+            if (liveFinalPending) {
+                liveFinalPending = false;
+                load_workout_data();
+            } else
+                scheduleLiveRefresh();
         });
     }
 

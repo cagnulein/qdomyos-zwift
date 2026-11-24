@@ -1035,10 +1035,24 @@ void TemplateInfoSenderBuilder::onGetPreviewSessionArray(TemplateInfoSender *tem
     tempSender->send(out.toJson());
 }
 
-void TemplateInfoSenderBuilder::onGetSessionArray(TemplateInfoSender *tempSender) {
+void TemplateInfoSenderBuilder::onGetSessionArray(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     QJsonObject main;
-    main[QStringLiteral("content")] = sessionArray;
-    main[QStringLiteral("msg")] = QStringLiteral("R_getsessionarray");
+    // {"from": n} asks only for the points from index n on (the live update of the charts page):
+    // the whole session of a long workout is megabytes. A part has its own answer name with
+    // "from": the answer goes to every open page, and the other pages take R_getsessionarray
+    // as the whole session
+    int from = msgContent.toObject().value(QStringLiteral("from")).toInt(-1);
+    if (from >= 0 && from <= sessionArray.size()) {
+        QJsonArray part;
+        for (int i = from; i < sessionArray.size(); i++)
+            part.append(sessionArray.at(i));
+        main[QStringLiteral("content")] = part;
+        main[QStringLiteral("from")] = from;
+        main[QStringLiteral("msg")] = QStringLiteral("R_getsessionarraypart");
+    } else {
+        main[QStringLiteral("content")] = sessionArray;
+        main[QStringLiteral("msg")] = QStringLiteral("R_getsessionarray");
+    }
     QJsonDocument out(main);
     tempSender->send(out.toJson());
 }
@@ -1691,7 +1705,7 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                     onAutoresistance(jsonObject[QStringLiteral("content")], sender);
                     return;
                 } else if (msg == QStringLiteral("getsessionarray")) {
-                    onGetSessionArray(sender);
+                    onGetSessionArray(jsonObject[QStringLiteral("content")], sender);
                     return;
                 } else if (msg == QStringLiteral("getpreviewsessionarray")) {
                     onGetPreviewSessionArray(sender);
