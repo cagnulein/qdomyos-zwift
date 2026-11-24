@@ -3,6 +3,46 @@
 #include <gtest/gtest.h>
 #include "devices/kettlerusbbike/KettlerUSB.h"
 
+class KettlerErgoracerTestAccess {
+public:
+    static void setNative(KettlerUSB &bike, bool native) { bike.ergoracerNative = native; }
+    static bool parse(KettlerUSB &bike, const QString &response) { return bike.parseStatusResponse(response); }
+    static double power(KettlerUSB &bike) {
+        double power, heart, cadence, speed, distance;
+        int status;
+        bike.getTelemetry(power, heart, cadence, speed, distance, status);
+        return power;
+    }
+};
+
+TEST(KettlerUSBProtocolTest, DetectsOnlyNativeErgoracerIdentifier) {
+    EXPECT_TRUE(KettlerUSB::isErgoracerIdentifier(QStringLiteral("AR1S")));
+    EXPECT_FALSE(KettlerUSB::isErgoracerIdentifier(QStringLiteral("SK10B E7")));
+    EXPECT_FALSE(KettlerUSB::isErgoracerIdentifier(QStringLiteral("ACK")));
+    EXPECT_FALSE(KettlerUSB::isErgoracerIdentifier(QStringLiteral("")));
+}
+
+TEST(KettlerUSBProtocolTest, NativePowerUsesFifthFieldAndStopsAtZeroCadence) {
+    KettlerUSB bike(nullptr, QString(), 9600);
+    KettlerErgoracerTestAccess::setNative(bike, true);
+    ASSERT_TRUE(KettlerErgoracerTestAccess::parse(bike, QStringLiteral("000\t069\t244\t002\t100\t0009\t00:45\t010")));
+    EXPECT_DOUBLE_EQ(100, KettlerErgoracerTestAccess::power(bike));
+    ASSERT_TRUE(KettlerErgoracerTestAccess::parse(bike, QStringLiteral("000\t000\t000\t021\t025\t0183\t06:20\t000")));
+    EXPECT_DOUBLE_EQ(0, KettlerErgoracerTestAccess::power(bike));
+    ASSERT_TRUE(KettlerErgoracerTestAccess::parse(bike, QStringLiteral("000\t021\t074\t021\t025\t0183\t06:20\t005")));
+    EXPECT_DOUBLE_EQ(25, KettlerErgoracerTestAccess::power(bike));
+    ASSERT_TRUE(KettlerErgoracerTestAccess::parse(bike, QStringLiteral("000\t021\t074\t021\t005\t0183\t06:20\t100")));
+    EXPECT_DOUBLE_EQ(5, KettlerErgoracerTestAccess::power(bike));
+}
+
+TEST(KettlerUSBProtocolTest, OtherModelsKeepCurrentPowerField) {
+    KettlerUSB bike(nullptr, QString(), 57600);
+    ASSERT_TRUE(KettlerErgoracerTestAccess::parse(bike, QStringLiteral("0\t89\t316\t43\t065\t115\t09:02\t10")));
+    EXPECT_DOUBLE_EQ(10, KettlerErgoracerTestAccess::power(bike));
+    ASSERT_TRUE(KettlerErgoracerTestAccess::parse(bike, QStringLiteral("190\t000\t053\t188\t007\t043\t0019\t02:50\t030")));
+    EXPECT_DOUBLE_EQ(30, KettlerErgoracerTestAccess::power(bike));
+}
+
 // Recorded on Kettler E7 USB (57600 baud), QZ 2.20.15, 2025-11-28.
 TEST(KettlerUSBProtocolTest, E7IdleFramePreservesLegacyOffsets) {
     KettlerUSB::StatusFrame frame;

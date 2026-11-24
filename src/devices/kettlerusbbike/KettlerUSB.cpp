@@ -73,6 +73,32 @@ void KettlerUSB::getTelemetry(double &power, double &heartrate, double &cadence,
  * ---------------------------------------------------------------------- */
 
 bool KettlerUSB::initSequence() {
+    // AR1S is the identifier observed in the Ergoracer native capture.
+    // Keep the existing E7/AX1 initialization for every other identifier.
+    ergoracerNative = false;
+    if (sendCommand(QStringLiteral("ID")) < 0)
+        return false;
+    const QString identifier = readResponse();
+    ergoracerNative = isErgoracerIdentifier(identifier);
+    flushSerialBuffer();
+    if (ergoracerNative) {
+        activeProtocol = Protocol::Unknown;
+        if (sendCommand(QStringLiteral("RS")) < 0)
+            return false;
+        KettlerSleeper::msleep(150);
+        readResponse();
+        KettlerSleeper::msleep(2850);
+        if (sendCommand(QStringLiteral("CM")) < 0)
+            return false;
+        KettlerSleeper::msleep(150);
+        readResponse();
+        pvars.lock();
+        if (!writePower)
+            targetPower = 25;
+        pvars.unlock();
+        sendNativePower(25);
+        return true;
+    }
     // Preserve the known working E7 sequence, including its timing and flush.
     // The AX1 is detected from the status layout, not from the configured baud rate.
     statusCommand = QStringLiteral("ST");
@@ -88,6 +114,24 @@ bool KettlerUSB::initSequence() {
     KettlerSleeper::msleep(500);
     flushSerialBuffer();
     return true;
+}
+
+bool KettlerUSB::isErgoracerIdentifier(const QString &response) {
+    return response.trimmed() == QStringLiteral("AR1S");
+}
+
+void KettlerUSB::sendNativePower(double power) {
+    sendCommand(QString("PW %1").arg(static_cast<int>(power)));
+    KettlerSleeper::msleep(150);
+    parseStatusResponse(readResponse());
+}
+
+void KettlerUSB::pollNativeProtocol() {
+    for (const QString &command : {QStringLiteral("CM"), QStringLiteral("ID"), QStringLiteral("VE")}) {
+        sendCommand(command);
+        KettlerSleeper::msleep(150);
+        parseStatusResponse(readResponse());
+    }
 }
 
 bool KettlerUSB::tryExtendedHandshake() {
@@ -160,6 +204,7 @@ bool KettlerUSB::decodeStatusFrame(const QString &response, StatusFrame &frame) 
     frame.speed = fields[legacy ? 2 : 3].toDouble() * 0.1;
     frame.distance = fields[legacy ? 3 : 4].toDouble() * 100.0;
     frame.power = fields[powerIndex].toDouble();
+    frame.setPower = fields[legacy ? 4 : 5].toDouble();
     return true;
 }
 
@@ -196,12 +241,14 @@ bool KettlerUSB::parseStatusResponse(const QString &response) {
     deviceCadence = frame.cadence;
     deviceSpeed = frame.speed;
     deviceDistance = frame.distance;
-    devicePower = frame.power;
+    devicePower = ergoracerNative && frame.protocol == Protocol::Legacy8
+                      ? (frame.cadence > 0 ? frame.setPower : 0) : frame.power;
     pvars.unlock();
 
     qDebug() << "Kettler Status: HR=" << frame.heartRate
              << " RPM=" << frame.cadence << " Speed=" << frame.speed
-             << " Dist=" << frame.distance << " Power=" << frame.power;
+             << " Dist=" << frame.distance << " Power=" << devicePower
+             << " field5=" << frame.setPower << " current=" << frame.power;
     return true;
 }
 
@@ -302,7 +349,10 @@ void KettlerUSB::run() {
     }
 
     // Maintain the legacy console settle time before the first poll.
-    KettlerSleeper::msleep(3000);
+    if (!ergoracerNative)
+        KettlerSleeper::msleep(3000);
+    QElapsedTimer nativePollTimer;
+    nativePollTimer.start();
     int missedStatusPolls = 0;
 
     while (1) {
@@ -311,6 +361,15 @@ void KettlerUSB::run() {
             curWritePower = this->writePower;
             curPower = this->targetPower;
             pvars.unlock();
+
+            if (ergoracerNative) {
+                sendNativePower(curPower);
+                if (nativePollTimer.elapsed() >= 2000) {
+                    pollNativeProtocol();
+                    nativePollTimer.restart();
+                }
+                KettlerSleeper::msleep(500);
+            } else {
 
             if (curWritePower) {
                 const QString powerCmd = QString("PW%1").arg(static_cast<int>(curPower));
@@ -366,6 +425,7 @@ void KettlerUSB::run() {
             }
             // A single missing response is not a disconnect on legacy USB.
             KettlerSleeper::msleep(500);
+            }
         }
 
 
@@ -402,7 +462,10 @@ void KettlerUSB::run() {
                 quit(2);
                 return;
             }
-            KettlerSleeper::msleep(3000);
+            if (ergoracerNative)
+                nativePollTimer.restart();
+            else
+                KettlerSleeper::msleep(3000);
         }
     }
 }

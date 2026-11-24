@@ -92,17 +92,20 @@ class KettlerUSB : public QThread {
         double speed = 0;
         double distance = 0;
         double power = 0;
+        double setPower = 0;
     };
 
     static bool decodeStatusFrame(const QString &response, StatusFrame &frame);
     static bool isStatusResponse(const QString &response);
     static bool takeResponse(QByteArray &buffer, QString &response);
+    static bool isErgoracerIdentifier(const QString &response);
 
     // GET TELEMETRY AND STATUS
     void getTelemetry(double &Power, double &HeartRate, double &Cadence, double &Speed,
                       double &Distance, int &Status);
 
   private:
+    friend class KettlerErgoracerTestAccess;
     void run() override; // called by start to kick off the control thread
 
     // Utility and BG Thread functions
@@ -115,6 +118,8 @@ class KettlerUSB : public QThread {
     bool parseStatusResponse(const QString &response);
     bool initSequence(); // Preserve E7 startup sequence
     bool tryExtendedHandshake(); // Recover AX1 when legacy startup does not yield status
+    void sendNativePower(double power);
+    void pollNativeProtocol();
 
     // Mutex for controlling accessing private data
     QMutex pvars;
@@ -150,6 +155,7 @@ class KettlerUSB : public QThread {
     QString statusCommand = QStringLiteral("ST");
     Protocol activeProtocol = Protocol::Unknown;
     bool extendedHandshakeAttempted = false;
+    bool ergoracerNative = false;
 };
 
 class KettlerSleeper : public QThread {
