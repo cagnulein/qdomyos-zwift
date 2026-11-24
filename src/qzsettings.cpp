@@ -1383,7 +1383,7 @@ const QString QZSettings::resistance_compatibility = QStringLiteral("resistance_
 const QString QZSettings::strava_synthetic_gps_track = QStringLiteral("strava_synthetic_gps_track");
 const QString QZSettings::treadmill_calories_model = QStringLiteral("treadmill_calories_model");
 
-const uint32_t allSettingsCount = 1059;
+const uint32_t allSettingsCount = 1060;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
