@@ -2993,8 +2993,8 @@ import AndroidStatusBar 1.0
             // Keep newly added properties at the end to preserve settings order on iOS.
             property bool strava_synthetic_gps_track: false
 
+            property int rouvy_virtual_gearing_profile: 0
 
-        
         }
 
         // The home page has its own Settings copy, read once when it is created: hand it every new
@@ -10742,6 +10742,25 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                         color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
                     }
+                    Label {
+                        text: qsTr("Virtual Gearing Profile")
+                        Layout.fillWidth: true
+                    }
+                    ComboBox {
+                        Accessible.name: qsTr("Virtual Gearing Profile") + ": " + displayText
+                        Layout.fillWidth: true
+                        model: [qsTr("Mixed Terrain (1×24)"), qsTr("Flat"),
+                                qsTr("All-Arounder"), qsTr("Climbing")]
+                        currentIndex: settings.rouvy_virtual_gearing_profile
+                        onActivated: settings.rouvy_virtual_gearing_profile = currentIndex
+                    }
+                    Label {
+                        text: qsTr("Select the same sequential gearing profile as in Rouvy.")
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                 }
             }
 
