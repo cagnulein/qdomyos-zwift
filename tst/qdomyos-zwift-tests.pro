@@ -74,6 +74,7 @@ SOURCES += \
         Devices/TestTargetPowerOverride.cpp \
         Devices/TestTargetPowerRelease.cpp \
         Devices/TestPausePower.cpp \
+        Devices/TestRowerWorkoutCounters.cpp \
         VirtualRowerCadenceTest.cpp \
         main.cpp
 
