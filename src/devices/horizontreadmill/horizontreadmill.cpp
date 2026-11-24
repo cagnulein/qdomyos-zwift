@@ -1668,39 +1668,51 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
-    QByteArray paragonIncompleteTelemetry;
+    const bool paragonOnly =
+        settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool() &&
+        !settings.value(QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z).toBool();
+    ParagonXTelemetry::NotificationResult paragonNotification{};
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4)) {
-        if (newValue.at(0) == 0x55 && newValue.length() > 7) {
-            // Some Paragon X revisions send only 3x20-byte notifications for
-            // a 74-byte status packet. Finalize those *only* when the next
-            // packet header arrives; never do this for other Horizon models.
-            const bool paragonOnly =
-                settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool() &&
-                !settings.value(QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z).toBool();
-            ParagonXTelemetry::Metrics previous{};
-            if (paragonOnly &&
-                ParagonXTelemetry::decodePreviousAtBoundary(
-                    reinterpret_cast<const uint8_t *>(lastPacketComplete.constData()),
-                    static_cast<std::size_t>(lastPacketComplete.size()), customRecv,
-                    reinterpret_cast<const uint8_t *>(newValue.constData()),
-                    static_cast<std::size_t>(newValue.size()), previous)) {
-                paragonIncompleteTelemetry = lastPacketComplete;
-                qDebug() << "Paragon X: finalizing status frame at next packet boundary"
-                         << paragonIncompleteTelemetry.length();
+        if (paragonOnly) {
+            // The same assembler and packetReceived callback used by the replay
+            // tests handle both completed frames and 60-byte status frames
+            // finalized when the next header arrives.
+            paragonNotification = paragonPacketAssembler.accept(
+                reinterpret_cast<const uint8_t *>(newValue.constData()),
+                static_cast<std::size_t>(newValue.size()), [this]() {
+                    initPacketRecv = true;
+                    emit packetReceived();
+                });
+            const auto &buffer = paragonPacketAssembler.frame();
+            lastPacketComplete = QByteArray(reinterpret_cast<const char *>(buffer.data()),
+                                            static_cast<int>(buffer.size()));
+            customRecv = paragonPacketAssembler.remaining();
+            if (paragonNotification.recovered) {
+                qDebug() << "Paragon X: recovered truncated status frame at next BLE header";
             }
-            lastPacketComplete.clear();
-            customRecv = (((uint16_t)((uint8_t)newValue.at(7)) << 8) | (uint16_t)((uint8_t)newValue.at(6))) + 10;
-            qDebug() << "new custom packet received. Len expected: " << customRecv;
-        }
+            if (paragonNotification.completed) {
+                emit debug(QStringLiteral(" << FULL ") + " " + lastPacketComplete.toHex(' '));
+                qDebug() << "full custom packet received";
+            }
+        } else {
+            // Keep the original frame assembly and completion signals for
+            // other Horizon models completely unchanged.
+            if (newValue.at(0) == 0x55 && newValue.length() > 7) {
+                lastPacketComplete.clear();
+                customRecv = (((uint16_t)((uint8_t)newValue.at(7)) << 8) |
+                              (uint16_t)((uint8_t)newValue.at(6))) + 10;
+                qDebug() << "new custom packet received. Len expected: " << customRecv;
+            }
 
-        lastPacketComplete.append(newValue);
-        customRecv -= newValue.length();
-        if (customRecv <= 0) {
-            emit debug(QStringLiteral(" << FULL ") + " " + lastPacketComplete.toHex(' '));
-            qDebug() << "full custom packet received";
-            initPacketRecv = true;
-            customRecv = 0;
-            emit packetReceived();
+            lastPacketComplete.append(newValue);
+            customRecv -= newValue.length();
+            if (customRecv <= 0) {
+                emit debug(QStringLiteral(" << FULL ") + " " + lastPacketComplete.toHex(' '));
+                qDebug() << "full custom packet received";
+                initPacketRecv = true;
+                customRecv = 0;
+                emit packetReceived();
+            }
         }
     }
 
@@ -1713,20 +1725,25 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) &&
-        (!paragonIncompleteTelemetry.isEmpty() ||
-         (lastPacketComplete.length() > 70 && lastPacketComplete.at(0) == 0x55 &&
-          lastPacketComplete.at(5) == 0x17))) {
-        const QByteArray &statusPacket =
-            paragonIncompleteTelemetry.isEmpty() ? lastPacketComplete : paragonIncompleteTelemetry;
+        ((paragonOnly && (paragonNotification.recovered ||
+                         (paragonNotification.completed && lastPacketComplete.size() > 70 &&
+                          lastPacketComplete.at(0) == 0x55 && lastPacketComplete.at(5) == 0x17))) ||
+         (!paragonOnly && lastPacketComplete.length() > 70 &&
+          lastPacketComplete.at(0) == 0x55 && lastPacketComplete.at(5) == 0x17))) {
         ParagonXTelemetry::Metrics metrics{};
-        if (ParagonXTelemetry::decode(
-                reinterpret_cast<const uint8_t *>(statusPacket.constData()),
-                static_cast<std::size_t>(statusPacket.size()),
-                !paragonIncompleteTelemetry.isEmpty(), metrics)) {
+        const bool decoded =
+            paragonOnly &&
+            (paragonNotification.recovered
+                 ? (metrics = paragonNotification.recoveredMetrics, true)
+                 : ParagonXTelemetry::decode(
+                       reinterpret_cast<const uint8_t *>(lastPacketComplete.constData()),
+                       static_cast<std::size_t>(lastPacketComplete.size()), false, metrics));
+        if (decoded) {
             parseSpeed(metrics.speedKmh);
             parseInclination(treadmillInclinationOverride(metrics.inclinePercent));
         } else {
-            // Preserve the existing parser for other Horizon 0x17 packets.
+            // Retain the preexisting complete-frame parsing for every other
+            // Horizon model (and any Paragon frame of an older format).
             parseSpeed((((double)(((uint16_t)((uint8_t)lastPacketComplete.at(25)) << 8) |
                                     (uint16_t)((uint8_t)lastPacketComplete.at(24)))) /
                           100.0) *
