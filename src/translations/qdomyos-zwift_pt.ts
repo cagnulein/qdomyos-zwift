@@ -6022,12 +6022,12 @@ Permitir que o QZ altere esse valor?
         <translation>Apenas Android: altura da janela flutuante.</translation>
     </message>
     <message>
-        <source>Floating Window Opacity (%):</source>
-        <translation>Opacidade da janela flutuante (%):</translation>
+        <source>Floating Window % Transparency:</source>
+        <translation>Transparência da Janela Flutuante (%):</translation>
     </message>
     <message>
-        <source>Opacity of the floating window (100 = opaque).</source>
-        <translation>Opacidade da janela flutuante (100 = opaca).</translation>
+        <source>Android Only: transparency percentage of the floating window.</source>
+        <translation>Apenas Android: porcentagem de transparência da janela flutuante.</translation>
     </message>
     <message>
         <source>Floating Window Startup</source>
