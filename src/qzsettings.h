@@ -2460,6 +2460,9 @@ class QZSettings {
     static const QString dircon_id;
     static constexpr int default_dircon_id = 0;
 
+    static const QString rouvy_virtual_gearing_profile;
+    static constexpr int default_rouvy_virtual_gearing_profile = 0;
+
     static const QString rouvy_compatibility;
     static constexpr bool default_rouvy_compatibility = false;
 
