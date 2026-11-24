@@ -6126,12 +6126,12 @@ Vill du tillåta att QZ ändrar värdet?
         <translation>Endast Android: höjden på det flytande fönstret.</translation>
     </message>
     <message>
-        <source>Floating Window Opacity (%):</source>
-        <translation>Det flytande fönstrets opacitet (%):</translation>
+        <source>Floating Window % Transparency:</source>
+        <translation>Transparens för flytande fönster (%):</translation>
     </message>
     <message>
-        <source>Opacity of the floating window (100 = opaque).</source>
-        <translation>Det flytande fönstrets opacitet (100 = helt ogenomskinligt).</translation>
+        <source>Android Only: transparency percentage of the floating window.</source>
+        <translation>Endast Android: det flytande fönstrets transparens i procent.</translation>
     </message>
     <message>
         <source>Floating Window Startup</source>
