@@ -1,4 +1,5 @@
 #include "devices/horizontreadmill/paragonxtelemetry.h"
+#include "devices/horizontreadmill/horizontreadmill.h"
 #include <gtest/gtest.h>
 
 #include <cmath>
@@ -274,4 +275,83 @@ TEST(ParagonXTelemetryTest, InitRepliesStillEmitPacketReceivedOnce) {
     const auto ignored = assembler.accept(orphan, sizeof(orphan), [&]() { ++packetReceivedSignals; });
     EXPECT_FALSE(ignored.completed);
     EXPECT_EQ(packetReceivedSignals, 1u);
+}
+
+
+// Only the test can inject BLE notifications directly into the production
+// receiver. This tests the *actual Qt packetReceived signal* rather than a
+// substitute callback or a duplicate implementation of the frame assembler.
+class ParagonXNotificationTestAccess {
+  public:
+    static ParagonXTelemetry::NotificationResult feed(horizontreadmill &driver,
+                                                      const std::vector<uint8_t> &bytes) {
+        return driver.processParagonNotification(
+            QByteArray(reinterpret_cast<const char *>(bytes.data()), static_cast<int>(bytes.size())));
+    }
+    static bool didReceiveInitResponse(const horizontreadmill &driver) {
+        return driver.initPacketRecv;
+    }
+};
+
+TEST(ParagonXTelemetryTest, ProductionDriverSignalsOnceForEveryCompleteFrame) {
+    const auto captures = readCapturedFrames(fixturePath("paragonx_complete_2026.tsv"));
+    ASSERT_EQ(captures.size(), 19u);
+    horizontreadmill driver(false, false);
+    unsigned signals = 0;
+    QObject::connect(&driver, &horizontreadmill::packetReceived, &driver, [&]() { ++signals; });
+    for (std::size_t frameIndex = 0; frameIndex < captures.size(); ++frameIndex) {
+        const auto &chunks = captures[frameIndex].notifications;
+        for (std::size_t i = 0; i < chunks.size(); ++i) {
+            const auto result = ParagonXNotificationTestAccess::feed(driver, chunks[i]);
+            EXPECT_FALSE(result.recovered);
+            EXPECT_EQ(result.completed, i + 1 == chunks.size());
+            EXPECT_EQ(signals, frameIndex + (i + 1 == chunks.size() ? 1u : 0u));
+        }
+    }
+    EXPECT_EQ(signals, captures.size());
+    EXPECT_TRUE(ParagonXNotificationTestAccess::didReceiveInitResponse(driver));
+}
+
+TEST(ParagonXTelemetryTest, ProductionDriverSignalsOnTruncatedFrameBoundary) {
+    const auto captures = readCapturedFrames(fixturePath("paragonx_truncated_2026.tsv"));
+    ASSERT_EQ(captures.size(), 16u);
+    horizontreadmill driver(false, false);
+    unsigned signals = 0;
+    QObject::connect(&driver, &horizontreadmill::packetReceived, &driver, [&]() { ++signals; });
+    for (std::size_t frameIndex = 0; frameIndex < captures.size(); ++frameIndex) {
+        const auto &chunks = captures[frameIndex].notifications;
+        for (std::size_t i = 0; i < chunks.size(); ++i) {
+            const auto result = ParagonXNotificationTestAccess::feed(driver, chunks[i]);
+            EXPECT_FALSE(result.completed);
+            if (frameIndex && i == 0) {
+                EXPECT_TRUE(result.recovered);
+                EXPECT_NEAR(result.recoveredMetrics.speedKmh, captures[frameIndex - 1].speedKmh, 0.00001);
+                EXPECT_NEAR(result.recoveredMetrics.inclinePercent, captures[frameIndex - 1].inclinePercent, 0.00001);
+            } else {
+                EXPECT_FALSE(result.recovered);
+            }
+            EXPECT_EQ(signals, frameIndex);
+        }
+    }
+    // Final recovery requires another packet boundary.
+    EXPECT_EQ(signals, captures.size() - 1);
+    const auto final = ParagonXNotificationTestAccess::feed(driver, captures.front().notifications.front());
+    EXPECT_TRUE(final.recovered);
+    EXPECT_FALSE(final.completed);
+    EXPECT_EQ(signals, captures.size());
+    EXPECT_TRUE(ParagonXNotificationTestAccess::didReceiveInitResponse(driver));
+}
+
+TEST(ParagonXTelemetryTest, ProductionDriverPreservesInitReplySignal) {
+    horizontreadmill driver(false, false);
+    unsigned signals = 0;
+    QObject::connect(&driver, &horizontreadmill::packetReceived, &driver, [&]() { ++signals; });
+    const std::vector<uint8_t> first = {0x55, 0xaa, 0, 0, 2, 0x20, 2, 0};
+    const std::vector<uint8_t> last = {0, 0, 0x0d, 0x0a};
+    const auto partial = ParagonXNotificationTestAccess::feed(driver, first);
+    EXPECT_FALSE(partial.completed);
+    EXPECT_EQ(signals, 0u);
+    const auto full = ParagonXNotificationTestAccess::feed(driver, last);
+    EXPECT_TRUE(full.completed);
+    EXPECT_EQ(signals, 1u);
 }
