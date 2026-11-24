@@ -952,6 +952,9 @@ jobs:
           if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
             ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
           fi
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          bash "${{ github.workspace }}/qt-patches/android/5.15.0/build_qtandroid_bluetooth_jar.sh" "$QT_BT_JAR" "$SDK_ROOT/platforms/android-37.0/android.jar" "$QT_BT_JAR"
+          python3 "${{ github.workspace }}/qt-patches/android/5.15.0/test_qtandroid_bluetooth_utility.py"
 
       - name: Setup ccache
         run: |
@@ -1129,6 +1132,13 @@ jobs:
           name: fdroid-android-trial
           path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk
 
+      - name: Archive AAB for split APK regression
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-debug-bundle
+          path: ${{ github.workspace }}/output/android/build/outputs/bundle/debug/android-debug.aab
+          if-no-files-found: error
+
   android-emulator-test:
     runs-on: ubuntu-latest
     needs: android-build
@@ -1208,6 +1218,17 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Download AAB for split APK regression
+        if: matrix.api-level >= 30
+        uses: actions/download-artifact@v4
+        with:
+          name: android-debug-bundle
+          path: aab-debug
+
+      - name: Install bundletool
+        if: matrix.api-level >= 30
+        run: curl -fL --retry 3 -o bundletool.jar https://github.com/google/bundletool/releases/download/1.18.1/bundletool-all-1.18.1.jar
+
       # The accessibility test runs on the emulator through app_process: compile it to a dex jar
       - name: Build the accessibility test
         run: |
@@ -1243,6 +1264,9 @@ jobs:
             # List available files
             echo "Files in apk-debug directory:"
             ls -la apk-debug/
+
+            # First test real split APKs with no Location permission, then uninstall.
+            if [ "${{ matrix.api-level }}" -ge 30 ]; then bash .github/scripts/android_split_bluetooth_test.sh; fi
 
             # Install the APK
             adb install apk-debug/android-debug.apk
@@ -1358,6 +1382,7 @@ jobs:
             full_logcat.txt
             qdomyos_logcat.txt
             support_email_evidence/**
+            split_bluetooth_evidence/**
           if-no-files-found: warn                
 
   ios-build:
@@ -2608,6 +2633,8 @@ jobs:
           if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
             ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
           fi
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          bash "${{ github.workspace }}/qt-patches/android/5.15.0/build_qtandroid_bluetooth_jar.sh" "$QT_BT_JAR" "$SDK_ROOT/platforms/android-37.0/android.jar" "$QT_BT_JAR"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -2781,6 +2808,8 @@ jobs:
           if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
             ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
           fi
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          bash "${{ github.workspace }}/qt-patches/android/5.15.0/build_qtandroid_bluetooth_jar.sh" "$QT_BT_JAR" "$SDK_ROOT/platforms/android-37.0/android.jar" "$QT_BT_JAR"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -2957,6 +2986,8 @@ jobs:
           if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
             ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
           fi
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          bash "${{ github.workspace }}/qt-patches/android/5.15.0/build_qtandroid_bluetooth_jar.sh" "$QT_BT_JAR" "$SDK_ROOT/platforms/android-37.0/android.jar" "$QT_BT_JAR"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -3087,6 +3118,8 @@ jobs:
           if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
             ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
           fi
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          bash "${{ github.workspace }}/qt-patches/android/5.15.0/build_qtandroid_bluetooth_jar.sh" "$QT_BT_JAR" "$SDK_ROOT/platforms/android-37.0/android.jar" "$QT_BT_JAR"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
