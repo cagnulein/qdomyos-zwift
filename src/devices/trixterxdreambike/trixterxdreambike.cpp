@@ -558,13 +558,6 @@ void trixterxdreambike::update() {
                      << ")";
         }
 
-        // Experiment with active braking
-        if(brakeLevel > 10 && flywheel > 5.1 /*physical crank to flywheel ration is 5 */ * cadence) {
-            // give it a bit extra to coax the flywheel back to a speed where it actually needs
-            // effort put into it.
-            finalResistance += finalResistance >> 3;
-        }
-
         // clamp the resistance value
         if(finalResistance > trixterxdreamclient::MaxResistance)
             finalResistance = trixterxdreamclient::MaxResistance;

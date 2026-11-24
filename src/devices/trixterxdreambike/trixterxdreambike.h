@@ -266,7 +266,7 @@ class trixterxdreambike : public bike
      * @brief The number of milliseconds of no packets processed required before
      * this object will be considered disconnected from the device.
      */
-    constexpr static int32_t DisconnectionTimeout = 50;
+    constexpr static int32_t DisconnectionTimeout = 500;
 
     /**
      * @brief The number of milliseconds to collect packets from the device before updating the metrics.

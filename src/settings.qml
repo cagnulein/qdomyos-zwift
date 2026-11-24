@@ -2967,18 +2967,6 @@ import AndroidStatusBar 1.0
             property real trainprogram_inclination_filter: 0.0
             property bool heart_rate_belt_suggest: false
 
-            // START: Trixter X-Dream properties
-            property bool trixter_xdream_bike_enabled: false
-            property bool trixter_xdream_bike_heartrate_enabled: true
-            property bool trixter_xdream_bike_steering_enabled: true
-            property int trixter_xdream_bike_steering_l : -45
-            property int trixter_xdream_bike_steering_cl : -2
-            property int trixter_xdream_bike_steering_cr : 2
-            property int trixter_xdream_bike_steering_r : 45
-            property int trixter_xdream_bike_steering_max : 45
-            property int trixter_xdream_bike_connection_timeout_ms : 500
-			// END: Trixter X-Dream properties
-
             property bool proform_treadmill_sport_6_0: false
             // The look of the modern interface: main.qml keeps the same keys and applies them at
             // once. Declared here for the settings catalog; the page and the search read them
@@ -2994,6 +2982,16 @@ import AndroidStatusBar 1.0
             property bool strava_synthetic_gps_track: false
 
             property int rouvy_virtual_gearing_profile: 0
+
+            property bool trixter_xdream_bike_enabled: false
+            property bool trixter_xdream_bike_heartrate_enabled: true
+            property bool trixter_xdream_bike_steering_enabled: true
+            property int trixter_xdream_bike_steering_l : -45
+            property int trixter_xdream_bike_steering_cl : -2
+            property int trixter_xdream_bike_steering_cr : 2
+            property int trixter_xdream_bike_steering_r : 45
+            property int trixter_xdream_bike_steering_max : 45
+            property int trixter_xdream_bike_connection_timeout_ms : 500
 
         }
 
