@@ -5953,12 +5953,12 @@ Nếu chọn Không, QZ sẽ bật Without Wheel Diameter Protocol (Cài đặt 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Floating Window Opacity (%):</source>
-        <translation>Độ mờ đục của cửa sổ nổi (%):</translation>
+        <source>Floating Window % Transparency:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Opacity of the floating window (100 = opaque).</source>
-        <translation>Độ mờ đục của cửa sổ nổi (100 = hoàn toàn không trong suốt).</translation>
+        <source>Android Only: transparency percentage of the floating window.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Floating Window Startup</source>
