@@ -46,10 +46,13 @@
 #include <QAndroidJniEnvironment>
 #include <QAndroidJniObject>
 #include <QKeyEvent>
+#include <QPointer>
 #include <QQuickItem>
 #include <QQuickWindow>
 #include <QSemaphore>
+#include <QSet>
 #include <QSharedPointer>
+#include <QTextDocument>
 #include <QThread>
 #include <QTimer>
 #include <QtAndroid>
@@ -869,10 +872,30 @@ static void performEffectiveAction(QAccessibleInterface *iface, const QString &a
     valueIface->setCurrentValue(value + step);
 }
 
+// The name of a text without its markup: a Label takes its text as it is for its accessible name
+// (qquicklabel.cpp), tags and all, and TalkBack read them aloud (QTBUG-67880, open). As Qt Widgets
+// does for a QLabel (QAccessibleDisplay::text): a rich or styled text, or an AutoText that
+// Qt::mightBeRichText(), goes through QTextDocument. A name of its own (other than the text) is kept.
+static QString plainName(QAccessibleInterface *iface, const QString &name) {
+    QObject *object = iface->object();
+    if (!object || name.isEmpty() || object->property("text").toString() != name)
+        return name;
+    const QVariant format = object->property("textFormat");
+    if (!format.isValid())
+        return name;
+    // QQuickText::TextFormat: PlainText 0, RichText 1, AutoText 2, MarkdownText 3, StyledText 4
+    const int value = format.toInt();
+    if (value != 1 && value != 4 && !(value == 2 && Qt::mightBeRichText(name)))
+        return name;
+    QTextDocument document;
+    document.setHtml(name);
+    return document.toPlainText();
+}
+
 static QString accessibleDescription(QAccessibleInterface *iface) {
     QString description;
     if (iface && iface->isValid()) {
-        description = iface->text(QAccessible::Name);
+        description = plainName(iface, iface->text(QAccessible::Name));
         if (description.isEmpty())
             description = iface->text(QAccessible::Description);
         if (description.isEmpty()) {
@@ -904,6 +927,55 @@ struct NodeData {
     bool decrease = false;
 };
 
+// Whether an ancestor of this accessible object is a stop of TalkBack's own: focusable, or pressed by a
+// double tap (clickKind()); the text in it is then read with that ancestor, as Android does with the
+// text of a clickable view's children
+static bool insideActionable(QAccessibleInterface *iface) {
+    for (QAccessibleInterface *parent = iface->parent(); parent && parent->isValid(); parent = parent->parent()) {
+        const QAccessible::Role role = parent->role();
+        if (role == QAccessible::Window || role == QAccessible::Application)
+            return false;
+        if (parent->state().focusable || clickKind(parent) != ClickKind::None)
+            return true;
+    }
+    return false;
+}
+
+// The deepest accessible object under a point of the screen (logical pixels), as a touch finds it
+static QAccessibleInterface *accessibleAt(const QPoint &pos) {
+    QAccessibleInterface *root = interfaceFromId(-1);
+    if (!root || !root->isValid())
+        return nullptr;
+    QAccessibleInterface *child = root->childAt(pos.x(), pos.y());
+    QAccessibleInterface *lastChild = nullptr;
+    while (child && child != lastChild) {
+        lastChild = child;
+        child = child->childAt(pos.x(), pos.y());
+    }
+    return lastChild;
+}
+
+// Whether a touch on the middle of this text finds another object, focusable or pressable (or inside
+// one), laid over it and saying the same words (a MouseArea named as the Label it covers: the profile
+// chip of the side menu). That object is the stop; the text is none, so a swipe stops where a touch
+// does. Another text that a control merely covers (a page under the heart rate sensor bar) stays one.
+static bool coveredByActionable(QAccessibleInterface *iface, const QString &text) {
+    const QRect rect = iface->rect();
+    if (rect.isEmpty())
+        return false;
+    QAccessibleInterface *hit = accessibleAt(rect.center());
+    if (!hit || hit == iface || !hit->isValid())
+        return false;
+    for (QAccessibleInterface *node = hit; node && node->isValid(); node = node->parent()) {
+        const QAccessible::Role role = node->role();
+        if (role == QAccessible::Window || role == QAccessible::Application)
+            return false;
+        if (node->state().focusable || clickKind(node) != ClickKind::None)
+            return accessibleDescription(node).contains(text);
+    }
+    return false;
+}
+
 static NodeData nodeData(jint objectId) {
     NodeData data;
     QAccessibleInterface *iface = interfaceFromId(objectId);
@@ -926,7 +998,16 @@ static NodeData nodeData(jint objectId) {
     data.enabled = !state.disabled;
     data.checkable = state.checkable;
     data.checked = state.checked;
-    data.focusable = state.focusable;
+    // A text (Text, Label: StaticText) is focusable, as in Qt since 5.15.9 and 6.2.5 (qtdeclarative
+    // 9c5f772b5e, QTBUG-77371): else TalkBack neither stops on a text of its own (the text of the heart
+    // rate sensor bar) nor lets a touch focus it. Unlike Qt, not a text inside a focusable or pressable
+    // item (an entry of the side menu, a tile): TalkBack reads it with that item, and focusable it would
+    // be a second stop with the same words. As in Qt, Accessible.focusable: false does not take a text out
+    // (QAccessibleQuickItem::state() of Qt 6 sets focusable for a text role over it); a text that is to
+    // be passed over takes Accessible.ignored: true. An empty text (a value before the first data) is no stop,
+    // nor a text a touch would not find, under a pressable object of its own (coveredByActionable()).
+    data.focusable = state.focusable || (iface->role() == QAccessible::StaticText && !data.description.isEmpty() &&
+                                         !insideActionable(iface) && !coveredByActionable(iface, data.description));
     data.focused = state.focused;
     data.visible = !state.invisible;
     return data;
@@ -1033,14 +1114,8 @@ static jint hitTest(JNIEnv *, jclass, jfloat x, jfloat y) {
         QAccessibleInterface *root = interfaceFromId(-1);
         if (root && root->isValid()) {
             const QPoint pos = QHighDpi::fromNativePixels(QPoint(int(x), int(y)), root->window());
-            QAccessibleInterface *child = root->childAt(pos.x(), pos.y());
-            QAccessibleInterface *lastChild = nullptr;
-            while (child && child != lastChild) {
-                lastChild = child;
-                child = child->childAt(pos.x(), pos.y());
-            }
-            if (lastChild)
-                return jint(QAccessible::uniqueId(lastChild));
+            if (QAccessibleInterface *hit = accessibleAt(pos))
+                return jint(QAccessible::uniqueId(hit));
         }
         return jint(-1);
     });
@@ -1195,6 +1270,8 @@ static void registerOverQt() {
 // The timer is made in main() on the Qt thread; Qt 5.15 runs some accessibility actions on the
 // Android UI thread (unless androidAccessibility::registerOverQt() moved them to the Qt thread),
 // so a show or hide that comes from there starts it through a queued call.
+static void popupsOpened();
+
 static QTimer *accessibilityRefreshTimer() {
     static QTimer *timer = nullptr;
     if (!timer) {
@@ -1202,9 +1279,11 @@ static QTimer *accessibilityRefreshTimer() {
         timer->setSingleShot(true);
         timer->setInterval(0);
         QObject::connect(timer, &QTimer::timeout, [] {
-            if (QAccessible::isActive())
-                QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity",
-                                                          "accessibilityTreeChanged", "()V");
+            if (!QAccessible::isActive())
+                return;
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity",
+                                                      "accessibilityTreeChanged", "()V");
+            popupsOpened();
         });
     }
     return timer;
@@ -1220,12 +1299,126 @@ static bool accessibleIgnored(QObject *object) {
     return false;
 }
 
+// Where TalkBack's focus goes when a modal popup opened: its first object, in TalkBack's order, that
+// TalkBack stops on (focusable, or pressed by a double tap) or that is a text of its own (a title, a
+// question: a text inside a stop is read with it, and the walk does not go into a stop), so a dialog
+// is read from its title, as a dialog of Android is. A popup with nothing to press or focus (a notice)
+// keeps no focus: hasStop false.
+struct PopupFocus {
+    jint first = -1;
+    bool hasStop = false;
+};
+
+static void findPopupFocus(QAccessibleInterface *iface, PopupFocus &found, int depth = 0) {
+    if (!iface || !iface->isValid() || depth > 32)
+        return;
+    const int count = iface->childCount();
+    for (int i = 0; i < count && !found.hasStop; ++i) {
+        QAccessibleInterface *child = iface->child(i);
+        if (!child || !child->isValid())
+            continue;
+        const QQuickItem *item = qobject_cast<QQuickItem *>(child->object());
+        if (item && !item->isVisible())
+            continue;
+        if (child->state().focusable || clickKind(child) != ClickKind::None) {
+            found.hasStop = true;
+            if (found.first == -1)
+                found.first = jint(QAccessible::uniqueId(child));
+        } else if (child->role() == QAccessible::StaticText) {
+            if (found.first == -1 && !child->text(QAccessible::Name).isEmpty())
+                found.first = jint(QAccessible::uniqueId(child));
+        } else {
+            findPopupFocus(child, found, depth + 1);
+        }
+    }
+}
+
+// The items of modal popups shown and not opened yet: QQuickPopup emits opened() once its enter
+// transition finished (qquickpopup.cpp:470-477) - the side menu slid in, the rows of a list made - and
+// that starts the refresh timer, which then moves the focus into them (popupsOpened())
+static QList<QPointer<QObject>> &openingPopupItems() {
+    static QList<QPointer<QObject>> items;
+    return items;
+}
+
+// The items of popups shown at least once: a popup removed while open (a Loader switched off, a
+// destroy()) may send no hide - QQuickPopup's destructor closes it (setParentItem(nullptr),
+// qquickpopup.cpp:820-826, 1625-1627), but with an exit transition the item is deleted before
+// that transition hides it - so its destroyed() gives the focus back as a hide would
+static QSet<QObject *> &watchedPopupItems() {
+    static QSet<QObject *> items;
+    return items;
+}
+
+static void popupsOpened() {
+    QList<QPointer<QObject>> &items = openingPopupItems();
+    for (int i = items.size() - 1; i >= 0; --i) {
+        QObject *popupItem = items.at(i);
+        QObject *popup = popupItem ? popupItem->parent() : nullptr;
+        if (popup && !popup->property("opened").toBool())
+            continue;
+        items.removeAt(i);
+        QAccessibleInterface *iface = popupItem ? QAccessible::queryAccessibleInterface(popupItem) : nullptr;
+        if (!iface || !iface->isValid())
+            continue;
+        PopupFocus found;
+        findPopupFocus(iface, found);
+        if (found.hasStop && found.first != -1)
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity",
+                                                      "accessibilityPopupOpened", "(II)V",
+                                                      jint(QAccessible::uniqueId(iface)), found.first);
+    }
+}
+
 static void androidAccessibilityUpdate(QAccessibleEvent *event) {
     if (event->type() != QAccessible::ObjectShow && event->type() != QAccessible::ObjectHide)
         return;
     if (!event->object() || accessibleIgnored(event->object()))
         return;
     QTimer *timer = accessibilityRefreshTimer();
+    // A popup (its item: QQuickPopup shows and hides it, qquickpopup.cpp:441, 484): CustomQtActivity
+    // keeps TalkBack's focus when it shows and gives it back when it hides, and a modal one (a side
+    // menu, a dialog) takes the focus once it opened, as TalkBack does with a dialog of Android: else
+    // the focus stays on the button that opened it, under the popup. A popup that is not modal (a
+    // notice) leaves the focus where it is. The key is the item's accessible id, the same for the show
+    // and the hide; the item's QObject parent is its popup (qquickpopupitem.cpp:164). Its opened() is
+    // connected to the refresh timer by name: QQuickPopup's header is private to Qt.
+    if (event->object()->inherits("QQuickPopupItem") && event->accessibleInterface()) {
+        QObject *popupItem = event->object();
+        const jint key = jint(QAccessible::uniqueId(event->accessibleInterface()));
+        // the popup and the list of popups opening are read and changed on the Qt thread only
+        const bool onQtThread = QThread::currentThread() == timer->thread();
+        if (event->type() == QAccessible::ObjectShow) {
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity",
+                                                      "accessibilityPopupShown", "(I)V", key);
+            if (onQtThread && !watchedPopupItems().contains(popupItem)) {
+                watchedPopupItems().insert(popupItem);
+                QObject::connect(popupItem, &QObject::destroyed, [key](QObject *item) {
+                    watchedPopupItems().remove(item);
+                    if (QAccessible::isActive())
+                        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity",
+                                                                  "accessibilityPopupHidden", "(I)V", key);
+                });
+            }
+            QObject *popup = onQtThread ? popupItem->parent() : nullptr;
+            if (popup && popup->property("modal").toBool()) {
+                const QMetaObject *meta = popup->metaObject();
+                const int opened = meta->indexOfSignal("opened()");
+                const int start = timer->metaObject()->indexOfSlot("start()");
+                if (opened >= 0 && start >= 0) {
+                    if (!openingPopupItems().contains(popupItem))
+                        openingPopupItems().append(popupItem);
+                    QObject::connect(popup, meta->method(opened), timer, timer->metaObject()->method(start),
+                                     Qt::UniqueConnection);
+                }
+            }
+        } else {
+            if (onQtThread)
+                openingPopupItems().removeAll(popupItem);
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity",
+                                                      "accessibilityPopupHidden", "(I)V", key);
+        }
+    }
     if (QThread::currentThread() == timer->thread())
         timer->start();
     else

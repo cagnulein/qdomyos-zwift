@@ -18,6 +18,7 @@
 #define _KettlerUSB_h 1
 
 #include <QDebug>
+#include <QByteArray>
 #include <QElapsedTimer>
 #include <QFile>
 #include <QMutex>
@@ -60,7 +61,7 @@
 #define KETTLER_PAUSED 0x02
 
 /* default operation mode */
-#define DEFAULT_POWER 25.00
+#define DEFAULT_POWER 100.00
 
 class KettlerUSB : public QThread {
 
@@ -83,12 +84,28 @@ class KettlerUSB : public QThread {
     void setDevice(QString deviceFilename); // setup the device filename
     void setPower(double power);            // set the target power in Watts
 
+    enum class Protocol { Unknown, Legacy8, Extended9 };
+    struct StatusFrame {
+        Protocol protocol = Protocol::Unknown;
+        double heartRate = 0;
+        double cadence = 0;
+        double speed = 0;
+        double distance = 0;
+        double power = 0;
+        double setPower = 0;
+    };
+
+    static bool decodeStatusFrame(const QString &response, StatusFrame &frame);
+    static bool isStatusResponse(const QString &response);
+    static bool takeResponse(QByteArray &buffer, QString &response);
+    static bool isErgoracerIdentifier(const QString &response);
+
     // GET TELEMETRY AND STATUS
     void getTelemetry(double &Power, double &HeartRate, double &Cadence, double &Speed,
                       double &Distance, int &Status);
 
   private:
-    friend class KettlerUSBTestAccess;
+    friend class KettlerErgoracerTestAccess;
     void run() override; // called by start to kick off the control thread
 
     // Utility and BG Thread functions
@@ -98,10 +115,10 @@ class KettlerUSB : public QThread {
     // Protocol encoding/decoding
     int sendCommand(const QString &command);
     QString readResponse();
-    void parseStatusResponse(const QString &response);
-    void processNativePollResponse(const QString &response);
-    void initSequence(); // Send initialization commands
-    void sendPowerCommand(double power);
+    bool parseStatusResponse(const QString &response);
+    bool initSequence(); // Preserve E7 startup sequence
+    bool tryExtendedHandshake(); // Recover AX1 when legacy startup does not yield status
+    void sendNativePower(double power);
     void pollNativeProtocol();
 
     // Mutex for controlling accessing private data
@@ -122,10 +139,10 @@ class KettlerUSB : public QThread {
     // device port
     QString deviceFilename;
 #ifdef WIN32
-    HANDLE devicePort;
+    HANDLE devicePort = INVALID_HANDLE_VALUE;
     DCB deviceSettings;
 #else
-    int devicePort;
+    int devicePort = -1;
     struct termios deviceSettings;
 #endif
 
@@ -134,9 +151,11 @@ class KettlerUSB : public QThread {
     QString rawRead();
     void flushSerialBuffer(); // Flush any pending data in serial buffer
 
-    // Bytes received but not yet returned as a complete line (all platforms:
-    // a single read() on a USB serial adapter often returns part of a line)
     QByteArray rxBuffer;
+    QString statusCommand = QStringLiteral("ST");
+    Protocol activeProtocol = Protocol::Unknown;
+    bool extendedHandshakeAttempted = false;
+    bool ergoracerNative = false;
 };
 
 class KettlerSleeper : public QThread {

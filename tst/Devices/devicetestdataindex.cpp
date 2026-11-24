@@ -576,6 +576,7 @@ void DeviceTestDataIndex::Initialize() {
 
     // FTMS Bike
     QStringList acceptableFTMSNames {
+        "AS6-", // ART.IS Cross AS6 (ChangYow SM5081E BLE, e.g. AS6-0185)
         "DHZ-", // JK fitness 577
         "MKSM", // MKSM3600036
         "YS_C1_", // Yesoul C1H
@@ -744,7 +745,7 @@ void DeviceTestDataIndex::Initialize() {
     // These prefixes take priority over Horizon's broader YPTM- match.
     RegisterNewDeviceTestData(DeviceIndex::YpooTreadmill)
         ->expectDevice<ypootreadmill>()
-        ->acceptDeviceNames({"YPTM-U0", "YP-M1552-"}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceNames({"YPTM-U", "YP-M1552-"}, DeviceNameComparison::StartsWithIgnoreCase)
         ->excluding<horizontreadmill>();
 
     // Horizon Treadmill
@@ -755,7 +756,7 @@ void DeviceTestDataIndex::Initialize() {
             // FTMS
             {"T318_", "T218_", "TRX3500", "JFTMPARAGON", "PARAGON X", "JFTM", "CT800",
              "MOBVOI TM", "DK202000725", "CTM780102C6BB32D62", "MX-TM ", "MATRIXTF50", "MOBVOI TM",
-             "KETTLER TREADMILL", "ASSAULTRUNNER", "TM55-", "YPTM-U1", "YPOO-MINI PRO-"}, DeviceNameComparison::StartsWithIgnoreCase);
+             "KETTLER TREADMILL", "ASSAULTRUNNER", "TM55-", "YPTM-", "YPOO-MINI PRO-"}, DeviceNameComparison::StartsWithIgnoreCase);
 
 
     // Adidas treadmills explicitly configured for FTMS must use Horizon, not AppGate USB.
@@ -841,15 +842,23 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<keepbike>()
         ->acceptDeviceName("KEEP_BIKE_", DeviceNameComparison::StartsWithIgnoreCase);
 
-    // Kettler Classic / MyHomeFIT RFCOMM
+    // The two Classic Bluetooth Kettler devices share framing, not driver or metrics.
     RegisterNewDeviceTestData(DeviceIndex::KettlerClassicBike)
         ->expectDevice<kettlerclassicbike>()
-        // bluetooth.cpp matches RACER S prefixes regardless of case.
         ->acceptDeviceName("RACER S", DeviceNameComparison::StartsWithIgnoreCase)
+        ->rejectDeviceName("COACH S 42FC38", DeviceNameComparison::IgnoreCase)
         ->rejectDeviceName("RACER", DeviceNameComparison::IgnoreCase)
-        ->rejectDeviceName("XRACER S", DeviceNameComparison::IgnoreCase)
         ->configureSettingsWith(QZSettings::bh_spada_2);
 
+    RegisterNewDeviceTestData(DeviceIndex::KettlerCoachRower)
+        ->expectDevice<kettlercoachrower>()
+        ->acceptDeviceName("COACH S 42FC38", DeviceNameComparison::IgnoreCase)
+        ->acceptDeviceName("coach s 42fc38", DeviceNameComparison::IgnoreCase)
+        ->acceptDeviceName("COACH S", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("XCOACH S 42FC38", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("COACH SX", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("RACER S", DeviceNameComparison::IgnoreCase)
+        ->configureSettingsWith(QZSettings::bh_spada_2);
 
     // A DYNAMAX is an FTMS bike only when this specific device is selected as the FTMS bike.
     RegisterNewDeviceTestData(DeviceIndex::DynamaxSprintFTMSBike)
@@ -1440,6 +1449,7 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::ToorxAppGateUSBBike)
         ->expectDevice<trxappgateusbbike>()        
         ->acceptDeviceNames({"TUN ","PASYOU-","IBIKING+",}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceNames({"CARE11216+0505", "CARE11216+X"}, DeviceNameComparison::IgnoreCase)
         ->configureSettingsWith(
             [](const DeviceDiscoveryInfo &info, bool enable, std::vector<DeviceDiscoveryInfo> &configurations) -> void
             {

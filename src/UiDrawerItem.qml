@@ -38,14 +38,15 @@ ItemDelegate {
         UiIcon {
             id: itemIcon
             anchors.verticalCenter: parent.verticalCenter
-            width: 22
-            height: 22
+            // Material 3 navigation drawer: 24 icon, 12 to the label, so the label starts at 64
+            width: 24
+            height: 24
             name: control.iconName
             color: control.lit ? window.ui.accent : window.ui.textMuted
         }
         Label {
             anchors.left: itemIcon.right
-            anchors.leftMargin: 16
+            anchors.leftMargin: 12
             anchors.right: externalIcon.visible ? externalIcon.left : parent.right
             anchors.verticalCenter: parent.verticalCenter
             text: control.text

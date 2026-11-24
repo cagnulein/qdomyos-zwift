@@ -938,7 +938,7 @@ void virtualtreadmill::treadmillProvider() {
     uint16_t swiftSpeed = normalizeSpeed;
     uint16_t swiftCadence = (uint16_t)(((treadmill *)treadMill)->currentCadence().value() * cadence_multiplier);
     uint8_t swiftResistance = 0;
-    uint16_t swiftWatt = (uint16_t)((treadmill *)treadMill)->wattsMetric().value();
+    uint16_t swiftWatt = (uint16_t)((treadmill *)treadMill)->wattsMetricforUI();
     uint16_t swiftInclination = forwardControlPointWrites
         ? static_cast<uint16_t>(static_cast<int16_t>(qRound(inclination * 10.0)))
         : (uint16_t)(inclination * 10.0);

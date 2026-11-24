@@ -10,6 +10,9 @@ import QtQuick.Layouts 1.3
 // Goes into the item that holds the content at its (0, 0) - the Loader of AccordionElement, the
 // box of StaticAccordionElement and AccordionCheckElement - which is laid out in the column of
 // the section under its header; made by a Loader of its own there, it is told that item by holder.
+// On a settings page without sections (TTS, the keyboard shortcuts, the inclination overrides)
+// it is the first item of the column itself, of no height: it stands at (0, 0) of the column as
+// well.
 Item {
     id: frames
 
@@ -19,13 +22,19 @@ Item {
     property Item header: null
     // 1 - a top-level section, 2 - inside it, and so on; deeper ones are drawn as the second
     property int depth: 1
+    // Items of the column left without a frame (the title of a settings page)
+    property var exclude: []
     // The item that holds the content and these frames at its (0, 0)
     property Item holder: parent
 
-    readonly property int framePadH: 10
+    // the text of a setting 16 in from the edge of its frame, as Material 3 (was 10)
+    readonly property int framePadH: 16
     readonly property int framePadV: 8
     readonly property int frameGap: 6
     readonly property int blockPad: 6
+    // A subheader inside a section ("Gear Controls", "Garmin Connect"): the room above it, as M3
+    // keeps a new group of a list apart
+    readonly property int subheaderTop: 20
     // The margins of the holder in the column of the section: the content inside the block and
     // inside the frames of its settings
     readonly property int insetLeft: !window.ui.modern ? 0
@@ -37,7 +46,8 @@ Item {
     // A row is one setting as well ("GR7 Cadence Multiplier" with its field and OK): cut into
     // groups, the OK button got the margins of a setting of its own and sat lower than the field
     readonly property bool single: content !== null && (content.checked !== undefined || content.text !== undefined
-                                                         || String(content).indexOf("QQuickRowLayout") === 0)
+                                                         || String(content).indexOf("QQuickRowLayout") === 0
+                                                         || content.stackedRow !== undefined)
     readonly property int insetTop: !window.ui.modern ? 0 : blockPad + (single ? framePadV : 0)
     readonly property int insetBottom: insetTop
 
@@ -55,9 +65,14 @@ Item {
             return false
         return c.linkedBoolSetting === undefined || c.isOpen
     }
-    // A label of its own: the name of the control below it
+    function isDescription(c) {
+        return c.text !== undefined && c.wrapMode !== undefined && c.color !== undefined
+            && Qt.colorEqual(c.color, window.ui.textMuted)
+    }
+    // A label of its own, not a description: the name of the control below it
     function isTitle(c) {
         return c.text !== undefined && c.wrapMode !== undefined && c.checked === undefined && c.readOnly === undefined
+            && !isDescription(c)
     }
     // A note in bold italic, which the modern look keeps in its own colour ("Apple Watch users:
     // leave it disabled!", "0.005 = Clinchers", "IMPORTANT: ... UNIT ID")
@@ -67,6 +82,10 @@ Item {
     // A UiButton on its own in the column
     function isButton(c) {
         return c.applyOnSelect !== undefined && c.clicked !== undefined
+    }
+    // Something to set or to press with a meaning of its own: not a text and not a button
+    function isSetting(c) {
+        return !isDescription(c) && !isNote(c) && !isTitle(c) && !isButton(c)
     }
     // A drop-down list, or a row with one in it
     function hasPicker(c) {
@@ -114,7 +133,7 @@ Item {
             // A list (the profiles, the settings files) is not a setting: it fills its section
             // by its anchors, and layout margins of a frame moved it off its place
             if (!window.ui.modern || !c.visible || (c.height <= 0 && c.implicitHeight <= 0)
-                    || c.contentY !== undefined)
+                    || exclude.indexOf(c) >= 0 || c.contentY !== undefined)
                 continue
             if (isSectionLike(c)) {
                 // Out to the edges of the frames around it
@@ -123,7 +142,7 @@ Item {
                 want.section = true
                 want.groupStart = true
                 cur = null
-            } else if (cur && ((cur.titleOnly && c.checked === undefined)
+            } else if (cur && (isDescription(c) || (cur.titleOnly && c.checked === undefined)
                                || isNote(c)
                                || (isButton(c) && (hasPicker(cur.last.item) || cur.pickerNote)))) {
                 // A description or a note joins the setting above it; a lone title ("FTMS
@@ -135,8 +154,9 @@ Item {
                 cur.pickerNote = isNote(c) && hasPicker(cur.last.item)
                 cur.last = want
                 cur.titleOnly = false
+                cur.plain = cur.plain && !isSetting(c)
             } else {
-                cur = { first: want, last: want, titleOnly: isTitle(c) }
+                cur = { first: want, last: want, titleOnly: isTitle(c), plain: !isSetting(c) }
                 want.group = cur
                 want.groupStart = true
             }
@@ -149,6 +169,18 @@ Item {
                 continue
             if (e.section) {
                 e.top += seen ? frameGap : 0
+            } else if (e.group.plain) {
+                // No setting in the group (a description or a note of the section, a subheader, a
+                // button of the list above): no frame - in a frame of its own it looked like an empty
+                // setting. Text on the block, in the column of the text of the frames, as M3 puts the
+                // supporting text of a list: the gap of the frames above it, the gaps of two below it - the ink
+                // ~8 dp under the header or the frame above, the block of the text 12 dp over the next
+                // frame (the ink 12-15, as the style guide puts a list under a hint). A subheader - a
+                // title, not a note in its own colour - gets its room above it
+                if (isTitle(e.group.first.item) && !isNote(e.group.first.item))
+                    e.group.first.top = Math.max(e.group.first.top, subheaderTop)
+                e.group.first.top += seen ? frameGap : 0
+                e.group.last.bottom += frameGap
             } else {
                 e.group.first.top += framePadV + (seen ? frameGap : 0)
                 e.group.last.bottom += framePadV
@@ -171,17 +203,51 @@ Item {
             itemFrames = list
     }
 
+    // A label of a setting in two lines or more: the lines closer, x1.15 of the font (~x1.28 by
+    // default). Most rows of settings.qml are a RowLayout of a Label and a field: the labels are
+    // found here, in the content of the section. Only Body Large (the row labels; the hints are
+    // smaller); one line stays as it is (Qt 5.15.0 cuts the only line too, qquicktext.cpp:1264); the
+    // line count follows the width only. UiSettingsRow (stackedRow) and the switches (titleLeading)
+    // set their own
+    function applyLeading(item) {
+        if (!item)
+            return
+        if (item.lineCount !== undefined && item.lineHeight !== undefined && item.wrapMode !== undefined) {
+            // regular weight: the headers of the sections inside (Medium) keep theirs, as the top ones
+            if (item.readOnly === undefined && item.font && item.font.pixelSize === window.ui.fontBody
+                    && !item.font.bold && item.font.weight <= Font.Normal) {
+                var label = item
+                label.lineHeight = Qt.binding(function () {
+                    return window.ui.modern && label.wrapMode !== Text.NoWrap && label.lineCount > 1 ? 0.9 : 1
+                })
+            }
+            return
+        }
+        if (item.stackedRow !== undefined || item.titleLeading !== undefined)
+            return
+        for (var i = 0; i < item.children.length; i++)
+            applyLeading(item.children[i])
+    }
+    function applyLeadingAll() {
+        if (window.ui.modern && content)
+            applyLeading(content)
+    }
+
     // A new content (a Loader loads it again on every opening): its margins as it comes
     // On the next turn: the content is often set while the section is still being laid out, and
     // margins changed in the middle of it made a binding loop on the height of the section
     onContentChanged: {
         baseMargins = []
         Qt.callLater(frames.regroup)
+        Qt.callLater(frames.applyLeadingAll)
     }
     // Made by a Loader once the look turns modern, the content is often there already: the frames
     // are laid out when made as well, not only on a change of it (a second call on the same turn
     // is merged into one)
-    Component.onCompleted: Qt.callLater(frames.regroup)
+    Component.onCompleted: {
+        Qt.callLater(frames.regroup)
+        Qt.callLater(frames.applyLeadingAll)
+    }
     // A section opened again (StaticAccordionElement keeps its content while closed): the
     // settings are visible again, the groups are made anew
     onVisibleChanged: if (visible) Qt.callLater(frames.regroup)
@@ -192,7 +258,10 @@ Item {
     }
     Connections {
         target: window.ui
-        function onModernChanged() { Qt.callLater(frames.regroup) }
+        function onModernChanged() {
+            Qt.callLater(frames.regroup)
+            Qt.callLater(frames.applyLeadingAll)
+        }
     }
 
     // The block of an open section: its header is the top of it
@@ -211,8 +280,40 @@ Item {
         strokeWidth: 1
     }
 
+    // The frame of the setting an item is part of: its label, control and description together.
+    // null when it has none (the classic look, a section, a note of the section). The search lights
+    // the setting it opens by it (settings.qml, settingHighlight)
+    function frameOf(item) {
+        if (!content || !item)
+            return null
+        // The child of the column the item sits in (the column itself for a single setting)
+        var c = item
+        while (c && c !== content && c.parent !== content)
+            c = c.parent
+        if (!c)
+            return null
+        var kids = content.children
+        for (var f = 0; f < itemFrames.length; f++) {
+            if (itemFrames[f].first === content)
+                return settingFrames.itemAt(f)
+            var first = -1, last = -1, at = -1
+            for (var k = 0; k < kids.length; k++) {
+                if (kids[k] === itemFrames[f].first)
+                    first = k
+                if (kids[k] === itemFrames[f].last)
+                    last = k
+                if (kids[k] === c)
+                    at = k
+            }
+            if (first >= 0 && at >= first && at <= last)
+                return settingFrames.itemAt(f)
+        }
+        return null
+    }
+
     // A frame for every setting
     Repeater {
+        id: settingFrames
         model: frames.itemFrames
         UiFrame {
             z: -1

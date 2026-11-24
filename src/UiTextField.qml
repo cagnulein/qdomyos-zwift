@@ -4,6 +4,9 @@ import QtQuick.Controls 2.12
 import QtQuick.Controls.impl 2.12
 import QtQuick.Controls.Material 2.12
 import QtQuick.Controls.Material.impl 2.12
+import QtQuick.Layouts 1.12
+// after QtQuick: Binding.restoreMode (passwordCharacter)
+import QtQml 2.15
 
 // TextField of the settings pages and the lists: the Qt 5.15 Material TextField, copied as
 // is (qtquickcontrols2 5.15, src/imports/controls/material/TextField.qml), so nothing
@@ -14,6 +17,29 @@ T.TextField {
 
     readonly property bool modern: window.ui.modern
     readonly property int modernInset: modern ? 6 : 0
+    // The placeholder as drawn: a narrow field can show a shorter one ("–" for "None")
+    // while placeholderText, which the screen reader reads, keeps the word
+    property string shownPlaceholder: placeholderText
+    // A field for a long free text - an e-mail, a login, a password, an address (set by
+    // SettingsTextField and SettingsFormatField "ip"/"host"). In a settings row of the modern look
+    // (UiSettingsRow) it goes under the label, across the row (the rows put its text from the left
+    // there): at 120 with the padding of the filled field only the end of an address or of a password
+    // showed. The classic look and the other rows - as before
+    property bool wideText: false
+    Layout.fillWidth: wideText && modern && !!parent && parent.stackedRow === true
+
+    // Modern look: a password shows U+2022, as the password fields of Android. The default U+25CF
+    // (qplatformtheme.cpp v5.15.0:498) is not in Roboto and comes from a fallback font with a larger
+    // ascent, and Qt 5.15 draws such a line higher instead of lower (qquicktextinput.cpp v5.15.0:1923,
+    // QTBUG-141251, fixed in Qt 6.12): the dots sat ~3 dp above the middle of the filled field. The
+    // classic look keeps the default
+    Binding {
+        target: control
+        property: "passwordCharacter"
+        value: "•"
+        when: control.modern
+        restoreMode: Binding.RestoreBindingOrValue
+    }
 
     implicitWidth: implicitBackgroundWidth + leftInset + rightInset
                    || Math.max(contentWidth, placeholder.implicitWidth) + leftPadding + rightPadding
@@ -179,7 +205,7 @@ T.TextField {
         y: control.topPadding
         width: control.width - (control.leftPadding + control.rightPadding)
         height: control.height - (control.topPadding + control.bottomPadding)
-        text: control.placeholderText
+        text: control.shownPlaceholder
         font: control.font
         color: control.placeholderTextColor
         verticalAlignment: control.verticalAlignment

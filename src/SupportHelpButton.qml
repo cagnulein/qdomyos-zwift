@@ -212,6 +212,18 @@ Item {
             contentHeight: reportForm.implicitHeight + 32
             flickableDirection: Flickable.VerticalFlick
             interactive: contentHeight > height
+            // Modern look: a thin bar while the form moves, at the right edge of the dialog in its
+            // margin, left of a navigation bar in landscape (the form keeps clear of it). Qt places
+            // the bar only when its parent is the flickable, so x, y and height are set here.
+            // Classic look: no bar, as before
+            ScrollIndicator.vertical: ScrollIndicator {
+                visible: support.modern
+                parent: reportScroll.parent
+                x: mirrored ? reportScroll.x + window.getLeftPadding()
+                            : reportScroll.x + reportScroll.width - window.getRightPadding() - width
+                y: reportScroll.y
+                height: reportScroll.height
+            }
 
             Column {
                 id: reportForm

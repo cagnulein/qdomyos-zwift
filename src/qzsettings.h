@@ -751,6 +751,10 @@ class QZSettings {
     static const QString proform_tdf_jonseed_watt;
     static constexpr bool default_proform_tdf_jonseed_watt = false;
 
+    // Opt-in support for physical front/rear gears on ProForm Wi-Fi consoles.
+    static const QString proform_use_console_gears;
+    static constexpr bool default_proform_use_console_gears = false;
+
     static const QString proform_studio;
     static constexpr bool default_proform_studio = false;
 
@@ -3492,6 +3496,14 @@ class QZSettings {
     // already was the last device, so it was connected before the question existed
     static const QString wahoo_wheel_question_answered;
     static constexpr bool default_wahoo_wheel_question_answered = false;
+
+    // Optional synthetic coordinates for virtual FIT activities (no real GPS).
+    static const QString strava_synthetic_gps_track;
+    static constexpr bool default_strava_synthetic_gps_track = false;
+
+    // Use FTMS 16-bit resistance levels multiplied by 10 for compatible trainers.
+    static const QString resistance_compatibility;
+    static constexpr bool default_resistance_compatibility = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

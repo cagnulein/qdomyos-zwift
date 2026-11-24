@@ -7,6 +7,7 @@
 #include "ios/lockscreen.h"
 #include "ios/ios_liveactivity.h"
 #include "ios/ios_background_keepalive.h"
+#include "ios/ios_floating_metrics.h"
 #endif
 #include "localipaddress.h"
 #ifdef Q_OS_ANDROID
@@ -68,6 +69,9 @@
 #include <QDataStream>
 #include <algorithm>
 #include <chrono>
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
 
 #ifdef Q_OS_IOS
 // Implemented by ios/support_email.mm; always built for Qt iOS including IO_UNDER_QT.
@@ -79,6 +83,16 @@ homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
 
 namespace {
+// QFile::copy() gives the copy the permissions of the source, and a file in the resources is
+// read-only: on Windows a bundled program copied that way cannot be deleted. Copies made by
+// earlier versions are fixed too, as this runs at every start.
+void makeBundledCopyWritable(const QString &path) {
+    QFile file(path);
+    if (file.exists() && !(file.permissions() & QFileDevice::WriteOwner)) {
+        file.setPermissions(file.permissions() | QFileDevice::WriteOwner);
+    }
+}
+
 QString uploadActivityLabelFromSport(FIT_SPORT sport) {
     switch (sport) {
     case FIT_SPORT_RUNNING:
@@ -872,6 +886,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         m_topBarHeight = 0;
         emit topBarHeightChanged(m_topBarHeight); // NOTE: clazy-incorrecrt-emit
         m_info = QLatin1String("");
+        m_infoFoundDevice.clear();
         emit infoChanged(m_info); // NOTE: clazy-incorrecrt-emit
     }
 
@@ -1064,6 +1079,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         if (!QFile(targetPath).exists() && !QFile(markerPath).exists()) {
             QFile::copy(":/zwo/" + itZwo.fileName(), targetPath);
         }
+        makeBundledCopyWritable(targetPath);
     }
 
     QDirIterator itGpx(":/gpx/");
@@ -1076,7 +1092,17 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         if (!QFile(targetPath).exists() && !QFile(markerPath).exists()) {
             QFile::copy(":/gpx/" + itGpx.fileName(), targetPath);
         }
+        makeBundledCopyWritable(targetPath);
     }
+
+#ifdef Q_OS_WIN
+    // deletion markers that earlier versions left visible
+    QDirIterator itMarker(getWritableAppDir() + "training", QStringList() << QStringLiteral(".deleted_*"),
+                          QDir::Files | QDir::Hidden, QDirIterator::Subdirectories);
+    while (itMarker.hasNext()) {
+        hideDeletionMarker(itMarker.next());
+    }
+#endif
 
     removeOldWorkoutImages();
 
@@ -1124,9 +1150,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             this, [](const QString& filename) {
                 qDebug() << "FitDatabaseProcessor Processing:" << filename;
             });
+    // the history page shows it: the new files of the fit folder at start, the files of an import
     connect(fitProcessor, &FitDatabaseProcessor::progress,
-            this, [](int processed, int total) {
+            this, [this](int processed, int total) {
                 qDebug() << "FitDatabaseProcessor Progress:" << processed << "/" << total;
+                setFitImportProgress(true, processed, total);
             });
     connect(fitProcessor, &FitDatabaseProcessor::error,
             this, [](const QString& error) {
@@ -1138,6 +1166,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(fitProcessor, &FitDatabaseProcessor::processingStopped,
             this, [this]() {
                 qDebug() << "FitDatabaseProcessor Processing stopped - refreshing workout model";
+                setFitImportProgress(true, 0, 0);
                 workoutModel->setDatabaseProcessing(false);
                 workoutModel->refresh();
                 if (!m_historyRecoveryChecked) {
@@ -1156,6 +1185,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             this, [this](int added, int alreadyInHistory, int unreadable, bool databaseOpen) {
                 qDebug() << "FitDatabaseProcessor import: added" << added << "already" << alreadyInHistory
                          << "unreadable" << unreadable << "database open" << databaseOpen;
+                setFitImportProgress(true, 0, 0);
                 setFitImportRunning(false);
                 const bool quiet = m_fitImportQuiet;
                 m_fitImportQuiet = false;
@@ -1363,7 +1393,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         }
     });
 
-    bluetoothManager->homeformLoaded = true;
+    // The Bluetooth manager exists before this object. Start any deferred
+    // discovery/direct SPP connection only now that UI slots are connected.
+    bluetoothManager->onHomeformReady();
 }
 
 #ifdef Q_OS_ANDROID
@@ -1384,6 +1416,30 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnOAuthCallback(JNIEnv *en
     if (homeform::singleton()) {
         QMetaObject::invokeMethod(homeform::singleton(), "handleOAuthCallbackUrl", Qt::QueuedConnection,
                                   Q_ARG(QString, url));
+    }
+}
+
+// a restore of the QZ folder is copying file done of total: the list pages show how far it is
+JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnFolderRestoreProgress(JNIEnv *env, jclass clazz, jint done,
+                                                                              jint total) {
+    Q_UNUSED(env)
+    Q_UNUSED(clazz)
+    if (homeform::singleton()) {
+        QMetaObject::invokeMethod(homeform::singleton(), "setFolderRestoreProgress", Qt::QueuedConnection,
+                                  Q_ARG(int, done), Q_ARG(int, total));
+    }
+}
+
+// a workout import from a folder is copying file done of total out of it; 0, 0 when the copy is over
+JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnFitImportProgress(JNIEnv *env, jclass clazz, jint done,
+                                                                          jint total) {
+    Q_UNUSED(env)
+    Q_UNUSED(clazz)
+    if (homeform::singleton()) {
+        QMetaObject::invokeMethod(homeform::singleton(), "setFitImportProgress", Qt::QueuedConnection,
+                                  Q_ARG(bool, false), Q_ARG(int, done), Q_ARG(int, total));
     }
 }
 
@@ -1666,6 +1722,7 @@ void homeform::peloton_start_workout() {
 
     if (settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
         m_info = stravaPelotonActivityName;
+        m_infoFoundDevice.clear();
         emit infoChanged(m_info);
     }
 
@@ -1813,6 +1870,13 @@ QString homeform::getWritableAppDir() {
     path = QDir::currentPath() + "/";
 #endif
     return path;
+}
+
+// "file://" + path is not a valid URL when the path starts with a drive letter ("file://C:/..." makes C the
+// host) or is relative (Linux: getWritableAppDir() is empty), so QML folder lists built that way show the
+// working directory or nothing; QUrl::fromLocalFile builds the right one on every platform
+QUrl homeform::localFileUrl(const QString &path) {
+    return QUrl::fromLocalFile(QFileInfo(path).absoluteFilePath());
 }
 
 // Keep any letters (Cyrillic, accents, CJK...): only replace characters a file name cannot hold
@@ -1974,6 +2038,16 @@ void homeform::refresh_bluetooth_devices_clicked() {
 QString homeform::bluetoothSearchStatus() {
     if (!bluetoothManager || bluetoothManager->device())
         return QString();
+    // with Bluetooth off no Bluetooth search runs: the line said "Searching for the device..." (or the
+    // start value "Connecting...") until it was switched on
+    if (bluetoothManager->bluetoothOff())
+        return tr("Bluetooth is off");
+    // Gym mode: the trainer is picked, QZ looks for it and connects - say which one, while a search runs
+    // or is due. A search that has given up still says to tap the Bluetooth icon; after a scan that
+    // failed (Location off) none runs or is due, and the line stays empty as before
+    if (!bluetoothManager->gymModeDevice().isEmpty() &&
+        (bluetoothManager->isSearching() || bluetoothManager->nextSearchMs()))
+        return tr("Connecting to %1...").arg(bluetoothManager->gymModeDevice());
     // while scanning, the last device found shows that QZ is finding something (useful for troubleshooting)
     const QString scanning = lastFoundDevice.isEmpty() ? tr("Searching for the device...")
                                                        : tr("%1 found").arg(lastFoundDevice);
@@ -1994,12 +2068,33 @@ QString homeform::bluetoothSearchStatus() {
     return tr("%1 found").arg(lastFoundDevice) + QStringLiteral("\n") + countdown;
 }
 
+bool homeform::bluetoothSearchStopped() {
+    return bluetoothManager && !bluetoothManager->device() && !bluetoothManager->isSearching() &&
+           bluetoothManager->searchStopped();
+}
+
+bool homeform::bluetoothSearchOff() {
+    return bluetoothManager && !bluetoothManager->device() && bluetoothManager->bluetoothOff();
+}
+
 void homeform::bluetoothSearchNow() {
     if (!bluetoothManager || bluetoothManager->device())
         return;
     const int waitSec = bluetoothManager->searchNow();
     if (waitSec > 0)
         setToastRequested(tr("Android allows 5 Bluetooth searches in 30 s, the next one starts in %1 s").arg(waitSec));
+}
+
+int homeform::bluetoothNextSearchSeconds() {
+    if (!bluetoothManager || bluetoothManager->device())
+        return -1;
+    if (bluetoothManager->isSearching())
+        return 0;
+    if (!bluetoothManager->nextSearchMs())
+        return -1;
+    const qint64 left = bluetoothManager->nextSearchMs() - QDateTime::currentMSecsSinceEpoch();
+    // rounded up as in bluetoothSearchStatus(): both say the same number
+    return left > 0 ? int((left + 999) / 1000) : 0;
 }
 
 void homeform::selectGymModeDevice(const QString &deviceName) {
@@ -2788,6 +2883,40 @@ void homeform::setTileNames() {
     groundContactMS->setName(tr("Ground C.(ms)"));
     verticalOscillationMM->setName(tr("Vert.Osc.(mm)"));
     stepCount->setName(tr("Step Count"));
+}
+
+bool homeform::floatingMetricsSupported() {
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+    return iosFloatingMetrics::supported();
+#else
+    return false;
+#endif
+}
+
+void homeform::toggleFloatingMetrics() {
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+    const bool running = iosFloatingMetrics::running();
+    const bool supported = iosFloatingMetrics::supported();
+    qDebug() << "Floating metrics: toggle requested, running" << running << "supported" << supported;
+    if (running) {
+        iosFloatingMetrics::stop();
+    } else if (supported) {
+        updateFloatingMetrics();
+        iosFloatingMetrics::start();
+    }
+#endif
+}
+
+void homeform::updateFloatingMetrics() {
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+    QList<QPair<QString, QString>> metrics;
+    for (QObject *object : dataList) {
+        DataObject *tile = static_cast<DataObject *>(object);
+        if (tile->visibleItem() && !tile->largeButton() && !tile->value().isEmpty())
+            metrics.append(qMakePair(tile->name(), tile->value()));
+    }
+    iosFloatingMetrics::update(metrics, tr("No enabled metrics"));
+#endif
 }
 
 void homeform::sortTiles() {
@@ -5353,8 +5482,8 @@ void homeform::deviceFound(const QString &name) {
     if (!settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
         return;
     }
-    m_info = name + QStringLiteral(" found");
-    emit infoChanged(m_info);
+    m_infoFoundDevice = name;
+    emit infoChanged(info());
 }
 
 void homeform::LargeButton(const QString &name) {
@@ -6076,6 +6205,7 @@ void homeform::Plus(const QString &name) {
                 if (trainProgram) {
                     trainProgram->adjustPowerOffsetForTrainingProgram(powerJog);
                 }
+                updateTargetPowerOverride((bike *)bluetoothManager->device());
             } else if (bluetoothManager->device()->deviceType() == TREADMILL) {
                 m_overridePower = true;
                 ((treadmill *)bluetoothManager->device())
@@ -6386,6 +6516,7 @@ void homeform::Minus(const QString &name) {
                 if (trainProgram) {
                     trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
                 }
+                updateTargetPowerOverride((bike *)bluetoothManager->device());
             } else if (bluetoothManager->device()->deviceType() == TREADMILL) {
                 const int32_t currentPower = qRound(((treadmill *)bluetoothManager->device())->lastRequestedPower().value());
                 const int32_t nextPower = currentPower > 0 ? qMax(1, currentPower - qRound(powerJog)) : 0;
@@ -6450,12 +6581,47 @@ void homeform::Minus(const QString &name) {
 
 void homeform::Start() { Start_inner(true); }
 
+void homeform::setTargetPowerReleaseVisible(bool value) {
+    if (m_targetPowerReleaseVisible == value) {
+        return;
+    }
+    m_targetPowerReleaseVisible = value;
+    emit targetPowerReleaseVisibleChanged(value);
+}
+
+bool homeform::updateTargetPowerOverride(bike *device) {
+    // the condition of the T.Power(W) loop in update(); also called right after +/- on the tile, so the app's
+    // resistance is held from the first press and not only from the next update() tick
+    const bool loop = (!trainProgram || !trainProgram->isStarted()) && !device->ergModeSupportedAvailableBySoftware() &&
+                      device->lastRequestedPower().value() > 0 && m_overridePower;
+    device->setTargetPowerOverrideActive(loop);
+    setTargetPowerReleaseVisible(device->targetPowerReleaseAvailable());
+    return loop;
+}
+
+void homeform::clearTargetPowerOverride() {
+    m_overridePower = false;
+    m_overridePowerWarned = false;
+    if (bluetoothManager && bluetoothManager->device() && bluetoothManager->device()->deviceType() == BIKE) {
+        ((bike *)bluetoothManager->device())->setTargetPowerOverrideActive(false);
+    }
+    setTargetPowerReleaseVisible(false);
+}
+
+void homeform::releaseTargetPower() {
+    qDebug() << QStringLiteral("Return to app pressed");
+    // unlike Start/Pause/Stop, the app's last command is applied now, not at its next frame
+    clearTargetPowerOverride();
+    if (bluetoothManager && bluetoothManager->device() && bluetoothManager->device()->deviceType() == BIKE) {
+        ((bike *)bluetoothManager->device())->releaseTargetPowerToApp();
+    }
+}
+
 void homeform::Start_inner(bool send_event_to_device) {
     QSettings settings;
     qDebug() << QStringLiteral("Start pressed - paused") << paused << QStringLiteral("stopped") << stopped;
 
-    m_overridePower = false;
-    m_overridePowerWarned = false;
+    clearTargetPowerOverride();
 
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
         m_speech.say("Start pressed");
@@ -6566,6 +6732,28 @@ void homeform::PauseFromDevice() {
 
 void homeform::StopFromDevice() {
     qDebug() << QStringLiteral("Physical stop button pressed on device - stopping app");
+
+    // An idle/repeated status notification must not open an empty workout summary.
+    // Keep the same no-workout guards used by Stop(), before entering the QML UI flow.
+    auto *device = bluetoothManager ? bluetoothManager->device() : nullptr;
+    if (stopped || !device)
+        return;
+
+    if (device->deviceType() == TREADMILL && device->currentSpeed().value() == 0.0 &&
+        QTime(0, 0, 0, 0).secsTo(device->elapsedTime()) == 0)
+        return;
+
+    // Home.qml::inner_stop() invokes the normal Stop() slot, then displays the
+    // workout summary (or the optional RPE/feel dialog). Calling Stop() alone
+    // saves the session but misses that UI flow. Physical Stop is definitive,
+    // so there is no need for an additional confirmation dialog.
+    QObject *home = engine && !engine->rootObjects().isEmpty()
+                        ? engine->rootObjects().constFirst()->findChild<QObject *>(QStringLiteral("home"))
+                        : nullptr;
+    if (home && QMetaObject::invokeMethod(home, "inner_stop", Qt::DirectConnection))
+        return;
+
+    qWarning() << QStringLiteral("Physical stop: Home.qml unavailable, saving workout without summary");
     Stop();
 }
 
@@ -6593,8 +6781,7 @@ void homeform::Stop() {
 
     m_startRequested = false;
     // like Start/Pause, Stop gives the load back to the external app or the bike
-    m_overridePower = false;
-    m_overridePowerWarned = false;
+    clearTargetPowerOverride();
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -6676,6 +6863,7 @@ void homeform::Stop() {
 
         // clearing the label on top because if it was running a training program, with stop the program will be terminated
         m_info = workoutName();
+        m_infoFoundDevice.clear();
         emit infoChanged(m_info);
     }
 
@@ -7694,9 +7882,7 @@ void homeform::update() {
             this->steeringAngle->setValue(
                 QString::number(((bike *)bluetoothManager->device())->currentSteeringAngle().value(), 'f', 1));
 
-            if ((!trainProgram || (trainProgram && !trainProgram->isStarted())) &&
-                !((bike *)bluetoothManager->device())->ergModeSupportedAvailableBySoftware() &&
-                ((bike *)bluetoothManager->device())->lastRequestedPower().value() > 0 && m_overridePower) {
+            if (updateTargetPowerOverride((bike *)bluetoothManager->device())) {
                 qDebug() << QStringLiteral("using target power tile for ERG workout manually");
                 ((bike *)bluetoothManager->device())
                     ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value());
@@ -8407,6 +8593,10 @@ void homeform::update() {
                 }
         */
 
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+        if (iosFloatingMetrics::running())
+            updateFloatingMetrics();
+#endif
         qDebug() << "homeform::update tiles updated!";
 
 #ifdef Q_OS_ANDROID
@@ -9655,6 +9845,8 @@ void homeform::handleAndroidDocumentPicked(int requestCode, const QString &local
         return;
     }
     if (requestCode == AndroidDocumentPickerRestoreFolderRequestCode) {
+        // the pass is over: the progress the Java side passed before this result goes away
+        setFolderRestoreProgress(0, 0);
         const int restored = restoredFileCount(localPath);
         qDebug() << "files of a previous install restored:" << restored;
         const bool quiet = m_folderRestoreQuiet;
@@ -10043,6 +10235,21 @@ void homeform::importFitFilesToHistory(const QStringList &files) {
     QMetaObject::invokeMethod(fitProcessor, "importFiles", Qt::QueuedConnection, Q_ARG(QStringList, files));
 }
 
+// On Windows a leading dot does not hide a file, only the hidden attribute does: without it the
+// list of programs shows the deletion markers (.deleted_<name>.zwo matches *.zwo)
+void homeform::hideDeletionMarker(const QString &markerPath) {
+#ifdef Q_OS_WIN
+    const QString nativePath = QDir::toNativeSeparators(markerPath);
+    const wchar_t *path = reinterpret_cast<const wchar_t *>(nativePath.utf16());
+    const DWORD attributes = GetFileAttributesW(path);
+    if (attributes != INVALID_FILE_ATTRIBUTES && !(attributes & FILE_ATTRIBUTE_HIDDEN)) {
+        SetFileAttributesW(path, attributes | FILE_ATTRIBUTE_HIDDEN);
+    }
+#else
+    Q_UNUSED(markerPath)
+#endif
+}
+
 bool homeform::deleteTrainingProgramFile(const QString &fileUrl) {
     if (fileUrl.isEmpty()) {
         return false;
@@ -10075,6 +10282,7 @@ bool homeform::deleteTrainingProgramFile(const QString &fileUrl) {
     if (markerFile.open(QIODevice::WriteOnly)) {
         markerFile.write("This file was intentionally deleted by the user");
         markerFile.close();
+        hideDeletionMarker(markerFile.fileName());
     }
     return true;
 }
@@ -10111,7 +10319,7 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
                 trainingProgram()->setVideoAvailable(false);
             }
 
-            stravaWorkoutName = QFileInfo(file.fileName()).baseName();
+            stravaWorkoutName = QFileInfo(file.fileName()).completeBaseName();
             stravaPelotonInstructorName = QStringLiteral("");
             emit workoutNameChanged(workoutName());
             emit instructorNameChanged(instructorName());
@@ -10119,6 +10327,7 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
             QSettings settings;
             if (settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
                 m_info = workoutName();
+                m_infoFoundDevice.clear();
                 emit infoChanged(m_info);
             }
         }
@@ -10293,6 +10502,7 @@ void homeform::trainprogram_zwo_loaded(const QString &s) {
                     return;
                 }
                 m_info = workoutName();
+                m_infoFoundDevice.clear();
                 emit infoChanged(m_info);
             }
         }
@@ -10569,8 +10779,10 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
 
-    stravaWorkoutName = QFileInfo(file.fileName()).baseName();
+    stravaWorkoutName = QFileInfo(file.fileName()).completeBaseName();
+    emit workoutNameChanged(workoutName());
     if (!file.fileName().isEmpty()) {
+        bool hasRouteSegments = false;
         {
             if (trainProgram) {
 
@@ -10635,10 +10847,15 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
                 emit videoPathChanged(movieFileName);
                 setVideoIconVisible(true);
             }
+            hasRouteSegments = !list.isEmpty();
             trainProgram = new trainprogram(list, bluetoothManager, nullptr, nullptr, videoIconVisible());
         }
 
         trainProgramSignals();
+        if (hasRouteSegments) {
+            // Use the same QZ-only pause/resume as Start Workout, without stopping the equipment.
+            trainprogram_autostart_requested();
+        }
     }
 }
 
@@ -10695,6 +10912,12 @@ QStringList homeform::bluetoothDevices() {
     QStringList r;
     r.append(QStringLiteral("Disabled"));
     r.append(QStringLiteral("Wifi"));
+
+    // Include network-discovered DIRCON equipment alongside Bluetooth devices.
+    if (bluetoothManager) {
+        for (const DirconDeviceInfo &dev : bluetoothManager->dirconDevices())
+            r.append(dev.displayName);
+    }
 
     // Collect named devices and sort by RSSI descending (strongest signal first)
     QList<QBluetoothDeviceInfo> sorted;

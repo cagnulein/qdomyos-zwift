@@ -5,12 +5,15 @@
     <title>Line Chart</title>
 	 <meta charset="utf-8">
 	 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Modern look of the app: the theme of PreviewChart.qml, before anything draws -->
+    <script src="../chartjs/qz-theme-bridge.js"></script>
     <script src="../chartjs/resize-observer.min.js"></script>
     <script src="../chartjs/jquery-3.6.0.min.js"></script>
     <script src="../chartjs/chartjs.3.4.1.min.js"></script>
     <script src="../chartjs/moment.js"></script>
     <script src="../chartjs/chartjs-adapter-moment.js"></script>
     <script src="../chartjs/chartjs-plugin-annotation.min.js"></script>
+    <script src="../chartjs/qzcharttheme.js"></script>
     <script src="../chartjs/globals.js"></script>
     <script src="main_ws_manager.js"></script>
     <script src="../i18n/i18n.js"></script>
@@ -30,6 +33,9 @@
         min-width: 0;
     }
     </style>
+    <!-- Modern look: shared sizes, then the chart pages -->
+    <link rel="stylesheet" href="../chartjs/qz-modern.css">
+    <link rel="stylesheet" href="../chartjs/qz-modern-charts.css">
 </head>
 
 <body style="background-color:#1d2330">

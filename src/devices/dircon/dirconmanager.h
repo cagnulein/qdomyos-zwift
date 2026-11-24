@@ -46,6 +46,8 @@ class DirconManager : public QObject {
   signals:
     void changeInclination(double grade, double percentage);
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    // the last app TCP connection to the DIRCON services closed
+    void clientDisconnected();
 };
 
 #endif // DIRCOMMANAGER_H

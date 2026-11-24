@@ -230,9 +230,12 @@ devices/bowflextreadmill/bowflextreadmill.cpp \
 devices/chronobike/chronobike.cpp \
 devices/concept2skierg/concept2skierg.cpp \
 devices/cscbike/cscbike.cpp \
+devices/dircon/dircondiscovery.cpp \
 devices/dircon/dirconmanager.cpp \
 devices/dircon/dirconpacket.cpp \
 devices/dircon/dirconprocessor.cpp \
+devices/dircon/wahoodirconbike.cpp \
+devices/dircon/wahoodircontreadmill.cpp \
 devices/domyoselliptical/domyoselliptical.cpp \
 devices/domyosrower/domyosrower.cpp \
 devices/domyostreadmill/domyostreadmill.cpp \
@@ -288,6 +291,7 @@ devices/horizontreadmill/horizontreadmill.cpp \
 devices/ypootreadmill/ypootreadmill.cpp \
 devices/iconceptbike/iconceptbike.cpp \
 devices/kettlerclassicbike/kettlerclassicbike.cpp \
+devices/kettlercoachrower/kettlercoachrower.cpp \
 devices/kettlerclassicbike/kettlerclassicprotocol.cpp \
 devices/inspirebike/inspirebike.cpp \
 keepawakehelper.cpp \
@@ -573,9 +577,12 @@ devices/bowflextreadmill/bowflextreadmill.h \
 devices/chronobike/chronobike.h \
 devices/concept2skierg/concept2skierg.h \
 devices/cscbike/cscbike.h \
+devices/dircon/dircondiscovery.h \
 devices/dircon/dirconmanager.h \
 devices/dircon/dirconpacket.h \
 devices/dircon/dirconprocessor.h \
+devices/dircon/wahoodirconbike.h \
+devices/dircon/wahoodircontreadmill.h \
 devices/domyoselliptical/domyoselliptical.h \
 devices/domyosrower/domyosrower.h \
 devices/domyostreadmill/domyostreadmill.h \
@@ -597,6 +604,7 @@ homefitnessbuddy.h \
 devices/horizongr7bike/horizongr7bike.h \
 devices/iconceptbike/iconceptbike.h \
 devices/kettlerclassicbike/kettlerclassicbike.h \
+devices/kettlercoachrower/kettlercoachrower.h \
 devices/kettlerclassicbike/kettlerclassicprotocol.h \
 devices/keepbike/keepbike.h \
 devices/kingsmithr1protreadmill/kingsmithr1protreadmill.h \
@@ -1121,13 +1129,14 @@ ios {
 
 ios {
     # AVFoundation is used by the background keep alive (silent audio session)
-    LIBS += -framework AVFoundation
+    LIBS += -framework AVFoundation -framework AVKit -framework CoreMedia -framework CoreVideo
 
     OBJECTIVE_SOURCES += ios/lockscreen.mm \
     ios/ios_eliteariafan.mm \
     ios/ios_app_delegate.mm \
     ios/ios_background_keepalive.mm \
     ios/ios_liveactivity.mm \
+    ios/ios_floating_metrics.mm \
 	 fit-sdk/FitDecode.mm \
 	 fit-sdk/FitDeveloperField.mm \
 	 fit-sdk/FitEncode.mm \
@@ -1141,6 +1150,7 @@ ios {
 
     OBJECTIVE_HEADERS += ios/M3iNS.h \
     ios/ios_liveactivity.h \
+    ios/ios_floating_metrics.h \
     ios/ios_background_keepalive.h
 
     QMAKE_INFO_PLIST = ios/Info.plist

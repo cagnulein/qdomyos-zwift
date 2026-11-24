@@ -252,12 +252,30 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         }
     }
     
+    // Preserve the protocol's no-argument entry point for existing callers.
     func stopWorkOut() {
+        stopWorkOut(saveToHealth: true)
+    }
+
+    func stopWorkOut(saveToHealth: Bool) {
+        guard let workoutSession = workoutSession, let workoutBuilder = workoutBuilder else {
+            print("Cannot stop workout: no active HealthKit session")
+            return
+        }
         print("Stop workout")
         WorkoutTracking.kcal = WatchKitConnection.kcal
         WorkoutTracking.totalKcal = WatchKitConnection.totalKcal
         WatchKitConnection.shared.sendDebug("stop pressed local watchKcal=\(WatchKitConnection.kcal) watchTotalKcal=\(WatchKitConnection.totalKcal) trackingKcal=\(WorkoutTracking.kcal) trackingTotalKcal=\(WorkoutTracking.totalKcal)")
         workoutSession.stopActivity(with: Date())
+        if !saveToHealth {
+            // Do not finish the builder: that would persist the workout and its samples.
+            workoutBuilder.discardWorkout()
+            workoutSession.end()
+            WorkoutTracking.flightsClimbed = 0
+            WorkoutTracking.elevationGain = 0
+            WatchKitConnection.shared.sendDebug("watch workout discarded without saving to Apple Health")
+            return
+        }
         workoutSession.end()
         
         // Write active and basal calories

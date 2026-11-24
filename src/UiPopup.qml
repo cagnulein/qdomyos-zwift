@@ -13,6 +13,8 @@ Popup {
     // Modern look: a snackbar (UiNotice) - the inverse colours, dark on a light page and
     // light on a dark one, and no outline
     property bool inverse: false
+    // Modern look: the corner of the card. A dialog takes 28, as UiMessageDialog
+    property real modernRadius: 20
 
     // Material dims with a light veil in the dark theme, and the page looks washed out:
     // the modern look darkens it. Classic: the Material Popup overlay as is.
@@ -29,7 +31,7 @@ Popup {
 
     // Modern: UiFrame, not Rectangle.border - a thin border breaks up on Android
     background: UiFrame {
-        radius: control.modern ? (control.inverse ? 14 : 20) : 2
+        radius: control.modern ? (control.inverse ? 14 : control.modernRadius) : 2
         fill: control.modern ? (control.inverse ? window.ui.textMain : window.ui.surfaceHigh) : control.Material.dialogColor
         stroke: window.ui.outline
         strokeWidth: control.modern && !control.inverse && !window.ui.dark ? 1 : 0

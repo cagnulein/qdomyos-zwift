@@ -17,13 +17,40 @@ An active Zwift subscription is not required for this handshake procedure; a Zwi
 On iPhone, **initial discovery** of QZ's virtual trainer can behave differently from keeping an **already-paired** connection alive. If Zwift's pairing screen does not list **QZ** (Bluetooth) or **Wahoo KICKR 0000** (Wahoo Direct Connect / Wi-Fi), try this confirmed workaround:
 
 1. Open QZ on the iPhone and make sure it has connected to the physical trainer. Enable the virtual-device transport you want to use.
-2. **Leave QZ in the foreground** while opening Zwift's pairing screen on the other device.
+2. For a **two-device setup**, **leave QZ in the foreground** while opening Zwift's pairing screen on the receiving device.
 3. When QZ / Wahoo KICKR 0000 appears, pair it to Zwift as the appropriate **Power Source** and **Controllable** device (and cadence if offered).
 4. Only after pairing succeeds, put QZ in the background. With **iOS Background Keep Alive** enabled under **Experimental Settings**, check that power, resistance control and any virtual shifting still work during a short test.
 
 **Why:** iOS does not advertise a Bluetooth peripheral's local name when its app is in the background, and background service UUID discovery is restricted. Wahoo Direct Connect uses **Bonjour/mDNS over Wi-Fi**, not BLE advertising, but its discovery responses also depend on QZ being allowed to execute and access the local network. **iOS Background Keep Alive may help keep an established session running; it is not a guarantee that Zwift can discover a new virtual trainer in the background.** In a confirmed support report, existing Zwift pairing worked with QZ backgrounded, but first-time discovery required returning QZ to the foreground, even with Keep Alive enabled.
 
 This concerns the **virtual trainer's discovery**, not the separate Zwift Click v2 controller keepalive/handshake.
+
+For the **newer QZ iOS beta**, QZ and Zwift can also run **on the same iPhone or iPad** by enabling **Experimental Settings > iOS Background Keep Alive**. See the [iOS same-device FAQ](ios.md); the initial-discovery caution above still applies.
+
+## Zwift on Windows cannot find QZ as Wahoo KICKR 0000 over Wi-Fi. What should I try?
+
+When QZ is connected to the physical trainer but Zwift on Windows lists only the phone's Bluetooth device name, or cannot connect to that entry, check the **Wahoo Direct Connect (DIRCON) Wi-Fi** path separately. The phone's Bluetooth name and **Wahoo KICKR 0000** are different virtual-trainer transports.
+
+1. Keep QZ connected to the physical trainer with live power/cadence, enable **Experimental Settings > Wahoo DIRCON**, and leave QZ running in the foreground. Put the phone and Windows PC on the same local Wi-Fi/LAN; temporarily disable a phone VPN if present.
+2. On Windows, open Command Prompt and run the following command. If `dns-sd` is unavailable, install Apple's **Bonjour Print Services for Windows** and retry:
+
+   ```cmd
+   dns-sd -B _wahoo-fitness-tnp._tcp local.
+   ```
+
+3. Allow roughly 30 seconds for discovery. If a Wahoo KICKR service appears, note its **exact instance name**, press Ctrl+C, and resolve it (replace the example with the name actually listed):
+
+   ```cmd
+   dns-sd -L "Wahoo KICKR 0000" _wahoo-fitness-tnp._tcp local.
+   ```
+
+   This displays the advertised host and TCP port. If no service appears, investigate the local network's Bonjour/mDNS discovery (including Wi-Fi isolation and local security software) rather than assuming the Bluetooth entry is the Wi-Fi trainer.
+4. If Bonjour discovers the service but **Zwift does not show Wahoo KICKR 0000**, fully close Zwift, temporarily **turn off Bluetooth on the Windows PC**, reopen Zwift, and allow up to a couple of minutes for its pairing search. On Zwift's full device list, look for **Wahoo KICKR 0000** and pair it as **Power Source** and **Controllable**, then test live power and resistance.
+5. **Turn Windows Bluetooth back on** and restart Zwift to verify that the Wi-Fi pairing still works, especially if you use Bluetooth accessories. This is a temporary comparison, not a recommendation to ride with Bluetooth permanently disabled.
+
+**Confirmed support result:** On a QZ Android-phone-to-Windows setup, Zwift initially saw only the phone's Bluetooth name despite DIRCON being enabled; reinstalling Zwift had not helped. After the `dns-sd` checks and one Zwift restart with Windows Bluetooth off, Wahoo KICKR 0000 appeared after about two minutes and worked in a ride. A subsequent restart with Bluetooth restored found the trainer almost immediately.
+
+**The root cause is unproven.** Stale discovery or cached state is a possibility, but the result does **not** establish that `dns-sd` flushes a cache or that toggling Bluetooth alone fixes every case. See [DIRCON/Wi-Fi diagnostic intake](../support-diagnostics/virtual-device-settings.md) if discovery, TCP reachability, or pairing still fails.
 
 ## QZ and Zwift show different virtual gear numbers. How can I keep them aligned?
 

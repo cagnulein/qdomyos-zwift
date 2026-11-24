@@ -89,6 +89,9 @@ class ftmsbike : public bike {
     void enableManualResistancePowerAdjustment(resistance_t resistance);
     static resistance_t normalizedResistanceForDevice(const QString &deviceName, double rawResistance);
     static resistance_t rawResistanceForDevice(const QString &deviceName, resistance_t displayedResistance);
+    static bool uses16BitResistanceForDevice(const QString &deviceName);
+    static bool isMatchingFtmsControlResponse(const QBluetoothUuid &characteristicUuid,
+                                              const QByteArray &response, uint8_t requestedOpcode);
 
     // Most FTMS bikes can use QZ's software ERG emulation, but FS-YK devices
     // should stay on direct resistance control because it doesn't send the current resistance value and it conflicts
@@ -162,6 +165,14 @@ class ftmsbike : public bike {
 
     bool initDone = false;
     bool initRequest = false;
+
+    // Matrix R30 XR (MX-RB prefix): do not send target resistance until 2AD9 indications
+    // are enabled and Request Control has been acknowledged by the bike.
+    bool matrixControlPointIndicationsReady = false;
+    bool matrixControlGranted = false;
+    bool matrixControlRequestPending = false;
+    QDateTime matrixNextControlAttempt;
+    resistance_t matrixLastResistanceCommand = -1;
 
     bool noWriteResistance = false;
     bool noHeartService = false;

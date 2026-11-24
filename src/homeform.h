@@ -148,6 +148,8 @@ class homeform : public QObject {
     Q_PROPERTY(QString pelotonProvider READ pelotonProvider NOTIFY changePelotonProvider WRITE setPelotonProvider)
     Q_PROPERTY(int topBarHeight READ topBarHeight NOTIFY topBarHeightChanged)
     Q_PROPERTY(QString info READ info NOTIFY infoChanged)
+    // info is "<device> found": QML tells it by this, not by the translated text
+    Q_PROPERTY(bool infoDeviceFound READ infoDeviceFound NOTIFY infoChanged)
     Q_PROPERTY(QString signal READ signal NOTIFY signalChanged)
     Q_PROPERTY(QString startText READ startText NOTIFY startTextChanged)
     Q_PROPERTY(QString startIcon READ startIcon NOTIFY startIconChanged)
@@ -196,12 +198,22 @@ class homeform : public QObject {
     Q_PROPERTY(QString toastRequested READ toastRequested NOTIFY toastRequestedChanged WRITE setToastRequested)
     // a workout import (file or folder) is copying or adding to the history
     Q_PROPERTY(bool fitImportRunning READ fitImportRunning NOTIFY fitImportRunningChanged)
+    // a workout import is at file fitImportDone of fitImportTotal: copying the files out of the
+    // picked folder (Android) or, with fitImportAdding, adding them to the history (also the
+    // new files of the fit folder at start); both 0 when no such pass runs
+    Q_PROPERTY(int fitImportDone READ fitImportDone NOTIFY fitImportProgressChanged)
+    Q_PROPERTY(int fitImportTotal READ fitImportTotal NOTIFY fitImportProgressChanged)
+    Q_PROPERTY(bool fitImportAdding READ fitImportAdding NOTIFY fitImportProgressChanged)
     // Android: a saved grant on the QZ folder; the lists then restore files of a previous
     // install by themselves and hide their restore button
     Q_PROPERTY(bool qzFolderGrantSaved READ qzFolderGrantSaved NOTIFY qzFolderGrantSavedChanged)
     // Android 11+ with the QZ folder in Documents: only there files of a previous install stay
     // in the folder and cannot be read; elsewhere there is nothing to restore
     Q_PROPERTY(bool qzFolderRestorable READ qzFolderRestorable NOTIFY qzFolderGrantSavedChanged)
+    // a restore of the QZ folder is copying file folderRestoreDone of folderRestoreTotal; both 0
+    // when no restore runs or it found nothing to copy
+    Q_PROPERTY(int folderRestoreDone READ folderRestoreDone NOTIFY folderRestoreProgressChanged)
+    Q_PROPERTY(int folderRestoreTotal READ folderRestoreTotal NOTIFY folderRestoreProgressChanged)
     Q_PROPERTY(bool stravaUploadRequested READ stravaUploadRequested NOTIFY stravaUploadRequestedChanged WRITE setStravaUploadRequested)
     Q_PROPERTY(bool garminMfaRequested READ garminMfaRequested NOTIFY garminMfaRequestedChanged WRITE setGarminMfaRequested)
     Q_PROPERTY(bool garminWorkoutPromptRequested READ garminWorkoutPromptRequested NOTIFY garminWorkoutPromptRequestedChanged WRITE setGarminWorkoutPromptRequested)
@@ -219,6 +231,7 @@ class homeform : public QObject {
     Q_PROPERTY(QVariantList heartRateSensorSuggestions READ heartRateSensorSuggestions NOTIFY
                    heartRateSensorSuggestionsChanged)
     Q_PROPERTY(bool heartRateSensorOfferOnTap READ heartRateSensorOfferOnTap NOTIFY heartRateSensorSuggestionsChanged)
+    Q_PROPERTY(bool targetPowerReleaseVisible READ targetPowerReleaseVisible NOTIFY targetPowerReleaseVisibleChanged)
 
     // workout preview
     Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
@@ -257,8 +270,26 @@ class homeform : public QObject {
     // Status line of the search for the equipment on the home page, with the last device found;
     // empty once it is connected
     Q_INVOKABLE QString bluetoothSearchStatus();
+    // The search has given up and waits for a tap on the Bluetooth icon; false once connected
+    Q_INVOKABLE bool bluetoothSearchStopped();
+    // Android: Bluetooth is off, the status line says so; false once connected
+    Q_INVOKABLE bool bluetoothSearchOff();
     // Tap on the Bluetooth icon: search right away, or when Android allows it again (with a toast saying when)
     Q_INVOKABLE void bluetoothSearchNow();
+    // Seconds to the next automatic search, the countdown of the status line; 0 while a search runs
+    // or is about to start, -1 with none running or due (stopped, Bluetooth off, a scan that failed)
+    // and once connected
+    Q_INVOKABLE int bluetoothNextSearchSeconds();
+    // Gym mode window opened or closed: see bluetooth::setGymModeWindowOpen()
+    Q_INVOKABLE void setGymModeWindowOpen(bool open) {
+        if (bluetoothManager)
+            bluetoothManager->setGymModeWindowOpen(open);
+    }
+    // An opened list of devices: a search that may run during a workout too
+    Q_INVOKABLE void searchForDeviceList() {
+        if (bluetoothManager)
+            bluetoothManager->searchForDeviceList();
+    }
     // Heart rate sensor chosen in the settings (name) or a tap on the heart rate tile or the Bluetooth icon (no
     // name, the saved one): connect it without a restart. With none chosen and the machine connected, the tap
     // searches for one to offer, also with heart_rate_belt_suggest off, and offers again the sensors hidden with Not
@@ -534,7 +565,9 @@ class homeform : public QObject {
     int topBarHeight() { return m_topBarHeight; }
     bool stopRequested() { return m_stopRequested; }
     bool startRequested() { return m_startRequested; }
-    QString info() { return m_info; }
+    // "<device> found" is made when it is read, not stored: it follows a change of the app language
+    QString info() { return m_infoFoundDevice.isEmpty() ? m_info : tr("%1 found").arg(m_infoFoundDevice); }
+    bool infoDeviceFound() { return !m_infoFoundDevice.isEmpty(); }
     QString signal();
     QString startText();
     QString startIcon();
@@ -710,6 +743,9 @@ class homeform : public QObject {
         m_androidNotificationPromptRequested = value;
         emit androidNotificationPromptRequestedChanged(value);
     }
+    // "Return to app" on the T.Power(W) tile
+    bool targetPowerReleaseVisible() const { return m_targetPowerReleaseVisible; }
+    Q_INVOKABLE void releaseTargetPower();
     // A virtual device lost its client because Android cut QZ's network in the background
     // (DirCon NetworkError while QZ is not active): offer the Android notification on resume
     void backgroundNetworkLost();
@@ -774,6 +810,8 @@ public:
     static QString getAndroidDataAppDir();
 #endif
     Q_INVOKABLE static QString getWritableAppDir();
+    Q_INVOKABLE static QUrl localFileUrl(const QString &path);
+    static void hideDeletionMarker(const QString &markerPath);
     static QString safeFileName(const QString &name, const QString &fallback);
     Q_INVOKABLE static QString getProfileDir();
     Q_INVOKABLE static void clearFiles();
@@ -798,11 +836,38 @@ public:
     Q_INVOKABLE void restoreFolderFiles();
     bool qzFolderGrantSaved() const { return m_qzFolderGrantSaved; }
     bool qzFolderRestorable() const { return m_qzFolderRestorable; }
+    int folderRestoreDone() const { return m_folderRestoreDone; }
+    int folderRestoreTotal() const { return m_folderRestoreTotal; }
+    // from the restore thread of the Java side (queued); 0, 0 when the restore is over
+    Q_INVOKABLE void setFolderRestoreProgress(int done, int total) {
+        if (m_folderRestoreDone != done || m_folderRestoreTotal != total) {
+            m_folderRestoreDone = done;
+            m_folderRestoreTotal = total;
+            emit folderRestoreProgressChanged();
+        }
+    }
     bool fitImportRunning() const { return m_fitImportRunning; }
     Q_INVOKABLE void setFitImportRunning(bool running) {
         if (m_fitImportRunning != running) {
             m_fitImportRunning = running;
             emit fitImportRunningChanged();
+        }
+    }
+    int fitImportDone() const { return m_fitImportDone; }
+    int fitImportTotal() const { return m_fitImportTotal; }
+    bool fitImportAdding() const { return m_fitImportAdding; }
+    // from the copy thread of the Java side (queued) and from the history processor; 0, 0 when
+    // the pass is over (the stage is kept, so the closing block still says what was done).
+    // One pass at a time: an import started while another pass runs reports after it ends
+    Q_INVOKABLE void setFitImportProgress(bool adding, int done, int total) {
+        if (m_fitImportTotal > 0 && adding != m_fitImportAdding) {
+            return;
+        }
+        if (m_fitImportAdding != adding || m_fitImportDone != done || m_fitImportTotal != total) {
+            m_fitImportAdding = adding;
+            m_fitImportDone = done;
+            m_fitImportTotal = total;
+            emit fitImportProgressChanged();
         }
     }
     Q_INVOKABLE bool deleteTrainingProgramFile(const QString &fileUrl);
@@ -832,6 +897,9 @@ public:
     }
 
     Q_INVOKABLE void sortTiles();
+    Q_INVOKABLE bool floatingMetricsSupported();
+    Q_INVOKABLE void toggleFloatingMetrics();
+    void updateFloatingMetrics();
     // Applies the app language at once, without a restart: "auto", "en" or a translation code
     Q_INVOKABLE void setAppLanguage(const QString &language);
     static void loadAppTranslation(const QString &language);
@@ -1105,6 +1173,8 @@ public:
 
     int m_topBarHeight = 120;
     QString m_info = QStringLiteral("Connecting...");
+    // set: info() is "<device> found" for this device, m_info is not used
+    QString m_infoFoundDevice;
     bool m_labelHelp = true;
     // last device found by the Bluetooth search, shown by bluetoothSearchStatus() until the equipment is connected
     QString lastFoundDevice;
@@ -1200,11 +1270,16 @@ public:
     // automatic import after a new database: no toast when nothing new was found
     bool m_fitImportQuiet = false;
     bool m_fitImportRunning = false;
+    int m_fitImportDone = 0;
+    int m_fitImportTotal = 0;
+    bool m_fitImportAdding = false;
     // one attempt per run: a restore that finds nothing must not repeat on every visit
     bool m_folderRestoreTried = false;
     // restore through a saved grant, true while it runs: no toast when nothing was restored,
     // and no question on request meanwhile
     bool m_folderRestoreQuiet = false;
+    int m_folderRestoreDone = 0;
+    int m_folderRestoreTotal = 0;
     bool m_qzFolderGrantSaved = false;
     bool m_qzFolderRestorable = false;
     WorkoutModel *workoutModel = nullptr;
@@ -1238,6 +1313,11 @@ public:
     bool m_startRequested = false;
     bool m_overridePower = false;
     bool m_overridePowerWarned = false;
+    bool m_targetPowerReleaseVisible = false;
+    void setTargetPowerReleaseVisible(bool value);
+    // sets the bike's override state from the T.Power(W) loop condition; true while the loop runs
+    bool updateTargetPowerOverride(bike *device);
+    void clearTargetPowerOverride();
     bool m_nativeShortcutCaptureSuspended = false;
 
     QTimer *timer;
@@ -1452,6 +1532,8 @@ public:
     // wahooWheelAnswer(): the value of wahoo_without_wheel_diameter after the answer, for the QML Settings copies
     void wahooWheelAnswered(bool withoutWheelDiameter);
     void fitImportRunningChanged();
+    void fitImportProgressChanged();
+    void folderRestoreProgressChanged();
     void qzFolderGrantSavedChanged();
     void signalChanged(QString value);
     void startTextChanged(QString value);
@@ -1487,6 +1569,7 @@ public:
     // Settings copy of these keys, which does not read QSettings again, so it takes the new value from these
     void heartRateSensorChosenFromOffer(const QString &name);
     void heartRateSensorOfferTurnedOff();
+    void targetPowerReleaseVisibleChanged(bool value);
     void generalPopupVisibleChanged(bool value);
     void pelotonPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);

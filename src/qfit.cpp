@@ -49,6 +49,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     QSettings settings;
     bool strava_virtual_activity =
         settings.value(QZSettings::strava_virtual_activity, QZSettings::default_strava_virtual_activity).toBool();
+    const bool strava_synthetic_gps_track =
+        settings.value(QZSettings::strava_synthetic_gps_track,
+                       QZSettings::default_strava_synthetic_gps_track).toBool();
     bool strava_treadmill =
         settings.value(QZSettings::strava_treadmill, QZSettings::default_strava_treadmill).toBool();
     bool treadmill_force_running_activity =
@@ -220,6 +223,10 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             break;
         }
     }
+    // A synthetic track must never replace or fill gaps in genuine GPS data.
+    // Limit it to sports for which QZ writes the Virtual Activity sub-sport.
+    const bool writeSyntheticGpsTrack = strava_synthetic_gps_track && strava_virtual_activity && !gps_data &&
+                                        (type == TREADMILL || type == BIKE || type == ELLIPTICAL);
     for (int i = firstRealIndex; i < session.length(); i++) {
         if (gps_data) {
             if (session.at(i).coordinate.isValid()) {
@@ -1106,6 +1113,21 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         } else {
             // With no GPS track, cumulative ascent/descent form the relative altitude profile.
             newRecord.SetAltitude(sl.elevationGain - sl.negativeElevationGain);
+            if (writeSyntheticGpsTrack) {
+                // Watopia is a virtual location. Advance east by the recorded distance in
+                // metres; keep the original relative altitude, never infer it from GPS.
+                constexpr double watopiaLat = -11.64;
+                constexpr double watopiaLon = 166.95;
+                constexpr double degreesToSemicircles = 2147483648.0 / 180.0;
+                constexpr double pi = 3.14159265358979323846;
+                const double metresPerLongitudeDegree = 111320.0 * std::cos(watopiaLat * pi / 180.0);
+                const double relativeMetres = (sl.distance - startingDistanceOffset) * 1000.0;
+                const double distanceMetres = std::isfinite(relativeMetres) && relativeMetres > 0.0
+                                                  ? relativeMetres : 0.0;
+                newRecord.SetPositionLat(watopiaLat * degreesToSemicircles);
+                newRecord.SetPositionLong((watopiaLon + distanceMetres / metresPerLongitudeDegree) *
+                                          degreesToSemicircles);
+            }
         }
 
         // using just the start point as reference in order to avoid pause time

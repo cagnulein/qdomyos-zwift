@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="cs_CZ">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Zavřít</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -118,6 +125,22 @@
     <message>
         <source>Don&apos;t ask again</source>
         <translation>Už se neptat</translation>
+    </message>
+    <message>
+        <source>Strong signal</source>
+        <translation>Silný signál</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Dobrý signál</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Střední signál</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Slabý signál</translation>
     </message>
     <message>
         <source>Choose a heart rate sensor</source>
@@ -308,6 +331,14 @@ Chcete zapnout požadované služby?</translation>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Chcete příště připomenout zapnutí Bluetooth nebo služeb určování polohy?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Vrátit aplikaci</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Vrátí řízení zátěže aplikaci</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -358,6 +389,14 @@ Chcete zapnout požadované služby?</translation>
     <message>
         <source>Not connecting?</source>
         <translation>Nedaří se připojit?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Trenažér nenalezen</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Zapněte kolo, běžecký pás nebo veslovací trenažér a klepnutím na ikonu Bluetooth nahoře hledejte znovu.</translation>
     </message>
 </context>
 <context>
@@ -1121,6 +1160,10 @@ Aktualizovat nastavení QZ?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>Inicializace YPOO M5 se nezdařila; je nutné se znovu připojit</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S připojen!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1342,6 +1385,21 @@ Aktualizovat nastavení QZ?</translation>
     </message>
 </context>
 <context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Probíhá nákup...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Nákup proběhl úspěšně</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Nákup se nezdařil</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -1517,6 +1575,17 @@ Aktualizovat nastavení QZ?</translation>
     <message>
         <source>Cancel</source>
         <translation>Zrušit</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>Obnovování souborů z předchozí instalace</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>Obnovování souborů z předchozí instalace: %1 z %2</translation>
     </message>
 </context>
 <context>
@@ -2058,6 +2127,11 @@ Aktualizovat nastavení QZ?</translation>
     <message>
         <source>Inclination (%)</source>
         <translation>Sklon (%)</translation>
+    </message>
+    <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>Na jednom grafu:</translation>
     </message>
     <message>
         <source>Avg Output</source>
@@ -2612,6 +2686,18 @@ Následující otázky přizpůsobí QZ vašemu trenažéru a cílům.</translat
         <translation>Další</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Trenažér, jednotky a profil krok za krokem</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Vyberte téma a přejděte rovnou k jeho nastavení</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Zavřít průvodce</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Vlastní nastavení</translation>
     </message>
@@ -2938,12 +3024,12 @@ Následující otázky přizpůsobí QZ vašemu trenažéru a cílům.</translat
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Importování tréninků…</translation>
+        <translation type="vanished">Importování tréninků…</translation>
     </message>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Zpracování souborů tréninků…
+        <translation type="vanished">Zpracování souborů tréninků…
 Při prvním spuštění to může chvíli trvat.</translation>
     </message>
     <message>
@@ -3067,8 +3153,40 @@ Při prvním spuštění to může chvíli trvat.</translation>
         <translation>Filtrovat podle data</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Kalendář</translation>
+    </message>
+    <message>
         <source>Import workouts</source>
         <translation>Importovat tréninky</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>Přidávání tréninků do historie</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Kopírování souborů tréninků</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Přidávání tréninků do historie: %1 z %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Kopírování souborů tréninků: %1 z %2</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>V tento den žádné tréninky</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Zatím žádné tréninky</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Zde se objeví dokončené tréninky: otevřete kterýkoli a zobrazte jeho grafy.</translation>
     </message>
     <message>
         <source>Open on Peloton</source>
@@ -3160,9 +3278,25 @@ Při prvním spuštění to může chvíli trvat.</translation>
         <source>Offset</source>
         <translation>Korekce</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Snížit korekci převodu %1</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Zvýšit korekci převodu %1</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Snížit: %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Zvýšit: %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Zapnout vlastní tabulku „sklon – odpor“</translation>
@@ -3178,6 +3312,10 @@ Při prvním spuštění to může chvíli trvat.</translation>
     <message>
         <source>Resistance</source>
         <translation>Odpor</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Odebrat bod se sklonem %1</translation>
     </message>
     <message>
         <source>Add Point</source>
@@ -3265,6 +3403,10 @@ Při prvním spuštění to může chvíli trvat.</translation>
 </context>
 <context>
     <name>homeform</name>
+    <message>
+        <source>No enabled metrics</source>
+        <translation>Žádné zapnuté metriky</translation>
+    </message>
     <message>
         <source>Speed (%1/h)</source>
         <translation>Rychlost (%1/h)</translation>
@@ -3836,6 +3978,10 @@ Při prvním spuštění to může chvíli trvat.</translation>
         <translation>Hledání zařízení…</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Připojování k %1…</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>Nalezeno: %1</translation>
     </message>
@@ -4188,9 +4334,17 @@ Při prvním spuštění to může chvíli trvat.</translation>
         <source>Unable to open an email application</source>
         <translation>Nepodařilo se otevřít e-mailovou aplikaci</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth je vypnuté</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Plovoucí metriky (obraz v obraze)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -4713,6 +4867,26 @@ Povolit QZ tuto hodnotu měnit?
 
 „Ne“: QZ zapne „Bez protokolu průměru kola“ (Nastavení &gt; Možnosti kola &gt; Možnosti Wahoo) a virtuální převody budou fungovat přes stoupání. Při volbě „Ano“ to můžete později vrátit tamtéž: zapněte tuto možnost a při připojeném trenažéru klepněte na „Obnovit výchozí nastavení trenažéru“.</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Simulované zařízení (%1) je aktivní. Pokud to nebylo záměrné, vypněte ho v Nastavení.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Kolo</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Běžecký pás</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Eliptický trenažér</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Veslovací trenažér</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -5085,6 +5259,42 @@ Povolit QZ tuto hodnotu měnit?
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>Pořadí tohoto grafu v historii tréninků. Pořadí změníte tlačítky nahoru a dolů v Obecných možnostech rozhraní.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Nastavení obnoveno</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Obnovená nastavení: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Obnovit vše</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Obnovit změněná nastavení?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Změněná nastavení (%1) se vrátí na výchozí hodnoty.</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Obnovit</translation>
+    </message>
+    <message>
+        <source>Reset section?</source>
+        <translation>Obnovit sekci?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Nastavení v sekci „%2“ (%1) se vrátí na výchozí hodnoty.</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Obnovit sekci</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -7115,6 +7325,14 @@ Zadejte ho níže:</translation>
         <translation>Štítek virtuální aktivity Strava</translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Syntetická GPS trasa pro Stravu</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Přidá syntetickou GPS trasu k virtuálním aktivitám bez GPS. Strava pak může zobrazit nastoupané metry, ale trasa není skutečná.</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation>Přidat k aktivitě Strava štítek virtuální aktivity</translation>
     </message>
@@ -7241,6 +7459,14 @@ DŮLEŽITÉ:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>U chytrých trenažérů použijte odpor místo sklonu. Pomůže to, pokud nechcete, aby Wahoo Climb nebo podobné zařízení měnilo sklon při řazení převodů. Výchozí: vypnuto</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>Kompatibilita odporu</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Zapněte, pokud změna odporu v QZ nastaví kolo pouze na úroveň 1 nebo na maximum. Odesílá hodnotu odporu FTMS vynásobenou 10. Výchozí: vypnuto.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>
@@ -8443,6 +8669,75 @@ Výchozí: A = -0.96, B = 1.33</translation>
         <translation>Experimentální: QZ postupně upravuje rychlost běžeckého pásu, kterou řídí, podle údajů z Runn/Stryd, pokud ovladač pásu poskytuje vlastní měření rychlosti. Vyžaduje nastavení „Rychlost ze snímače výkonu“. Výchozí: vypnuto.</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Moderní rozhraní</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Nový vzhled hlavní obrazovky, postranní nabídky, nastavení a průvodce. Vypnutím se vrátí klasický vzhled.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Vzhled</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Podle telefonu</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Tmavý</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Světlý</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Motiv</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafit</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Černá / bílá</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Půlnoční modř</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Barva zvýraznění</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Fialová</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Modrá</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Modrozelená</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Zelená</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Oranžová</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Růžová</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Velikost dlaždic:</translation>
     </message>
@@ -8569,6 +8864,10 @@ Výchozí: A = -0.96, B = 1.33</translation>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>Při trénincích GPX ignoruje změny sklonu menší než tato hodnota a nový příkaz odešle až tehdy, když rozdíl oproti poslední odeslané hodnotě dosáhne nastaveného prahu. Výchozí hodnota: 0 (vypnuto).</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Použít převody z konzole</translation>
     </message>
 </context>
 <context>

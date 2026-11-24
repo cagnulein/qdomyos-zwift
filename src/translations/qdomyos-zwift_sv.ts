@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="sv_SE">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Stäng</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -118,6 +125,22 @@
     <message>
         <source>Don&apos;t ask again</source>
         <translation>Fråga inte igen</translation>
+    </message>
+    <message>
+        <source>Strong signal</source>
+        <translation>Starkt signal</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Bra signal</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Medelstarkt signal</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Svag signal</translation>
     </message>
     <message>
         <source>Choose a heart rate sensor</source>
@@ -292,6 +315,14 @@ Vill du aktivera de tjänster som krävs?</translation>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Vill du bli påmind om att aktivera Bluetooth eller platstjänster nästa gång?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Tillbaka till appen</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Lämnar tillbaka styrningen av belastningen till appen</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -342,6 +373,14 @@ Vill du aktivera de tjänster som krävs?</translation>
     <message>
         <source>Not connecting?</source>
         <translation>Går det inte att ansluta?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Träningsredskapet hittades inte</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Slå på cykeln, löpbandet eller roddmaskinen och tryck sedan på Bluetooth-ikonen högst upp om du vill söka igen.</translation>
     </message>
 </context>
 <context>
@@ -1105,6 +1144,10 @@ Vill du uppdatera QZ-inställningarna?</translation>
         <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
         <translation>%1 (pulssensor) hittades inte. Kontrollera att den är på och sänder pulsdata.</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S ansluten!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1326,6 +1369,21 @@ Vill du uppdatera QZ-inställningarna?</translation>
     </message>
 </context>
 <context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Köper…</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Köpet har genomförts</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Det gick inte att genomföra köpet</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -1501,6 +1559,17 @@ Vill du uppdatera QZ-inställningarna?</translation>
     <message>
         <source>Cancel</source>
         <translation>Avbryt</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>Återställer filer från den tidigare installationen</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>Återställer filer från den tidigare installationen: %1 av %2</translation>
     </message>
 </context>
 <context>
@@ -2042,6 +2111,11 @@ Vill du uppdatera QZ-inställningarna?</translation>
     <message>
         <source>Inclination (%)</source>
         <translation>Lutning (%)</translation>
+    </message>
+    <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>I ett diagram:</translation>
     </message>
     <message>
         <source>Avg Output</source>
@@ -2596,6 +2670,18 @@ Med följande frågor anpassas QZ efter din utrustning och dina mål.</translati
         <translation>Nästa</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Träningsredskap, måttenheter och profil, steg för steg</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Välj ett ämne och gå direkt till dess inställningar</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Stäng guiden</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Anpassade inställningar</translation>
     </message>
@@ -2922,12 +3008,12 @@ Med följande frågor anpassas QZ efter din utrustning och dina mål.</translati
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Importerar träningspass…</translation>
+        <translation type="vanished">Importerar träningspass…</translation>
     </message>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Bearbetar träningsfiler…
+        <translation type="vanished">Bearbetar träningsfiler…
 Det kan ta en stund vid första starten.</translation>
     </message>
     <message>
@@ -3051,8 +3137,40 @@ Det kan ta en stund vid första starten.</translation>
         <translation>Filtrera efter datum</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Kalender</translation>
+    </message>
+    <message>
         <source>Import workouts</source>
         <translation>Importera träningspass</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>Lägger till träningspass i historiken</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Kopierar träningsfiler</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Lägger till träningspass i historiken: %1 av %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Kopierar träningsfiler: %1 av %2</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Inga träningspass den här dagen</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Inga träningspass ännu</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Avslutade träningspass visas här: öppna ett om du vill se diagrammen.</translation>
     </message>
     <message>
         <source>Open on Peloton</source>
@@ -3144,9 +3262,25 @@ Det kan ta en stund vid första starten.</translation>
         <source>Offset</source>
         <translation>Justering</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Minska justering för växel %1</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Öka justering för växel %1</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Minska: %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Öka: %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Aktivera egen tabell för lutning till motstånd</translation>
@@ -3162,6 +3296,10 @@ Det kan ta en stund vid första starten.</translation>
     <message>
         <source>Resistance</source>
         <translation>Motstånd</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Ta bort punkten vid lutning %1</translation>
     </message>
     <message>
         <source>Add Point</source>
@@ -3249,6 +3387,10 @@ Det kan ta en stund vid första starten.</translation>
 </context>
 <context>
     <name>homeform</name>
+    <message>
+        <source>No enabled metrics</source>
+        <translation>Inga mätvärden är aktiverade</translation>
+    </message>
     <message>
         <source>Speed (%1/h)</source>
         <translation>Hastighet (%1/h)</translation>
@@ -3820,6 +3962,10 @@ Det kan ta en stund vid första starten.</translation>
         <translation>Söker efter enheten…</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Ansluter till %1…</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>Hittade: %1</translation>
     </message>
@@ -4172,9 +4318,17 @@ Det kan ta en stund vid första starten.</translation>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ körs</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth är av</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Flytande mätvärden (bild i bild)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -4697,6 +4851,26 @@ Vill du tillåta att QZ ändrar värdet?
 
 ”Nej”: QZ slår på ”Utan hjuldiameterprotokoll” (Inställningar &gt; Cykelalternativ &gt; Wahoo-alternativ), och virtuella växlar fungerar via lutningen. Med ”Ja” kan du ångra det senare på samma ställe: slå på det alternativet och tryck, med din smart trainer ansluten, på ”Återställ standardinställning på smart trainer”.</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Den simulerade enheten (%1) är aktiv. Om det inte var avsiktligt, inaktivera den i Inställningar.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Cykel</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Löpband</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Crosstrainer</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Roddmaskin</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -5061,6 +5235,42 @@ Vill du tillåta att QZ ändrar värdet?
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>Diagrammets plats i ordningen i träningshistoriken. Ordningen ändras med knapparna upp och ned i Allmänna gränssnittsalternativ.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Inställningen har återställts</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Återställda inställningar: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Återställ alla</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Vill du återställa ändrade inställningar?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Inställningar som återställs till standardvärdena: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Återställ</translation>
+    </message>
+    <message>
+        <source>Reset section?</source>
+        <translation>Vill du återställa avsnittet?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Inställningar i ”%2” som återställs till standardvärdena: %1</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Återställ avsnitt</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -7067,6 +7277,14 @@ Ange den nedan:</translation>
         <translation>Strava-tagg för virtuell aktivitet</translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Syntetiskt GPS-spår för Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Lägger till ett syntetiskt GPS-spår i virtuella aktiviteter utan GPS. Strava kan då visa höjdstigning, men rutten är inte verklig.</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation>Lägger till taggen för virtuell aktivitet i Strava-aktiviteten.</translation>
     </message>
@@ -7193,6 +7411,14 @@ VIKTIGT:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>För smart trainers: använd motstånd i stället för lutning. Det hjälper om du inte vill att Wahoo Climb eller liknande ändrar lutningen när du växlar. Standard: av.</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>Motståndskompatibilitet</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Aktivera om ändring av motstånd i QZ bara ställer in cykeln på nivå 1 eller max. Skickar FTMS-motståndet multiplicerat med 10. Standard: avaktiverad.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>
@@ -8395,6 +8621,75 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>Experimentellt: korrigerar gradvis den löpbandshastighet som QZ styr utifrån återkoppling från Runn/Stryd, när drivrutinen ger egna hastighetsmätningar från löpbandet. Kräver ”Använd hastighet från effektsensorn”. Standard: av.</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Modernt gränssnitt</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Nytt utseende på huvudskärmen, sidomenyn, inställningarna och guiden. Stäng av om du vill få tillbaka det klassiska utseendet.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Utseende</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Som på telefonen</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Mörkt</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Ljust</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Tema</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafit</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Svart / vitt</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Midnattsblå</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Accentfärg</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Violett</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Blå</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Blågrön</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Grön</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Orange</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Rosa</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Panelstorlek:</translation>
     </message>
@@ -8545,6 +8840,10 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>Vid GPX-träning ignoreras lutningsändringar som är mindre än detta värde. Ett nytt kommando skickas först när skillnaden från senast skickat värde når den angivna tröskeln. Standard: 0 (inaktiverat).</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Använd konsolens växlar</translation>
     </message>
 </context>
 <context>

@@ -27,8 +27,8 @@ ColumnLayout {
     property var selectedFileUrl: ""
     property bool isSearching: false
 
-    // Modern look: a filled search field, the workouts as cards and pill buttons; the classic
-    // look keeps its list and buttons
+    // Modern look: a filled search field, the workouts as cards, pill buttons and the
+    // preview page in the app theme; the classic look keeps its list and buttons
     readonly property int modernMargin: Math.max(16, window.contentSideMargin)
 
     Connections {
@@ -218,7 +218,7 @@ ColumnLayout {
                                 isSearching = false
                             } else {
                                 // Trigger recursive C++ search
-                                var baseFolder = "file://" + rootItem.getWritableAppDir() + 'training'
+                                var baseFolder = rootItem.getWritableAppDir() + 'training'
                                 searchRecursively(baseFolder, text)
                             }
                         }
@@ -256,170 +256,203 @@ ColumnLayout {
                     }
                 }
 
-                ListView {
+                // the restore of a previous install: above the list, which moves down for that time
+                UiProgress {
+                    id: restoreProgress
+                    Layout.fillWidth: true
+                    Layout.leftMargin: window.ui.modern ? programsPage.modernMargin : 16
+                    Layout.rightMargin: window.ui.modern ? programsPage.modernMargin : 16
+                    topPadding: window.ui.modern ? 0 : 8
+                    done: rootItem.folderRestoreDone
+                    total: rootItem.folderRestoreTotal
+                }
+
+                // The list in a box of the full page width: in the modern look the cards keep the page
+                // margin and the scroll bar goes into it, at the screen edge as on the settings page,
+                // not over the right edge of the cards
+                Item {
+                    id: listBox
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    Layout.leftMargin: window.ui.modern ? programsPage.modernMargin : 0
-                    Layout.rightMargin: window.ui.modern ? programsPage.modernMargin : 0
-                    spacing: window.ui.modern ? 8 : 0
-                    clip: window.ui.modern
-                    ScrollBar.vertical: ScrollBar {}
-                    id: list
+                    // the gap above the list is in the progress while it shows (UiProgress)
+                    Layout.topMargin: restoreProgress.visible ? -parent.spacing : 0
 
-                    FolderListModel {
-                        id: folderModel
-                        nameFilters: ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr"]
-                        folder: "file://" + rootItem.getWritableAppDir() + 'training'
-                        showDotAndDotDot: false
-                        showDirs: true
-                        sortField: "Name"
-                        showDirsFirst: true
-                    }
+                    ListView {
+                        anchors.fill: parent
+                        anchors.leftMargin: window.ui.modern ? programsPage.modernMargin : 0
+                        anchors.rightMargin: window.ui.modern ? programsPage.modernMargin : 0
+                        spacing: window.ui.modern ? 8 : 0
+                        clip: window.ui.modern
+                        // Modern look: a thin bar while the list moves, as in the other lists of the modern look (the
+                        // Material bar that can be dragged is 13 dp with a 16 dp track), at the screen edge. A bar
+                        // with another parent is not placed by Qt (QQuickScrollBarAttachedPrivate::layoutVertical),
+                        // so x, y and height are set here; in the classic look they are what Qt sets
+                        ScrollBar.vertical: ScrollBar {
+                            interactive: !window.ui.modern
+                            parent: window.ui.modern ? listBox : list
+                            x: mirrored ? 0 : (window.ui.modern ? listBox.width - width : list.width - width)
+                            y: window.ui.modern ? list.y : 0
+                            height: list.height
+                        }
+                        id: list
 
-                    model: isSearching ? searchResultsModel : folderModel
-
-                    delegate: ItemDelegate {
-                        id: workoutDelegate
-                        width: ListView.view.width
-                        // a bigger text: the row grows with the name and the path of a search result
-                        height: window.ui.modern ? Math.max(itemRelativePath !== "" ? 72 : 56, implicitContentHeight + topPadding + bottomPadding) : (window.textScale !== 1 ? Math.max(50, implicitContentHeight + topPadding + bottomPadding) : 50)
-
-                        // Determine item properties based on which model is active
-                        property bool isItemFolder: isSearching ? model.isFolder : folderModel.isFolder(index)
-                        // || "": while the folder is set again (onFolderFilesRestored) the model
-                        // is empty for a moment and get() gives undefined to the rows still shown
-                        property string itemFileName: isSearching ? model.fileName : (folderModel.get(index, "fileName") || "")
-                        property string itemFileUrl: isSearching ? model.filePath : (folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL') || "")
-                        property string itemRelativePath: isSearching ? model.relativePath : ""
-
-                        // Modern look: the card is read under its name, with the folder of a search
-                        // result (contentItem replaces the label, so the delegate text is empty).
-                        // Both looks: a connected press action makes the row clickable for the screen
-                        // reader, and Qt 5.15 then only emits it, so it opens the row as a tap does
-                        Accessible.name: window.ui.modern
-                                         ? (itemRelativePath !== "" ? fileName.text + ", " + itemRelativePath : fileName.text)
-                                         : text
-                        Accessible.onPressAction: workoutDelegate.clicked()
-
-                        background: Rectangle {
-                            radius: window.ui.modern ? 16 : 0
-                            color: window.ui.modern ? (workoutDelegate.pressed ? window.ui.surfaceHigh : window.ui.surface)
-                                         : (ListView.isCurrentItem ? Material.color(Material.Green, Material.Shade800) : Material.backgroundColor)
+                        FolderListModel {
+                            id: folderModel
+                            nameFilters: ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr"]
+                            folder: rootItem.localFileUrl(rootItem.getWritableAppDir() + 'training')
+                            showDotAndDotDot: false
+                            showDirs: true
+                            sortField: "Name"
+                            showDirsFirst: true
                         }
 
-                        // Modern look (Material 3 list item: one line at least 56, a search result with its
-                        // folder two lines at least 72, a bigger text grows it): the icon 16 from the card edge and 16 from the text, as on the
-                        // GPX, settings file and profile cards; the classic row as before
-                        leftPadding: window.ui.modern ? 16 : horizontalPadding
+                        model: isSearching ? searchResultsModel : folderModel
 
-                        contentItem: RowLayout {
-                            spacing: window.ui.modern ? 16 : 10
+                        delegate: ItemDelegate {
+                            id: workoutDelegate
+                            width: ListView.view.width
+                            // a bigger text: the row grows with the name and the path of a search result
+                            height: window.ui.modern ? Math.max(itemRelativePath !== "" ? 72 : 56, implicitContentHeight + topPadding + bottomPadding) : (window.textScale !== 1 ? Math.max(50, implicitContentHeight + topPadding + bottomPadding) : 50)
 
-                            // hidden, not zero-wide, in the modern look: a visible empty item still
-                            // takes the spacing of the row
-                            Item {
-                                visible: !window.ui.modern
-                                width: 10
-                                height: 1
+                            // Determine item properties based on which model is active
+                            property bool isItemFolder: isSearching ? model.isFolder : folderModel.isFolder(index)
+                            // || "": while the folder is set again (onFolderFilesRestored) the model
+                            // is empty for a moment and get() gives undefined to the rows still shown
+                            property string itemFileName: isSearching ? model.fileName : (folderModel.get(index, "fileName") || "")
+                            property string itemFileUrl: isSearching ? model.filePath : (folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL') || "")
+                            property string itemRelativePath: isSearching ? model.relativePath : ""
+
+                            // Modern look: the card is read under its name, with the folder of a search
+                            // result (contentItem replaces the label, so the delegate text is empty).
+                            // Both looks: a connected press action makes the row clickable for the screen
+                            // reader, and Qt 5.15 then only emits it, so it opens the row as a tap does
+                            Accessible.name: window.ui.modern
+                                             ? (itemRelativePath !== "" ? fileName.text + ", " + itemRelativePath : fileName.text)
+                                             : text
+                            Accessible.onPressAction: workoutDelegate.clicked()
+
+                            background: Rectangle {
+                                radius: window.ui.modern ? 16 : 0
+                                color: window.ui.modern ? (workoutDelegate.pressed ? window.ui.surfaceHigh : window.ui.surface)
+                                             : (ListView.isCurrentItem ? Material.color(Material.Green, Material.Shade800) : Material.backgroundColor)
                             }
 
-                            Text {
-                                id: fileIcon
-                                visible: !window.ui.modern
-                                text: isItemFolder ? "📁" : "📄"
-                                font.pixelSize: window.fontPx(24)
-                            }
+                            // Modern look (Material 3 list item: one line at least 56, a search result with its
+                            // folder two lines at least 72, a bigger text grows it): the icon 16 from the card edge and 16 from the text, as on the
+                            // GPX, settings file and profile cards; the classic row as before
+                            leftPadding: window.ui.modern ? 16 : horizontalPadding
 
-                            Rectangle {
-                                visible: window.ui.modern
-                                Layout.preferredWidth: 40
-                                Layout.preferredHeight: 40
-                                radius: 20
-                                color: window.ui.surfaceHighest
+                            contentItem: RowLayout {
+                                spacing: window.ui.modern ? 16 : 10
+
+                                // hidden, not zero-wide, in the modern look: a visible empty item still
+                                // takes the spacing of the row
+                                Item {
+                                    visible: !window.ui.modern
+                                    width: 10
+                                    height: 1
+                                }
+
+                                Text {
+                                    id: fileIcon
+                                    visible: !window.ui.modern
+                                    text: isItemFolder ? "📁" : "📄"
+                                    font.pixelSize: window.fontPx(24)
+                                }
+
+                                Rectangle {
+                                    visible: window.ui.modern
+                                    Layout.preferredWidth: 40
+                                    Layout.preferredHeight: 40
+                                    radius: 20
+                                    color: window.ui.surfaceHighest
+                                    UiIcon {
+                                        anchors.centerIn: parent
+                                        width: 22
+                                        height: 22
+                                        name: isItemFolder ? "folder" : "list_alt"
+                                        color: window.ui.textMuted
+                                    }
+                                }
+
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 2
+
+                                    Text {
+                                        id: fileName
+                                        // modern look: the card is read through the delegate; a touch of
+                                        // the screen reader goes to the deepest accessible item under the
+                                        // finger, and the texts would take it from the card. The classic
+                                        // row as before
+                                        Accessible.ignored: window.ui.modern
+                                        Layout.fillWidth: true
+                                        text: !isItemFolder ?
+                                              itemFileName.substring(0, itemFileName.lastIndexOf(".")) :
+                                              itemFileName
+                                        color: window.ui.modern ? window.ui.textMain
+                                             : isItemFolder ? Material.color(Material.Orange)
+                                             : "white"
+                                        font.pixelSize: window.ui.fontBody
+                                        font.weight: window.ui.modern ? Font.DemiBold : Font.Normal
+                                        elide: Text.ElideRight
+                                    }
+
+                                    Text {
+                                        Accessible.ignored: window.ui.modern
+                                        Layout.fillWidth: true
+                                        text: itemRelativePath
+                                        color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Grey)
+                                        font.pixelSize: window.ui.modern ? window.ui.fontCaption : window.fontPx(12)
+                                        elide: Text.ElideMiddle
+                                        visible: isSearching && itemRelativePath !== ""
+                                    }
+                                }
+
+                                Text {
+                                    text: "›"
+                                    font.pixelSize: window.fontPx(24)
+                                    color: Material.color(Material.Grey)
+                                    visible: !window.ui.modern && !ListView.isCurrentItem
+                                }
+
                                 UiIcon {
-                                    anchors.centerIn: parent
-                                    width: 22
-                                    height: 22
-                                    name: isItemFolder ? "folder" : "list_alt"
+                                    visible: window.ui.modern
+                                    Layout.preferredWidth: 22
+                                    Layout.preferredHeight: 22
+                                    name: "chevron_right"
                                     color: window.ui.textMuted
                                 }
                             }
 
-                            ColumnLayout {
-                                Layout.fillWidth: true
-                                spacing: 2
+                            onClicked: {
+                                list.currentIndex = index
 
-                                Text {
-                                    id: fileName
-                                    // modern look: the card is read through the delegate; a touch of
-                                    // the screen reader goes to the deepest accessible item under the
-                                    // finger, and the texts would take it from the card. The classic
-                                    // row as before
-                                    Accessible.ignored: window.ui.modern
-                                    Layout.fillWidth: true
-                                    text: !isItemFolder ?
-                                          itemFileName.substring(0, itemFileName.lastIndexOf(".")) :
-                                          itemFileName
-                                    color: window.ui.modern ? window.ui.textMain
-                                         : isItemFolder ? Material.color(Material.Orange)
-                                         : "white"
-                                    font.pixelSize: window.ui.fontBody
-                                    font.weight: window.ui.modern ? Font.DemiBold : Font.Normal
-                                    elide: Text.ElideRight
+                                if (isItemFolder) {
+                                    // Navigate to folder (only in browse mode)
+                                    if (!isSearching) {
+                                        folderModel.folder = itemFileUrl
+                                    }
+                                } else if (itemFileUrl) {
+                                    // Load preview and show detail view
+                                    openWorkoutPreview(itemFileUrl)
                                 }
-
-                                Text {
-                                    Accessible.ignored: window.ui.modern
-                                    Layout.fillWidth: true
-                                    text: itemRelativePath
-                                    color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Grey)
-                                    font.pixelSize: window.ui.modern ? window.ui.fontCaption : window.fontPx(12)
-                                    elide: Text.ElideMiddle
-                                    visible: isSearching && itemRelativePath !== ""
-                                }
-                            }
-
-                            Text {
-                                text: "›"
-                                font.pixelSize: window.fontPx(24)
-                                color: Material.color(Material.Grey)
-                                visible: !window.ui.modern && !ListView.isCurrentItem
-                            }
-
-                            UiIcon {
-                                visible: window.ui.modern
-                                Layout.preferredWidth: 22
-                                Layout.preferredHeight: 22
-                                name: "chevron_right"
-                                color: window.ui.textMuted
                             }
                         }
 
-                        onClicked: {
-                            list.currentIndex = index
+                        focus: true
 
-                            if (isItemFolder) {
-                                // Navigate to folder (only in browse mode)
-                                if (!isSearching) {
-                                    folderModel.folder = itemFileUrl
-                                }
-                            } else if (itemFileUrl) {
-                                // Load preview and show detail view
-                                openWorkoutPreview(itemFileUrl)
-                            }
+                        Label {
+                            parent: list
+                            anchors.centerIn: parent
+                            // only once the folder is read: the model fills in asynchronously; not while
+                            // a restore copies the files of a previous install into it
+                            visible: window.ui.modern && list.count === 0
+                                     && (isSearching || folderModel.status === FolderListModel.Ready)
+                                     && rootItem.folderRestoreTotal === 0
+                            text: isSearching ? qsTr("No workouts found") : qsTr("No workouts here")
+                            color: window.ui.textMuted
                         }
-                    }
-
-                    focus: true
-
-                    Label {
-                        parent: list
-                        anchors.centerIn: parent
-                        // only once the folder is read: the model fills in asynchronously
-                        visible: window.ui.modern && list.count === 0
-                                 && (isSearching || folderModel.status === FolderListModel.Ready)
-                        text: isSearching ? qsTr("No workouts found") : qsTr("No workouts here")
-                        color: window.ui.textMuted
                     }
                 }
 
@@ -462,6 +495,12 @@ ColumnLayout {
                         Layout.fillHeight: window.ui.modern
                         wrapsText: true
                         visible: rootItem.qzFolderRestorable && !rootItem.qzFolderGrantSaved
+                        // greyed out while a restore runs: a second one is refused
+                        // (CustomQtActivity.openRestoreFolderPicker); hidden after it, with the grant
+                        enabled: rootItem.folderRestoreTotal === 0
+                        // Qt 5.15 does not report a disabled item to TalkBack (fixed in Qt 6 by
+                        // qtdeclarative 20fd2902a6): left in, it would be read as a button that works
+                        Accessible.ignored: !enabled
                         text: qsTr("Restore files")
                         onClicked: rootItem.offerFolderRestore()
                     }
@@ -610,6 +649,13 @@ ColumnLayout {
                             Flickable {
                                 id: descriptionFlick
                                 Layout.fillWidth: true
+                                // never 0 high: Qt 5.15 lays out no children of a layout with a zero
+                                // width or height (QTBUG-112740, fixed in 6.5.2). Opened right in landscape
+                                // the text had no height yet, the block was 0 high and left this view at
+                                // width 0, so the text never got a width and a height - the description
+                                // was not shown. Not by the width of the text from the block: that made a
+                                // binding loop on turning
+                                Layout.minimumHeight: 1
                                 // whole lines, so the last one shown is not cut in half
                                 Layout.preferredHeight: detailColumn.sideBySide
                                     ? Math.min(contentHeight, descriptionBlock.wholeLines(descriptionBlock.sideRoom))
@@ -769,12 +815,20 @@ ColumnLayout {
                             Layout.margins: 5
                             Layout.leftMargin: 5
                             Layout.rightMargin: window.ui.modern ? programsPage.modernMargin : 5
+                            // modern look: the chart card right under the buttons (15 to the pill: the
+                            // inset of the pill in its button and the spacing), not 28 with this margin
+                            Layout.bottomMargin: window.ui.modern ? 0 : 5
                             sourceComponent: detailButtons
                         }
 
                         Item {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
+                            // Modern look: the chart card 16 from the sides of the page, as the cards of
+                            // the other pages (the web page draws the card edge to edge); side by side
+                            // 8 from the text column - its spacing 6 and 2 here
+                            Layout.leftMargin: window.ui.modern ? (detailBody.split ? 2 : programsPage.modernMargin) : 0
+                            Layout.rightMargin: window.ui.modern ? programsPage.modernMargin : 0
 
                             // Modern look: the native view is white until the page is loaded, so it is
                             // kept hidden till then, as in WorkoutEditor.qml. It is also drawn above every
@@ -789,16 +843,26 @@ ColumnLayout {
                                 id: previewWebView
                                 anchors.fill: parent
                                 visible: !window.ui.modern || (pageLoaded && !deleteDialog.visible)
-                                // modern look: the page colour for the frame around the chart, so it merges
-                                // with the page; the classic look keeps the dark frame of the page
+                                // modern look: the page in the app theme (qz-theme-bridge.js), so the frame
+                                // merges with the page; the classic look keeps the dark frame of the page.
+                                // The theme reaches the page in the URL fragment; a later change of the theme
+                                // only moves the fragment (no reload), so it also goes through runJavaScript.
+                                // Switching the modern look off drops the fragment and loads the page again,
+                                // which asks for its program itself (below)
                                 url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
-                                    + (window.ui.modern ? "?bg=" + encodeURIComponent(String(window.ui.bg)) : "")
+                                    + window.ui.webThemeFragment()
                                 property bool pageLoaded: false
+                                // null (the modern look switched off) takes the theme off the page
+                                readonly property var pageTheme: window.ui.webTheme
+                                onPageThemeChanged: if (pageLoaded) runJavaScript(window.ui.webThemeScript())
                                 // a failed load is shown too: the page tells why, not an endless spinner
                                 onLoadingChanged: {
                                     if (loadRequest.status === WebView.LoadSucceededStatus
-                                            || loadRequest.status === WebView.LoadFailedStatus)
+                                            || loadRequest.status === WebView.LoadFailedStatus) {
                                         pageLoaded = true
+                                        if (pageTheme)
+                                            runJavaScript(window.ui.webThemeScript())
+                                    }
                                 }
 
                                 // a new app language: the page takes its texts when loaded and asks the server

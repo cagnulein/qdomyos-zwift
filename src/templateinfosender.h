@@ -13,7 +13,7 @@ class TemplateInfoSender : public QObject {
     virtual bool isRunning() const = 0;
     virtual bool send(const QString &data) = 0;
     bool init(const QString &script);
-    void stop();
+    virtual void stop();
     bool update(QJSEngine *eng);
     QString js() const;
     QString getId() const;

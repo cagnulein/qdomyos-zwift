@@ -20,6 +20,17 @@ If the Click changes resistance in QZ but the gear shown inside MyWhoosh does no
 
 If MyWhoosh does not discover the OpenBikeControl service at all, verify local-network permissions, that both devices are on the same network, and then restart both QZ and MyWhoosh before collecting a QZ debug log.
 
+## Can I use QZ's own virtual gears with Zwift Ride and KICKR CORE in MyWhoosh, instead of MyWhoosh's MyShift?
+
+Yes. This is a different configuration from the OpenBikeControl setup above: QZ owns the gear number and applies the resistance change to the physical trainer.
+
+1. Connect the physical KICKR CORE to QZ. Enable **Zwift Play** under **Accessories**, and leave **Get Gears from Zwift** disabled.
+2. In **Bike Options > Wahoo Options**, select **Reality Bender (24 even spaced)** if you want 24 virtual gears instead of the 13-gear Explorer preset. Set the physical chainring and cog sizes to match the actual drivetrain; see the [Wahoo gearing FAQ](zwift.md).
+3. Enable **Buttons debouncing** if one press skips multiple gears. Disable **MyWhoosh Link / OpenBikeControl** for this QZ-local shifting configuration, restart QZ with the handlebars awake, and enable the **Gears** tile.
+4. On a second device, pair MyWhoosh to QZ's virtual trainer as power, cadence and controllable trainer, rather than pairing the physical KICKR directly.
+
+A rider confirmed single-step shifting after configuring the controller and later confirmed that physical effort changed while shifting on a nearly flat MyWhoosh route. In this mode, read the current gear in QZ; MyWhoosh's own gear display is not necessarily synchronized.
+
 ## My Elite Rizer connects to QZ but does not follow hills in MyWhoosh. What should I check?
 
 **Check MyWhoosh's own Gradient / trainer difficulty setting before changing QZ's incline mapping.** If that setting is at **0%**, MyWhoosh may not send the route's actual grade changes to QZ, even though the course visibly climbs and descends.
@@ -36,16 +47,14 @@ QZ's current Elite Rizer driver multiplies the requested incline by **Elite Rize
 
 ## Can QZ and MyWhoosh run on the same phone or tablet?
 
-**For the usual QZ virtual-trainer bridge, use two devices.** Running QZ and MyWhoosh on one phone/tablet is not a supported or reliable way for MyWhoosh to discover and connect to QZ's own virtual Bluetooth trainer. QZ connecting to the *physical* trainer does not mean MyWhoosh on that same device can discover QZ as another trainer.
+**Yes, on iPhone and iPad with the newer QZ iOS beta.** In **QZ Settings > Experimental Settings**, enable **iOS Background Keep Alive** so QZ can continue running while MyWhoosh is in the foreground **on the same iOS device**. See the [iOS same-device setup FAQ](ios.md).
 
-1. Run **QZ** on a phone/tablet and let it connect to the physical bike or trainer. Confirm that live power and cadence appear in QZ.
-2. Enable QZ's normal virtual-device/virtual Bluetooth connection. Restart QZ if the settings change requires it.
-3. Run **MyWhoosh on a different device** (another phone/tablet or a PC) and select QZ's advertised virtual trainer, often named **Wahoo KICKR 0000**, rather than the physical trainer, as the power source and controllable trainer.
-4. Keep the devices on the same local network if using QZ's Wi-Fi/DIRCON or MyWhoosh Link/OpenBikeControl features. For Bluetooth virtual-trainer pairing, use the receiving device's Bluetooth scan.
+1. Install a QZ iOS beta that includes **iOS Background Keep Alive**, then enable it.
+2. Connect the physical bike/trainer to QZ and check its live metrics. Configure QZ's virtual trainer as usual.
+3. Open MyWhoosh on the **same iPhone or iPad** and pair with **QZ's virtual trainer**, not the physical trainer.
+4. Test power/cadence, resistance control and virtual shifting while QZ runs in the background.
 
-A support user running both apps on **one iPad** could connect QZ to a KICKR CORE but MyWhoosh only found the physical trainer, not QZ. The **separate-iPhone-and-iPad** setup worked for the same user, including virtual shifting. A separate Android-phone support conversation also established that the same-phone MyWhoosh bridge was not available for that workflow.
-
-This limitation is specific to **MyWhoosh discovering QZ on the same device**; it does not mean QZ and every other training app have identical same-device capabilities.
+**Older builds and other platforms:** A previous test on an older iPad build found that MyWhoosh discovered the physical KICKR CORE but not QZ's virtual trainer; a separate iPhone-plus-iPad setup worked. An Android same-phone support case also could not use that same-device bridge. If your installed build does not support the new iOS background workflow, use **QZ on one device and MyWhoosh on another**. Enable the appropriate QZ virtual-device transport and keep the devices on the same local network when using Wi-Fi/DIRCON or OpenBikeControl. Do not assume initial virtual-trainer discovery works identically to an already-established session.
 
 ## MyWhoosh ERG mode changes effort when I shift gears through QZ and a Wahoo KICKR. What should I check?
 

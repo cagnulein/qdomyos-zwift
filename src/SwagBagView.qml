@@ -73,6 +73,17 @@ Item {
         contentHeight: appleDescription.y + appleDescription.height
         interactive: contentHeight > height
         clip: interactive
+        // Modern look: a thin bar while the text moves, at the screen edge in the page margin, not
+        // over the text. Qt places the bar only when its parent is the flickable
+        // (QQuickScrollIndicatorAttachedPrivate::layoutVertical), so x, y and height are set here.
+        // Classic look: no bar, as before
+        ScrollIndicator.vertical: ScrollIndicator {
+            visible: window.ui.modern
+            parent: swagBagFlick.parent
+            x: mirrored ? 0 : parent.width - width
+            y: swagBagFlick.y
+            height: swagBagFlick.height
+        }
 
         Text {
             padding: 5

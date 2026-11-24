@@ -6,6 +6,7 @@
 #include <QDebug>
 
 #include "ios/ios_background_keepalive.h"
+#include "ios/ios_floating_metrics.h"
 
 namespace {
 
@@ -157,9 +158,10 @@ NSData *QZSilentWavData() {
     self.player = nil;
 
     NSError *error = nil;
-    [[AVAudioSession sharedInstance] setActive:NO
-                   withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation
-                         error:&error];
+    if (!iosFloatingMetrics::running())
+        [[AVAudioSession sharedInstance] setActive:NO
+                       withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation
+                             error:&error];
 
     qDebug() << "QZ iOS keepalive: stopped";
 }

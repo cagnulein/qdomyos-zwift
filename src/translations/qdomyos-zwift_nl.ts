@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="nl_NL">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Sluiten</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -118,6 +125,22 @@
     <message>
         <source>Don&apos;t ask again</source>
         <translation>Niet meer vragen</translation>
+    </message>
+    <message>
+        <source>Strong signal</source>
+        <translation>Sterk signaal</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Goed signaal</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Redelijk signaal</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Zwak signaal</translation>
     </message>
     <message>
         <source>Choose a heart rate sensor</source>
@@ -308,6 +331,14 @@ Wil je de vereiste voorzieningen inschakelen?</translation>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Wil je de volgende keer herinnerd worden aan het inschakelen van Bluetooth of locatievoorzieningen?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Terug naar app</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Geeft de besturing van de belasting terug aan de app</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -358,6 +389,14 @@ Wil je de vereiste voorzieningen inschakelen?</translation>
     <message>
         <source>Not connecting?</source>
         <translation>Geen verbinding?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Apparaat niet gevonden</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Zet je fiets, loopband of roeitrainer aan en tik bovenaan op het Bluetooth-pictogram om opnieuw te zoeken.</translation>
     </message>
 </context>
 <context>
@@ -1121,6 +1160,10 @@ Wil je de QZ-instellingen bijwerken?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>Initialisatie van YPOO M5 mislukt; opnieuw verbinden vereist</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S verbonden!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1342,6 +1385,21 @@ Wil je de QZ-instellingen bijwerken?</translation>
     </message>
 </context>
 <context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Aankoop bezig...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Aankoop geslaagd</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Aankoop mislukt</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -1517,6 +1575,17 @@ Wil je de QZ-instellingen bijwerken?</translation>
     <message>
         <source>Cancel</source>
         <translation>Annuleren</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>Bestanden van de eerdere installatie worden hersteld</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>Bestanden van de eerdere installatie worden hersteld: %1 van %2</translation>
     </message>
 </context>
 <context>
@@ -2058,6 +2127,11 @@ Wil je de QZ-instellingen bijwerken?</translation>
     <message>
         <source>Inclination (%)</source>
         <translation>Hellingsgraad (%)</translation>
+    </message>
+    <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>In één grafiek:</translation>
     </message>
     <message>
         <source>Avg Output</source>
@@ -2612,6 +2686,18 @@ Met de volgende vragen stem je QZ af op je apparatuur en doelen.</translation>
         <translation>Volgende</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Je apparaat, eenheden en profiel, stap voor stap</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Kies een onderwerp en ga meteen naar de instellingen ervan</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Wizard sluiten</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Aangepaste instellingen</translation>
     </message>
@@ -2938,12 +3024,12 @@ Met de volgende vragen stem je QZ af op je apparatuur en doelen.</translation>
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Trainingen importeren…</translation>
+        <translation type="vanished">Trainingen importeren…</translation>
     </message>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Trainingsbestanden verwerken…
+        <translation type="vanished">Trainingsbestanden verwerken…
 Bij de eerste start kan dit even duren.</translation>
     </message>
     <message>
@@ -3067,8 +3153,40 @@ Bij de eerste start kan dit even duren.</translation>
         <translation>Filteren op datum</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Kalender</translation>
+    </message>
+    <message>
         <source>Import workouts</source>
         <translation>Trainingen importeren</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>Trainingen worden aan de geschiedenis toegevoegd</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Trainingsbestanden worden gekopieerd</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Trainingen worden aan de geschiedenis toegevoegd: %1 van %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Trainingsbestanden worden gekopieerd: %1 van %2</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Geen trainingen op deze dag</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Nog geen trainingen</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Afgeronde trainingen verschijnen hier: open er een om de grafieken te bekijken.</translation>
     </message>
     <message>
         <source>Open on Peloton</source>
@@ -3160,9 +3278,25 @@ Bij de eerste start kan dit even duren.</translation>
         <source>Offset</source>
         <translation>Correctie</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Correctie van versnelling %1 verlagen</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Correctie van versnelling %1 verhogen</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Verlagen: %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Verhogen: %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Eigen tabel voor helling naar weerstand inschakelen</translation>
@@ -3178,6 +3312,10 @@ Bij de eerste start kan dit even duren.</translation>
     <message>
         <source>Resistance</source>
         <translation>Weerstand</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Punt bij hellingsgraad %1 verwijderen</translation>
     </message>
     <message>
         <source>Add Point</source>
@@ -3265,6 +3403,10 @@ Bij de eerste start kan dit even duren.</translation>
 </context>
 <context>
     <name>homeform</name>
+    <message>
+        <source>No enabled metrics</source>
+        <translation>Geen meetwaarden ingeschakeld</translation>
+    </message>
     <message>
         <source>Speed (%1/h)</source>
         <translation>Snelheid (%1/h)</translation>
@@ -3836,6 +3978,10 @@ Bij de eerste start kan dit even duren.</translation>
         <translation>Apparaat zoeken…</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Verbinden met %1…</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>%1 gevonden</translation>
     </message>
@@ -4188,9 +4334,17 @@ Bij de eerste start kan dit even duren.</translation>
         <source>Unable to open an email application</source>
         <translation>Kan geen e-mailapp openen</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth staat uit</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Zwevende meetwaarden (beeld-in-beeld)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -4713,6 +4867,26 @@ Mag QZ deze waarde wijzigen?
 
 ‘Nee’: QZ schakelt ‘Zonder wieldiameterprotocol’ in (Instellingen &gt; Fietsopties &gt; Wahoo-opties) en virtuele versnellingen werken via het hellingspercentage. Met ‘Ja’ kun je dit later daar ongedaan maken: schakel die optie in en tik, terwijl de trainer verbonden is, op ‘Standaardinstelling van de trainer herstellen’.</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Het gesimuleerde apparaat (%1) is actief. Schakel het uit in Instellingen als dit niet de bedoeling is.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Fiets</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Loopband</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Crosstrainer</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Roeimachine</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -5085,6 +5259,42 @@ Mag QZ deze waarde wijzigen?
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>Plaats van deze grafiek in de trainingsgeschiedenis. Wijzig de volgorde met de knoppen omhoog en omlaag in Algemene interface-opties.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Instelling gereset</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Instellingen gereset: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Alles resetten</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Gewijzigde instellingen resetten?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Instellingen die worden teruggezet naar hun standaardwaarden: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Resetten</translation>
+    </message>
+    <message>
+        <source>Reset section?</source>
+        <translation>Sectie resetten?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Instellingen in ‘%2’ die worden teruggezet naar hun standaardwaarden: %1</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Sectie resetten</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -7115,6 +7325,14 @@ Voer de code hieronder in:</translation>
         <translation>Strava-label virtuele activiteit</translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Synthetisch GPS-traject voor Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Voegt een synthetisch GPS-traject toe aan virtuele activiteiten zonder GPS. Strava kan dan hoogtemeters tonen, maar de route is niet echt.</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation>Voegt het label voor virtuele activiteit toe aan de Strava-activiteit</translation>
     </message>
@@ -7241,6 +7459,14 @@ BELANGRIJK:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>Gebruik bij smart trainers weerstand in plaats van helling. Dit helpt als je niet wilt dat de Wahoo Climb of iets vergelijkbaars de helling wijzigt wanneer je schakelt. Standaard: uit</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>Weerstandscompatibiliteit</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Schakel dit in als het wijzigen van de weerstand in QZ de fiets alleen op niveau 1 of maximaal zet. Verzendt de FTMS-weerstand vermenigvuldigd met 10. Standaard: uitgeschakeld.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>
@@ -8443,6 +8669,75 @@ Standaard: A = -0.96, B = 1.33</translation>
         <translation>Experimenteel: corrigeert de door QZ ingestelde loopbandsnelheid geleidelijk op basis van Runn/Stryd, als het stuurprogramma eigen snelheidsmetingen van het apparaat levert. Vereist ‘Snelheid van de vermogenssensor gebruiken’. Standaard: uit.</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Moderne interface</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Nieuw uiterlijk van het hoofdscherm, het zijmenu, de instellingen en de wizard. Schakel dit uit om het klassieke uiterlijk terug te krijgen.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Weergave</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Zoals op de telefoon</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Donker</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Licht</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Thema</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafiet</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Zwart / wit</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Middernachtblauw</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Accentkleur</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Violet</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Blauw</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Blauwgroen</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Groen</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Oranje</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Roze</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Tegelgrootte:</translation>
     </message>
@@ -8569,6 +8864,10 @@ Standaard: A = -0.96, B = 1.33</translation>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>Negeert bij GPX-trainingen hellingsveranderingen kleiner dan deze waarde. Een nieuwe opdracht wordt pas verzonden wanneer het verschil met de laatst verzonden waarde de ingestelde drempel bereikt. Standaard: 0 (uitgeschakeld).</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Versnellingen van de console gebruiken</translation>
     </message>
 </context>
 <context>
