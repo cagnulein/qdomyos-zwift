@@ -185,6 +185,34 @@ class HealthConnectHelper {
             }
         }
 
+        // The sample before the elapsed time first counts (the workout starts there), or the first
+        // sample when it never counts: some equipment does not report it
+        @JvmStatic
+        fun firstActiveIndex(samples: JSONArray): Int {
+            for (i in 0 until samples.length()) {
+                if (samples.getJSONObject(i).optLong("elapsedTime", 0L) > 0L) {
+                    return maxOf(0, i - 1)
+                }
+            }
+            return 0
+        }
+
+        // The last sample where the elapsed time or a total (distance, calories, elevation, steps)
+        // changed, or the last sample when nothing ever changed. Later samples only repeat the
+        // totals of the last one, so ending here loses nothing
+        @JvmStatic
+        fun lastActiveIndex(samples: JSONArray): Int {
+            val keys = arrayOf("elapsedTime", "distance", "calories", "elevationGain", "stepCount")
+            for (i in samples.length() - 1 downTo 1) {
+                val cur = samples.getJSONObject(i)
+                val prev = samples.getJSONObject(i - 1)
+                if (keys.any { cur.optDouble(it, 0.0) != prev.optDouble(it, 0.0) }) {
+                    return i
+                }
+            }
+            return samples.length() - 1
+        }
+
         // Visible for testing — grantedPermissions defaults to all permissions so existing tests pass unchanged.
         @JvmStatic
         fun buildRecords(
@@ -194,10 +222,15 @@ class HealthConnectHelper {
             deviceName: String?,
             grantedPermissions: Set<String> = writePermissions()
         ): List<Record> {
-            val first = samples.getJSONObject(0)
+            // The totals come from the last sample. The session itself runs from the moment the
+            // workout started to the last moment anything counted: QZ records from the moment the
+            // equipment connects, and the minutes before Start and after Stop are no exercise
+            val firstActive = firstActiveIndex(samples)
+            val lastActive = lastActiveIndex(samples)
+            val first = samples.getJSONObject(firstActive)
             val last = samples.getJSONObject(samples.length() - 1)
             val start = Instant.ofEpochMilli(first.getLong("time"))
-            var end = Instant.ofEpochMilli(last.getLong("time"))
+            var end = Instant.ofEpochMilli(samples.getJSONObject(lastActive).getLong("time"))
             if (!end.isAfter(start)) {
                 end = start.plusSeconds(1)
             }
@@ -286,7 +319,7 @@ class HealthConnectHelper {
             val stepsCadenceSamples = mutableListOf<StepsCadenceRecord.Sample>()
             val hrvRecords = mutableListOf<HeartRateVariabilityRmssdRecord>()
 
-            for (i in 0 until samples.length()) {
+            for (i in firstActive..lastActive) {
                 val sample = samples.getJSONObject(i)
                 val time = Instant.ofEpochMilli(sample.getLong("time"))
                 val heart = sample.optInt("heart", 0)

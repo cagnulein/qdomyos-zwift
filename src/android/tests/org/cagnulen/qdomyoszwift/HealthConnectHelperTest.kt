@@ -139,6 +139,82 @@ class HealthConnectHelperTest {
         assertEquals(Instant.ofEpochMilli(end), session.endTime)
     }
 
+    // ── buildRecords: active time only ───────────────────────────────────────
+
+    // A walk recorded from the moment the treadmill connected: two idle minutes, three minutes
+    // of walking, two idle minutes after Stop
+    private fun walkWithIdleTime() = JSONArray().apply {
+        val t = 1_700_000_000_000L
+        val m = 60_000L
+        put(makeSample(t, heart = 70))
+        put(makeSample(t + m, heart = 71))
+        put(makeSample(t + 2 * m, heart = 72, speed = 3.0, elapsedTime = 1L, distance = 0.01, calories = 1.0))
+        put(makeSample(t + 3 * m, heart = 95, speed = 3.5, elapsedTime = 61L, distance = 0.06, calories = 6.0))
+        put(makeSample(t + 4 * m, heart = 100, speed = 3.5, elapsedTime = 121L, distance = 0.12, calories = 12.0))
+        put(makeSample(t + 5 * m, heart = 90, elapsedTime = 121L, distance = 0.12, calories = 12.0))
+        put(makeSample(t + 6 * m, heart = 80, elapsedTime = 121L, distance = 0.12, calories = 12.0))
+    }
+
+    @Test
+    fun `buildRecords starts the session one sample before the elapsed time counts`() {
+        val records = HealthConnectHelper.buildRecords(walkWithIdleTime(), "t", TREADMILL, null)
+        val session = records.first() as ExerciseSessionRecord
+        assertEquals(Instant.ofEpochMilli(1_700_000_000_000L + 60_000L), session.startTime)
+    }
+
+    @Test
+    fun `buildRecords ends the session at the last sample that counted`() {
+        val records = HealthConnectHelper.buildRecords(walkWithIdleTime(), "t", TREADMILL, null)
+        val session = records.first() as ExerciseSessionRecord
+        assertEquals(Instant.ofEpochMilli(1_700_000_000_000L + 4 * 60_000L), session.endTime)
+    }
+
+    @Test
+    fun `buildRecords keeps the totals of the last sample when it trims`() {
+        val records = HealthConnectHelper.buildRecords(walkWithIdleTime(), "t", TREADMILL, null)
+        val distance = records.filterIsInstance<DistanceRecord>().single()
+        val calories = records.filterIsInstance<TotalCaloriesBurnedRecord>().single()
+        assertEquals(0.12, distance.distance.inKilometers, 1e-9)
+        assertEquals(12.0, calories.energy.inKilocalories, 1e-9)
+        assertEquals(Instant.ofEpochMilli(1_700_000_000_000L + 4 * 60_000L), distance.endTime)
+    }
+
+    @Test
+    fun `buildRecords writes heart rate only from the active time`() {
+        val records = HealthConnectHelper.buildRecords(walkWithIdleTime(), "t", TREADMILL, null)
+        val heart = records.filterIsInstance<HeartRateRecord>().single()
+        assertEquals(listOf(71L, 72L, 95L, 100L), heart.samples.map { it.beatsPerMinute })
+    }
+
+    @Test
+    fun `buildRecords keeps the whole session when the elapsed time is never reported`() {
+        val t = 1_700_000_000_000L
+        val samples = JSONArray().apply {
+            put(makeSample(t, watt = 100.0))
+            put(makeSample(t + 60_000L, watt = 120.0, distance = 0.5))
+            put(makeSample(t + 120_000L, watt = 130.0, distance = 1.0))
+        }
+        val session = HealthConnectHelper.buildRecords(samples, "t", BIKE, null).first() as ExerciseSessionRecord
+        assertEquals(Instant.ofEpochMilli(t), session.startTime)
+        assertEquals(Instant.ofEpochMilli(t + 120_000L), session.endTime)
+    }
+
+    @Test
+    fun `buildRecords keeps a sample whose total changed after the timer stopped`() {
+        val t = 1_700_000_000_000L
+        val samples = JSONArray().apply {
+            put(makeSample(t, elapsedTime = 1L))
+            put(makeSample(t + 60_000L, elapsedTime = 60L, distance = 0.1))
+            // the belt coasts after Stop: the distance still grows, the timer does not
+            put(makeSample(t + 70_000L, elapsedTime = 60L, distance = 0.11))
+            put(makeSample(t + 130_000L, elapsedTime = 60L, distance = 0.11))
+        }
+        val records = HealthConnectHelper.buildRecords(samples, "t", TREADMILL, null)
+        val session = records.first() as ExerciseSessionRecord
+        assertEquals(Instant.ofEpochMilli(t + 70_000L), session.endTime)
+        assertEquals(0.11, records.filterIsInstance<DistanceRecord>().single().distance.inKilometers, 1e-9)
+    }
+
     // ── buildRecords: power ───────────────────────────────────────────────────
 
     @Test
@@ -358,7 +434,8 @@ class HealthConnectHelperTest {
         calories: Double = 0.0,
         elevationGain: Double = 0.0,
         stepCount: Double = 0.0,
-        hrv: Double = 0.0
+        hrv: Double = 0.0,
+        elapsedTime: Long = 0L
     ) = JSONObject().apply {
         put("time", time)
         put("speed", speed)
@@ -370,6 +447,7 @@ class HealthConnectHelperTest {
         put("elevationGain", elevationGain)
         put("stepCount", stepCount)
         put("hrv", hrv)
+        put("elapsedTime", elapsedTime)
     }
 
     private fun singleSample(time: Long = System.currentTimeMillis()) =
