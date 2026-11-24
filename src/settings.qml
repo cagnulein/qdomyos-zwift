@@ -281,7 +281,8 @@ import AndroidStatusBar 1.0
 
         function currentSearch(viaPush) {
             return { query: settingsSearchTextField.text, changedOnly: changedOnly,
-                     results: filteredSettings, scroll: contentItem.contentY, viaPush: viaPush }
+                     results: filteredSettings, scroll: contentItem.contentY, viaPush: viaPush,
+                     modern: window.ui.modern }
         }
 
         // A page among the results ("Wahoo Options"): back from it lands on the results
@@ -425,8 +426,10 @@ import AndroidStatusBar 1.0
             settingsSearchActive = back.query.trim().length > 0 || back.changedOnly
             settingsSearchPending = false
             filteredSettings = back.results
-            // "Changed" may differ now (the setting just opened was edited): that list is rebuilt
-            if (changedOnly)
+            // "Changed" may differ now (the setting just opened was edited): that list is rebuilt;
+            // so are the results when the look was switched meanwhile (the classic look leaves
+            // out the rows of the modern one)
+            if (changedOnly || back.modern !== window.ui.modern)
                 updateFilteredSettings()
             // After the list is laid out again
             contentItem.contentY = 0
@@ -8378,7 +8381,8 @@ import AndroidStatusBar 1.0
                                     // Qt 5.15: a double tap of the screen reader does not reach the MouseArea
                                     Accessible.onPressAction: settingsPane.setUiOption("ui_accent", modelData)
                                     // 48 high, as the style guide asks; across, up to the middle of the
-                                    // gap only (34): the swatches would not fit beside the label at 48
+                                    // gap (34): wider would overlap the next swatch, and the six spaced
+                                    // 48 apart would not fit beside the label
                                     MouseArea {
                                         anchors.fill: parent
                                         anchors.leftMargin: -3
