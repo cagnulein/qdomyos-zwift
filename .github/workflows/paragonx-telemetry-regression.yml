@@ -1,0 +1,28 @@
+name: Paragon X telemetry regression
+
+on:
+  pull_request:
+    paths:
+      - 'src/devices/horizontreadmill/paragonxtelemetry.h'
+      - 'src/devices/horizontreadmill/horizontreadmill.cpp'
+      - 'tests/test_paragonxtelemetry.cpp'
+      - 'tests/fixtures/paragonx_*_2026.tsv'
+      - '.github/workflows/paragonx-telemetry-regression.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'src/devices/horizontreadmill/paragonxtelemetry.h'
+      - 'src/devices/horizontreadmill/horizontreadmill.cpp'
+      - 'tests/test_paragonxtelemetry.cpp'
+      - 'tests/fixtures/paragonx_*_2026.tsv'
+      - '.github/workflows/paragonx-telemetry-regression.yml'
+
+jobs:
+  paragonx:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile isolated C++ telemetry regression tests
+        run: g++ -std=c++11 -Wall -Wextra -Werror -O2 tests/test_paragonxtelemetry.cpp -o /tmp/paragonx-test
+      - name: Replay real complete and truncated BLE captures
+        run: /tmp/paragonx-test tests/fixtures/paragonx_complete_2026.tsv tests/fixtures/paragonx_truncated_2026.tsv
