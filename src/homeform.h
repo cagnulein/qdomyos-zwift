@@ -83,6 +83,7 @@ class DataObject : public QObject {
     void setValueFontSize(int value);
     void setValueFontColor(const QString &value);
     void setLabelFontSize(int value);
+    void setWritable(bool writable);
     void setVisible(bool visible);
     void setGridId(int id);
     void setLargeButtonColor(const QString &color);
