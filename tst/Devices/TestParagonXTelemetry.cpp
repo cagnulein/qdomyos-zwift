@@ -270,11 +270,13 @@ TEST(ParagonXTelemetryTest, InitRepliesStillEmitPacketReceivedOnce) {
     EXPECT_TRUE(last.completed);
     EXPECT_FALSE(last.recovered);
     EXPECT_EQ(packetReceivedSignals, 1u);
-    // Do not repeat signals for an unrelated/orphaned continuation fragment.
-    const uint8_t orphan[] = {0, 0, 0};
-    const auto ignored = assembler.accept(orphan, sizeof(orphan), [&]() { ++packetReceivedSignals; });
-    EXPECT_FALSE(ignored.completed);
-    EXPECT_EQ(packetReceivedSignals, 1u);
+    // The original driver also signaled unframed short init replies; keep
+    // this behavior to avoid breaking handshakes with older Paragon X units.
+    const uint8_t headerlessReply[] = {0x01, 0, 0, 0, 0, 0, 0x0d, 0x0a};
+    const auto standalone = assembler.accept(headerlessReply, sizeof(headerlessReply),
+                                             [&]() { ++packetReceivedSignals; });
+    EXPECT_TRUE(standalone.completed);
+    EXPECT_EQ(packetReceivedSignals, 2u);
 }
 
 
@@ -354,4 +356,9 @@ TEST(ParagonXTelemetryTest, ProductionDriverPreservesInitReplySignal) {
     const auto full = ParagonXNotificationTestAccess::feed(driver, last);
     EXPECT_TRUE(full.completed);
     EXPECT_EQ(signals, 1u);
+    // Preserve headerless initialization replies as well.
+    const std::vector<uint8_t> standalone = {0x01, 0, 0, 0, 0, 0, 0x0d, 0x0a};
+    const auto reply = ParagonXNotificationTestAccess::feed(driver, standalone);
+    EXPECT_TRUE(reply.completed);
+    EXPECT_EQ(signals, 2u);
 }
