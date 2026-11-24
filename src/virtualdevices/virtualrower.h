@@ -63,6 +63,9 @@ class virtualrower : public virtualdevice {
     QTimer rowerTimer;
     bluetoothdevice *Rower;
 
+    bool ftmsDistanceInitialized = false;
+    uint32_t ftmsDistanceOffset = 0;
+    uint32_t ftmsLastDistance = 0;
     bool pm5Mode = false;
     double virtualRowerCadenceGain = 1.0;
     double virtualRowerCadenceOffset = 0.0;
