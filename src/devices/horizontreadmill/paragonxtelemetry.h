@@ -81,11 +81,11 @@ class NotificationAssembler {
             frame_.clear();
             remaining_ = static_cast<int>((static_cast<unsigned>(data[7]) << 8) |
                                           static_cast<unsigned>(data[6])) + 10;
-        } else if (frame_.empty() || remaining_ <= 0) {
-            // Never signal completion for an orphaned continuation fragment
-            // after a finished frame or before the first packet header.
-            return result;
         }
+        // Keep the original Horizon behavior for headerless notifications:
+        // initialization replies can be delivered as standalone short packets.
+        // The legacy driver signals packetReceived() whenever remaining_ <= 0,
+        // even when no new 0x55aa header was present.
 
         frame_.insert(frame_.end(), data, data + size);
         remaining_ -= static_cast<int>(size);
