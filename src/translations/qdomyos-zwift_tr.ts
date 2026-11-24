@@ -8669,6 +8669,75 @@ Varsayılan: A = -0.96, B = 1.33</translation>
         <translation>Deneysel: QZ&apos;deki koşu bandı sürücüsü cihazın kendi hız ölçümlerini veriyorsa, QZ&apos;nin kontrol ettiği koşu bandı hızı Runn/Stryd verilerine göre kademeli olarak düzeltilir. &quot;Hızı güç sensöründen al&quot; ayarı gerekir. Varsayılan: kapalı.</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Modern arayüz</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Ana ekranın, yan menünün, ayarların ve sihirbazın yeni görünümü. Klasik görünüme dönmek için kapatın.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Görünüm</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Telefondaki gibi</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Koyu</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Açık</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Tema</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafit</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Siyah / beyaz</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Gece mavisi</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Vurgu rengi</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Mor</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Mavi</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Turkuaz</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Yeşil</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Turuncu</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Pembe</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Kutucuk boyutu:</translation>
     </message>

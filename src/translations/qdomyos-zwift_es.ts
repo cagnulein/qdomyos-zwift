@@ -7285,6 +7285,75 @@ Por favor, ingrésalo a continuación:</translation>
         <translation>Posición de este gráfico en el historial de entrenamientos. El orden se cambia con los botones de subir y bajar en Opciones generales de la interfaz.</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Interfaz moderna</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Nuevo aspecto de la pantalla principal, el menú lateral, la configuración y el asistente. Desactívalo para volver al aspecto clásico.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Apariencia</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Como en el teléfono</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Oscuro</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Claro</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Tema</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafito</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Negro / blanco</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Azul medianoche</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Color de acento</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Violeta</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Azul</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Verde azulado</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Verde</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Naranja</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Rosa</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Tamaño de los mosaicos:</translation>
     </message>

@@ -189,6 +189,23 @@ import AndroidStatusBar 1.0
             return qsTranslate(pageContextOf(where.file), where.chain[where.card]) + ": " + title
         }
 
+        // The look of the modern interface (see the declarations of the ui_ keys in the Settings
+        // below): kept by main.qml, which applies it at once
+        readonly property var uiOptionKeys: ["ui_modern", "ui_theme", "ui_accent", "ui_theme_mode"]
+        function isUiOption(key) {
+            return uiOptionKeys.indexOf(key) >= 0
+        }
+        // Into main.qml, which applies it at once, and into this page's copy as well: a change
+        // of any setting makes this page's Settings write all its properties (Qt.labs.settings
+        // 5.15), and a stale copy would bring the old look back after a restart
+        function setUiOption(key, value) {
+            // "As on the phone" takes the night mode of the phone as it is now
+            if (key === "ui_theme_mode")
+                window.ui.refreshSystemTheme()
+            window.ui.setOption(key, value)
+            settings[key] = value
+        }
+
         // Modern look, "Changed": the changed settings listed in the block of one section, and
         // their reset. The listed ones only, as Reset all: with a text in the field the block
         // shows the ones matching it, and a setting not shown is not reset
@@ -720,6 +737,9 @@ import AndroidStatusBar 1.0
         function profileSettingsSnapshot() {
             var values = []
             for (var key in settings) {
+                // The look applies at once: it raises no restart question
+                if (isUiOption(key))
+                    continue
                 var value = settings[key]
                 if (typeof value === "boolean" || typeof value === "number" || typeof value === "string")
                     values.push(key + "=" + String(value))
@@ -1124,7 +1144,7 @@ import AndroidStatusBar 1.0
         // is not a property of this page's Settings (settingValue reads the property first). The
         // store may give a boolean back as the string "true"
         function storedValue(key, type, fallback) {
-            var value = settings.value(key, fallback)
+            var value = isUiOption(key) ? window.ui.option(key) : settings.value(key, fallback)
             if (type === "boolean")
                 return value === true || value === "true"
             return value
@@ -1169,6 +1189,14 @@ import AndroidStatusBar 1.0
                 value = parseInt(value)
             else if (type === "number")
                 value = parseFloat(value)
+            // The look of the modern interface is kept by main.qml (setUiOption). Into the store
+            // at once as well: the page made again after the reset reads it there, and its copy
+            // would write the old look back otherwise
+            if (isUiOption(key)) {
+                setUiOption(key, value)
+                settings.setValue(key, value)
+                return
+            }
             // The account of one server is no good on the other
             if (key === "garmin_domain" && value !== settings.garmin_domain)
                 rootItem.garmin_connect_logout()
@@ -1279,6 +1307,8 @@ import AndroidStatusBar 1.0
         // change there only a moment later, a card read again at once got the old value and kept
         // it. The store only for a key that is not a property here
         function settingValue(entry) {
+            if (isUiOption(entry.key))
+                return window.ui.option(entry.key)
             var copy = settings[entry.key]
             var value = copy === undefined ? storedValue(entry.key, entry.type, entry.defaultValue) : copy
             if ((entry.type === "integer" || entry.type === "number") && value !== null && value !== "")
@@ -2927,6 +2957,9 @@ import AndroidStatusBar 1.0
             property bool heart_rate_belt_suggest: false
 
             property bool proform_treadmill_sport_6_0: false
+            // The look of the modern interface: main.qml keeps the same keys and applies them at
+            // once. Declared here for the settings catalog; the page and the search read them
+            // through window.ui and write both copies (setUiOption)
             property bool ui_modern: false
             property string ui_theme: "graphite"
             property string ui_accent: "violet"
@@ -8193,6 +8226,156 @@ import AndroidStatusBar 1.0
                 //anchors.topMargin: 10
                 accordionContent: ColumnLayout {
                     spacing: 0
+
+                    // Look of the app: modern or classic, theme and accent colour
+                    IndicatorOnlySwitch {
+                        text: qsTr("Modern interface")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: window.ui.modern
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        // in Qt 5.15 the role of a SwitchDelegate has no action: a double tap of the
+                        // screen reader did nothing
+                        Accessible.onPressAction: { toggle(); clicked(); }
+                        onClicked: settingsPane.setUiOption("ui_modern", checked)
+                    }
+                    Label {
+                        text: qsTr("New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.")
+                        font.bold: !window.ui.modern
+                        font.italic: !window.ui.modern
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                        color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
+                    }
+
+                    UiSettingsRow {
+                        visible: window.ui.modern
+                        spacing: 10
+                        Layout.topMargin: 8
+                        Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
+                            text: qsTr("Appearance")
+                            wrapMode: Text.WordWrap
+                            Layout.fillWidth: true
+                        }
+                        UiComboBox {
+                            id: uiThemeModeCombo
+                            readonly property var options: [
+                                { value: "auto", label: qsTr("As on the phone") },
+                                { value: "dark", label: qsTr("Dark") },
+                                //: Colour theme: the light one (not "easy" as in the effort scale)
+                                { value: "light", label: qsTr("Light") }
+                            ]
+                            model: options
+                            textRole: "label"
+                            Layout.preferredWidth: 190
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            currentIndex: {
+                                for (var i = 0; i < options.length; i++)
+                                    if (options[i].value === window.ui.themeMode)
+                                        return i
+                                return 0
+                            }
+                            onActivated: settingsPane.setUiOption("ui_theme_mode", options[index].value)
+                            // The row's label, which the screen reader does not join to the box itself
+                            Accessible.name: qsTr("Appearance") + ": " + displayText
+                        }
+                    }
+
+                    UiSettingsRow {
+                        visible: window.ui.modern
+                        spacing: 10
+                        Layout.topMargin: 8
+                        Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
+                            text: qsTr("Theme")
+                            wrapMode: Text.WordWrap
+                            Layout.fillWidth: true
+                        }
+                        UiComboBox {
+                            id: uiThemeCombo
+                            readonly property var options: [
+                                { value: "graphite", label: qsTr("Graphite") },
+                                { value: "oled", label: qsTr("Black / white") },
+                                { value: "midnight", label: qsTr("Midnight blue") }
+                            ]
+                            model: options
+                            textRole: "label"
+                            Layout.preferredWidth: 190
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            currentIndex: {
+                                for (var i = 0; i < options.length; i++)
+                                    if (options[i].value === window.ui.themeName)
+                                        return i
+                                return 0
+                            }
+                            onActivated: settingsPane.setUiOption("ui_theme", options[index].value)
+                            // The row's label, which the screen reader does not join to the box itself
+                            Accessible.name: qsTr("Theme") + ": " + displayText
+                        }
+                    }
+
+                    // The swatches go under the label when its longest word has no room beside
+                    // them (130 %: "Акцентний" ran under the swatches)
+                    UiSettingsRow {
+                        id: accentRow
+                        visible: window.ui.modern
+                        spacing: 10
+                        Layout.topMargin: 8
+                        Layout.bottomMargin: 12
+                        // Wraps instead of running under the swatches: inside the frames of the
+                        // section the row is narrower than the six swatches and a long name
+                        Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
+                            text: qsTr("Accent color")
+                            wrapMode: Text.WordWrap
+                            Layout.fillWidth: true
+                            Layout.minimumWidth: 60
+                            // Stacked: room inside the card, as the Theme card above has (~20 dp from the
+                            // frame to the glyphs). The frame keeps 8 dp around the row itself
+                            // (UiSettingFrames framePadV); the row margins only move the next card
+                            topPadding: accentRow.stackedRow ? 9 : 0
+                        }
+                        Row {
+                            spacing: 6
+                            // Stacked: ~18 dp from the swatches to the frame, as under the text of the Theme card
+                            bottomPadding: accentRow.stackedRow ? 13 : 0
+                            Layout.alignment: (accentRow.stackedRow ? Qt.AlignLeft : Qt.AlignRight) | Qt.AlignVCenter
+                            Repeater {
+                                model: ["violet", "blue", "teal", "green", "orange", "pink"]
+                                // UiFrame: a Rectangle.border ring breaks up on Android
+                                delegate: UiFrame {
+                                    width: 28
+                                    height: 28
+                                    radius: 14
+                                    fill: window.ui.a[modelData]
+                                    strokeWidth: window.ui.accentName === modelData ? 3 : 0
+                                    stroke: window.ui.textMain
+                                    Accessible.role: Accessible.RadioButton
+                                    // The same names as in settings-catalog.json (ui_accent): the search shows them
+                                    Accessible.name: ({ violet: qsTr("Violet"), blue: qsTr("Blue"),
+                                                        teal: qsTr("Teal"), green: qsTr("Green"), orange: qsTr("Orange"),
+                                                        pink: qsTr("Pink") })[modelData] || modelData
+                                    Accessible.checked: window.ui.accentName === modelData
+                                    // Qt 5.15: a double tap of the screen reader does not reach the MouseArea
+                                    Accessible.onPressAction: settingsPane.setUiOption("ui_accent", modelData)
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        anchors.margins: -4
+                                        onClicked: settingsPane.setUiOption("ui_accent", modelData)
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     RowLayout {
                         spacing: 10

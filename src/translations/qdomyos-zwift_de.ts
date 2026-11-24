@@ -7269,6 +7269,75 @@ Bitte geben Sie ihn unten ein:</translation>
         <translation>Neigung</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Moderne Oberfläche</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Neues Aussehen von Startbildschirm, Seitenmenü, Einstellungen und Assistent. Ausschalten, um das klassische Aussehen zurückzuholen.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Darstellung</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Wie auf dem Telefon</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Dunkel</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Hell</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Design</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Graphit</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Schwarz / Weiß</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Mitternachtsblau</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Akzentfarbe</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Violett</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Blau</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Türkis</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Grün</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Orange</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Rosa</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Kachelgröße:</translation>
     </message>

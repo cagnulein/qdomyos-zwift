@@ -16489,12 +16489,12 @@
     {
       "key": "ui_modern",
       "name": "Modern interface",
-      "description": "New look of the app. Turn it off to get the classic look back.",
+      "description": "New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.",
       "parent": "General UI Options",
       "type": "boolean",
       "qmlType": "bool",
       "control": "switch",
-      "visible": false,
+      "visible": true,
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
@@ -16508,7 +16508,7 @@
       "type": "string",
       "qmlType": "string",
       "control": "select",
-      "visible": false,
+      "visible": true,
       "defaultValue": "graphite",
       "defaultExpression": "\"graphite\"",
       "options": {
@@ -16533,7 +16533,7 @@
       "type": "string",
       "qmlType": "string",
       "control": "select",
-      "visible": false,
+      "visible": true,
       "defaultValue": "violet",
       "defaultExpression": "\"violet\"",
       "options": {
@@ -16564,7 +16564,7 @@
       "type": "string",
       "qmlType": "string",
       "control": "select",
-      "visible": false,
+      "visible": true,
       "defaultValue": "auto",
       "defaultExpression": "\"auto\"",
       "options": {

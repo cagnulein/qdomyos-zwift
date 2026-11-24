@@ -8669,6 +8669,75 @@ Výchozí: A = -0.96, B = 1.33</translation>
         <translation>Experimentální: QZ postupně upravuje rychlost běžeckého pásu, kterou řídí, podle údajů z Runn/Stryd, pokud ovladač pásu poskytuje vlastní měření rychlosti. Vyžaduje nastavení „Rychlost ze snímače výkonu“. Výchozí: vypnuto.</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Moderní rozhraní</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Nový vzhled hlavní obrazovky, postranní nabídky, nastavení a průvodce. Vypnutím se vrátí klasický vzhled.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Vzhled</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Podle telefonu</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Tmavý</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Světlý</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Motiv</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafit</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Černá / bílá</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Půlnoční modř</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Barva zvýraznění</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Fialová</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Modrá</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Modrozelená</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Zelená</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Oranžová</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Růžová</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Velikost dlaždic:</translation>
     </message>
