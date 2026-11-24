@@ -148,3 +148,14 @@ A rider explicitly confirmed that the direct-console setup worked. **Automatic t
 4. If another app should receive the data, configure QZ's virtual device and pair the training app to QZ rather than directly to the console.
 
 **Confirmed test:** cadence, power, speed and resistance control worked during a ten-minute ride with the FitPro USB bike build. The gRPC bike build had failed to control resistance on this console. This is evidence for the specified model and build, not a guarantee for every Studio Bike Pro 22 console revision. See the direct-console installation and FitPro/gRPC differences above.
+
+## QZ on my Android phone cannot reliably discover QZ FitPro USB on a NordicTrack treadmill over DIRCON. What should I check?
+
+For a setup with QZ FitPro USB on the treadmill console and a second QZ instance on an Android phone, check the phone's discovery configuration separately from the console's hardware connection.
+
+1. Confirm that QZ FitPro USB on the console receives live treadmill metrics, and that the phone and console are on the same local network.
+2. If you intend to connect using DIRCON rather than the older NordicTrack IP-based connection, clear any old NordicTrack 2950 IP setting (`nordictrack_2950_ip`) on the phone and restart QZ.
+3. If DIRCON discovery is intermittent or takes several minutes, temporarily turn off Android's system-wide **Battery Saver** (power-saving mode) on the phone, then restart QZ and retry discovery. Also check the app's battery restrictions; see the [Android FAQ](android.md).
+4. Verify that the phone connects to the console's virtual treadmill (in the confirmed setup, **Wahoo TREAD 0000**) and receives live metrics before testing small speed or incline changes. Keep the physical emergency stop accessible.
+
+**Confirmed support case:** On a NordicTrack X9i with QZ FitPro USB on the console and a Xiaomi Android phone, clearing the old IP setting restored the phone-to-console connection and speed/incline control. Discovery was still intermittent even though an Android service-browser app could see the advertised services. After disabling Battery Saver, QZ discovered the console within the first discovery window in two consecutive tests. This confirms the discovery workaround, not remote Start/Pause/Stop support, which was being tested separately.
