@@ -4027,6 +4027,7 @@ void bluetooth::connectedAndDiscovered() {
     if(settings.value(QZSettings::zwift_click, QZSettings::default_zwift_click).toBool() &&
             this->device() && this->device()->deviceType() == BIKE) {
         bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
+        const bool zwiftRightOnly = settings.value(QZSettings::zwift_right_controller_only, QZSettings::default_zwift_right_controller_only).toBool();
 
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
             if (!b.name().toUpper().startsWith("ZWIFT CLICK"))
@@ -4039,6 +4040,10 @@ void bluetooth::connectedAndDiscovered() {
             } else {
                 qDebug() << "manufacturer not found for ZWIFT CLICK";
             }
+
+            // Explicit right-only opt-in: never pair the left Click V2, Click V1 or unknown devices.
+            if (zwiftRightOnly && mfgByte != 10)
+                continue;
 
             // byte 11 = v1; -1 (no mfg data) treated as v1 only for the first device found
             if ((mfgByte == 11) || (mfgByte == -1 && !zwiftClickRemote)) {
@@ -4060,6 +4065,8 @@ void bluetooth::connectedAndDiscovered() {
                 AbstractZapDevice::ZWIFT_PLAY_TYPE type;
                 if (mfgByte == 3 || mfgByte == 7)
                     type = AbstractZapDevice::ZWIFT_PLAY_TYPE::LEFT;
+                else if (AbstractZapDevice::useSingleRightClickV2(zwiftRightOnly, mfgByte))
+                    type = AbstractZapDevice::ZWIFT_PLAY_TYPE::RIGHT;
                 else
                     type = zwiftPlayDevice.isEmpty() ? AbstractZapDevice::ZWIFT_PLAY_TYPE::LEFT : AbstractZapDevice::ZWIFT_PLAY_TYPE::RIGHT;
                 zwiftPlayDevice.append(new zwiftclickremote(this->device(), type));
@@ -4080,6 +4087,7 @@ void bluetooth::connectedAndDiscovered() {
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightZ, this, &bluetooth::zwiftPlayRightZ);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightA, this, &bluetooth::zwiftPlayRightA);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightB, this, &bluetooth::zwiftPlayRightB);
+                zwiftPlayDevice.last()->playDevice->singleRightClickV2 = AbstractZapDevice::useSingleRightClickV2(zwiftRightOnly, mfgByte);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightShoulder, this, &bluetooth::zwiftPlayRightShoulder);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPower, this, &bluetooth::zwiftPlayRightPower);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPaddle, this, &bluetooth::zwiftPlayRightPaddle);
