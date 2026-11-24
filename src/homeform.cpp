@@ -6932,6 +6932,9 @@ QString homeform::startIcon() {
 }
 
 void homeform::updateGearsValue() {
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+    const QString previousGearValue = this->gears->value();
+#endif
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
     bool gears_custom_table_enabled = settings.value(QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled).toBool();
@@ -6951,6 +6954,12 @@ void homeform::updateGearsValue() {
         this->gears->setValue(QString::number(gear, 'f', 1));
         this->gears->setSecondLine(QStringLiteral(""));
     }
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+    // Publish shifts when they happen instead of waiting for the 1 Hz homeform timer.
+    // Keep other metrics at their usual cadence and avoid unnecessary PiP frames.
+    if (previousGearValue != this->gears->value() && iosFloatingMetrics::running())
+        updateFloatingMetrics();
+#endif
 }
 
 QString homeform::signal() {
