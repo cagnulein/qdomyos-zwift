@@ -6126,12 +6126,12 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
         <translation>Csak Android: a lebegő ablak magassága</translation>
     </message>
     <message>
-        <source>Floating Window Opacity (%):</source>
-        <translation>Lebegő ablak átlátszatlansága (%):</translation>
+        <source>Floating Window % Transparency:</source>
+        <translation>Lebegő ablak átlátszósága (%):</translation>
     </message>
     <message>
-        <source>Opacity of the floating window (100 = opaque).</source>
-        <translation>A lebegő ablak átlátszatlansága (100 = teljesen átlátszatlan).</translation>
+        <source>Android Only: transparency percentage of the floating window.</source>
+        <translation>Csak Android: a lebegő ablak átlátszósága százalékban</translation>
     </message>
     <message>
         <source>Floating Window Startup</source>
