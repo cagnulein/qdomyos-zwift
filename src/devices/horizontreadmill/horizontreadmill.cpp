@@ -88,6 +88,30 @@ void horizontreadmill::waitForAPacket() {
     loop.exec();
 }
 
+ParagonXTelemetry::NotificationResult
+horizontreadmill::processParagonNotification(const QByteArray &newValue) {
+    // This is the real production notification path. Unit tests call it with
+    // captured BLE fragments and observe the driver's packetReceived signal.
+    auto result = paragonPacketAssembler.accept(
+        reinterpret_cast<const uint8_t *>(newValue.constData()),
+        static_cast<std::size_t>(newValue.size()), [this]() {
+            initPacketRecv = true;
+            emit packetReceived();
+        });
+    const auto &buffer = paragonPacketAssembler.frame();
+    lastPacketComplete = QByteArray(reinterpret_cast<const char *>(buffer.data()),
+                                    static_cast<int>(buffer.size()));
+    customRecv = paragonPacketAssembler.remaining();
+    if (result.recovered) {
+        qDebug() << "Paragon X: recovered truncated status frame at next BLE header";
+    }
+    if (result.completed) {
+        emit debug(QStringLiteral(" << FULL ") + " " + lastPacketComplete.toHex(' '));
+        qDebug() << "full custom packet received";
+    }
+    return result;
+}
+
 void horizontreadmill::btinit() {
     QSettings settings;
     QStringList horizon_treadmill_profile_users;
@@ -1674,26 +1698,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     ParagonXTelemetry::NotificationResult paragonNotification{};
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4)) {
         if (paragonOnly) {
-            // The same assembler and packetReceived callback used by the replay
-            // tests handle both completed frames and 60-byte status frames
-            // finalized when the next header arrives.
-            paragonNotification = paragonPacketAssembler.accept(
-                reinterpret_cast<const uint8_t *>(newValue.constData()),
-                static_cast<std::size_t>(newValue.size()), [this]() {
-                    initPacketRecv = true;
-                    emit packetReceived();
-                });
-            const auto &buffer = paragonPacketAssembler.frame();
-            lastPacketComplete = QByteArray(reinterpret_cast<const char *>(buffer.data()),
-                                            static_cast<int>(buffer.size()));
-            customRecv = paragonPacketAssembler.remaining();
-            if (paragonNotification.recovered) {
-                qDebug() << "Paragon X: recovered truncated status frame at next BLE header";
-            }
-            if (paragonNotification.completed) {
-                emit debug(QStringLiteral(" << FULL ") + " " + lastPacketComplete.toHex(' '));
-                qDebug() << "full custom packet received";
-            }
+            paragonNotification = processParagonNotification(newValue);
         } else {
             // Keep the original frame assembly and completion signals for
             // other Horizon models completely unchanged.
