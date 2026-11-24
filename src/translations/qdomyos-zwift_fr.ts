@@ -5990,12 +5990,12 @@ Autoriser QZ à modifier cette valeur ?
         <translation>Android uniquement : hauteur de la fenêtre flottante.</translation>
     </message>
     <message>
-        <source>Floating Window % Transparency:</source>
-        <translation>Transparence de la fenêtre flottante (%) :</translation>
+        <source>Floating Window Opacity (%):</source>
+        <translation>Opacité de la fenêtre flottante (%) :</translation>
     </message>
     <message>
-        <source>Android Only: transparency percentage of the floating window.</source>
-        <translation>Android uniquement : pourcentage de transparence de la fenêtre flottante.</translation>
+        <source>Opacity of the floating window (100 = opaque).</source>
+        <translation>Opacité de la fenêtre flottante (100 = opaque).</translation>
     </message>
     <message>
         <source>Floating Window Startup</source>

@@ -6018,12 +6018,12 @@ QZ がこの値を変更することを許可しますか？
         <translation>Androidのみ：フローティングウィンドウの高さを設定します</translation>
     </message>
     <message>
-        <source>Floating Window % Transparency:</source>
-        <translation>フローティングウィンドウの透明度（%）：</translation>
+        <source>Floating Window Opacity (%):</source>
+        <translation>フローティングウィンドウの不透明度 (%):</translation>
     </message>
     <message>
-        <source>Android Only: transparency percentage of the floating window.</source>
-        <translation>Androidのみ：フローティングウィンドウの透明度をパーセンテージで設定します</translation>
+        <source>Opacity of the floating window (100 = opaque).</source>
+        <translation>フローティングウィンドウの不透明度 (100 = 完全に不透明)。</translation>
     </message>
     <message>
         <source>Floating Window Startup</source>

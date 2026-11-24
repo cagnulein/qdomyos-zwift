@@ -6166,12 +6166,12 @@ Zezwolić QZ na zmianę tej wartości?
         <translation>Tylko Android: wysokość okna pływającego.</translation>
     </message>
     <message>
-        <source>Floating Window % Transparency:</source>
-        <translation>Przezroczystość okna pływającego w %:</translation>
+        <source>Floating Window Opacity (%):</source>
+        <translation>Krycie pływającego okna (%):</translation>
     </message>
     <message>
-        <source>Android Only: transparency percentage of the floating window.</source>
-        <translation>Tylko Android: procent przezroczystości okna pływającego.</translation>
+        <source>Opacity of the floating window (100 = opaque).</source>
+        <translation>Krycie pływającego okna (100 = całkowicie nieprzezroczyste).</translation>
     </message>
     <message>
         <source>Floating Window Startup</source>

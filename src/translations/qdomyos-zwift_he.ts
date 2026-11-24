@@ -5953,12 +5953,12 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Floating Window % Transparency:</source>
-        <translation type="unfinished"></translation>
+        <source>Floating Window Opacity (%):</source>
+        <translation>אטימות החלון הצף (%):</translation>
     </message>
     <message>
-        <source>Android Only: transparency percentage of the floating window.</source>
-        <translation type="unfinished"></translation>
+        <source>Opacity of the floating window (100 = opaque).</source>
+        <translation>אטימות החלון הצף (100 = אטום לחלוטין).</translation>
     </message>
     <message>
         <source>Floating Window Startup</source>

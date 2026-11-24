@@ -6166,12 +6166,12 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
         <translation>Android 전용: 플로팅 창의 높이입니다.</translation>
     </message>
     <message>
-        <source>Floating Window % Transparency:</source>
-        <translation>플로팅 창 투명도(%):</translation>
+        <source>Floating Window Opacity (%):</source>
+        <translation>플로팅 창 불투명도 (%):</translation>
     </message>
     <message>
-        <source>Android Only: transparency percentage of the floating window.</source>
-        <translation>Android 전용: 플로팅 창의 투명도(백분율)입니다.</translation>
+        <source>Opacity of the floating window (100 = opaque).</source>
+        <translation>플로팅 창의 불투명도 (100 = 완전히 불투명).</translation>
     </message>
     <message>
         <source>Floating Window Startup</source>

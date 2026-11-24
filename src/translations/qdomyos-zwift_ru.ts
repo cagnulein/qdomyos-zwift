@@ -6298,12 +6298,12 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Только Android: высота плавающего окна.</translation>
     </message>
     <message>
-        <source>Floating Window % Transparency:</source>
-        <translation>Прозрачность плавающего окна, %:</translation>
+        <source>Floating Window Opacity (%):</source>
+        <translation>Непрозрачность плавающего окна (%):</translation>
     </message>
     <message>
-        <source>Android Only: transparency percentage of the floating window.</source>
-        <translation>Только Android: прозрачность плавающего окна в процентах.</translation>
+        <source>Opacity of the floating window (100 = opaque).</source>
+        <translation>Непрозрачность плавающего окна (100 = полностью непрозрачное).</translation>
     </message>
     <message>
         <source>Floating Window Startup</source>

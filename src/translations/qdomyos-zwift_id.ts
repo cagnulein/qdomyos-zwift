@@ -5953,12 +5953,12 @@ Jika memilih Tidak, QZ mengaktifkan Without Wheel Diameter Protocol (Pengaturan 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Floating Window % Transparency:</source>
-        <translation type="unfinished"></translation>
+        <source>Floating Window Opacity (%):</source>
+        <translation>Opasitas jendela mengambang (%):</translation>
     </message>
     <message>
-        <source>Android Only: transparency percentage of the floating window.</source>
-        <translation type="unfinished"></translation>
+        <source>Opacity of the floating window (100 = opaque).</source>
+        <translation>Opasitas jendela mengambang (100 = sepenuhnya tidak transparan).</translation>
     </message>
     <message>
         <source>Floating Window Startup</source>

@@ -6166,12 +6166,12 @@ QZ&apos;nin bu değeri değiştirmesine izin verilsin mi?
         <translation>Yalnızca Android: kayan pencerenin yüksekliği.</translation>
     </message>
     <message>
-        <source>Floating Window % Transparency:</source>
-        <translation>Kayan pencere saydamlığı (%):</translation>
+        <source>Floating Window Opacity (%):</source>
+        <translation>Kayan pencere opaklığı (%):</translation>
     </message>
     <message>
-        <source>Android Only: transparency percentage of the floating window.</source>
-        <translation>Yalnızca Android: kayan pencerenin yüzde cinsinden saydamlığı.</translation>
+        <source>Opacity of the floating window (100 = opaque).</source>
+        <translation>Kayan pencerenin opaklığı (100 = tamamen opak).</translation>
     </message>
     <message>
         <source>Floating Window Startup</source>

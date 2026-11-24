@@ -5953,12 +5953,12 @@ Dacă alegi Nu, QZ activează Without Wheel Diameter Protocol (Setări &gt; Opț
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Floating Window % Transparency:</source>
-        <translation type="unfinished"></translation>
+        <source>Floating Window Opacity (%):</source>
+        <translation>Opacitatea ferestrei flotante (%):</translation>
     </message>
     <message>
-        <source>Android Only: transparency percentage of the floating window.</source>
-        <translation type="unfinished"></translation>
+        <source>Opacity of the floating window (100 = opaque).</source>
+        <translation>Opacitatea ferestrei flotante (100 = complet opacă).</translation>
     </message>
     <message>
         <source>Floating Window Startup</source>

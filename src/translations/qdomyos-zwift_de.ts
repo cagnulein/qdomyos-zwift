@@ -5986,12 +5986,12 @@ Darf QZ diesen Wert ändern?
         <translation>Nur Android: Höhe des Floating-Fensters.</translation>
     </message>
     <message>
-        <source>Floating Window % Transparency:</source>
-        <translation>Transparenz des schwebenden Fensters in %:</translation>
+        <source>Floating Window Opacity (%):</source>
+        <translation>Deckkraft des schwebenden Fensters (%):</translation>
     </message>
     <message>
-        <source>Android Only: transparency percentage of the floating window.</source>
-        <translation>Nur Android: Transparenzprozentsatz des schwebenden Fensters.</translation>
+        <source>Opacity of the floating window (100 = opaque).</source>
+        <translation>Deckkraft des schwebenden Fensters (100 = vollständig deckend).</translation>
     </message>
     <message>
         <source>Floating Window Startup</source>
