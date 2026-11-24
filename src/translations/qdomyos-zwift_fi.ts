@@ -5953,12 +5953,12 @@ Jos valitset Ei, QZ ottaa käyttöön asetuksen Without Wheel Diameter Protocol 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Floating Window Opacity (%):</source>
-        <translation>Kelluvan ikkunan peittävyys (%):</translation>
+        <source>Floating Window % Transparency:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Opacity of the floating window (100 = opaque).</source>
-        <translation>Kelluvan ikkunan peittävyys (100 = täysin peittävä).</translation>
+        <source>Android Only: transparency percentage of the floating window.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Floating Window Startup</source>
