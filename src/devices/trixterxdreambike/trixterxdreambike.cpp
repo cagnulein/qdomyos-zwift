@@ -300,6 +300,14 @@ resistance_t trixterxdreambike::resistanceFromPowerRequest(uint16_t power) {
     return item;
 }
 
+double trixterxdreambike::maxGears() {
+    QSettings settings;
+
+    bool useZwiftRatio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+
+    return useZwiftRatio ? 24 : this->gearTable.maxGears;
+}
+
 double trixterxdreambike::calculatePower(int cadenceRPM, int resistance) {
     if(cadenceRPM==0.0)
         return 0.0;
@@ -310,37 +318,6 @@ double trixterxdreambike::calculatePower(int cadenceRPM, int resistance) {
     double result = powerTable[c-30][r];
 
     return result;
-}
-
-uint16_t trixterxdreambike::calculatePowerFromInclination(double inclination, double speedMetresPerSecond) {
-
-    constexpr double g = 9.8067;
-    double Crr = settingsCache.Crr;
-    double totalMass = settingsCache.weight+settingsCache.bikeWeight;
-    double totalWeight = g * totalMass;
-    double angleOfInclination = atan(0.01 * inclination);
-
-
-    constexpr double CdA = 0.4; // estimate drag coefficient * frontal area for wide MTB grip stance
-    //double altitude = elevationGain().value(); // 1m above sea level
-    double altitude = 1.0; // 1m above sea level
-    const static double pressure = 1.225 * exp(-0.00011856 * altitude); // air pressure
-    constexpr double windspeed = 0;
-    double totalSpeed = speedMetresPerSecond + windspeed;
-    double Fa = 0.5 * CdA * pressure * totalSpeed * totalSpeed;
-    double Fg = totalWeight*sin(angleOfInclination);
-    double Fr = totalWeight*cos(angleOfInclination) * Crr;
-    double totalPower = (Fg + Fr + Fa) * speedMetresPerSecond; // / (1.0-loss)
-    uint16_t power = (uint16_t)(totalPower+0.5);
-
-    qDebug() << "Inclination%:" << inclination
-             << " Angle of Inclination:" << angleOfInclination
-             << " Speed:" << speedMetresPerSecond << "m/s "
-             << " (Fg,Fr,Fa): (" << Fg << "," << Fr << "," << Fa << ")"
-             << " Total Mass:"<< totalMass << "kg "
-             << "= Power:" << power << "W ";
-
-    return power;
 }
 
 bool trixterxdreambike::connected() {
@@ -372,7 +349,6 @@ void trixterxdreambike::timerEvent(QTimerEvent *event) {
     } else if(timerId==this->settingsUpdateTimerId) {
         event->accept();
         this->appSettings->Load();
-        this->settingsCache.update();
     }
 }
 
@@ -561,7 +537,7 @@ void trixterxdreambike::update() {
 
 
         } else {
-            uint16_t reqPower = this->calculatePowerFromInclination(value, groundSpeed);
+            uint16_t reqPower = this->computeSlopeTargetPower(value, this->Speed.value());
 
             finalResistance = this->resistanceFromPowerRequest(reqPower*ratio);
 
@@ -721,9 +697,11 @@ uint16_t trixterxdreambike::watts() {
 }
 
 double trixterxdreambike::get_footToRoadRatio() {
+    QSettings settings;
     double ratio;
+    bool useZwiftRatio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
-    if(this->settingsCache.useZwiftRatio) {
+    if(useZwiftRatio) {
         ratio = gearsZwiftRatio();
     } else {
         auto gear = this->gearTable.getGear(this->m_gears);

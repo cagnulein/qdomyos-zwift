@@ -18,25 +18,6 @@ class trixterxdreambike : public bike
      */
     constexpr static int SettingsUpdateTimerIntervalMilliseconds = 10000;
 
-    struct settingscache {
-      public:
-        bool useZwiftRatio;
-        double weight;
-        double bikeWeight;
-        double Crr;
-
-        void update()
-        {
-            QSettings settings;
-
-            useZwiftRatio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
-            weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
-            bikeWeight = settings.value(QZSettings::bike_weight, QZSettings::default_bike_weight).toFloat();
-            Crr = settings.value(QZSettings::rolling_resistance, QZSettings::default_rolling_resistance).toFloat();
-        }
-    };
-
-
     /**
      * @brief A queue of states read from the client. Syncronized by statesMutex.
      */
@@ -186,12 +167,6 @@ class trixterxdreambike : public bike
      */
     wheelCircumference::GearTable gearTable;
 
-
-    /**
-     * @brief settingsCache Cache of QSettings used for calculations
-     */
-    settingscache settingsCache;
-
     /**
      * @brief Processes the state queue
      */
@@ -232,13 +207,6 @@ class trixterxdreambike : public bike
      * @param resistance Bike resistance on full, not percentage scale.
      */
     double calculatePower(int cadenceRPM, int resistance);
-
-    /**
-     * @brief Calculate power from the specified inclination and speed. Uses rider and bike weight from settings.
-     * @param inclination Percentage inclination.
-     * @param speedMetersPerSecond Bike speed in meters per second.
-     */
-    uint16_t calculatePowerFromInclination(double inclination, double speedMetersPerSecond);
 
     /**
      * @brief Called to set the resistance level sent to the device.
@@ -336,7 +304,7 @@ class trixterxdreambike : public bike
      * @brief maxGears The maximum gear index.
      * @return
      */
-    double maxGears() override { return this->settingsCache.useZwiftRatio ? 24 : this->gearTable.maxGears; }
+    double maxGears() override;
 
     /**
      * @brief maxGears The minimum gear index.
