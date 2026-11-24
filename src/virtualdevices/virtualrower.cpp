@@ -689,9 +689,6 @@ void virtualrower::writeCharacteristic(QLowEnergyService *service, const QLowEne
 }
 
 void virtualrower::reconnect() {
-    ftmsDistanceInitialized = false;
-    ftmsDistanceOffset = 0;
-    ftmsLastDistance = 0;
 
     QSettings settings;
     bool bluetooth_relaxed =
@@ -767,6 +764,16 @@ void virtualrower::reconnect() {
     leController->startAdvertising(pars, advertisingData, advertisingData);
 #endif
 
+}
+
+QByteArray virtualrower::ftmsDistanceField(bluetoothdevice &device) {
+    // FTMS clients calculate deltas across local workout boundaries.
+    const uint32_t distance = static_cast<uint32_t>(qMax(0.0, device.odometerFromStartup() * 1000.0));
+    QByteArray field;
+    field.append(static_cast<char>(distance & 0xFF));
+    field.append(static_cast<char>((distance >> 8) & 0xFF));
+    field.append(static_cast<char>((distance >> 16) & 0xFF));
+    return field;
 }
 
 void virtualrower::rowerProvider() {
@@ -973,18 +980,7 @@ void virtualrower::rowerProvider() {
             value.append((char)((uint16_t)(strokeCount & 0xFF)));        // Stroke Count
             value.append((char)(((uint16_t)(strokeCount >> 8) & 0xFF))); // Stroke Count
 
-            const uint32_t localDistance = static_cast<uint32_t>(qMax(0.0, Rower->odometer() * 1000.0));
-            // Preserve the FTMS client's distance baseline across local workout resets.
-            if (Rower->deviceType() == ROWING) {
-                if (ftmsDistanceInitialized && localDistance < ftmsLastDistance)
-                    ftmsDistanceOffset += ftmsLastDistance;
-                ftmsLastDistance = localDistance;
-                ftmsDistanceInitialized = true;
-            }
-            const uint32_t distance = localDistance + ftmsDistanceOffset;
-            value.append(static_cast<char>(distance & 0xFF));
-            value.append(static_cast<char>((distance >> 8) & 0xFF));
-            value.append(static_cast<char>((distance >> 16) & 0xFF));
+            value.append(ftmsDistanceField(*Rower));
 
             value.append((char)((uint16_t)(paceSecs & 0xFF)));      // pace
             value.append((char)(((uint16_t)(paceSecs >> 8) & 0xFF))); // pace
