@@ -8027,7 +8027,7 @@ import AndroidStatusBar 1.0
                     }
 
                     Label {
-                        text: qsTr("Opacity for the Android floating window and iOS PiP (100 = opaque). The iOS system may ignore transparency in PiP.")
+                        text: qsTr("Opacity of the floating window (100 = opaque).")
                         font.bold: !window.ui.modern
                         font.italic: !window.ui.modern
                         font.pixelSize: window.fontHint
