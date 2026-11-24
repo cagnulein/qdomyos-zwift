@@ -6166,12 +6166,12 @@ Povolit QZ tuto hodnotu měnit?
         <translation>Jen Android: výška plovoucího okna.</translation>
     </message>
     <message>
-        <source>Floating Window Opacity (%):</source>
-        <translation>Neprůhlednost plovoucího okna (%):</translation>
+        <source>Floating Window % Transparency:</source>
+        <translation>Průhlednost plovoucího okna (%):</translation>
     </message>
     <message>
-        <source>Opacity of the floating window (100 = opaque).</source>
-        <translation>Neprůhlednost plovoucího okna (100 = neprůhledné).</translation>
+        <source>Android Only: transparency percentage of the floating window.</source>
+        <translation>Jen Android: průhlednost plovoucího okna v procentech.</translation>
     </message>
     <message>
         <source>Floating Window Startup</source>
