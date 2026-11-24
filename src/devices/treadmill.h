@@ -82,6 +82,11 @@ class treadmill : public bluetoothdevice {
     void groundContactSensor(double groundContact) override;
     void verticalOscillationSensor(double verticalOscillation) override;
 
+  protected:
+    // Set by a driver when the console reports the calories: the energy model then leaves them
+    // as they are
+    bool caloriesFromConsole = false;
+
   private:
     bool caloriesModelEnabled();
     void accumulateModelCalories();

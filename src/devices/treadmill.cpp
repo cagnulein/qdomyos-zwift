@@ -350,6 +350,9 @@ double treadmill::kcalPerMinute(double speedKmh, double inclinePct, double weigh
 }
 
 bool treadmill::caloriesModelEnabled() {
+    // a console that reports its own calories keeps them
+    if (caloriesFromConsole)
+        return false;
     QSettings settings;
     return settings.value(QZSettings::treadmill_calories_model, QZSettings::default_treadmill_calories_model)
         .toBool();

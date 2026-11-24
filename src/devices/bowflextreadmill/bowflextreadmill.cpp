@@ -211,6 +211,7 @@ void bowflextreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
     Inclination = incline;
 
+    caloriesFromConsole = true; // the console reports the calories (treadmill calorie model)
     KCal = kcal;
     // Distance = distance;
 
