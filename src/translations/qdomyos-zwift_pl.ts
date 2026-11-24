@@ -8669,6 +8669,75 @@ Domyślnie: A = -0.96, B = 1.33</translation>
         <translation>Eksperymentalne: QZ stopniowo koryguje ustawianą przez siebie prędkość bieżni na podstawie danych z Runn/Stryd, jeśli sterownik bieżni przekazuje niezależne pomiary prędkości. Wymaga opcji „Używaj prędkości z czujnika mocy”. Domyślnie: wyłączone.</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Nowoczesny interfejs</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Nowy wygląd ekranu głównego, menu bocznego, ustawień i kreatora. Wyłącz, aby przywrócić klasyczny wygląd.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Wygląd</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Jak w telefonie</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Ciemny</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Jasny</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Motyw</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafitowy</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Czarny / biały</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Granatowy</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Kolor akcentu</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Fioletowy</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Niebieski</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Morski</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Zielony</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Pomarańczowy</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Różowy</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Rozmiar kafelków:</translation>
     </message>

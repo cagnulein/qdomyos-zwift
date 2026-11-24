@@ -7285,6 +7285,75 @@ Veuillez le saisir ci-dessous :</translation>
         <translation>Position de ce graphique dans l&apos;historique des entraînements. L&apos;ordre se modifie avec les boutons Monter et Descendre dans Options générales de l&apos;interface.</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Interface moderne</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Nouvel aspect de l’écran principal, du menu latéral, des paramètres et de l’assistant. Désactivez-le pour retrouver l’aspect classique.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Apparence</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Comme sur le téléphone</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Sombre</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Clair</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Thème</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Graphite</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Noir / blanc</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Bleu nuit</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Couleur d’accentuation</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Violet</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Bleu</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Sarcelle</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Vert</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Orange</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Rose</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Taille des tuiles :</translation>
     </message>

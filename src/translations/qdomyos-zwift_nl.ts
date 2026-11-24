@@ -8669,6 +8669,75 @@ Standaard: A = -0.96, B = 1.33</translation>
         <translation>Experimenteel: corrigeert de door QZ ingestelde loopbandsnelheid geleidelijk op basis van Runn/Stryd, als het stuurprogramma eigen snelheidsmetingen van het apparaat levert. Vereist ‘Snelheid van de vermogenssensor gebruiken’. Standaard: uit.</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Moderne interface</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Nieuw uiterlijk van het hoofdscherm, het zijmenu, de instellingen en de wizard. Schakel dit uit om het klassieke uiterlijk terug te krijgen.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Weergave</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Zoals op de telefoon</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Donker</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Licht</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Thema</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafiet</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Zwart / wit</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Middernachtblauw</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Accentkleur</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Violet</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Blauw</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Blauwgroen</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Groen</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Oranje</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Roze</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Tegelgrootte:</translation>
     </message>
