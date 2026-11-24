@@ -947,6 +947,9 @@ jobs:
           if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
             ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
           fi
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          bash "${{ github.workspace }}/qt-patches/android/5.15.0/build_qtandroid_bluetooth_jar.sh" "$QT_BT_JAR" "$SDK_ROOT/platforms/android-37.0/android.jar" "$QT_BT_JAR"
+          python3 "${{ github.workspace }}/qt-patches/android/5.15.0/test_qtandroid_bluetooth_utility.py"
 
       - name: Setup ccache
         run: |
@@ -2601,6 +2604,8 @@ jobs:
           if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
             ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
           fi
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          bash "${{ github.workspace }}/qt-patches/android/5.15.0/build_qtandroid_bluetooth_jar.sh" "$QT_BT_JAR" "$SDK_ROOT/platforms/android-37.0/android.jar" "$QT_BT_JAR"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -2774,6 +2779,8 @@ jobs:
           if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
             ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
           fi
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          bash "${{ github.workspace }}/qt-patches/android/5.15.0/build_qtandroid_bluetooth_jar.sh" "$QT_BT_JAR" "$SDK_ROOT/platforms/android-37.0/android.jar" "$QT_BT_JAR"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -2950,6 +2957,8 @@ jobs:
           if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
             ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
           fi
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          bash "${{ github.workspace }}/qt-patches/android/5.15.0/build_qtandroid_bluetooth_jar.sh" "$QT_BT_JAR" "$SDK_ROOT/platforms/android-37.0/android.jar" "$QT_BT_JAR"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -3080,6 +3089,8 @@ jobs:
           if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
             ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
           fi
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          bash "${{ github.workspace }}/qt-patches/android/5.15.0/build_qtandroid_bluetooth_jar.sh" "$QT_BT_JAR" "$SDK_ROOT/platforms/android-37.0/android.jar" "$QT_BT_JAR"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
