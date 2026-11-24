@@ -312,7 +312,8 @@ ApplicationWindow {
         property string ui_theme_mode: "auto"
     }
 
-    // Modern look (settings.ui_modern, off by default). Pages and Ui* components read the palette
+    // Modern look (settings.ui_modern, off by default), switched in Settings > General UI
+    // Options. Pages and Ui* components read the palette
     // and the text sizes through window.ui; with ui.modern off every page keeps its classic look,
     // and nothing here asks the system for its theme
     readonly property QtObject ui: QtObject {
@@ -327,11 +328,14 @@ ApplicationWindow {
 
         readonly property var themes: ({
             "graphite": { bg: "#111318", surface: "#1B1E24", surfaceHigh: "#23272E", surfaceHighest: "#2D323A",
-                          outline: "#3B414B", textMain: "#E4E6EB", textMuted: "#A2A8B3" },
+                          outline: "#3B414B", textMain: "#E4E6EB", textMuted: "#A2A8B3",
+                          inverseSurface: "#E4E6EB", inverseText: "#1A1C20" },
             "oled":     { bg: "#000000", surface: "#101215", surfaceHigh: "#181B1F", surfaceHighest: "#22262B",
-                          outline: "#30353C", textMain: "#E6E7EA", textMuted: "#9CA2AC" },
+                          outline: "#30353C", textMain: "#E6E7EA", textMuted: "#9CA2AC",
+                          inverseSurface: "#E6E7EA", inverseText: "#111214" },
             "midnight": { bg: "#0B1220", surface: "#131C2D", surfaceHigh: "#1B2639", surfaceHighest: "#243148",
-                          outline: "#35445F", textMain: "#E3E9F4", textMuted: "#99A6BE" }
+                          outline: "#35445F", textMain: "#E3E9F4", textMuted: "#99A6BE",
+                          inverseSurface: "#E3E9F4", inverseText: "#162033" }
         })
         readonly property var accents: ({
             "violet": "#B69DF8", "blue": "#7AB8FF", "teal": "#4FD8C4",
@@ -339,11 +343,14 @@ ApplicationWindow {
         })
         readonly property var lightThemes: ({
             "graphite": { bg: "#F4F5F7", surface: "#FFFFFF", surfaceHigh: "#ECEEF1", surfaceHighest: "#E1E4E8",
-                          outline: "#C4C8CF", textMain: "#1A1C20", textMuted: "#5B616B" },
+                          outline: "#C4C8CF", textMain: "#1A1C20", textMuted: "#5B616B",
+                          inverseSurface: "#2B2F36", inverseText: "#F1F2F4" },
             "oled":     { bg: "#FFFFFF", surface: "#F3F4F6", surfaceHigh: "#E9EBEE", surfaceHighest: "#DDE0E4",
-                          outline: "#C8CCD2", textMain: "#111214", textMuted: "#5A5F68" },
+                          outline: "#C8CCD2", textMain: "#111214", textMuted: "#5A5F68",
+                          inverseSurface: "#22262B", inverseText: "#F3F4F6" },
             "midnight": { bg: "#EEF2F9", surface: "#FFFFFF", surfaceHigh: "#E3E9F4", surfaceHighest: "#D6DFEE",
-                          outline: "#B8C4D9", textMain: "#162033", textMuted: "#55627A" }
+                          outline: "#B8C4D9", textMain: "#162033", textMuted: "#55627A",
+                          inverseSurface: "#243148", inverseText: "#EEF2F9" }
         })
         // At least 5:1 as text on every light surface (WCAG AA asks 4.5), and white on them as fill
         readonly property var lightAccents: ({
@@ -369,6 +376,10 @@ ApplicationWindow {
         readonly property color outline: t.outline
         readonly property color textMain: t.textMain
         readonly property color textMuted: t.textMuted
+        // Inverse surface (Material 3 inverseSurface / inverseOnSurface): a light toast on a
+        // dark page and a dark one on a light page
+        readonly property color inverseSurface: t.inverseSurface
+        readonly property color inverseText: t.inverseText
         readonly property color accent: a[settings.ui_accent] || a["violet"]
         // the name of the accent: UiButton.inverse takes the one of the opposite theme
         readonly property string accentName: settings.ui_accent
@@ -424,6 +435,8 @@ ApplicationWindow {
         // The app font (12 on the emulator, not the Material 14): labels, fields, buttons, lists
         readonly property int fontBase: fontPx(window.appFontPx)
 
+        readonly property string themeName: settings.ui_theme
+
         function alpha(c, a) { return Qt.rgba(c.r, c.g, c.b, a) }
         // A title without its emoji ("Maps 🗺️", "Video 🎥"): Qt 5 on Android draws no colour emoji
         // with the app font, they showed as boxes. For the headers of the modern look and the
@@ -459,6 +472,14 @@ ApplicationWindow {
         // Text that the classic look paints in a fixed colour (mostly white) on the page
         // background: the theme text colour in the modern look, the old colour otherwise
         function ink(classic) { return modern ? textMain : classic }
+        // The settings page has its own Settings object, which the window's does not hear
+        // about until a restart: it writes through here, so the look changes at once
+        function setOption(key, value) {
+            settings[key] = value
+        }
+        // ...and reads through here ("Changed" and the cards of the settings search): the copy of
+        // the window is the one that applies the look
+        function option(key) { return settings[key] }
         // Zone colours of the tiles are made for a dark page: darker ones on a light page
         function zoneInk(c) { return dark ? c : Qt.darker(c, 1.7) }
 

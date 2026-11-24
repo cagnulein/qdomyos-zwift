@@ -7253,6 +7253,75 @@ Please enter it below:</source>
         <translation>Номер цього графіка в історії тренувань. Порядок змінюють кнопками вгору та вниз у розділі «Загальні параметри інтерфейсу».</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Новий інтерфейс</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Новий вигляд головного екрана, бічного меню, налаштувань і майстра. Вимкніть, щоб повернути класичний вигляд.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Оформлення</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Як у системі</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Темне</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Світле</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Тема</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Графіт</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Чорна / біла</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Темно-синя</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Акцентний колір</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Фіолетовий</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Синій</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Бірюзовий</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Зелений</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Помаранчевий</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Рожевий</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Розмір плиток:</translation>
     </message>

@@ -7313,6 +7313,75 @@ Please enter it below:</source>
         <translation>ワークアウト履歴でのこのグラフの順番です。順番は「UI・画面表示設定」の上へ・下へボタンで変更します。</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>モダンインターフェース</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>メイン画面、サイドメニュー、設定、ウィザードの新しいデザインです。オフにすると従来のデザインに戻ります。</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>外観</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>端末の設定に合わせる</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>ダーク</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>ライト</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>テーマ</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>グラファイト</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>ブラック / ホワイト</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>ミッドナイトブルー</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>アクセントカラー</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>バイオレット</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>ブルー</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>ティール</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>グリーン</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>オレンジ</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>ピンク</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>画面表示（タイル）サイズ:</translation>
     </message>

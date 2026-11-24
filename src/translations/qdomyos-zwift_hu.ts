@@ -8621,6 +8621,75 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
         <translation>Kísérleti: fokozatosan korrigálja a QZ által vezérelt futópad sebességét a Runn/Stryd visszajelzése alapján, ha az illesztőprogram független mérést ad a gép sebességéről. Szükséges hozzá a „Sebesség a teljesítményérzékelőtől” beállítás. Alapértelmezett: ki.</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Modern felület</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>A főképernyő, az oldalsó menü, a beállítások és a varázsló új megjelenése. Kapcsolja ki, ha vissza szeretné kapni a klasszikus megjelenést.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Megjelenés</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Mint a telefonon</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Sötét</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Világos</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Téma</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafit</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Fekete / fehér</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Éjkék</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Kiemelőszín</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Ibolya</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Kék</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Kékeszöld</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Zöld</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Narancs</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Rózsaszín</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Csempeméret:</translation>
     </message>

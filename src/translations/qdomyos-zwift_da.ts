@@ -8621,6 +8621,75 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>Eksperimentelt: retter gradvist den løbebåndshastighed, QZ styrer, ud fra målinger fra Runn/Stryd, når driveren leverer løbebåndets egne hastighedsmålinger. Kræver &quot;Brug hastighed fra effektsensoren&quot;. Standard: deaktiveret.</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Moderne brugerflade</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Nyt udseende for hovedskærmen, sidemenuen, indstillingerne og guiden. Slå fra for at få det klassiske udseende tilbage.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Udseende</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Som på telefonen</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Mørk</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Lys</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Tema</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafit</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Sort / hvid</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Midnatsblå</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Accentfarve</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Violet</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Blå</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Blågrøn</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Grøn</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Orange</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Pink</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Feltstørrelse:</translation>
     </message>
