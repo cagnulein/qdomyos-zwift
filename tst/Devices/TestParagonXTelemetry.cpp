@@ -299,18 +299,18 @@ TEST(ParagonXTelemetryTest, ProductionDriverSignalsOnceForEveryCompleteFrame) {
     const auto captures = readCapturedFrames(fixturePath("paragonx_complete_2026.tsv"));
     ASSERT_EQ(captures.size(), 19u);
     horizontreadmill driver(false, false);
-    unsigned signals = 0;
-    QObject::connect(&driver, &horizontreadmill::packetReceived, &driver, [&]() { ++signals; });
+    unsigned signalCount = 0;
+    QObject::connect(&driver, &horizontreadmill::packetReceived, &driver, [&]() { ++signalCount; });
     for (std::size_t frameIndex = 0; frameIndex < captures.size(); ++frameIndex) {
         const auto &chunks = captures[frameIndex].notifications;
         for (std::size_t i = 0; i < chunks.size(); ++i) {
             const auto result = ParagonXNotificationTestAccess::feed(driver, chunks[i]);
             EXPECT_FALSE(result.recovered);
             EXPECT_EQ(result.completed, i + 1 == chunks.size());
-            EXPECT_EQ(signals, frameIndex + (i + 1 == chunks.size() ? 1u : 0u));
+            EXPECT_EQ(signalCount, frameIndex + (i + 1 == chunks.size() ? 1u : 0u));
         }
     }
-    EXPECT_EQ(signals, captures.size());
+    EXPECT_EQ(signalCount, captures.size());
     EXPECT_TRUE(ParagonXNotificationTestAccess::didReceiveInitResponse(driver));
 }
 
@@ -318,8 +318,8 @@ TEST(ParagonXTelemetryTest, ProductionDriverSignalsOnTruncatedFrameBoundary) {
     const auto captures = readCapturedFrames(fixturePath("paragonx_truncated_2026.tsv"));
     ASSERT_EQ(captures.size(), 16u);
     horizontreadmill driver(false, false);
-    unsigned signals = 0;
-    QObject::connect(&driver, &horizontreadmill::packetReceived, &driver, [&]() { ++signals; });
+    unsigned signalCount = 0;
+    QObject::connect(&driver, &horizontreadmill::packetReceived, &driver, [&]() { ++signalCount; });
     for (std::size_t frameIndex = 0; frameIndex < captures.size(); ++frameIndex) {
         const auto &chunks = captures[frameIndex].notifications;
         for (std::size_t i = 0; i < chunks.size(); ++i) {
@@ -332,33 +332,33 @@ TEST(ParagonXTelemetryTest, ProductionDriverSignalsOnTruncatedFrameBoundary) {
             } else {
                 EXPECT_FALSE(result.recovered);
             }
-            EXPECT_EQ(signals, frameIndex);
+            EXPECT_EQ(signalCount, frameIndex);
         }
     }
     // Final recovery requires another packet boundary.
-    EXPECT_EQ(signals, captures.size() - 1);
+    EXPECT_EQ(signalCount, captures.size() - 1);
     const auto final = ParagonXNotificationTestAccess::feed(driver, captures.front().notifications.front());
     EXPECT_TRUE(final.recovered);
     EXPECT_FALSE(final.completed);
-    EXPECT_EQ(signals, captures.size());
+    EXPECT_EQ(signalCount, captures.size());
     EXPECT_TRUE(ParagonXNotificationTestAccess::didReceiveInitResponse(driver));
 }
 
 TEST(ParagonXTelemetryTest, ProductionDriverPreservesInitReplySignal) {
     horizontreadmill driver(false, false);
-    unsigned signals = 0;
-    QObject::connect(&driver, &horizontreadmill::packetReceived, &driver, [&]() { ++signals; });
+    unsigned signalCount = 0;
+    QObject::connect(&driver, &horizontreadmill::packetReceived, &driver, [&]() { ++signalCount; });
     const std::vector<uint8_t> first = {0x55, 0xaa, 0, 0, 2, 0x20, 2, 0};
     const std::vector<uint8_t> last = {0, 0, 0x0d, 0x0a};
     const auto partial = ParagonXNotificationTestAccess::feed(driver, first);
     EXPECT_FALSE(partial.completed);
-    EXPECT_EQ(signals, 0u);
+    EXPECT_EQ(signalCount, 0u);
     const auto full = ParagonXNotificationTestAccess::feed(driver, last);
     EXPECT_TRUE(full.completed);
-    EXPECT_EQ(signals, 1u);
+    EXPECT_EQ(signalCount, 1u);
     // Preserve headerless initialization replies as well.
     const std::vector<uint8_t> standalone = {0x01, 0, 0, 0, 0, 0, 0x0d, 0x0a};
     const auto reply = ParagonXNotificationTestAccess::feed(driver, standalone);
     EXPECT_TRUE(reply.completed);
-    EXPECT_EQ(signals, 2u);
+    EXPECT_EQ(signalCount, 2u);
 }
