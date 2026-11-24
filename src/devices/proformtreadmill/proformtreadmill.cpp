@@ -3074,16 +3074,49 @@ void proformtreadmill::update() {
                 }
                 if (requestStart != -1) {
                     emit debug(QStringLiteral("starting..."));
-
-                    // btinit();
-
+                    // Start sequence captured from the native iFIT app (Carbon TL PFTL59724.3, Manual Start):
+                    // three setup messages, then the workout mode set to 0x02 (running).
+                    uint8_t start1[] = {0xfe, 0x02, 0x11, 0x02};
+                    uint8_t start2[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x04, 0x0d, 0x02, 0x05,
+                                        0x00, 0x00, 0x00, 0x00, 0x08, 0x58, 0x02, 0x00, 0x7a, 0x00};
+                    uint8_t start3[] = {0xfe, 0x02, 0x15, 0x03};
+                    uint8_t start4[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x11, 0x04, 0x11, 0x02, 0x09,
+                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x58};
+                    uint8_t start5[] = {0xff, 0x03, 0x02, 0x00, 0xfa, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+                    uint8_t start6[] = {0xfe, 0x02, 0x17, 0x03};
+                    uint8_t start7[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x0c,
+                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+                    uint8_t start8[] = {0xff, 0x05, 0x00, 0x80, 0x00, 0x00, 0xa5, 0x00, 0x00, 0x00,
+                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+                    uint8_t start9[] = {0xfe, 0x02, 0x0d, 0x02};
+                    uint8_t start10[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x04, 0x09, 0x02, 0x02,
+                                         0x00, 0x10, 0x02, 0x00, 0x23, 0x00, 0x00, 0x00, 0x00, 0x00};
+                    writeCharacteristic(start1, sizeof(start1), QStringLiteral("start1"));
+                    writeCharacteristic(start2, sizeof(start2), QStringLiteral("start2"), false, true);
+                    writeCharacteristic(start3, sizeof(start3), QStringLiteral("start3"));
+                    writeCharacteristic(start4, sizeof(start4), QStringLiteral("start4"));
+                    writeCharacteristic(start5, sizeof(start5), QStringLiteral("start5"), false, true);
+                    writeCharacteristic(start6, sizeof(start6), QStringLiteral("start6"));
+                    writeCharacteristic(start7, sizeof(start7), QStringLiteral("start7"));
+                    writeCharacteristic(start8, sizeof(start8), QStringLiteral("start8"), false, true);
+                    writeCharacteristic(start9, sizeof(start9), QStringLiteral("start9"));
+                    writeCharacteristic(start10, sizeof(start10), QStringLiteral("start10"), false, true);
                     requestStart = -1;
                     emit tapeStarted();
                 }
-                if (requestStop != -1) {
-                    emit debug(QStringLiteral("stopping..."));
-                    // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
+                // Carbon TL (PFTL59724.3, from an iFIT capture): pause and stop both set workout mode 0x03, which
+                // stops the belt; start (mode 0x02) resumes. Mode 0x01 is refused (status 0x04) while running and in
+                // repeated tests also after 0x03, so it is not sent.
+                if (requestStop != -1 || requestPause != -1) {
+                    emit debug(requestPause == -1 ? QStringLiteral("stopping...") : QStringLiteral("pausing..."));
+                    uint8_t pause1[] = {0xfe, 0x02, 0x0d, 0x02};
+                    uint8_t pause2[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x04, 0x09, 0x02, 0x02,
+                                        0x00, 0x10, 0x03, 0x00, 0x24, 0x00, 0x00, 0x00, 0x00, 0x00};
+                    writeCharacteristic(pause1, sizeof(pause1), QStringLiteral("pause1"));
+                    writeCharacteristic(pause2, sizeof(pause2), QStringLiteral("pause2"), false, true);
                     requestStop = -1;
+                    requestPause = -1;
                 }
                 break;
             }

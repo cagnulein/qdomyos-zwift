@@ -145,11 +145,16 @@
                                 <activity
                                     android:name=".HealthConnectPermissionActivity"
                                     android:exported="false"
-                                    android:theme="@style/Theme.AppCompat">
+                                    android:theme="@style/Theme.AppCompat" />
+
+                                <activity-alias
+                                    android:name=".HealthConnectRationaleActivity"
+                                    android:exported="true"
+                                    android:targetActivity=".HealthConnectPermissionActivity">
                                     <intent-filter>
                                         <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
                                     </intent-filter>
-                                </activity>
+                                </activity-alias>
 
                                 <activity-alias
                                     android:name="ViewPermissionUsageActivity"

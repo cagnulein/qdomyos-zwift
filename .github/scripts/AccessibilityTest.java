@@ -5,6 +5,8 @@
 // - moves the accessibility focus to a node below the screen, if there is one, and checks that QZ
 //   scrolled it into view (CustomQtActivity -> nativeScrollToAccessibleObject),
 // - moves the accessibility focus over the app's nodes; each one must take it,
+// - can require focus:<name> to move accessibility focus and scroll a distant setting into view
+//   without activating any external link;
 // - presses the given buttons in turn (QZ presses a Qt button itself, nativeAccessibleClick, and
 //   answers true; Qt 5.15 alone answers false for a button) and checks what each press shows.
 //   An item that is not a Qt button with Accessible.onPressAction must answer true too (Qt 5.15.0
@@ -41,6 +43,9 @@ import java.util.List;
 
 public class AccessibilityTest {
     private static final String PACKAGE = "org.cagnulen.qdomyoszwift";
+    // QZ can take several seconds to publish its first virtual accessibility
+    // focus after startup on a busy Android emulator.
+    private static final int FOCUS_RETRIES = 60;
     private static UiAutomation automation;
     private static boolean scrollRequired;
 
@@ -53,7 +58,16 @@ public class AccessibilityTest {
         Object connection = Class.forName("android.app.UiAutomationConnection").getConstructor().newInstance();
         Constructor<UiAutomation> constructor = UiAutomation.class.getConstructor(Looper.class, connectionInterface);
         automation = constructor.newInstance(thread.getLooper(), connection);
-        UiAutomation.class.getMethod("connect").invoke(automation);
+        // A real TalkBack probe must keep the accessibility service running
+        // while UiAutomation reads its focus. Default connect() suppresses it.
+        boolean keepServices = args.length > 0 && "--keep-services".equals(args[0]);
+        if (keepServices) {
+            args = Arrays.copyOfRange(args, 1, args.length);
+            UiAutomation.class.getMethod("connect", int.class).invoke(automation,
+                    UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES);
+        } else {
+            UiAutomation.class.getMethod("connect").invoke(automation);
+        }
         try {
             run(args);
         } finally {
@@ -70,6 +84,226 @@ public class AccessibilityTest {
         }
         if (presses.length == 0) {
             System.out.println("FAIL no button to press given");
+            return;
+        }
+        if (presses[0].equals("--activate-focused")) {
+            // TalkBack handles a user's double tap by issuing ACTION_CLICK on
+            // the accessibility-focused node. Invoke that same provider action
+            // with the real service left enabled; raw touchscreen taps are not
+            // TalkBack gestures and can hit a different view after UI changes.
+            AccessibilityNodeInfo focused = null;
+            for (int retry = 0; retry < FOCUS_RETRIES && focused == null; retry++) {
+                AccessibilityNodeInfo root = automation.getRootInActiveWindow();
+                AccessibilityNodeInfo candidate = root == null ? null
+                        : root.findFocus(AccessibilityNodeInfo.FOCUS_ACCESSIBILITY);
+                if (!isQzAccessibilityFocus(candidate)) {
+                    for (AccessibilityNodeInfo node : appNodes()) {
+                        if (isQzAccessibilityFocus(node)) {
+                            candidate = node;
+                            break;
+                        }
+                    }
+                }
+                if (isQzAccessibilityFocus(candidate)) {
+                    focused = candidate;
+                }
+                if (focused == null) Thread.sleep(250);
+            }
+            if (focused == null) {
+                System.out.println("FAIL no QZ accessibility focus to activate");
+                return;
+            }
+            boolean activated = focused.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+            System.out.println(activated
+                    ? "OK ACTION_CLICK sent to TalkBack-focused node " + describe(focused)
+                    : "FAIL ACTION_CLICK rejected by TalkBack-focused node " + describe(focused));
+            return;
+        }
+        // Read-only inspection for tests using a *real* TalkBack service.
+        // Unlike the regular UiAutomation regression tests, do not set focus,
+        // scroll, or invoke any control action here.
+        if (presses[0].equals("--peek-focused")) {
+            for (int retry = 0; retry < FOCUS_RETRIES; retry++) {
+                AccessibilityNodeInfo root = automation.getRootInActiveWindow();
+                AccessibilityNodeInfo focused = root == null ? null
+                        : root.findFocus(AccessibilityNodeInfo.FOCUS_ACCESSIBILITY);
+                if (isQzAccessibilityFocus(focused)) {
+                    System.out.println("TALKBACK_FOCUS " + describe(focused));
+                    return;
+                }
+                // Older Android providers can expose the focused bit in the
+                // returned tree even when findFocus() is unavailable.
+                for (AccessibilityNodeInfo node : appNodes()) {
+                    if (isQzAccessibilityFocus(node)) {
+                        System.out.println("TALKBACK_FOCUS " + describe(node));
+                        return;
+                    }
+                }
+                Thread.sleep(250);
+            }
+            System.out.println("FAIL no accessibility-focused node");
+            return;
+        }
+        // Keep the real TalkBack service enabled, but set focus through the same
+        // accessibility action it sends to a node after swipe navigation. This
+        // is deterministic in CI, where adb shell input swipe is not recognized
+        // as a TalkBack gesture by every emulator image.
+        if (presses[0].equals("--focus-node")) {
+            if (presses.length != 2) {
+                System.out.println("FAIL --focus-node requires one name");
+                return;
+            }
+            String name = presses[1].replace('_', ' ');
+            // A real accessibility service can make Qt publish its first tree
+            // later than the shell's first root-window read on a cold emulator.
+            AccessibilityNodeInfo target = null;
+            for (int retry = 0; retry < FOCUS_RETRIES; retry++) {
+                target = find(name, false);
+                if (target != null && target.isFocusable()) break;
+                Thread.sleep(250);
+            }
+            if (target == null || !target.isFocusable()) {
+                System.out.println("FAIL missing focusable node: " + name);
+                for (AccessibilityNodeInfo node : appNodes()) {
+                    System.out.println("INFO available node " + describe(node));
+                }
+                return;
+            }
+            if (!isQzAccessibilityFocus(target)
+                    && !target.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS)) {
+                System.out.println("FAIL accessibility focus action was rejected: " + describe(target));
+                return;
+            }
+            for (int retry = 0; retry < FOCUS_RETRIES; retry++) {
+                AccessibilityNodeInfo root = automation.getRootInActiveWindow();
+                AccessibilityNodeInfo focused = root == null ? null
+                        : root.findFocus(AccessibilityNodeInfo.FOCUS_ACCESSIBILITY);
+                if (!isQzAccessibilityFocus(focused)) {
+                    for (AccessibilityNodeInfo node : appNodes()) {
+                        if (isQzAccessibilityFocus(node)) {
+                            focused = node;
+                            break;
+                        }
+                    }
+                }
+                CharSequence description = focused == null ? null : focused.getContentDescription();
+                if (isQzAccessibilityFocus(focused) && description != null
+                        && startsWith(description.toString(), name)) {
+                    System.out.println("OK accessibility focus on " + describe(focused));
+                    return;
+                }
+                Thread.sleep(250);
+            }
+            System.out.println("FAIL accessibility focus did not settle on " + name);
+            return;
+        }
+        if (presses[0].equals("--focus-and-activate")) {
+            if (presses.length != 2) {
+                System.out.println("FAIL --focus-and-activate requires one name");
+                return;
+            }
+            String name = presses[1].replace('_', ' ');
+            AccessibilityNodeInfo target = null;
+            for (int retry = 0; retry < FOCUS_RETRIES; retry++) {
+                target = find(name, false);
+                if (target != null && target.isFocusable()) break;
+                Thread.sleep(250);
+            }
+            if (target == null || !target.isFocusable()) {
+                System.out.println("FAIL missing focusable node: " + name);
+                for (AccessibilityNodeInfo node : appNodes()) {
+                    System.out.println("INFO available node " + describe(node));
+                }
+                return;
+            }
+            if (!isQzAccessibilityFocus(target)
+                    && !target.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS)) {
+                System.out.println("FAIL accessibility focus action was rejected: " + describe(target));
+                return;
+            }
+            AccessibilityNodeInfo focused = null;
+            for (int retry = 0; retry < FOCUS_RETRIES; retry++) {
+                AccessibilityNodeInfo root = automation.getRootInActiveWindow();
+                AccessibilityNodeInfo candidate = root == null ? null
+                        : root.findFocus(AccessibilityNodeInfo.FOCUS_ACCESSIBILITY);
+                if (!isQzAccessibilityFocus(candidate)) {
+                    for (AccessibilityNodeInfo node : appNodes()) {
+                        if (isQzAccessibilityFocus(node)) {
+                            candidate = node;
+                            break;
+                        }
+                    }
+                }
+                if (isQzAccessibilityFocus(candidate)) {
+                    CharSequence description = candidate.getContentDescription();
+                    if (description != null && startsWith(description.toString(), name)) {
+                        focused = candidate;
+                        break;
+                    }
+                }
+                Thread.sleep(250);
+            }
+            if (focused == null) {
+                System.out.println("FAIL TalkBack did not retain accessibility focus on " + name);
+                return;
+            }
+            boolean activated = focused.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+            System.out.println(activated
+                    ? "OK TalkBack focus and ACTION_CLICK on " + describe(focused)
+                    : "FAIL TalkBack-focused node rejected ACTION_CLICK: " + describe(focused));
+            return;
+        }
+        if (presses[0].equals("--peek-node")) {
+            if (presses.length != 2) {
+                System.out.println("FAIL --peek-node requires one name");
+                return;
+            }
+            String name = presses[1].replace('_', ' ');
+            // On a cold Android 17 emulator, QZ can be foreground while Qt is
+            // still creating its virtual accessibility tree. Wait just as the
+            // focus-and-activate probe does instead of treating that startup
+            // window as a missing label.
+            AccessibilityNodeInfo node = null;
+            for (int retry = 0; retry < FOCUS_RETRIES; retry++) {
+                node = find(name, false);
+                if (node != null && node.isFocusable()) {
+                    break;
+                }
+                Thread.sleep(250);
+            }
+            if (node == null || !node.isFocusable()) {
+                System.out.println("FAIL missing focusable node: " + name);
+            } else {
+                System.out.println("TALKBACK_NODE " + describe(node));
+            }
+            return;
+        }
+        // Inject a TalkBack-style double tap on the label side of a full-row
+        // setting while the real accessibility service remains enabled.
+        if (presses[0].equals("--double-tap-node-left")) {
+            if (presses.length != 2) {
+                System.out.println("FAIL --double-tap-node-left requires one name");
+                return;
+            }
+            String name = presses[1].replace('_', ' ');
+            AccessibilityNodeInfo node = find(name, false);
+            if (node == null) {
+                System.out.println("FAIL missing node to tap: " + name);
+                return;
+            }
+            Rect bounds = new Rect();
+            node.getBoundsInScreen(bounds);
+            float x = bounds.left + bounds.width() / 5f;
+            float y = bounds.centerY();
+            if (!tapAt(node, x, y))
+                return;
+            Thread.sleep(80);
+            if (!tapAt(node, x, y))
+                return;
+            Thread.sleep(1000);
+            AccessibilityNodeInfo after = find(name, false);
+            System.out.println(after == null ? "FAIL node disappeared after double tap"
+                    : "OK label double tap " + describe(after));
             return;
         }
         List<AccessibilityNodeInfo> nodes = waitForAppNodes();
@@ -233,6 +467,9 @@ public class AccessibilityTest {
     }
 
     private static boolean press(String press) throws Exception {
+        if (press.startsWith("focus:")) {
+            return focus(press.substring("focus:".length()).replace('_', ' '));
+        }
         if (press.startsWith("see:")) {
             return see(press.substring("see:".length()).replace('_', ' '));
         }
@@ -321,6 +558,46 @@ public class AccessibilityTest {
         return true;
     }
 
+    // Simulate a TalkBack swipe to an item, including Qt's scroll-to-accessibility-focus.
+    // Focus alone must never activate the item or switch the foreground app to a browser.
+    private static boolean focus(String text) throws Exception {
+        AccessibilityNodeInfo target = find(text, false);
+        if (target == null || !target.isFocusable()) {
+            System.out.println("FAIL '" + text + "' is absent or not accessibility-focusable");
+            return false;
+        }
+        if (!target.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS)) {
+            System.out.println("FAIL cannot accessibility-focus '" + text + "'");
+            return false;
+        }
+        for (int i = 0; i < 60; i++) {
+            AccessibilityNodeInfo root = automation.getRootInActiveWindow();
+            if (root == null || root.getPackageName() == null
+                    || !PACKAGE.equals(root.getPackageName().toString())) {
+                System.out.println("FAIL focusing '" + text + "' left QZ (active window "
+                        + (root == null ? null : root.getPackageName()) + ")");
+                return false;
+            }
+            Rect screen = new Rect();
+            root.getBoundsInScreen(screen);
+            for (AccessibilityNodeInfo node : appNodes()) {
+                CharSequence desc = node.getContentDescription();
+                if (desc == null || !startsWith(desc.toString(), text) || !node.isAccessibilityFocused()) {
+                    continue;
+                }
+                Rect bounds = new Rect();
+                node.getBoundsInScreen(bounds);
+                if (!bounds.isEmpty() && screen.contains(bounds.centerX(), bounds.centerY())) {
+                    System.out.println("OK accessible focus reached '" + text + "' " + bounds.toShortString());
+                    return true;
+                }
+            }
+            Thread.sleep(500);
+        }
+        System.out.println("FAIL '" + text + "' did not scroll into view with accessibility focus in 30 s");
+        return false;
+    }
+
     // A node with this description must show within 5 s, nothing is pressed
     private static boolean see(String text) throws Exception {
         AccessibilityNodeInfo shown = find(text, false);
@@ -372,6 +649,20 @@ public class AccessibilityTest {
                     + bounds.toShortString() + ", screen " + screen.toShortString());
             return false;
         }
+        return tapAt(node, bounds.exactCenterX(), bounds.exactCenterY());
+    }
+
+    private static boolean tapAt(AccessibilityNodeInfo node, float x, float y) throws Exception {
+        AccessibilityNodeInfo root = automation.getRootInActiveWindow();
+        Rect screen = new Rect();
+        if (root != null) {
+            root.getBoundsInScreen(screen);
+        }
+        if (screen.isEmpty() || !screen.contains((int) x, (int) y)) {
+            System.out.println("FAIL cannot tap " + describe(node) + " at " + x + "," + y
+                    + ": screen " + screen.toShortString());
+            return false;
+        }
         long down = SystemClock.uptimeMillis();
         boolean injected = true;
         int[] actions = {MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP};
@@ -380,7 +671,7 @@ public class AccessibilityTest {
                 Thread.sleep(100);
             }
             MotionEvent event = MotionEvent.obtain(down, SystemClock.uptimeMillis(), action,
-                    bounds.exactCenterX(), bounds.exactCenterY(), 0);
+                    x, y, 0);
             event.setSource(InputDevice.SOURCE_TOUCHSCREEN);
             injected &= automation.injectInputEvent(event, true);
             event.recycle();
@@ -389,7 +680,7 @@ public class AccessibilityTest {
             System.out.println("FAIL tap not injected on " + describe(node));
             return false;
         }
-        System.out.println("INFO tapped " + describe(node) + " at " + bounds.centerX() + "," + bounds.centerY());
+        System.out.println("INFO tapped " + describe(node) + " at " + x + "," + y);
         return true;
     }
 
@@ -521,6 +812,15 @@ public class AccessibilityTest {
     private static String describe(AccessibilityNodeInfo node) {
         return "'" + node.getContentDescription() + "' class=" + node.getClassName()
                 + " clickable=" + node.isClickable() + " focusable=" + node.isFocusable()
+                + " checkable=" + node.isCheckable() + " checked=" + node.isChecked()
                 + " scrollable=" + node.isScrollable();
+    }
+
+    private static boolean isQzAccessibilityFocus(AccessibilityNodeInfo node) {
+        CharSequence packageName = node == null ? null : node.getPackageName();
+        CharSequence description = node == null ? null : node.getContentDescription();
+        return node != null && packageName != null && PACKAGE.contentEquals(packageName)
+                && node.isAccessibilityFocused() && node.isFocusable()
+                && description != null && description.length() > 0;
     }
 }

@@ -24,6 +24,22 @@ AndroidStatusBar::AndroidStatusBar(QObject *parent) : QObject(parent)
 {
     QMutexLocker locker(&instanceMutex);
     m_instance = this;
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+    // Neither Qt nor the QML Screen object reports a new safe area (lockscreen.mm), e.g. when the
+    // status bar comes back over a full screen window on a phone without a notch: the window keeps
+    // its size then, so QML has nothing else to read it again on. UIKit calls back on the main thread
+    lockscreen::setSafeAreaChangedCallback([]() {
+        if (m_instance)
+            emit m_instance->safeAreaChanged();
+    });
+    // Nor does Qt 5.15 report the switch between light and dark appearance (lockscreen.mm).
+    // Queued: QML reads the appearance and repaints after UIKit has finished the trait change, not
+    // inside its callback
+    lockscreen::setSystemThemeChangedCallback([]() {
+        if (m_instance)
+            QMetaObject::invokeMethod(m_instance, "systemThemeChanged", Qt::QueuedConnection);
+    });
+#endif
 }
 
 AndroidStatusBar::~AndroidStatusBar()
@@ -123,7 +139,10 @@ bool AndroidStatusBar::systemDarkMode() const
 
 void AndroidStatusBar::setSystemBarsColor(const QColor &color, bool dark, bool modern) const
 {
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+    Q_UNUSED(modern)
+    lockscreen::setSystemBarsColor(color.redF(), color.greenF(), color.blueF(), dark);
+#elif defined(Q_OS_ANDROID)
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity", "setSystemBars",
                                               "(IZZ)V", static_cast<jint>(color.rgba()),
                                               static_cast<jboolean>(modern), static_cast<jboolean>(dark));
@@ -137,6 +156,17 @@ void AndroidStatusBar::setSystemBarsColor(const QColor &color, bool dark, bool m
     Q_UNUSED(dark)
     Q_UNUSED(modern)
 #endif
+}
+
+QVariantMap AndroidStatusBar::safeAreaInsets() const
+{
+    double top = 0, bottom = 0, left = 0, right = 0, width = 0, height = 0;
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+    lockscreen::safeAreaInsets(&top, &bottom, &left, &right, &width, &height);
+#endif
+    return QVariantMap{{QStringLiteral("top"), top},     {QStringLiteral("bottom"), bottom},
+                       {QStringLiteral("left"), left},   {QStringLiteral("right"), right},
+                       {QStringLiteral("width"), width}, {QStringLiteral("height"), height}};
 }
 
 void AndroidStatusBar::onInsetsChanged(int top, int bottom, int left, int right, int waterfallTop,

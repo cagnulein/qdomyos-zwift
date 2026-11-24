@@ -20,6 +20,7 @@ SETTINGS_PAGES = (
     Path("src/settings-shortcuts.qml"),
     Path("src/settings-treadmill-inclination-override.qml"),
     Path("src/custominclinationresistance.qml"),
+    Path("src/gears.qml"),
 )
 EXPECTED_FORMAT = "qdomyos-zwift-settings-catalog"
 SUPPORTED_TYPES = {"boolean", "integer", "number", "string", "enum", "page"}

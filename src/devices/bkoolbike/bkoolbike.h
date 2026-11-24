@@ -39,6 +39,12 @@ class bkoolbike : public bike {
     void changePower(int32_t power) override;
     bool connected() override;
     resistance_t pelotonToBikeResistance(int pelotonResistance);
+    // Keep the last explicit QZ resistance for standalone use: BKOOL reports
+    // an estimated resistance based on power/cadence, not the commanded value.
+    static resistance_t displayedResistance(resistance_t measured, resistance_t lastLocalCommand,
+                                            bool externalControlActive) {
+        return !externalControlActive && lastLocalCommand >= 0 ? lastLocalCommand : measured;
+    }
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
@@ -79,6 +85,7 @@ class bkoolbike : public bike {
     uint16_t CrankRevsRead = 0;
 
     double lastGearValue = -1;
+    resistance_t lastLocalResistanceCommand = -1;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

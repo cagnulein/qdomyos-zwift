@@ -136,6 +136,10 @@ void bkoolbike::forceInclination(double inclination) {
     else
         Resistance = inclination;
 
+    const auto virtualBike = VirtualBike();
+    Resistance = displayedResistance(Resistance.value(), lastLocalResistanceCommand,
+                                     !autoResistance() || (virtualBike && virtualBike->ftmsDeviceConnected()));
+
     inclination += 200;
     inclination = inclination * 100;
     uint8_t inc[] = {0x33, 0x25, 0xff, 0xff, 0xff, 0x6d, 0x4f, 0xa0};
@@ -205,16 +209,28 @@ void bkoolbike::update() {
             writeCharacteristic(poll, sizeof(poll), QStringLiteral("poll"), false, false);
         }*/
 
+        auto virtualBike = this->VirtualBike();
+        const bool externalFtmsConnected = virtualBike && virtualBike->ftmsDeviceConnected();
+        if (externalFtmsConnected || requestPower > 0) {
+            // Do not restore an obsolete local resistance after external/ERG control.
+            lastLocalResistanceCommand = -1;
+        }
+
         if (requestResistance != -1) {
-            if (requestResistance != currentResistance().value() || lastGearValue != gears()) {
+            // When standalone, telemetry is an estimate and cannot tell whether
+            // the last locally requested resistance has already been written.
+            if (!externalFtmsConnected || requestResistance != currentResistance().value() ||
+                lastGearValue != gears()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
-                auto virtualBike = this->VirtualBike();
-                if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
-                    (requestPower == 0 || requestPower == -1)) {
+                if (!externalFtmsConnected && (requestPower == 0 || requestPower == -1)) {
+                    // bike::changeResistance already applies difficulty and gears
+                    // to requestResistance. Display the original QZ tile value to
+                    // avoid accumulating the gear modifier on every +/- press.
+                    lastLocalResistanceCommand = lastRawRequestedResistanceValue;
                     requestInclination = requestResistance / 10.0;
                 }
                 // forceResistance(requestResistance);;
-            }            
+            }
             requestResistance = -1;
         }
 
@@ -374,6 +390,9 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
                 settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
             Resistance = m_pelotonResistance;
         }
+        const auto virtualBike = VirtualBike();
+        Resistance = displayedResistance(Resistance.value(), lastLocalResistanceCommand,
+                                         !autoResistance() || (virtualBike && virtualBike->ftmsDeviceConnected()));
         emit resistanceRead(Resistance.value());
 
         if (watts())
@@ -540,6 +559,9 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
                 Resistance = pelotonToBikeResistance(m_pelotonResistance.value());
             else
                 Resistance = m_pelotonResistance;
+            const auto virtualBike = VirtualBike();
+            Resistance = displayedResistance(Resistance.value(), lastLocalResistanceCommand,
+                                             !autoResistance() || (virtualBike && virtualBike->ftmsDeviceConnected()));
             emit resistanceRead(Resistance.value());
             qDebug() << QStringLiteral("Current Resistance Calculated: ") + QString::number(Resistance.value());
 

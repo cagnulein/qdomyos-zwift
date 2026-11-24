@@ -194,3 +194,24 @@ A **Trinfit T5 Pro** owner confirmed that QZ connected and communicated with the
 If QZ does not discover the treadmill, close Kinomap and any other app using its Bluetooth connection, check that the treadmill is advertising, and retry QZ's scan. To use QZ as a bridge, connect the treadmill to QZ first, then pair QZ's **virtual treadmill** in Kinomap on a **second device**.
 
 **Scope of confirmation:** QZ communication and direct Kinomap incline control were reported; automatic incline control *through the QZ-to-Kinomap bridge*, and Garmin export for this model, were not separately confirmed.
+
+## My NordicTrack T 6.5 S appears as a ProForm 525 CT and QZ cannot find it. Which Bluetooth device should I look for?
+
+On a **NordicTrack T 6.5 S / ProForm 525 CT with a basic console**, the Bluetooth device can advertise as **I_TL** rather than using the treadmill's retail model name. Turn on the treadmill and Bluetooth on the phone, close any other app connected to the treadmill, and look for **I_TL** in QZ's device discovery. Check that live treadmill metrics appear in QZ before pairing any other fitness app.
+
+An Android rider whose treadmill appeared as a ProForm 525 CT in iFIT explicitly confirmed that the treadmill connected after being directed to the **I_TL** Bluetooth name. This confirms connectivity for that basic-console variant, not every T 6.5 S revision or automatic incline-control behavior.
+
+## My Skandika Morpheus ergometer connects to QZ but speed and power remain at zero. What should I try?
+
+In **QZ Settings > Bike Options > Skandika Bike Options**, turn **Skandika X-2000 Protocol** **OFF** if it is enabled, then reconnect the ergometer and pedal to check the Speed and Watt tiles. This option is intended for the X-2000 protocol and should not be assumed to suit every Skandika model.
+
+A Skandika Morpheus owner using QZ on an iPhone reported that the ergometer connected but both speed and watts stayed at zero. After being asked to toggle **Skandika X-2000 Protocol**, the owner confirmed that it worked. The Skandika driver supports distinct protocol variants, so this is a model-specific troubleshooting step; keep the setting enabled if your actual bike uses the X-2000 protocol.
+
+## Is the ART.IS Cross AS6 (ChangYow SM5081E BLE) compatible with QZ and ROUVY?
+
+**Yes, for a confirmed AS6 configuration.** An ART.IS Cross AS6 with **ChangYow SM5081E BLE electronics (firmware 21)**, broadcasting as `AS6-0185`, was successfully connected to QZ on an Android phone. QZ showed **live power, cadence, and speed**. ROUVY on a separate Android tablet then worked through **QZ's Wi-Fi virtual trainer** rather than connecting directly to the bike.
+
+The bike advertised the standard **FTMS Fitness Machine Service (0x1826)**, with **Indoor Bike Data (0x2AD2)**, **Fitness Machine Control Point (0x2AD9)**, **Supported Resistance Level Range (0x2AD6)**, and **Supported Power Range (0x2AD8)**. Other firmware variants should be checked individually.
+
+The important ROUVY detail is to pair QZ's virtual **ELITE AVANTI** Wi-Fi trainer under **both Smart Trainer and Power**; otherwise the route can open while the avatar remains stationary. See the [complete AS6 + ROUVY setup, QZ settings, and startup sequence](integrations.md#how-do-i-connect-an-artis-cross-as6-changyow-sm5081e-ble-to-rouvy-through-qz-over-wi-fi).
+

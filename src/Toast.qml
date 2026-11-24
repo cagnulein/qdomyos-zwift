@@ -57,8 +57,9 @@ Rectangle {
     color: "#222222"
 
     Text {
-        // a plain Text does not inherit the window font: the text size while it is not 100 %
-        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+        // a plain Text does not inherit the window font: the text size while it is not 100 %;
+        // modern look: Body (16) of the type scale
+        Binding on font.pixelSize { when: window.ui.modern || window.scaledFontPx > 0; value: window.ui.modern ? window.ui.fontBody : window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
         id: message
         color: "white"
         wrapMode: Text.Wrap

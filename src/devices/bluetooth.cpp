@@ -8,6 +8,7 @@
 #include <QFile>
 #include <memory>
 #include <QMetaEnum>
+#include <QPointer>
 
 #include <QtXml>
 #ifdef Q_OS_ANDROID
@@ -279,7 +280,29 @@ bluetooth::~bluetooth() {
 
 void bluetooth::signalBluetoothDeviceConnected(bluetoothdevice *b) { emit this->bluetoothDeviceConnected(b); }
 
+void bluetooth::onHomeformReady() {
+    homeformLoaded = true;
+#ifdef Q_OS_ANDROID
+    // Only the bonded Coach S fast path needs this: it can complete inside
+    // bluetooth's constructor, before homeform connects to deviceConnected.
+    // Normal discovery and fake devices retain their original startup path.
+    if (coachSDirectPendingHomeform) {
+        coachSDirectPendingHomeform = false;
+        QTimer::singleShot(0, this, &bluetooth::startDiscovery);
+    }
+#endif
+}
+
 void bluetooth::finished() {
+    // discoveryTimeout may end up here in the middle of a scan
+    bool deviceListScanEnded = false;
+    if (!discoveryAgent || !discoveryAgent->isActive()) {
+        deviceListScanEnded = deviceListScan;
+        deviceListScan = false;
+    }
+    // the search of an opened list with a device connected only fills the list: the fake device below
+    // would take the devices it found through the connection chain
+    const bool onlyFillTheList = deviceListScanEnded && device();
     // DIRCON can be discovered before or after the BLE scan completes.
     if (!device() && tryConnectSelectedDirconDevice())
         return;
@@ -301,13 +324,15 @@ void bluetooth::finished() {
             const qint64 now = QDateTime::currentMSecsSinceEpoch();
             if (!rescanStartedMs)
                 rescanStartedMs = now;
-            if (now - rescanStartedMs > 10 * 60 * 1000) {
+            // the Gym mode window is open: the user waits there for the trainer, the search goes on
+            // with pauses of at most 10 s (the window restarted it every 10 s on its own before)
+            if (!gymModeWindowOpen && now - rescanStartedMs > 10 * 60 * 1000) {
                 debug(QStringLiteral("BTLE scanning stopped, no device found in 10 minutes"));
                 nextRescanMs = 0;
                 rescanStopped = true;
                 return;
             }
-            const int delayMs = qMin(3000 << qMin(rescanCount, 5), 60000);
+            const int delayMs = qMin(3000 << qMin(rescanCount, 5), gymModeWindowOpen ? 10000 : 60000);
             rescanCount++;
             nextRescanMs = now + delayMs;
             rescanTimer.start(delayMs);
@@ -338,7 +363,7 @@ void bluetooth::finished() {
         settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
     bool waterrower_usb = settings.value(QZSettings::waterrower_usb, QZSettings::default_waterrower_usb).toBool();
     // wifi devices on windows
-    if (!nordictrack_2950_ip.isEmpty() || !tdf_10_ip.isEmpty() || fake_bike || fakedevice_elliptical || fakedevice_rower || fakedevice_treadmill || !proform_elliptical_ip.isEmpty() || !proform_rower_ip.isEmpty() || antbike || android_antbike || waterrower_usb) {
+    if (!onlyFillTheList && (!nordictrack_2950_ip.isEmpty() || !tdf_10_ip.isEmpty() || fake_bike || fakedevice_elliptical || fakedevice_rower || fakedevice_treadmill || !proform_elliptical_ip.isEmpty() || !proform_rower_ip.isEmpty() || antbike || android_antbike || waterrower_usb)) {
         // faking a bluetooth device for non-BLE devices
         qDebug() << "faking a bluetooth device for non-BLE device";
         deviceDiscovered(QBluetoothDeviceInfo());
@@ -457,6 +482,104 @@ int bluetooth::searchNow() {
     return 0;
 }
 
+void bluetooth::searchForDeviceList() {
+    if (!useDiscovery || !discoveryAgent || discoveryAgent->isActive())
+        return;
+
+    if (!device()) {
+        searchNow();
+        return;
+    }
+
+    // Android 7.0 and later ignore the 6th scan start in 30 s, and the list already shows the last search.
+    // 4 leaves room for an automatic search (a trainer lost meanwhile), as in searchNow()
+    pruneScanStarts(QDateTime::currentMSecsSinceEpoch());
+    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion::AndroidNougat && scanStartsMs.size() >= 4) {
+        debug(QStringLiteral("BTLE scanning for the device list skipped by the Android limit"));
+        return;
+    }
+
+    debug(QStringLiteral("BTLE scanning for the device list"));
+    deviceListScan = true;
+    startDiscovery();
+}
+
+#ifdef Q_OS_ANDROID
+bool bluetooth::tryConnectBondedCoachS() {
+    if (coachSDirectAttempted || onlyDiscover || gymModeEnabled() ||
+        !useDiscovery || device()) {
+        return false;
+    }
+
+    QSettings settings;
+    if (!settings.value(QZSettings::bh_spada_2, QZSettings::default_bh_spada_2).toBool())
+        return false;
+
+    const QString selectedName = filterDevice.trimmed();
+    const bool coachSSelected =
+        selectedName.compare(QStringLiteral("COACH S"), Qt::CaseInsensitive) == 0 ||
+        selectedName.startsWith(QStringLiteral("COACH S "), Qt::CaseInsensitive);
+    if (!coachSSelected) return false;
+
+    // Connect only to the exact saved, explicitly selected Coach S. Never
+    // use this optimisation for another device or an arbitrary cached MAC.
+    const QString savedName = settings.value(
+        QZSettings::bluetooth_lastdevice_name,
+        QZSettings::default_bluetooth_lastdevice_name).toString();
+    if (savedName.compare(selectedName, Qt::CaseInsensitive) != 0)
+        return false;
+
+    const QBluetoothAddress address(settings.value(
+        QZSettings::bluetooth_lastdevice_address,
+        QZSettings::default_bluetooth_lastdevice_address).toString());
+    if (address.isNull()) return false;
+
+    const QBluetoothLocalDevice localDevice;
+    if (localDevice.pairingStatus(address) == QBluetoothLocalDevice::Unpaired) {
+        debug(QStringLiteral("Coach S saved address is not bonded; using discovery"));
+        return false;
+    }
+
+    if (!homeformLoaded) {
+        // The direct SPP connection can succeed before the QML/UI connects
+        // to deviceConnected(). Defer this *Coach S-specific* operation
+        // instead of changing the scan lifecycle of all other devices.
+        coachSDirectPendingHomeform = true;
+        debug(QStringLiteral("Coach S bonded direct SPP deferred until UI ready"));
+        return true;
+    }
+
+    coachSDirectAttempted = true;
+    coachSDirectInProgress = true;
+    const QBluetoothDeviceInfo info(address, savedName, 0);
+    debug(QStringLiteral("Coach S bonded direct SPP attempt (no device scan): ") +
+          address.toString());
+    kettlerCoachRower = new kettlercoachrower(noWriteResistance, noHeartService);
+    emit deviceConnected(info);
+    connect(kettlerCoachRower, &bluetoothdevice::connectedAndDiscovered,
+            this, &bluetooth::connectedAndDiscovered);
+    connect(kettlerCoachRower, &kettlercoachrower::debug, this, &bluetooth::debug);
+    connect(kettlerCoachRower, &kettlercoachrower::disconnected,
+            this, &bluetooth::restart, Qt::QueuedConnection);
+    this->stopDiscovery();
+    const QPointer<kettlercoachrower> trackedRower(kettlerCoachRower);
+    kettlerCoachRower->connectToBondedDevice(info);
+    this->signalBluetoothDeviceConnected(kettlerCoachRower);
+
+    // SDP/Android socket operations can hang without reporting an error.
+    // An uncompleted handshake/telemetry must fall back to normal discovery.
+    QTimer::singleShot(15000, this, [this, trackedRower]() {
+        if (coachSDirectInProgress && trackedRower &&
+            trackedRower == kettlerCoachRower) {
+            debug(QStringLiteral("Coach S direct connection timed out; falling back to discovery"));
+            coachSDirectInProgress = false;
+            restart();
+        }
+    });
+    return true;
+}
+#endif
+
 void bluetooth::startDiscovery() {
     if (!this->useDiscovery)
         return;
@@ -467,6 +590,15 @@ void bluetooth::startDiscovery() {
     // An unavailable Bluetooth adapter must not prevent network discovery.
     if (!this->discoveryAgent)
         return;
+
+#ifdef Q_OS_ANDROID
+    // A paired Coach S responds to an RFCOMM connection even when it is
+    // not discoverable and the console is still in manual/ready mode.
+    // On failure restart() performs the normal scan, with this fast path
+    // suppressed until a successful connection.
+    if (tryConnectBondedCoachS())
+        return;
+#endif
 
     // Android 7.0 and later ignore the scan starts after the 5th one in 30 s: searchNow() checks this list.
     // A start while scanning does nothing, so it is not counted.
@@ -509,6 +641,7 @@ void bluetooth::stopDiscovery() {
 
 void bluetooth::canceled() {
     debug(QStringLiteral("BTLE scanning stops"));
+    deviceListScan = false;
 
     emit searchingStop();
 }
@@ -1049,6 +1182,11 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     if (onlyDiscover)
         return;
 
+    // Below a device found is connected, and the chain checks only its own type: with no device
+    // filter a second trainer nearby would be connected in the middle of a workout
+    if (deviceListScan && this->device())
+        return;
+
     if (gymModeEnabled() && gymModeSessionDevice.isEmpty())
         return;
 
@@ -1074,6 +1212,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
                 filter = (b.name().compare(effectiveFilterDevice, Qt::CaseInsensitive) == 0);
             }
+            // only until it is connected: the search goes on afterwards for the accessories
+            if (!gymModeSessionDevice.isEmpty() && filter && !this->device())
+                debug(QStringLiteral("gym mode: \"%1\" matches the selected device").arg(b.name()));
             const QString deviceName = b.name();
             const QString upperDeviceName = deviceName.toUpper();
             // Some Hammer Speed Race S bikes advertise a four-digit prefix, e.g. "4864 RACER S".
@@ -1972,7 +2113,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(wahooKickRunTreadmill);
-            } else if ((b.name().startsWith(QStringLiteral("YPTM-U0"), Qt::CaseInsensitive) ||
+            } else if ((b.name().startsWith(QStringLiteral("YPTM-U"), Qt::CaseInsensitive) ||
                         b.name().startsWith(QStringLiteral("YP-M1552-"), Qt::CaseInsensitive)) &&
                        !ypooTreadmill && !horizonTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
@@ -2253,6 +2394,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith("HS-5000L") ||
                         (b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) && toorx_ftms ) ||
                         (b.name().toUpper().startsWith("DI") && b.name().length() == 2) || // Elite smart trainer #1682
+                        (b.name().toUpper().startsWith("AS6-")) ||                         // ART.IS Cross AS6 (ChangYow SM5081E BLE)
                         (b.name().toUpper().startsWith("DHZ-")) ||                         // JK fitness 577
                         (b.name().toUpper().startsWith("MKSM")) ||                         // MKSM3600036
                         (b.name().toUpper().startsWith("YS_C1_")) ||                       // Yesoul C1H
@@ -2936,7 +3078,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         ((b.name().toUpper().startsWith(QStringLiteral("HT")) && b.name().length() == 10) &&
                          ftms_bike.contains(QZSettings::default_ftms_bike)) ||
                         (b.name().toUpper().contains(QStringLiteral("CARE")) &&
-                         b.name().length() == 11) ||
+                         b.name().length() == 11 &&
+                         !b.name().toUpper().startsWith(QStringLiteral("CARE11216+"))) ||
                         sportsplusbike::isCareSportsPlusBike13Name(b.name())) // CARE9040177, CARE113770737
                        && !sportsPlusBike && filter) {
                 this->setLastBluetoothDevice(b);
@@ -2954,7 +3097,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 sportsPlusBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(sportsPlusBike);
             } else if (((b.name().toUpper().contains(QStringLiteral("CARE")) && b.name().length() >= 12 &&
-                         !sportsplusbike::isCareSportsPlusBike13Name(b.name())) ||  // CARE968300122, CARE10692135
+                         !sportsplusbike::isCareSportsPlusBike13Name(b.name()) &&
+                         !b.name().toUpper().startsWith(QStringLiteral("CARE11216+"))) ||  // CARE968300122, CARE10692135
                        (b.name().toUpper().startsWith(QStringLiteral("VMAX"))))
                        && !sportsPlusRower && filter) {
                 this->setLastBluetoothDevice(b);
@@ -3272,6 +3416,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         upperDeviceName.startsWith(QStringLiteral("FITHIWAY")) ||
                         upperDeviceName.startsWith(QStringLiteral("FIT HI WAY")) ||
                         upperDeviceName.startsWith(QStringLiteral("BODYSCULPTURE")) ||
+                        upperDeviceName.startsWith(QStringLiteral("CARE11216+")) ||
                         upperDeviceName.startsWith(QStringLiteral("BIKZU_")) ||
                         upperDeviceName.startsWith(QStringLiteral("PASYOU-")) ||
                         upperDeviceName.startsWith(QStringLiteral("VIRTUFIT")) ||
@@ -3531,6 +3676,52 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 void bluetooth::connectedAndDiscovered() {
+#ifdef Q_OS_ANDROID
+    if (coachSDirectInProgress && kettlerCoachRower &&
+        kettlerCoachRower->connected()) {
+        // This slot is shared by every primary/auxiliary device. Do not
+        // declare the Coach S connection successful due to some other
+        // device's connectedAndDiscovered() signal.
+        coachSDirectInProgress = false;
+        // A later disconnect after a successful direct connection should
+        // be allowed to try the bonded SPP path again.
+        coachSDirectAttempted = false;
+        debug(QStringLiteral("Coach S bonded direct SPP connection confirmed by telemetry"));
+        // Unlike deviceConnected(), this fires only after the SPP connection,
+        // handshake, and first valid E0 telemetry have succeeded. Keep the
+        // existing early tile creation behavior shared with other devices.
+        if (homeform::singleton()) {
+            homeform::singleton()->setToastRequested(QObject::tr("Coach S connected!"));
+        }
+
+        // Direct bonded SPP intentionally bypasses the normal device scan.
+        // That scan also discovers the user's *explicitly selected* BLE heart
+        // rate belt; restore only this missing accessory discovery. The usual
+        // discovery / fake devices / other equipment are not affected.
+        const QString selectedHeartRateBelt =
+            QSettings().value(QZSettings::heart_rate_belt_name,
+                              QZSettings::default_heart_rate_belt_name).toString();
+        if (!selectedHeartRateBelt.isEmpty() &&
+            !selectedHeartRateBelt.startsWith(QStringLiteral("Disabled"))) {
+            QTimer::singleShot(1500, this, [this, selectedHeartRateBelt]() {
+                if (!kettlerCoachRower || !kettlerCoachRower->connected() ||
+                    heartRateBelt || hrmDiscoveryAgent)
+                    return;
+                // The user may have changed the selection during startup.
+                const QString currentlySelected =
+                    QSettings().value(QZSettings::heart_rate_belt_name,
+                                      QZSettings::default_heart_rate_belt_name).toString();
+                if (currentlySelected != selectedHeartRateBelt) return;
+                debug(QStringLiteral("Coach S direct SPP: finding selected HR belt ") +
+                      selectedHeartRateBelt);
+                // Use the existing selected-sensor path (including its
+                // Android scan throttling), matching by BLE name instead
+                // of relying on a potentially rotating cached MAC.
+                reconnectHeartRateBelt(selectedHeartRateBelt, QString());
+            });
+        }
+    }
+#endif
 
     qDebug() << "bluetooth::connectedAndDiscovered()";
 
@@ -4269,6 +4460,7 @@ void bluetooth::heartRate(uint8_t heart) { Q_UNUSED(heart) }
 void bluetooth::selectGymModeDevice(const QString &deviceName) {
     QString normalizedDeviceName = deviceName.trimmed();
     normalizedDeviceName.remove(QRegularExpression(QStringLiteral(" \\(\\d+%\\)$")));
+    debug(QStringLiteral("gym mode: device selected \"%1\", searching %2").arg(normalizedDeviceName).arg(isSearching()));
 
     if (normalizedDeviceName.isEmpty() ||
         !normalizedDeviceName.compare(QStringLiteral("Disabled"), Qt::CaseInsensitive) ||
@@ -4596,6 +4788,9 @@ void bluetooth::startHeartRateSensorScan(const QString &heartRateBeltName, bool 
 }
 
 void bluetooth::restart() {
+#ifdef Q_OS_ANDROID
+    coachSDirectInProgress = false;
+#endif
 
     QSettings settings;
 
@@ -4608,9 +4803,15 @@ void bluetooth::restart() {
     if (onlyDiscover) {
 
         onlyDiscover = false;
+        // Refresh during the search of an open list: its devices go on as on master (a MOXY6 or CORE
+        // sensor switched on after the equipment is connected only this way)
+        deviceListScan = false;
         this->startDiscovery();
         return;
     }
+
+    // the trainer is gone: the search still running may connect the next one
+    deviceListScan = false;
 
     if (settings.value(QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection).toBool()) {
         exit(EXIT_SUCCESS);
