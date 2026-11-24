@@ -18,6 +18,8 @@ If QZ recognizes the bike but cadence, power, speed, or other bike data are not 
 
 This can restore the normal bike data stream when the Garmin ANT bike option interferes with the connection.
 
+If QZ is connected but **the bike itself is transmitting zeros for all metrics**, stop the session and restart the physical bike according to its normal power/reset procedure before reconnecting QZ. In a confirmed **Zipro Rave** case, resetting the bike restored live metrics after QZ had connected but received only zeros. This was separate from a resistance-control code change being tested; restarting the bike is not a fix for every resistance-control problem.
+
 ### Why can incline still show zero?
 
 Bike resistance and incline are different values. A Yesoul bike may report resistance without reporting a real incline value. QZ's incline tile can instead be populated by an external source such as Zwift or a GPX route. A resistance-to-incline conversion requires a specific mapping and should not be assumed from the resistance percentage alone.
