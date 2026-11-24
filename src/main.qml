@@ -477,7 +477,8 @@ ApplicationWindow {
         function setOption(key, value) {
             settings[key] = value
         }
-        // ...and reads through here (the settings search): its own copy is stale after setOption
+        // ...and reads through here ("Changed" and the cards of the settings search): the copy of
+        // the window is the one that applies the look
         function option(key) { return settings[key] }
         // Zone colours of the tiles are made for a dark page: darker ones on a light page
         function zoneInk(c) { return dark ? c : Qt.darker(c, 1.7) }

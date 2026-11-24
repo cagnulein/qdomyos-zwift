@@ -197,13 +197,17 @@ import AndroidStatusBar 1.0
         }
         // Into main.qml, which applies it at once, and into this page's copy as well: a change
         // of any setting makes this page's Settings write all its properties (Qt.labs.settings
-        // 5.15), and a stale copy would bring the old look back after a restart
+        // 5.15), and a stale copy would bring the old look back after a restart. Into the store
+        // at once too: both copies write a change only a moment later, and a page made again
+        // in between (the language, a reset in "Changed": stackView.replace) would read the old
+        // look there and write it back with its next change
         function setUiOption(key, value) {
             // "As on the phone" takes the night mode of the phone as it is now
             if (key === "ui_theme_mode")
                 window.ui.refreshSystemTheme()
             window.ui.setOption(key, value)
             settings[key] = value
+            settings.setValue(key, value)
         }
 
         // Modern look, "Changed": the changed settings listed in the block of one section, and
@@ -737,7 +741,8 @@ import AndroidStatusBar 1.0
         function profileSettingsSnapshot() {
             var values = []
             for (var key in settings) {
-                // The look applies at once: it raises no restart question
+                // The look applies at once: a change of it alone does not bring up the reminder
+                // to save the profile
                 if (isUiOption(key))
                     continue
                 var value = settings[key]
@@ -1189,12 +1194,10 @@ import AndroidStatusBar 1.0
                 value = parseInt(value)
             else if (type === "number")
                 value = parseFloat(value)
-            // The look of the modern interface is kept by main.qml (setUiOption). Into the store
-            // at once as well: the page made again after the reset reads it there, and its copy
-            // would write the old look back otherwise
+            // The look of the modern interface is kept by main.qml; setUiOption writes the store
+            // at once as well, which the page made again after the reset reads
             if (isUiOption(key)) {
                 setUiOption(key, value)
-                settings.setValue(key, value)
                 return
             }
             // The account of one server is no good on the other
