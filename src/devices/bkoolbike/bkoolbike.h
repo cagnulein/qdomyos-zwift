@@ -23,6 +23,7 @@
 #include <QtCore/qtimer.h>
 
 #include <QDateTime>
+#include <QPointer>
 #include <QObject>
 #include <QString>
 
@@ -63,7 +64,10 @@ class bkoolbike : public bike {
     QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyCharacteristic gattWriteCharCustomId;
     QLowEnergyService *gattPowerService = nullptr;
-    QLowEnergyService *gattCustomService;
+    QPointer<QLowEnergyService> gattCustomService;
+    bool writeInProgress = false;
+    bool customServiceReady() const;
+    void clearServices();
     // QLowEnergyCharacteristic gattNotify1Characteristic;
 
     uint8_t sec1Update = 0;
