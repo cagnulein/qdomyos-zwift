@@ -1,4 +1,5 @@
 #include "horizontreadmill.h"
+#include "paragonxtelemetry.h"
 #include "homeform.h"
 #include "devices/ftmsbike/ftmsbike.h"
 #include "virtualdevices/virtualbike.h"
@@ -1667,8 +1668,26 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
+    QByteArray paragonIncompleteTelemetry;
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4)) {
         if (newValue.at(0) == 0x55 && newValue.length() > 7) {
+            // Some Paragon X revisions send only 3x20-byte notifications for
+            // a 74-byte status packet. Finalize those *only* when the next
+            // packet header arrives; never do this for other Horizon models.
+            const bool paragonOnly =
+                settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool() &&
+                !settings.value(QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z).toBool();
+            ParagonXTelemetry::Metrics previous{};
+            if (paragonOnly &&
+                ParagonXTelemetry::decodePreviousAtBoundary(
+                    reinterpret_cast<const uint8_t *>(lastPacketComplete.constData()),
+                    static_cast<std::size_t>(lastPacketComplete.size()), customRecv,
+                    reinterpret_cast<const uint8_t *>(newValue.constData()),
+                    static_cast<std::size_t>(newValue.size()), previous)) {
+                paragonIncompleteTelemetry = lastPacketComplete;
+                qDebug() << "Paragon X: finalizing status frame at next packet boundary"
+                         << paragonIncompleteTelemetry.length();
+            }
             lastPacketComplete.clear();
             customRecv = (((uint16_t)((uint8_t)newValue.at(7)) << 8) | (uint16_t)((uint8_t)newValue.at(6))) + 10;
             qDebug() << "new custom packet received. Len expected: " << customRecv;
@@ -1693,15 +1712,28 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         return;
     }
 
-    if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && lastPacketComplete.length() > 70 &&
-        lastPacketComplete.at(0) == 0x55 && lastPacketComplete.at(5) == 0x17) {
-        parseSpeed((((double)(((uint16_t)((uint8_t)lastPacketComplete.at(25)) << 8) |
-                           (uint16_t)((uint8_t)lastPacketComplete.at(24)))) /
-                 100.0) *
-                1.60934); // miles/h
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) &&
+        (!paragonIncompleteTelemetry.isEmpty() ||
+         (lastPacketComplete.length() > 70 && lastPacketComplete.at(0) == 0x55 &&
+          lastPacketComplete.at(5) == 0x17))) {
+        const QByteArray &statusPacket =
+            paragonIncompleteTelemetry.isEmpty() ? lastPacketComplete : paragonIncompleteTelemetry;
+        ParagonXTelemetry::Metrics metrics{};
+        if (ParagonXTelemetry::decode(
+                reinterpret_cast<const uint8_t *>(statusPacket.constData()),
+                static_cast<std::size_t>(statusPacket.size()),
+                !paragonIncompleteTelemetry.isEmpty(), metrics)) {
+            parseSpeed(metrics.speedKmh);
+            parseInclination(treadmillInclinationOverride(metrics.inclinePercent));
+        } else {
+            // Preserve the existing parser for other Horizon 0x17 packets.
+            parseSpeed((((double)(((uint16_t)((uint8_t)lastPacketComplete.at(25)) << 8) |
+                                    (uint16_t)((uint8_t)lastPacketComplete.at(24)))) /
+                          100.0) *
+                        1.60934);
+            parseInclination(treadmillInclinationOverride((double)((uint8_t)lastPacketComplete.at(30)) / 10.0));
+        }
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-
-        parseInclination(treadmillInclinationOverride((double)((uint8_t)lastPacketComplete.at(30)) / 10.0));
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
 
         if (firstDistanceCalculated && watts(weight))
