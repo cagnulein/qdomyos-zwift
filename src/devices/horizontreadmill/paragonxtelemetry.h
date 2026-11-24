@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <vector>
 
 // The Paragon X reports speed three times in its 0x17 status packet.
 // Some iOS connections deliver only the first three 20-byte BLE notifications
@@ -53,4 +54,59 @@ inline bool decodePreviousAtBoundary(const uint8_t *previous, std::size_t previo
         return false;
     return decode(previous, previousSize, true, metrics);
 }
+// Mirrors the BLE notification/frame boundary behavior used by the Paragon X
+// production driver. The callback is the actual packetReceived() emission in
+// horizontreadmill; tests can count callbacks without a Bluetooth device.
+struct NotificationResult {
+    bool completed = false;
+    bool recovered = false;
+    Metrics recoveredMetrics{};
+};
+
+class NotificationAssembler {
+  public:
+    template <typename PacketReceivedCallback>
+    NotificationResult accept(const uint8_t *data, std::size_t size, PacketReceivedCallback packetReceived) {
+        NotificationResult result{};
+        if (!data || size == 0)
+            return result;
+
+        const bool newHeader = data[0] == 0x55 && size > 7;
+        if (newHeader) {
+            if (decodePreviousAtBoundary(frame_.data(), frame_.size(), remaining_, data, size,
+                                         result.recoveredMetrics)) {
+                result.recovered = true;
+                packetReceived();
+            }
+            frame_.clear();
+            remaining_ = static_cast<int>((static_cast<unsigned>(data[7]) << 8) |
+                                          static_cast<unsigned>(data[6])) + 10;
+        } else if (frame_.empty() || remaining_ <= 0) {
+            // Never signal completion for an orphaned continuation fragment
+            // after a finished frame or before the first packet header.
+            return result;
+        }
+
+        frame_.insert(frame_.end(), data, data + size);
+        remaining_ -= static_cast<int>(size);
+        if (remaining_ <= 0) {
+            result.completed = true;
+            remaining_ = 0;
+            packetReceived();
+        }
+        return result;
+    }
+
+    const std::vector<uint8_t> &frame() const { return frame_; }
+    int remaining() const { return remaining_; }
+    void reset() {
+        frame_.clear();
+        remaining_ = 0;
+    }
+
+  private:
+    std::vector<uint8_t> frame_;
+    int remaining_ = 0;
+};
+
 } // namespace ParagonXTelemetry
