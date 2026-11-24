@@ -1038,6 +1038,11 @@ import AndroidStatusBar 1.0
             var tokens = query.length > 0 ? query.split(/\s+/) : []
             var results = []
             for (var i = 0; i < searchableSettings.length; i++) {
+                // Appearance, Theme and Accent color are rows of the modern look only: the classic
+                // page has no row to show for them
+                if (!window.ui.modern && searchableSettings[i].key !== "ui_modern" &&
+                        isUiOption(searchableSettings[i].key))
+                    continue
                 if (changedOnly && !isChanged(searchableSettings[i]))
                     continue
                 if (!changedOnly && searchHiddenSettings[searchableSettings[i].key])
@@ -8372,9 +8377,14 @@ import AndroidStatusBar 1.0
                                     Accessible.checked: window.ui.accentName === modelData
                                     // Qt 5.15: a double tap of the screen reader does not reach the MouseArea
                                     Accessible.onPressAction: settingsPane.setUiOption("ui_accent", modelData)
+                                    // 48 high, as the style guide asks; across, up to the middle of the
+                                    // gap only (34): the swatches would not fit beside the label at 48
                                     MouseArea {
                                         anchors.fill: parent
-                                        anchors.margins: -4
+                                        anchors.leftMargin: -3
+                                        anchors.rightMargin: -3
+                                        anchors.topMargin: -10
+                                        anchors.bottomMargin: -10
                                         onClicked: settingsPane.setUiOption("ui_accent", modelData)
                                     }
                                 }
