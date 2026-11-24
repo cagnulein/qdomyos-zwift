@@ -34,6 +34,7 @@ class virtualrower : public virtualdevice {
   public:
     virtualrower(bluetoothdevice *t, bool noWriteResistance = false, bool noHeartService = false);
     bool connected() override;
+    static QByteArray ftmsDistanceField(bluetoothdevice &device);
     void relayEchelonPacket(const QBluetoothUuid &sourceUuid, const QByteArray &value);
 
   private:
@@ -63,9 +64,6 @@ class virtualrower : public virtualdevice {
     QTimer rowerTimer;
     bluetoothdevice *Rower;
 
-    bool ftmsDistanceInitialized = false;
-    uint32_t ftmsDistanceOffset = 0;
-    uint32_t ftmsLastDistance = 0;
     bool pm5Mode = false;
     double virtualRowerCadenceGain = 1.0;
     double virtualRowerCadenceOffset = 0.0;
