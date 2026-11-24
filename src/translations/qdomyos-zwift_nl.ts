@@ -6166,12 +6166,12 @@ Mag QZ deze waarde wijzigen?
         <translation>Alleen Android: hoogte van het zwevende venster.</translation>
     </message>
     <message>
-        <source>Floating Window Opacity (%):</source>
-        <translation>Dekking van het zwevende venster (%):</translation>
+        <source>Floating Window % Transparency:</source>
+        <translation>Transparantie zwevend venster (%):</translation>
     </message>
     <message>
-        <source>Opacity of the floating window (100 = opaque).</source>
-        <translation>Dekking van het zwevende venster (100 = volledig ondoorzichtig).</translation>
+        <source>Android Only: transparency percentage of the floating window.</source>
+        <translation>Alleen Android: transparantie van het zwevende venster in procenten.</translation>
     </message>
     <message>
         <source>Floating Window Startup</source>
