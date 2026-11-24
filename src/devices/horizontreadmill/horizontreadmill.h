@@ -55,6 +55,9 @@ class horizontreadmill : public treadmill {
     void startDiscover();
     void btinit();
     void setDirectDistance(double treadmillDistance, bool increment);
+    // Shared production path exercised by the Bluetooth replay integration tests.
+    friend class ParagonXNotificationTestAccess;
+    ParagonXTelemetry::NotificationResult processParagonNotification(const QByteArray &newValue);
 
     QTimer *refresh;
 
