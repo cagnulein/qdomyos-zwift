@@ -488,6 +488,13 @@ void DataObject::setLabelFontSize(int value) {
     m_labelFontSize = value;
     emit labelFontSizeChanged(m_labelFontSize);
 }
+void DataObject::setWritable(bool writable) {
+    if (m_writable == writable) {
+        return;
+    }
+    m_writable = writable;
+    emit writableChanged(m_writable);
+}
 void DataObject::setGridId(int id) {
     m_gridId = id;
     emit gridIdChanged(m_gridId);
@@ -6268,6 +6275,8 @@ void homeform::pelotonOffset_Plus() { Plus(QStringLiteral("peloton_offset")); }
 void homeform::pelotonOffset_Minus() { Minus(QStringLiteral("peloton_offset")); }
 
 void homeform::bluetoothDeviceConnected(bluetoothdevice *b) {
+    // Rowing intensity is displayed, not adjusted. Other devices keep their existing controls.
+    target_zone->setWritable(b->deviceType() != ROWING);
     this->innerTemplateManager->start(b);
     this->userTemplateManager->start(b);
 #ifndef Q_OS_IOS
@@ -7938,6 +7947,10 @@ void homeform::update() {
                 ((rower *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             this->target_pace->setValue(
                 ((rower *)bluetoothManager->device())->lastRequestedPace().toString(QStringLiteral("m:ss")));
+            // Power-zone watt ranges belong to bikes, not to Peloton rowing effort cues.
+            if (!this->target_zone->secondLine().isEmpty()) {
+                this->target_zone->setSecondLine(QString());
+            }
             if (trainProgram) {
                 this->target_pace->setSecondLine(((rower *)bluetoothManager->device())
                                                      ->speedToPace(trainProgram->currentRow().lower_speed)
@@ -7986,6 +7999,10 @@ void homeform::update() {
                     this->target_zone->setValue(tr("N/A"));
                     break;
                 }
+            } else {
+                // Don't keep showing the previous Peloton cue after its workout ends.
+                this->target_zone->setValue(tr("N/A"));
+                this->target_zone->setValueFontColor(QStringLiteral("white"));
             }
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * 1000.0, 'f', 0));
             resistance = ((rower *)bluetoothManager->device())->currentResistance().value();
@@ -8364,9 +8381,7 @@ void homeform::update() {
         ftp->setSecondLine(ftpMinW + QStringLiteral("-") + ftpMaxW + tr("W ") +
                            QString::number(ftpPerc, 'f', 0) + QStringLiteral("%"));
 
-        if (bluetoothManager->device()->deviceType() == BIKE ||
-            (bluetoothManager->device()->deviceType() == ROWING &&
-             (!trainProgram || trainProgram->currentRow().pace_intensity == -1))) {
+        if (bluetoothManager->device()->deviceType() == BIKE) {
             if (requestedPerc < 56) {
 
                 requestedMinW = QString::number(0, 'f', 0);
