@@ -39,6 +39,7 @@ class ftmsrower : public rower {
   public:
     ftmsrower(bool noWriteResistance, bool noHeartService);
     bool connected() override;
+    void clearStats() override;
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
@@ -88,6 +89,9 @@ class ftmsrower : public rower {
     double lastStrokesCount = 0;
     
     // PM5 specific variables
+    uint16_t pm5LastRawStrokeCount = 0;
+    uint32_t pm5SessionStrokeCount = 0;
+    bool pm5RawStrokeCountReceived = false;
     uint8_t pm5RowState = 0;
     bool pm5RowStateReceived = false;
 
