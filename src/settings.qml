@@ -8284,7 +8284,8 @@ import AndroidStatusBar 1.0
                                         return i
                                 return 0
                             }
-                            onActivated: settingsPane.setUiOption("ui_theme_mode", options[index].value)
+                            // index -1: Enter in the open list with no item highlighted
+                            onActivated: if (index >= 0) settingsPane.setUiOption("ui_theme_mode", options[index].value)
                             // The row's label, which the screen reader does not join to the box itself
                             Accessible.name: qsTr("Appearance") + ": " + displayText
                         }
@@ -8317,7 +8318,8 @@ import AndroidStatusBar 1.0
                                         return i
                                 return 0
                             }
-                            onActivated: settingsPane.setUiOption("ui_theme", options[index].value)
+                            // index -1: Enter in the open list with no item highlighted
+                            onActivated: if (index >= 0) settingsPane.setUiOption("ui_theme", options[index].value)
                             // The row's label, which the screen reader does not join to the box itself
                             Accessible.name: qsTr("Theme") + ": " + displayText
                         }
