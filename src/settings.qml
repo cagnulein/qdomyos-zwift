@@ -3,6 +3,7 @@ import QtQuick 2.7
 import QtQuick 2.12 as Handlers
 import QtQml 2.15
 import QtQuick.Layouts 1.3
+import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 import Qt.labs.settings 1.0
@@ -11069,7 +11070,11 @@ import AndroidStatusBar 1.0
                         // StackView page, Qt 5.15.0 (Android) crashes on exit while the popup is open -
                         // it repositions against the overlay already destroyed (QTBUG-84579, fixed in 5.15.1)
                         parent: Overlay.overlay
-                        anchors.centerIn: parent
+                        // The keyboard up: centred in the part of the window above it (below)
+                        anchors.centerIn: keyboardUp ? undefined : parent
+                        x: Math.round((parent.width - width) / 2)
+                        // the top of the card not above that part (the card can be taller - below)
+                        y: Math.round(insetTop + Math.max(0, (visibleBottom - insetTop - height) / 2))
                         readonly property bool modern: window.ui.modern
                         // Modern: the card of UiMessageDialog, 24 from the screen edges, the corner of 28
                         width: modern ? Math.min(parent.width - 48, 440) : Math.min(parent.width * 0.9, 400)
@@ -11084,11 +11089,54 @@ import AndroidStatusBar 1.0
                         // popup takes the height of its content, and with a large font the buttons went
                         // below the window - the positioner shrinks the popup to the
                         // window and the content runs out of it (qquickpopuppositioner.cpp v5.15.0:221-237).
-                        // The text scrolls instead; the field and the buttons stay on the card
+                        // The text scrolls instead; the field and the buttons stay on the card. With the
+                        // keyboard up the room is the part above it, and the card can be taller (below)
                         readonly property real insetTop: visible ? window.getTopPadding() : 0
                         readonly property real insetBottom: visible ? window.getBottomPadding() : 0
-                        readonly property real room: parent.height - 2 * Math.max(insetTop, insetBottom) - (modern ? 48 : 24)
-                        height: Math.min(implicitHeight, room)
+
+                        // The keyboard comes up with the focus in the code field and covered Cancel and
+                        // Submit: the popup is centred in the part of the window above it instead.
+                        // Android: the window is not resized for a field no taller than Qt's estimate of
+                        // the part above the keyboard (3/5 of the screen in portrait before the first
+                        // keyboard): Qt sets SOFT_INPUT_ADJUST_PAN, not RESIZE (QtActivityDelegate.java
+                        // v5.15.0:270-288), and the keyboard covers its lower part. keyboardRectangle.y is
+                        // the top of the keyboard in the window (:809-817), but in physical pixels
+                        // (QTBUG-50756, the same in Qt 6): divided by the pixel ratio. Its height is not
+                        // taken - it may be wrong with the navigation bar (QTBUG-81036).
+                        // iOS: keyboardRectangle is in window coordinates (qiosinputcontext.mm
+                        // v5.15.2:429-432). Qt's scroll of the window to the cursor (:496-529) does not
+                        // happen in this build: with qt-patches/ios/5.15.2/qios-uiscene.patch the scene's
+                        // window does not exist yet when Qt adds the keyboard's gesture to it (:336-339),
+                        // so there is no view to scroll (:463-464, 486-488). Qt 6.8 adds the gesture to the
+                        // focus window instead (qtbase f480b59914): if the patch takes that, Qt scrolls
+                        // again when the cursor (with 20 pt around it) is under the keyboard (:509-528), and
+                        // the popup has to take the scroll into account. While the keyboard comes in,
+                        // its rectangle is the one it starts from (:400, animating - :421) and the popup
+                        // waits in the centre. Only a keyboard docked at the bottom (its bottom at or below
+                        // the window's: a maximized window, the classic look, ends above the home
+                        // indicator), and not in an iPad window of Split View, Slide Over or Stage Manager
+                        // (not tested there). The card is never shorter than its
+                        // smallest content (the text at the minimum height its Flickable already has -
+                        // 3 x 16 px, scaled with the text size - the field and the buttons); when the part
+                        // above the keyboard is shorter than that (landscape), the card starts at its top
+                        // and its lower part stays under the keyboard
+                        readonly property rect keyboard: Qt.inputMethod.keyboardRectangle
+                        readonly property bool ios: Qt.platform.os === "ios"
+                        readonly property bool android: Qt.platform.os === "android"
+                        readonly property real keyboardTop: android ? keyboard.y / Screen.devicePixelRatio : keyboard.y
+                        readonly property bool keyboardUp: visible && Qt.inputMethod.visible && keyboard.y > 0
+                                                           && keyboardTop < parent.height
+                                                           && (ios ? !Qt.inputMethod.animating && !window.iosMultiWindowMode
+                                                                     && keyboard.y + keyboard.height >= parent.height - 1
+                                                                   : android)
+                        readonly property real visibleBottom: keyboardUp ? keyboardTop : parent.height
+                        readonly property real room: keyboardUp
+                                                     ? visibleBottom - insetTop - (modern ? 48 : 24)
+                                                     : parent.height - 2 * Math.max(insetTop, insetBottom) - (modern ? 48 : 24)
+                        readonly property real smallestCard: topPadding + bottomPadding
+                                                             + Math.min(mfaTextColumn.implicitHeight, window.fontPx(16) * 3)
+                                                             + fieldGap.height + mfaFieldBlock.height + buttonsGap.height + mfaButtons.height
+                        height: Math.min(implicitHeight, keyboardUp ? Math.max(room, smallestCard) : room)
 
                         visible: rootItem.garminMfaRequested
 
