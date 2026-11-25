@@ -251,6 +251,17 @@ void bluetoothdevice::verticalOscillationSensor(double verticalOscillation) { Q_
 
 bool bluetoothdevice::hasVirtualDevice() { return this->virtualDevice!=nullptr; }
 
+void bluetoothdevice::connectBackLater() {
+    if (connectBackPending)
+        return;
+    connectBackPending = true;
+    QTimer::singleShot(1000, this, [this]() {
+        connectBackPending = false;
+        if (m_control && m_control->state() == QLowEnergyController::UnconnectedState)
+            m_control->connectToDevice();
+    });
+}
+
 double bluetoothdevice::calculateMETS() { return ((0.048 * m_watt.value()) + 1.19); }
 
 void bluetoothdevice::setVirtualDevice(virtualdevice *virtualDevice, VIRTUAL_DEVICE_MODE mode) {
@@ -445,6 +456,8 @@ void bluetoothdevice::clearStats() {
     activeKCal.clear(true);
     Distance.clear(true);
     Distance1s.clear(true);
+    // StepCount, like Distance, is a workout total and must start at zero for a new session.
+    StepCount.clear(true);
     Heart.clear(false);
     m_jouls.clear(true);
     elevationAcc = 0;

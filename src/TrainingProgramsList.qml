@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 import QtQuick.Dialogs 1.0
+import Qt.labs.platform 1.1 as P
 import QtCharts 2.2
 import Qt.labs.settings 1.0
 
@@ -21,6 +22,12 @@ ColumnLayout {
             if (kind === "training") {
                 trainprogram_open_clicked(localUrl)
             }
+        }
+        // programs of a previous install were copied back into the training folder
+        function onFolderFilesRestored() {
+            var currentFolder = folderModel.folder
+            folderModel.folder = ""
+            folderModel.folder = currentFolder
         }
     }
 
@@ -42,13 +49,18 @@ ColumnLayout {
         Qt.callLater(function() {
             openWorkoutPreview(initialWorkoutUrl)
         })
+        rootItem.folderPageOpened()
     }
 
-    MessageDialog {
+    // UiMessageDialog as in TrainingProgramsListJS.qml: modern look - Cancel / Delete in red,
+    // as the other questions that cannot be undone; classic look - the native Yes / No
+    UiMessageDialog {
         id: deleteDialog
         text: qsTr("Delete workout?")
         informativeText: qsTr("This cannot be undone.")
-        buttons: (MessageDialog.Yes | MessageDialog.No)
+        buttons: modern ? (P.MessageDialog.Yes | P.MessageDialog.Cancel) : (P.MessageDialog.Yes | P.MessageDialog.No)
+        yesText: qsTr("Delete")
+        destructive: true
         onYesClicked: {
             if (rootItem.deleteTrainingProgramFile(selectedWorkoutUrl)) {
                 selectedWorkoutUrl = ""
@@ -107,7 +119,7 @@ ColumnLayout {
                 Text
                 {
                     text:qsTr("Filter")
-                    color: "white"
+                    color: window.ui.ink("white")
                     verticalAlignment: Text.AlignVCenter
                 }
                 TextField
@@ -123,6 +135,12 @@ ColumnLayout {
                         folderModel.nameFilters = [filter + ".zwo", filter + ".xml", filter + ".mrc", filter + ".erg", filter + ".json", filter + ".xsr"]
                     }
                     id: filterField
+                    // the field kept its 120 of Material and showed less of the hint as the text grew.
+                    // The list column has no width of its own here: at most half of the window, so
+                    // the back button stays on a narrow screen
+                    width: window.textScale !== 1
+                           ? Math.max(implicitWidth, Math.min(window.fontPx(implicitWidth), window.width / 2))
+                           : implicitWidth
                     onTextChanged: updateFilter()
                 }
                      Button {
@@ -133,18 +151,30 @@ ColumnLayout {
                         }
             }
 
+            // the restore of a previous install: above the list, which moves down for that time
+            UiProgress {
+                Layout.fillWidth: true
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+                topPadding: 8
+                done: rootItem.folderRestoreDone
+                total: rootItem.folderRestoreTotal
+            }
+
             ListView {
                 Layout.fillWidth: true
                 Layout.minimumWidth: 50
                 Layout.preferredWidth: 100
                 Layout.minimumHeight: 150
                 Layout.fillHeight: true
-                ScrollBar.vertical: ScrollBar {}
+                // Modern look: a thin bar while the list moves, as in the other lists of the modern look; the
+                // Material bar that can be dragged is 13 dp with a 16 dp track
+                ScrollBar.vertical: ScrollBar { interactive: !window.ui.modern }
                 id: list
                 FolderListModel {
                     id: folderModel
                     nameFilters: ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr"]
-                    folder: "file://" + rootItem.getWritableAppDir() + 'training'
+                    folder: rootItem.localFileUrl(rootItem.getWritableAppDir() + 'training')
                           showDotAndDotDot: false
                     showDirs: true
                           sortField: "Name"
@@ -155,7 +185,7 @@ ColumnLayout {
                     Rectangle {
                         property alias textColor: fileTextBox.color
                         width: parent.width
-                        height: 40
+                        height: window.textScale !== 1 ? Math.max(40, fileTextBox.implicitHeight) : 40
                                 color: Material.backgroundColor
                         z: 1
                         Item {
@@ -169,8 +199,8 @@ ColumnLayout {
                             Text {
                                 id: fileTextBox
                                 color: (!folderModel.isFolder(index)?Material.color(Material.Grey):Material.color(Material.Orange))
-                                font.pixelSize: Qt.application.font.pixelSize * 1.6
-                                text: (!folderModel.isFolder(index)?fileName.substring(0, fileName.length-4):fileName)
+                                font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize * 1.6 : (Qt.application.font.pixelSize > 0 ? window.fontPx(window.appFontPx * 1.6) : window.plainFontPx)
+                                text: (!folderModel.isFolder(index)?fileName.substring(0, fileName.lastIndexOf(".")):fileName)
                                 NumberAnimation on x {
                                     Component.onCompleted: {
                                         if(fileName.length > 30) {
@@ -185,7 +215,7 @@ ColumnLayout {
                                   x: root.width
                                   text: fileTextBox.text
                                   color: Material.color(Material.Grey)
-                                  font.pixelSize: Qt.application.font.pixelSize * 1.6
+                                  font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize * 1.6 : (Qt.application.font.pixelSize > 0 ? window.fontPx(window.appFontPx * 1.6) : window.plainFontPx)
                                 }
                             }
                         }
@@ -229,7 +259,9 @@ ColumnLayout {
                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
                     if (fileUrl && !folderModel.isFolder(list.currentIndex)) {
                         selectedWorkoutUrl = fileUrl
-                        list.currentItem.textColor = Material.color(Material.Yellow)
+                        // no current row for a moment while a restore renames files under the open page
+                        if (list.currentItem)
+                            list.currentItem.textColor = window.ui.modern && !window.ui.dark ? window.ui.accent : Material.color(Material.Yellow)
                         console.log(fileUrl + ' selected');
                         trainprogram_preview(fileUrl)
                         powerSeries.clear();
@@ -276,8 +308,8 @@ ColumnLayout {
                     id: date
                     width: parent.width
                     text: rootItem.previewWorkoutDescription
-                    font.pixelSize: 14
-                    color: "white"
+                    font.pixelSize: window.fontPx(14)
+                    color: window.ui.ink("white")
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
@@ -289,9 +321,9 @@ ColumnLayout {
                     id: description
                     width: parent.width
                     text: rootItem.previewWorkoutTags
-                    font.pixelSize: 10
+                    font.pixelSize: window.fontPx(10)
                     wrapMode: Text.WordWrap
-                    color: "white"
+                    color: window.ui.modern ? window.ui.textMuted : "white"
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -311,7 +343,7 @@ ColumnLayout {
                         height: 400
                         width: parent.width
                         title: qsTr("Power")
-                        titleFont.pixelSize: 20
+                        titleFont.pixelSize: window.fontPx(20)
 
                         DateTimeAxis {
                             id: valueAxisX
@@ -322,7 +354,7 @@ ColumnLayout {
                             //labelsVisible: false
                             gridVisible: false
                             //lineVisible: false
-                            labelsFont.pixelSize: 10
+                            labelsFont.pixelSize: window.fontPx(10)
                         }
 
                         ValueAxis {
@@ -335,7 +367,7 @@ ColumnLayout {
                             //labelsVisible: false
                             //gridVisible: false
                             //lineVisible: false
-                            labelsFont.pixelSize: 10
+                            labelsFont.pixelSize: window.fontPx(10)
                         }
 
                         LineSeries {

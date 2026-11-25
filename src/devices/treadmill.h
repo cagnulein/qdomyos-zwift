@@ -1,6 +1,7 @@
 #ifndef TREADMILL_H
 #define TREADMILL_H
 #include "devices/bluetoothdevice.h"
+#include "treadmillcalories.h"
 #include <QDateTime>
 #include <QObject>
 #include "treadmillErgTable.h"
@@ -23,13 +24,26 @@ class treadmill : public bluetoothdevice {
     metric lastRequestedPower();
     virtual double minStepInclination();
     virtual double minStepSpeed();
+    VirtualTreadmillControl virtualTreadmillControl() const override;
     virtual bool canStartStop() { return true; }
+    // Called when the UI ignores Stop because recording is already stopped or idle.
+    virtual void stopWhenIdle() {}
     metric currentStrideLength() { return InstantaneousStrideLengthCM; }
     metric currentGroundContact() { return GroundContactMS; }
     metric currentVerticalOscillation() { return VerticalOscillationMM; }
     metric currentStepCount() { return StepCount; }
     virtual uint16_t watts(double weight);
     static uint16_t wattsCalc(double weight, double speed, double inclination);
+
+    // Energy model for walking and running on a treadmill (see treadmill.cpp for sources).
+    // Returns kcal/min including resting metabolism; speed km/h, incline %, weight kg,
+    // height cm, restingKcalPerDay from Mifflin-St Jeor. *running tells which gait was used.
+    static double kcalPerMinute(double speedKmh, double inclinePct, double weightKg, double heightCm,
+                                double restingKcalPerDay, bool *running = nullptr);
+    // Speed (km/h) where people switch from walking to running, from leg length (height).
+    static double walkRunTransitionKmh(double heightCm);
+    metric calories() override;
+    metric totalCalories() override;
     BLUETOOTH_TYPE deviceType() override;
     void clearStats() override;
     void setLap() override;
@@ -45,7 +59,7 @@ class treadmill : public bluetoothdevice {
     virtual bool autoPauseWhenSpeedIsZero();
     virtual bool autoStartWhenSpeedIsGreaterThenZero();
     static double treadmillInclinationOverride(double Inclination);
-    static double treadmillInclinationOverrideReverse(double Inclination);
+    static double treadmillInclinationOverrideReverse(double Inclination, double maxInclination = 15.0);
     bool cadenceFromAppleWatch();
     double calculateCadenceFromSpeed(double speed);
     virtual bool canHandleSpeedChange() { return true; }
@@ -68,6 +82,21 @@ class treadmill : public bluetoothdevice {
     void instantaneousStrideLengthSensor(double length) override;
     void groundContactSensor(double groundContact) override;
     void verticalOscillationSensor(double verticalOscillation) override;
+
+  protected:
+    // Set by a driver when the console reports the calories: the energy model then leaves them
+    // as they are
+    bool caloriesFromConsole = false;
+
+    // Whether the watts are measured rather than estimated: an external power sensor, or the
+    // device itself (strydrunpowersensor). The calorie model then leaves the power-based value
+    virtual bool externalPowerMeasured() { return powerReceivedFromPowerSensor; }
+
+  private:
+    bool caloriesModelEnabled();
+    void accumulateCalories(double deltaTime, bool clockRunning);
+    TreadmillCalories m_calories;
+    metric modelKCal;
 
   signals:
     void tapeStarted();
@@ -96,6 +125,9 @@ class treadmill : public bluetoothdevice {
     double m_lastRawSpeedRequested = -1;
     double m_lastRawInclinationRequested = -100;
     bool instantaneousStrideLengthCMAvailableFromDevice = false;
+    // Time (ms) of the last cadence from an external sensor (cadenceSensor()), 0 included: while the sensor
+    // sends, the cadence estimated from speed must not overwrite it; once it goes silent the estimate comes back.
+    qint64 lastCadenceSensorMs = 0;
     treadmillErgTable _ergTable;
     
     // Power following logic

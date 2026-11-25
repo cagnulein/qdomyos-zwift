@@ -288,6 +288,7 @@ void spirittreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     lastTimeCharChanged = QTime::currentTime();
 
     Speed = speed;
+    caloriesFromConsole = true; // the console reports the calories (treadmill calorie model)
     KCal = kcal;
 }
 
@@ -592,6 +593,6 @@ void spirittreadmill::controllerStateChanged(QLowEnergyController::ControllerSta
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

@@ -58,6 +58,14 @@ class bluetoothdevice : public QObject {
 
     ~bluetoothdevice() override;
 
+    struct VirtualTreadmillControl {
+        bool enabled = false;
+        QByteArray speedRange;
+        QByteArray inclineRange;
+    };
+    // Opt-in FTMS forwarding and six-byte FTMS range values; disabled for existing drivers.
+    virtual VirtualTreadmillControl virtualTreadmillControl() const { return {}; }
+
     /**
      * @brief currentHeart Gets a metric object for getting and setting the current heart rate. Units: beats per minute
      */
@@ -232,11 +240,16 @@ class bluetoothdevice : public QObject {
 
     /**
      * @brief wattsMetricforUi Show the wattage applying averaging in case the user requested this.  Units: watts
+     * While paused it returns 0 unless instant_power_on_pause is enabled: update_metrics() zeroes m_watt on pause,
+     * but drivers that read the power from the device packets write it back on every packet, so the raw value
+     * alternates between 0 and the real power.
      */
     double wattsMetricforUI() {
         QSettings settings;
-        if (paused && settings.value(QZSettings::instant_power_on_pause, QZSettings::default_instant_power_on_pause).toBool()) {
-            return wattsMetric().value();
+        if (paused) {
+            if (settings.value(QZSettings::instant_power_on_pause, QZSettings::default_instant_power_on_pause).toBool())
+                return wattsMetric().value();
+            return 0;
         }
         bool power3s = settings.value(QZSettings::power_avg_3s, QZSettings::default_power_avg_3s).toBool();
         bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
@@ -575,6 +588,15 @@ class bluetoothdevice : public QObject {
     QLowEnergyController *m_control = nullptr;
 
     /**
+     * @brief connectBackLater Reconnects m_control 1 s later, if it is still unconnected then.
+     * Called from the UnconnectedState handler instead of m_control->connectToDevice(): with the phone's
+     * Bluetooth off, Android refuses the connection inside connectToDevice() itself, the handler runs
+     * again from there, and the nested retries overflowed the stack (StackOverflowError in
+     * QtBluetoothLE.connect). Retrying every second also reconnects once Bluetooth is back on.
+     */
+    void connectBackLater();
+
+    /**
      * @brief elapsed A metric object to get and set the elapsed time for the session. Units: seconds
      */
     metric elapsed;
@@ -873,6 +895,9 @@ class bluetoothdevice : public QObject {
      */
     VIRTUAL_DEVICE_MODE virtualDeviceMode = VIRTUAL_DEVICE_MODE::NONE;
     virtualdevice *virtualDevice = nullptr;
+
+    // a connectBackLater() retry is already scheduled
+    bool connectBackPending = false;
 
   protected:
     // useful to understand if a power sensor device for treadmill, it's a real one like the stryd or it's a dumb one like the runpod from Zwift

@@ -265,6 +265,10 @@ int trainprogram::firstBlockingTransitionRow(const QList<trainrow> &rows, int cu
     return -1;
 }
 
+bool trainprogram::shouldSendGpxInclination(double lastSentInclination, double nextInclination, double filter) {
+    return filter <= 0.0 || qAbs(nextInclination - lastSentInclination) >= filter;
+}
+
 uint32_t trainprogram::calculateTimeForRow(int32_t row) {
     if (row >= rows.length())
         return 0;
@@ -706,7 +710,7 @@ void trainprogram::scheduler() {
            settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0 && zwift_auth_token &&
            zwift_auth_token->access_token.length() > 0) {
             if(!zwift_world) {
-                zwift_world = new World(1, zwift_auth_token->getAccessToken());
+                zwift_world = new World(1, zwift_auth_token);
                 qDebug() << "creating zwift api world";
             }
             else {
@@ -722,8 +726,11 @@ void trainprogram::scheduler() {
                     QJsonDocument document = QJsonDocument::fromJson(id.toLocal8Bit(), &parseError);
                     QJsonObject ride = document.object();
                     qDebug() << "zwift api player" << ride;
-                    zwift_player_id = ride[QStringLiteral("id")].toInt();
-                    emit zwiftLoginState(true);
+                    const int playerId = ride[QStringLiteral("id")].toInt();
+                    if (playerId > 0) {
+                        zwift_player_id = playerId;
+                        emit zwiftLoginState(true);
+                    }
                 } else {                    
                     static int zwift_counter = 5;
                     int timeout = settings.value(QZSettings::zwift_api_poll, QZSettings::default_zwift_api_poll).toInt();
@@ -732,6 +739,7 @@ void trainprogram::scheduler() {
                     if(zwift_counter++ >= (timeout - 1)) {
                         zwift_counter = 0;
                         QByteArray bb = zwift_world->playerStatus(zwift_player_id);
+                        if (!bb.isEmpty()) { // Skip decoding while authentication is being renewed.
                         qDebug() << " ZWIFT API PROTOBUF << " + bb.toHex(' ');
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -816,6 +824,7 @@ void trainprogram::scheduler() {
                         }
                         old_distance = distance;
                         old_alt = alt;
+                        }
                     }
                 }
             }
@@ -1253,6 +1262,16 @@ void trainprogram::scheduler() {
                     inc = weightedInclination(currentStep);
                 }
 
+                const double inclinationFilter =
+                    settings.value(QZSettings::trainprogram_inclination_filter,
+                                   QZSettings::default_trainprogram_inclination_filter)
+                        .toDouble();
+                if (!shouldSendGpxInclination(bluetoothManager->device()->currentInclination().value(), inc,
+                                               inclinationFilter)) {
+                    qDebug() << QStringLiteral("trainprogram filtering gps inclination") << inc
+                             << bluetoothManager->device()->currentInclination().value() << inclinationFilter;
+                } else {
+
                 // Only convert inclination to resistance for bikes WITHOUT hardware inclination support
                 if (bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableBySoftware()) {
                     double bikeResistanceOffset =
@@ -1278,6 +1297,7 @@ void trainprogram::scheduler() {
                     emit changeNextInclination300Meters(avgInclinationNext300Meters());
                 else
                     emit changeNextInclination300Meters(inclinationNext300Meters());
+                }
 
                 double ratioDistance = 0.0;
                 double distanceRow = rows.at(currentStep).distance;
@@ -1527,9 +1547,20 @@ void trainprogram::applyCurrentStepSettings() {
                 inc = rows.at(currentStep).inclination;
             }
             qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
-            setErgMode(false);
-            emit changeInclination(inc, inc);
-            emit changeNextInclination300Meters(avgInclinationNext300Meters());
+            const bool isGpx = !isnan(rows.at(currentStep).latitude) && !isnan(rows.at(currentStep).longitude);
+            const double inclinationFilter =
+                settings.value(QZSettings::trainprogram_inclination_filter,
+                               QZSettings::default_trainprogram_inclination_filter)
+                    .toDouble();
+            if (!isGpx || shouldSendGpxInclination(bluetoothManager->device()->currentInclination().value(), inc,
+                                                   inclinationFilter)) {
+                setErgMode(false);
+                emit changeInclination(inc, inc);
+                emit changeNextInclination300Meters(avgInclinationNext300Meters());
+            } else {
+                qDebug() << QStringLiteral("trainprogram filtering gps inclination") << inc
+                         << bluetoothManager->device()->currentInclination().value() << inclinationFilter;
+            }
         }
         if (rows.at(currentStep).power != -1) {
             qDebug() << QStringLiteral("trainprogram change power ") +
@@ -1594,6 +1625,18 @@ void trainprogram::applyCurrentStepSettings() {
             (bluetoothManager->device()->deviceType() == BIKE ||
              bluetoothManager->device()->deviceType() == ELLIPTICAL)) {
             double inc = rows.at(currentStep).inclination;
+            const bool isGpx = !isnan(rows.at(currentStep).latitude) && !isnan(rows.at(currentStep).longitude);
+            const double inclinationFilter =
+                settings.value(QZSettings::trainprogram_inclination_filter,
+                               QZSettings::default_trainprogram_inclination_filter)
+                    .toDouble();
+            const bool sendInclination =
+                !isGpx || shouldSendGpxInclination(bluetoothManager->device()->currentInclination().value(), inc,
+                                                   inclinationFilter);
+            if (!sendInclination) {
+                qDebug() << QStringLiteral("trainprogram filtering gps inclination") << inc
+                         << bluetoothManager->device()->currentInclination().value() << inclinationFilter;
+            }
             bool isElliptical = bluetoothManager->device()->deviceType() == ELLIPTICAL;
             bool ellipticalInclinationByHardware =
                 isElliptical ? ((elliptical *)bluetoothManager->device())->inclinationAvailableByHardware()
@@ -1609,9 +1652,10 @@ void trainprogram::applyCurrentStepSettings() {
                               "inclinationAvailableByHardware=false";
             }
 
-            if ((bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableBySoftware()) ||
-                (isElliptical && rows.at(currentStep).resistance == -1 &&
-                 (!ellipticalInclinationByHardware || ellipticalInclinationSeparatedFromResistance))) {
+            if (sendInclination &&
+                ((bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableBySoftware()) ||
+                 (isElliptical && rows.at(currentStep).resistance == -1 &&
+                  (!ellipticalInclinationByHardware || ellipticalInclinationSeparatedFromResistance)))) {
                 double bikeResistanceOffset =
                     settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
                 double bikeResistanceGain =
@@ -1621,11 +1665,11 @@ void trainprogram::applyCurrentStepSettings() {
                                                              bikeResistanceOffset + 1);
             }
 
-            if (bluetoothManager->device()->deviceType() == BIKE)
+            if (sendInclination && bluetoothManager->device()->deviceType() == BIKE)
                 bluetoothManager->device()->setInclination(inc);
 
-            if (bluetoothManager->device()->deviceType() == BIKE ||
-                (isElliptical && ellipticalInclinationByHardware)) {
+            if (sendInclination && (bluetoothManager->device()->deviceType() == BIKE ||
+                                    (isElliptical && ellipticalInclinationByHardware))) {
                 qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
                 setErgMode(false);
                 emit changeInclination(inc, inc);

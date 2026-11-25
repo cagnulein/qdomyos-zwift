@@ -751,6 +751,10 @@ class QZSettings {
     static const QString proform_tdf_jonseed_watt;
     static constexpr bool default_proform_tdf_jonseed_watt = false;
 
+    // Opt-in support for physical front/rear gears on ProForm Wi-Fi consoles.
+    static const QString proform_use_console_gears;
+    static constexpr bool default_proform_use_console_gears = false;
+
     static const QString proform_studio;
     static constexpr bool default_proform_studio = false;
 
@@ -877,6 +881,30 @@ class QZSettings {
     static const QString life_fitness_ic5;
     static constexpr bool default_life_fitness_ic5 = false;
 
+    static const QString life_fitness_first_name;
+    static const QString default_life_fitness_first_name;
+
+    static const QString life_fitness_last_name;
+    static const QString default_life_fitness_last_name;
+
+    static const QString life_fitness_username;
+    static const QString default_life_fitness_username;
+
+    static const QString life_fitness_password;
+    static const QString default_life_fitness_password;
+
+    static const QString life_fitness_api_key;
+    static const QString default_life_fitness_api_key;
+
+    static const QString life_fitness_token;
+    static const QString default_life_fitness_token;
+
+    static const QString life_fitness_preset_summary;
+    static const QString default_life_fitness_preset_summary;
+
+    static const QString life_fitness_guest_login;
+    static constexpr bool default_life_fitness_guest_login = false;
+
     static const QString technogym_bike;
     static constexpr bool default_technogym_bike = false;
 
@@ -936,6 +964,9 @@ class QZSettings {
 
     static const QString trainprogram_incline_max;
     static constexpr float default_trainprogram_incline_max = 15;
+
+    static const QString trainprogram_inclination_filter;
+    static constexpr float default_trainprogram_inclination_filter = 0.0;
 
     static const QString trainprogram_resistance_min;
     static constexpr float default_trainprogram_resistance_min = 1;
@@ -1163,6 +1194,16 @@ class QZSettings {
      */
     static const QString virtual_device_rower_pm5;
     static constexpr bool default_virtual_device_rower_pm5 = false;
+    /**
+     *@brief Gain applied to the stroke rate advertised by the virtual rower.
+     */
+    static const QString virtual_device_rower_cadence_gain;
+    static constexpr double default_virtual_device_rower_cadence_gain = 1.0;
+    /**
+     *@brief Offset applied to the stroke rate advertised by the virtual rower.
+     */
+    static const QString virtual_device_rower_cadence_offset;
+    static constexpr double default_virtual_device_rower_cadence_offset = 0.0;
     /**
      *@brief Used to force a non-bike device to be presented to client apps as a bike.
      */
@@ -1842,6 +1883,9 @@ class QZSettings {
     static const QString kettler_usb_baudrate;
     static constexpr int default_kettler_usb_baudrate = 9600;
 
+    static const QString daum_serialport;
+    static const QString default_daum_serialport;
+
     static const QString freebeat_serialport;
     static const QString default_freebeat_serialport;
 
@@ -2428,6 +2472,9 @@ class QZSettings {
     static const QString dircon_id;
     static constexpr int default_dircon_id = 0;
 
+    static const QString rouvy_virtual_gearing_profile;
+    static constexpr int default_rouvy_virtual_gearing_profile = 0;
+
     static const QString rouvy_compatibility;
     static constexpr bool default_rouvy_compatibility = false;
 
@@ -2500,6 +2547,12 @@ class QZSettings {
 
     static const QString proform_treadmill_575i;
     static constexpr bool default_proform_treadmill_575i = false;
+
+    static const QString proform_treadmill_sport_55;
+    static constexpr bool default_proform_treadmill_sport_55 = false;
+
+    static const QString proform_treadmill_sport_6_0;
+    static constexpr bool default_proform_treadmill_sport_6_0 = false;
 
     static const QString zwift_play_emulator;
     static constexpr bool default_zwift_play_emulator = false;
@@ -2753,6 +2806,34 @@ class QZSettings {
 
     static const QString domyos_elliptical_fmts;
     static constexpr bool default_domyos_elliptical_fmts = false;
+		
+        // Trixter X-Dream Bike Settings
+    static const QString trixter_xdream_bike_enabled;
+    static constexpr bool default_trixter_xdream_bike_enabled = false;
+
+    static const QString trixter_xdream_bike_heartrate_enabled;
+    static constexpr bool default_trixter_xdream_bike_heartrate_enabled = true;
+
+    static const QString trixter_xdream_bike_steering_enabled;
+    static constexpr bool default_trixter_xdream_bike_steering_enabled= true;
+
+    static const QString trixter_xdream_bike_steering_max;
+    static constexpr int8_t default_trixter_xdream_bike_steering_max= 45;
+
+    static const QString trixter_xdream_bike_steering_l;
+    static constexpr int8_t default_trixter_xdream_bike_steering_l = -default_trixter_xdream_bike_steering_max;
+
+    static const QString trixter_xdream_bike_steering_cl;
+    static constexpr int8_t default_trixter_xdream_bike_steering_cl=-2;
+
+    static const QString trixter_xdream_bike_steering_cr;
+    static constexpr int8_t default_trixter_xdream_bike_steering_cr= 2;
+
+    static const QString trixter_xdream_bike_steering_r;
+    static constexpr int8_t default_trixter_xdream_bike_steering_r = default_trixter_xdream_bike_steering_max;
+
+    static const QString trixter_xdream_bike_connection_timeout_ms;
+    static constexpr uint32_t default_trixter_xdream_bike_connection_timeout_ms= 500;
 
     static const QString proform_xbike;
     static constexpr bool default_proform_xbike = false;
@@ -3323,6 +3404,8 @@ class QZSettings {
     static constexpr bool default_proform_carbon_tl_PFTL59723_6 = false;
     static const QString proform_treadmill_cst_505_pftl59420_0;
     static constexpr bool default_proform_treadmill_cst_505_pftl59420_0 = false;
+    static const QString proform_treadmill_cst_505_pftl59420_2026;
+    static constexpr bool default_proform_treadmill_cst_505_pftl59420_2026 = false;
     static const QString proform_treadmill_105_cst;
     static constexpr bool default_proform_treadmill_105_cst = false;
     static const QString proform_treadmill_305_cst;
@@ -3369,6 +3452,8 @@ class QZSettings {
     static const QString zwiftplay_gear_rb; // Ride On (RB)
     static constexpr int default_zwiftplay_gear_rb = 0; // Disabled
 
+    static const QString ios_background_keepalive;
+    static constexpr bool default_ios_background_keepalive = false;
     static const QString renpho_bike_knob_gears;
     static constexpr bool default_renpho_bike_knob_gears = false;
 
@@ -3386,6 +3471,99 @@ class QZSettings {
     // is kept as a spare: changing the default of an existing setting corrupts the iOS settings file.
     static const QString android_notification_v2;
     static constexpr bool default_android_notification_v2 = true;
+
+    // Size of the text of the app (not the tiles), in percent (80-170), used when ui_text_scale_system is off
+    static const QString ui_text_scale;
+    static constexpr int default_ui_text_scale = 100;
+
+    // Android and iOS: the text of the app follows the system text size instead of ui_text_scale
+    static const QString ui_text_scale_system;
+    static constexpr bool default_ui_text_scale_system = true;
+
+    // With treadmill_direct_distance: add only the increase of the treadmill distance counter, so a counter
+    // already running when QZ connects, or reset on the treadmill during the workout, does not change the
+    // workout distance. Off: the counter is the workout distance, as before
+    static const QString treadmill_direct_distance_increment;
+    static constexpr bool default_treadmill_direct_distance_increment = false;
+
+    // Chart positions in the Workout History preview.
+    static const QString history_chart_power_order;
+    static constexpr int default_history_chart_power_order = 0;
+    static const QString history_chart_heart_order;
+    static constexpr int default_history_chart_heart_order = 1;
+    static const QString history_chart_resistance_order;
+    static constexpr int default_history_chart_resistance_order = 2;
+    static const QString history_chart_peloton_resistance_order;
+    static constexpr int default_history_chart_peloton_resistance_order = 3;
+    static const QString history_chart_cadence_order;
+    static constexpr int default_history_chart_cadence_order = 4;
+    static const QString history_chart_power_distribution_order;
+    static constexpr int default_history_chart_power_distribution_order = 5;
+    static const QString history_chart_speed_inclination_order;
+    static constexpr int default_history_chart_speed_inclination_order = 6;
+
+    static const QString moovio_lynx_konect_2_0;
+    static constexpr bool default_moovio_lynx_konect_2_0 = false;
+
+    // The background search of the first 5 minutes while no heart rate comes: connects the chosen sensor or, with
+    // none chosen, offers one found nearby. Off by default (a tap on the heart rate tile or the Bluetooth icon
+    // searches anyway); "Don't ask again" on its bar turns it off
+    static const QString heart_rate_belt_suggest;
+    static constexpr bool default_heart_rate_belt_suggest = false;
+
+    // The debug log of a new user: on until the first workout with data, 7 days at most. Decided once, at the
+    // first start of a QZ that has never connected a device (homeform::startFirstSetupLog()); log_debug and its
+    // switch stay as they are
+    static const QString log_debug_first_setup;
+    static constexpr bool default_log_debug_first_setup = false;
+    // the day the first-setup log was turned on (ISO date), for the 7 days
+    static const QString log_debug_first_setup_since;
+    static const QString default_log_debug_first_setup_since;
+
+    // The modern look of the interface (main.qml window.ui), off by default: with it off every page
+    // keeps its classic look. The theme, the accent and the theme mode apply to the modern look only
+    static const QString ui_modern;
+    static constexpr bool default_ui_modern = false;
+    // colour set of the modern look: graphite, oled, midnight
+    static const QString ui_theme;
+    static const QString default_ui_theme;
+    // accent colour of the modern look: violet, blue, teal, green, orange, pink
+    static const QString ui_accent;
+    static const QString default_ui_accent;
+    // auto (follows the night mode of the phone), dark, light
+    static const QString ui_theme_mode;
+    static const QString default_ui_theme_mode;
+
+    // The user answered whether QZ may write the wheel circumference of a Wahoo trainer (asked at the
+    // first connection). Written at the first discovery of a Wahoo trainer: true when that trainer
+    // already was the last device, so it was connected before the question existed
+    static const QString wahoo_wheel_question_answered;
+    static constexpr bool default_wahoo_wheel_question_answered = false;
+
+    // Optional synthetic coordinates for virtual FIT activities (no real GPS).
+    static const QString strava_synthetic_gps_track;
+    static constexpr bool default_strava_synthetic_gps_track = false;
+
+    // Use FTMS 16-bit resistance levels multiplied by 10 for compatible trainers.
+    static const QString resistance_compatibility;
+    static constexpr bool default_resistance_compatibility = false;
+
+    // Treadmill calories from a published walking/running energy model (belt speed, incline,
+    // weight, height, age, sex) instead of the generic power formula.
+    static const QString treadmill_calories_model;
+    static constexpr bool default_treadmill_calories_model = false;
+
+    // The modern look for a new install, decided once, at the first start of a QZ with this code
+    // (homeform::startModernForNewInstall()): a QZ that has never connected a device turns ui_modern on, any
+    // other one is asked once instead (ui_modern_offer_pending). Set after that start, so the decision is not
+    // taken again, even when the user goes back to the classic look. Both are in allSettings like any other
+    // setting: a new profile with the default settings (restoreAll()) clears them with the rest, and the next
+    // start decides again on those default settings
+    static const QString ui_modern_new_install_checked;
+    static constexpr bool default_ui_modern_new_install_checked = false;
+    // The question "Try the new interface?" on the home page is still to be asked: cleared by the answer
+    static const QString ui_modern_offer_pending;
+    static constexpr bool default_ui_modern_offer_pending = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

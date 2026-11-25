@@ -58,13 +58,27 @@ for attempt in 1 2; do
     # the clients of their providers too ("depends on provider ... in dying proc"): start again then.
     # A real crash happens on the second start as well and fails the test.
     sleep 30
-    if [ -n "$(app_pid)" ]; then
+    # the same process: Android may start QZ again in the background for a service of a library
+    if [ "$(app_pid)" = "$PID" ]; then
       adb shell "ps -A 2>/dev/null || ps" > process_list.txt
       echo "App is running successfully"
       exit 0
     fi
     echo "App process $PID died within 30 s after the start:"
     adb logcat -d | grep -E "Killing $PID:|Process $PKG \(pid $PID\)|FATAL EXCEPTION|Fatal signal" | tail -n 20
+    # Only a kill by Android is started again; a crash of QZ itself fails, even if a second start would live.
+    # A native crash: "Fatal signal ... pid <pid> (" of libc from API 28, and on every API level the line of
+    # the crash dump, "pid: <pid>, tid: ... >>> <package> <<<" (the libc line of API 24 and 26 has no pid)
+    if adb logcat -d | grep -F -e "pid $PID (" -e "pid: $PID, tid:" -e "Process: $PKG, PID: $PID" \
+        | grep -q -F -e "Fatal signal" -e ">>> $PKG <<<" -e "Process: $PKG"; then
+      fail "QZ crashed within 30 s after the start"
+    fi
+    # Not responding: "ANR in <package> (...)", then "PID: <pid>" on the next line. With
+    # hide_error_dialogs set by an earlier test Android kills the app without a dialog
+    if adb logcat -d | tr -d '\r' | awk -v p="ANR in $PKG" -v id="$PID" \
+        'index($0, p) { a = 1; next } a { if ($(NF - 1) == "PID:" && $NF == id) f = 1; a = 0 } END { exit !f }'; then
+      fail "QZ stopped responding within 30 s after the start"
+    fi
   else
     echo "App process not found after ${WAIT}s"
   fi

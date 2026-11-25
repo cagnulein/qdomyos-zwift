@@ -14,6 +14,19 @@ TEST(QZSettingsSecurityTest, FiltersSensitiveKeysUsedByStartupSettingsLog) {
         QStringLiteral("ZWIFT_PASSWORD"),
         QStringLiteral("/MQTT_TOKEN"),
         QStringLiteral("cryptoKeySettingsProfiles"),
+        QStringLiteral("life_fitness_first_name"),
+        QStringLiteral("life_fitness_last_name"),
+        QStringLiteral("life_fitness_username"),
+        QStringLiteral("life_fitness_password"),
+        QStringLiteral("life_fitness_api_key"),
+        QStringLiteral("life_fitness_token"),
+        QStringLiteral("life_fitness_preset_summary"),
+        QStringLiteral("life_fitness_oauth_token"),
+        QStringLiteral("life_fitness_oauth2_token"),
+        QStringLiteral("life_fitness_oauth_token_secret"),
+        QStringLiteral("life_fitness_oauth2_token_expiry"),
+        QStringLiteral("life_fitness_email"),
+        QStringLiteral("life_fitness_device_id"),
     };
 
     for (const QString &key : sensitiveKeys) {

@@ -1,4 +1,5 @@
 #include "virtualdevices/virtualrower.h"
+#include "virtualdevices/virtualrowercadence.h"
 #include "devices/echelonrower/echelonrower.h"
 #include "qsettings.h"
 #include "qzsettings.h"
@@ -99,6 +100,10 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
 
     this->noHeartService = noHeartService;
 
+    // the virtual rower is Bluetooth only: without an adapter there is nothing to start
+    if (noBluetoothAdapter())
+        return;
+
     QSettings settings;
     bool heart_only =
         settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
@@ -108,7 +113,16 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
 
     // Check if PM5 mode is enabled
     pm5Mode = settings.value(QZSettings::virtual_device_rower_pm5, QZSettings::default_virtual_device_rower_pm5).toBool();
-    qDebug() << "virtualrower PM5 mode:" << pm5Mode;
+    virtualRowerCadenceGain =
+        settings.value(QZSettings::virtual_device_rower_cadence_gain,
+                       QZSettings::default_virtual_device_rower_cadence_gain)
+            .toDouble();
+    virtualRowerCadenceOffset =
+        settings.value(QZSettings::virtual_device_rower_cadence_offset,
+                       QZSettings::default_virtual_device_rower_cadence_offset)
+            .toDouble();
+    qDebug() << "virtualrower PM5 mode:" << pm5Mode << "cadence gain:" << virtualRowerCadenceGain
+             << "cadence offset:" << virtualRowerCadenceOffset;
 
     Q_UNUSED(noWriteResistance)
 
@@ -426,6 +440,10 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         rowerTimer.start(1s);
 
     //! [Provide Heartbeat]
+    QObject::connect(leController, &QLowEnergyController::connected, this, [this]() {
+        ftmsDistance = FtmsDistance{};
+        ftmsStrokeCount = FtmsStrokeCount{};
+    });
     QObject::connect(leController, &QLowEnergyController::disconnected, this, &virtualrower::reconnect);
     QObject::connect(
         leController,
@@ -752,6 +770,48 @@ void virtualrower::reconnect() {
 
 }
 
+QByteArray virtualrower::FtmsDistance::field(bluetoothdevice &device) {
+    const double rawKm = qMax(0.0, device.odometerFromStartup());
+    if (!initialized) {
+        // Preserve the workout distance when a client first connects.
+        totalKm = qMax(0.0, device.odometer());
+        initialized = true;
+    } else {
+        // A reset of the hardware counter starts a new baseline without subtracting distance.
+        totalKm += qMax(0.0, rawKm - lastRawKm);
+    }
+    lastRawKm = rawKm;
+    const uint32_t distance = static_cast<uint32_t>(totalKm * 1000.0);
+    QByteArray field;
+    field.append(static_cast<char>(distance & 0xFF));
+    field.append(static_cast<char>((distance >> 8) & 0xFF));
+    field.append(static_cast<char>((distance >> 16) & 0xFF));
+    return field;
+}
+
+QByteArray virtualrower::FtmsStrokeCount::field(metric strokes, uint32_t fallback) {
+    const double raw = qMax(0.0, strokes.valueRaw());
+    uint32_t count = fallback;
+    if (initialized || raw > 0.0) {
+        if (!initialized) {
+            // Match the current workout count when the FTMS client connects.
+            total = qMax(0.0, strokes.value());
+            initialized = true;
+        } else {
+            // A local workout reset changes the offset, not the raw counter.
+            // A hardware counter reset must not subtract already sent strokes.
+            total += qMax(0.0, raw - lastRaw);
+        }
+        lastRaw = raw;
+        count = static_cast<uint32_t>(total);
+    }
+
+    QByteArray field;
+    field.append(static_cast<char>(count & 0xFF));
+    field.append(static_cast<char>((count >> 8) & 0xFF));
+    return field;
+}
+
 void virtualrower::rowerProvider() {
 
     QSettings settings;
@@ -765,20 +825,29 @@ void virtualrower::rowerProvider() {
         normalizeWattage = 0;
 
     uint16_t normalizeSpeed = (uint16_t)qRound(Rower->currentSpeed().value() * 100);
+    const double virtualCadence =
+        virtualrowercadence::transform(Rower->currentCadence().value(), virtualRowerCadenceGain, virtualRowerCadenceOffset);
+    const uint16_t virtualFtmsStrokeRate =
+        static_cast<uint16_t>(qBound(0.0, virtualCadence, 127.5) * 2.0);
+    // FTMS encodes stroke rate in 0.5 SPM units; PM5/iOS PM5 uses whole SPM.
+    const uint16_t virtualPm5StrokeRate = static_cast<uint16_t>(qBound(0.0, virtualCadence, 255.0));
+    const uint16_t virtualOutputCadence = pm5Mode ? virtualPm5StrokeRate : virtualFtmsStrokeRate;
 
     // Get stroke count based on device type
+    metric strokes;
     uint32_t strokeCount = 0;
     if (Rower->deviceType() == ROWING) {
-        strokeCount = ((rower *)Rower)->currentStrokesCount().value();
+        strokes = static_cast<rower *>(Rower)->currentStrokesCount();
+        strokeCount = strokes.value();
     }
     // If the device doesn't expose stroke count, estimate from cadence × elapsed time.
     // MyWhoosh drives avatar arm animation from an incrementing stroke count, not stroke rate,
     // so a perpetual zero keeps the avatar frozen even when stroke rate is non-zero.
-    if (strokeCount == 0 && Rower->currentCadence().value() > 0) {
+    if (strokeCount == 0 && virtualCadence > 0) {
         double totalSeconds = Rower->movingTime().hour() * 3600.0 +
                               Rower->movingTime().minute() * 60.0 +
                               Rower->movingTime().second();
-        strokeCount = (uint32_t)(Rower->currentCadence().value() * totalSeconds / 60.0);
+        strokeCount = (uint32_t)(virtualCadence * totalSeconds / 60.0);
     }
 
     // Get pace based on device type
@@ -799,7 +868,7 @@ void virtualrower::rowerProvider() {
     if (h) {
         // really connected to a device
         if (h->virtualrower_updateFTMS(
-                normalizeSpeed, (char)Rower->currentResistance().value(), (uint16_t)Rower->currentCadence().value() * 2,
+                normalizeSpeed, (char)Rower->currentResistance().value(), virtualOutputCadence,
                 (uint16_t)normalizeWattage, Rower->currentCrankRevolutions(), Rower->lastCrankEventTime(),
                 strokeCount, Rower->odometer() * 1000, Rower->calories().value(),
                 paceSecs, static_cast<uint8_t>(Rower->deviceType()))) {
@@ -944,14 +1013,11 @@ void virtualrower::rowerProvider() {
             value.append((char)0x2C);
             value.append((char)0x03);
 
-            value.append((char)((uint8_t)(Rower->currentCadence().value() * 2) & 0xFF)); // Stroke Rate
+            value.append((char)(virtualFtmsStrokeRate & 0xFF)); // Stroke Rate
 
-            value.append((char)((uint16_t)(strokeCount & 0xFF)));        // Stroke Count
-            value.append((char)(((uint16_t)(strokeCount >> 8) & 0xFF))); // Stroke Count
+            value.append(ftmsStrokeCount.field(strokes, strokeCount));
 
-            value.append((char)(((uint16_t)(Rower->odometer() * 1000.0)) & 0xFF));       // Distance
-            value.append((char)(((uint16_t)(Rower->odometer() * 1000.0) >> 8) & 0xFF));  // Distance
-            value.append((char)(((uint16_t)(Rower->odometer() * 1000.0) >> 16) & 0xFF)); // Distance
+            value.append(ftmsDistance.field(*Rower));
 
             value.append((char)((uint16_t)(paceSecs & 0xFF)));      // pace
             value.append((char)(((uint16_t)(paceSecs >> 8) & 0xFF))); // pace
@@ -1363,8 +1429,11 @@ QByteArray virtualrower::buildPM5AdditionalStatus() {
     value[3] = (char)(speedMillimetersPerSec & 0xFF);
     value[4] = (char)((speedMillimetersPerSec >> 8) & 0xFF);
 
-    // Stroke Rate (strokes per minute)
-    value[5] = (uint8_t)Rower->currentCadence().value();
+    // Stroke Rate (strokes per minute), transformed only for the virtual output.
+    value[5] = (uint8_t)qBound(0.0,
+                               virtualrowercadence::transform(Rower->currentCadence().value(), virtualRowerCadenceGain,
+                                                              virtualRowerCadenceOffset),
+                               255.0);
 
     // Heart Rate
     value[6] = (uint8_t)Rower->currentHeart().value();
@@ -1528,7 +1597,8 @@ QByteArray virtualrower::buildPM5StrokeData() {
 
     // Stroke Recovery Time in 0.01 sec units (16-bit LE)
     // Calculate from stroke rate: if 24 SPM, stroke time = 2.5s, recovery = 2.5 - 0.8 = 1.7s
-    double strokeRate = Rower->currentCadence().value();
+    double strokeRate =
+        virtualrowercadence::transform(Rower->currentCadence().value(), virtualRowerCadenceGain, virtualRowerCadenceOffset);
     uint16_t recoveryTime = 170; // Default 1.7 seconds
     if (strokeRate > 0) {
         double strokeTime = 60.0 / strokeRate; // seconds per stroke
@@ -1623,7 +1693,8 @@ QByteArray virtualrower::buildPM5AdditionalStrokeData() {
     value[4] = (char)((strokePower >> 8) & 0xFF);
 
     // Stroke Calories (16-bit LE) - calories per stroke
-    double strokeRate = Rower->currentCadence().value();
+    double strokeRate =
+        virtualrowercadence::transform(Rower->currentCadence().value(), virtualRowerCadenceGain, virtualRowerCadenceOffset);
     uint16_t strokeCalories = 0;
     if (strokeRate > 0) {
         double totalCalories = Rower->calories().value();

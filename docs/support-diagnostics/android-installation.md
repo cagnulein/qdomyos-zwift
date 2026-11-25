@@ -6,7 +6,7 @@
 
 - The exact fitness machine make and model.
 - Whether QZ is running on the machine's built-in Android console/tablet or on a separate Android device.
-- The Android version, if known.
+- The Android version, if known. For an embedded console, also report its CPU architecture (for example, 32-bit ARM) and whether Google Play Services/Play Store are present.
 - The exact APK filename or download link that was installed, and whether it came from Google Play, a QZ GitHub release/nightly, or another source.
 - Describe what happens from launch through the failure, including whether the problem starts after a permission request or restart.
 
@@ -14,7 +14,7 @@
 
 - Confirm that any previous QZ installation was removed before installing the intended build, including clearing its app data/cache when appropriate.
 - Provide a screenshot or photo of the error shown by Android.
-- If the app still exits or crashes, collect an Android bug report/crash report in addition to any QZ debug log that can be produced before the failure.
+- If the app still exits or crashes, collect an Android bug report/crash report in addition to any QZ debug log that can be produced before the failure. Include the exact fatal signal/exception, native library and stack trace from logcat if available; note whether the crash follows Bluetooth permission dialogs or activity recreation.
 
 ### Why it matters
 
@@ -47,17 +47,17 @@
 
 - Exact treadmill and console model, Android version, QZ build, and whether QZ is installed directly on the console.
 - State whether the console itself displays changing speed or incline while QZ remains at zero; distinguish physical treadmill buttons from QZ buttons.
-- Confirm whether the manufacturer's dashboard or an overlay remains running when QZ starts, and whether QZ is expected to use a serial/UART connection rather than Bluetooth.
+- Confirm whether the manufacturer's dashboard or an overlay remains running when QZ starts, and whether QZ is expected to use **USB-HID (FitPro)**, **gRPC via iFIT**, serial/UART, or Bluetooth. For NordicTrack/ProForm, provide the exact APK variant rather than assuming every on-console QZ build has the same requirements.
 
 ### If still unclear
 
-- Run a short controlled test with QZ in the foreground and the manufacturer application stopped, where safe and supported; note if the manufacturer overlay reappears after pressing Start.
+- Run a short controlled test with QZ in the foreground and the manufacturer application stopped **only if using a direct-access build that requires it**, where safe and supported; note if the manufacturer overlay reappears after pressing Start. For a **gRPC** build, iFIT instead needs to be running; do not stop it as part of this test.
 - Share the relevant QZ machine-specific setting and a debug log covering startup plus a single speed or incline change.
-- If ADB access is available, report whether the manufacturer app/service restarts or continues to hold the serial port. Do not disable safety controls or permanently remove system packages.
+- If ADB access is available, report whether the manufacturer app/service restarts or continues to hold the USB or serial interface. If Android settings become inaccessible or iFIT relaunches immediately after Force Stop, report that behavior before requesting further intervention. Do not disable safety controls or permanently remove system packages.
 
 ### Why it matters
 
-- A proprietary console may show live values through its own application while QZ cannot read the shared serial interface.
+- A proprietary console may show live values through its own application while QZ cannot read the shared USB-HID or serial interface. FitPro and gRPC builds have **opposite iFIT-state requirements**, so confirming the build and whether iFIT reclaims control is essential.
 - Physical controls, QZ commands, and telemetry are separate paths; testing them independently avoids mistaking a port-ownership conflict for an external training-app problem.
 - A startup log and the manufacturer's app state distinguish serial access contention from missing decoding or control support.
 

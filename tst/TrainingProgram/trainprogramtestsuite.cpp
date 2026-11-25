@@ -50,6 +50,18 @@ void TrainProgramTestSuite::test_heartRateThresholdBarrierBlocksSkippedZeroDurat
         << "A zero-duration heart-rate threshold row must block the transition to the later timed row.";
 }
 
+void TrainProgramTestSuite::test_gpxInclinationFilterIsDisabledAtZero() {
+    EXPECT_TRUE(trainprogram::shouldSendGpxInclination(1.0, 1.0, 0.0));
+}
+
+void TrainProgramTestSuite::test_gpxInclinationFilterSuppressesSmallChanges() {
+    EXPECT_FALSE(trainprogram::shouldSendGpxInclination(1.0, 1.49, 0.5));
+}
+
+void TrainProgramTestSuite::test_gpxInclinationFilterAllowsThresholdChanges() {
+    EXPECT_TRUE(trainprogram::shouldSendGpxInclination(1.0, 1.5, 0.5));
+}
+
 void TrainProgramTestSuite::test_pidHrModeRoundTripsKnownValues() {
     EXPECT_EQ(trainprogram::pidHrModeFromString(QStringLiteral("default")), treadmill_pid_hr_mode::Default);
     EXPECT_EQ(trainprogram::pidHrModeFromString(QStringLiteral("speed")), treadmill_pid_hr_mode::Speed);
@@ -85,4 +97,29 @@ void TrainProgramTestSuite::test_pidHrModeAndMaxInclinationRoundTripThroughXml()
     ASSERT_EQ(loaded.size(), 1);
     EXPECT_EQ(loaded.first().pidHrMode, treadmill_pid_hr_mode::Inclination);
     EXPECT_DOUBLE_EQ(loaded.first().maxInclination, 12.5);
+}
+
+void TrainProgramTestSuite::test_ziproShredHighInclineXmlValuesArePreserved() {
+    QTemporaryDir temporaryDir;
+    ASSERT_TRUE(temporaryDir.isValid());
+    QList<trainrow> rows;
+    for (double incline : {5.0, 15.0, 22.0, 25.0, 40.0}) {
+        trainrow row;
+        row.duration = QTime(0, 0, 30);
+        row.speed = 3.0;
+        row.inclination = incline;
+        row.zoneHR = 0;
+        row.forcespeed = true;
+        rows.append(row);
+    }
+    const QString filename = temporaryDir.filePath(QStringLiteral("zipro-shred-high-incline.xml"));
+    ASSERT_TRUE(trainprogram::saveXML(filename, rows, TREADMILL));
+    const QList<trainrow> loaded = trainprogram::loadXML(filename, TREADMILL);
+    ASSERT_EQ(loaded.size(), rows.size());
+    for (int i = 0; i < rows.size(); ++i) {
+        EXPECT_DOUBLE_EQ(loaded.at(i).inclination, rows.at(i).inclination);
+        EXPECT_DOUBLE_EQ(loaded.at(i).speed, 3.0);
+        EXPECT_TRUE(loaded.at(i).forcespeed);
+        EXPECT_EQ(loaded.at(i).zoneHR, 0);
+    }
 }

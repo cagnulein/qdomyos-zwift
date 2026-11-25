@@ -1,4 +1,5 @@
 #include "templateinfosenderbuilder.h"
+#include "localipaddress.h"
 #include "webtranslation.h"
 #include "devices/bike.h"
 #include "treadmill.h"
@@ -236,11 +237,8 @@ void TemplateInfoSenderBuilder::load(const QString &idInfo, const QStringList &f
     if (!globalFolderList.isEmpty()) {
         QStringList addressList;
         qDebug() << QStringLiteral("Folder List") << globalFolderList;
-        const QHostAddress &localhost = QHostAddress(QHostAddress::LocalHost);
-        for (auto &address : QNetworkInterface::allAddresses()) {
-            if (address.protocol() == QAbstractSocket::IPv4Protocol && address != localhost) {
-                addressList += address.toString();
-            }
+        for (const QHostAddress &address : localipaddress::allIPv4()) {
+            addressList += address.toString();
         }
         qDebug() << QStringLiteral("addressList ") << addressList;
         QString templateId = idInfo + "_" + QStringLiteral(TEMPLATE_PRIVATE_WEBSERVER_ID);
@@ -1037,10 +1035,24 @@ void TemplateInfoSenderBuilder::onGetPreviewSessionArray(TemplateInfoSender *tem
     tempSender->send(out.toJson());
 }
 
-void TemplateInfoSenderBuilder::onGetSessionArray(TemplateInfoSender *tempSender) {
+void TemplateInfoSenderBuilder::onGetSessionArray(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     QJsonObject main;
-    main[QStringLiteral("content")] = sessionArray;
-    main[QStringLiteral("msg")] = QStringLiteral("R_getsessionarray");
+    // {"from": n} asks only for the points from index n on (the live update of the charts page):
+    // the whole session of a long workout is megabytes. A part has its own answer name with
+    // "from": the answer goes to every open page, and the other pages take R_getsessionarray
+    // as the whole session
+    int from = msgContent.toObject().value(QStringLiteral("from")).toInt(-1);
+    if (from >= 0 && from <= sessionArray.size()) {
+        QJsonArray part;
+        for (int i = from; i < sessionArray.size(); i++)
+            part.append(sessionArray.at(i));
+        main[QStringLiteral("content")] = part;
+        main[QStringLiteral("from")] = from;
+        main[QStringLiteral("msg")] = QStringLiteral("R_getsessionarraypart");
+    } else {
+        main[QStringLiteral("content")] = sessionArray;
+        main[QStringLiteral("msg")] = QStringLiteral("R_getsessionarray");
+    }
     QJsonDocument out(main);
     tempSender->send(out.toJson());
 }
@@ -1361,6 +1373,7 @@ void TemplateInfoSenderBuilder::onDeleteTrainingProgram(const QJsonValue &msgCon
             if (markerFile.open(QIODevice::WriteOnly)) {
                 markerFile.write("This file was intentionally deleted by the user");
                 markerFile.close();
+                homeform::hideDeletionMarker(markerPath);
                 qDebug() << "onDeleteTrainingProgram: created deletion marker at" << markerPath;
             } else {
                 qDebug() << "onDeleteTrainingProgram: failed to create deletion marker at" << markerPath;
@@ -1692,7 +1705,7 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                     onAutoresistance(jsonObject[QStringLiteral("content")], sender);
                     return;
                 } else if (msg == QStringLiteral("getsessionarray")) {
-                    onGetSessionArray(sender);
+                    onGetSessionArray(jsonObject[QStringLiteral("content")], sender);
                     return;
                 } else if (msg == QStringLiteral("getpreviewsessionarray")) {
                     onGetPreviewSessionArray(sender);

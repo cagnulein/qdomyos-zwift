@@ -329,6 +329,6 @@ void eliteariafan::controllerStateChanged(QLowEnergyController::ControllerState 
         initRequest = false;
         initDone = false;
 
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

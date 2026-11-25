@@ -616,6 +616,6 @@ void pitpatbike::controllerStateChanged(QLowEnergyController::ControllerState st
         initDone = false;
         legacyProtocol = false;
         sec1Update = 0;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

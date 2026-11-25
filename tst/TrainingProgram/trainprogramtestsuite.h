@@ -9,9 +9,13 @@ public:
     void test_lapButtonBarrierFindsRowBeforeWorkoutEnd();
     void test_lapButtonBarrierIgnoresRowsOutsideCandidateRange();
     void test_heartRateThresholdBarrierBlocksSkippedZeroDurationRow();
+    void test_gpxInclinationFilterIsDisabledAtZero();
+    void test_gpxInclinationFilterSuppressesSmallChanges();
+    void test_gpxInclinationFilterAllowsThresholdChanges();
     void test_pidHrModeRoundTripsKnownValues();
     void test_pidHrModeWorkoutOverrideTakesPrecedence();
     void test_pidHrModeAndMaxInclinationRoundTripThroughXml();
+    void test_ziproShredHighInclineXmlValuesArePreserved();
 };
 
 TEST_F(TrainProgramTestSuite, LapButtonBarrierBlocksSkippedZeroDurationRow) {
@@ -30,6 +34,18 @@ TEST_F(TrainProgramTestSuite, HeartRateThresholdBarrierBlocksSkippedZeroDuration
     this->test_heartRateThresholdBarrierBlocksSkippedZeroDurationRow();
 }
 
+TEST_F(TrainProgramTestSuite, GpxInclinationFilterIsDisabledAtZero) {
+    this->test_gpxInclinationFilterIsDisabledAtZero();
+}
+
+TEST_F(TrainProgramTestSuite, GpxInclinationFilterSuppressesSmallChanges) {
+    this->test_gpxInclinationFilterSuppressesSmallChanges();
+}
+
+TEST_F(TrainProgramTestSuite, GpxInclinationFilterAllowsThresholdChanges) {
+    this->test_gpxInclinationFilterAllowsThresholdChanges();
+}
+
 TEST_F(TrainProgramTestSuite, PidHrModeRoundTripsKnownValues) {
     this->test_pidHrModeRoundTripsKnownValues();
 }
@@ -40,6 +56,10 @@ TEST_F(TrainProgramTestSuite, PidHrModeWorkoutOverrideTakesPrecedence) {
 
 TEST_F(TrainProgramTestSuite, PidHrModeAndMaxInclinationRoundTripThroughXml) {
     this->test_pidHrModeAndMaxInclinationRoundTripThroughXml();
+}
+
+TEST_F(TrainProgramTestSuite, ZiproShredHighInclineXmlValuesArePreserved) {
+    this->test_ziproShredHighInclineXmlValuesArePreserved();
 }
 
 #endif // TRAINPROGRAMTESTSUITE_H

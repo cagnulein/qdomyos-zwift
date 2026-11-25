@@ -21,7 +21,7 @@ ios: {
         src/qdomyos-zwift.pro
     
     # Team signing configuration
-    QMAKE_IOS_DEPLOYMENT_TARGET = 12.0
+    QMAKE_IOS_DEPLOYMENT_TARGET = 15.0
     QMAKE_DEVELOPMENT_TEAM = 6335M7T29D
     QMAKE_CODE_SIGN_IDENTITY = "iPhone Developer"
     QMAKE_CODE_SIGN_STYLE = Automatic

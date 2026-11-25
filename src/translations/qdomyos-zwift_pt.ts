@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="pt_PT">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Fechar</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -61,12 +68,83 @@
         <translation>Filtro</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Pasta acima</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Abrir</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Não há arquivos GPX aqui</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Distância %1 km Ganho de elevação: %2 metros</translation>
     </message>
     <message>
         <source>Other folders</source>
         <translation>Outras pastas</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Restaurar arquivos</translation>
+    </message>
+</context>
+<context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Sensor de FC encontrado: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Sensores de FC encontrados: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Conectar</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Escolher</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Agora não</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Não perguntar novamente</translation>
+    </message>
+    <message>
+        <source>Strong signal</source>
+        <translation>Sinal forte</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Sinal bom</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Sinal razoável</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Sinal fraco</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Escolha um sensor de FC</translation>
     </message>
 </context>
 <context>
@@ -90,6 +168,30 @@
     <message>
         <source>Do you really want to stop the current workout?</source>
         <translation>Tem certeza de que deseja parar o treino atual?</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Parar</translation>
+    </message>
+    <message>
+        <source>Auto Resistance is off</source>
+        <translation>A resistência automática está desligada</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>O QZ não está a alterar a resistência agora. «Aplicar»: os níveis dos mosaicos Resistência, Resist. alvo e das predefinições aplicam-se enquanto a resistência automática estiver desligada. Os comandos das apps (por exemplo, Zwift) continuam a ser ignorados.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Aplicar</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Ligar resistência automática</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
     </message>
     <message>
         <source>Rest</source>
@@ -185,7 +287,7 @@ Location Services are necessary on Android to allow the app to find Bluetooth de
 The GPS will not be used.
 
 Would you like to enable them?</source>
-        <translation>QZ requer que o Bluetooth e os serviços de localização estejam ativados.
+        <translation type="vanished">QZ requer que o Bluetooth e os serviços de localização estejam ativados.
 Os serviços de localização são necessários no Android para permitir que o aplicativo encontre dispositivos Bluetooth.
 O GPS não será usado.
 
@@ -197,7 +299,7 @@ Gostaria de ativá-los?</translation>
     </message>
     <message>
         <source>Would you like to be reminded about enabling Location Services next time?</source>
-        <translation>Deseja receber um lembrete para ativar os serviços de localização na próxima vez?</translation>
+        <translation type="vanished">Deseja receber um lembrete para ativar os serviços de localização na próxima vez?</translation>
     </message>
     <message>
         <source>Restart the app</source>
@@ -208,6 +310,14 @@ Gostaria de ativá-los?</translation>
 Would you like to do that now?</source>
         <translation>Para aplicar as alterações, você precisa reiniciar o aplicativo.
 Deseja fazer isso agora?</translation>
+    </message>
+    <message>
+        <source>Try the new interface?</source>
+        <translation>Quer experimentar a nova interface?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>O QZ tem um novo visual na tela principal, no menu lateral, nas configurações e no assistente. Você pode voltar ao anterior a qualquer momento em Configurações &gt; Opções gerais da interface.</translation>
     </message>
     <message>
         <source>Adjustable. Current value: </source>
@@ -232,6 +342,26 @@ Deseja fazer isso agora?</translation>
     <message>
         <source>Increase the value of </source>
         <translation>Aumentar o valor de </translation>
+    </message>
+    <message>
+        <source>QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.
+
+Would you like to enable the required services?</source>
+        <translation>O QZ precisa do Bluetooth ativado para detetar equipamentos de fitness. No Android 11 e versões anteriores, a deteção de dispositivos Bluetooth também requer a permissão de localização e os serviços de localização ativados. O QZ não utiliza os seus dados de localização. No Android 12 e versões posteriores, a permissão «Dispositivos próximos» permite detetar dispositivos Bluetooth sem acesso à localização.
+
+Pretende ativar os serviços necessários?</translation>
+    </message>
+    <message>
+        <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
+        <translation>Gostaria de receber um lembrete para ativar o Bluetooth ou os serviços de localização na próxima vez?</translation>
+    </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Devolver ao aplicativo</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Devolve o controle da carga ao aplicativo</translation>
     </message>
 </context>
 <context>
@@ -271,6 +401,26 @@ Deseja fazer isso agora?</translation>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>Este aplicativo deve conectar-se automaticamente à sua bicicleta/esteira/remo. &lt;b&gt;Se não conectar, verifique&lt;/b&gt;:&lt;br&gt;1) Seu aplicativo Echelon/Domyos deve estar fechado enquanto qdomyos-zwift estiver em execução;&lt;br&gt;2) O Bluetooth e as permissões de Bluetooth devem estar ativados&lt;br&gt;3) Sua bicicleta/esteira/remo deve estar ligada antes de iniciar este aplicativo&lt;br&gt;4) Tente reiniciar seu dispositivo&lt;br&gt;&lt;br&gt;Se sua bicicleta/esteira desconectar a cada 30 segundos, tente desativar a configuração &apos;dispositivo virtual&apos; na barra lateral.&lt;br&gt;&lt;br&gt;Em caso de problemas, sinta-se à vontade para entrar em contato comigo em roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Tenha um ótimo treino!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;O QZ se isenta especificamente de responsabilidade por&lt;br&gt;danos incidentais ou consequentes e não assume&lt;br&gt;nenhuma responsabilidade por qualquer perda&lt;br&gt;ou dano sofrido por qualquer pessoa como resultado de&lt;br&gt;uso ou mau uso do aplicativo.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Procurando seu equipamento…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Ligue a bicicleta, a esteira ou o remo: o QZ se conecta automaticamente.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Não conecta?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Equipamento não encontrado</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Ligue a bicicleta, a esteira ou o remo e toque no ícone Bluetooth no topo para procurar de novo.</translation>
     </message>
 </context>
 <context>
@@ -503,6 +653,22 @@ Deseja fazer isso agora?</translation>
         <translation>%1 (sensor de FC) conectado!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Procurando sensores de FC...</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Procurando %1 (sensor de FC)...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>%1 (sensor de FC) não encontrado. Verifique se está ligado e transmitindo a frequência cardíaca.</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (sensor de FC): sem frequência cardíaca. Verifique se está transmitindo a frequência cardíaca.</translation>
+    </message>
+    <message>
         <source>%1 (cadence sensor) connected!</source>
         <translation>%1 (sensor de cadência) conectado!</translation>
     </message>
@@ -537,6 +703,10 @@ Deseja fazer isso agora?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride conectado!</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Nenhum sensor de FC encontrado por perto. Verifique se está ligado e transmitindo a frequência cardíaca.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -1006,6 +1176,18 @@ Deseja atualizar as configurações do QZ?</translation>
         <source>Android notification enabled</source>
         <translation>Notificação do Android ativada</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 pronta</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>Falha ao inicializar a YPOO M5; é necessário reconectar</translation>
+    </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S conectado!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1116,8 +1298,24 @@ Deseja atualizar as configurações do QZ?</translation>
         <translation>Pasta de configurações</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Toque em um arquivo para selecioná-lo e depois em Carregar.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Carregar</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Nenhuma configuração salva</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Outras pastas</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Restaurar arquivos</translation>
     </message>
 </context>
 <context>
@@ -1145,6 +1343,84 @@ Deseja atualizar as configurações do QZ?</translation>
     <message>
         <source>Maximum: %1</source>
         <translation>Máximo: %1</translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Contactar o suporte do QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Preparar um e-mail de suporte com dados de diagnóstico</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Nenhum dispositivo ligado</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>A velocidade e a potência estão a zero</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Suporte do QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Concluído</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Ocultar teclado</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Fechar pedido de suporte</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Diga-nos o que não está a funcionar. O QZ adicionará informações sobre o dispositivo e a aplicação.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Descreva o problema...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Descreva o problema</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Anexar registo de depuração, se disponível</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Pode rever ou editar o e-mail antes de o enviar. Nada é enviado automaticamente.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Abrir e-mail</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Comprando...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Compra concluída</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Falha na compra</translation>
     </message>
 </context>
 <context>
@@ -1262,12 +1538,40 @@ Deseja atualizar as configurações do QZ?</translation>
         <translation>Pesquisar (recursivo)...</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Pasta acima</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Nenhum treino encontrado</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Não há treinos aqui</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Outras pastas</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Restaurar arquivos</translation>
+    </message>
+    <message>
+        <source>Restore programs</source>
+        <translation type="vanished">Restaurar programas</translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation>← Voltar</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>Mostrar menos</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Mostrar mais</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -1276,6 +1580,62 @@ Deseja atualizar as configurações do QZ?</translation>
     <message>
         <source>Start Workout</source>
         <translation>Iniciar treino</translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Sim</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Não</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>Restaurando arquivos da instalação anterior</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>Restaurando arquivos da instalação anterior: %1 de %2</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Expandido</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Recolhido</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>horas</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>minutos</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>segundos</translation>
     </message>
 </context>
 <context>
@@ -1504,6 +1864,16 @@ Deseja atualizar as configurações do QZ?</translation>
     <message>
         <source>Force Speed</source>
         <translation>Forçar velocidade</translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>Manter FC por meio de</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>Como definido</translation>
     </message>
     <message>
         <source>Fan</source>
@@ -1835,6 +2205,11 @@ Deseja atualizar as configurações do QZ?</translation>
         <translation>Inclinação (%)</translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>Em um gráfico:</translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation>Potência média</translation>
@@ -2036,6 +2411,18 @@ Deseja atualizar as configurações do QZ?</translation>
     <message>
         <source>1 Mile</source>
         <translation>1 milha</translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation>Tela cheia</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Sair da tela cheia</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Deslize para a esquerda ou direita para trocar de gráfico</translation>
     </message>
     <message>
         <source>Peloton Workout in progress!</source>
@@ -2371,6 +2758,18 @@ As seguintes perguntas personalizarão o QZ para o seu equipamento e objetivos.<
         <translation>Próximo</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>O seu equipamento, unidades e perfil, passo a passo</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Escolha um tema e vá direto para as configurações dele</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Fechar o assistente</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Configurações personalizadas</translation>
     </message>
@@ -2662,7 +3061,7 @@ As seguintes perguntas personalizarão o QZ para o seu equipamento e objetivos.<
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Processando arquivos de treino...
+        <translation type="vanished">Processando arquivos de treino...
 Isso pode levar alguns instantes na primeira inicialização.</translation>
     </message>
     <message>
@@ -2718,6 +3117,10 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <translation>Todos os arquivos (*)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Compartilhar arquivo FIT</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>Enviar ao Strava</translation>
     </message>
@@ -2748,6 +3151,22 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
     <message>
         <source>%1 day streak</source>
         <translation>Sequência de %1 dia</translation>
+    </message>
+    <message>
+        <source>Calendar</source>
+        <translation>Calendário</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Sem treinos neste dia</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Ainda sem treinos</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Os treinos concluídos aparecem aqui: abra um para ver os gráficos.</translation>
     </message>
     <message>
         <source>Personal best: %1 days</source>
@@ -2791,7 +3210,7 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Importando treinos...</translation>
+        <translation type="vanished">Importando treinos...</translation>
     </message>
     <message>
         <source>Filter by date</source>
@@ -2808,6 +3227,22 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
     <message>
         <source>Open on Peloton</source>
         <translation>Abrir no Peloton</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>Adicionando treinos ao histórico</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Copiando arquivos de treino</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Adicionando treinos ao histórico: %1 de %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Copiando arquivos de treino: %1 de %2</translation>
     </message>
     <message>
         <source>Previous month</source>
@@ -2879,9 +3314,25 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <source>Offset</source>
         <translation>Ajuste</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Diminuir o ajuste da marcha %1</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Aumentar o ajuste da marcha %1</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Diminuir: %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Aumentar: %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Ativar tabela personalizada de inclinação para resistência</translation>
@@ -2897,6 +3348,10 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
     <message>
         <source>Resistance</source>
         <translation>Resistência</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Remover o ponto com inclinação %1</translation>
     </message>
     <message>
         <source>Add Point</source>
@@ -2984,6 +3439,10 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
 </context>
 <context>
     <name>homeform</name>
+    <message>
+        <source>No enabled metrics</source>
+        <translation>Nenhuma métrica ativada</translation>
+    </message>
     <message>
         <source>Speed (%1/h)</source>
         <translation>Velocidade (%1/h)</translation>
@@ -3509,12 +3968,28 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <translation>velocidade alterada para</translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>Arquivos restaurados: %1.</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>Nenhum arquivo de uma instalação anterior foi encontrado.</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>Erro no analisador JSON</translation>
     </message>
     <message>
         <source>Error retrieving access token, %1 (%2)</source>
         <translation>Erro ao recuperar token de acesso, %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>Compartilhar arquivo FIT</translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>Não foi possível compartilhar o arquivo FIT deste treino</translation>
     </message>
     <message>
         <source>License Approved!</source>
@@ -3583,6 +4058,18 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <translation>Treinos importados: %1.</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>Não foi possível copiar o arquivo para a pasta QZ.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation type="vanished">Programas de treino restaurados: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation type="vanished">Nenhum programa de treino de uma instalação anterior foi encontrado.</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>Já no histórico: %1.</translation>
     </message>
@@ -3597,6 +4084,10 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
     <message>
         <source>Searching for the device...</source>
         <translation>Procurando o dispositivo...</translation>
+    </message>
+    <message>
+        <source>Connecting to %1...</source>
+        <translation>Conectando a %1...</translation>
     </message>
     <message>
         <source>Search stopped, tap the Bluetooth icon</source>
@@ -3754,9 +4245,150 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <source>feet</source>
         <translation>ft</translation>
     </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation>A potência-alvo do QZ está substituindo os comandos do aplicativo. Pause o QZ e retome para devolver o controle ao aplicativo.</translation>
+    </message>
+    <message>
+        <source>Spotify songs:</source>
+        <translation>Músicas do Spotify:</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ em execução</translation>
+    </message>
+    <message>
+        <source>Support request</source>
+        <translation>Pedido de suporte</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>Problema do QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Olá, Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Preciso de ajuda com o QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Problema:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Descreva o problema]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Comportamento esperado:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Descreva o que deveria acontecer]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- Diagnóstico do QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>Versão do QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Plataforma: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Perfil: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Dispositivo: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Ligado</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Desligado</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Ligação: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Velocidade: %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Indisponível</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Potência: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Situação detetada: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>O registo de depuração não foi solicitado.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>O registo de depuração está desativado. Ative-o e reinicie o QZ antes de reproduzir o problema.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Não foi encontrado qualquer registo de depuração.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>O registo de depuração está indisponível ou é demasiado grande para preparar.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Registo de depuração anexado (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Não foi possível escrever o anexo do registo de depuração.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Não foi possível comprimir o registo ou o anexo excede 10 MB.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Anexe manualmente o registo de depuração gerado</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Nenhum dispositivo detetado</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Não foi possível abrir uma aplicação de e-mail</translation>
+    </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>O Bluetooth está desligado</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Métricas flutuantes (imagem sobre imagem)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -3980,6 +4612,28 @@ Deseja mudar para a conexão Bluetooth clássica nesta sessão?</translation>
         <translation>Peloton</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>Salvo! Veja no app Arquivos.</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>Salvo! Veja na pasta privada do app.</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Restaurar arquivos</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Os programas de treino, as rotas GPX, os arquivos de configurações e os perfis de uma instalação anterior podem ainda estar na pasta QZ.
+Deseja procurá-los?
+
+Na próxima janela, permita o acesso à pasta QZ.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Você já está conectado ao Peloton. Deseja sair?</translation>
     </message>
@@ -3990,6 +4644,18 @@ Deseja mudar para a conexão Bluetooth clássica nesta sessão?</translation>
     <message>
         <source>You are already connected to Intervals.icu. Do you want to log out?</source>
         <translation>Você já está conectado ao Intervals.icu. Deseja sair?</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Voltar</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>Menu principal</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>Janela flutuante</translation>
     </message>
     <message>
         <source>Auto Resistance enabled</source>
@@ -4008,8 +4674,48 @@ Deseja mudar para a conexão Bluetooth clássica nesta sessão?</translation>
         <translation>Os blocos estão bloqueados agora</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>Carregar configurações</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>Buscar configurações</translation>
+    </message>
+    <message>
+        <source>Save settings</source>
+        <translation>Salvar configurações</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Mapa</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Vídeo</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>Gráfico</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>Compartilhar arquivo FIT</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>Desbloquear blocos</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>Bloquear blocos</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>Desativar resistência automática</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>Ativar resistência automática</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4018,6 +4724,10 @@ Deseja mudar para a conexão Bluetooth clássica nesta sessão?</translation>
     <message>
         <source>Settings</source>
         <translation>Configurações</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>Experimentar a nova interface</translation>
     </message>
     <message>
         <source>Workouts History</source>
@@ -4076,6 +4786,46 @@ Deseja mudar para a conexão Bluetooth clássica nesta sessão?</translation>
         <translation>Por favor, escolha um arquivo</translation>
     </message>
     <message>
+        <source>Disconnect from Strava</source>
+        <translation>Desconectar do Strava</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Conectar ao Strava</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Desconectar do Peloton</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Conectar ao Peloton</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Configurações do Garmin Connect</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Desconectar do Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Conectar ao Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>Treino</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>App</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>Serviços</translation>
+    </message>
+    <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
         <translation>QDomyos-Zwift - Ponte de Equipamento Fitness</translation>
     </message>
@@ -4108,6 +4858,20 @@ Deseja procurá-los?
 Na próxima janela, permita o acesso à pasta QZ.</translation>
     </message>
     <message>
+        <source>Training Programs</source>
+        <translation type="vanished">Programas de treino</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation type="vanished">Os programas de treino de uma instalação anterior podem ainda estar na pasta QZ.
+Deseja procurá-los?
+
+Na próxima janela, permita o acesso à pasta QZ.</translation>
+    </message>
+    <message>
         <source>Connection lost in the background</source>
         <translation>Conexão perdida em segundo plano</translation>
     </message>
@@ -4134,6 +4898,42 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
     <message>
         <source>Don&apos;t ask again</source>
         <translation>Não perguntar novamente</translation>
+    </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Marchas virtuais Wahoo</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>Para simular marchas virtuais, o QZ altera a circunferência da roda armazenada no rolo. Esse valor pode permanecer no rolo depois de fechar o QZ e afetar o funcionamento dele em outros aplicativos.
+
+Permitir que o QZ altere esse valor?
+
+“Não”: o QZ ativa “Sem protocolo de diâmetro da roda” (Configurações &gt; Opções de Bicicleta &gt; Opções Wahoo), e as marchas virtuais funcionam pela inclinação. Com “Sim”, você pode desfazer isso depois no mesmo lugar: ative essa opção e, com o rolo conectado, toque em “Restaurar a configuração padrão no rolo”.</translation>
+    </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>O dispositivo simulado (%1) está ativo. Se não foi intencional, desative-o nas Definições.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Bicicleta</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Passadeira</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Elíptica</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Máquina de remo</translation>
     </message>
 </context>
 <context>
@@ -4174,6 +4974,10 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
         <translation>Deseja excluir este perfil?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Excluir</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Perfil Salvo</translation>
     </message>
@@ -4206,8 +5010,28 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
         <translation>Nome do perfil</translation>
     </message>
     <message>
+        <source>New profile</source>
+        <translation>Novo perfil</translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation>Salvar</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Perfis salvos</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Toque em um perfil para selecioná-lo e depois em Carregar. Toque longo para excluí-lo.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Ativo</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Carregar</translation>
     </message>
     <message>
         <source>Profiles</source>
@@ -4216,6 +5040,10 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
     <message>
         <source>Other folders</source>
         <translation>Outras pastas</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Restaurar arquivos</translation>
     </message>
 </context>
 <context>
@@ -4226,7 +5054,7 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>Zoom da UI:</translation>
+        <translation type="vanished">Zoom da UI:</translation>
     </message>
     <message>
         <source>OK</source>
@@ -4238,7 +5066,7 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>Isso altera o tamanho dos blocos que exibem suas métricas. O padrão é 100%. Para caber mais blocos na sua tela, escolha uma porcentagem menor. Para torná-los maiores, escolha uma porcentagem acima de 100%. Não insira o símbolo de porcentagem</translation>
+        <translation type="vanished">Isso altera o tamanho dos blocos que exibem suas métricas. O padrão é 100%. Para caber mais blocos na sua tela, escolha uma porcentagem menor. Para torná-los maiores, escolha uma porcentagem acima de 100%. Não insira o símbolo de porcentagem</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -5178,6 +6006,22 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
         <translation>Opções gerais da interface</translation>
     </message>
     <message>
+        <source>Use System Text Size</source>
+        <translation>Usar o tamanho de texto do sistema</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>O tamanho do texto do aplicativo segue as configurações do telefone ou tablet, até 150%. Desative para escolher o tamanho abaixo, por exemplo para uma tela lida de longe durante o treino. Padrão é ligado.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Tamanho do texto:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Tamanho do texto do aplicativo (configurações, menus, diálogos), em porcentagem, de 80 a 170. O padrão é 100. Os blocos têm sua própria configuração de tamanho.</translation>
+    </message>
+    <message>
         <source>Top Bar Enabled</source>
         <translation>Barra Superior Ativada</translation>
     </message>
@@ -5531,15 +6375,184 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation>Abrir</translation>
+        <translation type="vanished">Abrir</translation>
+    </message>
+    <message>
+        <source>Modern interface</source>
+        <translation>Interface moderna</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Novo visual da tela principal, do menu lateral, das configurações e do assistente. Desative para voltar ao visual clássico.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Aparência</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Como no celular</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Escuro</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Claro</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Tema</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafite</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Preto / branco</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Azul-noite</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Cor de destaque</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Violeta</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Azul</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Azul-petróleo</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Verde</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Laranja</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Rosa</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation>Tamanho dos blocos:</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>Isso altera o tamanho dos blocos que exibem suas métricas. O padrão é 100%. Para caber mais blocos na sua tela, escolha uma porcentagem menor. Para torná-los maiores, escolha uma porcentagem acima de 100%. Não insira o símbolo de porcentagem. Antes chamado “Zoom da UI” (UI Zoom).</translation>
     </message>
     <message>
         <source>App Language:</source>
         <translation>Idioma do Aplicativo:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Escolha Automático para seguir o idioma do seu dispositivo, ou selecione um idioma específico para QZ. É necessário reiniciar.</translation>
+        <source>This setting was not found on the settings pages</source>
+        <translation>Esta configuração não foi encontrada nas páginas de configurações</translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Define como a inclinação do aplicativo virtual é convertida em resistência da bicicleta.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Usa um mapeamento personalizado quando o QZ converte a inclinação do aplicativo virtual em resistência.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Um par inclinação|resistência por linha. O QZ interpola entre os pontos e, fora do intervalo configurado, usa o ponto extremo.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Nome de usuário da conta Life Fitness usado para entrar no serviço. Fica salvo apenas no dispositivo e nunca é gravado nos logs de depuração.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Senha da conta Life Fitness usada para entrar no serviço. Fica salva apenas no dispositivo e nunca é gravada nos logs de depuração.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Ângulo atual da câmera</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Emote atual</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Emulador Wattbike</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Posição do gráfico de potência</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Posição do gráfico de frequência cardíaca</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Posição do gráfico de resistência vs resistência alvo</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Posição do gráfico de resistência Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Posição do gráfico de cadência</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Posição do gráfico de distribuição de potência</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Posição do gráfico de velocidade e inclinação</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Posição deste gráfico no histórico de treinos. A ordem é alterada com os botões para cima e para baixo em Opções gerais da interface.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Configuração redefinida</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Configurações redefinidas: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Redefinir tudo</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Redefinir configurações alteradas?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Configurações que voltam aos valores padrão: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Redefinir</translation>
+    </message>
+    <message>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Escolha Automático para seguir o idioma do seu dispositivo, ou selecione um idioma específico para QZ.</translation>
     </message>
     <message>
         <source>lbs</source>
@@ -5576,6 +6589,14 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
     <message>
         <source>Refresh Devices List</source>
         <translation>Atualizar Lista de Dispositivos</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Procurar um sensor de FC ao iniciar</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Nos primeiros 5 minutos após a conexão do equipamento, enquanto não chega frequência cardíaca, o QZ procura um sensor de FC uma vez por minuto: conecta a cinta escolhida assim que a encontra ou, sem nenhuma escolhida, sugere um sensor encontrado por perto. Tocar no bloco de frequência cardíaca ou no ícone Bluetooth da tela inicial procura a qualquer momento.</translation>
     </message>
     <message>
         <source>Resting Heart Rate</source>
@@ -5862,8 +6883,8 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
         <translation>Sensor Bluetooth Garmin</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Para enviar métricas para o seu dispositivo Garmin a partir do Mac, ative esta opção. Caso contrário, mantenha desativado.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Permite que o seu relógio Garmin ou outro relógio desportivo use o QZ como sensor Bluetooth: um sensor de passada com uma passadeira, um medidor de potência com uma bicicleta (no Android, ative também «Sensor de Potência da Bicicleta»). O relógio tem de estar emparelhado por Bluetooth com o telemóvel ou tablet que executa o QZ: se não encontrar o QZ, emparelhe-os uma vez, depois adicione o sensor no relógio e aceite o pedido de emparelhamento. Se o Garmin Connect estiver ligado ao relógio no mesmo telemóvel, force a paragem dele duas ou três vezes seguidas enquanto o relógio se liga; é mais fácil um telemóvel ou tablet separado sem Garmin Connect. Enquanto o QZ funciona como sensor para o relógio, o Zwift por Bluetooth vê-o apenas como sensor de passada ou medidor de potência, não como uma máquina que possa controlar.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -6242,6 +7263,14 @@ Insira-o abaixo:</translation>
     <message>
         <source>Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.</source>
         <translation>Ative isso para ler a distância diretamente da esteira em vez de calculá-la a partir da velocidade. Algumas esteiras relatam a distância com mais precisão do que o cálculo baseado na velocidade. Padrão: desativado.</translation>
+    </message>
+    <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Distância direta: somar apenas o aumento</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Funciona junto com “Distância Direta da Esteira”. Ative isso se o contador de distância da sua esteira continua entre os treinos ou recomeça do 0 quando a esteira é desligada: só a distância percorrida durante o treino é somada, não o que a esteira contou antes de o QZ se conectar. Padrão: desativado.</translation>
     </message>
     <message>
         <source>Difficulty offset based</source>
@@ -6797,6 +7826,14 @@ Insira-o abaixo:</translation>
         <translation>Tag de atividade virtual do Strava</translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Trajeto GPS sintético no Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Adiciona um trajeto GPS sintético a atividades virtuais sem GPS. O Strava poderá mostrar o ganho de elevação, mas o percurso não é real.</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation>Adicionar a tag virtual à atividade do Strava</translation>
     </message>
@@ -6935,6 +7972,14 @@ OBSERVAÇÕES IMPORTANTES:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>Para rolos inteligentes, use a resistência em vez da inclinação. Isso ajuda a evitar que o Wahoo Climb ou um aparelho semelhante altere a inclinação quando você troca de marcha. Padrão: desativado.</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>Compatibilidade da resistência</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Ative se alterar a resistência no QZ colocar a bicicleta apenas no nível 1 ou no máximo. Envia o valor da resistência FTMS multiplicado por 10. Predefinição: desativado.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>
@@ -7247,6 +8292,18 @@ Padrão: A = -0.96, B = 1.33</translation>
     <message>
         <source>Power</source>
         <translation>Potência</translation>
+    </message>
+    <message>
+        <source>Reset section?</source>
+        <translation>Redefinir seção?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Configurações em “%2” que voltam aos valores padrão: %1</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Redefinir seção</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -7726,7 +8783,15 @@ Padrão: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Hidden on its page right now: change it here</source>
-        <translation>Oculta na própria página no momento: altere-a aqui</translation>
+        <translation type="vanished">Oculta na própria página no momento: altere-a aqui</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>Ligado</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>Oculta na própria página com as definições atuais</translation>
     </message>
     <message>
         <source>Turn on “%1” to change this setting</source>
@@ -7743,6 +8808,138 @@ Padrão: A = -0.96, B = 1.33</translation>
     <message>
         <source>Pafers Rower</source>
         <translation>Remo Pafers</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Opções Life Fitness</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Nome de usuário/e-mail Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Senha Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Login de convidado Life Fitness (experimental)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>Usa um perfil sintético da Life Fitness sem conta. Quando ativado, o nome de usuário, a senha e os dados da conta em cache são ignorados; use apenas para testar o login de convidado compatível.</translation>
+    </message>
+    <message>
+        <source>Workout History Charts</source>
+        <translation>Gráficos do histórico de treinos</translation>
+    </message>
+    <message>
+        <source>Heart Rate</source>
+        <translation>Frequência cardíaca</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance</source>
+        <translation>Resistência vs resistência alvo</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance</source>
+        <translation>Resistência Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence</source>
+        <translation>Cadência</translation>
+    </message>
+    <message>
+        <source>Power Distribution</source>
+        <translation>Distribuição de potência</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination</source>
+        <translation>Velocidade e inclinação</translation>
+    </message>
+    <message>
+        <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
+        <translation>Mova os gráficos para cima ou para baixo para escolher a ordem deles no histórico de treinos. As alterações são salvas automaticamente.</translation>
+    </message>
+    <message>
+        <source>Move up</source>
+        <translation>Mover para cima</translation>
+    </message>
+    <message>
+        <source>Move down</source>
+        <translation>Mover para baixo</translation>
+    </message>
+    <message>
+        <source>Restore default order</source>
+        <translation>Restaurar ordem padrão</translation>
+    </message>
+    <message>
+        <source>Moovio Options</source>
+        <translation>Opções Moovio</translation>
+    </message>
+    <message>
+        <source>Lynx Konect 2.0</source>
+        <translation>Lynx Konect 2.0</translation>
+    </message>
+    <message>
+        <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
+        <translation>Ativa o comando FTMS padrão Request Control para esteiras Moovio Lynx Konect 2.0. Padrão é desativado.</translation>
+    </message>
+    <message>
+        <source>Cadence Gain</source>
+        <translation>Multiplicador de cadência</translation>
+    </message>
+    <message>
+        <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
+        <translation>Multiplicador aplicado apenas à frequência de remada enviada pelo Remador Virtual. Padrão é 1.0; use 0.25 para converter o RPM do BikeERG na frequência de remada solicitada pelo EXR.</translation>
+    </message>
+    <message>
+        <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
+        <translation>Ajuste somado depois do multiplicador. Padrão é 0.0. A cadência exibida pelo QZ e as métricas do treino não mudam.</translation>
+    </message>
+    <message>
+        <source>iOS Background Keep Alive</source>
+        <translation>Manter ativo em segundo plano no iOS</translation>
+    </message>
+    <message>
+        <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
+        <translation>Somente iOS. Mantém o QZ em execução com a tela desligada ou em segundo plano, para que as conexões Bluetooth e os temporizadores da sessão não congelem. Usa uma faixa de áudio silenciosa mixada com a sua música, então nada do que você está ouvindo é interrompido. Ative se você precisa treinar com a tela bloqueada ou com o QZ em segundo plano. Padrão é desativado.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Opções da bicicleta Daum</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>Porta série utilizada por ergómetros Daum clássicos, como o 8008 TRS 3. No Android, com um adaptador USB-série, utiliza &apos;usb&apos;. COM1, COM2, etc. são aceites como nomes alternativos para procurar o adaptador USB, mas não são nomes de portas Android. No Windows utiliza COM1 ou COM3; no Linux/macOS, o caminho do dispositivo série, por exemplo /dev/ttyUSB0.</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>Intervalo de consulta da resistência:</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>Utiliza a definição Atraso de inclinação para limitar a frequência com que o QZ envia atualizações de resistência e potência ao Daum. Predefinição: 0 segundos.</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>Filtro de inclinação (%):</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>Nos treinos GPX, ignora alterações de inclinação inferiores a este valor e só envia um novo comando quando a diferença relativamente ao último valor enviado atinge o limite configurado. Predefinição: 0 (desativado).</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Usar mudanças da consola</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Calorias da esteira por modelo de caminhada/corrida</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Para esteiras cuja consola não envia calorias. As calorias são calculadas a partir da velocidade da esteira, da inclinação e do seu peso, altura, idade e sexo: um modelo de caminhada abaixo da sua velocidade de transição da caminhada para a corrida (definida pela sua altura) e um modelo de corrida acima dela. Desative para usar em vez disso o valor baseado na potência. As calorias de uma consola, um sensor de potência externo (Stryd, etc.) e Calcular Calorias a partir da Frequência Cardíaca (quando ativo) continuam a ter prioridade.</translation>
     </message>
 </context>
 <context>
@@ -7941,6 +9138,10 @@ Padrão: A = -0.96, B = 1.33</translation>
     <message>
         <source>Bike pedal cadence in rotations per minute (RPM) or Treadmill cadence if a shoe-mounted cadence sensor or Apple Watch QZ app is used.</source>
         <translation>Cadência do pedal da bicicleta em rotações por minuto (RPM) ou da esteira, se você usar um sensor no calçado ou o app QZ no Apple Watch.</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Opções de Blocos</translation>
     </message>
     <message>
         <source>Elevation Gain</source>

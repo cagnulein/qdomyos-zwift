@@ -75,6 +75,15 @@ class echelonrower : public rower {
     bool initDone = false;
     bool initRequest = false;
 
+    QTimer *directUnlockActivationTimer = nullptr;
+    QTimer *directUnlockFallbackTimer = nullptr;
+    QByteArray directUnlockChallenge;
+    uint8_t directUnlockAuth = 0;
+    bool directUnlockAttempted = false;
+    bool directUnlockInProgress = false;
+    bool directUnlockActivationSent = false;
+    bool directUnlockSucceeded = false;
+
     bool noWriteResistance = false;
     bool noHeartService = false;
     metric speedRaw;
@@ -96,6 +105,13 @@ class echelonrower : public rower {
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
+    void handleDirectUnlockChallenge(const QByteArray &challenge);
+    void confirmDirectUnlock();
+    void sendDirectUnlockActivation();
+    void directUnlockFailed(const QString &reason);
+    bool directUnlockTelemetryFrame(const QByteArray &frame) const;
+    bool virtualEchelonSessionActive();
+    void resetDirectUnlockState();
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);

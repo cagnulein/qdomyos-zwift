@@ -62,6 +62,12 @@ const WebTranslationEntry entries[] = {
     {"workoutEditor.cadence", QT_TRANSLATE_NOOP("WebTranslations", "Cadence")},
     {"workoutEditor.power", QT_TRANSLATE_NOOP("WebTranslations", "Power")},
     {"workoutEditor.forceSpeed", QT_TRANSLATE_NOOP("WebTranslations", "Force Speed")},
+    //: Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.
+    {"workoutEditor.pidHrMode", QT_TRANSLATE_NOOP("WebTranslations", "HR PID actuator")},
+    //: Workout editor, "HR PID actuator" option: use the global "PID HR actuator" setting.
+    {"workoutEditor.pidHrModeDefault", QT_TRANSLATE_NOOP("WebTranslations", "Default")},
+    {"workoutEditor.pidHrModeSpeed", QT_TRANSLATE_NOOP("WebTranslations", "Speed")},
+    {"workoutEditor.pidHrModeInclination", QT_TRANSLATE_NOOP("WebTranslations", "Inclination")},
     {"workoutEditor.fan", QT_TRANSLATE_NOOP("WebTranslations", "Fan")},
     {"workoutEditor.pelotonResistance", QT_TRANSLATE_NOOP("WebTranslations", "Peloton Res.")},
     //: Workout editor field: interval in seconds between heart-rate based adjustments of the machine (1-60 s). Avoid technical words like "loop".
@@ -145,6 +151,8 @@ const WebTranslationEntry entries[] = {
     {"chart.value", QT_TRANSLATE_NOOP("WebTranslations", "Value")},
     {"chart.cadenceRpmUpper", QT_TRANSLATE_NOOP("WebTranslations", "Cadence (RPM)")},
     {"chart.inclinationPercent", QT_TRANSLATE_NOOP("WebTranslations", "Inclination (%)")},
+    //: Workout charts: before the chips that put the selected metrics together on one chart.
+    {"chart.onOneChart", QT_TRANSLATE_NOOP("WebTranslations", "On one chart:")},
     //: Chart summary: average power during the workout, in watts.
     {"chart.avgOutput", QT_TRANSLATE_NOOP("WebTranslations", "Avg Output")},
     //: Chart summary: maximum power during the workout, in watts.
@@ -199,6 +207,9 @@ const WebTranslationEntry entries[] = {
     {"chart.pace10k", QT_TRANSLATE_NOOP("WebTranslations", "10K")},
     {"chart.pace5k", QT_TRANSLATE_NOOP("WebTranslations", "5K")},
     {"chart.pace1Mile", QT_TRANSLATE_NOOP("WebTranslations", "1 Mile")},
+    {"chart.fullScreen", QT_TRANSLATE_NOOP("WebTranslations", "Full screen")},
+    {"chart.exitFullScreen", QT_TRANSLATE_NOOP("WebTranslations", "Exit full screen")},
+    {"chart.swipeHint", QT_TRANSLATE_NOOP("WebTranslations", "Swipe left or right to switch charts")},
     {"floating.pelotonWorkoutProgress", QT_TRANSLATE_NOOP("WebTranslations", "Peloton Workout in progress!")},
     {"floating.followResistanceQuestion", QT_TRANSLATE_NOOP("WebTranslations", "Do you want to follow the resistance?")},
     {"floating.avg", QT_TRANSLATE_NOOP("WebTranslations", "AVG")},

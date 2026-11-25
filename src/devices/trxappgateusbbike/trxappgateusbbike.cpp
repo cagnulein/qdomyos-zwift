@@ -1289,6 +1289,9 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                    upperDeviceName.startsWith(QStringLiteral("FIT HI WAY"))) {
             bike_type = TYPE::FITHIWAY;
             qDebug() << QStringLiteral("FITHIWAY bike found");           
+        } else if (upperDeviceName.startsWith(QStringLiteral("CARE11216+"))) {
+            bike_type = TYPE::ICONSOLE;
+            qDebug() << QStringLiteral("ICONSOLE bike found");
         } else if (device.address().toString().toUpper().startsWith(QStringLiteral("E8"))) {
 
             bike_type = TYPE::CHANGYOW;
@@ -1387,7 +1390,7 @@ void trxappgateusbbike::controllerStateChanged(QLowEnergyController::ControllerS
         qDebug() << QStringLiteral("trying to connect back again...");
 
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 

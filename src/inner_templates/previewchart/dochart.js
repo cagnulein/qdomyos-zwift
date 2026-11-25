@@ -197,6 +197,19 @@ function process_arr(arr) {
     $('.summary_cadence_avg').text(Math.floor(cadence_avg) + ' ' + t('unit.rpm', 'rpm'));
     $('.summary_cadence_max').text(Math.floor(cadence_max) + ' ' + t('unit.rpm', 'rpm'));
     $('.summary_resistance_avg').text(avgResistance + ' ' + t('unit.level', 'lvl'));
+    // No resistance samples (e.g. a treadmill workout): hide the cell instead of "0 lvl"
+    $('.summary_resistance_avg, td[data-i18n="chart.avgResistance"]').css('visibility', validResistance > 0 ? '' : 'hidden');
+    // Same for the resistance charts: hide a chart without a single value above zero.
+    // The saved workout carries no Peloton resistance, so that chart was always empty here.
+    var hasPelotonResistance = false;
+    for (var r = 0; r < arr.length; r++) {
+        if (arr[r].peloton_resistance > 0)
+            hasPelotonResistance = true;
+    }
+    // Height 0, not display: none: a chart in a display: none box gets a zero size,
+    // and its resize then loops until "Maximum call stack size exceeded"
+    $('[data-history-chart="resistance"]').css({ height: validResistance > 0 ? '' : '0', overflow: 'hidden' });
+    $('[data-history-chart="pelotonResistance"]').css({ height: hasPelotonResistance ? '' : '0', overflow: 'hidden' });
     $('.summary_heart_avg').text(Math.floor(heart_avg) + ' ' + t('unit.bpm', 'bpm'));
     $('.summary_heart_max').text(Math.floor(heart_max) + ' ' + t('unit.bpm', 'bpm'));
     $('.summary_speed_avg').text((speed_avg * miles).toFixed(1) + ' ' + (miles === 1 ? t('unit.kmh', 'km/h') : t('unit.mph', 'mph')));
@@ -208,7 +221,7 @@ function process_arr(arr) {
         const ctx = chart.canvas.getContext('2d');
         ctx.save();
         ctx.globalCompositeOperation = 'destination-over';
-        ctx.fillStyle = 'white';
+        ctx.fillStyle = qzChartTheme.background(chart);
         ctx.fillRect(0, 0, chart.width, chart.height);
         ctx.restore();
       }
@@ -392,7 +405,7 @@ function process_arr(arr) {
     };
 
     let ctx = document.getElementById('canvas').getContext('2d');
-    var powerChart = new Chart(ctx, config);
+    var powerChart = qzChartTheme.create(ctx, config);
 
     const heartChartBottom = 50;
     const heartChartTop = Math.max(heartZones[3] + 10, maxHeartRate + 10, heart_max + 5, 200);
@@ -549,7 +562,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasHeart').getContext('2d');
-    var heartChart = new Chart(ctx, config);
+    var heartChart = qzChartTheme.create(ctx, config);
 
     config = {
         type: 'line',
@@ -649,7 +662,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasResistance').getContext('2d');
-    var resistanceChart = new Chart(ctx, config);
+    var resistanceChart = qzChartTheme.create(ctx, config);
 
     config = {
         type: 'line',
@@ -749,7 +762,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasPelotonResistance').getContext('2d');
-    var pelotonresistanceChart = new Chart(ctx, config);
+    var pelotonresistanceChart = qzChartTheme.create(ctx, config);
 
     config = {
         type: 'line',
@@ -849,7 +862,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasCadence').getContext('2d');
-    var cadenceChart = new Chart(ctx, config);
+    var cadenceChart = qzChartTheme.create(ctx, config);
 
     config = {
         type: 'bar',
@@ -912,7 +925,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasPowerDistribution').getContext('2d');
-    var powerDistributionChart = new Chart(ctx, config);
+    var powerDistributionChart = qzChartTheme.create(ctx, config);
 
     config = {
         type: 'line',
@@ -1012,7 +1025,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasSpeedInclination').getContext('2d');
-    var speedInclinationChart = new Chart(ctx, config);
+    var speedInclinationChart = qzChartTheme.create(ctx, config);
 }
 
 function dochart_init() {

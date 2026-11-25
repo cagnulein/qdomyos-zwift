@@ -537,6 +537,6 @@ void smartspin2k::controllerStateChanged(QLowEnergyController::ControllerState s
 
         initDone = false;
         first = true;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

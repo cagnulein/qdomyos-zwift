@@ -109,6 +109,9 @@ class fitshowtreadmill : public treadmill {
     uint8_t firstInit = 0;
     double DistanceCalculated = 0;
     QByteArray lastPacket;
+    // Time (ms) of the last non-zero cadence from the RSC characteristic. It arrives in its own packet, so the cadence
+    // estimated from speed in the FitShow packet must not overwrite it while it is recent.
+    qint64 lastRscCadenceMs = 0;
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
     int MAX_INCLINE = 30;
@@ -157,6 +160,9 @@ class fitshowtreadmill : public treadmill {
     bool noblepro_connected = false;
     bool fs_connected = false;
     bool tunturi_t80_connected = false;
+    bool merach_t12_connected = false;
+    QLowEnergyService *gattMerachUnlockService = nullptr;
+    QLowEnergyCharacteristic gattMerachUnlockCharacteristic;
 
     metric rawInclination;
 

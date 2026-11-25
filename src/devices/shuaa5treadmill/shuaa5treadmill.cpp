@@ -275,6 +275,7 @@ void shuaa5treadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         }
 
         if (Flags.expEnergy) {
+            caloriesFromConsole = true; // the console reports the calories (treadmill calorie model)
             KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                              (uint16_t)((uint8_t)newValue.at(index))));
             index += 2;
@@ -568,6 +569,6 @@ void shuaa5treadmill::controllerStateChanged(QLowEnergyController::ControllerSta
         qDebug() << QStringLiteral("trying to connect back again...");
 
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
