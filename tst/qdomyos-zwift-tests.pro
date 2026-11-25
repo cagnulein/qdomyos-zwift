@@ -72,6 +72,7 @@ SOURCES += \
         Devices/TestKettlerClassicProtocol.cpp \
         Devices/TestFitPlusBikeResistance.cpp \
         Devices/TestTargetPowerOverride.cpp \
+        Devices/TestExternalPowerErg.cpp \
         Devices/TestTargetPowerRelease.cpp \
         Devices/TestPausePower.cpp \
         Devices/TestRowerWorkoutCounters.cpp \
