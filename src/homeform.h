@@ -525,8 +525,8 @@ class homeform : public QObject {
 
     // Static for main.cpp, which calls it before the QML is loaded, so the window opens in the look written here
     static void startModernForNewInstall();
-    // The home page asks once, at its start: raises modernOfferRequested while the question is pending, the look
-    // is classic and no workout is under way. fromMenu: the entry of the classic side menu, which asks every time
+    // The home page asks once, at its start: raises modernOfferRequested while the question is pending and the look
+    // is classic (the home page starts once, at the start of QZ, before any workout). fromMenu: the entry of the classic side menu, which asks every time
     Q_INVOKABLE void requestModernOffer(bool fromMenu = false);
     // The answer to "Try the new interface?", yes or no: the question is not asked again. The look itself
     // is switched by the QML (window.ui.setOption), as by the switch in the settings
