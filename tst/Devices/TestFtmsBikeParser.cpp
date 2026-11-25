@@ -202,6 +202,64 @@ TEST(FtmsBikeParserTest, PhysicalResistanceTargetDoesNotApplyModifierTwice) {
     EXPECT_EQ(9, ftmsbike::effectiveRequestedResistance(-1, 10, false));
 }
 
+TEST(FtmsBikeParserTest, PhysicalResistanceCommandHistorySuppressesDelayedEchoes) {
+    // Real BI9200 build 1707, Nov 25 11:43:13-18: older FTMS responses
+    // arrived after newer targets and created false +5/-2 virtual shifts.
+    using Command = ftmsbike::PhysicalResistanceCommand;
+    QList<Command> history;
+    const qint64 start = 1795603393002LL;
+    history.append(Command{15, 16, start});
+    history.append(Command{15, 21, start + 2000});
+    // Even if the latest command targeted 19, the 20 reported by the bike
+    // can be a delayed echo of the earlier 15->21 write.
+    history.append(Command{20, 19, start + 3000});
+    EXPECT_TRUE(ftmsbike::matchesRecentResistanceCommand(20, history, start + 3500, 4000));
+    EXPECT_TRUE(ftmsbike::matchesRecentResistanceCommand(18, history, start + 3500, 4000));
+    history.append(Command{18, 24, start + 4000});
+    EXPECT_TRUE(ftmsbike::matchesRecentResistanceCommand(23, history, start + 4600, 4000));
+    EXPECT_TRUE(ftmsbike::matchesRecentResistanceCommand(21, history, start + 4700, 4000));
+    // An event outside all commanded trajectories is a possible handlebar shift.
+    EXPECT_FALSE(ftmsbike::matchesRecentResistanceCommand(27, history, start + 4700, 4000));
+    // Old responses must eventually expire, allowing physical changes again.
+    EXPECT_FALSE(ftmsbike::matchesRecentResistanceCommand(20, history, start + 9000, 4000));
+}
+
+TEST(FtmsBikeParserTest, PhysicalResistanceCommandHistoryDoesNotHideStableHandlebarPresses) {
+    using Command = ftmsbike::PhysicalResistanceCommand;
+    const QList<Command> history{Command{6, 6, 1000}};
+    EXPECT_TRUE(ftmsbike::matchesRecentResistanceCommand(6, history, 1600, 4000));
+    EXPECT_FALSE(ftmsbike::matchesRecentResistanceCommand(7, history, 1600, 4000));
+    EXPECT_FALSE(ftmsbike::matchesRecentResistanceCommand(5, history, 1600, 4000));
+    // A native 6->7 step still passes the existing pure gear classifier.
+    const ftmsbike::PhysicalResistanceGearLimits limits{1, 32, 5, 3000};
+    resistance_t delta = 0;
+    EXPECT_TRUE(ftmsbike::physicalResistanceGearDelta(6, 7, -1, limits, &delta));
+    EXPECT_EQ(1, delta);
+}
+
+TEST(FtmsBikeParserTest, PhysicalResistanceGradeChangesAreRelativeToManualPosition) {
+    // Alejandro's 2% -> 5% example: start at resistance 1, not absolute 24.
+    const resistance_t grade2Base = 2;
+    const resistance_t grade5Base = 5;
+    const resistance_t relative = ftmsbike::relativeResistanceTarget(1, grade2Base, grade5Base);
+    EXPECT_EQ(4, relative);
+    EXPECT_EQ(4, ftmsbike::relativeResistanceTarget(relative, grade5Base, grade5Base));
+    // The rider shifts up twice while Zwift's grade is fixed.
+    const resistance_t shifted = relative + 2;
+    EXPECT_EQ(7, ftmsbike::relativeResistanceTarget(shifted, 5, 6));
+    EXPECT_EQ(1, ftmsbike::relativeResistanceTarget(1, 6, 0));
+    EXPECT_EQ(32, ftmsbike::relativeResistanceTarget(31, 1, 20));
+}
+
+TEST(FtmsBikeParserTest, PhysicalResistanceGradientRampIsBoundedInBothDirections) {
+    EXPECT_EQ(3, ftmsbike::limitedResistanceTarget(1, 24, 2));
+    EXPECT_EQ(5, ftmsbike::limitedResistanceTarget(3, 24, 2));
+    EXPECT_EQ(22, ftmsbike::limitedResistanceTarget(24, 1, 2));
+    EXPECT_EQ(11, ftmsbike::limitedResistanceTarget(10, 11, 2));
+    EXPECT_EQ(10, ftmsbike::limitedResistanceTarget(10, 10, 2));
+    EXPECT_EQ(10, ftmsbike::limitedResistanceTarget(10, 32, 0));
+}
+
 TEST(DaumBikeControlTest, AllowsZeroPowerFallbackWithConnectedVirtualFtmsBike) {
     EXPECT_TRUE(daumbike::shouldWriteResistanceToDaum(true, true, 0));
 }
