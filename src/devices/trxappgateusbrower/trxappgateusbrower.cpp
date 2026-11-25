@@ -56,6 +56,10 @@ void trxappgateusbrower::writeCharacteristic(uint8_t *data, uint8_t data_len, co
     loop.exec();
 }
 
+resistance_t trxappgateusbrower::maxResistance() {
+    return 32;
+}
+
 void trxappgateusbrower::forceResistance(resistance_t requestResistance) {
     uint8_t noOpData1[] = {0xf0, 0xa6, 0x35, 0x01, 0x02, 0xce};
     noOpData1[4] = requestResistance + 1;
@@ -83,7 +87,7 @@ void trxappgateusbrower::update() {
                 if (requestResistance < 1)
                     requestResistance = 1;
                 if (requestResistance != currentResistance().value() && requestResistance >= 1 &&
-                    requestResistance <= 15) {
+                    requestResistance <= maxResistance()) {
                     emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                     forceResistance(requestResistance);
                 }
@@ -154,6 +158,28 @@ double trxappgateusbrower::GetWattFromPacket(const QByteArray &packet) {
     return data;
 }
 
+trxappgateusbrower::IConsoleRowerMetrics
+trxappgateusbrower::iConsoleRowerMetricsFromPacket(const QByteArray &packet) {
+    IConsoleRowerMetrics metrics;
+    if (packet.size() != 23 || !packet.startsWith(QByteArray::fromHex("f0b201e7")))
+        return metrics;
+
+    const auto field = [&packet](int index) { return static_cast<uint8_t>(packet.at(index)) - 1; };
+    const auto pair = [&field](int high, int low) { return field(high) * 99 + field(low); };
+    metrics.valid = true;
+    metrics.elapsed = field(4) * 60 + field(5);
+    metrics.strokes = pair(6, 7);
+    metrics.cadence = pair(8, 9);
+    metrics.distanceMeters = pair(10, 11);
+    metrics.calories = pair(12, 13);
+    metrics.heart = pair(14, 15);
+    metrics.watts = pair(16, 17);
+    metrics.paceSeconds = field(18) * 60 + field(19);
+    metrics.resistance = field(20);
+    metrics.speed = (metrics.cadence > 0 && metrics.paceSeconds > 0) ? 1800.0 / metrics.paceSeconds : 0;
+    return metrics;
+}
+
 void trxappgateusbrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
                                               const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
@@ -177,8 +203,24 @@ void trxappgateusbrower::characteristicChanged(const QLowEnergyCharacteristic &c
 
     // Parse data based on device type
     uint8_t deviceHeartRate = 0;  // Used for Mearch NovaRow R50
+    const bool iconsoleRower = gattCommunicationChannelService->serviceUuid() ==
+                              QBluetoothUuid(QStringLiteral("49535343-FE7D-4AE5-8FA9-9FAFD205E455"));
 
-    if (mearch_novarow_r50) {
+    if (iconsoleRower) {
+        const auto metrics = iConsoleRowerMetricsFromPacket(newValue);
+        if (!metrics.valid)
+            return;
+        StrokesCount = metrics.strokes;
+        Cadence = metrics.cadence * cadence_gain + cadence_offset;
+        Distance = metrics.distanceMeters / 1000.0;
+        KCal = metrics.calories;
+        deviceHeartRate = metrics.heart;
+        if (!heart_ignore_builtin && deviceHeartRate > 0)
+            Heart = deviceHeartRate;
+        m_watt = metrics.watts;
+        Resistance = metrics.resistance;
+        Speed = metrics.speed;
+    } else if (mearch_novarow_r50) {
         // Mearch NovaRow R50 data format parsing
         // elapsedSecond = (values[4] - 1) * 60 + values[5] - 1
         int elapsedSeconds = (newValue.at(4) - 1) * 60 + (newValue.at(5) - 1);
@@ -330,8 +372,10 @@ void trxappgateusbrower::stateChanged(QLowEnergyService::ServiceState state) {
             uuidNotify1 = QStringLiteral("49535343-1E4D-4BD9-BA61-23C647249616");
             uuidNotify2 = QStringLiteral("49535343-4c8a-39b3-2f49-511cff073b7e");
 
-            gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
-            gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
+            QBluetoothUuid _gattWriteCharacteristicId2(uuidWrite);
+            QBluetoothUuid _gattNotify1CharacteristicId2(uuidNotify1);
+            gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId2);
+            gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId2);
         }
 
 
@@ -410,9 +454,13 @@ void trxappgateusbrower::serviceScanDone(void) {
 
     if (gattCommunicationChannelService == nullptr) {
         qDebug() << QStringLiteral("invalid service") << uuid;
-        uuid = uuid2;
-        gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-        return;
+        qDebug() << QStringLiteral("trying alternative service") << uuid2;
+        QBluetoothUuid _gattCommunicationChannelServiceId2(uuid2);
+        gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId2);
+        if (gattCommunicationChannelService == nullptr) {
+            qDebug() << QStringLiteral("invalid alternative service") << uuid2;
+            return;
+        }
     }
 
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &trxappgateusbrower::stateChanged);
@@ -482,7 +530,7 @@ void trxappgateusbrower::controllerStateChanged(QLowEnergyController::Controller
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 

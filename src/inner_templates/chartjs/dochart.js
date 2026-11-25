@@ -33,8 +33,168 @@ var maxHeartRate = 190;
 var heartZones = [];
 var miles = 1;
 
+// live update during a workout: the new points of the session are asked for once a second and
+// the charts are updated in place, only while a workout is running (see setLiveActive)
+var LIVE_REFRESH_MS = 1000;
+var liveTimer = null;
+var liveLoading = false;
+var liveActive = false;
+var liveStateKnown = false; // a 'workout' push has come
+var liveFinalPending = false;
+var lastSessionLength = -1;
+var sessionCache = null; // the session so far, grown by the parts the live update asks for
+var liveRefresh = false;
+var pendingLive = {}; // canvas id -> the config of a live refresh skipped while off screen
+var pendingLiveTimer = null;
+
+// the polling goes on: a chart off screen waits for the next refresh or for a scroll to it
+function livePolling() {
+    return liveActive;
+}
+
+function offScreen(canvas) {
+    var rect = canvas.getBoundingClientRect();
+    return rect.bottom < 0 || rect.top > window.innerHeight;
+}
+
+function isPointRow(row) {
+    return Array.isArray(row) && row.length > 0 && typeof row[0] === 'object' && row[0] !== null;
+}
+
+// the lines keep the lowest and the highest point of each slice of the time axis, one slice for
+// every 2 px of the screen: a long workout draws as fast as a short one, and the peaks stay.
+// The lines of a chart keep the same points (the union of their lowest and highest ones), so
+// the tooltip, which takes the point of one index from every line, shows them at one time.
+// Averages, maximums and zones are counted on the whole session before this
+function thinLines(datasets, slices) {
+    let rows = [], length = 0;
+    datasets.forEach(function (d) {
+        if (isPointRow(d.data))
+            length = Math.max(length, d.data.length);
+    });
+    datasets.forEach(function (d) {
+        if (isPointRow(d.data) && d.data.length === length)
+            rows.push(d.data);
+    });
+    if (length <= slices * 2)
+        return;
+    let keep = [], size = length / slices;
+    for (let b = 0; b < slices; b++) {
+        let from = Math.floor(b * size), to = Math.min(length, Math.floor((b + 1) * size));
+        let picked = [];
+        rows.forEach(function (row) {
+            let low = -1, high = -1, gap = -1;
+            for (let i = from; i < to; i++) {
+                let y = row[i].y;
+                if (y === null || y === undefined || y !== y) { // y !== y: NaN
+                    if (gap < 0)
+                        gap = i; // a gap in the slice (a point without a value) stays a break
+                    continue;
+                }
+                if (low < 0 || y < row[low].y)
+                    low = i;
+                if (high < 0 || y > row[high].y)
+                    high = i;
+            }
+            [low, high, gap].forEach(function (i) {
+                if (i >= 0 && picked.indexOf(i) < 0)
+                    picked.push(i);
+            });
+        });
+        if (picked.length === 0)
+            picked.push(from);
+        picked.sort(function (a, c) { return a - c; });
+        keep = keep.concat(picked);
+    }
+    datasets.forEach(function (d) {
+        if (rows.indexOf(d.data) >= 0)
+            d.data = keep.map(function (i) { return d.data[i]; });
+    });
+}
+
+function updateInPlace(old, config) {
+    config.options.animation = false;
+    if (lastTimeRepeats(config)) {
+        var ctx = old.ctx;
+        old.destroy();
+        return qzChartTheme.create(ctx, config);
+    }
+    // keep the dataset objects: the chart's per-dataset state is bound to them
+    for (var i = 0; i < config.data.datasets.length; i++)
+        old.data.datasets[i].data = config.data.datasets[i].data;
+    if (config.data.labels)
+        old.data.labels = config.data.labels;
+    qzChartTheme.restyle(old, config); // the new options in the app theme, like create()
+    old.options = config.options;
+    old.update('none');
+    return old;
+}
+
+// with the animation off Chart.js 3.4.1 updates only the points up to the first one at the x
+// axis max; when the last points share one time (a session that stands still) the points after
+// it keep no values, and drawing the line throws. Such a chart is made anew
+function lastTimeRepeats(config) {
+    return config.data.datasets.some(function (d) {
+        var n = d.data.length;
+        return n > 1 && d.data[n - 1] !== null && typeof d.data[n - 1] === 'object' && d.data[n - 2] !== null
+            && typeof d.data[n - 2] === 'object' && d.data[n - 1].x === d.data[n - 2].x;
+    });
+}
+
+// creates a chart on ctx; on a live refresh the existing chart gets the new data and options
+// in place instead, so an open tooltip stays and nothing flickers; the animation is off there,
+// so its onComplete (saving screenshots) does not run again. While the polling goes on, a chart
+// off screen is not drawn: drawing is most of the cost of a refresh, and only one or two of the
+// charts are on screen
+function makeChart(ctx, config) {
+    // by the longer side of the screen, not by the chart: the page turned to landscape keeps
+    // the same points
+    thinLines(config.data.datasets, Math.max(100, Math.round(Math.max(window.innerWidth, window.innerHeight) / 2)));
+    var old = Chart.getChart(ctx.canvas);
+    delete pendingLive[ctx.canvas.id];
+    if (old && liveRefresh && old.data.datasets.length === config.data.datasets.length) {
+        if (livePolling() && offScreen(ctx.canvas)) {
+            pendingLive[ctx.canvas.id] = config;
+            return old;
+        }
+        return updateInPlace(old, config);
+    }
+    if (old)
+        old.destroy();
+    if (liveRefresh)
+        config.options.animation = false;
+    return qzChartTheme.create(ctx, config);
+}
+
+// draws the skipped charts that came on screen, or all of them when the polling stops
+function drawPendingLive() {
+    for (var id in pendingLive) {
+        var canvas = document.getElementById(id);
+        var old = canvas && Chart.getChart(canvas);
+        if (old && livePolling() && offScreen(canvas))
+            continue;
+        if (old)
+            updateInPlace(old, pendingLive[id]);
+        delete pendingLive[id];
+    }
+}
+
+function schedulePendingLive() {
+    if (pendingLiveTimer === null)
+        pendingLiveTimer = setTimeout(function () {
+            pendingLiveTimer = null;
+            drawPendingLive();
+        }, 100);
+}
+window.addEventListener('scroll', schedulePendingLive);
+window.addEventListener('resize', schedulePendingLive);
+
 function t(key, fallback) {
     return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
+}
+
+function zoneLabel(number) {
+    return t('chart.zoneNumber', 'zone {number}').replace('{number}', number);
 }
 
 function isTrueSetting(value) {
@@ -207,20 +367,22 @@ function process_arr(arr) {
             $('.workout_image').attr("src","elliptical.png");
         else
             $('.workout_image').attr("src","bike.png");
+        // Modern look: the picture as an icon in the theme colours (the saved badge keeps the PNG)
+        qzChartTheme.sportIcon($('.workout_image')[0]);
     }
     $('.workout_image').attr("crossOrigin","anonymous");
-    $('.watts_avg').text('Watt AVG: ' + Math.floor(watts_avg));
-    $('.watts_max').text('Watt MAX: ' + watts_max);
-    $('.heart_avg').text('Heart Rate AVG: ' + Math.floor(heart_avg));
-    $('.heart_max').text('Heart Rate MAX: ' + heart_max);
+    $('.watts_avg').text(t('chart.wattAvgValue', 'Watt AVG: {value}').replace('{value}', Math.floor(watts_avg)));
+    $('.watts_max').text(t('chart.wattMaxValue', 'Watt MAX: {value}').replace('{value}', watts_max));
+    $('.heart_avg').text(t('chart.heartRateAvgValue', 'Heart Rate AVG: {value}').replace('{value}', Math.floor(heart_avg)));
+    $('.heart_max').text(t('chart.heartRateMaxValue', 'Heart Rate MAX: {value}').replace('{value}', heart_max));
 
-    $('.summary_watts_avg').text(Math.floor(watts_avg) + ' W');
-    $('.summary_jouls').text(Math.floor(jouls / 1000.0) + ' kJ');
-    $('.summary_calories').text(Math.floor(calories) + ' kcal');
-    $('.summary_distance').text((distance * miles).toFixed(1) + (miles === 1 ? ' km' : ' mi'));
-    $('.summary_cadence_avg').text(Math.floor(cadence_avg) + ' rpm');
+    $('.summary_watts_avg').text(Math.floor(watts_avg) + ' ' + t('unit.w', 'W'));
+    $('.summary_jouls').text(Math.floor(jouls / 1000.0) + ' ' + t('unit.kj', 'kJ'));
+    $('.summary_calories').text(Math.floor(calories) + ' ' + t('unit.kcal', 'kcal'));
+    $('.summary_distance').text((distance * miles).toFixed(1) + ' ' + (miles === 1 ? t('unit.km', 'km') : t('unit.mi', 'mi')));
+    $('.summary_cadence_avg').text(Math.floor(cadence_avg) + ' ' + t('unit.rpm', 'rpm'));
     // Use resistance_avg for ellipticals (deviceType 4), peloton_resistance_avg for bikes/rowers
-    $('.summary_resistance_avg').text(Math.floor(deviceType === 4 ? resistance_avg : peloton_resistance_avg) + ' lvl');    
+    $('.summary_resistance_avg').text(Math.floor(deviceType === 4 ? resistance_avg : peloton_resistance_avg) + ' ' + t('unit.level', 'lvl'));
 
     const backgroundFill = {
       id: 'custom_canvas_background_color',
@@ -228,7 +390,7 @@ function process_arr(arr) {
         const ctx = chart.canvas.getContext('2d');
         ctx.save();
         ctx.globalCompositeOperation = 'destination-over';
-        ctx.fillStyle = 'white';
+        ctx.fillStyle = qzChartTheme.background(chart);
         ctx.fillRect(0, 0, chart.width, chart.height);
         ctx.restore();
       }
@@ -272,10 +434,15 @@ function process_arr(arr) {
             animation: {
               onComplete: function() {
                 if(saveScreenshot[7] === false) {
+                    // before withLight(): its redraw calls this onComplete again
+                    saveScreenshot[7] = true;
                     var watt_badge = document.getElementById('watt_badge');
-   
-                    // Capture the containers using html2canvas
-                    html2canvas(watt_badge).then(function(canvas1) {
+
+                    // Capture the containers using html2canvas; in the modern look the badge and
+                    // the power chart inside it are drawn light for the copy
+                    qzChartTheme.withLight(powerChart, function () {
+                        return html2canvas(watt_badge, qzChartTheme.snapshotOptions());
+                    }).then(function(canvas1) {
             
                         // Convert the merged canvas to a PNG image
                         var image = canvas1.toDataURL('image/png');
@@ -306,7 +473,7 @@ function process_arr(arr) {
                       msg: 'savechart',
                       content: {
                           name: 'power',
-                          image: powerChart.toBase64Image()
+                          image: qzChartTheme.image(powerChart)
                       }
                   }, function(msg) {
                       if (msg.msg === 'R_savechart') {
@@ -332,7 +499,7 @@ function process_arr(arr) {
                         top: 2,
                         bottom: 2
                     },
-                    text:'Watt'
+                    text:t('metric.watt', 'Watt')
                 },
                 tooltips: {
                     mode: 'index',
@@ -444,13 +611,13 @@ function process_arr(arr) {
                         stepSize: 1,
                         autoSkip: false,
                         callback: value => [ftpZones[0] * 0.8, ftpZones[0], ftpZones[1], ftpZones[2], ftpZones[3], ftpZones[4], ftpZones[5]].includes(value) ?
-                            value === ftpZones[0] * 0.8 ? 'zone 1' :
-                            value === ftpZones[0] ? 'zone 2' :
-                            value === ftpZones[1] ? 'zone 3' :
-                            value === ftpZones[2] ? 'zone 4' :
-                            value === ftpZones[3] ? 'zone 5' :
-                            value === ftpZones[4] ? 'zone 6' :
-                            value === ftpZones[5] ? 'zone 7' : undefined : undefined,
+                            value === ftpZones[0] * 0.8 ? zoneLabel(1) :
+                            value === ftpZones[0] ? zoneLabel(2) :
+                            value === ftpZones[1] ? zoneLabel(3) :
+                            value === ftpZones[2] ? zoneLabel(4) :
+                            value === ftpZones[3] ? zoneLabel(5) :
+                            value === ftpZones[4] ? zoneLabel(6) :
+                            value === ftpZones[5] ? zoneLabel(7) : undefined : undefined,
                         color: 'black',
                         padding: -50,
                         align: 'end',
@@ -462,7 +629,7 @@ function process_arr(arr) {
     };
 
     let ctx = document.getElementById('canvas').getContext('2d');
-    var powerChart = new Chart(ctx, config);
+    var powerChart = makeChart(ctx, config);
 
     const minRecordedHeart = heart.reduce(function(minValue, point) {
         return point.y > 0 ? Math.min(minValue, point.y) : minValue;
@@ -516,7 +683,7 @@ function process_arr(arr) {
                       msg: 'savechart',
                       content: {
                           name: 'heart',
-                          image: heartChart.toBase64Image()
+                          image: qzChartTheme.image(heartChart)
                       }
                   }, function(msg) {
                       if (msg.msg === 'R_savechart') {
@@ -537,7 +704,7 @@ function process_arr(arr) {
             plugins: {
                 title:{
                     display:true,
-                    text:'Heart Rate'
+                    text:t('chart.heartRate', 'Heart Rate')
                 },
                 tooltips: {
                     mode: 'index',
@@ -631,11 +798,11 @@ function process_arr(arr) {
                         stepSize: 1,
                         autoSkip: false,
                         callback: value => heartZoneLabelPositions.includes(value) ?
-                            value === heartZoneLabelPositions[0] ? 'zone 1' :
-                            value === heartZoneLabelPositions[1] ? 'zone 2' :
-                            value === heartZoneLabelPositions[2] ? 'zone 3' :
-                            value === heartZoneLabelPositions[3] ? 'zone 4' :
-                            value === heartZoneLabelPositions[4] ? 'zone 5' : undefined : undefined,
+                            value === heartZoneLabelPositions[0] ? zoneLabel(1) :
+                            value === heartZoneLabelPositions[1] ? zoneLabel(2) :
+                            value === heartZoneLabelPositions[2] ? zoneLabel(3) :
+                            value === heartZoneLabelPositions[3] ? zoneLabel(4) :
+                            value === heartZoneLabelPositions[4] ? zoneLabel(5) : undefined : undefined,
                         color: 'black',
                         padding: -50,
                         align: 'end',
@@ -647,7 +814,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasHeart').getContext('2d');
-    var heartChart = new Chart(ctx, config);
+    var heartChart = makeChart(ctx, config);
 
     config = {
         type: 'line',
@@ -686,7 +853,7 @@ function process_arr(arr) {
                       msg: 'savechart',
                       content: {
                           name: 'resistance',
-                          image: resistanceChart.toBase64Image()
+                          image: qzChartTheme.image(resistanceChart)
                       }
                   }, function(msg) {
                       if (msg.msg === 'R_savechart') {
@@ -707,7 +874,7 @@ function process_arr(arr) {
             plugins: {
                 title:{
                     display:true,
-                    text:'Resistance vs Target Resistance'
+                    text:t('chart.resistanceVsTarget', 'Resistance vs Target Resistance')
                 },
                 tooltips: {
                     mode: 'index',
@@ -764,7 +931,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasResistance').getContext('2d');
-    var resistanceChart = new Chart(ctx, config);
+    var resistanceChart = makeChart(ctx, config);
 
     config = {
         type: 'line',
@@ -803,7 +970,7 @@ function process_arr(arr) {
                       msg: 'savechart',
                       content: {
                           name: 'pelotonresistance',
-                          image: pelotonresistanceChart.toBase64Image()
+                          image: qzChartTheme.image(pelotonresistanceChart)
                       }
                   }, function(msg) {
                       if (msg.msg === 'R_savechart') {
@@ -824,7 +991,7 @@ function process_arr(arr) {
             plugins: {
                 title:{
                     display:true,
-                    text:'Peloton Resistance vs Target Peloton Resistance'
+                    text:t('chart.pelotonResistanceVsTarget', 'Peloton Resistance vs Target Peloton Resistance')
                 },
                 tooltips: {
                     mode: 'index',
@@ -881,7 +1048,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasPelotonResistance').getContext('2d');
-    var pelotonresistanceChart = new Chart(ctx, config);
+    var pelotonresistanceChart = makeChart(ctx, config);
 
     config = {
         type: 'line',
@@ -920,7 +1087,7 @@ function process_arr(arr) {
                       msg: 'savechart',
                       content: {
                           name: 'cadence',
-                          image: cadenceChart.toBase64Image()
+                          image: qzChartTheme.image(cadenceChart)
                       }
                   }, function(msg) {
                       if (msg.msg === 'R_savechart') {
@@ -941,7 +1108,7 @@ function process_arr(arr) {
             plugins: {
                 title:{
                     display:true,
-                    text:'Cadence vs Target Cadence'
+                    text:t('chart.cadenceVsTarget', 'Cadence vs Target Cadence')
                 },
                 tooltips: {
                     mode: 'index',
@@ -998,13 +1165,13 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasCadence').getContext('2d');
-    var cadenceChart = new Chart(ctx, config);
+    var cadenceChart = makeChart(ctx, config);
 
     config = {
         type: 'bar',
         plugins: [backgroundFill],
         data: {
-            labels: ['zone 1', 'zone 2', 'zone 3', 'zone 4', 'zone 5', 'zone 6', 'zone 7' ],
+            labels: [zoneLabel(1), zoneLabel(2), zoneLabel(3), zoneLabel(4), zoneLabel(5), zoneLabel(6), zoneLabel(7) ],
             datasets: [
                 {
                     data: distributionPowerZones,
@@ -1024,7 +1191,7 @@ function process_arr(arr) {
                       msg: 'savechart',
                       content: {
                           name: 'powerDistribution',
-                          image: powerDistributionChart.toBase64Image()
+                          image: qzChartTheme.image(powerDistributionChart)
                       }
                   }, function(msg) {
                       if (msg.msg === 'R_savechart') {
@@ -1042,7 +1209,7 @@ function process_arr(arr) {
             plugins: {
                 title:{
                     display:true,
-                    text:'Power Distribution'
+                    text:t('chart.powerDistribution', 'Power Distribution')
                 },
                 tooltips: {
                     mode: 'index',
@@ -1078,7 +1245,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasPowerDistribution').getContext('2d');
-    var powerDistributionChart = new Chart(ctx, config);
+    var powerDistributionChart = makeChart(ctx, config);
 
     config = {
         type: 'line',
@@ -1117,7 +1284,7 @@ function process_arr(arr) {
                       msg: 'savechart',
                       content: {
                           name: 'speedInclination',
-                          image: speedInclinationChart.toBase64Image()
+                          image: qzChartTheme.image(speedInclinationChart)
                       }
                   }, function(msg) {
                       if (msg.msg === 'R_savechart') {
@@ -1138,7 +1305,7 @@ function process_arr(arr) {
             plugins: {
                 title:{
                     display:true,
-                    text:'Speed and Inclination'
+                    text:t('chart.speedAndInclination', 'Speed and Inclination')
                 },
                 tooltips: {
                     mode: 'index',
@@ -1195,23 +1362,112 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasSpeedInclination').getContext('2d');
-    var speedInclinationChart = new Chart(ctx, config);
+    var speedInclinationChart = makeChart(ctx, config);
 }
 
 function dochart_init() {
     keys_arr = ['ftp', 'miles_unit', 'age', 'heart_rate_zone1', 'heart_rate_zone2', 'heart_rate_zone3', 'heart_rate_zone4', 'heart_max_override_enable', 'heart_max_override_value']
 
-    function load_workout_data() {
+    function scheduleLiveRefresh() {
+        clearTimeout(liveTimer);
+        liveTimer = null;
+        // not before the first load: it runs after getsettings and draws with the right zones
+        if (livePolling() && !liveLoading && lastSessionLength >= 0 && !document.hidden)
+            liveTimer = setTimeout(load_workout_data, LIVE_REFRESH_MS);
+        else
+            drawPendingLive();
+    }
+
+    // the polling works only while a workout is running: device connected, not paused and not
+    // stopped (stop pauses the device); state comes with the 'workout' push
+    function setLiveActive(active) {
+        let firstState = !liveStateKnown;
+        liveStateKnown = true;
+        if (active === liveActive)
+            return;
+        liveActive = active;
+        if (!active) {
+            clearTimeout(liveTimer);
+            liveTimer = null;
+            // pick up the last points before going idle; a load in flight may predate the stop
+            if (liveLoading)
+                liveFinalPending = true;
+            else if (lastSessionLength >= 0)
+                load_workout_data();
+        } else {
+            // a start or a resume: the session may be a new one of any length (the app clears
+            // it on start only), so the next load takes it whole instead of appending a part.
+            // Not on the first state the page gets: the page has just loaded the session whole
+            if (!firstState)
+                sessionCache = null;
+            scheduleLiveRefresh();
+        }
+    }
+
+    function watchWorkoutState() {
         let el = new MainWSQueueElement({
-            msg: 'getsessionarray'
+            msg: null
         }, function(msg) {
-            if (msg.msg === 'R_getsessionarray') {
+            if (msg.msg === 'workout') {
                 return msg.content;
             }
             return null;
+        });
+        el.enqueue().then(function(w) {
+            setLiveActive(!!(w && w.deviceId && w.deviceConnected && !w.devicePaused));
+        }).catch(function(err) {
+            // {msg: null} is still sent, so the element times out (5 s) when no push comes;
+            // the state stays as it was and the watch goes on: without this catch it stopped
+        }).then(function() {
+            setTimeout(watchWorkoutState, 500);
+        });
+    }
+    watchWorkoutState();
+
+    // a page kept out of sight (the app may hide it instead of closing) does not poll
+    document.addEventListener('visibilitychange', scheduleLiveRefresh);
+
+    function load_workout_data() {
+        liveLoading = true;
+        let request = {
+            msg: 'getsessionarray'
+        };
+        // after the first load only the new points are asked for; an app that does not know
+        // "from" (or a session started anew) answers with the whole array, without "from"
+        if (sessionCache)
+            request.content = { from: sessionCache.length };
+        let el = new MainWSQueueElement(request, function(msg) {
+            if (msg.msg === 'R_getsessionarray' || msg.msg === 'R_getsessionarraypart') {
+                return msg;
+            }
+            return null;
         }, 15000, 3);
-        el.enqueue().then(process_arr).catch(function(err) {
+        el.enqueue().then(function(msg) {
+            let arr = msg && msg.content;
+            // a part fits only the cache it was asked for; one asked before the cache was
+            // dropped (a new start) is thrown away, the next load takes the whole session
+            if (arr && typeof msg.from === 'number')
+                arr = sessionCache && msg.from === sessionCache.length ? sessionCache.concat(arr) : null;
+            if (!arr && msg && msg.content)
+                liveFinalPending = true; // load again at once, whole
+            if (arr)
+                sessionCache = arr;
+            // redraw only when the session grew: after stop the array stays the same,
+            // so the end-of-workout screenshots are taken just once
+            if (arr && arr.length !== lastSessionLength) {
+                liveRefresh = lastSessionLength >= 0;
+                lastSessionLength = arr.length;
+                process_arr(arr);
+            }
+        }).catch(function(err) {
             console.error('Error is ' + err);
+        }).then(function() {
+            liveLoading = false;
+            if (liveFinalPending) {
+                liveFinalPending = false;
+                load_workout_data();
+            } else
+                scheduleLiveRefresh();
         });
     }
 
@@ -1290,7 +1546,8 @@ function dochart_init() {
         msg: 'getpelotonimage',
     }, function(msg) {
         if (msg.msg === 'R_getpelotonimage' && msg.content.length > 0) {
-            $('.workout_image').attr("src","data:image/png;base64," + msg.content);
+            // the Peloton picture of the class: not a sport icon to restyle (qzChartTheme.sportIcon)
+            $('.workout_image').removeAttr("data-classic-src").attr("src","data:image/png;base64," + msg.content);
         }
         return null;
     }, 15000, 1);

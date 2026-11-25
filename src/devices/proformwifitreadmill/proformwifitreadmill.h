@@ -51,6 +51,12 @@ class proformwifitreadmill : public treadmill {
   private:
     QWebSocket websocket;
     void connectToDevice();
+    // Opens the websocket again 1 s later, if it is still unconnected then. With no network the
+    // connection fails inside websocket.open() and Qt emits disconnected() from there, so reopening
+    // right in that handler nested the calls until the stack overflowed.
+    void connectToDeviceLater();
+    // a connectToDeviceLater() retry is already scheduled
+    bool reconnectPending = false;
     double GetDistanceFromPacket(QByteArray packet);
     QTime GetElapsedFromPacket(QByteArray packet);
     void btinit();

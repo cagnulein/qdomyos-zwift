@@ -14,7 +14,7 @@ Then update the app from the Play Store as usual.
 
 Nightly debug builds are published here (replace the date with a recent one):
 https://github.com/cagnulein/qdomyos-zwift/releases/download/nightly-YYYY-MM-DD/android-debug.apk
-You can install this over your existing app without losing your settings.
+Normally you can install this over your existing app without losing your settings. If Android reports that the new APK conflicts with the existing package, see the [Android test-build installation FAQ](faq/android.md) before uninstalling: uninstalling may erase local QZ settings and workouts.
 
 ---
 

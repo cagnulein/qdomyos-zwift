@@ -21,11 +21,19 @@ class GarminFitUpdaterTest(unittest.TestCase):
     def test_parses_repository_qml(self):
         start, end = updater.locate_control(QML)
         devices = updater.parse_current(QML[start:end])
+        macros = {device.macro for device in devices}
         self.assertGreater(len(devices), 100)
-        self.assertEqual(devices[20].macro, "EDGE_830")
+        self.assertEqual(len(macros), len(devices))
+        self.assertIn("EDGE_830", macros)
+        self.assertIn("Tacx", macros)
+        self.assertIn("Zwift", macros)
 
     def test_adds_one_and_is_idempotent(self):
-        catalog = dict(self.catalog, FENIX_TEST=5000)
+        start, end = updater.locate_control(QML)
+        used_ids = set(self.catalog.values())
+        used_ids.update(device.product for device in updater.parse_current(QML[start:end]))
+        test_id = next(candidate for candidate in range(60000, 65535) if candidate not in used_ids)
+        catalog = dict(self.catalog, FENIX_TEST=test_id)
         updated, added, old = updater.update_qml(QML, catalog)
         self.assertIn("FENIX_TEST", [d.macro for d in added])
         self.assertTrue(all(d.macro in updated for d in old))
@@ -46,11 +54,14 @@ class GarminFitUpdaterTest(unittest.TestCase):
     def test_forerunner_display_name_is_expanded_before_sorting(self):
         self.assertEqual(updater.display_name("FR970"), "Forerunner 970")
         self.assertEqual(updater.display_name("FR970_LTE"), "Forerunner 970 Lte")
-        updated, added, _ = updater.update_qml(QML, dict(self.catalog, FR970=60001))
-        self.assertIn("Forerunner 970", [device.display for device in added])
-        self.assertNotIn('"Fr970"', updated)
-        self.assertLess(updated.index('"Forerunner 965"'), updated.index('"Forerunner 970"'))
-        self.assertLess(updated.index('"Forerunner 970"'), updated.index('"Tacx"'))
+        future_macro = "FR99999_TEST"
+        future_display = "Forerunner 99999 Test"
+        self.assertNotIn(future_macro, self.catalog)
+        updated, added, _ = updater.update_qml(QML, dict(self.catalog, **{future_macro: 60001}))
+        self.assertIn(future_display, [device.display for device in added])
+        self.assertNotIn('"Fr99999 Test"', updated)
+        self.assertLess(updated.index('"Forerunner 965"'), updated.index(f'"{future_display}"'))
+        self.assertLess(updated.index(f'"{future_display}"'), updated.index('"Tacx"'))
 
     def test_upstream_disappearance_preserves_existing(self):
         start, end = updater.locate_control(QML)
@@ -125,8 +136,11 @@ class GarminFitUpdaterTest(unittest.TestCase):
 
     def test_supported_families_include_current_garmin_watch_lines(self):
         expected = {
-            "APPROACH_S70", "DESCENT_MK3", "ENDURO3", "INSTINCT3_SOLAR_50MM",
-            "LILY2", "MARQ_GEN2", "SWIM2", "TACTIX8_AMOLED", "VIVOMOVE_TREND",
+            "APPROACH_S70", "DESCENT_MK3", "ENDURO3", "FENIX9", "FENIX9_43MM",
+            "FENIX9_PRO_43MM", "FENIX9_PRO_47MM", "FENIX9_PRO_51MM",
+            "FENIX9_PRO_SOLAR_47MM", "FENIX9_PRO_SOLAR_51MM",
+            "INSTINCT3_SOLAR_50MM", "LILY2", "MARQ_GEN2", "SWIM2",
+            "TACTIX8_AMOLED", "VIVOMOVE_TREND",
         }
         self.assertTrue(all(updater.eligible(macro) for macro in expected))
 

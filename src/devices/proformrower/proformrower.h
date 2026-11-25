@@ -28,6 +28,26 @@
 
 #include "rower.h"
 
+struct ProformRowerTelemetry {
+    bool hasCadence = false;
+    bool hasStrokeCount = false;
+    bool hasSpeed = false;
+    uint8_t cadence = 0;
+    uint16_t strokeCount = 0;
+    double speedKmh = 0;
+};
+
+class ProformRowerTelemetryParser {
+  public:
+    bool consumeFragment(const QByteArray &fragment, ProformRowerTelemetry &telemetry);
+    void reset();
+
+  private:
+    QByteArray body;
+    int expectedLength = 0;
+    int expectedPackets = 0;
+    int receivedPackets = 0;
+};
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -61,6 +81,7 @@ class proformrower : public rower {
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
+    ProformRowerTelemetryParser telemetry750rParser;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     uint16_t m_watts = 0;

@@ -230,6 +230,7 @@ void lifespantreadmill::characteristicChanged(const QLowEnergyCharacteristic& ch
             Distance = GetDistanceFromPacket(value);
             break;
         case CommandState::QueryCalories:
+            caloriesFromConsole = true; // the console reports the calories (treadmill calorie model)
             KCal = GetKcalFromPacket(value);
             break;
         case CommandState::QuerySteps:
