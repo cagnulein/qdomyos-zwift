@@ -509,7 +509,7 @@ QList<trainrow> workoutimport::loadFit(const QByteArray &input, double ftp, doub
             *fitDeviceType = BIKE;
             break;
         case FIT_SPORT_ROWING:
-            *fitDeviceType = ROWER;
+            *fitDeviceType = ROWING;
             break;
         default:
             break;
