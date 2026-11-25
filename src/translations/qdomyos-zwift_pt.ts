@@ -2405,6 +2405,18 @@ Deseja atualizar as configurações do QZ?</translation>
         <translation>1 milha</translation>
     </message>
     <message>
+        <source>Full screen</source>
+        <translation>Tela cheia</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Sair da tela cheia</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Deslize para a esquerda ou direita para trocar de gráfico</translation>
+    </message>
+    <message>
         <source>Peloton Workout in progress!</source>
         <translation>Treino Peloton em andamento!</translation>
     </message>

@@ -2409,6 +2409,18 @@ Vil du opdatere QZ-indstillingerne?</translation>
         <translation>1 mile</translation>
     </message>
     <message>
+        <source>Full screen</source>
+        <translation>Fuld skærm</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Afslut fuld skærm</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Stryg til venstre eller højre for at skifte graf</translation>
+    </message>
+    <message>
         <source>AVG</source>
         <translation>GNS.</translation>
     </message>

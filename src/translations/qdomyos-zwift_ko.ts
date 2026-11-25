@@ -2425,6 +2425,18 @@ QZ 설정을 업데이트하시겠습니까?</translation>
         <translation>1마일</translation>
     </message>
     <message>
+        <source>Full screen</source>
+        <translation>전체 화면</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>전체 화면 종료</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>왼쪽이나 오른쪽으로 스와이프하여 그래프를 전환하세요</translation>
+    </message>
+    <message>
         <source>AVG</source>
         <translation>평균</translation>
     </message>

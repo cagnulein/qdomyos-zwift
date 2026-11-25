@@ -2425,6 +2425,18 @@ Wil je de QZ-instellingen bijwerken?</translation>
         <translation>1 mijl</translation>
     </message>
     <message>
+        <source>Full screen</source>
+        <translation>Volledig scherm</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Volledig scherm sluiten</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Veeg naar links of rechts om van grafiek te wisselen</translation>
+    </message>
+    <message>
         <source>AVG</source>
         <translation>GEM.</translation>
     </message>

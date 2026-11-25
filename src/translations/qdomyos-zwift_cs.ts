@@ -2425,6 +2425,18 @@ Aktualizovat nastavení QZ?</translation>
         <translation>1 míle</translation>
     </message>
     <message>
+        <source>Full screen</source>
+        <translation>Celá obrazovka</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Ukončit celou obrazovku</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Grafy přepnete přejetím doleva nebo doprava</translation>
+    </message>
+    <message>
         <source>AVG</source>
         <translation>PRŮM.</translation>
     </message>

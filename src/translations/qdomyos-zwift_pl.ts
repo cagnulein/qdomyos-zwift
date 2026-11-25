@@ -2425,6 +2425,18 @@ Zaktualizować ustawienia QZ?</translation>
         <translation>1 mila</translation>
     </message>
     <message>
+        <source>Full screen</source>
+        <translation>Pełny ekran</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Zamknij pełny ekran</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Przesuń w lewo lub w prawo, aby przełączać wykresy</translation>
+    </message>
+    <message>
         <source>AVG</source>
         <translation>ŚR.</translation>
     </message>

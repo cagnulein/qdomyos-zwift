@@ -2425,6 +2425,18 @@ QZ ayarları güncellensin mi?</translation>
         <translation>1 mil</translation>
     </message>
     <message>
+        <source>Full screen</source>
+        <translation>Tam ekran</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Tam ekrandan çık</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Grafikler arasında geçiş için sola veya sağa kaydırın</translation>
+    </message>
+    <message>
         <source>AVG</source>
         <translation>ORT.</translation>
     </message>

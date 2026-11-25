@@ -2409,6 +2409,18 @@ Vil du oppdatere QZ-innstillingene?</translation>
         <translation>1 engelsk mil</translation>
     </message>
     <message>
+        <source>Full screen</source>
+        <translation>Fullskjerm</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Avslutt fullskjerm</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Sveip til venstre eller høyre for å bytte diagram</translation>
+    </message>
+    <message>
         <source>AVG</source>
         <translation>GJ.SN.</translation>
     </message>
