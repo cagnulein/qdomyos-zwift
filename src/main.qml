@@ -2361,10 +2361,32 @@ ApplicationWindow {
                     onClicked: drawerAction("settings")
                 }
 
-                // The question of the home page again (Home.qml), for who said no or closed it
+                // The question of the home page again (Home.qml), for who said no or closed it. The only
+                // entry with an icon, so it is noticed: 24 and 12 to the label, as UiDrawerItem
                 ItemDelegate {
+                    id: modernOfferItem
                     text: qsTr("Try the new interface")
                     width: parent.width
+                    contentItem: Row {
+                        spacing: 12
+                        UiIcon {
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 24
+                            height: 24
+                            name: "palette"
+                            color: modernOfferLabel.color
+                        }
+                        Label {
+                            id: modernOfferLabel
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: parent.width - 36
+                            text: modernOfferItem.text
+                            font: modernOfferItem.font
+                            elide: Text.ElideRight
+                            // The entry carries the name for the screen reader
+                            Accessible.ignored: true
+                        }
+                    }
                     onClicked: {
                         drawer.close()
                         rootItem.requestModernOffer(true)
