@@ -1,0 +1,34 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "FiveHundredSplitServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message FiveHundredSplitMetric {
+  string workoutID = 1;
+  int32 timeSeconds = 2;
+  double lastFiveHundredSplitSeconds = 3;
+  double maxFiveHundredSplitSeconds = 4;
+  double avgFiveHundredSplitSeconds = 5;
+  double minFiveHundredSplitSeconds = 6;
+}
+
+message FiveHundredSplitMetricList {
+  repeated FiveHundredSplitMetric metrics = 1;
+}
+
+service FiveHundredSplitService {
+  // check whether FiveHundredSplit is Readable
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+
+  // get the current FiveHundredSplit relative to the current workout
+  rpc GetFiveHundredSplit(Empty) returns (FiveHundredSplitMetric) {}
+
+  // subscribe to FiveHundredSplit updates relative to the current workout
+  rpc FiveHundredSplitSubscription(Empty) returns (stream FiveHundredSplitMetric) {}
+
+  // gets a list of all of the FiveHundredSplit changes for the given workout ID
+  rpc GetFiveHundredSplitHistory(WorkoutID) returns (FiveHundredSplitMetricList) {}
+}

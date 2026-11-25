@@ -1,0 +1,60 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+import "workout/data/Control.proto";
+import "workout/WorkoutResult.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "GearServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message GearMetric {
+  string workoutID = 1;
+  int32 timeSeconds = 2;
+  int32 lastGear = 3;
+  int32 maxGear = 4;
+  double avgGear = 5;
+  int32 minGear = 6;
+}
+
+message GearMetricList {
+  repeated GearMetric metrics = 1;
+}
+
+message GearRequest {
+  int32 gear = 1;
+}
+
+service GearService {
+  // check whether Gear is Readable and Writeable
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+  rpc CanWrite(Empty) returns (AvailabilityResponse) {}
+
+  // get the current Gear relative to the current workout
+  rpc GetGear(Empty) returns (GearMetric) {}
+
+  // sets the Gear to the given value
+  rpc SetGear(GearRequest) returns (WorkoutResult) {}
+
+  // subscribe to Gear updates relative to the current workout
+  rpc GearSubscription(Empty) returns (stream GearMetric) {}
+
+  // gets a list of all of the Gear changes for the given workout ID
+  rpc GetGearHistory(WorkoutID) returns (GearMetricList) {}
+
+  // follow the current workout
+  rpc FollowWorkout(Empty) returns (WorkoutResult) {}
+
+  // stop following the current workout
+  rpc StopFollowing(Empty) returns (Empty) {}
+
+  // check whether the current workout is being followed
+  rpc GetIsFollowing(Empty) returns (BooleanResponse) {}
+  // subscribe to following updates
+  rpc IsFollowingSubscription(Empty) returns (stream BooleanResponse) {}
+
+  // get the current workout controls
+  rpc GetControls(Empty) returns (ControlList) {}
+  // subscribe to workout control updates
+  rpc ControlsSubscription(Empty) returns (stream ControlList) {}
+}

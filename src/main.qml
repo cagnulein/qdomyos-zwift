@@ -879,18 +879,6 @@ ApplicationWindow {
            visible: false
        }
 
-    Timer {
-       id: pelotonAuthCheck
-       interval: 1000  // 1 second delay after startup
-       running: true
-       repeat: false
-       onTriggered: {
-           if (settings.peloton_password !== "password") {
-               popupPelotonAuth.visible = true
-           }
-       }
-    }
-
     UiInfoPopup {
         id: popupClassificaHelper
         onClosed: stackView.push("Classifica.qml");
@@ -2472,6 +2460,16 @@ ApplicationWindow {
                     text: qsTr("Community")
                     width: parent.width
                     onClicked: drawerAction("community")
+                }
+                ItemDelegate {
+                    id: launch_ifit
+                    text: qsTr("Launch iFit App")
+                    width: parent.width
+                    visible: OS_VERSION === "Android" ? true : false
+                    onClicked: {
+                        rootItem.launchIFitApp();
+                        drawer.close()
+                    }
                 }
                 ItemDelegate {
                     text: qsTr("Credits")

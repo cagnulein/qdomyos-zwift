@@ -1801,7 +1801,7 @@ import AndroidStatusBar 1.0
             property bool horizon_paragon_x: false
 
             // from version 2.10.18
-            property real treadmill_step_speed: 0.5
+            property real treadmill_step_speed: 0.1
             property real treadmill_step_incline: 0.5
 
             // from version 2.10.19
@@ -2410,7 +2410,7 @@ import AndroidStatusBar 1.0
 
             // from version 2.16.45
             property bool toorx_srx_3500: false  
-            property real inclination_delay_seconds: 0.0
+            property real inclination_delay_seconds: 3.0
 
             // from version 2.16.47
             property string ergDataPoints: ""
@@ -2888,9 +2888,9 @@ import AndroidStatusBar 1.0
             property bool tile_watt_color_enabled: true
             property bool tile_pace_color_enabled: true
             property bool treadmill_force_running_activity: false
-            property bool proform_treadmill_105_cst: false            
+            property bool proform_treadmill_105_cst: false
             property real trainprogram_pid_hr_pushy_zone_limit: 0.8
-            property real trainprogram_pid_hr_recovery_zone_limit: 60.0            
+            property real trainprogram_pid_hr_recovery_zone_limit: 60.0
             property bool rpe_feel_popup_enabled: false
             property int zwiftplay_gear_ls1: 2
             property int zwiftplay_gear_ls2: 2
@@ -2995,6 +2995,9 @@ import AndroidStatusBar 1.0
             property bool treadmill_calories_model: false
             property bool ui_modern_new_install_checked: false
             property bool ui_modern_offer_pending: false
+            property bool virtual_device_treadmill_data: true
+            property bool nordictrackadbbike_gear_resistance_mode: false
+            property int nordictrackadbbike_gear_debounce_ms: 100
 
         }
 
@@ -7735,6 +7738,35 @@ import AndroidStatusBar 1.0
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: { settings.nordictrackadbbike_resistance = checked; }
+                            }
+                            IndicatorOnlySwitch {
+                                text: qsTr("Gears Control Resistance (Separate Inc/Gear)")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.nordictrackadbbike_gear_resistance_mode
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.nordictrackadbbike_gear_resistance_mode = checked; }
+                            }
+                            RowLayout {
+                                visible: settings.nordictrackadbbike_gear_resistance_mode
+                                Label {
+                                    text: qsTr("Gear Change Debounce (ms):")
+                                    Layout.fillWidth: true
+                                }
+                                SpinBox {
+                                    id: nordictrackadbbike_gear_debounce_ms
+                                    from: 10
+                                    to: 1000
+                                    stepSize: 50
+                                    editable: true
+                                    value: settings.nordictrackadbbike_gear_debounce_ms
+                                    onValueChanged: settings.nordictrackadbbike_gear_debounce_ms = value
+                                }
                             }
                         }
                     }
@@ -19694,6 +19726,34 @@ import AndroidStatusBar 1.0
                                 linkedBoolSetting: "virtual_device_bluetooth"
                                 settings: settings
                                 accordionContent: ColumnLayout {
+                                    IndicatorOnlySwitch {
+                                        id: virtualDeviceTreadmillDataDelegate
+                                        text: qsTr("Send Virtual Treadmill Data")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.virtual_device_treadmill_data
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: { settings.virtual_device_treadmill_data = checked; window.settings_restart_to_apply = true; }
+                                    }
+
+                                    Label {
+                                        text: qsTr("Advertises FTMS Treadmill Data (0x2ACD) alongside Indoor Bike Data so another QZ instance can read the bike's incline. Disable if a third-party app has trouble with the extra treadmill data. Default is on. Restart QZ to apply.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
+                                    }
+
                                     IndicatorOnlySwitch {
                                         id: virtualDeviceOnlyHeartDelegate
                                         text: qsTr("Virtual Heart Only")
