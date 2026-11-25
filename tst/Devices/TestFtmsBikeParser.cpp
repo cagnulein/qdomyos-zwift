@@ -248,6 +248,16 @@ TEST(FtmsBikeParserTest, PhysicalResistanceSettlingGuardsMotorOvershoot) {
     EXPECT_FALSE(ftmsbike::isPhysicalResistanceCommandSettling(5000, 2000));
 }
 
+TEST(FtmsBikeParserTest, RelativeResistanceControlCannotAffectOptOutOrOtherFtmsModes) {
+    // featureEnabled is true only after exact BLE-name AND gears_from_bike checks.
+    EXPECT_TRUE(ftmsbike::shouldUseRelativeResistanceControl(true, true, true, true, -1));
+    EXPECT_FALSE(ftmsbike::shouldUseRelativeResistanceControl(false, true, true, true, -1));
+    EXPECT_FALSE(ftmsbike::shouldUseRelativeResistanceControl(true, false, true, true, -1));
+    EXPECT_FALSE(ftmsbike::shouldUseRelativeResistanceControl(true, true, false, true, -1));
+    EXPECT_FALSE(ftmsbike::shouldUseRelativeResistanceControl(true, true, true, false, -1));
+    EXPECT_FALSE(ftmsbike::shouldUseRelativeResistanceControl(true, true, true, true, 150));
+}
+
 TEST(FtmsBikeParserTest, PhysicalResistanceGradeChangesAreRelativeToManualPosition) {
     // Alejandro's 2% -> 5% example: start at resistance 1, not absolute 24.
     const resistance_t grade2Base = 2;
