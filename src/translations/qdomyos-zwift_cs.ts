@@ -8874,8 +8874,8 @@ Výchozí: A = -0.96, B = 1.33</translation>
         <translation>Kalorie běžeckého pásu z modelu chůze/běhu</translation>
     </message>
     <message>
-        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, and Calculate Calories from Heart Rate when it is on, still take priority.</source>
-        <translation>Pro běžecké pásy, jejichž konzole neposílá kalorie. Kalorie se počítají z rychlosti pásu, sklonu a z vaší hmotnosti, výšky, věku a pohlaví: pod rychlostí přechodu z chůze do běhu (určenou vaší výškou) model chůze, nad ní model běhu. Vypnutím se použije hodnota podle výkonu. Kalorie z konzole a Počítat kalorie z tepu (když je zapnuto) mají stále přednost.</translation>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Pro běžecké pásy, jejichž konzole neposílá kalorie. Kalorie se počítají z rychlosti pásu, sklonu a z vaší hmotnosti, výšky, věku a pohlaví: pod rychlostí přechodu z chůze do běhu (určenou vaší výškou) model chůze, nad ní model běhu. Vypnutím se použije hodnota podle výkonu. Kalorie z konzole, externí snímač výkonu (Stryd apod.) a Počítat kalorie z tepu (když je zapnuto) mají stále přednost.</translation>
     </message>
 </context>
 <context>

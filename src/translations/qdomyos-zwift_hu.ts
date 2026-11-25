@@ -8850,8 +8850,8 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
         <translation>Futópad-kalória séta/futás modellből</translation>
     </message>
     <message>
-        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, and Calculate Calories from Heart Rate when it is on, still take priority.</source>
-        <translation>Olyan futópadokhoz, amelyek konzolja nem küld kalóriát. A kalória a szalag sebességéből, az emelkedésből, valamint a testsúlyodból, magasságodból, életkorodból és nemedből számolódik: a séta–futás váltási sebességed (a magasságod alapján) alatt sétamodellel, felette futómodellel. Kapcsold ki, ha inkább a teljesítmény alapú értéket használnád. A konzol kalóriája és a Kalória számítása pulzusból (ha be van kapcsolva) továbbra is elsőbbséget élvez.</translation>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Olyan futópadokhoz, amelyek konzolja nem küld kalóriát. A kalória a szalag sebességéből, az emelkedésből, valamint a testsúlyodból, magasságodból, életkorodból és nemedből számolódik: a séta–futás váltási sebességed (a magasságod alapján) alatt sétamodellel, felette futómodellel. Kapcsold ki, ha inkább a teljesítmény alapú értéket használnád. A konzol kalóriája, egy külső teljesítménymérő (Stryd stb.) és a Kalória számítása pulzusból (ha be van kapcsolva) továbbra is elsőbbséget élvez.</translation>
     </message>
 </context>
 <context>

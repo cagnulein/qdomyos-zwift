@@ -350,8 +350,10 @@ double treadmill::kcalPerMinute(double speedKmh, double inclinePct, double weigh
 }
 
 bool treadmill::caloriesModelEnabled() {
-    // a console that reports its own calories keeps them
-    if (caloriesFromConsole)
+    // a console that reports its own calories keeps them; with an external power sensor (Stryd
+    // etc.) the measured watts already reflect the effort, so the power-based value stays (as in
+    // #4734)
+    if (caloriesFromConsole || powerReceivedFromPowerSensor)
         return false;
     QSettings settings;
     return settings.value(QZSettings::treadmill_calories_model, QZSettings::default_treadmill_calories_model)
