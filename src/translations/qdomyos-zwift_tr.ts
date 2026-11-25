@@ -170,6 +170,22 @@
         <translation>Mevcut antrenman durdurulsun mu?</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>Otomatik direnç kapalı</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ şu anda direnci değiştirmiyor. “Uygula”: Direnç, Hedef dir. ve ön ayar kutucuklarındaki seviyeler otomatik direnç kapalı kaldığı sürece geçerli olur. Uygulamalardan gelen komutlar (örneğin Zwift) yine yok sayılır.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Uygula</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Otomatik direnci aç</translation>
+    </message>
+    <message>
         <source>Permissions Required</source>
         <translation>İzin gerekli</translation>
     </message>

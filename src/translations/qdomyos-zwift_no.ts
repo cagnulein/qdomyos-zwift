@@ -170,6 +170,22 @@
         <translation>Vil du stoppe den pågående treningsøkten?</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>Automatisk motstand er av</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ endrer ikke motstanden nå. «Bruk»: nivåer fra flisene Motstand, Målmotst. og forhåndsvalg gjelder så lenge automatisk motstand er av. Kommandoer fra apper (for eksempel Zwift) ignoreres fortsatt.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Bruk</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Slå på automatisk motstand</translation>
+    </message>
+    <message>
         <source>Permissions Required</source>
         <translation>Tillatelser kreves</translation>
     </message>

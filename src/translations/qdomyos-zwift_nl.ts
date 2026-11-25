@@ -170,6 +170,22 @@
         <translation>Wil je de huidige training echt stoppen?</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>Automatische weerstand staat uit</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ verandert de weerstand nu niet. ‘Toepassen’: niveaus van de tegels Weerstand, Doelweerst. en de voorinstellingen gelden zolang automatische weerstand uit blijft. Opdrachten van apps (bijvoorbeeld Zwift) worden nog steeds genegeerd.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Toepassen</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Automatische weerstand aanzetten</translation>
+    </message>
+    <message>
         <source>Permissions Required</source>
         <translation>Machtigingen vereist</translation>
     </message>

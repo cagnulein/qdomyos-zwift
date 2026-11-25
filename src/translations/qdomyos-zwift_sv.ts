@@ -170,6 +170,22 @@
         <translation>Vill du stoppa det pågående träningspasset?</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>Automatiskt motstånd är av</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ ändrar inte motståndet just nu. ”Använd”: nivåer från rutorna Motstånd, Målmotst. och förinställningar gäller så länge automatiskt motstånd är av. Kommandon från appar (till exempel Zwift) ignoreras fortfarande.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Använd</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Slå på automatiskt motstånd</translation>
+    </message>
+    <message>
         <source>Permissions Required</source>
         <translation>Behörigheter krävs</translation>
     </message>

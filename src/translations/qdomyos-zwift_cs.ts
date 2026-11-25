@@ -170,6 +170,22 @@
         <translation>Ukončit aktuální trénink?</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>Automatický odpor je vypnutý</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ teď nemění odpor. „Použít“: úrovně z dlaždic Odpor, Cíl odp. a předvoleb platí, dokud zůstane automatický odpor vypnutý. Příkazy aplikací (např. Zwift) se dál ignorují.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Použít</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Zapnout automatický odpor</translation>
+    </message>
+    <message>
         <source>Permissions Required</source>
         <translation>Vyžadována oprávnění</translation>
     </message>
