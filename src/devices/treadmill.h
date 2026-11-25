@@ -1,6 +1,7 @@
 #ifndef TREADMILL_H
 #define TREADMILL_H
 #include "devices/bluetoothdevice.h"
+#include "treadmillcalories.h"
 #include <QDateTime>
 #include <QObject>
 #include "treadmillErgTable.h"
@@ -87,11 +88,15 @@ class treadmill : public bluetoothdevice {
     // as they are
     bool caloriesFromConsole = false;
 
+    // Whether the watts are measured rather than estimated: an external power sensor, or the
+    // device itself (strydrunpowersensor). The calorie model then leaves the power-based value
+    virtual bool externalPowerMeasured() { return powerReceivedFromPowerSensor; }
+
   private:
     bool caloriesModelEnabled();
-    void accumulateModelCalories();
+    void accumulateCalories(double deltaTime, bool clockRunning);
+    TreadmillCalories m_calories;
     metric modelKCal;
-    double modelLastElapsed = 0;
 
   signals:
     void tapeStarted();

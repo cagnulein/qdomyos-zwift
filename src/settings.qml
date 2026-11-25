@@ -2982,7 +2982,6 @@ import AndroidStatusBar 1.0
             // Keep newly added properties at the end to preserve settings order on iOS.
             property bool strava_synthetic_gps_track: false
             property int rouvy_virtual_gearing_profile: 0
-            property bool treadmill_calories_model: true
 
             property bool trixter_xdream_bike_enabled: false
             property bool trixter_xdream_bike_heartrate_enabled: true
@@ -2993,6 +2992,7 @@ import AndroidStatusBar 1.0
             property int trixter_xdream_bike_steering_r : 45
             property int trixter_xdream_bike_steering_max : 45
             property int trixter_xdream_bike_connection_timeout_ms : 500
+            property bool treadmill_calories_model: false
 
         }
 

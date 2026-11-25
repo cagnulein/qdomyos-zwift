@@ -3539,7 +3539,7 @@ class QZSettings {
     // Treadmill calories from a published walking/running energy model (belt speed, incline,
     // weight, height, age, sex) instead of the generic power formula.
     static const QString treadmill_calories_model;
-    static constexpr bool default_treadmill_calories_model = true;
+    static constexpr bool default_treadmill_calories_model = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
