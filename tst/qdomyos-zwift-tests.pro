@@ -43,6 +43,7 @@ SOURCES += \
         Devices/TestZwiftRideController.cpp \
         Devices/TestApexBikeParser.cpp \
         Devices/TestEchelonUnlock.cpp \
+        Devices/TestFitProProtocol.cpp \
         Devices/TestNautilusTreadmillParser.cpp \
         Devices/TestFtmsBikeResistance.cpp \
         Devices/TestYpooM5Control.cpp \

@@ -27,6 +27,8 @@
 #include <QString>
 
 #include "treadmill.h"
+#include "fitproprotocol.h"
+#include <QElapsedTimer>
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -49,6 +51,35 @@ class proformtreadmill : public treadmill {
     void sendPoll();
     void forceIncline(double incline);
     void forceSpeed(double speed);
+
+    enum class GenericStep { None, DeviceInfo, SupportedDevices, SupportedCommands,
+        SystemInfo, VersionInfo, Limits, SerialNumber, Poll, Unlock, ArmStart, ArmLockout,
+        ToIdle, Start, Change, Stop, Pause, Release };
+    bool genericMode=false, genericFailed=false, genericReady=false, genericArmed=false;
+    bool genericOwned=false, genericStartPending=false, genericStopping=false, genericArmPartial=false;
+    bool genericPausing=false, genericAwaitRunning=false;
+    int genericWorkoutMode=0;
+    double genericMinSpeed=0, genericMaxSpeed=0, genericMinGrade=0, genericMaxGrade=0, genericActualSpeed=0;
+    GenericStep genericPending=GenericStep::None, genericNext=GenericStep::None;
+    FitProProtocol::Bytes genericDeviceInfo, genericSystemInfo, genericVersionInfo, genericUnlock, genericReply;
+    FitProProtocol::Chunks genericWrites;
+    FitProProtocol::ReplyAssembler genericAssembler;
+    std::size_t genericWriteIndex=0;
+    uint8_t genericExpectedOpcode=0;
+    QElapsedTimer genericDeadline, genericMotionDeadline;
+    void genericReset();
+    void genericFail(const QString &reason);
+    void genericUpdate();
+    void genericSend(GenericStep step, uint8_t device, uint8_t opcode, const FitProProtocol::Bytes &content = {});
+    void genericSendNextChunk();
+    void genericWritten(const QByteArray &value);
+    void genericNotification(const QByteArray &value);
+    void genericHandleReply(GenericStep step, const FitProProtocol::Bytes &frame);
+    void genericClearRequests();
+    void genericWriteFields(GenericStep step, const FitProProtocol::Fields &fields);
+    bool genericSpeedAllowed(double speed) const;
+    bool genericGradeAllowed(double grade) const;
+    void genericStartBelt();
 
     QTimer *refresh;
     uint8_t counterPoll = 0;

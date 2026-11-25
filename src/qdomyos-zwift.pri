@@ -312,6 +312,7 @@ powerzonepack.cpp \
 devices/proformbike/proformbike.cpp \
 devices/proformelliptical/proformelliptical.cpp \
 devices/proformtreadmill/proformtreadmill.cpp \
+devices/proformtreadmill/proformtreadmillgeneric.cpp \
 qfit.cpp \
 qzsettings.cpp \
 devices/renphobike/renphobike.cpp \
@@ -860,6 +861,7 @@ powerzonepack.h \
 devices/proformbike/proformbike.h \
 devices/proformelliptical/proformelliptical.h \
 devices/proformtreadmill/proformtreadmill.h \
+devices/proformtreadmill/fitproprotocol.h \
 qdebugfixup.h \
 qfit.h \
 qmdnsengine_export.h \
