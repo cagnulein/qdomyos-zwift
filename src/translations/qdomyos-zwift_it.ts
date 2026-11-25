@@ -5790,8 +5790,8 @@ Consentire a QZ di modificare questo valore?
         <translation>Garmin Bluetooth Sensore</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Se vuoi inviare le metriche al tuo dispositivo Garmin dal tuo Mac, abilita questa opzione. Altrimenti, lascialo disabilitato.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Permette al tuo Garmin o a un altro orologio sportivo di usare QZ come sensore Bluetooth: un foot pod con un tapis roulant, un misuratore di potenza con una bici (su Android attiva anche «Sensore di potenza della bici»). L&apos;orologio deve essere associato via Bluetooth al telefono o tablet su cui gira QZ: se non trova QZ, associali una volta, poi aggiungi il sensore sull&apos;orologio e accetta la richiesta di associazione. Se Garmin Connect sullo stesso telefono è collegato all&apos;orologio, forzane l&apos;arresto due o tre volte di seguito mentre l&apos;orologio si connette; è più semplice un telefono o tablet separato senza Garmin Connect. Finché QZ funziona come sensore per l&apos;orologio, Zwift via Bluetooth lo vede solo come foot pod o misuratore di potenza, non come un dispositivo che può controllare.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>

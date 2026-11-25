@@ -6766,8 +6766,8 @@ Darf QZ diesen Wert ändern?
         <translation>Garmin-Bluetooth-Sensor</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Wenn Sie Metriken von Ihrem Mac auf Ihr Garmin-Gerät senden möchten, aktivieren Sie dies. Andernfalls lassen Sie es deaktiviert.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Damit kann Ihre Garmin- oder eine andere Sportuhr QZ als Bluetooth-Sensor nutzen: als Fußsensor mit einem Laufband, als Leistungsmesser mit einem Fahrrad (unter Android zusätzlich „Leistungssensor“ einschalten). Die Uhr muss per Bluetooth mit dem Telefon oder Tablet gekoppelt sein, auf dem QZ läuft: Findet sie QZ nicht, koppeln Sie beide einmal, fügen Sie dann den Sensor auf der Uhr hinzu und bestätigen Sie die Kopplungsanfrage. Ist Garmin Connect auf demselben Telefon mit der Uhr verbunden, beenden Sie es zwei- bis dreimal hintereinander erzwungen, während sich die Uhr verbindet; einfacher ist ein separates Telefon oder Tablet ohne Garmin Connect. Solange QZ als Sensor für die Uhr arbeitet, sieht Zwift es über Bluetooth nur als Fußsensor oder Leistungsmesser, nicht als Gerät, das es steuern kann.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>

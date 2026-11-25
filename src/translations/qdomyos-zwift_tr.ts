@@ -6510,8 +6510,8 @@ QZ&apos;nin bu değeri değiştirmesine izin verilsin mi?
         <translation>Garmin Bluetooth sensörü</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Mac&apos;inizden Garmin cihazınıza veri göndermek istiyorsanız bunu açın. Aksi hâlde kapalı bırakın.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Garmin veya başka bir spor saatinizin QZ&apos;yi Bluetooth sensörü olarak kullanmasını sağlar: koşu bandıyla adım sensörü, bisikletle güç ölçer (Android&apos;de ayrıca &quot;Bisiklet güç sensörü&quot;nü açın). Saatin, QZ&apos;nin çalıştığı telefon veya tabletle Bluetooth üzerinden eşlenmiş olması gerekir: saat QZ&apos;yi bulamazsa bir kez eşleyin, ardından saatte sensörü ekleyin ve eşleme isteğini kabul edin. Aynı telefonda Garmin Connect saate bağlıysa, saat bağlanırken onu art arda iki üç kez zorla durdurun; Garmin Connect olmayan ayrı bir telefon veya tablet daha kolaydır. QZ saat için sensör olarak çalışırken Bluetooth üzerinden bağlı Zwift onu yalnızca adım sensörü veya güç ölçer olarak görür, kontrol edebileceği bir cihaz olarak görmez.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>

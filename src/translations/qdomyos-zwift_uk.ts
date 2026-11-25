@@ -6682,8 +6682,8 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Bluetooth-датчик Garmin</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Увімкніть, якщо хочете передавати показники з Mac на пристрій Garmin. Інакше залиште вимкненим.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Годинник Garmin та інші спортивні годинники зможуть брати дані з QZ як із датчика Bluetooth: крокомір на доріжці, датчик потужності на велосипеді (на Android увімкніть ще «Датчик потужності велосипеда»). Годиннику потрібне спарювання з телефоном або планшетом, де працює QZ: якщо годинник не знаходить QZ, один раз виконайте спарювання, потім додайте датчик на годиннику і прийміть запит на спарювання. Якщо на цьому телефоні Garmin Connect пов’язаний із годинником, примусово зупиніть його 2–3 рази поспіль, поки годинник підключається; простіше окремий телефон або планшет без Garmin Connect. Поки QZ працює датчиком для годинника, Zwift через Bluetooth бачить його лише як крокомір або датчик потужності, а не як тренажер, яким він керує.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>

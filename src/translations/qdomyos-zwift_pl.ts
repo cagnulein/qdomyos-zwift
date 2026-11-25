@@ -6510,8 +6510,8 @@ Zezwolić QZ na zmianę tej wartości?
         <translation>Czujnik Bluetooth Garmin</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Jeśli chcesz wysyłać dane pomiarowe do urządzenia Garmin z komputera Mac, włącz tę opcję. W przeciwnym razie pozostaw ją wyłączoną.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Pozwala zegarkowi Garmin lub innemu zegarkowi sportowemu używać QZ jako czujnika Bluetooth: czujnika kroków z bieżnią, miernika mocy z rowerem (na Androidzie włącz też „Czujnik mocy roweru”). Zegarek musi być sparowany przez Bluetooth z telefonem lub tabletem, na którym działa QZ: jeśli nie znajduje QZ, sparuj je raz, potem dodaj czujnik w zegarku i zaakceptuj prośbę o sparowanie. Jeśli na tym samym telefonie Garmin Connect jest połączony z zegarkiem, wymuś jego zatrzymanie dwa lub trzy razy z rzędu, gdy zegarek się łączy; prościej jest użyć osobnego telefonu lub tabletu bez Garmin Connect. Gdy QZ działa jako czujnik dla zegarka, Zwift przez Bluetooth widzi go tylko jako czujnik kroków lub miernik mocy, a nie jako urządzenie, którym może sterować.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>

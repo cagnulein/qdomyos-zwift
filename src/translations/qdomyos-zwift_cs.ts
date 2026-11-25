@@ -6510,8 +6510,8 @@ Povolit QZ tuto hodnotu měnit?
         <translation>Bluetooth snímač Garmin</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Zapněte, pokud chcete posílat údaje z Macu do zařízení Garmin. Jinak ponechte vypnuté.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Hodinky Garmin i jiné sportovní hodinky mohou používat QZ jako snímač Bluetooth: krokoměr s běžeckým pásem, snímač výkonu s kolem (na Androidu zapněte také „Snímač výkonu kola“). Hodinky musí být spárované s telefonem nebo tabletem, na kterém běží QZ: pokud QZ nenajdou, jednou je spárujte, pak přidejte snímač v hodinkách a potvrďte žádost o spárování. Pokud je na stejném telefonu Garmin Connect propojený s hodinkami, vynuceně ho zastavte dvakrát až třikrát po sobě, zatímco se hodinky připojují; jednodušší je samostatný telefon nebo tablet bez Garmin Connect. Dokud QZ funguje jako snímač pro hodinky, Zwift přes Bluetooth ho vidí jen jako krokoměr nebo snímač výkonu, ne jako trenažér, který může ovládat.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
