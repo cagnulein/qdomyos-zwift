@@ -155,7 +155,9 @@
 #include "devices/iconsolebike/iconsolebike.h"
 #include "devices/treadmill.h"
 #include "devices/truetreadmill/truetreadmill.h"
+#ifndef Q_OS_IOS
 #include "devices/trixterxdreambike/trixterxdreambike.h"
+#endif
 #include "devices/trxappgateusbbike/trxappgateusbbike.h"
 #include "devices/trxappgateusbelliptical/trxappgateusbelliptical.h"
 #include "devices/trxappgateusbrower/trxappgateusbrower.h"
@@ -418,7 +420,9 @@ class bluetooth : public QObject, public SignalHandler {
     elitesquarecontroller* eliteSquareController = nullptr;
     QString filterDevice = QLatin1String("");
     QString gymModeSessionDevice = QLatin1String("");
+#ifndef Q_OS_IOS
     trixterxdreambike * trixterXDreambike = nullptr;
+#endif
 
     bool testResistance = false;
     bool noWriteResistance = false;

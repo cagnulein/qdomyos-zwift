@@ -2,6 +2,7 @@
 
 #include "gtest/gtest.h"
 #include "bluetooth.h"
+#include "devices/trixterxdreambike/trixterxdreambike.h"
 #include "Tools/testsettings.h"
 
 

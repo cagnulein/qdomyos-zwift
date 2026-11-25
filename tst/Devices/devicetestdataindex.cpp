@@ -2,6 +2,7 @@
 #include "deviceindex.h"
 
 #include "bluetooth.h"
+#include "devices/trixterxdreambike/trixterxdreambike.h"
 #include "devicenamepatterngroup.h"
 #include "bluetoothdevicetestdata.h"
 #include "bluetoothdevicetestdatabuilder.h"

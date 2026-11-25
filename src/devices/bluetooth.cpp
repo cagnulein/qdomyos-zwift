@@ -1058,7 +1058,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool iconsole_elliptical = settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();
     bool iconsole_rower = settings.value(QZSettings::iconsole_rower, QZSettings::default_iconsole_rower).toBool();
     bool trx_route_key = settings.value(QZSettings::trx_route_key, QZSettings::default_trx_route_key).toBool();
+#ifndef Q_OS_IOS
     bool trixter_xdream_bike = settings.value(QZSettings::trixter_xdream_bike_enabled, QZSettings::default_trixter_xdream_bike_enabled).toBool();
+#endif
 
     if (!heartRateBeltFound) {
 
@@ -1109,6 +1111,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     }
 
 
+#ifndef Q_OS_IOS
     if(trixter_xdream_bike && !this->trixterXDreambike &&
             (this->trixterXDreambike = trixterxdreambike::tryCreate(noWriteResistance, noHeartService, false))) {
         emit deviceConnected(this->trixterXDreambike->bluetoothDevice);
@@ -1119,6 +1122,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         this->signalBluetoothDeviceConnected(this->trixterXDreambike);
         return;
     }
+#endif
 
 #ifdef Q_OS_IOS
     // Schwinn bikes on iOS allows to be connected to several instances, so in this way
@@ -5521,10 +5525,12 @@ void bluetooth::restart() {
         delete eliteSterzoSmart;
         eliteSterzoSmart = nullptr;
     }
+#ifndef Q_OS_IOS
     if (trixterXDreambike) {
         delete trixterXDreambike;
         trixterXDreambike = nullptr;
     }
+#endif
     if (wahooDirconBike) {
         delete wahooDirconBike;
         wahooDirconBike = nullptr;
@@ -5805,8 +5811,10 @@ bluetoothdevice *bluetooth::device() {
 #endif
     } else if (freebeatBoomBike) {
         return freebeatBoomBike;
+#ifndef Q_OS_IOS
     } else if (trixterXDreambike){
         return trixterXDreambike;
+#endif
     }
     return nullptr;
 }
