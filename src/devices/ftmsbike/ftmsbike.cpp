@@ -165,6 +165,37 @@ bool ftmsbike::shouldReplayPhysicalGearChange(bool featureEnabled, bool physical
     return !featureEnabled || !physicalShiftPending;
 }
 
+bool ftmsbike::matchesRecentResistanceCommand(resistance_t nativeLevel,
+                                               const QList<PhysicalResistanceCommand> &commands,
+                                               qint64 nowMs, qint64 guardMs) {
+    // Delayed FTMS 0x2ACE notifications may match an earlier queued 0x04 write,
+    // even after QZ has already sent a newer target. Keep all recent trajectories.
+    for (const PhysicalResistanceCommand &command : commands) {
+        const qint64 age = nowMs - command.sentAtMs;
+        if (isExpectedResistanceCommandEcho(nativeLevel, command.fromLevel,
+                                            command.targetLevel, age, guardMs))
+            return true;
+    }
+    return false;
+}
+
+resistance_t ftmsbike::relativeResistanceTarget(resistance_t desiredLevel, resistance_t oldGradeBase,
+                                                 resistance_t newGradeBase) {
+    // Shift the CURRENT manual/native position by the gradient delta, not to an
+    // absolute Zwift lookup level. No grade change means no resistance reset.
+    return static_cast<resistance_t>(qBound<int>(1,
+        static_cast<int>(desiredLevel) + newGradeBase - oldGradeBase, 32));
+}
+
+resistance_t ftmsbike::limitedResistanceTarget(resistance_t anchorLevel, resistance_t desiredLevel,
+                                                resistance_t maxStep) {
+    if (maxStep < 1 || anchorLevel < 1)
+        return anchorLevel;
+    const int difference = static_cast<int>(desiredLevel) - anchorLevel;
+    return static_cast<resistance_t>(qBound<int>(1,
+        static_cast<int>(anchorLevel) + qBound<int>(-maxStep, difference, maxStep), 32));
+}
+
 bool ftmsbike::isExpectedResistanceCommandEcho(resistance_t nativeLevel, resistance_t levelBeforeCommand,
                                                resistance_t targetLevel, qint64 millisecondsSinceCommand,
                                                qint64 echoGuardMs) {
@@ -237,8 +268,9 @@ bool ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
                                      gattWriteCharControlPointId.properties() & QLowEnergyCharacteristic::WriteNoResponse &&
                                          !DOMYOS);
 
-    // Only on the explicitly opted-in BI9200: track expected control echoes
-    // by target value instead of suppressing all physical shifts for 3 seconds.
+    // Only on the exact, opted-in BI9200: remember ALL recently queued
+    // resistance targets. With one command per second the newest target alone
+    // cannot explain delayed 0x2ACE replies from earlier writes.
     if (queued && data_len > 0 &&
         physicalResistanceGearsEnabled(bluetoothDevice.name(),
             settings.value(QZSettings::gears_from_bike, QZSettings::default_gears_from_bike).toBool()) &&
@@ -246,19 +278,29 @@ bool ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
          data[0] == FTMS_SET_TARGET_INCLINATION ||
          data[0] == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS ||
          data[0] == FTMS_SET_TARGET_POWER)) {
-        lastPhysicalGearControlCommand = QDateTime::currentDateTime();
+        const QDateTime now = QDateTime::currentDateTime();
+        lastPhysicalGearControlCommand = now;
         if (data[0] == FTMS_SET_TARGET_RESISTANCE_LEVEL && data_len >= 3) {
             const int rawTarget = static_cast<unsigned char>(data[1]) |
                                   (static_cast<int>(static_cast<unsigned char>(data[2])) << 8);
-            lastPhysicalGearTarget = static_cast<resistance_t>(qRound(rawTarget / 10.0));
-            pendingPhysicalGearEchoTarget = lastPhysicalGearTarget;
-            pendingPhysicalGearEchoStart = lastPhysicalGearResistance;
-            lastPhysicalGearCommandWasResistance = true;
+            const resistance_t newTarget = static_cast<resistance_t>(qRound(rawTarget / 10.0));
+            const resistance_t fromLevel = lastPhysicalGearResistance > 0
+                ? lastPhysicalGearResistance : newTarget;
+            lastPhysicalGearTarget = newTarget;
+            lastPhysicalResistanceWrite = now;
+            recentPhysicalResistanceCommands.append(
+                PhysicalResistanceCommand{fromLevel, newTarget, now.toMSecsSinceEpoch()});
+            // Bound both age and memory even if the sensor stops reporting.
+            constexpr qint64 commandHistoryMs = 4000;
+            while (!recentPhysicalResistanceCommands.isEmpty() &&
+                   (recentPhysicalResistanceCommands.size() > 12 ||
+                    now.toMSecsSinceEpoch() - recentPhysicalResistanceCommands.first().sentAtMs > commandHistoryMs)) {
+                recentPhysicalResistanceCommands.removeFirst();
+            }
         } else {
-            // Unknown physical response to an inclination/power command:
-            // retain the existing time guard until an explicit resistance target.
-            pendingPhysicalGearEchoTarget = -1;
-            lastPhysicalGearCommandWasResistance = false;
+            // Distinct from resistance-target echoes; only the conservative
+            // 3-second guard applies to unknown incline or power responses.
+            lastPhysicalGearOtherControlCommand = now;
         }
     }
     return queued;
@@ -1856,33 +1898,37 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 const resistance_t nativeLevel = static_cast<resistance_t>(
                     static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(index))) |
                     (static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(index + 1))) << 8));
-                const qint64 sinceControlMs = lastPhysicalGearControlCommand.isValid()
-                    ? lastPhysicalGearControlCommand.msecsTo(now) : -1;
+                constexpr qint64 commandHistoryMs = 4000;
+                const qint64 nowMs = now.toMSecsSinceEpoch();
+                while (!recentPhysicalResistanceCommands.isEmpty() &&
+                       nowMs - recentPhysicalResistanceCommands.first().sentAtMs > commandHistoryMs)
+                    recentPhysicalResistanceCommands.removeFirst();
+
+                const bool commandEcho = matchesRecentResistanceCommand(
+                    nativeLevel, recentPhysicalResistanceCommands, nowMs, commandHistoryMs);
+                const qint64 sinceOtherControlMs = lastPhysicalGearOtherControlCommand.isValid()
+                    ? lastPhysicalGearOtherControlCommand.msecsTo(now) : -1;
+                const bool otherControlEcho = sinceOtherControlMs >= 0 && sinceOtherControlMs < 3000;
                 const PhysicalResistanceGearLimits bi9200Limits{1, 32, 5, 3000};
-                const bool knownCommandEcho = isExpectedResistanceCommandEcho(
-                    nativeLevel, pendingPhysicalGearEchoStart, pendingPhysicalGearEchoTarget,
-                    sinceControlMs, bi9200Limits.controlEchoGuardMs);
-                // If the native value is NOT an expected echo, do not suppress
-                // this handlebar shift merely because Zwift recently sent a
-                // different target. For unknown 0x11/power commands retain the
-                // conservative legacy guard.
-                const qint64 classifierGuardMs =
-                    !lastPhysicalGearCommandWasResistance || knownCommandEcho ? sinceControlMs : -1;
                 resistance_t gearDelta = 0;
-                if (physicalResistanceGearDelta(lastPhysicalGearResistance, nativeLevel,
-                                                classifierGuardMs, bi9200Limits, &gearDelta)) {
+                // Only unscripted changes OUTSIDE every recent command's
+                // response trajectory can count as a hardware shift.
+                if (!commandEcho && !otherControlEcho &&
+                    physicalResistanceGearDelta(lastPhysicalGearResistance, nativeLevel,
+                                                -1, bi9200Limits, &gearDelta)) {
                     qDebug() << QStringLiteral("BH BI9200 physical shift")
                              << lastPhysicalGearResistance << nativeLevel << "delta" << gearDelta;
                     lastRawRequestedResistanceValue = -1;
                     physicalGearChangePending = true;
-                    // An explicit native shift supersedes any expected command echo.
-                    pendingPhysicalGearEchoTarget = -1;
+                    if (desiredPhysicalResistance >= 1) {
+                        desiredPhysicalResistance = static_cast<resistance_t>(
+                            qBound<int>(1, desiredPhysicalResistance + gearDelta, 32));
+                    } else {
+                        desiredPhysicalResistance = nativeLevel;
+                    }
+                    // A physical press moves the motor itself; do not replay it.
+                    lastPhysicalGearTarget = nativeLevel;
                     setGears(gears() + gearDelta);
-                }
-                if (knownCommandEcho && nativeLevel == pendingPhysicalGearEchoTarget) {
-                    // Once the target is reached, another press can be
-                    // detected immediately, even inside the old 3-second guard.
-                    pendingPhysicalGearEchoTarget = -1;
                 }
                 lastPhysicalGearResistance = nativeLevel;
             } else if (bluetoothDevice.name().compare(QStringLiteral("H9110 BI9200"), Qt::CaseInsensitive) == 0) {
@@ -1890,9 +1936,11 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 lastPhysicalGearResistance = -1;
                 lastPhysicalGearTarget = -1;
                 lastPhysicalGearAutomaticBase = -1;
-                pendingPhysicalGearEchoTarget = -1;
-                pendingPhysicalGearEchoStart = -1;
-                lastPhysicalGearCommandWasResistance = false;
+                lastPhysicalGearAutomaticBaseValid = false;
+                desiredPhysicalResistance = -1;
+                recentPhysicalResistanceCommands.clear();
+                lastPhysicalResistanceWrite = QDateTime();
+                lastPhysicalGearOtherControlCommand = QDateTime();
                 physicalGearChangePending = false;
             }
 
@@ -2534,9 +2582,11 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         lastPhysicalGearControlCommand = QDateTime();
         lastPhysicalGearTarget = -1;
         lastPhysicalGearAutomaticBase = -1;
-        pendingPhysicalGearEchoTarget = -1;
-        pendingPhysicalGearEchoStart = -1;
-        lastPhysicalGearCommandWasResistance = false;
+        lastPhysicalGearAutomaticBaseValid = false;
+        desiredPhysicalResistance = -1;
+        recentPhysicalResistanceCommands.clear();
+        lastPhysicalResistanceWrite = QDateTime();
+        lastPhysicalGearOtherControlCommand = QDateTime();
         physicalGearChangePending = false;
         if (bluetoothDevice.name().toUpper().startsWith("SUITO")) {
             qDebug() << QStringLiteral("SUITO found");
