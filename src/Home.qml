@@ -489,7 +489,7 @@ HomeForm {
     // Who used QZ before the modern look became the look of a new install is asked once
     // (homeform::startModernForNewInstall()); the classic side menu offers it again (main.qml).
     // After the Bluetooth and Location questions, not over them: with "Restart the app" declined,
-    // at the next start
+    // once Location is turned on, or at the next start
     UiMessageDialog {
         id: modernOfferDialog
         // Yes switches the look once this popup has closed: switched while it closes, the popup
@@ -504,6 +504,8 @@ HomeForm {
             rootItem.answerModernOffer()
         }
         onNoClicked: rootItem.answerModernOffer()
+        // opened again during the exit (the menu entry), closed never came: a No then must not switch
+        onAboutToShow: switchWhenClosed = false
         onClosed: {
             if (switchWhenClosed) {
                 switchWhenClosed = false
