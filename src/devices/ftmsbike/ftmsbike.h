@@ -90,6 +90,20 @@ class ftmsbike : public bike {
                                             qint64 millisecondsSinceControlCommand,
                                             const PhysicalResistanceGearLimits &limits, resistance_t *delta);
     static bool shouldReplayPhysicalGearChange(bool featureEnabled, bool physicalShiftPending);
+    // Generic command history: an FTMS resistance notification may be a delayed
+    // response to ANY recent target, not just the most recent one.
+    struct PhysicalResistanceCommand {
+        resistance_t fromLevel;
+        resistance_t targetLevel;
+        qint64 sentAtMs;
+    };
+    static bool matchesRecentResistanceCommand(resistance_t nativeLevel,
+                                                const QList<PhysicalResistanceCommand> &commands,
+                                                qint64 nowMs, qint64 guardMs);
+    static resistance_t relativeResistanceTarget(resistance_t desiredLevel, resistance_t oldGradeBase,
+                                                  resistance_t newGradeBase);
+    static resistance_t limitedResistanceTarget(resistance_t anchorLevel, resistance_t desiredLevel,
+                                                 resistance_t maxStep);
     static bool isExpectedResistanceCommandEcho(resistance_t nativeLevel, resistance_t levelBeforeCommand,
                                                resistance_t targetLevel, qint64 millisecondsSinceCommand,
                                                qint64 echoGuardMs);
@@ -221,11 +235,13 @@ class ftmsbike : public bike {
     resistance_t lastPhysicalGearTarget = -1;
     // Last Zwift grade-derived level without gear offset, for local UI shifts.
     resistance_t lastPhysicalGearAutomaticBase = -1;
-    // Suppress only telemetry belonging to the current command, not every
-    // native shift during the following 3 seconds.
-    resistance_t pendingPhysicalGearEchoTarget = -1;
-    resistance_t pendingPhysicalGearEchoStart = -1;
-    bool lastPhysicalGearCommandWasResistance = false;
+    // BI9200-only state. Stored command trajectories prevent delayed responses
+    // to older targets from being misclassified as handlebar presses.
+    QList<PhysicalResistanceCommand> recentPhysicalResistanceCommands;
+    QDateTime lastPhysicalResistanceWrite;
+    QDateTime lastPhysicalGearOtherControlCommand;
+    resistance_t desiredPhysicalResistance = -1;
+    bool lastPhysicalGearAutomaticBaseValid = false;
     bool physicalGearChangePending = false;
 
     inclinationResistanceTable _inclinationResistanceTable;
