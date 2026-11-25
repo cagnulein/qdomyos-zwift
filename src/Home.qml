@@ -511,7 +511,8 @@ HomeForm {
                 window.ui.setOption("ui_modern", true)
             }
         }
-        visible: rootItem.modernOfferRequested && !window.ui.modern && !locationQuestions
+        visible: typeof rootItem !== "undefined" && rootItem.modernOfferRequested && !window.ui.modern
+                 && !locationQuestions
     }
 
     Timer {
