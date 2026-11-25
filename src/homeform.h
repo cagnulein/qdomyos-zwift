@@ -501,9 +501,13 @@ class homeform : public QObject {
         bool antbike =
             settings.value(QZSettings::antbike, QZSettings::default_antbike).toBool();
         // bluetooth.cpp connects these with no Bluetooth name stored: the Peloton OCR bike in its constructor,
-        // a DirCon device by the name picked in filter_device (connectDirconDevice())
+        // the Trixter X-Dream bike by its serial port (not on iOS, the setting stays false there), a DirCon
+        // device by the name picked in filter_device (connectDirconDevice())
         bool peloton_bike_ocr =
             settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool();
+        bool trixter_xdream_bike = settings.value(QZSettings::trixter_xdream_bike_enabled,
+                                                  QZSettings::default_trixter_xdream_bike_enabled)
+                                       .toBool();
         bool dircon = settings.value(QZSettings::filter_device, QZSettings::default_filter_device)
                           .toString()
                           .contains(QStringLiteral("(DirCon)"), Qt::CaseInsensitive);
@@ -514,7 +518,7 @@ class homeform : public QObject {
                 proformtdf4ip.isEmpty() && proformtdf1ip.isEmpty() && proformtreadmillip.isEmpty() &&
                 freebeatSerialPort.isEmpty() && daumSerialPort.isEmpty() && computrainerSerialPort.isEmpty() &&
                 kettlerUsbSerialPort.isEmpty() && csafeRowerSerialPort.isEmpty() && csafeEllipticalSerialPort.isEmpty() &&
-                proform_rower_ip.isEmpty() && !peloton_bike_ocr && !dircon;
+                proform_rower_ip.isEmpty() && !peloton_bike_ocr && !trixter_xdream_bike && !dircon;
     }
 
     Q_INVOKABLE bool firstRun() { return neverConnected(); }
@@ -524,7 +528,7 @@ class homeform : public QObject {
     // The home page asks once, at its start: raises modernOfferRequested while the question is pending, the look
     // is classic and no workout is under way. fromMenu: the entry of the classic side menu, which asks every time
     Q_INVOKABLE void requestModernOffer(bool fromMenu = false);
-    // The answer to "Try the new interface?" (back counts as no): the question is not asked again. The look itself
+    // The answer to "Try the new interface?", yes or no: the question is not asked again. The look itself
     // is switched by the QML (window.ui.setOption), as by the switch in the settings
     Q_INVOKABLE void answerModernOffer();
 
