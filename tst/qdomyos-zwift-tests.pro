@@ -35,6 +35,7 @@ SOURCES += \
         ToolTests/treadmillcaloriestests.cpp \
         ToolTests/ksespinclinationtests.cpp \
         ToolTests/fitshowstartspeedgatetests.cpp \
+        ToolTests/targetzonetiletests.cpp \
         ToolTests/testsettingstestsuite.cpp \
         ToolTests/testsettingssecuritytestsuite.cpp \
         ToolTests/testtrainingloadtestsuite.cpp \
