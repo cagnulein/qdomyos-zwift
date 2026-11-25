@@ -468,3 +468,39 @@ TEST(ParagonXTelemetryTest, ProductionDriverPublishesZeroAfterPauseAndStop) {
     ParagonXNotificationTestAccess::applyTelemetry(driver, frames[0]);
     EXPECT_NEAR(driver.currentSpeed().value(), 8.80309, 0.00001);
 }
+
+
+TEST(ParagonXTelemetryTest, ExistingCompleteFrameFirmwareStillReportsRunningAndPause) {
+    // Vincenzo's known-good Paragon X sends 76-byte status frames. The final
+    // frames retain the last raw running speed, but machine state becomes 0x02.
+    // Preserve exact raw decoding while publishing zero for paused status,
+    // matching the shorter-frame variant and preventing Zwift ghost running.
+    const auto captures = readCapturedFrames(fixturePath("paragonx_complete_2026.tsv"));
+    ASSERT_EQ(captures.size(), 19u);
+    horizontreadmill driver(false, false);
+    unsigned runningFrames = 0;
+    unsigned pausedFrames = 0;
+    for (const auto &capture : captures) {
+        std::vector<uint8_t> frame;
+        for (const auto &chunk : capture.notifications)
+            frame.insert(frame.end(), chunk.begin(), chunk.end());
+        ASSERT_EQ(frame.size(), 76u);
+        ParagonXTelemetry::Metrics metrics{};
+        ASSERT_TRUE(ParagonXTelemetry::decode(frame.data(), frame.size(), false, metrics));
+        EXPECT_NEAR(metrics.speedKmh, capture.speedKmh, 0.00001);
+        ParagonXNotificationTestAccess::applyTelemetry(driver, metrics);
+        if (metrics.machineState == 0x01) {
+            ++runningFrames;
+            EXPECT_NEAR(driver.currentSpeed().value(), capture.speedKmh, 0.00001);
+        } else if (metrics.machineState == 0x02) {
+            ++pausedFrames;
+            EXPECT_DOUBLE_EQ(driver.currentSpeed().value(), 0.0);
+            EXPECT_TRUE(ParagonXNotificationTestAccess::commandsSuspended(driver));
+        } else {
+            FAIL() << "Unexpected machine state in the known-good 76-byte capture: "
+                   << static_cast<unsigned>(metrics.machineState);
+        }
+    }
+    EXPECT_EQ(runningFrames, 13u);
+    EXPECT_EQ(pausedFrames, 6u);
+}
