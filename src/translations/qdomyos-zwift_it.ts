@@ -178,8 +178,8 @@
         <translation>La resistenza automatica è disattivata</translation>
     </message>
     <message>
-        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect until QZ restarts. Commands from apps (for example Zwift) are still ignored.</source>
-        <translation>QZ ora non modifica la resistenza. «Applica»: i livelli dei riquadri Resistenza, Obiettivo R. e delle preimpostazioni valgono fino al riavvio di QZ. I comandi delle app (ad esempio Zwift) continuano a essere ignorati.</translation>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ ora non modifica la resistenza. «Applica»: i livelli dei riquadri Resistenza, Obiettivo R. e delle preimpostazioni valgono finché la resistenza automatica resta disattivata. I comandi delle app (ad esempio Zwift) continuano a essere ignorati.</translation>
     </message>
     <message>
         <source>Apply</source>

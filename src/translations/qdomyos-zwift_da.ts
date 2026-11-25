@@ -174,8 +174,8 @@
         <translation>Automatisk modstand er slået fra</translation>
     </message>
     <message>
-        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect until QZ restarts. Commands from apps (for example Zwift) are still ignored.</source>
-        <translation>QZ ændrer ikke modstanden nu. »Anvend«: niveauer fra felterne Modstand, Mål mod. og forudindstillinger gælder, indtil QZ genstartes. Kommandoer fra apps (f.eks. Zwift) ignoreres stadig.</translation>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ ændrer ikke modstanden nu. »Anvend«: niveauer fra felterne Modstand, Mål mod. og forudindstillinger gælder, så længe automatisk modstand er slået fra. Kommandoer fra apps (f.eks. Zwift) ignoreres stadig.</translation>
     </message>
     <message>
         <source>Apply</source>

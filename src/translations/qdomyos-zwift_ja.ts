@@ -178,8 +178,8 @@
         <translation>自動負荷はオフです</translation>
     </message>
     <message>
-        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect until QZ restarts. Commands from apps (for example Zwift) are still ignored.</source>
-        <translation>QZ は現在負荷を変更していません。「適用」：負荷レベル、目標負荷、プリセットのタイルで選んだレベルが QZ を再起動するまで反映されます。アプリ（Zwift など）からのコマンドは引き続き無視されます。</translation>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ は現在負荷を変更していません。「適用」：負荷レベル、目標負荷、プリセットのタイルで選んだレベルが 自動負荷がオフの間は反映されます。アプリ（Zwift など）からのコマンドは引き続き無視されます。</translation>
     </message>
     <message>
         <source>Apply</source>

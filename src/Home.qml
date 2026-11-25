@@ -59,7 +59,7 @@ HomeForm {
     signal largeButton_clicked(string name)
 
     // Tile buttons. With Auto Resistance off the Resistance and Target R. tiles and the resistance presets
-    // would do nothing on a bike or a rower: the rider is asked until Apply, then not again until a restart
+    // would do nothing on a bike or a rower: the rider is asked until Apply, then not again until Auto Resistance is toggled
     // (homeform::resistanceTilePressed)
     function tileButtonPressed(kind, name) {
         var result = rootItem.resistanceTilePressed(kind, name)
@@ -161,7 +161,7 @@ HomeForm {
     UiMessageDialog {
         id: autoResistanceOffCard
         title: qsTr("Auto Resistance is off")
-        text: qsTr("QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect until QZ restarts. Commands from apps (for example Zwift) are still ignored.")
+        text: qsTr("QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.")
         buttons: (MessageDialog.Yes | MessageDialog.No | MessageDialog.Cancel)
         yesText: qsTr("Apply")
         noText: qsTr("Enable Auto Resistance")
@@ -245,7 +245,7 @@ HomeForm {
                     rightPadding: 6
                     topPadding: 10
                     bottomPadding: 10
-                    text: qsTr("QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect until QZ restarts. Commands from apps (for example Zwift) are still ignored.")
+                    text: qsTr("QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.")
                     color: "black"
                     font.pixelSize: window.fontPx(18)
                     wrapMode: Text.Wrap

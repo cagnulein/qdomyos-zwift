@@ -178,8 +178,8 @@
         <translation>Автосопротивление выключено</translation>
     </message>
     <message>
-        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect until QZ restarts. Commands from apps (for example Zwift) are still ignored.</source>
-        <translation>Сейчас QZ не меняет сопротивление тренажёра. «Применить» – уровни с плиток «Сопротивление», «Цель сопр.» и пресетов будут действовать до перезапуска QZ. Команды приложений (например, Zwift) по-прежнему игнорируются.</translation>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>Сейчас QZ не меняет сопротивление тренажёра. «Применить» – уровни с плиток «Сопротивление», «Цель сопр.» и пресетов будут действовать, пока автосопротивление выключено. Команды приложений (например, Zwift) по-прежнему игнорируются.</translation>
     </message>
     <message>
         <source>Apply</source>

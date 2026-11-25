@@ -174,8 +174,8 @@
         <translation>Otomatik direnç kapalı</translation>
     </message>
     <message>
-        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect until QZ restarts. Commands from apps (for example Zwift) are still ignored.</source>
-        <translation>QZ şu anda direnci değiştirmiyor. “Uygula”: Direnç, Hedef dir. ve ön ayar kutucuklarındaki seviyeler QZ yeniden başlatılana kadar geçerli olur. Uygulamalardan gelen komutlar (örneğin Zwift) yine yok sayılır.</translation>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ şu anda direnci değiştirmiyor. “Uygula”: Direnç, Hedef dir. ve ön ayar kutucuklarındaki seviyeler otomatik direnç kapalı kaldığı sürece geçerli olur. Uygulamalardan gelen komutlar (örneğin Zwift) yine yok sayılır.</translation>
     </message>
     <message>
         <source>Apply</source>
