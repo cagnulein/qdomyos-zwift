@@ -220,6 +220,14 @@ Would you like to do that now?</source>
 Wil je dat nu doen?</translation>
     </message>
     <message>
+        <source>Try the new interface?</source>
+        <translation>De nieuwe interface proberen?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ heeft een nieuw uiterlijk voor het hoofdscherm, het zijmenu, de instellingen en de wizard. Je kunt altijd terugschakelen via Instellingen &gt; Algemene interface-opties.</translation>
+    </message>
+    <message>
         <source>Adjustable. Current value: </source>
         <translation>Instelbaar. Huidige waarde: </translation>
     </message>
@@ -4606,6 +4614,10 @@ Geef in het volgende venster toegang tot de QZ-map.</translation>
     <message>
         <source>Settings</source>
         <translation>Instellingen</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>Probeer de nieuwe interface</translation>
     </message>
     <message>
         <source>Workouts History</source>

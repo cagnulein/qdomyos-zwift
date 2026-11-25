@@ -452,8 +452,9 @@ HomeForm {
             rootItem.enableLocationServices()
         }
         onNoClicked: {
-            locationServicesDeclined = true
+            // the reminder first: locationQuestions below stays true from this question to the reminder
             remindLocationServicesDialog.visible = true
+            locationServicesDeclined = true
         }
         visible: !locationServicesOn && !locationServiceRequsted && !locationServicesDeclined && !settings.skipLocationServicesDialog
     }
@@ -473,8 +474,48 @@ HomeForm {
         informativeText: qsTr("To apply the changes, you need to restart the app.\nWould you like to do that now?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: Qt.callLater(Qt.quit)
-        onNoClicked: this.visible = false;
+        onNoClicked: {
+            this.visible = false;
+            // Location stays off for this run: the questions after it (locationQuestions) go on
+            locationServicesDeclined = true
+        }
         visible: locationServiceRequsted && !locationServicesOn
+    }
+
+    // A Bluetooth/Location question is open or still to come: the permission question, "Restart the
+    // app" after its Yes (both while Location stays off), the reminder after its No. By the state the
+    // questions follow, not by their visible: one answer hides one and shows the next, and a
+    // binding on both could see neither for a moment
+    readonly property bool locationQuestions: (!locationServicesOn && !locationServicesDeclined
+                                               && !settings.skipLocationServicesDialog)
+                                              || remindLocationServicesDialog.visible
+
+    // Users who used QZ before the modern look became the look of a new install are asked once
+    // (homeform::startModernForNewInstall()); the classic side menu offers it again (main.qml).
+    // After the Bluetooth and Location questions, not over them
+    UiMessageDialog {
+        id: modernOfferDialog
+        // Yes switches the look once this popup has closed: switched while it closes, the popup
+        // takes the size and the card of the modern look for the rest of its exit
+        property bool switchWhenClosed: false
+        text: qsTr("Try the new interface?")
+        informativeText: qsTr("QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings > General UI Options.")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: {
+            switchWhenClosed = true
+            rootItem.answerModernOffer()
+        }
+        onNoClicked: rootItem.answerModernOffer()
+        // opened again during the exit (the menu entry), closed never came: a No then must not switch
+        onAboutToShow: switchWhenClosed = false
+        onClosed: {
+            if (switchWhenClosed) {
+                switchWhenClosed = false
+                window.ui.setOption("ui_modern", true)
+            }
+        }
+        visible: typeof rootItem !== "undefined" && rootItem.modernOfferRequested && !window.ui.modern
+                 && !locationQuestions
     }
 
     Timer {
@@ -482,6 +523,8 @@ HomeForm {
         onTriggered: {
             if(rootItem.firstRun()) {
                 stackView.push("Wizard.qml")
+            } else {
+                rootItem.requestModernOffer()
             }
         }
     }

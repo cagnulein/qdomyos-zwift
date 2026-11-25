@@ -220,6 +220,14 @@ Would you like to do that now?</source>
 지금 다시 시작하시겠습니까?</translation>
     </message>
     <message>
+        <source>Try the new interface?</source>
+        <translation>새 인터페이스를 사용해 보시겠습니까?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ의 메인 화면, 사이드 메뉴, 설정, 마법사가 새로운 모습으로 바뀌었습니다. 설정 &gt; 일반 UI 옵션에서 언제든지 되돌릴 수 있습니다.</translation>
+    </message>
+    <message>
         <source>Adjustable. Current value: </source>
         <translation>조정 가능. 현재 값: </translation>
     </message>
@@ -4606,6 +4614,10 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>Settings</source>
         <translation>설정</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>새 인터페이스 사용해 보기</translation>
     </message>
     <message>
         <source>Workouts History</source>

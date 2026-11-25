@@ -220,6 +220,14 @@ Would you like to do that now?</source>
 Restartovat nyní?</translation>
     </message>
     <message>
+        <source>Try the new interface?</source>
+        <translation>Vyzkoušet nové rozhraní?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ má nový vzhled hlavní obrazovky, bočního menu, nastavení a průvodce. Kdykoli se můžete vrátit v Nastavení &gt; Obecné možnosti rozhraní.</translation>
+    </message>
+    <message>
         <source>Adjustable. Current value: </source>
         <translation>Nastavitelné. Aktuální hodnota: </translation>
     </message>
@@ -4606,6 +4614,10 @@ V dalším okně povolte přístup ke složce QZ.</translation>
     <message>
         <source>Settings</source>
         <translation>Nastavení</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>Vyzkoušet nové rozhraní</translation>
     </message>
     <message>
         <source>Workouts History</source>

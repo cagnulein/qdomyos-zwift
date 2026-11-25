@@ -204,6 +204,14 @@ Would you like to do that now?</source>
 Szeretné most újraindítani?</translation>
     </message>
     <message>
+        <source>Try the new interface?</source>
+        <translation>Kipróbálja az új felületet?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>A QZ főképernyője, oldalsó menüje, beállításai és varázslója új megjelenést kapott. Bármikor visszaválthat a Beállítások &gt; A felület általános beállításai menüpontban.</translation>
+    </message>
+    <message>
         <source>Adjustable. Current value: </source>
         <translation>Állítható. Aktuális érték: </translation>
     </message>
@@ -4590,6 +4598,10 @@ A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translati
     <message>
         <source>Settings</source>
         <translation>Beállítások</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>Az új felület kipróbálása</translation>
     </message>
     <message>
         <source>Workouts History</source>

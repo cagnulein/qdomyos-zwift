@@ -44,9 +44,10 @@ adb push a11y-stress.jar /data/local/tmp/a11y-stress.jar > /dev/null || fail "ca
 adb logcat -G 16M || true
 
 # QZ again with the fake bike and its debug log on: only with it does QZ's own log reach the
-# logcat, and with it the line of main.cpp that tells the functions moved to the Qt thread
+# logcat, and with it the line of main.cpp that tells the functions moved to the Qt thread.
+# ui_modern_new_install_checked: a user whose look was already decided, so no "Try the new interface?" over the app
 adb shell am force-stop $PKG
-printf '[General]\napplewatch_fakedevice=true\nbluetooth_lastdevice_name=Fake\nskipLocationServicesDialog=true\nlog_debug=true\n' > qz-stress.conf
+printf '[General]\napplewatch_fakedevice=true\nbluetooth_lastdevice_name=Fake\nskipLocationServicesDialog=true\nlog_debug=true\nui_modern_new_install_checked=true\n' > qz-stress.conf
 adb push qz-stress.conf /data/local/tmp/qz.conf > /dev/null || fail "cannot push qz-stress.conf"
 adb shell "run-as $PKG mkdir -p 'files/.config/Roberto Viola'"
 adb shell "run-as $PKG cp /data/local/tmp/qz.conf 'files/.config/Roberto Viola/qDomyos-Zwift.conf'" \

@@ -228,6 +228,7 @@ class homeform : public QObject {
     Q_PROPERTY(bool echelonBridgeSwitchPromptRequested READ echelonBridgeSwitchPromptRequested NOTIFY echelonBridgeSwitchPromptRequestedChanged WRITE setEchelonBridgeSwitchPromptRequested)
     Q_PROPERTY(bool echelonEnablePromptRequested READ echelonEnablePromptRequested NOTIFY echelonEnablePromptRequestedChanged WRITE setEchelonEnablePromptRequested)
     Q_PROPERTY(bool androidNotificationPromptRequested READ androidNotificationPromptRequested NOTIFY androidNotificationPromptRequestedChanged)
+    Q_PROPERTY(bool modernOfferRequested READ modernOfferRequested NOTIFY modernOfferRequestedChanged)
     // heart rate sensors nearby to offer, the strongest first: {name, address, rssi}
     Q_PROPERTY(QVariantList heartRateSensorSuggestions READ heartRateSensorSuggestions NOTIFY
                    heartRateSensorSuggestionsChanged)
@@ -479,6 +480,12 @@ class homeform : public QObject {
             settings.value(QZSettings::daum_serialport, QZSettings::default_daum_serialport).toString();
         QString computrainerSerialPort =
             settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();
+        QString kettlerUsbSerialPort =
+            settings.value(QZSettings::kettler_usb_serialport, QZSettings::default_kettler_usb_serialport).toString();
+        QString csafeRowerSerialPort = settings.value(QZSettings::csafe_rower, QZSettings::default_csafe_rower).toString();
+        QString csafeEllipticalSerialPort =
+            settings.value(QZSettings::csafe_elliptical_port, QZSettings::default_csafe_elliptical_port).toString();
+        QString proform_rower_ip = settings.value(QZSettings::proform_rower_ip, QZSettings::default_proform_rower_ip).toString();
 
         QString nordictrack_2950_ip =
             settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
@@ -494,15 +501,37 @@ class homeform : public QObject {
             settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
         bool antbike =
             settings.value(QZSettings::antbike, QZSettings::default_antbike).toBool();
+        // bluetooth.cpp connects these with no Bluetooth name stored: the Peloton OCR bike in its constructor,
+        // the Trixter X-Dream bike by its serial port (not connected on iOS), a DirCon
+        // device by the name picked in filter_device (connectDirconDevice())
+        bool peloton_bike_ocr =
+            settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool();
+        bool trixter_xdream_bike = settings.value(QZSettings::trixter_xdream_bike_enabled,
+                                                  QZSettings::default_trixter_xdream_bike_enabled)
+                                       .toBool();
+        bool dircon = settings.value(QZSettings::filter_device, QZSettings::default_filter_device)
+                          .toString()
+                          .contains(QStringLiteral("(DirCon)"), Qt::CaseInsensitive);
 
         return settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name).toString().isEmpty() && 
                 nordictrack_2950_ip.isEmpty() && tdf_10_ip.isEmpty() && !fake_bike && !fakedevice_elliptical &&
                 !fakedevice_rower && !waterrower_usb && !fakedevice_treadmill && !antbike && !android_antbike && proform_elliptical_ip.isEmpty() &&
                 proformtdf4ip.isEmpty() && proformtdf1ip.isEmpty() && proformtreadmillip.isEmpty() &&
-                freebeatSerialPort.isEmpty() && daumSerialPort.isEmpty() && computrainerSerialPort.isEmpty();
+                freebeatSerialPort.isEmpty() && daumSerialPort.isEmpty() && computrainerSerialPort.isEmpty() &&
+                kettlerUsbSerialPort.isEmpty() && csafeRowerSerialPort.isEmpty() && csafeEllipticalSerialPort.isEmpty() &&
+                proform_rower_ip.isEmpty() && !peloton_bike_ocr && !trixter_xdream_bike && !dircon;
     }
 
     Q_INVOKABLE bool firstRun() { return neverConnected(); }
+
+    // Static for main.cpp, which calls it before the QML is loaded, so the window opens in the look written here
+    static void startModernForNewInstall();
+    // The home page asks once, at its start: raises modernOfferRequested while the question is pending and the look
+    // is classic (the home page starts once, at the start of QZ, before any workout). fromMenu: the entry of the classic side menu, which asks every time
+    Q_INVOKABLE void requestModernOffer(bool fromMenu = false);
+    // The answer to "Try the new interface?", yes or no: the question is not asked again. The look itself
+    // is switched by the QML (window.ui.setOption), as by the switch in the settings
+    Q_INVOKABLE void answerModernOffer();
 
     // The debug log is on in this run only because of the first-setup log (log_debug off): set by main.cpp at
     // start from startFirstSetupLog(), the log itself is set up once per run
@@ -746,6 +775,7 @@ class homeform : public QObject {
         m_echelonEnablePromptRequested = value;
         emit echelonEnablePromptRequestedChanged(value);
     }
+    bool modernOfferRequested() const { return m_modernOfferRequested; }
     bool androidNotificationPromptRequested() const { return m_androidNotificationPromptRequested; }
     void setAndroidNotificationPromptRequested(bool value) {
         if (m_androidNotificationPromptRequested == value) {
@@ -1239,6 +1269,7 @@ public:
     bool m_echelonEnablePromptRequested = false;
     bool m_androidNotificationPromptRequested = false;
     bool m_androidNotificationPromptPending = false;
+    bool m_modernOfferRequested = false;
     QVariantList m_heartRateSensorSuggestions;
     bool m_heartRateSensorOfferOnTap = false;
     QSet<QString> heartRateSensorsDismissed; // addresses
@@ -1578,6 +1609,7 @@ public:
     void echelonBridgeSwitchPromptRequestedChanged(bool value);
     void echelonEnablePromptRequestedChanged(bool value);
     void androidNotificationPromptRequestedChanged(bool value);
+    void modernOfferRequestedChanged(bool value);
     void heartRateSensorSuggestionsChanged();
     // The bar's answer saved in QSettings from here: a QML page open meanwhile (settings, wizard) holds its own
     // Settings copy of these keys, which does not read QSettings again, so it takes the new value from these

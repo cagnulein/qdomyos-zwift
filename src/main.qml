@@ -2367,6 +2367,40 @@ ApplicationWindow {
                     onClicked: drawerAction("settings")
                 }
 
+                // The question of the home page again (Home.qml), for those who said no. The only text
+                // entry with an icon, so it is noticed: 24 and 12 to the label, as UiDrawerItem
+                ItemDelegate {
+                    id: modernOfferItem
+                    text: qsTr("Try the new interface")
+                    width: parent.width
+                    contentItem: Row {
+                        spacing: 12
+                        UiIcon {
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 24
+                            height: 24
+                            name: "palette"
+                            color: modernOfferLabel.color
+                        }
+                        Label {
+                            id: modernOfferLabel
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: parent.width - 36
+                            text: modernOfferItem.text
+                            font: modernOfferItem.font
+                            elide: Text.ElideRight
+                            // The entry carries the name for the screen reader
+                            Accessible.ignored: true
+                        }
+                    }
+                    onClicked: {
+                        drawer.close()
+                        rootItem.requestModernOffer(true)
+                    }
+                    // Qt 5.15: the double tap of the screen reader does not send clicked()
+                    Accessible.onPressAction: clicked()
+                }
+
             ItemDelegate {
                 text: qsTr("Workouts History")
                 width: parent.width

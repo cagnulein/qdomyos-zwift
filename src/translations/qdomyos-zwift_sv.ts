@@ -204,6 +204,14 @@ Would you like to do that now?</source>
 Vill du göra det nu?</translation>
     </message>
     <message>
+        <source>Try the new interface?</source>
+        <translation>Vill du prova det nya gränssnittet?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ har fått ett nytt utseende på huvudskärmen, sidomenyn, inställningarna och guiden. Du kan när som helst byta tillbaka under Inställningar &gt; Allmänna gränssnittsalternativ.</translation>
+    </message>
+    <message>
         <source>Adjustable. Current value: </source>
         <translation>Justerbart. Aktuellt värde: </translation>
     </message>
@@ -4590,6 +4598,10 @@ Tillåt åtkomst till QZ-mappen i nästa fönster.</translation>
     <message>
         <source>Settings</source>
         <translation>Inställningar</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>Prova det nya gränssnittet</translation>
     </message>
     <message>
         <source>Workouts History</source>

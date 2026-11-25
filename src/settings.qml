@@ -2993,6 +2993,8 @@ import AndroidStatusBar 1.0
             property int trixter_xdream_bike_steering_max : 45
             property int trixter_xdream_bike_connection_timeout_ms : 500
             property bool treadmill_calories_model: false
+            property bool ui_modern_new_install_checked: false
+            property bool ui_modern_offer_pending: false
 
         }
 
