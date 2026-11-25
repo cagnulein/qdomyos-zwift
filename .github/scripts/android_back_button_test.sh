@@ -72,7 +72,8 @@ qz_focused() {
   return 1
 }
 
-# No "app isn't responding" dialogs from other apps: applied on the next configuration change (the rotation below)
+# No "app isn't responding" dialogs from other apps: applied at once from API 28, API 24 and 26 do not have
+# this setting. main.yml sets it before the split test too, this keeps the script whole on its own
 adb shell settings put global hide_error_dialogs 1
 
 shot() {

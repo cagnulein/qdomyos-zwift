@@ -1261,7 +1261,8 @@ jobs:
             ls -la apk-debug/
 
             # No "app isn't responding" dialogs of other apps from the start: an ANR of the launcher during the
-            # split test below left its dialog over QZ until the back button test (applied at once from API 28; API 24 and 26 do not have this setting)
+            # split test below left its dialog over QZ in the back button test. Applied at once from API 28;
+            # API 24 and 26 do not have this setting
             adb shell settings put global hide_error_dialogs 1
 
             # First test real split APKs with no Location permission, then uninstall.
