@@ -25,15 +25,12 @@ ColumnLayout {
     // its surface), the page was laid out for a wrong width and opened zoomed in
     property bool pageShown: !window.ui.modern
     readonly property real offScreen: pageShown ? 0 : Screen.width + Screen.height
-    // A chart spread over the page (chartjs/chartfullscreen.js): the page tells it in its title
+    // A chart spread over the page (chartjs/chartfullscreen.js): the page tells it in its title. The
+    // app header folds away then (main.qml, headerToolbar.folded), as on the charts page
     property bool chartFullscreen: false
-    // The spread chart takes the app header's room too, as on the charts page
-    onChartFullscreenChanged: headerToolbar.folded = chartFullscreen
-    // Left with a spread chart (a start from the web page pops it): the header for the next page
-    StackView.onRemoved: handleBack()
 
-    // Back (the key; in the modern look also the arrow of the toolbar, main.qml navigateBack)
-    // closes the spread chart first instead of the page, as on the charts page (ChartJsTest.qml)
+    // The back key closes the spread chart first instead of the page, as on the charts page
+    // (ChartJsTest.qml)
     function handleBack() {
         if (!chartFullscreen)
             return false

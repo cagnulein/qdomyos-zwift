@@ -1655,9 +1655,10 @@ ApplicationWindow {
         // is how much of it has gone up under the status bar. The page never changes size, so the
         // tiles do not move under the finger
         property real barShift: 0
-        // Set by a chart spread over its page (ChartJsTest, PreviewChart): the toolbar is gone and
-        // the page takes its room as well
-        property bool folded: false
+        // A chart spread over the page shown (ChartJsTest, PreviewChart: chartFullscreen): the toolbar
+        // is gone and the page takes its room as well. Bound to the current page, so a page left with
+        // a spread chart (or a title of it coming late) does not fold the toolbar of the next one
+        readonly property bool folded: !!(stackView.currentItem && stackView.currentItem.chartFullscreen === true)
         // Moving the tiles keeps it shown: the lock button is on the toolbar. So does any other page
         // (the tile grid can still be gliding or snapping under it when one is opened); back on the
         // home page it is where the scroll left it, not over the Start/Stop row
@@ -2798,9 +2799,6 @@ ApplicationWindow {
             anchors.rightMargin: getRightPadding()
             anchors.leftMargin: getLeftPadding()
             focus: true
-            // A chart spread over its page folds the toolbar; any other page gets it back (the tile
-            // grid slides it away only on the home page, headerToolbar.barHidden)
-            onCurrentItemChanged: headerToolbar.folded = false
             Connections {
                 target: stackView.currentItem
                 ignoreUnknownSignals: true
