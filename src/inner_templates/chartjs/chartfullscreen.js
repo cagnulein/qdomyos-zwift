@@ -13,7 +13,11 @@
     var SWIPE_MAX_MS = 800;
     var TOAST_MS = 3000;
     var BUTTON_ROW_PX = 36; // the height of the button (chartfullscreen.css)
+    var BIG_BUTTON_PX = 48; // and on a spread chart
     var BASE_FONT_PX = 12;  // Chart.js default font size, the one the page's charts use
+    var LINE = 1.2;         // Chart.js default line height of the title and the labels
+    var TITLE_TOP_PX = 14;  // above the title: its text in the middle of the 36 px button
+    var TITLE_BOTTOM_PX = 12;
     // room kept free on each side of the centred title of a spread chart: the button (48 px) on the
     // left, the counter "i / N" (chartfullscreen.css: 20 px, 16 px from the edge) on the right
     var TITLE_SIDE_PX = 72;
@@ -171,6 +175,9 @@
                 setPath(options, ['scales', id, 'title', 'font', 'size'], tick);
         });
         bigTitle(options, tick);
+        // the title row for the big button and the big fonts set above
+        var room = titleRoom(options, BIG_BUTTON_PX);
+        setPath(options, room.path, room.value);
         setPath(options, ['plugins', 'legend', 'labels', 'font', 'size'], tick);
         // the values under a held finger, readable as the axes
         setPath(options, ['plugins', 'tooltip', 'titleFont', 'size'], tick);
@@ -223,16 +230,49 @@
         return best;
     }
 
-    // the button sits in the title row: a taller row keeps it off the top label of the y axis
-    function roomForButton(options) {
+    // The y labels drawn inside the chart (a negative padding) and aligned to the end of their tick
+    // stand above it: the top one (the zone name of the heart rate and power charts) rises over the
+    // plot area into the title row. The size of the biggest such label, 0 without any
+    function labelAbovePx(options) {
+        var scales = options.scales || {};
+        var px = 0;
+        Object.keys(scales).forEach(function (id) {
+            var scale = scales[id];
+            var ticks = scale && scale.ticks;
+            var vertical = id.charAt(0) === 'y' || scale && (scale.axis === 'y' ||
+                scale.position === 'left' || scale.position === 'right');
+            if (vertical && ticks && ticks.align === 'end' && ticks.padding < 0)
+                px = Math.max(px, ticks.font && ticks.font.size || BASE_FONT_PX);
+        });
+        return px;
+    }
+
+    // The button sits in the title row: the plot area starts one such label below the button, so
+    // the label rising from it stays clear (the empty heart rate chart put "zone 5" under the button).
+    // The values for a button of buttonPx with the fonts the options have now
+    function titleRoom(options, buttonPx) {
+        var label = labelAbovePx(options);
+        var below = label ? Math.ceil(LINE * label) + 2 : 0;
         var title = options.plugins && options.plugins.title;
-        if (title && title.display)
-            title.padding = { top: BUTTON_ROW_PX - 22, bottom: 12 };
-        else {
-            if (!options.layout)
-                options.layout = {};
-            options.layout.padding = { top: BUTTON_ROW_PX };
+        if (!(title && title.display))
+            return { path: ['layout', 'padding'], value: { top: buttonPx + below } };
+        var size = title.font && title.font.size || BASE_FONT_PX;
+        var lines = Array.isArray(title.text) ? title.text.length : 1;
+        var bottom = Math.max(TITLE_BOTTOM_PX,
+                              Math.ceil(buttonPx + below - TITLE_TOP_PX - LINE * size * lines));
+        return { path: ['plugins', 'title', 'padding'], value: { top: TITLE_TOP_PX, bottom: bottom } };
+    }
+
+    // the page look, set on the options as they come (every chart of the page has the button)
+    function roomForButton(options) {
+        var room = titleRoom(options, BUTTON_ROW_PX);
+        var obj = options;
+        for (var i = 0; i < room.path.length - 1; i++) {
+            if (!obj[room.path[i]])
+                obj[room.path[i]] = {};
+            obj = obj[room.path[i]];
         }
+        obj[room.path[room.path.length - 1]] = room.value;
     }
 
     function redraw(chart) {
