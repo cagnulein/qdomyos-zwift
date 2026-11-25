@@ -800,6 +800,75 @@ void ftmsbike::update() {
                                                    QZSettings::default_gears_from_bike).toBool());
         const bool replayGearChange =
             shouldReplayPhysicalGearChange(physicalGearFeatureEnabled, physicalGearChangePending);
+        // Only the BI9200 with the user's physical-gear opt-in AND an active
+        // Zwift FTMS route uses relative grade control. The entire legacy path
+        // below is unchanged for other models, opt-out and QZ-only sessions.
+        const bool bi9200ZwiftResistanceControl =
+            physicalGearFeatureEnabled && resistance_lvl_mode && autoResistance() &&
+            virtualBike && virtualBike->ftmsDeviceConnected() && requestPower <= 0;
+        if (bi9200ZwiftResistanceControl) {
+            if (desiredPhysicalResistance < 1) {
+                desiredPhysicalResistance = lastPhysicalGearResistance >= 1
+                    ? lastPhysicalGearResistance
+                    : static_cast<resistance_t>(qBound<int>(1, requestResistance, 32));
+            }
+            if (requestResistance != -1) {
+                // lastRawRequestedResistanceValue is the Zwift-derived grade
+                // resistance BEFORE bike::changeResistance adds QZ's gear.
+                // It stays independent of native physical changes and does not
+                // amplify an FTMS echo into the next Zwift command.
+                const resistance_t rawGradeBase = lastRawRequestedResistanceValue >= 0
+                    ? lastRawRequestedResistanceValue
+                    : (lastPhysicalGearAutomaticBaseValid ? lastPhysicalGearAutomaticBase
+                       : static_cast<resistance_t>(requestResistance - gearsModifier()));
+                if (lastPhysicalGearAutomaticBaseValid &&
+                    rawGradeBase != lastPhysicalGearAutomaticBase) {
+                    const resistance_t previousDesired = desiredPhysicalResistance;
+                    desiredPhysicalResistance = relativeResistanceTarget(
+                        desiredPhysicalResistance, lastPhysicalGearAutomaticBase, rawGradeBase);
+                    qDebug() << "BI9200 relative grade" << lastPhysicalGearAutomaticBase
+                             << rawGradeBase << "desired" << previousDesired
+                             << desiredPhysicalResistance;
+                }
+                lastPhysicalGearAutomaticBase = rawGradeBase;
+                lastPhysicalGearAutomaticBaseValid = true;
+            }
+            if (gearChanged && replayGearChange && lastGearValue >= 0) {
+                const resistance_t uiShift = static_cast<resistance_t>(qRound(gears() - lastGearValue));
+                desiredPhysicalResistance = static_cast<resistance_t>(
+                    qBound<int>(1, desiredPhysicalResistance + uiShift, 32));
+                qDebug() << "BI9200 UI gear" << uiShift
+                         << "desired" << desiredPhysicalResistance;
+            }
+            // A maximum two-level move once per 1200ms avoids an abrupt jump
+            // after a new slope while retaining a cumulative grade target.
+            const QDateTime now = QDateTime::currentDateTime();
+            const qint64 sinceWrite = lastPhysicalResistanceWrite.isValid()
+                ? lastPhysicalResistanceWrite.msecsTo(now) : 1200;
+            if (desiredPhysicalResistance >= 1 && sinceWrite >= 1200) {
+                const resistance_t anchor = lastPhysicalGearTarget >= 1 && sinceWrite < 4000
+                    ? lastPhysicalGearTarget
+                    : (lastPhysicalGearResistance >= 1 ? lastPhysicalGearResistance
+                       : lastPhysicalGearTarget);
+                const resistance_t nextTarget = limitedResistanceTarget(
+                    anchor, desiredPhysicalResistance, 2);
+                if (shouldWriteResistanceTarget(nextTarget, lastPhysicalGearTarget,
+                                                lastPhysicalGearResistance)) {
+                    qDebug() << "BI9200 ramped target" << anchor
+                             << "desired" << desiredPhysicalResistance
+                             << "next" << nextTarget;
+                    init();
+                    forceResistance(nextTarget);
+                }
+            }
+            requestResistance = -1;
+        } else {
+            if (physicalGearFeatureEnabled) {
+                // A new Zwift session starts from the bike's CURRENT native
+                // level; it must not inherit an old workout's grade offset.
+                desiredPhysicalResistance = -1;
+                lastPhysicalGearAutomaticBaseValid = false;
+            }
         // A new Matrix XR connection must not turn the initial gear change
         // (-1 -> 0) into an unsolicited resistance command before 2AD9 is ready.
         if (requestResistance != -1 ||
@@ -882,6 +951,8 @@ void ftmsbike::update() {
                 requestResistance = -1;
             }
         }
+        
+        } // BI9200 Zwift-only relative controller
         
         // gpx scenario for example
         bool inclinationSent = false;
