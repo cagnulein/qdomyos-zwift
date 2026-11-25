@@ -610,3 +610,263 @@ void ErgTableTestSuite::test_resistanceCadenceBanding() {
     EXPECT_EQ(2, erg.resistanceFromPowerRequest(130, 84, 3));
     EXPECT_EQ(1, erg.resistanceFromPowerRequest(130, 85, 3));
 }
+
+void ErgTableTestSuite::test_pairedPowerTable() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+    testSettings.qsettings.remove("ergDataPoints");
+
+    ergTable erg;
+    for (int i = 0; i < WattageStats::MIN_SAMPLES_REQUIRED; ++i) {
+        erg.collectData(80, 150, 7, 170, true);
+    }
+
+    EXPECT_EQ(170, erg.trainerPowerForPedalTarget(150, 80, 7));
+    EXPECT_EQ(180, erg.trainerPowerForPedalTarget(160, 80, 7));
+}
+
+void ErgTableTestSuite::test_legacyPowerTableLoading() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+
+    testSettings.qsettings.setValue("ergDataPoints", "80|150|7");
+    testSettings.qsettings.sync();
+    ergTable legacyTable;
+    EXPECT_EQ(150, legacyTable.estimateWattage(80, 7));
+    EXPECT_EQ(0, legacyTable.trainerPowerForPedalTarget(150, 80, 7));
+
+    testSettings.qsettings.setValue("ergDataPoints", "80|150|7|170");
+    testSettings.qsettings.sync();
+    ergTable pairedTable;
+    EXPECT_EQ(170, pairedTable.trainerPowerForPedalTarget(150, 80, 7));
+}
+
+void ErgTableTestSuite::test_pairedPowerTableRejectsDistantResistance() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+    testSettings.qsettings.remove("ergDataPoints");
+
+    ergTable erg;
+    for (int i = 0; i < WattageStats::MIN_SAMPLES_REQUIRED; ++i) {
+        erg.collectData(80, 150, 7, 180, true);
+    }
+
+    EXPECT_EQ(0, erg.trainerPowerForPedalTarget(150, 80, 20));
+}
+
+void ErgTableTestSuite::test_pairedPowerTableUsesPairedDeltaMedian() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+    testSettings.qsettings.remove("ergDataPoints");
+
+    ergTable erg;
+    for (int i = 0; i < WattageStats::MIN_SAMPLES_REQUIRED; ++i) {
+        erg.collectData(80, 150, 7, i == 0 ? 185 : 170, true);
+    }
+
+    EXPECT_EQ(170, erg.trainerPowerForPedalTarget(150, 80, 7));
+}
+
+void ErgTableTestSuite::test_pairedPowerTableWaitsForStableTarget() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+    testSettings.qsettings.remove("ergDataPoints");
+
+    ergTable erg;
+    for (int i = 0; i < WattageStats::MIN_SAMPLES_REQUIRED; ++i) {
+        erg.collectData(80, 150, 7, 180, 150, true);
+    }
+
+    EXPECT_TRUE(erg.getConsolidatedData().isEmpty());
+}
+
+void ErgTableTestSuite::test_pairedPowerTableRejectsRudyInstability() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+    testSettings.qsettings.remove("ergDataPoints");
+
+    // Representative samples from Rudy's FI9117 C91/R42-R43 region while the pedal target was 168 W:
+    // pedal power was about 172 W, but trainer power oscillated between roughly 206 W and 241 W.
+    const QList<uint16_t> trainerSamples{209, 241, 209, 225, 241, 218, 206, 230, 213, 241};
+    ergTable erg;
+    for (const uint16_t trainerWattage : trainerSamples) {
+        erg.collectData(91, 172, 43, trainerWattage, true);
+    }
+
+    EXPECT_EQ(0, erg.trainerPowerForPedalTarget(168, 91, 43));
+}
+
+void ErgTableTestSuite::test_pairedPowerTableRejectsExcessiveStableDelta() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+    testSettings.qsettings.remove("ergDataPoints");
+
+    // Rudy's clean-session data included C93/R39: pedal 116 W, trainer 180 W (+64 W).
+    // The delta is stable, but still too large to use as a trainer correction.
+    ergTable erg;
+    for (int i = 0; i < WattageStats::MIN_SAMPLES_REQUIRED; ++i) {
+        erg.collectData(93, 116, 39, 180, true);
+    }
+
+    EXPECT_EQ(0, erg.trainerPowerForPedalTarget(168, 93, 39));
+}
+
+void ErgTableTestSuite::test_pairedPowerTableIgnoresPersistedExcessiveDelta() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+    testSettings.qsettings.setValue("ergDataPoints", "93|116|39|180");
+    testSettings.qsettings.sync();
+
+    // A four-field point can come from an older build and must not bypass the
+    // same safety limit applied to points learned during the current session.
+    ergTable erg;
+    EXPECT_EQ(0, erg.trainerPowerForPedalTarget(168, 93, 39));
+}
+
+// FI9117 ion + SPEEDPLAY power matching must not depend on calculated resistance.
+// The observed trainer/pedal difference was roughly 44 W at a 168 W interval.
+void ErgTableTestSuite::test_stableFtmsPowerMatchConvergesWithoutJumps() {
+    StableFtmsPowerMatch match;
+    int command = match.adjustedPower(168, 166, 122, 90, 0);
+    EXPECT_EQ(168, command);
+    for (int second = 1; second <= 30; ++second) {
+        const int lastCommand = command;
+        const double trainer = command <= 168 ? 166.0 : command - 2.0;
+        command = match.adjustedPower(168, trainer, trainer - 44.0, 90.0, second * 1000LL);
+        EXPECT_LE(command - lastCommand, StableFtmsPowerMatch::MAX_UP_WATTS_PER_SECOND);
+        EXPECT_GE(command, 168);
+        EXPECT_LE(command, 212);
+    }
+    EXPECT_GE(command, 208);
+    EXPECT_LE(command, 212);
+}
+
+void ErgTableTestSuite::test_stableFtmsPowerMatchRejectsUnstableSensors() {
+    StableFtmsPowerMatch match;
+    EXPECT_EQ(168, match.adjustedPower(168, 166, 122, 90, 0));
+    for (int second = 1; second <= 20; ++second) {
+        // Alternating 11/56 W offsets cannot form a stable window.
+        const double pedal = second % 2 ? 155.0 : 110.0;
+        EXPECT_EQ(168, match.adjustedPower(168, 166, pedal, 90, second * 1000LL));
+    }
+    match.reset();
+    EXPECT_EQ(168, match.adjustedPower(168, 166, 76, 90, 0));
+    for (int second = 1; second <= 15; ++second) {
+        // A 90 W mismatch is too large to adopt automatically.
+        EXPECT_EQ(168, match.adjustedPower(168, 166, 76, 90, second * 1000LL));
+    }
+}
+
+void ErgTableTestSuite::test_stableFtmsPowerMatchResetsOnTargetAndSensorLoss() {
+    StableFtmsPowerMatch match;
+    int command = match.adjustedPower(168, 166, 122, 90, 0);
+    for (int second = 1; second <= 25; ++second) {
+        const double trainer = command <= 168 ? 166.0 : command - 2.0;
+        command = match.adjustedPower(168, trainer, trainer - 44.0, 90, second * 1000LL);
+    }
+    EXPECT_GT(command, 168);
+    const int afterLoss = match.adjustedPower(168, 0, 0, 0, 26000);
+    EXPECT_LT(afterLoss, command);
+    EXPECT_GE(afterLoss, 168);
+    for (int second = 27; second <= 38; ++second)
+        command = match.adjustedPower(168, 0, 0, 0, second * 1000LL);
+    EXPECT_EQ(168, command);
+
+    EXPECT_EQ(190, match.adjustedPower(190, 185, 141, 90, 39000));
+    EXPECT_EQ(0, match.adjustedPower(0, 185, 141, 90, 40000));
+    EXPECT_EQ(130, match.adjustedPower(130, 126, 82, 90, 41000));
+}
+
+// Regression from Rudy's November 22 FI9117 trace: the trainer can lag behind
+// QZ's command by >20 W while trainer-vs-pedal offset remains stable.
+// This must not reset the controller and force its command back to 168 W.
+void ErgTableTestSuite::test_stableFtmsPowerMatchSurvivesTrainerResponseLag() {
+    StableFtmsPowerMatch match;
+    int command = match.adjustedPower(168, 166, 122, 90, 0);
+    EXPECT_EQ(168, command);
+    bool sawTrainerLagGreaterThan20W = false;
+    for (int second = 1; second <= 32; ++second) {
+        const int last = command;
+        // Simulate a trainer that remains at 166 W for 13 seconds, then
+        // starts following the raised command with a delayed 2 W/s response.
+        const double trainer = 166.0 + (second <= 13 ? 0 : 2 * (second - 13));
+        sawTrainerLagGreaterThan20W |= std::abs(trainer - command) > 20;
+        command = match.adjustedPower(168, trainer, trainer - 44.0, 90, second * 1000LL);
+        EXPECT_GE(command, last) << "Correction must not oscillate on trainer lag";
+        EXPECT_LE(command - last, StableFtmsPowerMatch::MAX_UP_WATTS_PER_SECOND);
+        EXPECT_LE(command, 212);
+    }
+    EXPECT_TRUE(sawTrainerLagGreaterThan20W);
+    EXPECT_GE(command, 208); // convergence to the stable 44 W correction
+}
+
+// Only the path whose matching controller owns FTMS 0x05 may suppress
+// direct forwarding; native-resistance bikes and devices without an external
+// power sensor retain the existing routing.
+void ErgTableTestSuite::test_stableFtmsPowerMatchSuppressesOnlyMatchingVirtualFtmsPower() {
+    EXPECT_TRUE(StableFtmsPowerMatch::shouldBlockDirectFtmsPower(true, false, true, true));
+    EXPECT_FALSE(StableFtmsPowerMatch::shouldBlockDirectFtmsPower(false, false, true, true));
+    EXPECT_FALSE(StableFtmsPowerMatch::shouldBlockDirectFtmsPower(true, true, true, true));
+    EXPECT_FALSE(StableFtmsPowerMatch::shouldBlockDirectFtmsPower(true, false, false, true));
+    EXPECT_FALSE(StableFtmsPowerMatch::shouldBlockDirectFtmsPower(true, false, true, false));
+}
+
+// Representative consecutive trainer/pedal readings from Rudy's FI9117
+// 2026-11-22 17:36:33-17:36:44, then the 215/125 W spike at 17:37:21.
+// A spike should freeze corrections, not erase the stable calibration.
+void ErgTableTestSuite::test_stableFtmsPowerMatchKeepsCorrectionAcrossRudySpikes() {
+    StableFtmsPowerMatch match;
+    struct Pair { double trainer; double pedal; double cadence; };
+    const Pair readings[] = {
+        {173, 135, 87}, {173, 135, 88}, {173, 136, 88},
+        {173, 135, 88}, {173, 136, 88}, {173, 131, 86},
+        {170, 129, 86}, {197, 130, 86}, {193, 137, 86},
+        {193, 146, 85}, {193, 139, 84}
+    };
+    int command = 168;
+    for (int second = 0; second < 11; ++second) {
+        const int last = command;
+        command = match.adjustedPower(168, readings[second].trainer,
+                                      readings[second].pedal,
+                                      readings[second].cadence, second * 1000LL);
+        EXPECT_GE(command, last);
+        EXPECT_LE(command - last, StableFtmsPowerMatch::MAX_UP_WATTS_PER_SECOND);
+    }
+    EXPECT_GT(command, 168);
+    const int beforeSpike = command;
+    EXPECT_EQ(beforeSpike, match.adjustedPower(168, 215, 125, 84, 11000));
+    EXPECT_STREQ("outlier-hold", match.status());
+    // Paired telemetry becomes plausible again and the old calibration remains.
+    EXPECT_GE(match.adjustedPower(168, 193, 144, 86, 12000), beforeSpike);
+}
+
+void ErgTableTestSuite::test_stableFtmsPowerMatchFallsBackOnPersistentOutliers() {
+    StableFtmsPowerMatch match;
+    int command = 168;
+    for (int second = 0; second < 25; ++second) {
+        command = match.adjustedPower(168, 166, 122, 90, second * 1000LL);
+    }
+    EXPECT_GT(command, 168);
+    const int previous = command;
+    for (int second = 25; second <= 28; ++second) {
+        command = match.adjustedPower(168, 215, 125, 90, second * 1000LL);
+        EXPECT_EQ(previous, command) << "A short outlier burst must freeze the command";
+    }
+    for (int second = 29; second <= 42; ++second)
+        command = match.adjustedPower(168, 215, 125, 90, second * 1000LL);
+    EXPECT_EQ(168, command) << "Persistent invalid data must safely ramp back to target";
+}
+
+void ErgTableTestSuite::test_stableFtmsPowerMatchResetAfterDisconnect() {
+    StableFtmsPowerMatch match;
+    int command = 168;
+    for (int second = 0; second <= 25; ++second)
+        command = match.adjustedPower(168, 166, 122, 90, second * 1000LL);
+    EXPECT_GT(command, 168);
+    // This is the explicit reset invoked on QLowEnergyController::UnconnectedState.
+    match.reset();
+    EXPECT_EQ(168, match.adjustedPower(168, 0, 0, 0, 26000));
+    for (int second = 27; second <= 34; ++second)
+        EXPECT_EQ(168, match.adjustedPower(168, 166, 122, 90, second * 1000LL));
+    EXPECT_GT(match.adjustedPower(168, 166, 122, 90, 35000), 168);
+}
