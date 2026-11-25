@@ -138,14 +138,23 @@ chmod +x qdomyos-zwift-64bit
 
 Install required libraries and dependencies for headless mode:
 ```
-sudo apt install libqt5charts5 libqt5multimedia5 libqt5bluetooth5 libqt5xml5t64 libqt5positioning5 libqt5networkauth5 libqt5websockets5 libqt5texttospeech5 libqt5sql5t64 
+sudo apt install libqt5charts5 libqt5multimedia5 libqt5bluetooth5 libqt5xml5t64 libqt5positioning5 libqt5networkauth5 libqt5websockets5 libqt5texttospeech5 libqt5sql5t64 libqt5serialport5
 ```
 
 If you are running Raspberry Pi Desktop OS, and you want to run the QZ UI, additonally add the qml libraries.
 ```
-sudo apt install libqt5charts5 libqt5multimedia5 libqt5bluetooth5 libqt5xml5t64 libqt5positioning5 libqt5networkauth5 libqt5websockets5 libqt5texttospeech5 libqt5sql5t64 *qml*
+sudo apt install libqt5charts5 libqt5multimedia5 libqt5bluetooth5 libqt5xml5t64 libqt5positioning5 libqt5networkauth5 libqt5websockets5 libqt5texttospeech5 libqt5sql5t64 libqt5serialport5 *qml*
 ```
 
+
+When updating an existing QZ installation to a binary with Qt SerialPort support, install the runtime library before replacing or launching the binary, even if you do not use a Trixter bike:
+
+```bash
+sudo apt update
+sudo apt install libqt5serialport5
+```
+
+If the read-only overlay filesystem is enabled, disable it and reboot before installing the package (see the overlay filesystem instructions below).
 
 #### Unblock Bluetooth (if using Bluetooth)
 
