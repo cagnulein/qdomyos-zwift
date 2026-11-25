@@ -237,6 +237,17 @@ TEST(FtmsBikeParserTest, PhysicalResistanceCommandHistoryDoesNotHideStableHandle
     EXPECT_EQ(1, delta);
 }
 
+TEST(FtmsBikeParserTest, PhysicalResistanceSettlingGuardsMotorOvershoot) {
+    // Build 1707: a native 4->6 reply after a command 4->5 was not within
+    // the nominal trajectory, but was still a motor response at 1.5 s.
+    EXPECT_TRUE(ftmsbike::isPhysicalResistanceCommandSettling(1500, 2000));
+    EXPECT_TRUE(ftmsbike::isPhysicalResistanceCommandSettling(1999, 2000));
+    EXPECT_FALSE(ftmsbike::isPhysicalResistanceCommandSettling(2000, 2000));
+    EXPECT_FALSE(ftmsbike::isPhysicalResistanceCommandSettling(-1, 2000));
+    // No write recently: native +/- shifts remain available.
+    EXPECT_FALSE(ftmsbike::isPhysicalResistanceCommandSettling(5000, 2000));
+}
+
 TEST(FtmsBikeParserTest, PhysicalResistanceGradeChangesAreRelativeToManualPosition) {
     // Alejandro's 2% -> 5% example: start at resistance 1, not absolute 24.
     const resistance_t grade2Base = 2;
