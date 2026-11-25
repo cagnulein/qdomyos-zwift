@@ -5126,6 +5126,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: rollingreistanceTextField
+                            decimals: 4
                             savedText: settings.rolling_resistance
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
