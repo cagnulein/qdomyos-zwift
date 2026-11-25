@@ -15,7 +15,6 @@
     var TOAST_MS = 3000;
     var BUTTON_ROW_PX = 36; // the height of the button (chartfullscreen.css)
     var BASE_FONT_PX = 12;  // Chart.js default font size, the one the page's charts use
-    var FIRST_ANIMATION_MS = 1500; // Chart.js animates a new chart for 1000 ms
 
     var normalTitle = document.title;
     var current = null;     // the spread card
@@ -93,12 +92,12 @@
             button.className = 'qz-fs-button';
             // not in the summary picture of the workout mail (html2canvas)
             button.setAttribute('data-html2canvas-ignore', 'true');
-            // not while the chart first grows: the end of that animation saves its picture for
-            // the mail (animation.onComplete), and a spread chart would go there big
-            var readyAt = Date.now() + FIRST_ANIMATION_MS;
             button.addEventListener('click', function (e) {
                 e.stopPropagation();
-                if (Date.now() < readyAt)
+                // not while the chart still grows: the end of that animation saves its picture
+                // for the mail (animation.onComplete), and a spread chart would go there big
+                var chart = chartOf(card);
+                if (chart && Chart.animator && Chart.animator.running(chart))
                     return;
                 if (current === card)
                     exit();
