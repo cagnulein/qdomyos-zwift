@@ -104,6 +104,8 @@ class ftmsbike : public bike {
                                                      qint64 settlingWindowMs);
     static resistance_t relativeResistanceTarget(resistance_t desiredLevel, resistance_t oldGradeBase,
                                                   resistance_t newGradeBase);
+    static resistance_t reanchorResistanceTarget(resistance_t observedLevel, resistance_t previousDesired,
+                                                 resistance_t lastCommandedLevel);
     static resistance_t limitedResistanceTarget(resistance_t anchorLevel, resistance_t desiredLevel,
                                                  resistance_t maxStep);
     static bool isExpectedResistanceCommandEcho(resistance_t nativeLevel, resistance_t levelBeforeCommand,
