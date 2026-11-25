@@ -1357,7 +1357,7 @@ jobs:
             # preexisting orientation tests leave the emulator sideways.
             adb shell settings put system accelerometer_rotation 0 || true
             adb shell settings put system user_rotation 0 || true
-            adb install -r support-mail-probe.apk
+            adb install -r --no-streaming support-mail-probe.apk
             python3 .github/scripts/android_support_email_test.py
 
             # Check if the package is installed
