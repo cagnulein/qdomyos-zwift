@@ -39,6 +39,10 @@ class strydrunpowersensor : public treadmill {
     strydrunpowersensor(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
     bool connected() override;
 
+  protected:
+    // used as a treadmill, the Stryd measures the watts itself: keep the power-based calories
+    bool externalPowerMeasured() override { return powerReceived || treadmill::externalPowerMeasured(); }
+
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);

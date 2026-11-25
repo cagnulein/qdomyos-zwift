@@ -8929,6 +8929,14 @@ Default: A = -0.96, B = 1.33</source>
         <source>Use Console Gears</source>
         <translation>使用控制台档位</translation>
     </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>跑步机卡路里：步行/跑步模型</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>适用于控制台不报告卡路里的跑步机。卡路里根据跑带速度、坡度以及您的体重、身高、年龄和性别计算：低于由身高决定的步行转跑步速度时使用步行模型，高于时使用跑步模型。关闭后改用基于功率的数值。控制台报告的卡路里、外部功率传感器（Stryd 等）以及开启时的“根据心率计算卡路里”仍然优先。</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

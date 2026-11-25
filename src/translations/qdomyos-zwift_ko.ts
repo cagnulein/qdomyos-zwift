@@ -8869,6 +8869,14 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
         <source>Use Console Gears</source>
         <translation>콘솔 기어 사용</translation>
     </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>걷기/달리기 모델로 트레드밀 칼로리 계산</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>콘솔이 칼로리를 보내지 않는 트레드밀용입니다. 벨트 속도, 경사, 체중, 키, 나이, 성별로 칼로리를 계산하며, 키로 정해지는 걷기에서 달리기로 바뀌는 속도보다 느리면 걷기 모델, 빠르면 달리기 모델을 사용합니다. 끄면 대신 파워 기반 값을 사용합니다. 콘솔이 보내는 칼로리, 외부 파워 센서(Stryd 등), 켜져 있을 때의 심박수로 칼로리 계산이 계속 우선합니다.</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

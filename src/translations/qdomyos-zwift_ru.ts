@@ -8873,6 +8873,14 @@ Default: A = -0.96, B = 1.33</source>
         <source>Use Console Gears</source>
         <translation>Использовать передачи консоли</translation>
     </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Калории беговой дорожки по модели ходьбы/бега</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Для беговых дорожек, консоль которых не передаёт калории. Калории рассчитываются по скорости полотна, наклону, а также по вашему весу, росту, возрасту и полу: ниже вашей скорости перехода от ходьбы к бегу (зависит от роста) — по модели ходьбы, выше — по модели бега. Выключите, чтобы использовать значение на основе мощности. Калории консоли, внешний датчик мощности (Stryd и т. п.) и «Расчёт калорий по пульсу» (если включён) по-прежнему имеют приоритет.</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

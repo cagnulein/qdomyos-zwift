@@ -2981,7 +2981,6 @@ import AndroidStatusBar 1.0
             property bool resistance_compatibility: false
             // Keep newly added properties at the end to preserve settings order on iOS.
             property bool strava_synthetic_gps_track: false
-
             property int rouvy_virtual_gearing_profile: 0
 
             property bool trixter_xdream_bike_enabled: false
@@ -2993,6 +2992,7 @@ import AndroidStatusBar 1.0
             property int trixter_xdream_bike_steering_r : 45
             property int trixter_xdream_bike_steering_max : 45
             property int trixter_xdream_bike_connection_timeout_ms : 500
+            property bool treadmill_calories_model: false
 
         }
 
@@ -4445,6 +4445,36 @@ import AndroidStatusBar 1.0
 
                     Label {
                         text: qsTr("Enable to calculate calories based on heart rate data instead of power. Requires heart rate sensor connection for accurate calorie estimation.")
+                        font.bold: !window.ui.modern
+                        font.italic: !window.ui.modern
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: switchTreadmillCaloriesModelDelegate
+                        text: qsTr("Treadmill Calories from Walking/Running Model")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.treadmill_calories_model
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.treadmill_calories_model = checked
+                        Accessible.onPressAction: { toggle(); settings.treadmill_calories_model = checked }
+                    }
+
+                    Label {
+                        text: qsTr("Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.")
                         font.bold: !window.ui.modern
                         font.italic: !window.ui.modern
                         font.pixelSize: window.fontHint

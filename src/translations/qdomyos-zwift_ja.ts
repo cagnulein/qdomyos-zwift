@@ -8933,6 +8933,14 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
         <source>Use Console Gears</source>
         <translation>コンソールのギアを使用</translation>
     </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>歩行・走行モデルによるトレッドミルの消費カロリー</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>コンソールが消費カロリーを送らないトレッドミル向けです。ベルト速度、傾斜、体重・身長・年齢・性別から計算し、身長から決まる歩行から走行への切り替え速度より遅いときは歩行モデル、速いときは走行モデルを使います。オフにするとパワーに基づく値を使います。コンソールが送る消費カロリー、外部パワーセンサー（Stryd など）、オンのときの「心拍数ベースで消費カロリーを計算」が引き続き優先されます。</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

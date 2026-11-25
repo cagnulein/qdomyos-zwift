@@ -8885,6 +8885,14 @@ Predefinito: A = -0.96, B = 1.33</translation>
         <source>Use Console Gears</source>
         <translation>Usa le marce della console</translation>
     </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Calorie tapis roulant da modello camminata/corsa</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Per i tapis roulant la cui console non invia le calorie. Le calorie si calcolano da velocità del nastro, pendenza e dal tuo peso, altezza, età e sesso: un modello di camminata sotto la tua velocità di passaggio dalla camminata alla corsa (data dalla tua altezza) e un modello di corsa sopra. Disattiva per usare invece il valore basato sulla potenza. Le calorie di una console, un sensore di potenza esterno (Stryd ecc.) e Calcola calorie dalla frequenza cardiaca (se attivo) hanno ancora la precedenza.</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>
