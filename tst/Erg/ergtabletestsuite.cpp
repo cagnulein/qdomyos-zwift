@@ -610,3 +610,31 @@ void ErgTableTestSuite::test_resistanceCadenceBanding() {
     EXPECT_EQ(2, erg.resistanceFromPowerRequest(130, 84, 3));
     EXPECT_EQ(1, erg.resistanceFromPowerRequest(130, 85, 3));
 }
+
+
+// S01PRO telemetry from a 2026-11-24 workout (median at each RPM/level).
+#include "devices/pitpatbike/pitpaterg.h"
+
+TEST(PitPatErgTest, RecordedCadenceAndResistance) {
+    EXPECT_EQ(PitPatErg::estimatedWatts(75, 11), 117);
+    EXPECT_EQ(PitPatErg::estimatedWatts(90, 11), 141);
+    EXPECT_EQ(PitPatErg::estimatedWatts(75, 13), 135);
+    EXPECT_EQ(PitPatErg::estimatedWatts(90, 10), 130);
+
+    EXPECT_EQ(PitPatErg::resistanceForPower(135, 75), 13);
+    EXPECT_EQ(PitPatErg::resistanceForPower(135, 90), 10);
+    EXPECT_LT(PitPatErg::resistanceForPower(197, 95),
+              PitPatErg::resistanceForPower(197, 75));
+}
+
+TEST(PitPatErgTest, BoundsAndNearestAttainablePower) {
+    EXPECT_EQ(PitPatErg::resistanceForPower(135, 0), 1);
+    EXPECT_EQ(PitPatErg::resistanceForPower(0, 90), 1);
+    EXPECT_EQ(PitPatErg::resistanceForPower(1, 90), 1);
+    EXPECT_EQ(PitPatErg::resistanceForPower(600, 90), 32);
+    for (int rpm : {60, 75, 90, 105}) {
+        for (int level = 1; level <= 32; ++level) {
+            EXPECT_EQ(PitPatErg::resistanceForPower(PitPatErg::estimatedWatts(rpm, level), rpm), level);
+        }
+    }
+}
