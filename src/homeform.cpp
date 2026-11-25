@@ -2237,11 +2237,6 @@ void homeform::requestModernOffer(bool fromMenu) {
             settings.setValue(QZSettings::ui_modern_offer_pending, false);
             return;
         }
-        // Not over a workout: the question waits for the next start
-        if (!Session.isEmpty() && !paused && !stopped) {
-            qDebug() << "modern look offer: a workout is under way, asked at the next start";
-            return;
-        }
     }
     if (!m_modernOfferRequested) {
         m_modernOfferRequested = true;

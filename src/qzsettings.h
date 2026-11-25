@@ -3522,17 +3522,6 @@ class QZSettings {
     static const QString ui_theme_mode;
     static const QString default_ui_theme_mode;
 
-    // The modern look for a new install, decided once, at the first start of a QZ with this code
-    // (homeform::startModernForNewInstall()): a QZ that has never connected a device turns ui_modern on, any
-    // other one is asked once instead (ui_modern_offer_pending). Set after that start, so the decision is not
-    // taken again, even when the user goes back to the classic look. Neither is in allSettings: "reset all
-    // settings" (restoreAll()) must not switch the look again
-    static const QString ui_modern_new_install_checked;
-    static constexpr bool default_ui_modern_new_install_checked = false;
-    // The question "Try the new interface?" on the home page is still to be asked: cleared by the answer
-    static const QString ui_modern_offer_pending;
-    static constexpr bool default_ui_modern_offer_pending = false;
-
     // The user answered whether QZ may write the wheel circumference of a Wahoo trainer (asked at the
     // first connection). Written at the first discovery of a Wahoo trainer: true when that trainer
     // already was the last device, so it was connected before the question existed
@@ -3551,6 +3540,17 @@ class QZSettings {
     // weight, height, age, sex) instead of the generic power formula.
     static const QString treadmill_calories_model;
     static constexpr bool default_treadmill_calories_model = false;
+
+    // The modern look for a new install, decided once, at the first start of a QZ with this code
+    // (homeform::startModernForNewInstall()): a QZ that has never connected a device turns ui_modern on, any
+    // other one is asked once instead (ui_modern_offer_pending). Set after that start, so the decision is not
+    // taken again, even when the user goes back to the classic look. Neither is in allSettings: a new profile
+    // with the default settings (restoreAll()) does not take the decision again
+    static const QString ui_modern_new_install_checked;
+    static constexpr bool default_ui_modern_new_install_checked = false;
+    // The question "Try the new interface?" on the home page is still to be asked: cleared by the answer
+    static const QString ui_modern_offer_pending;
+    static constexpr bool default_ui_modern_offer_pending = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

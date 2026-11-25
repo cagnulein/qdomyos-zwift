@@ -501,7 +501,7 @@ class homeform : public QObject {
         bool antbike =
             settings.value(QZSettings::antbike, QZSettings::default_antbike).toBool();
         // bluetooth.cpp connects these with no Bluetooth name stored: the Peloton OCR bike in its constructor,
-        // the Trixter X-Dream bike by its serial port (not on iOS, the setting stays false there), a DirCon
+        // the Trixter X-Dream bike by its serial port (not connected on iOS), a DirCon
         // device by the name picked in filter_device (connectDirconDevice())
         bool peloton_bike_ocr =
             settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool();
