@@ -1,4 +1,5 @@
 #include "homeform.h"
+#include "companionheartrate.h"
 #include <QTranslator>
 #include "devices/lifefitnesstreadmill/lifefitnessworkout.h"
 #include "devices/echelonconnectsport/echelonconnectsport.h"
@@ -1252,20 +1253,16 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                  QObject::connect(homeform::singleton()->iphone_socket, &QTcpSocket::readyRead, []() {
                                      QString rec = homeform::singleton()->iphone_socket->readAll();
                                      qDebug() << "iphone_socket received << " << rec;
-                                     QStringList fields = rec.split("#");
-                                     foreach (QString f, fields) {
-                                         if (f.contains("HR")) {
-                                             QStringList values = f.split("=");
-                                             if (values.length() > 1) {
-                                                 double hr = values[1].toDouble();
-                                                 emit homeform::singleton()->heartRate(hr);
+                                     const QString beltName = QSettings().value(
+                                         QZSettings::heart_rate_belt_name,
+                                         QZSettings::default_heart_rate_belt_name).toString();
+                                     dispatchCompanionHeartRate(rec, beltName, [](double hr) {
+                                         emit homeform::singleton()->heartRate(hr);
 #ifndef IO_UNDER_QT
-                                                 lockscreen ls;
-                                                 ls.setHeartRate((unsigned char)hr);
+                                         lockscreen ls;
+                                         ls.setHeartRate((unsigned char)hr);
 #endif
-                                             }
-                                         }
-                                     }
+                                     });
                                  });
 
                                  homeform::singleton()->iphone_address = address;
@@ -1297,20 +1294,16 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                  QObject::connect(homeform::singleton()->iphone_socket, &QTcpSocket::readyRead, []() {
                                      QString rec = homeform::singleton()->iphone_socket->readAll();
                                      qDebug() << "iphone_socket received << " << rec;
-                                     QStringList fields = rec.split("#");
-                                     foreach (QString f, fields) {
-                                         if (f.contains("HR")) {
-                                             QStringList values = f.split("=");
-                                             if (values.length() > 1) {
-                                                 double hr = values[1].toDouble();
-                                                 emit homeform::singleton()->heartRate(hr);
+                                     const QString beltName = QSettings().value(
+                                         QZSettings::heart_rate_belt_name,
+                                         QZSettings::default_heart_rate_belt_name).toString();
+                                     dispatchCompanionHeartRate(rec, beltName, [](double hr) {
+                                         emit homeform::singleton()->heartRate(hr);
 #ifndef IO_UNDER_QT
-                                                 lockscreen ls;
-                                                 ls.setHeartRate((unsigned char)hr);
+                                         lockscreen ls;
+                                         ls.setHeartRate((unsigned char)hr);
 #endif
-                                             }
-                                         }
-                                     }
+                                     });
                                  });
                                  homeform::singleton()->iphone_address = address;
                                  homeform::singleton()->iphone_socket->connectToHost(
