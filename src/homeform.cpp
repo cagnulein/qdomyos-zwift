@@ -7167,7 +7167,9 @@ void homeform::watchHeartTick() {
         return;
     const QDateTime now = QDateTime::currentDateTime();
     bluetoothdevice *dev = bluetoothManager ? bluetoothManager->device() : nullptr;
-    if (dev && (dev->currentSpeed().value() > 0 || dev->currentCadence().value() > 0))
+    // movement keeps it awake only during a workout: speed or cadence left over after Stop (or
+    // while paused) does not wake the watch again
+    if (dev && !stopped && !paused && (dev->currentSpeed().value() > 0 || dev->currentCadence().value() > 0))
         watchActiveAt = now;
     const bool wanted = watchActiveAt.isValid() && watchActiveAt.secsTo(now) < 5 * 60;
     if (wanted && (!watchAwake || !watchLastWake.isValid() || watchLastWake.secsTo(now) >= 60))
