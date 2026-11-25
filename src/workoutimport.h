@@ -14,7 +14,7 @@ class workoutimport {
     // ("SON") work too. JSON/XSR files are accepted only if they contain an EXR schedule.
     static bool isSupportedFile(const QString &filename, const QString &extension = QString());
     static QList<trainrow> load(const QString &filename, const QString &extension = QString(),
-                                QString *description = nullptr);
+                                QString *description = nullptr, BLUETOOTH_TYPE *fitDeviceType = nullptr);
 
     // percentByDefault: true for .mrc, false for .erg, used when the header has no MINUTES PERCENT/WATTS line.
     // ftp: watts for 100%. Both return an empty list when the input has no usable steps.
@@ -22,7 +22,13 @@ class workoutimport {
                                       QString *description = nullptr);
     static QList<trainrow> loadExr(const QByteArray &input, double ftp, QString *description = nullptr);
     // Structured FIT workouts only, never recorded activities. Empty on invalid or unsupported steps.
-    static QList<trainrow> loadFit(const QByteArray &input, double ftp, double maxHr, QString *description = nullptr);
+    static QList<trainrow> loadFit(const QByteArray &input, double ftp, double maxHr, QString *description = nullptr,
+                                   BLUETOOTH_TYPE *fitDeviceType = nullptr);
+
+    // Persist successfully imported FIT rows in the native training folder. Reuse identical
+    // XML, never overwrite an existing edited workout, and return an empty path on failure.
+    static QString saveFitAsXml(const QString &sourcePath, const QString &trainingDirectory,
+                                const QList<trainrow> &rows, BLUETOOTH_TYPE deviceType);
 
   private:
     static QString fileKind(const QString &filename, const QString &extension);

@@ -9,6 +9,9 @@
 
 #include <QDir>
 #include <QTemporaryFile>
+#include <QTemporaryDir>
+#include <QFile>
+#include <QFileInfo>
 
 static const char *kMrcWorkout = "[COURSE HEADER]\r\n"
                                  "VERSION = 2\r\n"
@@ -338,8 +341,10 @@ TEST(WorkoutImport, FitFileForgeNorwegianFourByFourOriginal) {
 
     QString description;
     // Fixed profile values keep this test independent of the user's settings.
-    const auto rows = workoutimport::loadFit(bytes, 250, 200, &description);
+    BLUETOOTH_TYPE fitDeviceType = UNKNOWN;
+    const auto rows = workoutimport::loadFit(bytes, 250, 200, &description, &fitDeviceType);
     ASSERT_EQ(rows.size(), 10);
+    EXPECT_EQ(fitDeviceType, TREADMILL);
     EXPECT_EQ(description, QString::fromUtf8("Norwegian 4 \xC3\x97 4"));
 
     auto checkFreeStep = [](const trainrow &row, int seconds, const QString &message) {
@@ -382,6 +387,31 @@ TEST(WorkoutImport, FitFileForgeNorwegianFourByFourOriginal) {
         totalSeconds += QTime(0, 0).secsTo(row.duration);
     EXPECT_EQ(totalSeconds, 53 * 60);
 
+    // Persist the original fixture as XML exactly as the Open Train Program path does.
+    QTemporaryDir training;
+    ASSERT_TRUE(training.isValid());
+    const QString saved = workoutimport::saveFitAsXml(QStringLiteral("Norwegian_4_4.fit"),
+                                                       training.path(), rows, fitDeviceType);
+    ASSERT_EQ(saved, QDir(training.path()).filePath(QStringLiteral("Norwegian_4_4.xml")));
+    EXPECT_EQ(trainprogram::xmlDeviceType(saved, UNKNOWN), TREADMILL);
+    const auto reopened = trainprogram::loadXML(saved, TREADMILL);
+    ASSERT_EQ(reopened.size(), rows.size());
+    for (int i = 0; i < rows.size(); ++i) {
+        SCOPED_TRACE(i);
+        EXPECT_EQ(reopened.at(i).duration, rows.at(i).duration);
+        EXPECT_EQ(reopened.at(i).HRmin, rows.at(i).HRmin);
+        EXPECT_EQ(reopened.at(i).HRmax, rows.at(i).HRmax);
+        EXPECT_EQ(reopened.at(i).zoneHR, rows.at(i).zoneHR);
+        EXPECT_EQ(reopened.at(i).power, rows.at(i).power);
+        EXPECT_EQ(reopened.at(i).speed, rows.at(i).speed);
+        ASSERT_EQ(reopened.at(i).textEvents.size(), rows.at(i).textEvents.size());
+        EXPECT_EQ(reopened.at(i).textEvents.first().message, rows.at(i).textEvents.first().message);
+        EXPECT_EQ(reopened.at(i).textEvents.first().timeoffset, rows.at(i).textEvents.first().timeoffset);
+    }
+    EXPECT_EQ(workoutimport::saveFitAsXml(QStringLiteral("Norwegian_4_4.fit"),
+                                         training.path(), rows, fitDeviceType), saved);
+    EXPECT_EQ(QDir(training.path()).entryList(QStringList() << QStringLiteral("*.xml"), QDir::Files).size(), 1);
+
     // Verify the same original bytes also work through the file-based dispatcher.
     QTemporaryFile file(QDir::tempPath() + QStringLiteral("/Norwegian_4_4-XXXXXX.fit"));
     ASSERT_TRUE(file.open());
@@ -395,4 +425,24 @@ TEST(WorkoutImport, FitFileForgeNorwegianFourByFourOriginal) {
     EXPECT_EQ(fileDescription, description);
     for (int i = 0; i < rows.size(); ++i)
         EXPECT_EQ(imported.at(i).duration, rows.at(i).duration);
+}
+
+TEST(WorkoutImport, SaveFitXmlDoesNotOverwriteEditedWorkout) {
+    QTemporaryDir training;
+    ASSERT_TRUE(training.isValid());
+    const QString source = QStringLiteral("MyWorkout.fit");
+    trainrow row;
+    row.duration = QTime(0, 2);
+    row.power = 150;
+    QList<trainrow> rows{row};
+    const QString first = workoutimport::saveFitAsXml(source, training.path(), rows, BIKE);
+    ASSERT_FALSE(first.isEmpty());
+    rows[0].power = 200;
+    const QString second = workoutimport::saveFitAsXml(source, training.path(), rows, BIKE);
+    ASSERT_EQ(second, QDir(training.path()).filePath(QStringLiteral("MyWorkout_2.xml")));
+    const auto original = trainprogram::loadXML(first, BIKE);
+    ASSERT_EQ(original.size(), 1);
+    EXPECT_EQ(original.first().power, 150);
+    EXPECT_EQ(workoutimport::saveFitAsXml(source, training.path(), rows, BIKE), second);
+    EXPECT_TRUE(workoutimport::saveFitAsXml(source, training.path(), {}, BIKE).isEmpty());
 }

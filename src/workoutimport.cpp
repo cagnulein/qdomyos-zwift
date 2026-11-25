@@ -7,7 +7,10 @@
 #include <cmath>
 #include <sstream>
 #include <QDebug>
+#include <QDir>
 #include <QFile>
+#include <QTemporaryFile>
+#include <QXmlStreamReader>
 #include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -70,7 +73,10 @@ bool workoutimport::isSupportedFile(const QString &filename, const QString &exte
     return !exrField(exrData(input.readAll()), QStringLiteral("schedule")).toArray().isEmpty();
 }
 
-QList<trainrow> workoutimport::load(const QString &filename, const QString &extension, QString *description) {
+QList<trainrow> workoutimport::load(const QString &filename, const QString &extension, QString *description,
+                                      BLUETOOTH_TYPE *fitDeviceType) {
+    if (fitDeviceType)
+        *fitDeviceType = UNKNOWN;
     const QString kind = fileKind(filename, extension);
     QFile input(filename);
     if (kind.isEmpty() || !input.open(QIODevice::ReadOnly)) {
@@ -88,7 +94,7 @@ QList<trainrow> workoutimport::load(const QString &filename, const QString &exte
                                              QZSettings::default_heart_max_override_enable).toBool()
             ? settings.value(QZSettings::heart_max_override_value, QZSettings::default_heart_max_override_value).toDouble()
             : 220.0 - settings.value(QZSettings::age, QZSettings::default_age).toDouble();
-        return loadFit(content, ftp, maxHr, description);
+        return loadFit(content, ftp, maxHr, description, fitDeviceType);
     }
     const bool courseFile = kind == QStringLiteral("MRC") || kind == QStringLiteral("ERG");
     const QList<trainrow> rows = courseFile ? loadErgMrc(content, kind == QStringLiteral("MRC"), ftp, description)
@@ -419,7 +425,10 @@ bool fitStepToRow(const fit::WorkoutStepMesg &step, double ftp, double maxHr, tr
 }
 } // namespace
 
-QList<trainrow> workoutimport::loadFit(const QByteArray &input, double ftp, double maxHr, QString *description) {
+QList<trainrow> workoutimport::loadFit(const QByteArray &input, double ftp, double maxHr, QString *description,
+                                         BLUETOOTH_TYPE *fitDeviceType) {
+    if (fitDeviceType)
+        *fitDeviceType = UNKNOWN;
     if (description)
         description->clear();
     if (input.size() < 14 || input.size() > 4 * 1024 * 1024)
@@ -490,9 +499,79 @@ QList<trainrow> workoutimport::loadFit(const QByteArray &input, double ftp, doub
             rows.append(row);
         }
     }
+    if (fitDeviceType && listener.workout.IsSportValid()) {
+        switch (listener.workout.GetSport()) {
+        case FIT_SPORT_RUNNING:
+        case FIT_SPORT_WALKING:
+            *fitDeviceType = TREADMILL;
+            break;
+        case FIT_SPORT_CYCLING:
+            *fitDeviceType = BIKE;
+            break;
+        case FIT_SPORT_ROWING:
+            *fitDeviceType = ROWER;
+            break;
+        default:
+            break;
+        }
+    }
     if (description && listener.workout.IsWktNameValid()) {
         const auto name = listener.workout.GetWktName();
         *description = QString::fromWCharArray(name.data(), int(name.size()));
     }
     return rows;
+}
+
+QString workoutimport::saveFitAsXml(const QString &sourcePath, const QString &trainingDirectory,
+                                    const QList<trainrow> &rows, BLUETOOTH_TYPE deviceType) {
+    if (rows.isEmpty() || trainingDirectory.isEmpty() ||
+        QFileInfo(sourcePath).suffix().compare(QStringLiteral("fit"), Qt::CaseInsensitive) != 0)
+        return {};
+
+    const QDir dir(trainingDirectory);
+    if (!dir.exists() && !QDir().mkpath(dir.absolutePath()))
+        return {};
+
+    // Use the existing native serializer, including row text events, HR bounds and lap steps.
+    // Serialize to a temporary file first, and publish with QFile::copy (which never overwrites).
+    QTemporaryFile temporary(dir.filePath(QStringLiteral(".fit-import-XXXXXX")));
+    if (!temporary.open())
+        return {};
+    const QString temporaryPath = temporary.fileName();
+    temporary.close();
+    if (!trainprogram::saveXML(temporaryPath, rows, deviceType))
+        return {};
+    QFile generated(temporaryPath);
+    if (!generated.open(QIODevice::ReadOnly))
+        return {};
+    const QByteArray xml = generated.readAll();
+    generated.close();
+    QXmlStreamReader validation(xml);
+    while (!validation.atEnd())
+        validation.readNext();
+    if (xml.isEmpty() || validation.hasError())
+        return {};
+
+    QString name = QFileInfo(sourcePath).completeBaseName();
+    if (name.isEmpty() || name == QStringLiteral(".") || name == QStringLiteral(".."))
+        name = QStringLiteral("Imported_Workout");
+
+    for (int suffix = 1; suffix <= 10000; ++suffix) {
+        const QString candidate = dir.filePath(
+            (suffix == 1 ? name : name + QStringLiteral("_%1").arg(suffix)) + QStringLiteral(".xml"));
+        const QFileInfo info(candidate);
+        if (info.exists() || info.isSymLink()) {
+            QFile existing(candidate);
+            if (!info.isSymLink() && info.isFile() && info.size() == xml.size() &&
+                existing.open(QIODevice::ReadOnly) && existing.readAll() == xml)
+                return candidate; // Reopening the same FIT must not create duplicates.
+            continue;
+        }
+        if (QFile::copy(temporaryPath, candidate))
+            return candidate;
+        // A competing import may have created the name. Otherwise the destination is not writable.
+        if (!QFileInfo::exists(candidate))
+            return {};
+    }
+    return {};
 }

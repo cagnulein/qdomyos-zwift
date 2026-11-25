@@ -24,6 +24,7 @@
 #include "templateinfosenderbuilder.h"
 #include "workoutmodel.h"
 #include "zwiftworkout.h"
+#include "workoutimport.h"
 #include "authutils.h"
 
 #include <QAbstractOAuth2>
@@ -10303,9 +10304,21 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
             }
 
             trainProgram = trainprogram::load(file.fileName(), bluetoothManager, file.fileName().right(3).toUpper());
-            if (file.fileName().endsWith(QStringLiteral(".fit"), Qt::CaseInsensitive) &&
-                trainProgram->totalLogicalSteps() == 0) {
-                setToastRequested(tr("The workout file could not be opened."));
+            if (file.fileName().endsWith(QStringLiteral(".fit"), Qt::CaseInsensitive)) {
+                if (trainProgram->loadedRows.isEmpty()) {
+                    setToastRequested(tr("The workout file could not be opened."));
+                } else {
+                    const QString xmlPath = workoutimport::saveFitAsXml(
+                        file.fileName(), getWritableAppDir() + QStringLiteral("training/"),
+                        trainProgram->loadedRows, trainProgram->loadedDeviceType);
+                    if (xmlPath.isEmpty()) {
+                        qWarning() << "Could not save imported FIT as XML:" << file.fileName();
+                        setToastRequested(tr("The workout was opened but could not be saved."));
+                    } else {
+                        qDebug() << "Imported FIT saved as training program:" << xmlPath;
+                        emit folderFilesRestored();
+                    }
+                }
             }
 
             QString movieName = file.fileName().left(file.fileName().length() - 3) + "mp4";

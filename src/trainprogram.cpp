@@ -2004,9 +2004,12 @@ trainprogram *trainprogram::load(const QString &filename, bluetooth *b, QString 
     if (workoutimport::isSupportedFile(filename, Extension)) {
         QString description = "";
         QString tags = "";
-        trainprogram *program =
-            new trainprogram(workoutimport::load(filename, Extension, &description), b, &description, &tags);
-        if (b && b->device()) {
+        BLUETOOTH_TYPE fitDeviceType = UNKNOWN;
+        const auto rows = workoutimport::load(filename, Extension, &description, &fitDeviceType);
+        trainprogram *program = new trainprogram(rows, b, &description, &tags);
+        if (fitDeviceType != UNKNOWN) {
+            program->loadedDeviceType = fitDeviceType;
+        } else if (b && b->device()) {
             program->loadedDeviceType = b->device()->deviceType();
         }
         return program;
