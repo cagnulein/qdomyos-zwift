@@ -49,8 +49,8 @@
         return 0;
     }
 
-    // a card the page shows: not inside a hidden box (display: none, or height 0 as the heart
-    // chart without a sensor), and its chart is made
+    // a card the page shows: not inside a hidden box (display: none, or height 0 as the
+    // resistance charts of the workout history without resistance), and its chart is made
     function shown(card) {
         if (card !== current && card.offsetParent === null)
             return false;
@@ -65,6 +65,12 @@
     function chartOf(card) {
         var canvas = card.querySelector('canvas');
         return canvas && window.Chart && Chart.getChart ? Chart.getChart(canvas) : null;
+    }
+
+    // the chart still grows (its first animation): the end of that animation saves its picture
+    // for the mail (animation.onComplete), and a spread chart would go there big
+    function growing(chart) {
+        return !!(chart && Chart.animator && Chart.animator.running(chart));
     }
 
     function iconSvg(path) {
@@ -94,10 +100,7 @@
             button.setAttribute('data-html2canvas-ignore', 'true');
             button.addEventListener('click', function (e) {
                 e.stopPropagation();
-                // not while the chart still grows: the end of that animation saves its picture
-                // for the mail (animation.onComplete), and a spread chart would go there big
-                var chart = chartOf(card);
-                if (chart && Chart.animator && Chart.animator.running(chart))
+                if (growing(chartOf(card)))
                     return;
                 if (current === card)
                     exit();
@@ -270,6 +273,9 @@
             return;
         var i = list.indexOf(current);
         var next = list[(i + delta + list.length) % list.length];
+        // not a chart that still grows, as the button (its picture for the mail would go big)
+        if (growing(chartOf(next)))
+            return;
         enter(next, false);
     }
 
