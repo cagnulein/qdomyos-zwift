@@ -51,16 +51,18 @@ Rectangle {
     }
 
     height: message.height + margin
-    radius: margin
+    radius: window.ui.modern ? 14 : margin
 
     opacity: 0
-    color: "#222222"
+    // Modern look: inverse of the theme, dark on a light page and light on a dark one
+    color: window.ui.modern ? window.ui.inverseSurface : "#222222"
 
     Text {
-        // a plain Text does not inherit the window font: the text size while it is not 100 %
-        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+        // a plain Text does not inherit the window font: the text size while it is not 100 %;
+        // modern look: Body (16) of the type scale
+        Binding on font.pixelSize { when: window.ui.modern || window.scaledFontPx > 0; value: window.ui.modern ? window.ui.fontBody : window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
         id: message
-        color: "white"
+        color: window.ui.modern ? window.ui.inverseText : "white"
         wrapMode: Text.Wrap
         horizontalAlignment: Text.AlignHCenter
         anchors {

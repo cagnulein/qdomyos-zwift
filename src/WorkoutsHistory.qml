@@ -395,6 +395,9 @@ Page {
                     font.bold: true
                     fontSizeMode: Text.HorizontalFit
                     minimumPixelSize: 14
+                    // the fitted (smaller) line keeps the height of the full font size (QTBUG-55873):
+                    // centred, so a long translation or a bigger text stays in the middle of the header
+                    verticalAlignment: Text.AlignVCenter
                     elide: Text.ElideRight
                 }
 
@@ -588,7 +591,9 @@ Page {
                 swipe.right: Rectangle {
                     width: parent.width
                     height: parent.height
-                    color: "#FF4444"
+                    // Modern look: the danger colour of the theme; the ink on it is accentInk, white on
+                    // the light danger and dark on the dark one (white on #FF8A80 is about 2.3 : 1)
+                    color: workoutHistoryPage.modern ? window.ui.danger : "#FF4444"
                     clip: true
 
                     Row {
@@ -601,14 +606,14 @@ Page {
                             visible: Qt.platform.os === "android"
                             name: "delete"
                             size: 18
-                            color: "white"
+                            color: workoutHistoryPage.modern ? window.ui.accentInk : "white"
                             anchors.verticalCenter: parent.verticalCenter
                         }
 
                         Text {
                             text: Qt.platform.os === "android" ? qsTr("Delete") : "🗑️ " + qsTr("Delete")
-                            color: "white"
-                            font.pixelSize: window.fontPx(16)
+                            color: workoutHistoryPage.modern ? window.ui.accentInk : "white"
+                            font.pixelSize: workoutHistoryPage.modern ? window.ui.fontBody : window.fontPx(16)
                             anchors.verticalCenter: parent.verticalCenter
                         }
                     }
@@ -1822,7 +1827,14 @@ Page {
                     text: workoutHistoryPage.modern
                           ? workoutHistoryPage.monthTitle(calendar.selectedDate)
                           : calendar.selectedDate.toLocaleDateString(Qt.locale(), "MMMM yyyy")
-                    font.pixelSize: window.fontPx(18)
+                    font.pixelSize: workoutHistoryPage.modern ? window.ui.fontTitle : window.fontPx(18)
+                    // Modern look: with a bigger text size a long month may not fit between the
+                    // buttons; it then shrinks to the width, down to the caption size. The item
+                    // keeps the height of the full size and Text puts the line at its top, so the
+                    // shrunk month is centred in it to stay level with the buttons
+                    fontSizeMode: workoutHistoryPage.modern ? Text.HorizontalFit : Text.FixedSize
+                    minimumPixelSize: window.ui.fontCaption
+                    verticalAlignment: workoutHistoryPage.modern ? Text.AlignVCenter : Text.AlignTop
                     font.bold: true
                     color: window.ui.ink("black")
                     horizontalAlignment: Text.AlignHCenter
@@ -1869,6 +1881,29 @@ Page {
                 // the narrowest cell, which is at most 1 dp below the mean
                 readonly property real dayCircle: Math.min(40, Math.floor((width - 6 * columnSpacing) / 7) - 2)
 
+                // Modern look: one size for the whole row of day names. With a bigger text size
+                // the widest name may not fit its column ("Wed" at 170 %); then the row shrinks
+                // toward its width, but not below the caption size (at 170 % on a 411 dp wide
+                // screen the row stops there, the names still apart). Shrinking each name to its own
+                // column left "Fri" and "Sat" bigger than the rest
+                FontMetrics {
+                    id: dayNameMetrics
+                    font.pixelSize: window.ui.fontBody
+                }
+                readonly property int dayNamePx: {
+                    // the size of the metrics, not ui.fontBody: so this is computed again after
+                    // the metrics took a new text size, not before
+                    var full = dayNameMetrics.font.pixelSize
+                    var room = Math.floor((width - 6 * columnSpacing) / 7) - 2
+                    var names = workoutHistoryPage.weekDayNames()
+                    var widest = 0
+                    for (var i = 0; i < names.length; i++)
+                        widest = Math.max(widest, dayNameMetrics.advanceWidth(names[i]))
+                    if (room <= 0 || widest <= room)
+                        return full
+                    return Math.max(window.ui.fontCaption, Math.floor(full * room / widest))
+                }
+
                 property date selectedDate: new Date()
                 property var workoutDates: workoutModel ? workoutModel.getWorkoutDates() : []
                 
@@ -1883,7 +1918,10 @@ Page {
                     model: workoutHistoryPage.modern ? workoutHistoryPage.weekDayNames()
                          : [qsTr("Sun"), qsTr("Mon"), qsTr("Tue"), qsTr("Wed"), qsTr("Thu"), qsTr("Fri"), qsTr("Sat")]
                     Text {
-                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                        // Modern look: the day names of the Material 3 date picker, Body Large regular
+                        // (fontBody, as the days below); classic: the app font, bold
+                        // (dayNamePx: fontBody, smaller only when the widest name does not fit)
+                        Binding on font.pixelSize { when: workoutHistoryPage.modern || window.scaledFontPx > 0; value: workoutHistoryPage.modern ? calendar.dayNamePx : window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         Layout.fillWidth: true
                         // Modern look: seven equal columns. A GridLayout grows each column from its
                         // preferred width (the width of the day name), so "Fri" and "Sat" stayed narrower
@@ -1893,7 +1931,7 @@ Page {
                         Layout.preferredWidth: workoutHistoryPage.modern ? 1 : -1
                         Layout.preferredHeight: 30
                         text: modelData
-                        font.bold: true
+                        font.bold: !workoutHistoryPage.modern
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                         color: workoutHistoryPage.modern ? window.ui.textMuted : "#666666"
@@ -1974,7 +2012,8 @@ Page {
                                 color: workoutHistoryPage.modern ? (isCurrentMonth ? window.ui.textMain : window.ui.textMuted)
                                                                  : (isCurrentMonth ? "black" : "#cccccc")
                                 opacity: workoutHistoryPage.modern && !isCurrentMonth ? 0.6 : 1
-                                font.pixelSize: window.fontPx(14)
+                                // Modern look: Body Large of the Material 3 date picker (fontBody)
+                                font.pixelSize: workoutHistoryPage.modern ? window.ui.fontBody : window.fontPx(14)
                                 font.weight: workoutHistoryPage.modern && (hasWorkout || isToday) ? Font.DemiBold : Font.Normal
                             }
                             

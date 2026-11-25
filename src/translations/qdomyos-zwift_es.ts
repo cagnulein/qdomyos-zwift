@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="es_ES">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Cerrar</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -382,6 +389,14 @@ Would you like to enable the required services?</source>
     <message>
         <source>Not connecting?</source>
         <translation>¿No se conecta?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Equipo no encontrado</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Enciende tu bicicleta, cinta de correr o remo y toca el icono de Bluetooth de arriba para buscar de nuevo.</translation>
     </message>
 </context>
 <context>
@@ -1145,6 +1160,10 @@ Do you want to update QZ settings?</source>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>Error al inicializar la YPOO M5; es necesario volver a conectar</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>¡Coach S conectado!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1363,6 +1382,21 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Open email</source>
         <translation>Abrir correo</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Comprando...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Compra realizada</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Compra fallida</translation>
     </message>
 </context>
 <context>
@@ -2145,6 +2179,11 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Inclination (%)</source>
         <translation>Inclinación (%)</translation>
+    </message>
+    <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>En un gráfico:</translation>
     </message>
     <message>
         <source>Avg Output</source>
@@ -3365,6 +3404,10 @@ Esto puede tardar un poco en el primer inicio.</translation>
 <context>
     <name>homeform</name>
     <message>
+        <source>No enabled metrics</source>
+        <translation>No hay métricas activadas</translation>
+    </message>
+    <message>
         <source>Speed (%1/h)</source>
         <translation>Velocidad (%1/h)</translation>
     </message>
@@ -4007,6 +4050,10 @@ Esto puede tardar un poco en el primer inicio.</translation>
         <translation>Buscando el dispositivo...</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Conectando con %1...</translation>
+    </message>
+    <message>
         <source>Search stopped, tap the Bluetooth icon</source>
         <translation>Búsqueda detenida, toca el icono de Bluetooth</translation>
     </message>
@@ -4295,9 +4342,17 @@ Esto puede tardar un poco en el primer inicio.</translation>
         <source>Unable to open an email application</source>
         <translation>No se pudo abrir una aplicación de correo electrónico</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth desactivado</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Métricas flotantes (imagen en imagen)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -4819,6 +4874,26 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
 ¿Permitir que QZ cambie este valor?
 
 «No»: QZ activa «Sin cambio de diámetro de rueda» (Ajustes &gt; Opciones de bicicleta &gt; Opciones de Wahoo) y las marchas virtuales funcionan a través de la pendiente. Con «Sí» puedes deshacerlo más tarde allí mismo: activa esa opción y, con el rodillo conectado, pulsa «Restaurar la configuración predeterminada del rodillo».</translation>
+    </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>El dispositivo simulado (%1) está activo. Si no era tu intención, desactívalo en Ajustes.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Bicicleta</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Cinta de correr</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Elíptica</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Máquina de remo</translation>
     </message>
 </context>
 <context>
@@ -6295,6 +6370,30 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Idioma de la aplicación:</translation>
     </message>
     <message>
+        <source>Setting reset</source>
+        <translation>Ajuste restablecido</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Ajustes restablecidos: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Restablecer todo</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>¿Restablecer los ajustes modificados?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Ajustes que vuelven a sus valores predeterminados: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Restablecer</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Selecciona Automático para seguir el idioma de tu dispositivo o elige un idioma específico para QZ.</translation>
     </message>
@@ -6409,6 +6508,18 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     <message>
         <source>km/h</source>
         <translation>km/h</translation>
+    </message>
+    <message>
+        <source>Reset section?</source>
+        <translation>¿Restablecer sección?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Ajustes de “%2” que vuelven a sus valores predeterminados: %1</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Restablecer sección</translation>
     </message>
     <message>
         <source>Minimum speed for Peloton walking sessions. Set to 0 to disable. Applied to all speed targets in walking workouts.</source>
@@ -6603,8 +6714,8 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Sensor Bluetooth de Garmin</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Si quieres enviar métricas a tu dispositivo Garmin desde tu Mac, activa esto. De lo contrario, déjalo desactivado.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Permite que tu reloj Garmin u otro reloj deportivo use QZ como sensor Bluetooth: un podómetro con una cinta de correr, un medidor de potencia con una bicicleta (en Android, activa también «Sensor de potencia de bicicleta»). El reloj necesita estar vinculado por Bluetooth con el teléfono o la tableta donde se ejecuta QZ: si no encuentra QZ, vincúlalos una vez, luego añade el sensor en el reloj y acepta la solicitud de vinculación. Si Garmin Connect está conectado al reloj en el mismo teléfono, fuerza su detención dos o tres veces seguidas mientras el reloj se conecta; es más fácil un teléfono o tableta aparte sin Garmin Connect. Mientras QZ funciona como sensor para el reloj, Zwift por Bluetooth lo ve solo como podómetro o medidor de potencia, no como una máquina que pueda controlar.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -7174,6 +7285,75 @@ Por favor, ingrésalo a continuación:</translation>
         <translation>Posición de este gráfico en el historial de entrenamientos. El orden se cambia con los botones de subir y bajar en Opciones generales de la interfaz.</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Interfaz moderna</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Nuevo aspecto de la pantalla principal, el menú lateral, la configuración y el asistente. Desactívalo para volver al aspecto clásico.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Apariencia</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Como en el teléfono</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Oscuro</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Claro</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Tema</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafito</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Negro / blanco</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Azul medianoche</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Color de acento</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Violeta</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Azul</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Verde azulado</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Verde</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Naranja</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Rosa</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Tamaño de los mosaicos:</translation>
     </message>
@@ -7616,6 +7796,14 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation>Etiqueta de actividad virtual de Strava</translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Ruta GPS sintética de Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Escribe un recorrido GPS sintético para actividades virtuales sin GPS. Strava podría mostrar el desnivel, pero la ruta no es real.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

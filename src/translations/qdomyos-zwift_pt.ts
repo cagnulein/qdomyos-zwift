@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="pt_PT">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Fechar</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -382,6 +389,14 @@ Pretende ativar os serviços necessários?</translation>
     <message>
         <source>Not connecting?</source>
         <translation>Não conecta?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Equipamento não encontrado</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Ligue a bicicleta, a esteira ou o remo e toque no ícone Bluetooth no topo para procurar de novo.</translation>
     </message>
 </context>
 <context>
@@ -1145,6 +1160,10 @@ Deseja atualizar as configurações do QZ?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>Falha ao inicializar a YPOO M5; é necessário reconectar</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S conectado!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1363,6 +1382,21 @@ Deseja atualizar as configurações do QZ?</translation>
     <message>
         <source>Open email</source>
         <translation>Abrir e-mail</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Comprando...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Compra concluída</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Falha na compra</translation>
     </message>
 </context>
 <context>
@@ -2145,6 +2179,11 @@ Deseja atualizar as configurações do QZ?</translation>
     <message>
         <source>Inclination (%)</source>
         <translation>Inclinação (%)</translation>
+    </message>
+    <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>Em um gráfico:</translation>
     </message>
     <message>
         <source>Avg Output</source>
@@ -3365,6 +3404,10 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
 <context>
     <name>homeform</name>
     <message>
+        <source>No enabled metrics</source>
+        <translation>Nenhuma métrica ativada</translation>
+    </message>
+    <message>
         <source>Speed (%1/h)</source>
         <translation>Velocidade (%1/h)</translation>
     </message>
@@ -4007,6 +4050,10 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <translation>Procurando o dispositivo...</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Conectando a %1...</translation>
+    </message>
+    <message>
         <source>Search stopped, tap the Bluetooth icon</source>
         <translation>Pesquisa parada, toque no ícone Bluetooth</translation>
     </message>
@@ -4295,9 +4342,17 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <source>Unable to open an email application</source>
         <translation>Não foi possível abrir uma aplicação de e-mail</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>O Bluetooth está desligado</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Métricas flutuantes (imagem sobre imagem)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -4819,6 +4874,26 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
 Permitir que o QZ altere esse valor?
 
 “Não”: o QZ ativa “Sem protocolo de diâmetro da roda” (Configurações &gt; Opções de Bicicleta &gt; Opções Wahoo), e as marchas virtuais funcionam pela inclinação. Com “Sim”, você pode desfazer isso depois no mesmo lugar: ative essa opção e, com o rolo conectado, toque em “Restaurar a configuração padrão no rolo”.</translation>
+    </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>O dispositivo simulado (%1) está ativo. Se não foi intencional, desative-o nas Definições.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Bicicleta</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Passadeira</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Elíptica</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Máquina de remo</translation>
     </message>
 </context>
 <context>
@@ -6263,6 +6338,75 @@ Permitir que o QZ altere esse valor?
         <translation type="vanished">Abrir</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Interface moderna</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Novo visual da tela principal, do menu lateral, das configurações e do assistente. Desative para voltar ao visual clássico.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Aparência</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Como no celular</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Escuro</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Claro</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Tema</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafite</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Preto / branco</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Azul-noite</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Cor de destaque</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Violeta</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Azul</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Azul-petróleo</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Verde</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Laranja</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Rosa</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Tamanho dos blocos:</translation>
     </message>
@@ -6341,6 +6485,30 @@ Permitir que o QZ altere esse valor?
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>Posição deste gráfico no histórico de treinos. A ordem é alterada com os botões para cima e para baixo em Opções gerais da interface.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Configuração redefinida</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Configurações redefinidas: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Redefinir tudo</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Redefinir configurações alteradas?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Configurações que voltam aos valores padrão: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Redefinir</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -6675,8 +6843,8 @@ Permitir que o QZ altere esse valor?
         <translation>Sensor Bluetooth Garmin</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Para enviar métricas para o seu dispositivo Garmin a partir do Mac, ative esta opção. Caso contrário, mantenha desativado.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Permite que o seu relógio Garmin ou outro relógio desportivo use o QZ como sensor Bluetooth: um sensor de passada com uma passadeira, um medidor de potência com uma bicicleta (no Android, ative também «Sensor de Potência da Bicicleta»). O relógio tem de estar emparelhado por Bluetooth com o telemóvel ou tablet que executa o QZ: se não encontrar o QZ, emparelhe-os uma vez, depois adicione o sensor no relógio e aceite o pedido de emparelhamento. Se o Garmin Connect estiver ligado ao relógio no mesmo telemóvel, force a paragem dele duas ou três vezes seguidas enquanto o relógio se liga; é mais fácil um telemóvel ou tablet separado sem Garmin Connect. Enquanto o QZ funciona como sensor para o relógio, o Zwift por Bluetooth vê-o apenas como sensor de passada ou medidor de potência, não como uma máquina que possa controlar.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -7618,6 +7786,14 @@ Insira-o abaixo:</translation>
         <translation>Tag de atividade virtual do Strava</translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Trajeto GPS sintético no Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Adiciona um trajeto GPS sintético a atividades virtuais sem GPS. O Strava poderá mostrar o ganho de elevação, mas o percurso não é real.</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation>Adicionar a tag virtual à atividade do Strava</translation>
     </message>
@@ -8076,6 +8252,18 @@ Padrão: A = -0.96, B = 1.33</translation>
     <message>
         <source>Power</source>
         <translation>Potência</translation>
+    </message>
+    <message>
+        <source>Reset section?</source>
+        <translation>Redefinir seção?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Configurações em “%2” que voltam aos valores padrão: %1</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Redefinir seção</translation>
     </message>
     <message>
         <source>Manual</source>

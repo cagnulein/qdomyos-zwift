@@ -19,7 +19,9 @@ import sys
 
 PAGES = ["src/settings.qml", "src/settings-treadmill-inclination-override.qml", "src/settings-tts.qml"]
 
-FIELDS = ["SettingsNumberField", "SettingsFormatField", "SettingsTextField", "TextField"]
+# UiTextField and UiButton: the field and the button of the modern look
+FIELDS = ["SettingsNumberField", "SettingsFormatField", "SettingsTextField", "TextField", "UiTextField"]
+BUTTONS = ["Button", "UiButton"]
 NUMBER_TYPES = {"real", "int", "double"}
 PROPERTY_TYPES = NUMBER_TYPES | {"string", "bool"}
 DIGITS = "0123456789"
@@ -302,7 +304,7 @@ def check_text_field(path, lines, i, end, fid, get):
     for j in range(end + 1, min(end + 40, len(lines))):
         if opens(lines[j], FIELDS):
             break
-        if opens(lines[j], ["Button"]):
+        if opens(lines[j], BUTTONS):
             button = lines[j + 1:block_end(lines, j)]
             enabled = next((x for x in button if after_key(x, "enabled") is not None), "")
             if find_word(enabled, fid + ".dirty") < 0:
@@ -322,6 +324,9 @@ def check_page(path):
         kind = opens(line, FIELDS)
         if not kind:
             continue
+        # UiTextField: the plain text field of the modern look
+        if kind == "UiTextField":
+            kind = "TextField"
         end = block_end(lines, i)
         body = lines[i + 1:end]
         get = lambda name: next((after_key(x, name).strip() for x in body if after_key(x, name) is not None), None)
@@ -338,7 +343,7 @@ def check_page(path):
                 if opens(lines[j], FIELDS):
                     break
                 # the OK button: a Cancel next to a field does something else on purpose
-                if opens(lines[j], ["Button"]) and \
+                if opens(lines[j], BUTTONS) and \
                         any((after_key(x, "text") or "").lstrip().startswith('qsTr("OK")')
                             for x in lines[j + 1:block_end(lines, j)]):
                     clicked = handler(lines, j + 1, block_end(lines, j), "onClicked")
@@ -375,12 +380,13 @@ def check_page(path):
             if has_range and "if (valid)" not in accepted:
                 error(path, i + 1, "%s: onAccepted saves without 'if (valid)' though the field has a range" % fid)
 
-        # The OK button of the row: the first Button after the field, before the next field
+        # The OK button of the row: the first Button (UiButton in the modern look) after the
+        # field, before the next field
         ok = None
         for j in range(end + 1, min(end + 40, len(lines))):
             if opens(lines[j], FIELDS):
                 break
-            if opens(lines[j], ["Button"]):
+            if opens(lines[j], BUTTONS):
                 ok = (j, lines[j + 1:block_end(lines, j)])
                 break
         if ok is None:

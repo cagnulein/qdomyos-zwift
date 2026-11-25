@@ -13,6 +13,8 @@ To simulate a gradual incline change, split the ramp into consecutive short rows
 <row duration="00:00:30" speed="8.0" inclination="4" forcespeed="1" zonehr="0"/>
 ```
 
+**Important:** Before running fixed-speed incline changes, enable **Settings > Training Program Options > PID Ignore Inclination** and fully restart QZ. With `zonehr="0"`, the current incline compensation can otherwise change the programmed speed unexpectedly (see [#5520](https://github.com/cagnulein/qdomyos-zwift/issues/5520)). Test at a safe low speed with the safety stop accessible.
+
 Use as many steps as needed for the smoothness you want and for what your treadmill can safely accept. This stepped-incline workaround, as well as normal `speedfrom` / `speedto` ramps, has been confirmed working in a real QZ training program.
 
 For the full XML attribute reference and speed-ramp behavior, see [`train-programs-examples/README.md`](../../train-programs-examples/README.md).
@@ -21,15 +23,17 @@ For the full XML attribute reference and speed-ramp behavior, see [`train-progra
 
 For QZ's native XML training format, the workout must use a top-level `<rows>` element and each normal workout step must be a `<row>` element. Do not use a generic `<workout>` root or `<segment>` elements.
 
-A minimal valid structure is:
+A minimal valid structure for a speed/incline-only workout, with HR zone and HR min/max control already disabled, is:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <rows>
-    <row duration="00:05:00" speed="5.0" inclination="1" forcespeed="1" zonehr="0"/>
-    <row duration="00:10:00" speed="7.0" inclination="2" forcespeed="1" zonehr="0"/>
+    <row duration="00:05:00" speed="5.0" inclination="1" forcespeed="1"/>
+    <row duration="00:10:00" speed="7.0" inclination="2" forcespeed="1"/>
 </rows>
 ```
+
+The built-in Workout Editor also omits `zonehr` unless an HR Zone is set. In mixed HR/fixed-speed workouts, explicitly set `zonehr="0"` (HR Zone 0 in Advanced options) to disable a preceding HR zone. Follow the incline-compensation precaution above when changing incline.
 
 If the file is accepted but the treadmill only starts at its minimum speed or the programmed steps do not execute, check these element names before troubleshooting the treadmill connection itself.
 
@@ -130,3 +134,9 @@ A treadmill user explicitly confirmed that the **Peloton Offset** tile aligned t
 **No.** The **Auto Resistance** toggle allows QZ to apply supported resistance/power requests, but it does not start a training program or create interval targets on its own. Open and **start** a QZ resistance-based workout, or connect a supported training app that sends resistance or ERG targets through QZ. A bike must also accept remote resistance commands for the physical load to change.
 
 When diagnosing a bike that displays cadence, power, and resistance but does not physically change load, first pedal continuously and try the **Resistance** tile's **+ / −** controls. This tests direct resistance requests; the **Target Resistance** tile is not the same test. Verify the change by physical effort, not only by the displayed target or a Bluetooth acknowledgement. Only after direct resistance control works should you rely on automatic interval changes. QZ's current bike control logic and training-program flow distinguish these actions; this is **code-verified usage guidance**, not a claim that every bike implements remote control.
+
+## Can I use a running ZWO workout from Nolio with Zwift and have QZ control my treadmill automatically?
+
+**Yes, for a compatible controllable treadmill.** Export the running workout as a `.zwo` file from Nolio (including from its mobile app), then import **the same file into both Zwift and QZ**. Connect the treadmill to QZ, start the workout in QZ to apply its programmed speed targets, and start the matching workout in Zwift to see your running session there. QZ can run on a phone while Zwift runs on a computer; QZ also has desktop builds.
+
+**Starting the workout only in Zwift is not enough:** Zwift does not send its running-workout speed targets to QZ for treadmill control. Both workout timelines must be started and kept aligned manually. Whether speed control works depends on the treadmill model and its QZ driver. This setup was explained in support for a Horizon Paragon X; it is verified usage guidance, not a claim that the prospective buyer had already tested the treadmill.

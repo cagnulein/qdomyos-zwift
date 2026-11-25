@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="sv_SE">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Stäng</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -366,6 +373,14 @@ Vill du aktivera de tjänster som krävs?</translation>
     <message>
         <source>Not connecting?</source>
         <translation>Går det inte att ansluta?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Träningsredskapet hittades inte</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Slå på cykeln, löpbandet eller roddmaskinen och tryck sedan på Bluetooth-ikonen högst upp om du vill söka igen.</translation>
     </message>
 </context>
 <context>
@@ -1129,6 +1144,10 @@ Vill du uppdatera QZ-inställningarna?</translation>
         <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
         <translation>%1 (pulssensor) hittades inte. Kontrollera att den är på och sänder pulsdata.</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S ansluten!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1347,6 +1366,21 @@ Vill du uppdatera QZ-inställningarna?</translation>
     <message>
         <source>Open email</source>
         <translation>Öppna e-post</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Köper…</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Köpet har genomförts</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Det gick inte att genomföra köpet</translation>
     </message>
 </context>
 <context>
@@ -2077,6 +2111,11 @@ Vill du uppdatera QZ-inställningarna?</translation>
     <message>
         <source>Inclination (%)</source>
         <translation>Lutning (%)</translation>
+    </message>
+    <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>I ett diagram:</translation>
     </message>
     <message>
         <source>Avg Output</source>
@@ -3349,6 +3388,10 @@ Det kan ta en stund vid första starten.</translation>
 <context>
     <name>homeform</name>
     <message>
+        <source>No enabled metrics</source>
+        <translation>Inga mätvärden är aktiverade</translation>
+    </message>
+    <message>
         <source>Speed (%1/h)</source>
         <translation>Hastighet (%1/h)</translation>
     </message>
@@ -3919,6 +3962,10 @@ Det kan ta en stund vid första starten.</translation>
         <translation>Söker efter enheten…</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Ansluter till %1…</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>Hittade: %1</translation>
     </message>
@@ -4271,9 +4318,17 @@ Det kan ta en stund vid första starten.</translation>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ körs</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth är av</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Flytande mätvärden (bild i bild)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -4796,6 +4851,26 @@ Vill du tillåta att QZ ändrar värdet?
 
 ”Nej”: QZ slår på ”Utan hjuldiameterprotokoll” (Inställningar &gt; Cykelalternativ &gt; Wahoo-alternativ), och virtuella växlar fungerar via lutningen. Med ”Ja” kan du ångra det senare på samma ställe: slå på det alternativet och tryck, med din smart trainer ansluten, på ”Återställ standardinställning på smart trainer”.</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Den simulerade enheten (%1) är aktiv. Om det inte var avsiktligt, inaktivera den i Inställningar.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Cykel</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Löpband</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Crosstrainer</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Roddmaskin</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -5160,6 +5235,42 @@ Vill du tillåta att QZ ändrar värdet?
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>Diagrammets plats i ordningen i träningshistoriken. Ordningen ändras med knapparna upp och ned i Allmänna gränssnittsalternativ.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Inställningen har återställts</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Återställda inställningar: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Återställ alla</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Vill du återställa ändrade inställningar?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Inställningar som återställs till standardvärdena: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Återställ</translation>
+    </message>
+    <message>
+        <source>Reset section?</source>
+        <translation>Vill du återställa avsnittet?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Inställningar i ”%2” som återställs till standardvärdena: %1</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Återställ avsnitt</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -6359,8 +6470,8 @@ Vill du tillåta att QZ ändrar värdet?
         <translation>Bluetooth-sensor för Garmin</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Aktivera om du vill skicka mätvärden från din Mac till Garmin-enheten. Låt annars inställningen vara av.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Låter din Garmin- eller annan sportklocka använda QZ som Bluetooth-sensor: en fotsensor med ett löpband, en effektmätare med en cykel (på Android slår du också på ”Effektsensor för cykel”). Klockan måste vara parkopplad via Bluetooth med telefonen eller surfplattan som kör QZ: om den inte hittar QZ, parkoppla dem en gång, lägg sedan till sensorn på klockan och godkänn begäran om parkoppling. Om Garmin Connect på samma telefon är kopplat till klockan, tvångsstoppa det två eller tre gånger i rad medan klockan ansluter; en separat telefon eller surfplatta utan Garmin Connect är enklare. Medan QZ fungerar som sensor för klockan ser Zwift via Bluetooth den bara som en fotsensor eller effektmätare, inte som en maskin den kan styra.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -7164,6 +7275,14 @@ Ange den nedan:</translation>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation>Strava-tagg för virtuell aktivitet</translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Syntetiskt GPS-spår för Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Lägger till ett syntetiskt GPS-spår i virtuella aktiviteter utan GPS. Strava kan då visa höjdstigning, men rutten är inte verklig.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
@@ -8500,6 +8619,75 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
         <translation>Experimentellt: korrigerar gradvis den löpbandshastighet som QZ styr utifrån återkoppling från Runn/Stryd, när drivrutinen ger egna hastighetsmätningar från löpbandet. Kräver ”Använd hastighet från effektsensorn”. Standard: av.</translation>
+    </message>
+    <message>
+        <source>Modern interface</source>
+        <translation>Modernt gränssnitt</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Nytt utseende på huvudskärmen, sidomenyn, inställningarna och guiden. Stäng av om du vill få tillbaka det klassiska utseendet.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Utseende</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Som på telefonen</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Mörkt</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Ljust</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Tema</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafit</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Svart / vitt</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Midnattsblå</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Accentfärg</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Violett</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Blå</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Blågrön</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Grön</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Orange</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Rosa</translation>
     </message>
     <message>
         <source>Tile size:</source>

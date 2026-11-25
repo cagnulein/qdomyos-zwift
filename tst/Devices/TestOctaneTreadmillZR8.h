@@ -117,6 +117,19 @@ protected:
         }
     }
 
+    void injectNotification(const QByteArray &packet) {
+        QLowEnergyCharacteristic mockChar;
+        ASSERT_TRUE(QMetaObject::invokeMethod(device, "characteristicChanged", Qt::DirectConnection,
+                                             Q_ARG(QLowEnergyCharacteristic, mockChar),
+                                             Q_ARG(QByteArray, packet)));
+    }
+
+    void injectFrame(const QByteArray &hex) {
+        const QByteArray frame = QByteArray::fromHex(hex);
+        for (int pos = 0; pos < frame.size(); pos += 20)
+            injectNotification(frame.mid(pos, 20).leftJustified(20, char(0)));
+    }
+
     /**
      * @brief Extract metrics from debug messages
      */
@@ -170,82 +183,125 @@ protected:
 // ============================================================================
 
 TEST_F(OctaneTreadmillZR8CadenceTest, TestPacketReassemblyLogic) {
-    /**
-     * Test that packet reassembly correctly handles fragmented BLE messages
-     * Simulates receiving A5 1D (29 byte) packet split into 20 + 9 byte fragments
-     */
-
-    // A5 1D packet (29 bytes total): first 20 bytes
-    QString fragment1 = "a5 1d 3a 6a 00 24 42 02 23 24 02 0b 14 00 df 77 01 0e 77 01";
-    // Continuation: remaining 9 bytes
-    QString fragment2 = "aa aa aa aa aa aa aa aa aa";
-
-    injectPacketFragment(fragment1);
-    // After first fragment, should be waiting for more (packet buffer not empty)
-
-    // No complete packet should be processed yet
-    EXPECT_EQ(capturedCadences().size(), 0)
-        << "Cadence should not be extracted from incomplete packet";
-
-    // Inject completion fragment
-    injectPacketFragment(fragment2);
-
-    // Now complete packet should be processed
-    // (Note: This test validates the reassembly logic works)
+    // Historical January 2026 capture: A5 1D is 31 bytes, not 29.
+    const QByteArray frame = QByteArray::fromHex("a51d3a6400249f0223d3030b0d00df0f010e0f0103010f01393b001d0001d9");
+    ASSERT_EQ(frame.size(), 31);
+    injectNotification(frame.left(20));
+    EXPECT_TRUE(capturedCadences().isEmpty());
+    EXPECT_TRUE(capturedSpeeds().isEmpty());
+    injectNotification(frame.mid(20).leftJustified(20, char(0)));
+    ASSERT_EQ(capturedCadences().size(), 1);
+    EXPECT_EQ(capturedCadences().last(), 100);
+    ASSERT_EQ(capturedSpeeds().size(), 1);
+    EXPECT_NEAR(device->currentSpeed().value(), 3600.0 / 979.0, 0.001);
 }
 
 TEST_F(OctaneTreadmillZR8CadenceTest, TestCadenceMarkerExtraction) {
-    /**
-     * Test correct extraction of cadence from 0x3A marker
-     * Validates that cadence is read from the byte immediately after 0x3A
-     */
-
-    // Packet with 0x3A marker at position 2, cadence value 0x7E (126 RPM)
-    QString packetWithCadence = "a5 1d 3a 7e 00 24 42 02 23 24 02 0b 14 00 df 77 01 0e 77 01";
-
-    capturedCadences().clear();
-    injectPacketFragment(packetWithCadence);
-
-    // Process events to allow signal emission
-    QCoreApplication::processEvents();
-
-    EXPECT_GE(capturedCadences().size(), 0)
-        << "Should extract cadence from 0x3A marker";
-
-    if (!capturedCadences().isEmpty()) {
-        EXPECT_EQ(capturedCadences()[0], 0x7E)
-            << "Cadence should be 0x7E (126 RPM)";
-    }
+    // Actual November capture: cadence-only frame, no instantaneous pace.
+    injectFrame("a50e3a7800241d010b18020d200001b9");
+    ASSERT_EQ(capturedCadences().size(), 1);
+    EXPECT_EQ(capturedCadences().last(), 120);
+    EXPECT_DOUBLE_EQ(device->currentCadence().value(), 120);
+    EXPECT_TRUE(capturedSpeeds().isEmpty());
 }
 
 TEST_F(OctaneTreadmillZR8CadenceTest, TestPacketFormatDetection) {
-    /**
-     * Test detection of different ZR8 packet formats
-     * - A5 1D: 29 bytes (Standard Metrics)
-     * - A5 26: 38 bytes (Gait Analysis)
-     * - A5 23: 35 bytes
-     */
+    // Same capture: time-first, cadence-first and average-pace-first frames
+    // have different lengths but each carries instantaneous pace.
+    injectFrame("a5200692000000000000003a7a002340010bfc010eb102fa021d0339780022000197");
+    EXPECT_NEAR(device->currentSpeed().value(), 3600.0 / 320.0, 0.001);
+    injectFrame("a51d3a7a00241d01230c010b0a020d1f000ee702f8021d03397b00220001af");
+    EXPECT_NEAR(device->currentSpeed().value(), 3600.0 / 268.0, 0.001);
+    injectFrame("a517241d012309010b1b020ef002f8021d03397d0023000175");
+    EXPECT_NEAR(device->currentSpeed().value(), 3600.0 / 265.0, 0.001);
+    ASSERT_EQ(capturedCadences().size(), 2);
+    EXPECT_EQ(capturedCadences().last(), 122);
+    ASSERT_EQ(capturedSpeeds().size(), 3);
+}
 
-    // A5 1D packet (29 bytes) - should expect 29 bytes total
-    QString a5_1d_header = "a5 1d 3a 7e 00 24 42 02 23 24 02 0b 14 00 df 77 01 0e 77 01";
-
-    // A5 26 packet (38 bytes) - should expect 38 bytes total
-    QString a5_26_header = "a5 26 06 10 00 00 00 00 00 00 00 3a 6e 00 24 5a 02 23 1c 02";
-
-    capturedDebugMessages().clear();
-
-    injectPacketFragment(a5_1d_header);
-    QCoreApplication::processEvents();
-
-    // Check that format was recognized
-    bool foundFormat = false;
-    for (const QString &msg : capturedDebugMessages()) {
-        if (msg.contains("ZR8") && msg.contains("packet")) {
-            foundFormat = true;
-            break;
-        }
+TEST_F(OctaneTreadmillZR8CadenceTest, NovemberCaptureFalsePauseRegression) {
+    // Selected consecutive movement telemetry, 15:14:50–15:15:21.
+    // The old header whitelist dropped nearly all of these frames, then
+    // reset speed to zero after 31 seconds without accepted motion.
+    struct Sample {
+        const char *hex;
+        int pace; // zero means no new instantaneous pace
+        int cadence; // zero means no new cadence
+    };
+    const Sample samples[] = {
+        {"a5200692000000000000003a7a002340010bfc010eb102fa021d0339780022000197", 320, 122},
+        {"a51b0693000000000000003a78002341010b00020ead02f9021d03016a", 321, 120},
+        {"a51a3a7a00241d012342010b03020eaa02f8021d03397700220001ed", 322, 122},
+        {"a51f3a7800241d012311010b06020edb02f8021d0339790022002076002500012f", 273, 120},
+        {"a51d3a7a00241d01230c010b0a020d1f000ee702f8021d03397b00220001af", 268, 122},
+        {"a51a3a7800241d01230b010b0d020eea02f8021d03397c00220001d7", 267, 120},
+        {"a51a3a7a00241d01230a010b14020eed02f8021d03397c00230001cb", 266, 122},
+        {"a50e3a7800241d010b18020d200001b9", 0, 120},
+        {"a517241d012309010b1b020ef002f8021d03397d0023000175", 265, 0},
+        {"a517241d012308010b1f020ef202f8021d032075002500018f", 264, 0},
+        {"a5173a7a00241d010b22020ef502f8021d0320750024000102", 0, 122},
+        {"a5103a7800241d010b26022076002400011e", 0, 120},
+        {"a51f3a7a00241d012307010b2d020ef702f8021d03397e002300207700250001ed", 263, 122},
+        {"a5173a7800241d010b30020ef602f8021d03207700240001f3", 0, 120},
+        {"a512241d012306010b34020ef802f8021d030130", 262, 0},
+        {"a51a241d012304010b3b020d22000efe02f8021d03397f002400011a", 260, 0},
+        {"a515241d012305010b4d020d23000efc02f8021d0301e4", 261, 0},
+        {"a512241d012306010b50020efb02f8021d030111", 262, 0},
+        {"a512241d012305010b57020efd02f8021d030109", 261, 0},
+        {"a5223a7a00241d012306010b5b020d24000ef802f8021d03397e0024002077002500018d", 262, 122},
+        {"a51a3a7800241d012309010b5e020ef202f8021d03397d002400017d", 265, 120},
+        {"a51c241d01230a010b62020eee02f8021d03397d00230020760024000175", 266, 0},
+        {"a512241d01230b010b65020eeb02f7021d030108", 267, 0},
+        {"a51a241d012309010b6c020d25000eef02f7021d03397e00230001f3", 265, 0},
+    };
+    double expectedSpeed = 0;
+    int expectedCadence = 0;
+    for (const auto &sample : samples) {
+        SCOPED_TRACE(sample.hex);
+        injectFrame(sample.hex);
+        if (sample.pace)
+            expectedSpeed = 3600.0 / sample.pace;
+        if (sample.cadence)
+            expectedCadence = sample.cadence;
+        EXPECT_NEAR(device->currentSpeed().value(), expectedSpeed, 0.001);
+        EXPECT_DOUBLE_EQ(device->currentCadence().value(), expectedCadence);
+        EXPECT_GT(device->currentSpeed().value(), 0.0);
     }
-    // Format detection should work (may or may not log explicitly)
+    EXPECT_GT(capturedSpeeds().size(), 15);
+    EXPECT_GT(capturedCadences().size(), 10);
+}
+
+TEST_F(OctaneTreadmillZR8CadenceTest, ExplicitCadenceStopAndRecovery) {
+    injectFrame("a51d3a7a00241d01230c010b0a020d1f000ee702f8021d03397b00220001af");
+    ASSERT_GT(device->currentSpeed().value(), 0.0);
+    // Actual zero-cadence frame from 15:15:29.
+    injectFrame("a51106b9000000000000003a000024210101c0");
+    EXPECT_DOUBLE_EQ(device->currentSpeed().value(), 0);
+    EXPECT_DOUBLE_EQ(device->currentCadence().value(), 0);
+    // A late pace-only frame must not restart the stopped runner.
+    injectFrame("a517241d012309010b1b020ef002f8021d03397d0023000175");
+    EXPECT_DOUBLE_EQ(device->currentSpeed().value(), 0);
+    // Actual restart frame from the same capture.
+    injectFrame("a51f3a28002420012349010b81020ec302f7021d03397e002400207a00260001d6");
+    EXPECT_NEAR(device->currentSpeed().value(), 3600.0 / 329.0, 0.001);
+    EXPECT_DOUBLE_EQ(device->currentCadence().value(), 40);
+}
+
+TEST_F(OctaneTreadmillZR8CadenceTest, IgnoreGaitAndInvalidChecksumAndResynchronize) {
+    injectFrame("a51d3a7a00241d01230c010b0a020d1f000ee702f8021d03397b00220001af");
+    const double expected = device->currentSpeed().value();
+    const auto count = capturedSpeeds().size();
+    const auto cadCount = capturedCadences().size();
+    // Real gait data contains both 23 and 3A but no typed motion fields.
+    injectFrame("a52b22e704cf009f0492005f047c007904ba007904ba00ee0023013a016501af017401530245014403f90001ee");
+    injectFrame("a517241d012309010b1b020ef002f8021d03397d0023000174"); // bad checksum
+    EXPECT_EQ(capturedSpeeds().size(), count);
+    EXPECT_EQ(capturedCadences().size(), cadCount);
+    EXPECT_DOUBLE_EQ(device->currentSpeed().value(), expected);
+    // Lost continuation: next valid header must resynchronize.
+    injectNotification(QByteArray::fromHex("a51d3a7a00241d01230c010b0a020d1f000ee702"));
+    injectFrame("a517241d012309010b1b020ef002f8021d03397d0023000175");
+    EXPECT_NEAR(device->currentSpeed().value(), 3600.0 / 265.0, 0.001);
 }
 
 TEST_F(OctaneTreadmillZR8CadenceTest, TestCadenceStabilityAround126RPM) {
@@ -3410,10 +3466,12 @@ TEST_F(OctaneTreadmillZR8CadenceTest, TestRealPacketsFromDebugLog) {
         QCoreApplication::processEvents();
         if (!capturedSpeeds().isEmpty()) {
             double speed = capturedSpeeds().last();
-            if (speed < 0.5 || speed > 40.0)
+            if (speed != 0 && (speed < 0.5 || speed > 40.0))
                 garbageCount++;
-            else validCount++;
+            else if (speed > 0) validCount++;
         }
     }
     EXPECT_EQ(garbageCount, 0) << "FIX FAILED: Garbage speeds detected";
+    EXPECT_GT(validCount, 50) << "Historical replay must actually produce speed values";
+    EXPECT_GT(capturedCadences().size(), 50) << "Historical replay must actually produce cadence";
 }

@@ -16,6 +16,8 @@ class ControlPointTestTreadmill : public treadmill {
     void start() override { ++startCalls; }
     void stop(bool) override { ++stopCalls; }
     void reportIncline(double value) { Inclination = value; }
+    void setStepCountForTest(double steps) { StepCount = steps; }
+    void addStepsForTest(double steps) { StepCount += steps; }
     double receivedSpeed = -1;
     double receivedIncline = -100;
     unsigned startCalls = 0;
@@ -108,4 +110,22 @@ TEST_F(FtmsTreadmillControlTest, PreservesDeclineInVirtualTreadmillTelemetry) {
                                                 packet.size(), reportedSpeed, reportedIncline));
         EXPECT_DOUBLE_EQ(reportedIncline, incline);
     }
+}
+
+TEST_F(FtmsTreadmillControlTest, NewWorkoutStartsStepCountAtZero) {
+    treadmill.setStepCountForTest(120.0);
+    EXPECT_DOUBLE_EQ(treadmill.currentStepCount().value(), 120.0);
+
+    // A new workout should start at zero even when the device stays connected.
+    treadmill.clearStats();
+    EXPECT_DOUBLE_EQ(treadmill.currentStepCount().value(), 0.0);
+
+    // Cadence-based steps must continue accumulating from the new session offset.
+    treadmill.addStepsForTest(15.0);
+    EXPECT_DOUBLE_EQ(treadmill.currentStepCount().value(), 15.0);
+
+    treadmill.clearStats();
+    EXPECT_DOUBLE_EQ(treadmill.currentStepCount().value(), 0.0);
+    treadmill.addStepsForTest(8.0);
+    EXPECT_DOUBLE_EQ(treadmill.currentStepCount().value(), 8.0);
 }

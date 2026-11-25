@@ -93,7 +93,21 @@ QZ writes treadmill activities differently depending on this setting:
 
 Strava can hide the elevation for activities tagged as treadmill/indoor even when the FIT file contains the elevation data. In a confirmed support case, removing the indoor/treadmill classification made the elevation visible in Strava, while keeping the virtual classification still showed it correctly.
 
-So, for treadmill workouts where you want Strava to display QZ's calculated elevation gain, use **Strava Virtual Activity = ON**.
+First, enable **Strava Virtual Activity Tag** under **QZ Settings > Advanced Settings**.
+
+### What if Strava still hides the elevation gain?
+
+Enable **Strava Synthetic GPS Track** under **QZ Settings > Advanced Settings** as well (available since [PR #5805](https://github.com/cagnulein/qdomyos-zwift/pull/5805)). A user tested this feature and confirmed that Strava displayed the elevation gain from a virtual workout after synthetic GPS was enabled.
+
+The setting works as follows:
+
+- Both **Strava Virtual Activity Tag** and **Strava Synthetic GPS Track** must be enabled.
+- It applies to **virtual treadmill, bike, and elliptical workouts** recorded **without real GPS**. It is **off by default**.
+- QZ writes a fictional GPS route into the exported FIT file, using the workout's recorded distance to advance along the route. The original recorded altitude, accumulated ascent/descent, distance and duration are retained.
+- When the workout has real GPS data, QZ leaves the real GPS track unchanged rather than inserting synthetic coordinates.
+- Record a **new activity** after enabling the setting; it does not modify FIT files or Strava activities already uploaded.
+
+**Important:** The route is **not a real location**. It can appear as a map in Strava or any other service importing the FIT file. Enable the feature only if you are comfortable with a fictional GPS trace. Its effect on the displayed elevation has been confirmed in a user test, but other services may process the FIT fields differently.
 
 ## My treadmill only changes incline in 1% increments. Why do 0.5% commands not work as expected?
 
@@ -245,3 +259,9 @@ Start the QZ workout session **before** starting the Runna workout. Connect QZ t
 In a confirmed support test, QZ had previously remained paused with an elapsed time of zero while Runna's speed and incline commands still reached the treadmill. Starting QZ first allowed its timer to advance alongside the treadmill timer, and Runna connected and sent speed/incline commands during the subsequent test. The user reported that this sequence appeared to work. This is a useful workaround to try, **not a guarantee** that every Runna interval transition or treadmill model will work.
 
 For Runna to connect to QZ as a treadmill, QZ's **Virtual Device Bluetooth** must be enabled. If the incompatibility warning persists, capture a QZ debug log including the transition between workout steps.
+
+## My Yesoul T5 Max appears in Zwift but not in QZ. How can I select it?
+
+With Zwift and any other app that might connect to the treadmill **fully closed**, open **QZ Settings > Treadmill Options > FTMS Treadmill** and select the treadmill's advertised Bluetooth name. Scroll the device list if necessary, confirm the selection, then **fully close and restart QZ** while the treadmill is powered on and advertising. Check that live treadmill metrics appear in QZ before opening Zwift again.
+
+A Yesoul T5 Max owner confirmed that the treadmill was detected after applying the FTMS selection during the QZ restart procedure. This confirms discovery/connection for that setup, not automatic speed or incline control on every T5 Max firmware. Do not force the FTMS profile for unrelated treadmills without checking that they expose the FTMS service.

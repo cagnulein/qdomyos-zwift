@@ -915,6 +915,7 @@ const QString QZSettings::nordictrackadbbike_resistance = QStringLiteral("nordic
 const QString QZSettings::proform_treadmill_carbon_t7 = QStringLiteral("proform_treadmill_carbon_t7");
 const QString QZSettings::nordictrack_treadmill_exp_5i = QStringLiteral("nordictrack_treadmill_exp_5i");
 const QString QZSettings::dircon_id = QStringLiteral("dircon_id");
+const QString QZSettings::rouvy_virtual_gearing_profile = QStringLiteral("rouvy_virtual_gearing_profile");
 const QString QZSettings::rouvy_compatibility = QStringLiteral("rouvy_compatibility");
 const QString QZSettings::proform_elliptical_ip = QStringLiteral("proform_elliptical_ip");
 const QString QZSettings::default_proform_elliptical_ip = QStringLiteral("");
@@ -1002,6 +1003,15 @@ const QString QZSettings::proform_treadmill_705_cst_V80_44 = QStringLiteral("pro
 const QString QZSettings::nordictrack_treadmill_1750_adb = QStringLiteral("nordictrack_treadmill_1750_adb");
 const QString QZSettings::proform_trainer_9_0 = QStringLiteral("proform_trainer_9_0");
 
+const QString QZSettings::trixter_xdream_bike_enabled = QStringLiteral("trixter_xdream_bike_enabled");
+const QString QZSettings::trixter_xdream_bike_heartrate_enabled = QStringLiteral("trixter_xdream_bike_heartrate_enabled");
+const QString QZSettings::trixter_xdream_bike_steering_enabled = QStringLiteral("trixter_xdream_bike_steering_enabled");
+const QString QZSettings::trixter_xdream_bike_steering_l = QStringLiteral("trixter_xdream_bike_steering_l");
+const QString QZSettings::trixter_xdream_bike_steering_cl = QStringLiteral("trixter_xdream_bike_steering_cl");
+const QString QZSettings::trixter_xdream_bike_steering_cr = QStringLiteral("trixter_xdream_bike_steering_cr");
+const QString QZSettings::trixter_xdream_bike_steering_r = QStringLiteral("trixter_xdream_bike_steering_r");
+const QString QZSettings::trixter_xdream_bike_steering_max = QStringLiteral("trixter_xdream_bike_steering_max");
+const QString QZSettings::trixter_xdream_bike_connection_timeout_ms = QStringLiteral("trixter_xdream_bike_connection_timeout_ms");
 const QString QZSettings::tile_preset_powerzone_1_enabled = QStringLiteral("tile_preset_powerzone_1_enabled");
 const QString QZSettings::tile_preset_powerzone_1_order = QStringLiteral("tile_preset_powerzone_1_order");
 const QString QZSettings::tile_preset_powerzone_1_value = QStringLiteral("tile_preset_powerzone_1_value");
@@ -1370,7 +1380,9 @@ const QString QZSettings::wahoo_wheel_question_answered = QStringLiteral("wahoo_
 
 const QString QZSettings::resistance_compatibility = QStringLiteral("resistance_compatibility");
 
-const uint32_t allSettingsCount = 1057;
+const QString QZSettings::strava_synthetic_gps_track = QStringLiteral("strava_synthetic_gps_track");
+
+const uint32_t allSettingsCount = 1059;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2029,13 +2041,13 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::saris_trainer, QZSettings::default_saris_trainer},
     {QZSettings::proform_studio_NTEX71021, QZSettings::default_proform_studio_NTEX71021},
     {QZSettings::nordictrack_x22i, QZSettings::default_nordictrack_x22i},
-    {QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical},    
+    {QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical},
     {QZSettings::autolap_distance, QZSettings::default_autolap_distance},
     {QZSettings::nordictrack_s20_treadmill, QZSettings::default_nordictrack_s20_treadmill},
     {QZSettings::freemotion_coachbike_b22_7, QZSettings::default_freemotion_coachbike_b22_7},
     {QZSettings::proform_cycle_trainer_300_ci, QZSettings::default_proform_cycle_trainer_300_ci},
     {QZSettings::nordictrack_gx_4_5_pro, QZSettings::default_nordictrack_gx_4_5_pro},
-    {QZSettings::kingsmith_encrypt_g1_walking_pad, QZSettings::default_kingsmith_encrypt_g1_walking_pad},    
+    {QZSettings::kingsmith_encrypt_g1_walking_pad, QZSettings::default_kingsmith_encrypt_g1_walking_pad},
     {QZSettings::proform_bike_225_csx, QZSettings::default_proform_bike_225_csx},
     {QZSettings::proform_treadmill_l6_0s, QZSettings::default_proform_treadmill_l6_0s},
     {QZSettings::proformtdf1ip, QZSettings::default_proformtdf1ip},
@@ -2062,7 +2074,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::domyos_treadmill_sync_start, QZSettings::default_domyos_treadmill_sync_start},
     {QZSettings::enerfit_SPX_9500, QZSettings::default_enerfit_SPX_9500},
     {QZSettings::proform_treadmill_505_cst, QZSettings::default_proform_treadmill_505_cst},
-    {QZSettings::nordictrack_treadmill_t8_5s, QZSettings::default_nordictrack_treadmill_t8_5s},    
+    {QZSettings::nordictrack_treadmill_t8_5s, QZSettings::default_nordictrack_treadmill_t8_5s},
     {QZSettings::proform_treadmill_705_cst, QZSettings::default_proform_treadmill_705_cst},
     {QZSettings::zwift_click, QZSettings::default_zwift_click},
     {QZSettings::thinkrider_controller, QZSettings::default_thinkrider_controller},
@@ -2194,7 +2206,7 @@ QVariant allSettings[allSettingsCount][2] = {
 
     {QZSettings::tile_preset_powerzone_3_enabled, QZSettings::default_tile_preset_powerzone_3_enabled},
     {QZSettings::tile_preset_powerzone_3_order, QZSettings::default_tile_preset_powerzone_3_order},
-    {QZSettings::tile_preset_powerzone_3_value, QZSettings::default_tile_preset_powerzone_3_value}, 
+    {QZSettings::tile_preset_powerzone_3_value, QZSettings::default_tile_preset_powerzone_3_value},
     {QZSettings::tile_preset_powerzone_3_label, QZSettings::default_tile_preset_powerzone_3_label},
     {QZSettings::tile_preset_powerzone_3_color, QZSettings::default_tile_preset_powerzone_3_color},
 
@@ -2213,14 +2225,14 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_preset_powerzone_6_enabled, QZSettings::default_tile_preset_powerzone_6_enabled},
     {QZSettings::tile_preset_powerzone_6_order, QZSettings::default_tile_preset_powerzone_6_order},
     {QZSettings::tile_preset_powerzone_6_value, QZSettings::default_tile_preset_powerzone_6_value},
-    {QZSettings::tile_preset_powerzone_6_label, QZSettings::default_tile_preset_powerzone_6_label}, 
+    {QZSettings::tile_preset_powerzone_6_label, QZSettings::default_tile_preset_powerzone_6_label},
     {QZSettings::tile_preset_powerzone_6_color, QZSettings::default_tile_preset_powerzone_6_color},
 
     {QZSettings::tile_preset_powerzone_7_enabled, QZSettings::default_tile_preset_powerzone_7_enabled},
     {QZSettings::tile_preset_powerzone_7_order, QZSettings::default_tile_preset_powerzone_7_order},
     {QZSettings::tile_preset_powerzone_7_value, QZSettings::default_tile_preset_powerzone_7_value},
     {QZSettings::tile_preset_powerzone_7_label, QZSettings::default_tile_preset_powerzone_7_label},
-    {QZSettings::tile_preset_powerzone_7_color, QZSettings::default_tile_preset_powerzone_7_color},    
+    {QZSettings::tile_preset_powerzone_7_color, QZSettings::default_tile_preset_powerzone_7_color},
 
     {QZSettings::proform_bike_PFEVEX71316_0, QZSettings::default_proform_bike_PFEVEX71316_0},
     {QZSettings::real_inclination_to_virtual_treamill_bridge, QZSettings::default_real_inclination_to_virtual_treamill_bridge},
@@ -2454,6 +2466,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::wahoo_wheel_question_answered, QZSettings::default_wahoo_wheel_question_answered},
     {QZSettings::proform_use_console_gears, QZSettings::default_proform_use_console_gears},
     {QZSettings::resistance_compatibility, QZSettings::default_resistance_compatibility},
+    {QZSettings::rouvy_virtual_gearing_profile, QZSettings::default_rouvy_virtual_gearing_profile},
+    {QZSettings::strava_synthetic_gps_track, QZSettings::default_strava_synthetic_gps_track},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

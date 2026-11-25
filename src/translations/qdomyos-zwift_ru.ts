@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ru_RU">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Закрыть</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -382,6 +389,14 @@ Would you like to enable the required services?</source>
     <message>
         <source>Not connecting?</source>
         <translation>Не подключается?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Тренажёр не найден</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Включите велотренажёр, беговую дорожку или гребной тренажёр и нажмите значок Bluetooth вверху, чтобы искать снова.</translation>
     </message>
 </context>
 <context>
@@ -1145,6 +1160,10 @@ Do you want to update QZ settings?</source>
         <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
         <translation>Пульсометр рядом не найден. Проверьте, что он включён и транслирует пульс.</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S подключён!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1363,6 +1382,21 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Open email</source>
         <translation>Открыть почту</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Оформляем покупку...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Покупка прошла успешно</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Не удалось оплатить</translation>
     </message>
 </context>
 <context>
@@ -2145,6 +2179,11 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Inclination (%)</source>
         <translation>Наклон (%)</translation>
+    </message>
+    <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>На одном графике:</translation>
     </message>
     <message>
         <source>Avg Output</source>
@@ -3365,6 +3404,10 @@ This may take a few moments on first startup.</source>
 <context>
     <name>homeform</name>
     <message>
+        <source>No enabled metrics</source>
+        <translation>Нет включённых показателей</translation>
+    </message>
+    <message>
         <source>Speed (%1/h)</source>
         <translation>Скорость (%1/ч)</translation>
     </message>
@@ -3999,6 +4042,10 @@ This may take a few moments on first startup.</source>
         <translation>Поиск тренажёра…</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Подключение к %1…</translation>
+    </message>
+    <message>
         <source>Search stopped, tap the Bluetooth icon</source>
         <translation>Поиск остановлен, нажмите значок Bluetooth</translation>
     </message>
@@ -4287,9 +4334,17 @@ This may take a few moments on first startup.</source>
         <source>Unable to open an email application</source>
         <translation>Не удалось открыть почтовое приложение</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth выключен</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Плавающие показатели (картинка в картинке)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -4812,6 +4867,26 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
 
 «Нет»: QZ включит «Без протокола диаметра колеса» (Настройки &gt; Параметры велотренажёра &gt; Параметры Wahoo), и виртуальные передачи будут работать через уклон. Если выбрать «Да», это можно позже отменить там же: включите эту настройку и при подключённом тренажёре нажмите «Восстановить настройки тренажёра по умолчанию».</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Виртуальное устройство (%1) активно. Если вы включили его случайно, отключите его в настройках.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Велотренажёр</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Беговая дорожка</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Эллиптический тренажёр</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Гребной тренажёр</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -5116,6 +5191,42 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     <message>
         <source>App Language:</source>
         <translation>Язык приложения:</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Настройка сброшена</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Сброшено настроек: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Сбросить все</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Сбросить изменённые настройки?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Изменённые настройки (%1) вернутся к значениям по умолчанию.</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Сбросить</translation>
+    </message>
+    <message>
+        <source>Reset section?</source>
+        <translation>Сбросить раздел?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Настройки раздела «%2» (%1) вернутся к значениям по умолчанию.</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Сбросить раздел</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -6571,8 +6682,8 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Bluetooth-датчик Garmin</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Включите, если хотите передавать показатели с Mac на устройство Garmin. Иначе оставьте выключенным.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Часы Garmin и другие спортивные часы смогут брать данные у QZ как у датчика Bluetooth: шагомер на дорожке, датчик мощности на велосипеде (на Android включите ещё «Датчик мощности велосипеда»). Часам нужно сопряжение с телефоном или планшетом, где работает QZ: если часы не находят QZ, один раз выполните сопряжение, затем добавьте датчик на часах и примите запрос на сопряжение. Если на этом телефоне Garmin Connect связан с часами, принудительно остановите его 2–3 раза подряд, пока часы подключаются; проще отдельный телефон или планшет без Garmin Connect. Пока QZ работает датчиком для часов, Zwift по Bluetooth видит его только как шагомер или датчик мощности, а не как тренажёр, которым он управляет.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -7142,6 +7253,75 @@ Please enter it below:</source>
         <translation>Номер этого графика в истории тренировок. Порядок меняется кнопками вверх и вниз в разделе «Общие параметры интерфейса».</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Новый интерфейс</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Новый вид главного экрана, бокового меню, настроек и мастера. Выключите, чтобы вернуть классический вид.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Оформление</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Как в системе</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Тёмное</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Светлое</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Тема</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Графит</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Чёрная / белая</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Тёмно-синяя</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Акцентный цвет</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Фиолетовый</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Синий</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Бирюзовый</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Зелёный</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Оранжевый</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Розовый</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Размер плиток:</translation>
     </message>
@@ -7596,6 +7776,14 @@ Please enter it below:</source>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation>Метка виртуальной активности Strava</translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Синтетический GPS-трек для Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Добавляет синтетический GPS-трек к виртуальным тренировкам без GPS. Strava может показать набор высоты, но маршрут не настоящий.</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

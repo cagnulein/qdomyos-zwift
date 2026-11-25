@@ -7,6 +7,12 @@ import QtWebView 1.1
 
 ColumnLayout {
     anchors.fill: parent
+    // Reload when the chart is shown again (the chart button, back to the home page), but not when
+    // the drawer closes: the drawer hides only the WebView below, and the page is kept meanwhile
+    onVisibleChanged: {
+        if (visible)
+            webView.reload();
+    }
     Settings {
         id: settings
         property int chart_display_mode: 0
@@ -16,7 +22,9 @@ ColumnLayout {
         anchors.fill: parent
         url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/chartjs/" +
              (rootItem.chartTreadmillMode ? "treadmillchartlive.htm" : "chartlive.htm")
-        visible: rootItem.chartFooterVisible
+        // Hidden while the drawer is open or being dragged: the native WebView of Android and iOS
+        // is drawn over everything in the QML scene, the drawer included (QTBUG-58365, QTBUG-98574)
+        visible: rootItem.chartFooterVisible && drawer.position === 0
         onLoadingChanged: {
             if (loadRequest.errorString) {
                 console.error(loadRequest.errorString);
@@ -28,9 +36,6 @@ ColumnLayout {
         }
         onVisibleChanged: {
             console.log("onVisibleChanged" + visible)
-            if(visible === true) {
-                reload();
-            }
         }
     }
     

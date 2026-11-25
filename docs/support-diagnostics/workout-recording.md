@@ -102,3 +102,22 @@
 - Correct live speed and correct FIT speed samples do not guarantee a smooth downstream pace graph: coarse machine-reported distance increments can distort pace calculations independently of speed.
 - A support capture showed valid interval speed changes but distance advancing in large discrete steps with **Treadmill Direct Distance** enabled. The resulting Strava pace issue remained pending a new recording; this is a diagnostic distinction, not a confirmed universal fix.
 - Cadence gain/step settings and the exported cadence convention are a **separate** path from FIT speed/distance. Requesting the original FIT distinguishes QZ recording from downstream display interpretation before changing unrelated settings.
+
+## Step Count continues after Stop and an apparent new workout
+
+### Provide first
+
+- QZ platform/build, treadmill model, and the step/cadence source (treadmill, external running sensor, or estimated cadence).
+- State the **exact controls** used to end and restart the activity: QZ **Stop** and **Start**, or the treadmill's physical controls. Include whether QZ's elapsed-time counter restarted and whether the **Step Count** tile reset.
+- Give the Step Count immediately before stopping and immediately after the attempted new start. Confirm whether speed/cadence continued to update.
+
+### If still unclear
+
+- Repeat one short, controlled session using **Stop and then Start directly in QZ**. Record the time of both presses and the Step Count before and after; do not change sensor settings during the comparison.
+- If the count still carries over, send a QZ debug log spanning both actions and a screenshot of the relevant tiles. Specify whether the log contains a QZ Start event after Stop.
+- Compare with a separate attempt using only the treadmill's physical controls if that was the original sequence. Do not request sensor protocol captures unless the step readings themselves are wrong.
+
+### Why it matters
+
+- Stopping or restarting the treadmill motor does not necessarily start a **new QZ workout session**. A log showing Stop without a subsequent QZ Start cannot establish that session counters failed to reset after a new workout.
+- Distinguishing session state from the incoming cadence/step stream prevents unnecessary sensor or FIT-export troubleshooting. This comparison is diagnostic intake, not a confirmed fix for every Step Count issue.

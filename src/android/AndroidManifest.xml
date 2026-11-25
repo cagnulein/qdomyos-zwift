@@ -145,11 +145,16 @@
                                 <activity
                                     android:name=".HealthConnectPermissionActivity"
                                     android:exported="false"
-                                    android:theme="@style/Theme.AppCompat">
+                                    android:theme="@style/Theme.AppCompat" />
+
+                                <activity-alias
+                                    android:name=".HealthConnectRationaleActivity"
+                                    android:exported="true"
+                                    android:targetActivity=".HealthConnectPermissionActivity">
                                     <intent-filter>
                                         <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
                                     </intent-filter>
-                                </activity>
+                                </activity-alias>
 
                                 <activity-alias
                                     android:name="ViewPermissionUsageActivity"
@@ -201,6 +206,7 @@
     <!-- Android 17: LAN device discovery/control and local TCP/UDP/mDNS servers. -->
     <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-feature android:name="android.hardware.wifi" android:required="false" />
 	 <uses-permission android:name="com.android.vending.BILLING"/>
 	 <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 	 <uses-permission android:name="com.google.android.things.permission.USE_PERIPHERAL_IO" />

@@ -2460,6 +2460,9 @@ class QZSettings {
     static const QString dircon_id;
     static constexpr int default_dircon_id = 0;
 
+    static const QString rouvy_virtual_gearing_profile;
+    static constexpr int default_rouvy_virtual_gearing_profile = 0;
+
     static const QString rouvy_compatibility;
     static constexpr bool default_rouvy_compatibility = false;
 
@@ -2791,6 +2794,34 @@ class QZSettings {
 
     static const QString domyos_elliptical_fmts;
     static constexpr bool default_domyos_elliptical_fmts = false;
+		
+        // Trixter X-Dream Bike Settings
+    static const QString trixter_xdream_bike_enabled;
+    static constexpr bool default_trixter_xdream_bike_enabled = false;
+
+    static const QString trixter_xdream_bike_heartrate_enabled;
+    static constexpr bool default_trixter_xdream_bike_heartrate_enabled = true;
+
+    static const QString trixter_xdream_bike_steering_enabled;
+    static constexpr bool default_trixter_xdream_bike_steering_enabled= true;
+
+    static const QString trixter_xdream_bike_steering_max;
+    static constexpr int8_t default_trixter_xdream_bike_steering_max= 45;
+
+    static const QString trixter_xdream_bike_steering_l;
+    static constexpr int8_t default_trixter_xdream_bike_steering_l = -default_trixter_xdream_bike_steering_max;
+
+    static const QString trixter_xdream_bike_steering_cl;
+    static constexpr int8_t default_trixter_xdream_bike_steering_cl=-2;
+
+    static const QString trixter_xdream_bike_steering_cr;
+    static constexpr int8_t default_trixter_xdream_bike_steering_cr= 2;
+
+    static const QString trixter_xdream_bike_steering_r;
+    static constexpr int8_t default_trixter_xdream_bike_steering_r = default_trixter_xdream_bike_steering_max;
+
+    static const QString trixter_xdream_bike_connection_timeout_ms;
+    static constexpr uint32_t default_trixter_xdream_bike_connection_timeout_ms= 500;
 
     static const QString proform_xbike;
     static constexpr bool default_proform_xbike = false;
@@ -3496,6 +3527,10 @@ class QZSettings {
     // already was the last device, so it was connected before the question existed
     static const QString wahoo_wheel_question_answered;
     static constexpr bool default_wahoo_wheel_question_answered = false;
+
+    // Optional synthetic coordinates for virtual FIT activities (no real GPS).
+    static const QString strava_synthetic_gps_track;
+    static constexpr bool default_strava_synthetic_gps_track = false;
 
     // Use FTMS 16-bit resistance levels multiplied by 10 for compatible trainers.
     static const QString resistance_compatibility;

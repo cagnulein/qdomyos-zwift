@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="zh_CN">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>关闭</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -382,6 +389,14 @@ Would you like to enable the required services?</source>
     <message>
         <source>Not connecting?</source>
         <translation>无法连接？</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>未找到设备</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>请打开您的单车、跑步机或划船机，然后点击顶部的蓝牙图标重新搜索。</translation>
     </message>
 </context>
 <context>
@@ -1145,6 +1160,10 @@ Do you want to update QZ settings?</source>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>YPOO M5 初始化失败，需要重新连接</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S 已连接！</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1363,6 +1382,21 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Open email</source>
         <translation>打开邮件</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>正在购买...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>购买成功</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>购买失败</translation>
     </message>
 </context>
 <context>
@@ -2145,6 +2179,11 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Inclination (%)</source>
         <translation>坡度 (%)</translation>
+    </message>
+    <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>合并到一张图表：</translation>
     </message>
     <message>
         <source>Avg Output</source>
@@ -3365,6 +3404,10 @@ This may take a few moments on first startup.</source>
 <context>
     <name>homeform</name>
     <message>
+        <source>No enabled metrics</source>
+        <translation>没有已启用的指标</translation>
+    </message>
+    <message>
         <source>Speed (%1/h)</source>
         <translation>速度 (%1/h)</translation>
     </message>
@@ -4015,6 +4058,10 @@ This may take a few moments on first startup.</source>
         <translation>正在搜索设备...</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>正在连接 %1...</translation>
+    </message>
+    <message>
         <source>Search stopped, tap the Bluetooth icon</source>
         <translation>搜索已停止，请点击蓝牙图标</translation>
     </message>
@@ -4303,9 +4350,17 @@ This may take a few moments on first startup.</source>
         <source>Unable to open an email application</source>
         <translation>无法打开电子邮件应用</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>蓝牙已关闭</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>浮动指标（画中画）</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -4828,6 +4883,26 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
 
 “否”：QZ 将开启“无车轮直径协议”（设置 &gt; 自行车选项 &gt; Wahoo 选项），虚拟变速通过坡度实现。选择“是”后，以后可在同一位置撤销：开启该选项，然后在骑行台已连接时点按“将骑行台恢复为默认设置”。</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>模拟设备（%1）已启用。如果并非有意启用，请在设置中关闭。</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>健身车</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>跑步机</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>椭圆机</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>划船机</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -4984,6 +5059,18 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     <message>
         <source>cm</source>
         <translation>cm</translation>
+    </message>
+    <message>
+        <source>Reset section?</source>
+        <translation>重置此部分？</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>“%2”中的 %1 项设置将恢复为默认值。</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>重置此部分</translation>
     </message>
     <message>
         <source>Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet&apos;inches&quot; format (e.g., 5&apos;10&quot;) for imperial units.</source>
@@ -6311,6 +6398,75 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation type="vanished">打开</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>现代界面</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>主屏幕、侧边菜单、设置和向导的新外观。关闭后恢复经典外观。</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>外观</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>跟随系统</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>深色</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>浅色</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>主题</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>石墨</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>黑 / 白</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>午夜蓝</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>强调色</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>紫色</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>蓝色</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>青色</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>绿色</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>橙色</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>粉色</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>卡片大小：</translation>
     </message>
@@ -6321,6 +6477,30 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     <message>
         <source>App Language:</source>
         <translation>应用语言:</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>设置已重置</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>已重置的设置：%1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>全部重置</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>重置已更改的设置？</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>将恢复为默认值的设置：%1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>重置</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -6623,8 +6803,8 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Garmin 蓝牙传感器</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>如果您想从 Mac 将数据发送到您的 Garmin 设备，请启用此项。否则请保持禁用。</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>让您的 Garmin 或其他运动手表把 QZ 当作蓝牙传感器使用：跑步机时为步频传感器，单车时为功率计（在 Android 上还需打开“自行车功率传感器”）。手表需要与运行 QZ 的手机或平板进行蓝牙配对：如果找不到 QZ，请先配对一次，然后在手表上添加传感器并接受配对请求。如果同一部手机上的 Garmin Connect 已与手表连接，请在手表连接时连续强制停止 Garmin Connect 两到三次；使用一部没有 Garmin Connect 的单独手机或平板更简单。当 QZ 作为手表的传感器工作时，通过蓝牙连接的 Zwift 只会把它识别为步频传感器或功率计，而不是可以控制的设备。</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -7572,6 +7752,14 @@ Please enter it below:</source>
     <message>
         <source>Strava Virtual Activity Tag</source>
         <translation>Strava 虚拟活动标签</translation>
+    </message>
+    <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Strava 模拟 GPS 轨迹</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>为没有 GPS 的虚拟活动写入模拟 GPS 轨迹。Strava 可能因此显示爬升高度，但路线并非真实路线。</translation>
     </message>
     <message>
         <source>Append the Virtual Tag to the Strava Activity</source>

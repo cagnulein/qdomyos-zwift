@@ -1,6 +1,8 @@
 #include "fakeelliptical.h"
 #include "virtualdevices/virtualbike.h"
+#include "homeform.h"
 #include <QBluetoothLocalDevice>
+#include <QCoreApplication>
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
@@ -25,6 +27,14 @@ fakeelliptical::fakeelliptical(bool noWriteResistance, bool noHeartService, bool
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &fakeelliptical::update);
     refresh->start(200ms);
+
+    QTimer::singleShot(5000, this, []() {
+        if (homeform::singleton()) {
+            homeform::singleton()->setToastRequested(
+                QCoreApplication::translate("main", "Fake device (%1) is active. If this was unintentional, disable it in Settings.")
+                    .arg(QCoreApplication::translate("main", "Elliptical")));
+        }
+    });
 }
 
 void fakeelliptical::update() {

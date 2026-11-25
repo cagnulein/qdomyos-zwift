@@ -28,9 +28,9 @@ HomeForm {
         // connected", and the line would read "Searching for the device..." beside the green card
         if (rootItem.info === "Connecting..." && window.equipmentConnected)
             return false
-        // homeform writes "<device> found" into info once the device is found (name + " found");
-        // a loaded workout puts its name there
-        return !String(rootItem.info).endsWith(" found")
+        // info is "<device> found" (translated) once the device is found, or the name of a loaded
+        // workout: homeform says which, the translated text cannot be matched
+        return !rootItem.infoDeviceFound
     }
     background: Rectangle {
         anchors.fill: parent
@@ -252,7 +252,12 @@ HomeForm {
         // Always running: rootItem.device blinks while no device is connected (it drives the icon),
         // and bluetoothSearchStatus() is empty once a device is connected
         interval: 1000; repeat: true; triggeredOnStart: true; running: true
-        onTriggered: searchStatus = rootItem.bluetoothSearchStatus()
+        onTriggered: {
+            searchStatus = rootItem.bluetoothSearchStatus()
+            searchStopped = rootItem.bluetoothSearchStopped()
+            bluetoothOff = rootItem.bluetoothSearchOff()
+            window.bluetoothSearchPolled()
+        }
     }
 
     Timer {
@@ -701,6 +706,46 @@ HomeForm {
                     minimumPointSize: 7
                     visible: !largeButton
                     Accessible.ignored: true
+                }
+
+                // "Return to app" in the empty second line of T.Power(W), as on the classic tile
+                RoundButton {
+                    id: modernRelease
+                    objectName: "target_power_release"
+                    text: qsTr("Return to app")
+                    onClicked: rootItem.releaseTargetPower()
+                    visible: identificator === "target_power" && rootItem.targetPowerReleaseVisible && !largeButton
+                    anchors.top: modernValue.bottom
+                    anchors.horizontalCenter: modernCard.horizontalCenter
+                    // over the touch areas of -/+ below (64 x 80 around their circles, down to
+                    // the middle of this button): a tap on its edge returns control, not a step
+                    z: 1
+                    // 32, not 48: the line between the value and the bottom of the card is 39
+                    height: 32 * modernTile.zoom
+                    width: Math.min(implicitWidth, modernCard.width - 16 * modernTile.zoom)
+                    topInset: 0
+                    bottomInset: 0
+                    leftInset: 0
+                    rightInset: 0
+                    font.pointSize: settings.theme_tile_secondline_textsize * modernTile.zoom
+                    background: Rectangle {
+                        radius: height / 2
+                        color: modernRelease.down ? window.ui.alpha(window.ui.accent, 0.35) : window.ui.surfaceHighest
+                    }
+                    contentItem: Text {
+                        text: modernRelease.text
+                        font: modernRelease.font
+                        color: window.ui.textMain
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                        elide: Text.ElideRight
+                    }
+
+                    Accessible.role: Accessible.Button
+                    Accessible.name: text
+                    Accessible.description: qsTr("Give load control back to the app")
+                    Accessible.focusable: true
+                    Accessible.onPressAction: { rootItem.releaseTargetPower() }
                 }
 
                 RoundButton {

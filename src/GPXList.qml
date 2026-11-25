@@ -377,7 +377,7 @@ ColumnLayout {
                 FolderListModel {
                     id: folderModel
                     nameFilters: ["*.gpx", "*.GPX"]
-                    folder: "file://" + rootItem.getWritableAppDir() + 'gpx'
+                    folder: rootItem.localFileUrl(rootItem.getWritableAppDir() + 'gpx')
                     showDotAndDotDot: false
                     showDirs: true
                     sortField: "Name"

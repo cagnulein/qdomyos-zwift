@@ -12,6 +12,10 @@ class YpooTreadmillTestPeer {
         device.processTelemetry(packet, time);
     }
     static void model(ypootreadmill &device, bool ypM1552) { device.YP_M1552 = ypM1552; }
+    static void m3Max(ypootreadmill &device, bool enabled) {
+        device.YP_M3_MAX = enabled;
+        device.ypooM5Control.setMaxIncline(enabled ? 42.0 : 15.0);
+    }
     static bool stopPending(const ypootreadmill &device) { return device.requestStop != -1; }
     static YpooM5Control::Action beginCountdown(ypootreadmill &device) {
         device.ypooM5Control.telemetry(0, 0, device.ypooM5Clock.elapsed());
@@ -186,6 +190,35 @@ TEST_F(YpooTreadmillTest, AdvertisesModelRangesThroughGenericDeviceInterface) {
         EXPECT_EQ(control.speedRange, QByteArray::fromHex("640058070a00"));
         EXPECT_EQ(control.inclineRange, QByteArray::fromHex(ypM1552 ? "000078000a00" : "c4ff96000a00"));
     }
+}
+
+TEST_F(YpooTreadmillTest, M3MaxAdvertisesAndAcceptsInclineUpTo42Percent) {
+    bluetoothdevice &base = device;
+    YpooTreadmillTestPeer::model(device, false);
+    device.setPaused(false);
+    YpooTreadmillTestPeer::telemetry(device, telemetryPacket(100, 0), 0);
+    EXPECT_FALSE(YpooTreadmillTestPeer::requestIncline(device, 16));
+
+    YpooTreadmillTestPeer::m3Max(device, true);
+    const auto control = base.virtualTreadmillControl();
+    EXPECT_EQ(control.speedRange, QByteArray::fromHex("640058070a00"));
+    EXPECT_EQ(control.inclineRange, QByteArray::fromHex("c4ffa4010a00"));
+    EXPECT_TRUE(YpooTreadmillTestPeer::requestIncline(device, 42));
+    EXPECT_FALSE(YpooTreadmillTestPeer::requestIncline(device, 43));
+}
+
+TEST_F(YpooTreadmillTest, M3MaxRequestAbove15PercentIsNotClampedByTheInclinationOverrideTable) {
+    YpooTreadmillTestPeer::m3Max(device, true);
+    device.setPaused(false);
+    const qint64 now = YpooTreadmillTestPeer::now(device);
+    YpooTreadmillTestPeer::telemetry(device, telemetryPacket(100, 150), now);
+    treadmill &base = device;
+    base.changeInclination(20, 20);
+    YpooTreadmillTestPeer::processRequests(device); // First write of the 20 % target.
+    YpooTreadmillTestPeer::telemetry(device, telemetryPacket(100, 150), now + 2600);
+    const auto retry = YpooTreadmillTestPeer::next(device, now + 2700);
+    EXPECT_EQ(retry.action, YpooM5Control::Action::Incline);
+    EXPECT_DOUBLE_EQ(retry.value, 20);
 }
 
 TEST_F(YpooTreadmillTest, CounterResetAfterConsoleRunPreservesCumulativeDistanceAndNewSessionOffset) {

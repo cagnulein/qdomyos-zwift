@@ -6,6 +6,7 @@
 #include <QBluetoothServiceInfo>
 #include <QBluetoothSocket>
 #include <QDateTime>
+#include <QElapsedTimer>
 #include <QQueue>
 #include <QTimer>
 
@@ -23,11 +24,16 @@ class kettlercoachrower : public rower {
     bool connected() override;
     uint16_t watts() override;
     resistance_t maxResistance() override;
+    void clearStats() override;
 
   public slots:
     void changeResistance(resistance_t resistance) override;
 
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+#ifdef Q_OS_ANDROID
+    // Known paired MAC: connect over SPP without requiring discoverability.
+    void connectToBondedDevice(const QBluetoothDeviceInfo &device);
+#endif
 
   signals:
     void debug(QString message);
@@ -58,6 +64,8 @@ class kettlercoachrower : public rower {
     void sendNextRequest();
     void processFrame(const kettlerclassicprotocol::Frame &frame);
     void processTelemetry(const QByteArray &payload);
+    void resetStrokeMetrics();
+    void updateStrokeIdle(qint64 nowMs);
     void recordReportedResistance(quint8 level, const char *source);
     void disconnectAfterError(const QString &reason);
     static quint16 be16(const QByteArray &data, int offset);
@@ -82,12 +90,20 @@ class kettlercoachrower : public rower {
     QTimer requestTimeoutTimer;
 
     quint16 currentWatts = 0;
+    QElapsedTimer powerClock;
+    kettlerclassicprotocol::CoachSStrokePowerSmoother strokePower;
+    kettlerclassicprotocol::CoachSCadenceSmoother cadenceSmoother;
+    kettlerclassicprotocol::CoachSSessionCounters sessionCounters;
+    kettlerclassicprotocol::CoachSPowerBasedPace powerBasedPace;
+    bool lastPowerBasedMode = false;
+    double rawDistanceOffsetMeters = 0.0;
     int pendingResistanceLevel = -1;
     int lastReportedResistanceLevel = -1;
     quint16 lastStrokes = 0;
-    quint16 lastDistanceMeters = 0;
-    QDateTime lastStrokeTime;
-    QDateTime lastDistanceTime;
+    // Raw distance at the last completed stroke, independent of the
+    // QZ workout's session counters. The elapsed clock is monotonic.
+    quint16 lastStrokeDistanceMeters = 0;
+    qint64 lastStrokeMs = -1;
 };
 
 #endif // KETTLERCOACHROWER_H

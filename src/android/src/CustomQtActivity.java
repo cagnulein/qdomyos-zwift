@@ -31,6 +31,8 @@ import android.view.Window;
 import android.view.WindowInsetsController;
 import android.view.DisplayCutout;
 import android.graphics.Insets;
+import org.qtproject.qt5.android.QtActivityDelegate;
+import org.qtproject.qt5.android.QtNative;
 import org.qtproject.qt5.android.bindings.QtActivity;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -125,6 +127,12 @@ public class CustomQtActivity extends QtActivity {
     // (a back gesture or press the user aborted) is dropped too, so it no longer goes back.
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+            // A keyboard on the screen takes Back before the activity; here it is gone, unless the
+            // insets still show it. Tell Qt before it decides whether this Back only hides it
+            // (see the keyboard listener in onCreate)
+            keyboardHiddenByInsets();
+        }
         if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && !injectingBackKey) {
             if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
                 backDownSentToQt = true;
@@ -139,6 +147,21 @@ public class CustomQtActivity extends QtActivity {
             }
         }
         return super.dispatchKeyEvent(event);
+    }
+
+    // API 30+: when the window insets show no keyboard, Qt is told it is hidden
+    private void keyboardHiddenByInsets() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            return;
+        }
+        WindowInsets insets = getWindow().getDecorView().getRootWindowInsets();
+        if (insets == null || insets.isVisible(WindowInsets.Type.ime())) {
+            return;
+        }
+        QtActivityDelegate delegate = QtNative.activityDelegate();
+        if (delegate != null) {
+            delegate.setKeyboardVisibility(false, System.nanoTime());
+        }
     }
 
     private void registerBackCallback() {
@@ -185,6 +208,14 @@ public class CustomQtActivity extends QtActivity {
     private boolean accessibilityEnabled() {
         AccessibilityManager manager = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
         return manager != null && manager.isEnabled();
+    }
+
+    // A screen reader (TalkBack) is on: it turns touch exploration on. isEnabled() is true with any
+    // accessibility service (a password manager, a launcher, a screen time app), which moves no focus
+    // and says nothing
+    private boolean screenReaderOn() {
+        AccessibilityManager manager = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
+        return manager != null && manager.isEnabled() && manager.isTouchExplorationEnabled();
     }
 
     private void sendAccessibilityTreeChanged() {
@@ -251,7 +282,8 @@ public class CustomQtActivity extends QtActivity {
     // wherever the keyboard focus is when the popup closes. The node TalkBack had focused when a popup
     // showed is kept, and once the popup hid, if the focused node went with it, the focus is put back
     // there (when it is still on the screen), as a dialog of Android does. A modal popup that opens
-    // takes the focus to its first stop, as TalkBack does with a dialog of Android.
+    // takes the focus to its first stop, as TalkBack does with a dialog of Android. Both only with a
+    // screen reader on (onAccessibilityProvider).
     private static final class ScrollToFocusProvider extends AccessibilityNodeProvider {
         private static final long VALUE_ANNOUNCE_DELAY_MS = 150;
         // Qt never gives an object this id (-1: QAccessibleCache::acquireId skips it,
@@ -511,7 +543,10 @@ public class CustomQtActivity extends QtActivity {
         void run(ScrollToFocusProvider provider);
     }
 
-    // The call on the Android UI thread, with the provider that wraps Qt's (none while accessibility is off)
+    // The call on the Android UI thread, with the provider that wraps Qt's (none while accessibility is off),
+    // and only with a screen reader on: with another service the focus moved into a popup still scrolled
+    // the item into view (nativeScrollToAccessibleObject), and a long list opened at its current item
+    // jumped back to its top a moment later
     private static void onAccessibilityProvider(final ProviderCall call) {
         final CustomQtActivity activity = accessibilityActivity;
         if (activity == null) {
@@ -520,7 +555,7 @@ public class CustomQtActivity extends QtActivity {
         activity.accessibilityHandler.post(new Runnable() {
             @Override
             public void run() {
-                if (!activity.accessibilityEnabled()) {
+                if (!activity.screenReaderOn()) {
                     return;
                 }
                 View view = activity.qtAccessibilityView();
@@ -675,15 +710,81 @@ public class CustomQtActivity extends QtActivity {
                     }
                 });
 
+        // Qt 5.15 learns that the user closed the keyboard (its own hide key, or the back key, which
+        // the keyboard takes) only from a guess: 100 ms after finishComposingText, which Qt takes as
+        // the connection closing, the screen height minus the visible frame must be under 100 px
+        // (HideKeyboardRunnable, QtInputConnection.java). The guess misses on Android 15 and 16 and
+        // on some older devices; then Qt keeps the keyboard "visible" and spends the next Back on
+        // hiding it (QtActivityDelegate onKeyDown/onKeyUp): the user has to press Back twice.
+        // Qt 6 follows the keyboard by WindowInsets.isVisible(ime()) on API 30+ (qtbase 33cf82c13d,
+        // QTBUG-98984), from a global layout listener (f3a51f8b38, QTBUG-141908); the same here, in
+        // both directions. Qt 5.15's own updates stay (they cannot be switched off as in Qt 6,
+        // 21616e1447) and the time stamps keep the latest; a late one of them saying "visible" is
+        // undone on the next Back (keyboardHiddenByInsets() in dispatchKeyEvent).
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            final View imeRoot = getWindow().getDecorView();
+            imeRoot.getViewTreeObserver().addOnGlobalLayoutListener(
+                    new ViewTreeObserver.OnGlobalLayoutListener() {
+                        private boolean imeWasVisible = false;
+
+                        @Override
+                        public void onGlobalLayout() {
+                            WindowInsets insets = imeRoot.getRootWindowInsets();
+                            if (insets == null) {
+                                return;
+                            }
+                            boolean imeVisible = insets.isVisible(WindowInsets.Type.ime());
+                            if (imeVisible == imeWasVisible) {
+                                return;
+                            }
+                            imeWasVisible = imeVisible;
+                            QtActivityDelegate delegate = QtNative.activityDelegate();
+                            if (delegate != null) {
+                                delegate.setKeyboardVisibility(imeVisible, System.nanoTime());
+                            }
+                        }
+                    });
+        }
+
+        // The window background (black; the page colour in the modern look, setSystemBars) shows where
+        // Qt doesn't render. On API 28-30, in landscape, the window reaches into the cutout (SHORT_EDGES,
+        // below) but the decor view fits the insets, so Qt's content keeps clear of it and the window
+        // background shows in the strip beside it. Qt 5.15 replaces the background with the theme's
+        // when it creates its first surface (QtActivityDelegate.createSurface: the light gradient of
+        // Theme_Holo_Light, which QtActivity uses), then adds the surface to its layout in the same call;
+        // so the background goes back to ours as soon as a surface is added, before anything is drawn.
+        // Qt 6.7+ sets the theme's background once, when the activity is created
+        // (setActivityBackgroundDrawable).
+        applyWindowBackground();
+        final ViewGroup content = (ViewGroup) findViewById(android.R.id.content);
+        ViewGroup.OnHierarchyChangeListener surfaceAdded = new ViewGroup.OnHierarchyChangeListener() {
+            @Override
+            public void onChildViewAdded(View parent, View child) {
+                if (child instanceof SurfaceView) {
+                    applyWindowBackground();
+                } else if (parent == content && child instanceof ViewGroup) {
+                    ((ViewGroup) child).setOnHierarchyChangeListener(this);
+                }
+            }
+
+            @Override
+            public void onChildViewRemoved(View parent, View child) {
+            }
+        };
+        content.setOnHierarchyChangeListener(surfaceAdded);
+        for (int i = 0; i < content.getChildCount(); i++) {
+            if (content.getChildAt(i) instanceof ViewGroup) {
+                ((ViewGroup) content.getChildAt(i)).setOnHierarchyChangeListener(surfaceAdded);
+            }
+        }
+
         // Make the window truly edge-to-edge so the app renders into ALL screen areas
         // including the display cutout (punch-hole/notch) on all 4 rotation variants.
         // setDecorFitsSystemWindows(false) prevents the system from shrinking
         // the content area around insets — we handle insets ourselves via onApplyWindowInsets.
         // LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS extends into the cutout on every edge.
-        // Dark window background ensures no white strip is visible in areas Qt may not render.
         // API 31+ only, like the QML paddings (main.qml getTopPadding() and the others):
         // below 31 they are 0, so on Android 11 (API 30) the system bars covered the app (#5484).
-        getWindow().setBackgroundDrawable(new ColorDrawable(Color.BLACK));
         if (Build.VERSION.SDK_INT >= 31) {
             getWindow().setDecorFitsSystemWindows(false);
             getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
@@ -857,7 +958,11 @@ public class CustomQtActivity extends QtActivity {
     // through (the drawer sheet too, with its rounded top corner). API 23-30 keep the window below the
     // bars, so they take the page colour (the navigation bar from API 26, the first with dark buttons).
     // The icons follow the page: dark on a light one. API 21-22 have no dark icons: nothing changes.
-    // Classic look (modern false): the flags, colours and icons from before the first call come back.
+    // The window background takes the page colour too: on API 28-30 the strip beside the cutout in
+    // landscape (onCreate), and an edge Qt's surface may leave uncovered (on the emulator the last pixel
+    // row and column of the window).
+    // Classic look (modern false): the flags, colours and icons from before the first call come back,
+    // the window background is black again.
     // Called from QML (applySystemBars) at start-up, on every return to the foreground and when the
     // look or its theme changes, so a reset by the system is put right on the next return.
     private static boolean systemBarsSaved = false;
@@ -866,6 +971,12 @@ public class CustomQtActivity extends QtActivity {
     private static int savedNavigationBarColor;
     private static boolean savedLightStatus;
     private static boolean savedLightNavigation;
+    // the window background: what shows where Qt's content doesn't cover the window (onCreate, setSystemBars)
+    private static int windowBackgroundColor = Color.BLACK;
+
+    private void applyWindowBackground() {
+        getWindow().setBackgroundDrawable(new ColorDrawable(windowBackgroundColor));
+    }
 
     public static void setSystemBars(final int color, final boolean modern, final boolean dark) {
         final CustomQtActivity activity = accessibilityActivity;
@@ -894,6 +1005,7 @@ public class CustomQtActivity extends QtActivity {
                 }
                 if (modern) {
                     int bars = Build.VERSION.SDK_INT >= 31 ? Color.TRANSPARENT : (color | 0xFF000000);
+                    windowBackgroundColor = color | 0xFF000000;
                     window.addFlags(drawsBars);
                     if (colors)
                         window.setStatusBarColor(bars);
@@ -904,6 +1016,7 @@ public class CustomQtActivity extends QtActivity {
                         setLightBar(window, false, !dark);
                     }
                 } else {
+                    windowBackgroundColor = Color.BLACK;
                     if (!savedDrawsBars)
                         window.clearFlags(drawsBars);
                     if (colors) {
@@ -914,6 +1027,7 @@ public class CustomQtActivity extends QtActivity {
                     if (Build.VERSION.SDK_INT >= 26)
                         setLightBar(window, false, savedLightNavigation);
                 }
+                activity.applyWindowBackground();
             }
         });
     }
@@ -1675,6 +1789,10 @@ public class CustomQtActivity extends QtActivity {
                     localPath = ContentHelper.importContentToAppDirKeepExisting(this, uri, "",
                                                                                 ContentHelper.getFileSize(this, uri),
                                                                                 destinationDir);
+                } else if (resultCode == RESULT_OK && requestCode == DOCUMENT_PICKER_GPX_REQUEST_CODE) {
+                    // OsmAnd shares every route as route.gpx: a new track must not replace the
+                    // previous one. Size -1: only a file with the same content is the same track
+                    localPath = ContentHelper.importContentToAppDirKeepExisting(this, uri, "", -1, destinationDir);
                 } else if (resultCode == RESULT_OK) {
                     localPath = ContentHelper.importContentToAppDir(this, uri, destinationDir);
                 }

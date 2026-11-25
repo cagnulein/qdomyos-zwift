@@ -1,0 +1,58 @@
+/* Modern look of the two chart pages: the charts of the workout (chartjs/chart.htm) and the
+   workout from the history (previewchart/chart.htm). The page in the app theme; the inline
+   styles of their markup need !important. The blocks - the workout, the summary, the chart
+   cards - are cards of the surface colour 8 px apart, without the lines and line breaks between
+   them; the classic look keeps those. Only rules under html.modern. */
+
+html.modern body,
+html.modern #watt_badge {
+    background-color: var(--qz-bg) !important;
+    font-family: Roboto, "Segoe UI", sans-serif;
+}
+html.modern body {
+    margin: 0;
+    padding: 12px 16px;
+}
+html.modern .workoutName,
+html.modern .instructorName,
+html.modern td[class^="summary_"] {
+    color: var(--qz-text) !important;
+    font-family: inherit !important;
+}
+html.modern .workoutStartDate,
+html.modern tr[align="center"],
+html.modern .watts_avg, html.modern .watts_max,
+html.modern .heart_avg, html.modern .heart_max {
+    color: var(--qz-muted) !important;
+    font-family: inherit !important;
+}
+html.modern td[class^="summary_"] {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    padding-bottom: 10px;
+}
+html.modern hr,
+html.modern br {
+    display: none;
+}
+/* The summary: a filled card, the QZ logo in its middle as in the classic look */
+html.modern table[background] {
+    background-color: var(--qz-surface);
+    border-radius: var(--qz-radius-card, 16px);
+    padding: 8px 4px;
+    border-spacing: 0 4px;
+    margin-top: 8px;
+}
+/* The chart cards: the canvas fills them with the same colour (qzChartTheme.background) */
+html.modern div[style*="background-color:white"] {
+    background-color: var(--qz-surface) !important;
+    border-radius: var(--qz-radius-card, 16px) !important;
+    margin-top: 8px;
+}
+html.modern .watts_avg, html.modern .watts_max,
+html.modern .heart_avg, html.modern .heart_max {
+    padding: 6px 8px 0;
+}
+html.modern #loading {
+    background-color: var(--qz-bg) !important;
+}
