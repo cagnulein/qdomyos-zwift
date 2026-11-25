@@ -152,6 +152,19 @@ uint16_t bike::powerFromResistanceRequest(resistance_t requestResistance) {
 
 void bike::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
 void bike::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
+int32_t bike::powerTargetWithExternalSensorDelta(int32_t target, double referencePower,
+                                                  double externalPower, double maxDifference) {
+    if (target <= 0 || referencePower <= 0 || externalPower <= 0 || maxDifference <= 0 ||
+        !std::isfinite(referencePower) || !std::isfinite(externalPower)) {
+        return target;
+    }
+
+    const double delta = referencePower - externalPower;
+    if (std::abs(delta) >= maxDifference)
+        return target;
+    return static_cast<int32_t>(target + delta);
+}
+
 void bike::changePower(int32_t power) {
 
     RequestedPower = power; // in order to paint in any case the request power on the charts
@@ -177,10 +190,15 @@ void bike::changePower(int32_t power) {
 
     requestPower = power; // used by some bikes that have ERG mode builtin
     
-    if(power_sensor && ergModeSupported && m_rawWatt.value() > 0 && m_watt.value() > 0 && fabs(requestPower - m_watt.average5s()) < qMax(erg_filter_upper, erg_filter_lower)) {
-        qDebug() << "applying delta watt to power request m_rawWatt" << m_rawWatt.average5s() << "watt" << m_watt.average5s() << "req" << requestPower;
-        // the concept here is to trying to add or decrease the delta from the power sensor
-        requestPower += (requestPower - m_watt.average5s());
+    if (power_sensor && ergModeSupported && m_rawWatt.value() > 0 && m_watt.value() > 0) {
+        // Preserve the existing FTMS delta/threshold calculation, now shared with Tacx-style trainers.
+        const int32_t corrected = powerTargetWithExternalSensorDelta(
+            requestPower, requestPower, m_watt.average5s(), qMax(erg_filter_upper, erg_filter_lower));
+        if (corrected != requestPower) {
+            qDebug() << "applying delta watt to power request m_rawWatt" << m_rawWatt.average5s()
+                     << "watt" << m_watt.average5s() << "req" << requestPower;
+            requestPower = corrected;
+        }
     }
         
     bool force_resistance =
