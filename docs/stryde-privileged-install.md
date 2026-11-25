@@ -11,6 +11,33 @@ QZ now requests `android.permission.SERIAL_PORT` on Android API 27 or earlier; *
 - Privileged installation requires root/system-image modification or an OEM-supported system-app deployment path. Merely enabling USB debugging/ADB does not provide this.
 - Bootloader unlocking and rooting can wipe data or leave the tablet unbootable; do **not** attempt either without identifying the exact board, firmware, and known-good recovery procedure.
 
+## Stage 0: Verify MTKClient access (no flash changes)
+
+The Stryde/Foenix documentation lists a MediaTek MT8167A. MTKClient has a configuration for HW code `0x8167`. **Hardware similarity does not prove that this particular OEM firmware is accessible.** The tablet currently has `ro.build.type=user`, `ro.debuggable=0`, no `su`, and verified boot reported as green.
+
+Start with **detection only**. Do not unlock, erase, write, or patch any partitions. This first step needs a host computer with a data-capable USB cable; it is not run from ADB on the Android tablet.
+
+Official instructions: [MTKClient](https://github.com/bkerler/mtkclient), [Windows setup](https://github.com/bkerler/mtkclient/blob/main/README-WINDOWS.md), [Linux/macOS setup](https://github.com/bkerler/mtkclient/blob/main/README-INSTALL.md).
+
+On Windows 10/11, install Python, Git, and the official README's MediaTek port/UsbDk drivers on the **computer**. Then run:
+
+```powershell
+git clone https://github.com/bkerler/mtkclient
+cd mtkclient
+python -m pip install -r requirements.txt
+python mtk.py gettargetconfig
+```
+
+On Linux, follow the official README for libusb, udev rules and Python dependencies; run the last command as `python3 mtk.py gettargetconfig`.
+
+With the detection command already running, completely power down the tablet using its normal power-off procedure, disconnect the USB data cable if needed, and reconnect it to the computer. The official MTKClient procedure suggests holding Volume Up + Power or Volume Down + Power when the hardware offers those buttons; **do not assume the Foenix has such buttons**, and do not dismantle the bike or short any test points. For a tablet without volume buttons, first try reconnecting in its normal powered-off state. If normal power-off/restart is not straightforward, stop and report that instead.
+
+Collect the complete terminal output, including any errors. If no target is found, note whether Windows Device Manager or Linux `lsusb` shows a transient MediaTek USB device and provide its VID:PID, along with the computer OS. Do not run undocumented `adb reboot edl`, crash/bootrom payloads, or driver-replacement utilities without a separate review.
+
+If `gettargetconfig` reports the hardware code and security status, **stop there**. In the next controlled stage, `python mtk.py printgpt` can enumerate partitions, and `python mtk.py r boot boot.img` or `python mtk.py rl backup` can read data, but these can invoke a download agent/exploit in RAM. They should only be considered after reviewing the first output and confirming a reboot and recovery path. Backups may contain personal information and security material; do not share full flash images publicly.
+
+The upstream MTKClient root workflow explicitly reports testing on Android 9–12. Do not treat its `seccfg unlock`, `vbmeta`, `w` or `e` commands as validated for the Foenix Android 8.1 firmware.
+
 ## Step 1: Read-only capability check over ADB
 
 Run these commands and review/redact device identifiers before sharing output:
