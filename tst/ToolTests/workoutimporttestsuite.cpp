@@ -9,6 +9,9 @@
 
 #include <QDir>
 #include <QTemporaryFile>
+#include <QTemporaryDir>
+#include <QFile>
+#include <QFileInfo>
 
 static const char *kMrcWorkout = "[COURSE HEADER]\r\n"
                                  "VERSION = 2\r\n"
@@ -453,4 +456,38 @@ TEST(WorkoutImport, FitDeviceCompatibility) {
     const auto bytes = makeFitWorkout({timedFitStep(0, 60, FIT_WKT_STEP_TARGET_OPEN)},
                                        FIT_FILE_WORKOUT, FIT_SPORT_SWIMMING);
     EXPECT_TRUE(workoutimport::loadFit(bytes, 200, 300, 190).isEmpty());
+}
+
+TEST(WorkoutImport, FitLibraryKeepsOriginalWithoutXml) {
+    QTemporaryDir external;
+    QTemporaryDir training;
+    ASSERT_TRUE(external.isValid());
+    ASSERT_TRUE(training.isValid());
+    const QString sourcePath = QDir(external.path()).filePath(QStringLiteral("Workout.fit"));
+    const auto bytes = makeFitWorkout({timedFitStep(0, 60, FIT_WKT_STEP_TARGET_HEART_RATE, 80, 90)});
+    QFile source(sourcePath);
+    ASSERT_TRUE(source.open(QIODevice::WriteOnly));
+    ASSERT_EQ(source.write(bytes), bytes.size());
+    source.close();
+    const QString saved = workoutimport::keepFitInTrainingFolder(sourcePath, training.path());
+    ASSERT_EQ(saved, QDir(training.path()).filePath(QStringLiteral("Workout.fit")));
+    QFile savedFile(saved);
+    ASSERT_TRUE(savedFile.open(QIODevice::ReadOnly));
+    EXPECT_EQ(savedFile.readAll(), bytes);
+    savedFile.close();
+    EXPECT_EQ(workoutimport::keepFitInTrainingFolder(sourcePath, training.path()), saved);
+    EXPECT_EQ(workoutimport::keepFitInTrainingFolder(saved, training.path()), QFileInfo(saved).canonicalFilePath());
+    EXPECT_TRUE(QDir(training.path()).entryList(QStringList() << QStringLiteral("*.xml"), QDir::Files).isEmpty());
+    const auto rows = workoutimport::load(saved, QStringLiteral("FIT"));
+    ASSERT_EQ(rows.size(), 1);
+    EXPECT_EQ(rows.first().duration, QTime(0, 1));
+
+    ASSERT_TRUE(source.open(QIODevice::WriteOnly | QIODevice::Truncate));
+    const auto changed = makeFitWorkout({timedFitStep(0, 120, FIT_WKT_STEP_TARGET_OPEN)});
+    ASSERT_EQ(source.write(changed), changed.size());
+    source.close();
+    const QString second = workoutimport::keepFitInTrainingFolder(sourcePath, training.path());
+    EXPECT_EQ(second, QDir(training.path()).filePath(QStringLiteral("Workout_2.fit")));
+    ASSERT_TRUE(savedFile.open(QIODevice::ReadOnly));
+    EXPECT_EQ(savedFile.readAll(), bytes);
 }

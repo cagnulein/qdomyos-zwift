@@ -7,6 +7,7 @@
 #include <cmath>
 #include <sstream>
 #include <QDebug>
+#include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QJsonArray>
@@ -541,4 +542,47 @@ QList<trainrow> workoutimport::loadFit(const QByteArray &input, double ftp, doub
 
 bool workoutimport::isFitDeviceCompatible(BLUETOOTH_TYPE workoutDevice, BLUETOOTH_TYPE connectedDevice) {
     return workoutDevice == UNKNOWN || connectedDevice == UNKNOWN || workoutDevice == connectedDevice;
+}
+
+QString workoutimport::keepFitInTrainingFolder(const QString &sourcePath, const QString &trainingDirectory) {
+    const QFileInfo source(sourcePath);
+    if (!source.isFile() || source.suffix().compare(QStringLiteral("FIT"), Qt::CaseInsensitive) != 0 ||
+        source.size() <= 0 || source.size() > 4 * 1024 * 1024 || trainingDirectory.isEmpty())
+        return {};
+    const QDir dir(trainingDirectory);
+    if (!dir.exists() && !QDir().mkpath(dir.absolutePath()))
+        return {};
+    const QString root = dir.canonicalPath();
+    const QString original = source.canonicalFilePath();
+    if (root.isEmpty() || original.isEmpty())
+        return {};
+    if (original.startsWith(root + QStringLiteral("/")))
+        return original;
+
+    QFile input(sourcePath);
+    if (!input.open(QIODevice::ReadOnly))
+        return {};
+    const QByteArray bytes = input.readAll();
+    input.close();
+    if (bytes.size() != source.size())
+        return {};
+
+    for (int suffix = 1; suffix <= 10000; ++suffix) {
+        const QString name = suffix == 1 ? source.fileName() :
+            source.completeBaseName() + QStringLiteral("_%1.fit").arg(suffix);
+        const QString destination = dir.filePath(name);
+        const QFileInfo existing(destination);
+        if (existing.exists() || existing.isSymLink()) {
+            QFile candidate(destination);
+            if (!existing.isSymLink() && existing.isFile() && existing.size() == bytes.size() &&
+                candidate.open(QIODevice::ReadOnly) && candidate.readAll() == bytes)
+                return destination;
+            continue;
+        }
+        if (QFile::copy(sourcePath, destination))
+            return destination;
+        if (!QFileInfo::exists(destination))
+            return {};
+    }
+    return {};
 }

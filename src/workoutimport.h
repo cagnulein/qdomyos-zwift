@@ -29,6 +29,10 @@ class workoutimport {
     // UNKNOWN means the sport or the connected device is not yet known.
     static bool isFitDeviceCompatible(BLUETOOTH_TYPE workoutDevice, BLUETOOTH_TYPE connectedDevice);
 
+    // Keep the original FIT in the training library without overwriting or generating XML.
+    // Called only after a successful FIT decode.
+    static QString keepFitInTrainingFolder(const QString &sourcePath, const QString &trainingDirectory);
+
   private:
     static QString fileKind(const QString &filename, const QString &extension);
 };

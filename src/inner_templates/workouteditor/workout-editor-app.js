@@ -7,6 +7,7 @@
         programFiles: {}, // Map of program name -> file object (with url, path, etc.)
         showAdvanced: false,
         lastSaved: '',
+        sourceFit: false,
         loading: false,
         translations: {}
     };
@@ -39,13 +40,16 @@
     const FIELD_DEFS = [
         { key: 'name', labelKey: 'workoutEditor.label', label: 'Label', type: 'text', group: 'basic', devices: 'all' },
         { key: 'duration', labelKey: 'workoutEditor.duration', label: 'Duration', type: 'duration', group: 'basic', devices: 'all' },
+        { key: 'waitForLap', label: 'Wait for Lap', type: 'bool', group: 'advanced', devices: 'all', noToggle: true },
         { key: 'distance', labelKey: 'workoutEditor.distance', label: 'Distance', type: 'number', unitKey: 'distance', step: 0.1, min: 0, group: 'basic', devices: 'all', defaultValue: -1 },
         { key: 'speed', labelKey: 'workoutEditor.speed', label: 'Speed', type: 'number', unitKey: 'speed', step: 0.1, min: 0, group: 'basic', devices: ['treadmill'], defaultValue: () => state.miles ? 6.0 : 9.5 },
         { key: 'pace', labelKey: 'workoutEditor.pace', label: 'Pace', type: 'pace', unitKey: 'pace', group: 'basic', devices: ['treadmill'], syncWith: 'speed' },
         { key: 'inclination', labelKey: 'workoutEditor.incline', label: 'Incline', type: 'number', unitSuffix: '%', step: 0.5, min: -10, max: 40, group: 'basic', devices: ['treadmill', 'elliptical'], defaultValue: 1.0 },
         { key: 'resistance', labelKey: 'workoutEditor.resistance', label: 'Resistance', type: 'number', step: 1, min: 0, max: 100, group: 'basic', devices: ['bike', 'elliptical', 'rower'], defaultValue: 20 },
-        { key: 'cadence', labelKey: 'workoutEditor.cadence', label: 'Cadence', type: 'number', unitSuffix: 'rpm', min: 0, max: 240, group: 'basic', devices: ['bike', 'elliptical', 'rower'], defaultValue: 80 },
-        { key: 'power', labelKey: 'workoutEditor.power', label: 'Power', type: 'number', unitSuffix: 'W', min: 0, max: 2000, group: 'basic', devices: ['bike', 'rower'], defaultValue: 150 },
+        { key: 'cadence', labelKey: 'workoutEditor.cadence', label: 'Cadence', type: 'number', unitSuffix: 'rpm', min: 0, max: 300, group: 'basic', devices: ['bike', 'elliptical', 'rower', 'treadmill'], defaultValue: 80 },
+        { key: 'power', labelKey: 'workoutEditor.power', label: 'Power', type: 'number', unitSuffix: 'W', min: 0, max: 3000, group: 'basic', devices: ['bike', 'rower', 'treadmill'], defaultValue: 150 },
+        { key: 'lower_cadence', label: 'Cadence Min', type: 'number', unitSuffix: 'rpm', min: 0, max: 300, group: 'advanced', devices: 'all' },
+        { key: 'upper_cadence', label: 'Cadence Max', type: 'number', unitSuffix: 'rpm', min: 0, max: 300, group: 'advanced', devices: 'all' },
         { key: 'powerrampunit', labelKey: 'workoutEditor.powerRampUnit', label: 'Ramp Unit', type: 'select', options: ['W', '% FTP'], group: 'advanced', devices: ['bike', 'rower'], defaultValue: 'W', noToggle: true },
         { key: 'powerfrom', labelKey: 'workoutEditor.powerRampFrom', label: 'Ramp From', type: 'number', min: 0, max: 2000, group: 'advanced', devices: ['bike', 'rower'], defaultValue: 100 },
         { key: 'powerto', labelKey: 'workoutEditor.powerRampTo', label: 'Ramp To', type: 'number', min: 0, max: 2000, group: 'advanced', devices: ['bike', 'rower'], defaultValue: 200 },
@@ -96,6 +100,8 @@
         distance: -1,
         speed: -1,
         cadence: -1,
+        lower_cadence: -1,
+        upper_cadence: -1,
         resistance: -1,
         power: -1,
         inclination: -200,
@@ -303,6 +309,7 @@
         });
         selectors.newWorkout.addEventListener('click', () => {
             state.lastSaved = '';
+            state.sourceFit = false;
             selectors.name.value = '';
             state.intervals = [];
             addInterval();
@@ -502,6 +509,24 @@
         }
         const fileUrl = fileObj.url;
 
+        if (/\.fit$/i.test(name)) {
+            sendMessage('gettrainingprogram', { url: fileUrl }, 'R_gettrainingprogram')
+                .then(content => {
+                    const rows = Array.isArray(content && content.list) ? content.list : [];
+                    if (!rows.length) {
+                        announce(t('workoutEditor.workoutEmptyCannotRead', 'Workout is empty or cannot be read'), true);
+                        return;
+                    }
+                    applyLoadedRows(rows, name, t('workoutEditor.loadedName', 'Loaded {name}').replace('{name}', name), normalizeDevice(content.device));
+                })
+                .catch(err => {
+                    console.error(err);
+                    announce(t('workoutEditor.unableLoadWorkout', 'Unable to load workout'), true);
+                })
+                .finally(() => setWorking(false));
+            return;
+        }
+
         // Send message to open the training program file (no response expected)
         sendMessage('trainprogram_open_clicked', { url: fileUrl });
 
@@ -534,6 +559,13 @@
         selectors.device.value = state.device;
         selectors.name.value = name;
         state.lastSaved = name;
+        state.sourceFit = /\.fit$/i.test(name);
+        // HR-only FIT workouts otherwise look empty because HR fields are advanced.
+        if (state.sourceFit && rows.some(row => row.HRmin > 0 || row.HRmax > 0 || row.zoneHR > 0 ||
+                                               row.waitForLap || row.lower_cadence >= 0 || row.upper_cadence >= 0)) {
+            state.showAdvanced = true;
+            selectors.advanced.checked = true;
+        }
         renderIntervals();
         updateChart();
         updateStatus();
@@ -726,7 +758,7 @@
             out['__enabled_powerrampunit'] = true;
             // powerfrom/powerto already read by the FIELD_DEFS loop above
         }
-        out.__enabled_duration = out.__enabled_distance === true ? false : true;
+        out.__enabled_duration = out.__enabled_distance === true || out.waitForLap === true ? false : true;
         out.__selected = false;
         return out;
     }
@@ -959,8 +991,10 @@
                             // Duration and distance are mutually exclusive.
                             if (field.key === 'distance') {
                                 row['__enabled_duration'] = false;
+                                row.waitForLap = false;
                             } else if (field.key === 'duration') {
                                 row['__enabled_distance'] = false;
+                                row.waitForLap = false;
                             }
                         } else {
                             fieldWrap.classList.add('disabled');
@@ -1103,6 +1137,9 @@
         if (field.group === 'advanced' && !state.showAdvanced) {
             return false;
         }
+        if (field.key === 'waitForLap' && !state.sourceFit && !state.intervals.some(row => row.waitForLap === true)) {
+            return false;
+        }
         if (field.devices === 'all') {
             return true;
         }
@@ -1182,6 +1219,13 @@
         }
         if (type === 'bool') {
             state.intervals[index][key] = target.checked;
+            if (key === 'waitForLap') {
+                const interval = state.intervals[index];
+                interval.__enabled_duration = !target.checked;
+                interval.__enabled_distance = false;
+                if (!target.checked && !parseDuration(interval.duration)) interval.duration = '00:05:00';
+                renderIntervals();
+            }
         } else if (type === 'duration') {
             const seconds = parseDuration(target.value);
             if (seconds) {
@@ -1501,9 +1545,13 @@
         setWorking(true);
         sendMessage('savetrainingprogram', payload, 'R_savetrainingprogram').then(content => {
             console.log('[saveWorkflow] Save response:', content);
-            if (!content) {
+            if (!content || (payload.sourceFit && !content.list)) {
                 announce(t('workoutEditor.saveFailed', 'Save failed'), true);
                 return;
+            }
+            if (payload.sourceFit) {
+                payload.name = content.name || payload.name;
+                state.sourceFit = false;
             }
             state.lastSaved = payload.name;
             selectors.name.value = payload.name;
@@ -1634,7 +1682,10 @@
             const durationEnabled = interval.__enabled_duration !== false;
             const distanceEnabled = interval.__enabled_distance !== false;
             const row = {};
-            if (durationEnabled) {
+            if (interval.waitForLap === true) {
+                row.duration = '00:00:00';
+                row.waitForLap = true;
+            } else if (durationEnabled) {
                 const durationSec = parseDuration(interval.duration);
                 if (!durationSec) {
                     announce(t('workoutEditor.invalidDuration', 'Invalid duration in intervals'), true);
@@ -1656,7 +1707,7 @@
                 }];
             }
             FIELD_DEFS.forEach(field => {
-                if (field.key === 'name' || field.key === 'duration') {
+                if (field.key === 'name' || field.key === 'duration' || field.key === 'waitForLap') {
                     return;
                 }
 
@@ -1690,7 +1741,7 @@
                 if (!isEnabled) {
                     return;
                 }
-                if (field.key === 'distance' && durationEnabled) {
+                if (field.key === 'distance' && (durationEnabled || interval.waitForLap === true)) {
                     return;
                 }
                 const value = interval[field.key];
@@ -1726,6 +1777,7 @@
         return {
             name: sanitized,
             device: state.device,
+            sourceFit: state.sourceFit,
             list: list
         };
     }
@@ -1735,7 +1787,7 @@
         let baseName = name;
         if (baseName.toLowerCase().endsWith('.xml')) {
             baseName = baseName.slice(0, -4);
-        } else if (baseName.toLowerCase().endsWith('.zwo')) {
+        } else if (baseName.toLowerCase().endsWith('.zwo') || baseName.toLowerCase().endsWith('.fit')) {
             baseName = baseName.slice(0, -4);
         }
         // Keep any letters (Cyrillic, accents, CJK...): only replace characters a file name cannot hold
@@ -1770,7 +1822,16 @@
     function buildChartPayload() {
         let cursor = 0;
         const rows = [];
-        const seriesDefs = SERIES_DEFS[state.device] || [];
+        const seriesDefs = (SERIES_DEFS[state.device] || []).slice();
+        if (state.sourceFit) {
+            // Show HR targets (rather than a blank chart for HR-only FIT workouts).
+            seriesDefs.push(
+                { key: 'HRmin', label: () => t('workoutEditor.hrMin', 'HR Min'), color: '#e57373', unit: () => 'bpm' },
+                { key: 'HRmax', label: () => t('workoutEditor.hrMax', 'HR Max'), color: '#c62828', unit: () => 'bpm' }
+            );
+            if (state.device === 'treadmill')
+                seriesDefs.push({ key: 'power', label: () => t('workoutEditor.power', 'Power'), color: '#ef6c00', unit: () => 'W' });
+        }
         const series = seriesDefs.map(def => ({
             key: def.key,
             label: def.label(),
@@ -1795,6 +1856,9 @@
                 duration = parseDuration(interval.duration);
             }
 
+            if (interval.waitForLap === true) {
+                duration = 60; // visual placeholder, never saved as a timed step
+            }
             if (!duration) {
                 return;
             }

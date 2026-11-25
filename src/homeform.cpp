@@ -24,6 +24,7 @@
 #include "templateinfosenderbuilder.h"
 #include "workoutmodel.h"
 #include "zwiftworkout.h"
+#include "workoutimport.h"
 #include "authutils.h"
 
 #include <QAbstractOAuth2>
@@ -10310,6 +10311,15 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
                     setToastRequested(tr("This workout sport does not match the connected device."));
                 } else if (trainProgram->loadedRows.isEmpty()) {
                     setToastRequested(tr("The workout file could not be opened."));
+                } else {
+                    // Keep the original FIT, not an automatically converted XML, so the editor can find it.
+                    const QString savedFit = workoutimport::keepFitInTrainingFolder(
+                        file.fileName(), getWritableAppDir() + QStringLiteral("training/"));
+                    if (savedFit.isEmpty()) {
+                        setToastRequested(tr("The workout was opened but could not be saved."));
+                    } else {
+                        emit folderFilesRestored();
+                    }
                 }
             }
 
