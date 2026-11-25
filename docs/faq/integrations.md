@@ -167,6 +167,8 @@ You can change QZ virtual gears using several controls, depending on your setup:
 - a Bluetooth media/volume remote when **volume buttons change gears** is enabled;
 - on a supported RENPHO bike, the physical resistance knob when the RENPHO knob-to-gears option is enabled.
 
+To use a **CYCPLUS BC2** as the gear controller, enable **CYCPLUS BC2** under **QZ Settings > Accessories** so QZ connects to the controller. In a confirmed setup, enabling this option made the BC2 shifts work while QZ continued to bridge the bike to ROUVY.
+
 The current virtual gear is managed by QZ. ROUVY does not currently provide a field where QZ can inject its gear number, so you should not expect the QZ gear to appear natively in the ROUVY ride screen. Keep the QZ **Gear** tile visible if you want to see the current gear while riding.
 
 ### Confirmed RENPHO R-Q002 + ROUVY + CYCPLUS BC2 setup
