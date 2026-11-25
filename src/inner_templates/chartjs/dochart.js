@@ -194,7 +194,7 @@ function t(key, fallback) {
 }
 
 // The tooltip under a finger or the mouse: the time of the point (the x axis of the line charts
-// counts seconds, so do the bars of the zone distribution) instead of the raw number
+// counts seconds, and so do the values of the zone bars) instead of the raw number
 function tooltipTime(seconds) {
     let s = Math.round(seconds), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60);
     return (h > 0 ? h + ":" + m.toString().padStart(2, "0") : m) + ":" + (s % 60).toString().padStart(2, "0");
@@ -1266,7 +1266,7 @@ function process_arr(arr) {
                     position: 'right',
                 },
             },
-            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            // Chart.js 3: the bar of the zone under the finger anywhere in its column, not only on the bar
             interaction: {
                 mode: 'index',
                 intersect: false,
