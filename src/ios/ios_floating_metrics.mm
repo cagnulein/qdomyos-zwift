@@ -123,9 +123,12 @@ API_AVAILABLE(ios(15.0))
 - (void)render {
     if (!self.layer) return;
     NSArray<NSArray<NSString *> *> *all = self.metrics ?: @[];
-    const NSUInteger columns = 4;
-    const NSUInteger rows = 3;
-    const NSUInteger metricsPerPage = columns * rows;
+    // Keep pagination independent of the adaptive grid. Use the same layout
+    // on every page so that the last (possibly partial) page does not jump.
+    const NSUInteger metricsPerPage = 12;
+    const NSUInteger tileCount = MIN(all.count, metricsPerPage);
+    const NSUInteger columns = tileCount <= 1 ? 1 : tileCount <= 4 ? 2 : tileCount <= 6 ? 3 : 4;
+    const NSUInteger rows = MAX((NSUInteger)1, (tileCount + columns - 1) / columns);
     NSUInteger pages = MAX((NSUInteger)1, (all.count + metricsPerPage - 1) / metricsPerPage);
     NSUInteger page = ((NSUInteger)(NSDate.date.timeIntervalSince1970 / 6)) % pages;
     NSUInteger offset = MIN(page * metricsPerPage, all.count);
@@ -145,19 +148,38 @@ API_AVAILABLE(ios(15.0))
     CGContextTranslateCTM(ctx, 0, 270); CGContextScaleCTM(ctx, 1, -1);
     UIGraphicsPushContext(ctx);
     [[UIColor colorWithWhite:0.06 alpha:1] setFill]; UIRectFill(CGRectMake(0, 0, 480, 270));
-    UIFont *labelFont = [UIFont systemFontOfSize:17 weight:UIFontWeightMedium];
-    UIFont *valueFont = [UIFont monospacedDigitSystemFontOfSize:31 weight:UIFontWeightBold];
-    // Twelve metrics: 4 columns and 3 rows. Reserve a separate footer for the page number.
-    const CGFloat cellWidth = 480.0 / columns;
+    // Fit the selected metrics into the full 16:9 source frame. AVKit
+    // scales this frame to the actual PiP window; its minimum size is OS-owned.
+    const CGFloat frameWidth = 480.0;
+    const CGFloat frameHeight = 270.0;
+    const CGFloat topPadding = 8.0;
+    const CGFloat bottomPadding = 8.0;
+    const CGFloat footerHeight = pages > 1 ? 22.0 : 0.0;
+    const CGFloat cellWidth = frameWidth / columns;
+    const CGFloat cellHeight = (frameHeight - topPadding - bottomPadding - footerHeight) / rows;
     const CGFloat horizontalPadding = 3.0;
     const CGFloat textWidth = cellWidth - 2 * horizontalPadding;
+    const CGFloat labelHeight = cellHeight * 0.29;
+    const CGFloat valueHeight = cellHeight * 0.60;
+    const CGFloat gap = cellHeight * 0.03;
+    const CGFloat verticalPadding = (cellHeight - labelHeight - valueHeight - gap) / 2.0;
+
+    // Base sizes depend only on the layout, not the current metric values.
+    // The existing single-line fitting helper still shrinks unusually long text.
+    const CGFloat labelSize = MIN(labelHeight * 0.75, textWidth * 0.30);
+    const CGFloat valueSize = MIN(valueHeight * 0.70, textWidth * 0.55);
+    UIFont *labelFont = [UIFont systemFontOfSize:labelSize weight:UIFontWeightMedium];
+    UIFont *valueFont = [UIFont monospacedDigitSystemFontOfSize:valueSize weight:UIFontWeightBold];
     for (NSUInteger i = 0; i < shown.count; ++i) {
-        CGFloat x = (i % columns) * cellWidth, y = 9 + (i / columns) * 80;
-        QZDrawFittedText(shown[i][0], CGRectMake(x + horizontalPadding, y, textWidth, 22), labelFont, UIColor.lightGrayColor);
-        QZDrawFittedText(shown[i][1], CGRectMake(x + horizontalPadding, y + 23, textWidth, 45), valueFont, UIColor.whiteColor);
+        CGFloat x = (i % columns) * cellWidth + horizontalPadding;
+        CGFloat y = topPadding + (i / columns) * cellHeight + verticalPadding;
+        QZDrawFittedText(shown[i][0], CGRectMake(x, y, textWidth, labelHeight), labelFont, UIColor.lightGrayColor);
+        QZDrawFittedText(shown[i][1], CGRectMake(x, y + labelHeight + gap, textWidth, valueHeight), valueFont, UIColor.whiteColor);
     }
-    if (shown.count == 0) QZDrawFittedText(self.emptyLabel ?: @"", CGRectMake(10, 110, 460, 30), labelFont, UIColor.lightGrayColor);
-    if (pages > 1) QZDrawFittedText([NSString stringWithFormat:@"%lu / %lu", (unsigned long)page + 1, (unsigned long)pages], CGRectMake(10, 250, 460, 17), labelFont, UIColor.lightGrayColor);
+    // Keep the empty state and page indicator at their original nominal size.
+    UIFont *smallFont = [UIFont systemFontOfSize:17 weight:UIFontWeightMedium];
+    if (shown.count == 0) QZDrawFittedText(self.emptyLabel ?: @"", CGRectMake(10, 110, 460, 30), smallFont, UIColor.lightGrayColor);
+    if (pages > 1) QZDrawFittedText([NSString stringWithFormat:@"%lu / %lu", (unsigned long)page + 1, (unsigned long)pages], CGRectMake(10, 250, 460, 17), smallFont, UIColor.lightGrayColor);
     UIGraphicsPopContext(); CGContextRelease(ctx);
     CVPixelBufferUnlockBaseAddress(pixel, 0);
     CMVideoFormatDescriptionRef format = NULL; CMSampleBufferRef sample = NULL;
