@@ -316,3 +316,83 @@ TEST(WorkoutImport, FitFileDispatch) {
     ASSERT_EQ(rows.size(), 1);
     EXPECT_EQ(rows.first().duration, QTime(0, 1, 0));
 }
+
+
+TEST(WorkoutImport, FitFileForgeNorwegianFourByFourOriginal) {
+    // Byte-for-byte Norwegian_4_4.fit supplied by the maintainer, not re-encoded
+    // by the SDK. Source: https://www.fitfileforge.com/workouts/library/norwegian-4x4
+    // Base64 keeps the binary fixture self-contained in the existing test suite.
+    const QByteArray bytes = QByteArray::fromBase64(
+        "DgLeUlICAAAuRklUG+dAAAAAAAQAAQIBAoQCAoQEBIYABf8AAQB3v2lFQQAADAABAAECAQFCAAAaAAQE"
+        "AQIIEQcGAoQRogcCAU5vcndlZ2lhbiA0IMOXIDQABQA0IMOXIDQgbWluIGF0IDkw4oCTOTUlIG1heCBI"
+        "UiwgMyBtaW4gZWFzeSBqb2cgwrcgSW5zcGlyZWQgYnkgSmFuIEhlbGdlcnVkLiDCtyBGaXQgRmlsZSBG"
+        "b3JnZSBXb3Jrb3V0IExpYnJhcnk6IHd3dy5maXRmaWxlZm9yZ2UuY29tL3dvcmtvdXRzL2xpYnJhcnkv"
+        "bm9yd2VnaWFuLTR4NABDAAAbAAj+AoQABQcHAQIBAQICBIYDAQIEBIYIBQcDAABFYXN5AAIAoLsNAAIA"
+        "AAAARWFzeQBEAAAbAAr+AoQAFQcHAQIBAQICBIYDAQIEBIYFBIYGBIYIFQcEAQBBYm91dCAzS+KAkzVL"
+        "IGVmZm9ydAAFAICpAwABAAAAAFoAAABfAAAAQWJvdXQgM0vigJM1SyBlZmZvcnQARQAAGwAI/gKEADEH"
+        "BwECAQECAgSGAwECBASGCDEHBQIARWFzeSBqb2c7IGFib3V0IDcwJSBvZiBtYXggaGVhcnQgcmF0ZSBh"
+        "cyBhIGd1aWRlAAQAIL8CAAIAAAAARWFzeSBqb2c7IGFib3V0IDcwJSBvZiBtYXggaGVhcnQgcmF0ZSBh"
+        "cyBhIGd1aWRlAEYAABsABf4ChAcBAgEBAgIEhgQEhgYDAAEGAQAAAAQAAAADBABFYXN5AAMAwCcJAAIA"
+        "AAAARWFzeQChTA==");
+    ASSERT_EQ(bytes.size(), 610);
+
+    QString description;
+    // Fixed profile values keep this test independent of the user's settings.
+    const auto rows = workoutimport::loadFit(bytes, 250, 200, &description);
+    ASSERT_EQ(rows.size(), 10);
+    EXPECT_EQ(description, QString::fromUtf8("Norwegian 4 \xC3\x97 4"));
+
+    auto checkFreeStep = [](const trainrow &row, int seconds, const QString &message) {
+        EXPECT_EQ(row.duration, QTime(0, 0).addSecs(seconds));
+        EXPECT_EQ(row.HRmin, -1);
+        EXPECT_EQ(row.HRmax, -1);
+        EXPECT_EQ(row.zoneHR, -1);
+        EXPECT_EQ(row.power, -1);
+        EXPECT_EQ(row.speed, -1);
+        EXPECT_FALSE(row.forcespeed);
+        EXPECT_FALSE(row.waitForLap);
+        ASSERT_EQ(row.textEvents.size(), 1);
+        EXPECT_EQ(row.textEvents.first().timeoffset, 0u);
+        EXPECT_EQ(row.textEvents.first().message, message);
+    };
+
+    checkFreeStep(rows.first(), 900, QStringLiteral("Easy"));
+    for (int i = 0; i < 4; ++i) {
+        SCOPED_TRACE(i);
+        const auto &hard = rows.at(1 + 2 * i);
+        EXPECT_EQ(hard.duration, QTime(0, 4));
+        EXPECT_EQ(hard.HRmin, 180);
+        EXPECT_EQ(hard.HRmax, 190);
+        EXPECT_EQ(hard.zoneHR, -1);
+        EXPECT_EQ(hard.power, -1);
+        EXPECT_EQ(hard.speed, -1);
+        EXPECT_FALSE(hard.waitForLap);
+        ASSERT_EQ(hard.textEvents.size(), 1);
+        EXPECT_EQ(hard.textEvents.first().timeoffset, 0u);
+        EXPECT_EQ(hard.textEvents.first().message, QString::fromUtf8("About 3K\xE2\x80\x93" "5K effort"));
+
+        // The 70% HR recovery guidance is text, not a FIT heart-rate target.
+        checkFreeStep(rows.at(2 + 2 * i), 180,
+                      QStringLiteral("Easy jog; about 70% of max heart rate as a guide"));
+    }
+    checkFreeStep(rows.last(), 600, QStringLiteral("Easy"));
+
+    int totalSeconds = 0;
+    for (const auto &row : rows)
+        totalSeconds += QTime(0, 0).secsTo(row.duration);
+    EXPECT_EQ(totalSeconds, 53 * 60);
+
+    // Verify the same original bytes also work through the file-based dispatcher.
+    QTemporaryFile file(QDir::tempPath() + QStringLiteral("/Norwegian_4_4-XXXXXX.fit"));
+    ASSERT_TRUE(file.open());
+    ASSERT_EQ(file.write(bytes), bytes.size());
+    ASSERT_TRUE(file.flush());
+    file.close();
+    EXPECT_TRUE(workoutimport::isSupportedFile(file.fileName(), QStringLiteral("FIT")));
+    QString fileDescription;
+    const auto imported = workoutimport::load(file.fileName(), QStringLiteral("FIT"), &fileDescription);
+    ASSERT_EQ(imported.size(), rows.size());
+    EXPECT_EQ(fileDescription, description);
+    for (int i = 0; i < rows.size(); ++i)
+        EXPECT_EQ(imported.at(i).duration, rows.at(i).duration);
+}
