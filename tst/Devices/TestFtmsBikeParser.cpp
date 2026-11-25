@@ -262,6 +262,16 @@ TEST(FtmsBikeParserTest, PhysicalResistanceGradeChangesAreRelativeToManualPositi
     EXPECT_EQ(32, ftmsbike::relativeResistanceTarget(31, 1, 20));
 }
 
+TEST(FtmsBikeParserTest, PhysicalResistanceShiftReanchorsToNativeWithoutReplayingIt) {
+    // A target of 5 may settle at native 6; the next real 6->7 shift must
+    // remain level 7, not be overwritten with desired=6.
+    EXPECT_EQ(7, ftmsbike::reanchorResistanceTarget(7, 5, 5));
+    // Keep the remaining 12-level gradient ramp while accepting a native shift.
+    EXPECT_EQ(26, ftmsbike::reanchorResistanceTarget(14, 24, 12));
+    EXPECT_EQ(14, ftmsbike::reanchorResistanceTarget(14, -1, -1));
+    EXPECT_EQ(32, ftmsbike::reanchorResistanceTarget(32, 31, 11));
+}
+
 TEST(FtmsBikeParserTest, PhysicalResistanceGradientRampIsBoundedInBothDirections) {
     EXPECT_EQ(3, ftmsbike::limitedResistanceTarget(1, 24, 2));
     EXPECT_EQ(5, ftmsbike::limitedResistanceTarget(3, 24, 2));
