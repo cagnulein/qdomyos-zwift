@@ -8873,6 +8873,14 @@ Default: A = -0.96, B = 1.33</source>
         <source>Use Console Gears</source>
         <translation>Використовувати передачі консолі</translation>
     </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Калорії бігової доріжки за моделлю ходьби/бігу</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Для бігових доріжок, консоль яких не передає калорії. Калорії розраховуються за швидкістю полотна, нахилом, а також вашою вагою, зростом, віком і статтю: нижче вашої швидкості переходу від ходьби до бігу (залежить від зросту) — за моделлю ходьби, вище — за моделлю бігу. Вимкніть, щоб натомість використовувати значення на основі потужності. Калорії консолі та «Розрахунок калорій за пульсом» (якщо увімкнено) і надалі мають пріоритет.</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

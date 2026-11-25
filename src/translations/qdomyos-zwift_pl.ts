@@ -8869,6 +8869,14 @@ Domyślnie: A = -0.96, B = 1.33</translation>
         <source>Use Console Gears</source>
         <translation>Używaj biegów konsoli</translation>
     </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Kalorie bieżni z modelu chodu/biegu</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Dla bieżni, których konsola nie podaje kalorii. Kalorie są liczone z prędkości taśmy, nachylenia oraz twojej wagi, wzrostu, wieku i płci: poniżej prędkości przejścia z chodu w bieg (zależnej od wzrostu) według modelu chodu, powyżej według modelu biegu. Wyłącz, aby zamiast tego używać wartości opartej na mocy. Kalorie z konsoli oraz Obliczaj kalorie na podstawie tętna (gdy włączone) nadal mają pierwszeństwo.</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

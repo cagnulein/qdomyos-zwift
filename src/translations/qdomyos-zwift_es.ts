@@ -8897,6 +8897,14 @@ Predeterminado: A = -0.96, B = 1.33</translation>
         <source>Use Console Gears</source>
         <translation>Usar marchas de la consola</translation>
     </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Calorías de la cinta con modelo de caminar/correr</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Para cintas cuya consola no informa de las calorías. Las calorías se calculan a partir de la velocidad de la cinta, la inclinación y tu peso, altura, edad y sexo: un modelo de caminar por debajo de tu velocidad de transición de caminar a correr (según tu altura) y un modelo de correr por encima. Desactívalo para usar en su lugar el valor basado en la potencia. Las calorías de la consola y Calcular calorías por frecuencia cardíaca (si está activado) siguen teniendo prioridad.</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

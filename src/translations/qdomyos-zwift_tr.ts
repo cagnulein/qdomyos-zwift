@@ -8869,6 +8869,14 @@ Varsayılan: A = -0.96, B = 1.33</translation>
         <source>Use Console Gears</source>
         <translation>Konsol viteslerini kullan</translation>
     </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Yürüme/koşu modeliyle koşu bandı kalorisi</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Konsolu kalori göndermeyen koşu bantları için. Kalori; bant hızı, eğim ve kilonuz, boyunuz, yaşınız ve cinsiyetinizden hesaplanır: boyunuza göre belirlenen yürümeden koşuya geçiş hızınızın altında yürüme modeli, üstünde koşu modeli kullanılır. Bunun yerine güce dayalı değeri kullanmak için kapatın. Konsolun gönderdiği kalori ve açıksa Kaloriyi nabıza göre hesapla yine önceliklidir.</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

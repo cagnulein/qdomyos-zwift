@@ -8845,6 +8845,14 @@ Standard: A = -0.96, B = 1.33</translation>
         <source>Use Console Gears</source>
         <translation>Bruk girene på konsollen</translation>
     </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Tredemøllekalorier fra gå-/løpemodell</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Tredemøller der konsollen ikke sender kalorier. Kaloriene beregnes ut fra båndets hastighet, stigning og din vekt, høyde, alder og kjønn: en gåmodell under din overgangshastighet fra gange til løp (bestemt av høyden din) og en løpemodell over den. Slå av for å bruke den effektbaserte verdien i stedet. Kalorier fra en konsoll og Beregn kalorier ut fra puls (når den er på) har fortsatt forrang.</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>
