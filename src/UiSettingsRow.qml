@@ -9,7 +9,8 @@ import QtQml 2.15
 // (UiComboBox Layout.minimumWidth), and when the label then has less room than its longest word,
 // or the value of the list is wider than half the window, the row is stacked - the label across
 // the row, the list and the rest one line lower, the list across the free width
-// (UiComboBox Layout.fillWidth). The label spans
+// (UiComboBox Layout.fillWidth). A field for a long text (UiTextField.wideText: an e-mail, a
+// password, an address) is always stacked, across the free width as well. The label spans
 // the row with "Layout.columnSpan: parent.stackedRow ? parent.columns : 1".
 // Items with visible: false take no cell (Qt 5.15.0 QQuickLayout::shouldIgnoreItem,
 // qquicklayout.cpp:771-793; QQuickGridLayout::insertLayoutItems, qquicklinearlayout.cpp:675).
@@ -137,12 +138,20 @@ GridLayout {
                 return true
         return false
     }
+    // a field for a long text (UiTextField.wideText: an e-mail, a login, a password, an address) -
+    // always under the label, across the row
+    readonly property bool wideField: {
+        for (var i = 0; i < others.length; i++)
+            if (others[i].wideText === true)
+                return true
+        return false
+    }
     // the width the row gets: the one of its column (its own follows the stacking) less its side
     // margins, when the row has them (Layout.left/rightMargin; the rows of a card have 0 - the column
     // is already the inside of the card)
     readonly property real roomWidth: (parent ? parent.width : width) - Layout.leftMargin - Layout.rightMargin
 
     readonly property bool stackedRow: window.ui.modern && label !== null && others.length > 0
-                                       && (wordWidth + othersWidth > roomWidth || listCut)
+                                       && (wordWidth + othersWidth > roomWidth || listCut || wideField)
     columns: Math.max(1, stackedRow ? others.length : others.length + (label ? 1 : 0))
 }

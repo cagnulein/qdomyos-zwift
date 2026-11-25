@@ -13,6 +13,8 @@ To simulate a gradual incline change, split the ramp into consecutive short rows
 <row duration="00:00:30" speed="8.0" inclination="4" forcespeed="1" zonehr="0"/>
 ```
 
+**Important:** Before running fixed-speed incline changes, enable **Settings > Training Program Options > PID Ignore Inclination** and fully restart QZ. With `zonehr="0"`, the current incline compensation can otherwise change the programmed speed unexpectedly (see [#5520](https://github.com/cagnulein/qdomyos-zwift/issues/5520)). Test at a safe low speed with the safety stop accessible.
+
 Use as many steps as needed for the smoothness you want and for what your treadmill can safely accept. This stepped-incline workaround, as well as normal `speedfrom` / `speedto` ramps, has been confirmed working in a real QZ training program.
 
 For the full XML attribute reference and speed-ramp behavior, see [`train-programs-examples/README.md`](../../train-programs-examples/README.md).
@@ -21,15 +23,17 @@ For the full XML attribute reference and speed-ramp behavior, see [`train-progra
 
 For QZ's native XML training format, the workout must use a top-level `<rows>` element and each normal workout step must be a `<row>` element. Do not use a generic `<workout>` root or `<segment>` elements.
 
-A minimal valid structure is:
+A minimal valid structure for a speed/incline-only workout, with HR zone and HR min/max control already disabled, is:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <rows>
-    <row duration="00:05:00" speed="5.0" inclination="1" forcespeed="1" zonehr="0"/>
-    <row duration="00:10:00" speed="7.0" inclination="2" forcespeed="1" zonehr="0"/>
+    <row duration="00:05:00" speed="5.0" inclination="1" forcespeed="1"/>
+    <row duration="00:10:00" speed="7.0" inclination="2" forcespeed="1"/>
 </rows>
 ```
+
+The built-in Workout Editor also omits `zonehr` unless an HR Zone is set. In mixed HR/fixed-speed workouts, explicitly set `zonehr="0"` (HR Zone 0 in Advanced options) to disable a preceding HR zone. Follow the incline-compensation precaution above when changing incline.
 
 If the file is accepted but the treadmill only starts at its minimum speed or the programmed steps do not execute, check these element names before troubleshooting the treadmill connection itself.
 

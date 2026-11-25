@@ -5301,6 +5301,18 @@ Povolit QZ tuto hodnotu měnit?
         <translation>Obnovit</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>Obnovit sekci?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Nastavení v sekci „%2“ (%1) se vrátí na výchozí hodnoty.</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Obnovit sekci</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Zvolte „Auto“ pro jazyk zařízení, nebo vyberte konkrétní jazyk QZ.</translation>
     </message>
@@ -6514,8 +6526,8 @@ Povolit QZ tuto hodnotu měnit?
         <translation>Bluetooth snímač Garmin</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Zapněte, pokud chcete posílat údaje z Macu do zařízení Garmin. Jinak ponechte vypnuté.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Hodinky Garmin i jiné sportovní hodinky mohou používat QZ jako snímač Bluetooth: krokoměr s běžeckým pásem, snímač výkonu s kolem (na Androidu zapněte také „Snímač výkonu kola“). Hodinky musí být spárované s telefonem nebo tabletem, na kterém běží QZ: pokud QZ nenajdou, jednou je spárujte, pak přidejte snímač v hodinkách a potvrďte žádost o spárování. Pokud je na stejném telefonu Garmin Connect propojený s hodinkami, vynuceně ho zastavte dvakrát až třikrát po sobě, zatímco se hodinky připojují; jednodušší je samostatný telefon nebo tablet bez Garmin Connect. Dokud QZ funguje jako snímač pro hodinky, Zwift přes Bluetooth ho vidí jen jako krokoměr nebo snímač výkonu, ne jako trenažér, který může ovládat.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -8671,6 +8683,75 @@ Výchozí: A = -0.96, B = 1.33</translation>
     <message>
         <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
         <translation>Experimentální: QZ postupně upravuje rychlost běžeckého pásu, kterou řídí, podle údajů z Runn/Stryd, pokud ovladač pásu poskytuje vlastní měření rychlosti. Vyžaduje nastavení „Rychlost ze snímače výkonu“. Výchozí: vypnuto.</translation>
+    </message>
+    <message>
+        <source>Modern interface</source>
+        <translation>Moderní rozhraní</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Nový vzhled hlavní obrazovky, postranní nabídky, nastavení a průvodce. Vypnutím se vrátí klasický vzhled.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Vzhled</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Podle telefonu</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Tmavý</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Světlý</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Motiv</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafit</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Černá / bílá</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Půlnoční modř</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Barva zvýraznění</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Fialová</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Modrá</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Modrozelená</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Zelená</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Oranžová</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Růžová</translation>
     </message>
     <message>
         <source>Tile size:</source>

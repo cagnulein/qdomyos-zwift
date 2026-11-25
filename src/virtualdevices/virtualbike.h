@@ -117,6 +117,7 @@ class virtualbike : public virtualdevice {
     void echelonWriteResistance();
     void echelonWriteStatus();
     bool isEchelonVirtualEnabled() const;
+    bool garminPowerMeter() const;
     void attachDirconManager(DirconManager *manager);
 
     void writeCharacteristic(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
@@ -144,7 +145,6 @@ class virtualbike : public virtualdevice {
        int bytesRead;
     };
     VarintResult decodeVarint(const QByteArray& bytes, int startIndex);
-    qint32 decodeSInt(const QByteArray& bytes);
     
   signals:
     void changeInclination(double grade, double percentage);

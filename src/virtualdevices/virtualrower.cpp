@@ -440,6 +440,9 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         rowerTimer.start(1s);
 
     //! [Provide Heartbeat]
+    QObject::connect(leController, &QLowEnergyController::connected, this, [this]() {
+        ftmsDistance = FtmsDistance{};
+    });
     QObject::connect(leController, &QLowEnergyController::disconnected, this, &virtualrower::reconnect);
     QObject::connect(
         leController,
@@ -766,6 +769,25 @@ void virtualrower::reconnect() {
 
 }
 
+QByteArray virtualrower::FtmsDistance::field(bluetoothdevice &device) {
+    const double rawKm = qMax(0.0, device.odometerFromStartup());
+    if (!initialized) {
+        // Preserve the workout distance when a client first connects.
+        totalKm = qMax(0.0, device.odometer());
+        initialized = true;
+    } else {
+        // A reset of the hardware counter starts a new baseline without subtracting distance.
+        totalKm += qMax(0.0, rawKm - lastRawKm);
+    }
+    lastRawKm = rawKm;
+    const uint32_t distance = static_cast<uint32_t>(totalKm * 1000.0);
+    QByteArray field;
+    field.append(static_cast<char>(distance & 0xFF));
+    field.append(static_cast<char>((distance >> 8) & 0xFF));
+    field.append(static_cast<char>((distance >> 16) & 0xFF));
+    return field;
+}
+
 void virtualrower::rowerProvider() {
 
     QSettings settings;
@@ -970,9 +992,7 @@ void virtualrower::rowerProvider() {
             value.append((char)((uint16_t)(strokeCount & 0xFF)));        // Stroke Count
             value.append((char)(((uint16_t)(strokeCount >> 8) & 0xFF))); // Stroke Count
 
-            value.append((char)(((uint16_t)(Rower->odometer() * 1000.0)) & 0xFF));       // Distance
-            value.append((char)(((uint16_t)(Rower->odometer() * 1000.0) >> 8) & 0xFF));  // Distance
-            value.append((char)(((uint16_t)(Rower->odometer() * 1000.0) >> 16) & 0xFF)); // Distance
+            value.append(ftmsDistance.field(*Rower));
 
             value.append((char)((uint16_t)(paceSecs & 0xFF)));      // pace
             value.append((char)(((uint16_t)(paceSecs >> 8) & 0xFF))); // pace

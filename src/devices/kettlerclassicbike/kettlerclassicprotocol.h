@@ -48,6 +48,23 @@ private:
     quint16 completedWatts = 0;
 };
 
+// The Coach S reports completed strokes only when QZ polls it (about every
+// 500 ms). Instantaneous intervals oscillate between 2.0 and 2.5 seconds
+// even with a constant rowing rhythm. Average elapsed time over the last
+// three *completed stroke intervals*, publishing from the first valid
+// interval (second completed stroke), never across an idle pause.
+class CoachSCadenceSmoother {
+public:
+    void reset();
+    double completedStroke(quint16 strokeCounter, qint64 nowMs, bool previousStrokeActive);
+private:
+    struct StrokeSample {
+        quint16 counter;
+        qint64 timestampMs;
+    };
+    QVector<StrokeSample> samples;
+};
+
 // Concept2-equivalent pace/distance for Coach S when speed_power_based is enabled.
 // Distance is committed at completed-stroke boundaries, never on flywheel coast.
 // The optional initial distance allows a seamless settings-mode transition.

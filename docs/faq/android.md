@@ -77,3 +77,9 @@ In a confirmed Android 9 Echelon-console A/B test, the physical Bluetooth link d
 If QZ settings switches (for example, switches in the Garmin settings) appear mirrored or do not respond to taps while Android is using a right-to-left (RTL) language, temporarily switch the **Android device language to English**, then reopen QZ and try the switches again. Tap the switch itself rather than the surrounding settings row.
 
 A user confirmed that the switches became usable after changing the Android system language from an RTL language to English. This is a **temporary workaround**, not a confirmed fix for QZ's RTL layout; switch back to your preferred language after configuring QZ and check whether the setting remains effective. If the issue recurs, report the QZ version, Android version, language and affected switch so the RTL behavior can be corrected.
+
+## Workout History stays blank after switching between a nightly APK and the Play Store app. What can I try?
+
+If **Workout History** no longer loads after uninstalling a nightly/test build and installing the Google Play version, first **back up the QZ folder and any workouts or settings you want to retain** to another location. Then close QZ, remove the old **QZ folder** from the phone's file storage, and reopen QZ to let it recreate its local data. Deleting this folder may permanently remove locally stored workout files, settings, or history, so do not do it without a backup.
+
+In a confirmed Android support case, clearing the old QZ folder restored the Workout History screen after a switch from a nightly build to the Play Store release. This is a workaround for that particular stale-data situation, not a general recommendation to delete QZ data for every history problem.

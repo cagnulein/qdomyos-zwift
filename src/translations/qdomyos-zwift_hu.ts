@@ -5277,6 +5277,18 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
         <translation>Visszaállítás</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>Visszaállítja a szakaszt?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>%1 beállítás visszaáll az alapértelmezett értékére itt: „%2”.</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Szakasz visszaállítása</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Az Automatikus az eszköz nyelvét követi, de konkrét nyelvet is választhat a QZ-hez.</translation>
     </message>
@@ -6474,8 +6486,8 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
         <translation>Garmin Bluetooth-érzékelő</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Ha Mac gépről szeretne mérőszámokat küldeni a Garmin-eszközére, kapcsolja be. Egyébként hagyja kikapcsolva.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>A Garmin vagy más sportóra Bluetooth-érzékelőként használhatja a QZ-t: futópaddal lépésérzékelőként, kerékpárral teljesítménymérőként (Androidon kapcsolja be a „Kerékpár-teljesítményérzékelő” beállítást is). Az órát Bluetooth-on párosítani kell azzal a telefonnal vagy táblagéppel, amelyen a QZ fut: ha nem találja a QZ-t, párosítsa őket egyszer, majd adja hozzá az érzékelőt az órán, és fogadja el a párosítási kérést. Ha ugyanazon a telefonon a Garmin Connect össze van kapcsolva az órával, kényszerítse leállásra kétszer-háromszor egymás után, amíg az óra csatlakozik; egyszerűbb egy külön telefon vagy táblagép Garmin Connect nélkül. Amíg a QZ érzékelőként működik az órához, a Bluetooth-on csatlakozó Zwift csak lépésérzékelőként vagy teljesítménymérőként látja, nem vezérelhető gépként.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -8623,6 +8635,75 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     <message>
         <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
         <translation>Kísérleti: fokozatosan korrigálja a QZ által vezérelt futópad sebességét a Runn/Stryd visszajelzése alapján, ha az illesztőprogram független mérést ad a gép sebességéről. Szükséges hozzá a „Sebesség a teljesítményérzékelőtől” beállítás. Alapértelmezett: ki.</translation>
+    </message>
+    <message>
+        <source>Modern interface</source>
+        <translation>Modern felület</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>A főképernyő, az oldalsó menü, a beállítások és a varázsló új megjelenése. Kapcsolja ki, ha vissza szeretné kapni a klasszikus megjelenést.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Megjelenés</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Mint a telefonon</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Sötét</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Világos</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Téma</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafit</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Fekete / fehér</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Éjkék</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Kiemelőszín</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Ibolya</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Kék</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Kékeszöld</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Zöld</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Narancs</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Rózsaszín</translation>
     </message>
     <message>
         <source>Tile size:</source>

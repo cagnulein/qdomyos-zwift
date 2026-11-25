@@ -13,6 +13,8 @@ import QtQuick.Controls 2.15
 UiTextField {
     id: field
 
+    // a free text: under the label in a settings row of the modern look (UiTextField.wideText)
+    wideText: true
     property var savedText: undefined
     readonly property bool dirty: savedText !== undefined
                                   && (text !== String(savedText) || preeditText !== "")

@@ -5277,6 +5277,18 @@ Skal QZ få endre denne verdien?
         <translation>Tilbakestill</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>Tilbakestille delen?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Innstillinger i «%2» som går tilbake til standardverdiene: %1</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Tilbakestill delen</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Velg Automatisk for å følge språket på enheten, eller velg et bestemt språk for QZ.</translation>
     </message>
@@ -6474,8 +6486,8 @@ Skal QZ få endre denne verdien?
         <translation>Garmin Bluetooth-sensor</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Slå på dette hvis du vil sende måleverdier til Garmin-enheten fra Mac. Ellers lar du det være av.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Lar Garmin- eller en annen sportsklokke bruke QZ som Bluetooth-sensor: en fotpod med en tredemølle, en effektmåler med en sykkel (på Android må du også slå på «Effektsensor for sykkel»). Klokken må være paret via Bluetooth med telefonen eller nettbrettet som kjører QZ: finner den ikke QZ, par dem én gang, legg deretter til sensoren på klokken og godta paringsforespørselen. Hvis Garmin Connect på samme telefon er koblet til klokken, tving det til å stoppe to eller tre ganger på rad mens klokken kobler til; en egen telefon eller et nettbrett uten Garmin Connect er enklere. Mens QZ fungerer som sensor for klokken, ser Zwift via Bluetooth den bare som en fotpod eller effektmåler, ikke som en maskin den kan styre.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -8623,6 +8635,75 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
         <translation>Eksperimentelt: korrigerer gradvis farten QZ setter på tredemøllen, ut fra data fra Runn/Stryd, når driveren gir egne fartsmålinger fra maskinen. Krever «Bruk fart fra effektsensoren». Standard: av.</translation>
+    </message>
+    <message>
+        <source>Modern interface</source>
+        <translation>Moderne grensesnitt</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Nytt utseende på hovedskjermen, sidemenyen, innstillingene og veiviseren. Slå av for å få tilbake det klassiske utseendet.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Utseende</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Som på telefonen</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Mørkt</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Lyst</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Tema</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafitt</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Svart / hvitt</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Midnattsblå</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Aksentfarge</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Fiolett</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Blå</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Blågrønn</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Grønn</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Oransje</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Rosa</translation>
     </message>
     <message>
         <source>Tile size:</source>

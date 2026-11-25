@@ -5301,6 +5301,18 @@ Mag QZ deze waarde wijzigen?
         <translation>Resetten</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>Sectie resetten?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Instellingen in ‘%2’ die worden teruggezet naar hun standaardwaarden: %1</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Sectie resetten</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Kies ‘Automatisch’ om de taal van je apparaat te volgen, of kies een specifieke taal voor QZ.</translation>
     </message>
@@ -6514,8 +6526,8 @@ Mag QZ deze waarde wijzigen?
         <translation>Garmin-Bluetooth-sensor</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Schakel dit in als je gegevens van je Mac naar je Garmin-apparaat wilt sturen. Laat het anders uitgeschakeld.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Hiermee kan je Garmin of een ander sporthorloge QZ als Bluetooth-sensor gebruiken: een footpod met een loopband, een vermogensmeter met een fiets (zet op Android ook ‘Fietsvermogenssensor’ aan). Het horloge moet via Bluetooth gekoppeld zijn met de telefoon of tablet waarop QZ draait: vindt het QZ niet, koppel ze dan één keer, voeg daarna de sensor toe op het horloge en accepteer het koppelverzoek. Is Garmin Connect op dezelfde telefoon met het horloge verbonden, forceer dan twee of drie keer achter elkaar het stoppen ervan terwijl het horloge verbinding maakt; een aparte telefoon of tablet zonder Garmin Connect is makkelijker. Zolang QZ als sensor voor het horloge werkt, ziet Zwift via Bluetooth het alleen als footpod of vermogensmeter, niet als apparaat dat het kan besturen.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -8671,6 +8683,75 @@ Standaard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
         <translation>Experimenteel: corrigeert de door QZ ingestelde loopbandsnelheid geleidelijk op basis van Runn/Stryd, als het stuurprogramma eigen snelheidsmetingen van het apparaat levert. Vereist ‘Snelheid van de vermogenssensor gebruiken’. Standaard: uit.</translation>
+    </message>
+    <message>
+        <source>Modern interface</source>
+        <translation>Moderne interface</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Nieuw uiterlijk van het hoofdscherm, het zijmenu, de instellingen en de wizard. Schakel dit uit om het klassieke uiterlijk terug te krijgen.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Weergave</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Zoals op de telefoon</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Donker</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Licht</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Thema</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafiet</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Zwart / wit</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Middernachtblauw</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Accentkleur</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Violet</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Blauw</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Blauwgroen</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Groen</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Oranje</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Roze</translation>
     </message>
     <message>
         <source>Tile size:</source>

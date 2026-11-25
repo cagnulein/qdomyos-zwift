@@ -6526,6 +6526,18 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>km/h</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>¿Restablecer sección?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Ajustes de “%2” que vuelven a sus valores predeterminados: %1</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Restablecer sección</translation>
+    </message>
+    <message>
         <source>Minimum speed for Peloton walking sessions. Set to 0 to disable. Applied to all speed targets in walking workouts.</source>
         <translation>Velocidad mínima para sesiones de caminata de Peloton. Establecer en 0 para deshabilitar. Se aplica a todos los objetivos de velocidad en entrenamientos de caminata.</translation>
     </message>
@@ -6718,8 +6730,8 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Sensor Bluetooth de Garmin</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Si quieres enviar métricas a tu dispositivo Garmin desde tu Mac, activa esto. De lo contrario, déjalo desactivado.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Permite que tu reloj Garmin u otro reloj deportivo use QZ como sensor Bluetooth: un podómetro con una cinta de correr, un medidor de potencia con una bicicleta (en Android, activa también «Sensor de potencia de bicicleta»). El reloj necesita estar vinculado por Bluetooth con el teléfono o la tableta donde se ejecuta QZ: si no encuentra QZ, vincúlalos una vez, luego añade el sensor en el reloj y acepta la solicitud de vinculación. Si Garmin Connect está conectado al reloj en el mismo teléfono, fuerza su detención dos o tres veces seguidas mientras el reloj se conecta; es más fácil un teléfono o tableta aparte sin Garmin Connect. Mientras QZ funciona como sensor para el reloj, Zwift por Bluetooth lo ve solo como podómetro o medidor de potencia, no como una máquina que pueda controlar.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -7287,6 +7299,75 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>Posición de este gráfico en el historial de entrenamientos. El orden se cambia con los botones de subir y bajar en Opciones generales de la interfaz.</translation>
+    </message>
+    <message>
+        <source>Modern interface</source>
+        <translation>Interfaz moderna</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Nuevo aspecto de la pantalla principal, el menú lateral, la configuración y el asistente. Desactívalo para volver al aspecto clásico.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Apariencia</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Como en el teléfono</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Oscuro</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Claro</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Tema</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafito</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Negro / blanco</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Azul medianoche</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Color de acento</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Violeta</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Azul</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Verde azulado</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Verde</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Naranja</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Rosa</translation>
     </message>
     <message>
         <source>Tile size:</source>

@@ -6554,6 +6554,18 @@ QZ がこの値を変更することを許可しますか？
         <translation>km/h</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>セクションをリセットしますか？</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>「%2」の%1個の設定が既定値に戻ります。</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>セクションをリセット</translation>
+    </message>
+    <message>
         <source>Minimum speed for Peloton walking sessions. Set to 0 to disable. Applied to all speed targets in walking workouts.</source>
         <translation>Pelotonウォーキングセッションの最低速度です。0に設定すると無効になります。ウォーキングワークアウトのすべての目標速度に適用されます。</translation>
     </message>
@@ -6746,8 +6758,8 @@ QZ がこの値を変更することを許可しますか？
         <translation>Garmin Bluetoothセンサー</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>MacからGarminデバイスに指標データを送信したい場合は、これを有効にします。それ以外の場合は無効のままにしてください。</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Garminなどのスポーツウォッチが、QZをBluetoothセンサーとして使えるようになります。トレッドミルではフットポッド、バイクではパワーメーターになります(Androidでは「バイクパワーセンサーとして接続」もオンにしてください)。ウォッチはQZを実行しているスマートフォンまたはタブレットとBluetoothでペアリングされている必要があります。QZが見つからない場合は一度ペアリングしてから、ウォッチでセンサーを追加し、ペアリングの要求を承認してください。同じスマートフォンでGarmin Connectがウォッチと連携している場合は、ウォッチが接続している間にGarmin Connectを2〜3回続けて強制停止してください。Garmin Connectのない別のスマートフォンやタブレットを使う方が簡単です。QZがウォッチ用のセンサーとして動作している間、Bluetooth接続のZwiftはQZをフットポッドまたはパワーメーターとしてのみ認識し、操作できるマシンとしては認識しません。</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -7315,6 +7327,75 @@ Please enter it below:</source>
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>ワークアウト履歴でのこのグラフの順番です。順番は「UI・画面表示設定」の上へ・下へボタンで変更します。</translation>
+    </message>
+    <message>
+        <source>Modern interface</source>
+        <translation>モダンインターフェース</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>メイン画面、サイドメニュー、設定、ウィザードの新しいデザインです。オフにすると従来のデザインに戻ります。</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>外観</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>端末の設定に合わせる</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>ダーク</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>ライト</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>テーマ</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>グラファイト</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>ブラック / ホワイト</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>ミッドナイトブルー</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>アクセントカラー</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>バイオレット</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>ブルー</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>ティール</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>グリーン</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>オレンジ</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>ピンク</translation>
     </message>
     <message>
         <source>Tile size:</source>
