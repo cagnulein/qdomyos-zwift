@@ -64,6 +64,8 @@ ColumnLayout {
         anchors.leftMargin: -column1.offScreen
         anchors.rightMargin: column1.offScreen
         visible: true
+        // Not on iOS: its web view (Qt 5.15.2) sends titleChanged only when a load ends. There the
+        // header stays and the toolbar arrow leaves the page; the chart folds by its own button
         onTitleChanged: column1.chartFullscreen = title.indexOf("#fullscreen") >= 0
         onLoadingChanged: {
             if (loadRequest.errorString) {
