@@ -90,6 +90,9 @@ class ftmsbike : public bike {
                                             qint64 millisecondsSinceControlCommand,
                                             const PhysicalResistanceGearLimits &limits, resistance_t *delta);
     static bool shouldReplayPhysicalGearChange(bool featureEnabled, bool physicalShiftPending);
+    static bool shouldUseRelativeResistanceControl(bool featureEnabled, bool resistanceLevelMode,
+                                                    bool autoResistanceEnabled, bool zwiftFtmsConnected,
+                                                    int requestPower);
     // Generic command history: an FTMS resistance notification may be a delayed
     // response to ANY recent target, not just the most recent one.
     struct PhysicalResistanceCommand {
