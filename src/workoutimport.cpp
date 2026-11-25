@@ -7,10 +7,7 @@
 #include <cmath>
 #include <sstream>
 #include <QDebug>
-#include <QDir>
 #include <QFile>
-#include <QTemporaryFile>
-#include <QXmlStreamReader>
 #include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -94,7 +91,8 @@ QList<trainrow> workoutimport::load(const QString &filename, const QString &exte
                                              QZSettings::default_heart_max_override_enable).toBool()
             ? settings.value(QZSettings::heart_max_override_value, QZSettings::default_heart_max_override_value).toDouble()
             : 220.0 - settings.value(QZSettings::age, QZSettings::default_age).toDouble();
-        return loadFit(content, ftp, maxHr, description, fitDeviceType);
+        const double runningFtp = settings.value(QZSettings::ftp_run, QZSettings::default_ftp_run).toDouble();
+        return loadFit(content, ftp, runningFtp, maxHr, description, fitDeviceType);
     }
     const bool courseFile = kind == QStringLiteral("MRC") || kind == QStringLiteral("ERG");
     const QList<trainrow> rows = courseFile ? loadErgMrc(content, kind == QStringLiteral("MRC"), ftp, description)
@@ -425,8 +423,8 @@ bool fitStepToRow(const fit::WorkoutStepMesg &step, double ftp, double maxHr, tr
 }
 } // namespace
 
-QList<trainrow> workoutimport::loadFit(const QByteArray &input, double ftp, double maxHr, QString *description,
-                                         BLUETOOTH_TYPE *fitDeviceType) {
+QList<trainrow> workoutimport::loadFit(const QByteArray &input, double ftp, double runningFtp, double maxHr,
+                                         QString *description, BLUETOOTH_TYPE *fitDeviceType) {
     if (fitDeviceType)
         *fitDeviceType = UNKNOWN;
     if (description)
@@ -462,6 +460,27 @@ QList<trainrow> workoutimport::loadFit(const QByteArray &input, double ftp, doub
          listener.workout.GetNumValidSteps() != listener.steps.size()))
         return {};
 
+    BLUETOOTH_TYPE sportDevice = UNKNOWN;
+    if (listener.workout.IsSportValid()) {
+        switch (listener.workout.GetSport()) {
+        case FIT_SPORT_RUNNING:
+        case FIT_SPORT_WALKING:
+            sportDevice = TREADMILL;
+            break;
+        case FIT_SPORT_CYCLING:
+            sportDevice = BIKE;
+            break;
+        case FIT_SPORT_ROWING:
+            sportDevice = ROWING;
+            break;
+        case FIT_SPORT_GENERIC:
+            break;
+        default:
+            return {}; // A known unsupported sport must not control unrelated equipment.
+        }
+    }
+    const double sportFtp = sportDevice == TREADMILL ? runningFtp : ftp;
+
     QList<trainrow> rows;
     QMap<int, int> rowOffsets;
     int expectedIndex = 0;
@@ -486,35 +505,33 @@ QList<trainrow> workoutimport::loadFit(const QByteArray &input, double ftp, doub
                 rows.append(block);
         } else {
             trainrow row;
-            if (rows.size() >= MaxFitRows || !fitStepToRow(step, ftp, maxHr, row))
+            if (rows.size() >= MaxFitRows || !fitStepToRow(step, sportFtp, maxHr, row))
                 return {};
+            QString message;
             if (step.IsWktStepNameValid()) {
                 const auto name = step.GetWktStepName();
+                message = QString::fromWCharArray(name.data(), int(name.size())).trimmed();
+            }
+            if (step.IsNotesValid()) {
+                const auto notes = step.GetNotes();
+                const QString note = QString::fromWCharArray(notes.data(), int(notes.size())).trimmed();
+                if (!note.isEmpty() && note != message) {
+                    if (!message.isEmpty())
+                        message += QLatin1Char('\n');
+                    message += note;
+                }
+            }
+            if (!message.isEmpty()) {
                 trainrow::TextEvent event;
                 event.timeoffset = 0;
-                event.message = QString::fromWCharArray(name.data(), int(name.size()));
-                if (!event.message.isEmpty())
-                    row.textEvents.append(event);
+                event.message = message;
+                row.textEvents.append(event);
             }
             rows.append(row);
         }
     }
-    if (fitDeviceType && listener.workout.IsSportValid()) {
-        switch (listener.workout.GetSport()) {
-        case FIT_SPORT_RUNNING:
-        case FIT_SPORT_WALKING:
-            *fitDeviceType = TREADMILL;
-            break;
-        case FIT_SPORT_CYCLING:
-            *fitDeviceType = BIKE;
-            break;
-        case FIT_SPORT_ROWING:
-            *fitDeviceType = ROWING;
-            break;
-        default:
-            break;
-        }
-    }
+    if (fitDeviceType)
+        *fitDeviceType = sportDevice;
     if (description && listener.workout.IsWktNameValid()) {
         const auto name = listener.workout.GetWktName();
         *description = QString::fromWCharArray(name.data(), int(name.size()));
@@ -522,56 +539,6 @@ QList<trainrow> workoutimport::loadFit(const QByteArray &input, double ftp, doub
     return rows;
 }
 
-QString workoutimport::saveFitAsXml(const QString &sourcePath, const QString &trainingDirectory,
-                                    const QList<trainrow> &rows, BLUETOOTH_TYPE deviceType) {
-    if (rows.isEmpty() || trainingDirectory.isEmpty() ||
-        QFileInfo(sourcePath).suffix().compare(QStringLiteral("fit"), Qt::CaseInsensitive) != 0)
-        return {};
-
-    const QDir dir(trainingDirectory);
-    if (!dir.exists() && !QDir().mkpath(dir.absolutePath()))
-        return {};
-
-    // Use the existing native serializer, including row text events, HR bounds and lap steps.
-    // Serialize to a temporary file first, and publish with QFile::copy (which never overwrites).
-    QTemporaryFile temporary(dir.filePath(QStringLiteral(".fit-import-XXXXXX")));
-    if (!temporary.open())
-        return {};
-    const QString temporaryPath = temporary.fileName();
-    temporary.close();
-    if (!trainprogram::saveXML(temporaryPath, rows, deviceType))
-        return {};
-    QFile generated(temporaryPath);
-    if (!generated.open(QIODevice::ReadOnly))
-        return {};
-    const QByteArray xml = generated.readAll();
-    generated.close();
-    QXmlStreamReader validation(xml);
-    while (!validation.atEnd())
-        validation.readNext();
-    if (xml.isEmpty() || validation.hasError())
-        return {};
-
-    QString name = QFileInfo(sourcePath).completeBaseName();
-    if (name.isEmpty() || name == QStringLiteral(".") || name == QStringLiteral(".."))
-        name = QStringLiteral("Imported_Workout");
-
-    for (int suffix = 1; suffix <= 10000; ++suffix) {
-        const QString candidate = dir.filePath(
-            (suffix == 1 ? name : name + QStringLiteral("_%1").arg(suffix)) + QStringLiteral(".xml"));
-        const QFileInfo info(candidate);
-        if (info.exists() || info.isSymLink()) {
-            QFile existing(candidate);
-            if (!info.isSymLink() && info.isFile() && info.size() == xml.size() &&
-                existing.open(QIODevice::ReadOnly) && existing.readAll() == xml)
-                return candidate; // Reopening the same FIT must not create duplicates.
-            continue;
-        }
-        if (QFile::copy(temporaryPath, candidate))
-            return candidate;
-        // A competing import may have created the name. Otherwise the destination is not writable.
-        if (!QFileInfo::exists(candidate))
-            return {};
-    }
-    return {};
+bool workoutimport::isFitDeviceCompatible(BLUETOOTH_TYPE workoutDevice, BLUETOOTH_TYPE connectedDevice) {
+    return workoutDevice == UNKNOWN || connectedDevice == UNKNOWN || workoutDevice == connectedDevice;
 }

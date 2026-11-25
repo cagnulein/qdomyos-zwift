@@ -9,9 +9,6 @@
 
 #include <QDir>
 #include <QTemporaryFile>
-#include <QTemporaryDir>
-#include <QFile>
-#include <QFileInfo>
 
 static const char *kMrcWorkout = "[COURSE HEADER]\r\n"
                                  "VERSION = 2\r\n"
@@ -202,14 +199,15 @@ TEST(WorkoutImport, OtherJsonIsNotAWorkout) {
 }
 
 namespace {
-QByteArray makeFitWorkout(const QList<fit::WorkoutStepMesg> &steps, FIT_FILE fileType = FIT_FILE_WORKOUT) {
+QByteArray makeFitWorkout(const QList<fit::WorkoutStepMesg> &steps, FIT_FILE fileType = FIT_FILE_WORKOUT,
+                          FIT_SPORT sport = FIT_SPORT_RUNNING) {
     fit::BufferEncode encode;
     encode.Open();
     fit::FileIdMesg id;
     id.SetType(fileType);
     encode.Write(id);
     fit::WorkoutMesg workout;
-    workout.SetSport(FIT_SPORT_RUNNING);
+    workout.SetSport(sport);
     workout.SetNumValidSteps(FIT_UINT16(steps.size()));
     encode.Write(workout);
     for (const auto &step : steps)
@@ -251,7 +249,7 @@ TEST(WorkoutImport, FitNorwegianFourByFourHeartRate) {
         fitRepeat(3, 1, 4),
         timedFitStep(4, 300, FIT_WKT_STEP_TARGET_OPEN)
     });
-    const auto rows = workoutimport::loadFit(bytes, 250, 200);
+    const auto rows = workoutimport::loadFit(bytes, 250, 250, 200);
     ASSERT_EQ(rows.size(), 10);
     EXPECT_EQ(rows.first().duration, QTime(0, 10, 0));
     for (int i = 0; i < 4; ++i) {
@@ -274,7 +272,7 @@ TEST(WorkoutImport, FitPowerSpeedCadenceAndAbsoluteHeartRate) {
         timedFitStep(2, 60, FIT_WKT_STEP_TARGET_SPEED, 2500, 3500),
         timedFitStep(3, 60, FIT_WKT_STEP_TARGET_CADENCE, 80, 100),
         timedFitStep(4, 60, FIT_WKT_STEP_TARGET_HEART_RATE, 250, 270)
-    }), 250, 200);
+    }), 250, 250, 200);
     ASSERT_EQ(rows.size(), 5);
     EXPECT_EQ(rows.at(0).power, 225);
     EXPECT_EQ(rows.at(1).power, 225);
@@ -291,7 +289,7 @@ TEST(WorkoutImport, FitDistanceAndLap) {
     distance.SetDurationDistance(1000);
     auto lap = timedFitStep(1, 60, FIT_WKT_STEP_TARGET_OPEN);
     lap.SetDurationType(FIT_WKT_STEP_DURATION_OPEN);
-    const auto rows = workoutimport::loadFit(makeFitWorkout({distance, lap}), 250, 200);
+    const auto rows = workoutimport::loadFit(makeFitWorkout({distance, lap}), 250, 250, 200);
     ASSERT_EQ(rows.size(), 2);
     EXPECT_DOUBLE_EQ(rows.first().distance, 1.0);
     EXPECT_TRUE(rows.last().waitForLap);
@@ -299,11 +297,11 @@ TEST(WorkoutImport, FitDistanceAndLap) {
 
 TEST(WorkoutImport, FitRejectsActivityTruncationAndInvalidRepeats) {
     const auto step = timedFitStep(0, 60, FIT_WKT_STEP_TARGET_OPEN);
-    EXPECT_TRUE(workoutimport::loadFit(makeFitWorkout({step}, FIT_FILE_ACTIVITY), 250, 200).isEmpty());
+    EXPECT_TRUE(workoutimport::loadFit(makeFitWorkout({step}, FIT_FILE_ACTIVITY), 250, 250, 200).isEmpty());
     const auto valid = makeFitWorkout({step});
-    EXPECT_TRUE(workoutimport::loadFit(valid.left(valid.size() - 1), 250, 200).isEmpty());
-    EXPECT_TRUE(workoutimport::loadFit(makeFitWorkout({step, fitRepeat(1, 1, 4)}), 250, 200).isEmpty());
-    EXPECT_TRUE(workoutimport::loadFit(makeFitWorkout({step, fitRepeat(1, 0, 10001)}), 250, 200).isEmpty());
+    EXPECT_TRUE(workoutimport::loadFit(valid.left(valid.size() - 1), 250, 250, 200).isEmpty());
+    EXPECT_TRUE(workoutimport::loadFit(makeFitWorkout({step, fitRepeat(1, 1, 4)}), 250, 250, 200).isEmpty());
+    EXPECT_TRUE(workoutimport::loadFit(makeFitWorkout({step, fitRepeat(1, 0, 10001)}), 250, 250, 200).isEmpty());
     EXPECT_TRUE(workoutimport::loadFit(makeFitWorkout({step, timedFitStep(1, 60, FIT_WKT_STEP_TARGET_GRADE)}),
                                        250, 200).isEmpty());
 }
@@ -342,7 +340,7 @@ TEST(WorkoutImport, FitFileForgeNorwegianFourByFourOriginal) {
     QString description;
     // Fixed profile values keep this test independent of the user's settings.
     BLUETOOTH_TYPE fitDeviceType = UNKNOWN;
-    const auto rows = workoutimport::loadFit(bytes, 250, 200, &description, &fitDeviceType);
+    const auto rows = workoutimport::loadFit(bytes, 250, 250, 200, &description, &fitDeviceType);
     ASSERT_EQ(rows.size(), 10);
     EXPECT_EQ(fitDeviceType, TREADMILL);
     EXPECT_EQ(description, QString::fromUtf8("Norwegian 4 \xC3\x97 4"));
@@ -387,31 +385,6 @@ TEST(WorkoutImport, FitFileForgeNorwegianFourByFourOriginal) {
         totalSeconds += QTime(0, 0).secsTo(row.duration);
     EXPECT_EQ(totalSeconds, 53 * 60);
 
-    // Persist the original fixture as XML exactly as the Open Train Program path does.
-    QTemporaryDir training;
-    ASSERT_TRUE(training.isValid());
-    const QString saved = workoutimport::saveFitAsXml(QStringLiteral("Norwegian_4_4.fit"),
-                                                       training.path(), rows, fitDeviceType);
-    ASSERT_EQ(saved, QDir(training.path()).filePath(QStringLiteral("Norwegian_4_4.xml")));
-    EXPECT_EQ(trainprogram::xmlDeviceType(saved, UNKNOWN), TREADMILL);
-    const auto reopened = trainprogram::loadXML(saved, TREADMILL);
-    ASSERT_EQ(reopened.size(), rows.size());
-    for (int i = 0; i < rows.size(); ++i) {
-        SCOPED_TRACE(i);
-        EXPECT_EQ(reopened.at(i).duration, rows.at(i).duration);
-        EXPECT_EQ(reopened.at(i).HRmin, rows.at(i).HRmin);
-        EXPECT_EQ(reopened.at(i).HRmax, rows.at(i).HRmax);
-        EXPECT_EQ(reopened.at(i).zoneHR, rows.at(i).zoneHR);
-        EXPECT_EQ(reopened.at(i).power, rows.at(i).power);
-        EXPECT_EQ(reopened.at(i).speed, rows.at(i).speed);
-        ASSERT_EQ(reopened.at(i).textEvents.size(), rows.at(i).textEvents.size());
-        EXPECT_EQ(reopened.at(i).textEvents.first().message, rows.at(i).textEvents.first().message);
-        EXPECT_EQ(reopened.at(i).textEvents.first().timeoffset, rows.at(i).textEvents.first().timeoffset);
-    }
-    EXPECT_EQ(workoutimport::saveFitAsXml(QStringLiteral("Norwegian_4_4.fit"),
-                                         training.path(), rows, fitDeviceType), saved);
-    EXPECT_EQ(QDir(training.path()).entryList(QStringList() << QStringLiteral("*.xml"), QDir::Files).size(), 1);
-
     // Verify the same original bytes also work through the file-based dispatcher.
     QTemporaryFile file(QDir::tempPath() + QStringLiteral("/Norwegian_4_4-XXXXXX.fit"));
     ASSERT_TRUE(file.open());
@@ -427,22 +400,57 @@ TEST(WorkoutImport, FitFileForgeNorwegianFourByFourOriginal) {
         EXPECT_EQ(imported.at(i).duration, rows.at(i).duration);
 }
 
-TEST(WorkoutImport, SaveFitXmlDoesNotOverwriteEditedWorkout) {
-    QTemporaryDir training;
-    ASSERT_TRUE(training.isValid());
-    const QString source = QStringLiteral("MyWorkout.fit");
-    trainrow row;
-    row.duration = QTime(0, 2);
-    row.power = 150;
-    QList<trainrow> rows{row};
-    const QString first = workoutimport::saveFitAsXml(source, training.path(), rows, BIKE);
-    ASSERT_FALSE(first.isEmpty());
-    rows[0].power = 200;
-    const QString second = workoutimport::saveFitAsXml(source, training.path(), rows, BIKE);
-    ASSERT_EQ(second, QDir(training.path()).filePath(QStringLiteral("MyWorkout_2.xml")));
-    const auto original = trainprogram::loadXML(first, BIKE);
-    ASSERT_EQ(original.size(), 1);
-    EXPECT_EQ(original.first().power, 150);
-    EXPECT_EQ(workoutimport::saveFitAsXml(source, training.path(), rows, BIKE), second);
-    EXPECT_TRUE(workoutimport::saveFitAsXml(source, training.path(), {}, BIKE).isEmpty());
+TEST(WorkoutImport, FitSelectsSportSpecificFtp) {
+    const QList<fit::WorkoutStepMesg> steps{
+        timedFitStep(0, 60, FIT_WKT_STEP_TARGET_POWER, 80, 100),
+        timedFitStep(1, 60, FIT_WKT_STEP_TARGET_POWER, 1200, 1250)
+    };
+    BLUETOOTH_TYPE type = UNKNOWN;
+    auto rows = workoutimport::loadFit(makeFitWorkout(steps, FIT_FILE_WORKOUT, FIT_SPORT_RUNNING),
+                                       200, 300, 190, nullptr, &type);
+    ASSERT_EQ(rows.size(), 2);
+    EXPECT_EQ(type, TREADMILL);
+    EXPECT_EQ(rows.at(0).power, 270);
+    EXPECT_EQ(rows.at(1).power, 225);
+    rows = workoutimport::loadFit(makeFitWorkout(steps, FIT_FILE_WORKOUT, FIT_SPORT_CYCLING),
+                                  200, 300, 190, nullptr, &type);
+    ASSERT_EQ(rows.size(), 2);
+    EXPECT_EQ(type, BIKE);
+    EXPECT_EQ(rows.at(0).power, 180);
+    EXPECT_EQ(rows.at(1).power, 225);
+}
+
+TEST(WorkoutImport, FitNotesAndNamesPreservedOncePerInterval) {
+    auto both = timedFitStep(0, 60, FIT_WKT_STEP_TARGET_OPEN);
+    both.SetWktStepName(L"Warm up");
+    both.SetNotes(L"Keep it easy");
+    auto duplicate = timedFitStep(1, 60, FIT_WKT_STEP_TARGET_OPEN);
+    duplicate.SetWktStepName(L"Recovery");
+    duplicate.SetNotes(L"Recovery");
+    auto notesOnly = timedFitStep(2, 60, FIT_WKT_STEP_TARGET_OPEN);
+    notesOnly.SetNotes(L"Cool down");
+    const auto rows = workoutimport::loadFit(makeFitWorkout({both, duplicate, notesOnly, fitRepeat(3, 0, 2)}),
+                                             200, 300, 190);
+    ASSERT_EQ(rows.size(), 6);
+    for (int i = 0; i < 6; ++i) {
+        ASSERT_EQ(rows.at(i).textEvents.size(), 1);
+        EXPECT_EQ(rows.at(i).textEvents.first().timeoffset, 0u);
+        const QString expected[] = {QStringLiteral("Warm up\nKeep it easy"),
+                                    QStringLiteral("Recovery"), QStringLiteral("Cool down")};
+        EXPECT_EQ(rows.at(i).textEvents.first().message, expected[i % 3]);
+    }
+}
+
+TEST(WorkoutImport, FitDeviceCompatibility) {
+    EXPECT_TRUE(workoutimport::isFitDeviceCompatible(TREADMILL, TREADMILL));
+    EXPECT_TRUE(workoutimport::isFitDeviceCompatible(BIKE, BIKE));
+    EXPECT_TRUE(workoutimport::isFitDeviceCompatible(ROWING, ROWING));
+    EXPECT_FALSE(workoutimport::isFitDeviceCompatible(BIKE, TREADMILL));
+    EXPECT_FALSE(workoutimport::isFitDeviceCompatible(TREADMILL, BIKE));
+    EXPECT_FALSE(workoutimport::isFitDeviceCompatible(ROWING, TREADMILL));
+    EXPECT_TRUE(workoutimport::isFitDeviceCompatible(UNKNOWN, BIKE));
+    EXPECT_TRUE(workoutimport::isFitDeviceCompatible(BIKE, UNKNOWN));
+    const auto bytes = makeFitWorkout({timedFitStep(0, 60, FIT_WKT_STEP_TARGET_OPEN)},
+                                       FIT_FILE_WORKOUT, FIT_SPORT_SWIMMING);
+    EXPECT_TRUE(workoutimport::loadFit(bytes, 200, 300, 190).isEmpty());
 }

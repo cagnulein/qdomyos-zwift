@@ -22,13 +22,12 @@ class workoutimport {
                                       QString *description = nullptr);
     static QList<trainrow> loadExr(const QByteArray &input, double ftp, QString *description = nullptr);
     // Structured FIT workouts only, never recorded activities. Empty on invalid or unsupported steps.
-    static QList<trainrow> loadFit(const QByteArray &input, double ftp, double maxHr, QString *description = nullptr,
+    static QList<trainrow> loadFit(const QByteArray &input, double ftp, double runningFtp, double maxHr,
+                                   QString *description = nullptr,
                                    BLUETOOTH_TYPE *fitDeviceType = nullptr);
 
-    // Persist successfully imported FIT rows in the native training folder. Reuse identical
-    // XML, never overwrite an existing edited workout, and return an empty path on failure.
-    static QString saveFitAsXml(const QString &sourcePath, const QString &trainingDirectory,
-                                const QList<trainrow> &rows, BLUETOOTH_TYPE deviceType);
+    // UNKNOWN means the sport or the connected device is not yet known.
+    static bool isFitDeviceCompatible(BLUETOOTH_TYPE workoutDevice, BLUETOOTH_TYPE connectedDevice);
 
   private:
     static QString fileKind(const QString &filename, const QString &extension);

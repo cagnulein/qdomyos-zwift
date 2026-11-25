@@ -702,6 +702,7 @@ void trainprogram::scheduler() {
     }
 
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
+        !fitWorkoutMatchesDevice() ||
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
          !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
         bluetoothManager->device()->isPaused()) {
@@ -1519,8 +1520,14 @@ void trainprogram::decreaseElapsedTime(int32_t i) {
     ticks -= i;
 }
 
+bool trainprogram::fitWorkoutMatchesDevice() const {
+    return !isFitWorkout || !bluetoothManager || !bluetoothManager->device() ||
+           workoutimport::isFitDeviceCompatible(loadedDeviceType, bluetoothManager->device()->deviceType());
+}
+
 void trainprogram::applyCurrentStepSettings() {
-    if (!bluetoothManager || !bluetoothManager->device() || currentStep >= (uint16_t)rows.length())
+    if (!bluetoothManager || !bluetoothManager->device() || currentStep >= (uint16_t)rows.length() ||
+        !fitWorkoutMatchesDevice())
         return;
 
     QSettings settings;
@@ -2005,9 +2012,18 @@ trainprogram *trainprogram::load(const QString &filename, bluetooth *b, QString 
         QString description = "";
         QString tags = "";
         BLUETOOTH_TYPE fitDeviceType = UNKNOWN;
-        const auto rows = workoutimport::load(filename, Extension, &description, &fitDeviceType);
+        auto rows = workoutimport::load(filename, Extension, &description, &fitDeviceType);
+        const bool isFit = filename.endsWith(QStringLiteral(".fit"), Qt::CaseInsensitive) ||
+                           Extension.compare(QStringLiteral("FIT"), Qt::CaseInsensitive) == 0;
+        if (isFit && b && b->device() &&
+            !workoutimport::isFitDeviceCompatible(fitDeviceType, b->device()->deviceType())) {
+            qWarning() << "FIT workout sport does not match connected device:" << fitDeviceType
+                       << b->device()->deviceType();
+            rows.clear();
+        }
         trainprogram *program = new trainprogram(rows, b, &description, &tags);
-        if (fitDeviceType != UNKNOWN) {
+        program->isFitWorkout = isFit;
+        if (isFit) {
             program->loadedDeviceType = fitDeviceType;
         } else if (b && b->device()) {
             program->loadedDeviceType = b->device()->deviceType();
