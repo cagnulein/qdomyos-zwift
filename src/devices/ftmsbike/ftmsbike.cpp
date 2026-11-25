@@ -192,6 +192,18 @@ resistance_t ftmsbike::relativeResistanceTarget(resistance_t desiredLevel, resis
         static_cast<int>(desiredLevel) + newGradeBase - oldGradeBase, 32));
 }
 
+resistance_t ftmsbike::reanchorResistanceTarget(resistance_t observedLevel,
+                                                resistance_t previousDesired,
+                                                resistance_t lastCommandedLevel) {
+    // A real handlebar shift has ALREADY moved the motor. Keep any pending
+    // gradient ramp but anchor it to the observed native level, not to an
+    // older command that the bike may have overshot or not yet reached.
+    const int remainingGradeDelta = previousDesired >= 1 && lastCommandedLevel >= 1
+        ? static_cast<int>(previousDesired) - lastCommandedLevel : 0;
+    return static_cast<resistance_t>(qBound<int>(1,
+        static_cast<int>(observedLevel) + remainingGradeDelta, 32));
+}
+
 resistance_t ftmsbike::limitedResistanceTarget(resistance_t anchorLevel, resistance_t desiredLevel,
                                                 resistance_t maxStep) {
     if (maxStep < 1 || anchorLevel < 1)
@@ -2004,12 +2016,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                              << lastPhysicalGearResistance << nativeLevel << "delta" << gearDelta;
                     lastRawRequestedResistanceValue = -1;
                     physicalGearChangePending = true;
-                    if (desiredPhysicalResistance >= 1) {
-                        desiredPhysicalResistance = static_cast<resistance_t>(
-                            qBound<int>(1, desiredPhysicalResistance + gearDelta, 32));
-                    } else {
-                        desiredPhysicalResistance = nativeLevel;
-                    }
+                    desiredPhysicalResistance = reanchorResistanceTarget(
+                        nativeLevel, desiredPhysicalResistance, lastPhysicalGearTarget);
                     // A physical press moves the motor itself; do not replay it.
                     lastPhysicalGearTarget = nativeLevel;
                     setGears(gears() + gearDelta);
