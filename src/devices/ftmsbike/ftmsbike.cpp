@@ -165,6 +165,15 @@ bool ftmsbike::shouldReplayPhysicalGearChange(bool featureEnabled, bool physical
     return !featureEnabled || !physicalShiftPending;
 }
 
+bool ftmsbike::shouldUseRelativeResistanceControl(bool featureEnabled, bool resistanceLevelMode,
+                                                  bool autoResistanceEnabled, bool zwiftFtmsConnected,
+                                                  int requestPower) {
+    // Exact bike-model matching and explicit user opt-in are checked by
+    // physicalResistanceGearsEnabled() before calling this generic gate.
+    return featureEnabled && resistanceLevelMode && autoResistanceEnabled &&
+           zwiftFtmsConnected && requestPower <= 0;
+}
+
 bool ftmsbike::matchesRecentResistanceCommand(resistance_t nativeLevel,
                                                const QList<PhysicalResistanceCommand> &commands,
                                                qint64 nowMs, qint64 guardMs) {
@@ -820,9 +829,9 @@ void ftmsbike::update() {
         // Only the BI9200 with the user's physical-gear opt-in AND an active
         // Zwift FTMS route uses relative grade control. The entire legacy path
         // below is unchanged for other models, opt-out and QZ-only sessions.
-        const bool bi9200ZwiftResistanceControl =
-            physicalGearFeatureEnabled && resistance_lvl_mode && autoResistance() &&
-            virtualBike && virtualBike->ftmsDeviceConnected() && requestPower <= 0;
+        const bool bi9200ZwiftResistanceControl = shouldUseRelativeResistanceControl(
+            physicalGearFeatureEnabled, resistance_lvl_mode, autoResistance(),
+            virtualBike && virtualBike->ftmsDeviceConnected(), requestPower);
         if (bi9200ZwiftResistanceControl) {
             if (desiredPhysicalResistance < 1) {
                 desiredPhysicalResistance = lastPhysicalGearResistance >= 1
