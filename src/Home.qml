@@ -498,7 +498,6 @@ HomeForm {
         text: qsTr("Try the new interface?")
         informativeText: qsTr("QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings > General UI Options.")
         buttons: (MessageDialog.Yes | MessageDialog.No)
-        backAnswersNo: true
         onYesClicked: {
             switchWhenClosed = true
             rootItem.answerModernOffer()
