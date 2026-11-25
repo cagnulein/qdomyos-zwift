@@ -58,6 +58,7 @@ class horizontreadmill : public treadmill {
     // Shared production path exercised by the Bluetooth replay integration tests.
     friend class ParagonXNotificationTestAccess;
     ParagonXTelemetry::NotificationResult processParagonNotification(const QByteArray &newValue);
+    void applyParagonTelemetry(const ParagonXTelemetry::Metrics &metrics);
 
     QTimer *refresh;
 
