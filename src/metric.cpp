@@ -384,24 +384,38 @@ double metric::calculateSpeedFromPower(double power, double inclination, double 
     if (speed_gain != QZSettings::default_speed_gain)
         speed /= speed_gain;
 
-    double fullWeight = (settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() +
-                         settings.value(QZSettings::bike_weight, QZSettings::default_bike_weight).toFloat());
-    double maxSpeed = calculateMaxSpeedFromPower(power, inclination);
-    double maxPowerFromSpeed = calculatePowerFromSpeed(speed, inclination);
-    double acceleration = (power - maxPowerFromSpeed) / fullWeight;
-    double newSpeed = speed + (acceleration * 3.6 * deltaTimeSeconds);
-    if (speedLimit > 0 && newSpeed > speedLimit)
-        newSpeed = speedLimit;
-    if (speedLimit > 0 && maxSpeed > speedLimit)
-        maxSpeed = speedLimit;
-    if (newSpeed < 0)
-        newSpeed = 0;
-    if (maxSpeed > newSpeed)
-        return newSpeed;
-    else if (maxSpeed < speed)
-        return newSpeed;
-    else
-        return maxSpeed;
+    // Work in SI units. Power is force times velocity, not force.
+    // Use the same road-load model and drivetrain efficiency as calculatePowerFromSpeed().
+    const double fullWeight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() +
+                              settings.value(QZSettings::bike_weight, QZSettings::default_bike_weight).toFloat();
+    const double rollingResistance =
+        settings.value(QZSettings::rolling_resistance, QZSettings::default_rolling_resistance).toFloat();
+    const double aero = 0.22691607640851885;
+    const double roadForce = 9.8 * fullWeight * (inclination / 100.0 + rollingResistance);
+    const double wheelPower = 0.95 * qMax(0.0, power);
+    const double limit = speedLimit > 0 ? qMin(70.0, speedLimit) : 70.0;
+    double v = std::isfinite(speed) ? qMax(0.0, speed / 3.6) : 0.0;
+
+    if (!std::isfinite(fullWeight) || fullWeight <= 0.0 ||
+        !std::isfinite(power) || !std::isfinite(roadForce) ||
+        !std::isfinite(deltaTimeSeconds) || deltaTimeSeconds <= 0.0)
+        return qMin(v * 3.6, limit);
+
+    // Limit a stale telemetry gap to one minute and integrate in short steps.
+    // Over each step, hold road load constant and use the mean velocity in
+    // the work-energy balance:
+    // m * (vNext^2 - v^2) / 2 = P * dt - F * dt * (v + vNext) / 2.
+    // Solving for vNext avoids dividing by zero when starting from rest.
+    const double elapsed = qMin(deltaTimeSeconds, 60.0);
+    const int steps = static_cast<int>(std::ceil(elapsed / 0.1));
+    const double dt = elapsed / steps;
+    for (int i = 0; i < steps; ++i) {
+        const double resistForce = roadForce + aero * v * v;
+        const double b = resistForce * dt / (2.0 * fullWeight);
+        const double vNext = std::hypot(v - b, std::sqrt(2.0 * wheelPower * dt / fullWeight)) - b;
+        v = qBound(0.0, vNext, limit / 3.6);
+    }
+    return v * 3.6;
 }
 
 double metric::calculateWeightLoss(double kcal) {
