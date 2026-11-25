@@ -1187,10 +1187,12 @@ bool virtualtreadmill::RSCEnable() {
 }
 
 // A Garmin watch does not accept FTMS as a sensor, but it pairs with RSC as a foot pod.
+// Treadmills only: rowers, ellipticals and the other machines that also use the virtual treadmill keep FTMS.
 bool virtualtreadmill::garminFootPod() const {
 #ifdef Q_OS_ANDROID
     QSettings settings;
-    return settings.value(QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility).toBool() &&
+    return treadMill->deviceType() == TREADMILL &&
+           settings.value(QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility).toBool() &&
            !settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
 #else
     return false;
