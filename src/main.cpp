@@ -1569,9 +1569,6 @@ int main(int argc, char *argv[]) {
         LogWriter::maxFileSize = 50 * 1024 * 1024;
     }
 
-    // Before the QML is loaded: a new install opens in the modern look at once
-    homeform::startModernForNewInstall();
-
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
 
     if (fit_file_saved_on_quit) {
@@ -1661,6 +1658,10 @@ int main(int argc, char *argv[]) {
         // the signal only reports changes: log the state QZ starts in (background when Android restarts it)
         qDebug() << "applicationState at start" << guiApp->applicationState();
     }
+
+    // Before the QML is loaded, so a new install opens in the modern look at once; after the message handler, so
+    // the decision is in the debug log
+    homeform::startModernForNewInstall();
 
     // myMessageOutput() drops every message when the log is off (same condition as there), so don't
     // build the messages nobody reads: the dump of all the settings and the Qt Bluetooth debug output,
