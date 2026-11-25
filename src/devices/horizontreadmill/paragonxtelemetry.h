@@ -12,6 +12,46 @@ namespace ParagonXTelemetry {
 struct Metrics {
     double speedKmh;
     double inclinePercent;
+    // 0x01 = running, 0x02 = paused, 0x04 = stopped in the real
+    // 2026-11-25/2026-11-24 Paragon X BLE captures.
+    uint8_t machineState = 0;
+};
+
+// The firmware keeps the last commanded belt speed in telemetry even while
+// paused/stopped. Publish zero to QZ (and therefore Zwift) until there is an
+// explicit restart, or a physical console restart (0x02/0x04 -> 0x01).
+// This state applies only to the Paragon X proprietary protocol.
+class SessionState {
+  public:
+    void stopRequested() { localStop_ = true; }
+    void startRequested() { localStop_ = false; }
+
+    void observe(uint8_t machineState) {
+        if (machineState != 0x01 && machineState != 0x02 && machineState != 0x04)
+            return;
+        if (machineState == 0x01 &&
+            (lastMachineState_ == 0x02 || lastMachineState_ == 0x04)) {
+            // The user may have restarted the belt from its own console.
+            localStop_ = false;
+        }
+        machineStopped_ = (machineState == 0x02 || machineState == 0x04);
+        lastMachineState_ = machineState;
+    }
+
+    bool commandsSuspended() const { return localStop_ || machineStopped_; }
+    double publishedSpeed(double reportedSpeedKmh) const {
+        return commandsSuspended() ? 0.0 : reportedSpeedKmh;
+    }
+    void reset() {
+        localStop_ = false;
+        machineStopped_ = false;
+        lastMachineState_ = 0;
+    }
+
+  private:
+    bool localStop_ = false;
+    bool machineStopped_ = false;
+    uint8_t lastMachineState_ = 0;
 };
 
 inline bool decode(const uint8_t *packet, std::size_t size, bool allowIncomplete, Metrics &metrics) {
@@ -42,6 +82,7 @@ inline bool decode(const uint8_t *packet, std::size_t size, bool allowIncomplete
 
     metrics.speedKmh = speed;
     metrics.inclinePercent = incline;
+    metrics.machineState = packet[14];
     return true;
 }
 
