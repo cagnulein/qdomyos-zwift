@@ -285,6 +285,14 @@ TEST(ParagonXTelemetryTest, InitRepliesStillEmitPacketReceivedOnce) {
 // substitute callback or a duplicate implementation of the frame assembler.
 class ParagonXNotificationTestAccess {
   public:
+    static void applyTelemetry(horizontreadmill &driver, const ParagonXTelemetry::Metrics &metrics) {
+        driver.applyParagonTelemetry(metrics);
+    }
+    static void stopRequested(horizontreadmill &driver) { driver.paragonSessionState.stopRequested(); }
+    static void startRequested(horizontreadmill &driver) { driver.paragonSessionState.startRequested(); }
+    static bool commandsSuspended(const horizontreadmill &driver) {
+        return driver.paragonSessionState.commandsSuspended();
+    }
     static ParagonXTelemetry::NotificationResult feed(horizontreadmill &driver,
                                                       const std::vector<uint8_t> &bytes) {
         return driver.processParagonNotification(
@@ -361,4 +369,102 @@ TEST(ParagonXTelemetryTest, ProductionDriverPreservesInitReplySignal) {
     const auto reply = ParagonXNotificationTestAccess::feed(driver, standalone);
     EXPECT_TRUE(reply.completed);
     EXPECT_EQ(signalCount, 2u);
+}
+
+namespace {
+std::vector<ParagonXTelemetry::Metrics> readActualParagonMotionStates() {
+    const auto captures = readCapturedFrames(fixturePath("paragonx_pause_stop_2026.tsv"));
+    if (captures.size() != 3)
+        throw std::runtime_error("expected real running, paused, stopped captures");
+    std::vector<ParagonXTelemetry::Metrics> metrics;
+    for (const auto &capture : captures) {
+        std::vector<uint8_t> bytes;
+        for (const auto &chunk : capture.notifications)
+            bytes.insert(bytes.end(), chunk.begin(), chunk.end());
+        if (bytes.size() != 60)
+            throw std::runtime_error("real Paragon pause/stop capture must contain 60 bytes");
+        ParagonXTelemetry::Metrics decoded{};
+        if (!ParagonXTelemetry::decode(bytes.data(), bytes.size(), true, decoded))
+            throw std::runtime_error("failed to decode real Paragon motion-state frame");
+        if (std::abs(decoded.speedKmh - capture.speedKmh) > 0.00001 ||
+            std::abs(decoded.inclinePercent - capture.inclinePercent) > 0.00001)
+            throw std::runtime_error("motion-state raw fields differ from captured values");
+        metrics.push_back(decoded);
+    }
+    return metrics;
+}
+} // namespace
+
+TEST(ParagonXTelemetryTest, ActualRunningPauseStopFramesSuppressStaleSpeed) {
+    const auto frames = readActualParagonMotionStates();
+    ASSERT_EQ(frames.size(), 3u);
+    EXPECT_EQ(frames[0].machineState, 0x01);
+    EXPECT_EQ(frames[1].machineState, 0x02);
+    EXPECT_EQ(frames[2].machineState, 0x04);
+    // The raw speed is still nonzero in the actual pause AND stop packets.
+    EXPECT_GT(frames[1].speedKmh, 8.0);
+    EXPECT_GT(frames[2].speedKmh, 11.0);
+
+    ParagonXTelemetry::SessionState session;
+    session.observe(frames[0].machineState);
+    EXPECT_FALSE(session.commandsSuspended());
+    EXPECT_NEAR(session.publishedSpeed(frames[0].speedKmh), 8.80309, 0.00001);
+
+    // QZ's Stop/Pause button must zero virtual speed immediately, before the
+    // treadmill has time to change its machine status to 0x02/0x04.
+    session.stopRequested();
+    EXPECT_TRUE(session.commandsSuspended());
+    EXPECT_EQ(session.publishedSpeed(frames[0].speedKmh), 0.0);
+    session.observe(frames[0].machineState);
+    EXPECT_EQ(session.publishedSpeed(frames[0].speedKmh), 0.0);
+
+    session.observe(frames[1].machineState); // physical Pause status
+    EXPECT_TRUE(session.commandsSuspended());
+    EXPECT_EQ(session.publishedSpeed(frames[1].speedKmh), 0.0);
+    session.observe(frames[2].machineState); // physical Stop status
+    EXPECT_EQ(session.publishedSpeed(frames[2].speedKmh), 0.0);
+
+    // Restart with the physical console (0x04 -> 0x01) must release the latch.
+    session.observe(frames[0].machineState);
+    EXPECT_FALSE(session.commandsSuspended());
+    EXPECT_NEAR(session.publishedSpeed(frames[0].speedKmh), 8.80309, 0.00001);
+
+    // Restart through QZ must work even when the previous status was running.
+    session.stopRequested();
+    EXPECT_EQ(session.publishedSpeed(frames[0].speedKmh), 0.0);
+    session.startRequested();
+    session.observe(frames[0].machineState);
+    EXPECT_FALSE(session.commandsSuspended());
+    EXPECT_GT(session.publishedSpeed(frames[0].speedKmh), 8.0);
+
+    // Unknown firmware states must not silently be interpreted as stopped.
+    session.observe(0x7f);
+    EXPECT_FALSE(session.commandsSuspended());
+}
+
+TEST(ParagonXTelemetryTest, ProductionDriverPublishesZeroAfterPauseAndStop) {
+    const auto frames = readActualParagonMotionStates();
+    ASSERT_EQ(frames.size(), 3u);
+    horizontreadmill driver(false, false);
+    ParagonXNotificationTestAccess::applyTelemetry(driver, frames[0]);
+    EXPECT_NEAR(driver.currentSpeed().value(), 8.80309, 0.00001);
+    ParagonXNotificationTestAccess::stopRequested(driver);
+    EXPECT_TRUE(ParagonXNotificationTestAccess::commandsSuspended(driver));
+
+    // The console may continue sending running status for a moment.
+    ParagonXNotificationTestAccess::applyTelemetry(driver, frames[0]);
+    EXPECT_DOUBLE_EQ(driver.currentSpeed().value(), 0.0);
+    ParagonXNotificationTestAccess::applyTelemetry(driver, frames[1]);
+    EXPECT_DOUBLE_EQ(driver.currentSpeed().value(), 0.0);
+    ParagonXNotificationTestAccess::applyTelemetry(driver, frames[2]);
+    EXPECT_DOUBLE_EQ(driver.currentSpeed().value(), 0.0);
+
+    // Real transition from pause/stop to running re-enables normal telemetry.
+    ParagonXNotificationTestAccess::applyTelemetry(driver, frames[0]);
+    EXPECT_NEAR(driver.currentSpeed().value(), 8.80309, 0.00001);
+
+    ParagonXNotificationTestAccess::stopRequested(driver);
+    ParagonXNotificationTestAccess::startRequested(driver);
+    ParagonXNotificationTestAccess::applyTelemetry(driver, frames[0]);
+    EXPECT_NEAR(driver.currentSpeed().value(), 8.80309, 0.00001);
 }
