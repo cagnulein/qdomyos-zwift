@@ -474,7 +474,11 @@ HomeForm {
         informativeText: qsTr("To apply the changes, you need to restart the app.\nWould you like to do that now?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: Qt.callLater(Qt.quit)
-        onNoClicked: this.visible = false;
+        onNoClicked: {
+            this.visible = false;
+            // Location stays off for this run: the questions after it (locationQuestions) go on
+            locationServicesDeclined = true
+        }
         visible: locationServiceRequsted && !locationServicesOn
     }
 
@@ -486,10 +490,9 @@ HomeForm {
                                                && !settings.skipLocationServicesDialog)
                                               || remindLocationServicesDialog.visible
 
-    // Who used QZ before the modern look became the look of a new install is asked once
+    // Users who used QZ before the modern look became the look of a new install are asked once
     // (homeform::startModernForNewInstall()); the classic side menu offers it again (main.qml).
-    // After the Bluetooth and Location questions, not over them: with "Restart the app" declined,
-    // once Location is turned on, or at the next start
+    // After the Bluetooth and Location questions, not over them
     UiMessageDialog {
         id: modernOfferDialog
         // Yes switches the look once this popup has closed: switched while it closes, the popup

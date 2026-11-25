@@ -2361,7 +2361,7 @@ ApplicationWindow {
                     onClicked: drawerAction("settings")
                 }
 
-                // The question of the home page again (Home.qml), for who said no or closed it. The only
+                // The question of the home page again (Home.qml), for those who said no. The only text
                 // entry with an icon, so it is noticed: 24 and 12 to the label, as UiDrawerItem
                 ItemDelegate {
                     id: modernOfferItem
