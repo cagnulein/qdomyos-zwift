@@ -312,6 +312,7 @@ powerzonepack.cpp \
 devices/proformbike/proformbike.cpp \
 devices/proformelliptical/proformelliptical.cpp \
 devices/proformtreadmill/proformtreadmill.cpp \
+devices/proformtreadmill/proformtreadmillgeneric.cpp \
 qfit.cpp \
 qzsettings.cpp \
 devices/renphobike/renphobike.cpp \

@@ -22,6 +22,7 @@ proformtreadmill::proformtreadmill(bool noWriteResistance, bool noHeartService) 
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
+    genericMode = QSettings().value(QStringLiteral("proform_treadmill_generic"), false).toBool();
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &proformtreadmill::update);
     refresh->start(200ms);
@@ -165,6 +166,7 @@ void proformtreadmill::forceSpeed(double speed) {
 }
 
 void proformtreadmill::update() {
+    if (genericMode) { genericUpdate(); return; }
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
@@ -4363,7 +4365,7 @@ void proformtreadmill::update() {
 }
 
 void proformtreadmill::changeInclinationRequested(double grade, double percentage) {
-    if (percentage < 0)
+    if (!genericMode && percentage < 0)
         percentage = 0;
     changeInclination(grade, percentage);
 }
@@ -4374,6 +4376,10 @@ void proformtreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
 
 void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
                                              const QByteArray &newValue) {
+    if (genericMode) {
+        if (characteristic.uuid() == gattNotify1Characteristic.uuid()) genericNotification(newValue);
+        return;
+    }
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -10298,6 +10304,9 @@ void proformtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
+        if (genericMode && (!gattWriteCharacteristic.isValid() || !gattNotify1Characteristic.isValid())) {
+            genericFail(QStringLiteral("FitPro characteristics missing")); return;
+        }
         Q_ASSERT(gattWriteCharacteristic.isValid());
         Q_ASSERT(gattNotify1Characteristic.isValid());
 
@@ -10351,12 +10360,20 @@ void proformtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 void proformtreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
-    initRequest = true;
+    if (genericMode) {
+        if (descriptor.uuid() != QBluetoothUuid::ClientCharacteristicConfiguration || newValue != QByteArray::fromHex("0100")) return;
+        genericReset();
+        genericNext = GenericStep::DeviceInfo;
+    } else { initRequest = true; }
     emit connectedAndDiscovered();
 }
 
 void proformtreadmill::characteristicWritten(const QLowEnergyCharacteristic &characteristic,
                                              const QByteArray &newValue) {
+    if (genericMode) {
+        if (characteristic.uuid() == gattWriteCharacteristic.uuid()) genericWritten(newValue);
+        return;
+    }
     Q_UNUSED(characteristic);
     emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
 }
@@ -10367,11 +10384,13 @@ void proformtreadmill::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("00001533-1412-efde-1523-785feabcd123"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    if (genericMode && !gattCommunicationChannelService) { genericFail(QStringLiteral("FitPro service missing")); return; }
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &proformtreadmill::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }
 
 void proformtreadmill::errorService(QLowEnergyService::ServiceError err) {
+    if (genericMode) genericFail(QStringLiteral("BLE service error"));
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
     emit debug(QStringLiteral("proformtreadmill::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
@@ -10426,7 +10445,7 @@ bool proformtreadmill::connected() {
     if (!m_control) {
         return false;
     }
-    return m_control->state() == QLowEnergyController::DiscoveredState;
+    return m_control->state() == QLowEnergyController::DiscoveredState && (!genericMode || genericReady);
 }
 
 void proformtreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
@@ -10434,6 +10453,7 @@ void proformtreadmill::controllerStateChanged(QLowEnergyController::ControllerSt
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
+        if (genericMode) genericReset();
         connectBackLater();
     }
 }

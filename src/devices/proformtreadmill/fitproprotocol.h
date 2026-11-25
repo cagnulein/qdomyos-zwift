@@ -8,6 +8,8 @@
 #include <cstdint>
 #include <cstddef>
 #include <vector>
+#include <map>
+#include <cmath>
 
 namespace FitProProtocol {
 using Bytes = std::vector<uint8_t>;
@@ -146,5 +148,93 @@ inline Bytes computeUnlock(const Bytes &deviceInfo, const Bytes &systemInfo,
         result[32 + i] = static_cast<uint8_t>(secret >> (8 * i));
     return result;
 }
+using Fields = std::map<unsigned, uint32_t>;
+using FieldIds = std::vector<unsigned>;
+inline unsigned fieldSize(unsigned id) {
+    switch (id) {
+    case 12: case 36: case 95: case 96: case 100: case 108: return 1;
+    case 0: case 1: case 3: case 15: case 16: case 17: case 27: case 28:
+    case 30: case 31: case 34: case 35: case 46: case 52: case 54: case 71: return 2;
+    case 4: case 10: case 20: case 21: case 69: case 70: case 75: case 76: return 4;
+    default: return 0;
+    }
+}
+inline FieldIds telemetryFields() { return {0,1,3,4,10,12,15,16,20,21,46,52,54,71,75,76,96}; }
+inline FieldIds limitFields() { return {12,27,28,30,31,34,35,36,46,69,70,71,100}; }
+inline Bytes bitmap(const FieldIds &ids) {
+    if (ids.empty()) return {0};
+    if (ids.back() > 115) return {};
+    Bytes result(2 + ids.back()/8, 0);
+    result[0] = static_cast<uint8_t>(result.size()-1);
+    for (unsigned id : ids) {
+        if (id > ids.back() || !fieldSize(id)) return {};
+        result[1+id/8] |= static_cast<uint8_t>(1u << (id%8));
+    }
+    return result;
+}
+inline Bytes readFields(const FieldIds &ids) {
+    const Bytes mask = bitmap(ids);
+    if (mask.empty()) return {};
+    Bytes result{0};
+    result.insert(result.end(), mask.begin(), mask.end());
+    return result;
+}
+inline Bytes writeFields(const Fields &fields) {
+    if (fields.empty()) return {};
+    FieldIds ids;
+    for (const auto &f : fields) ids.push_back(f.first);
+    Bytes result = bitmap(ids);
+    if (result.empty()) return {};
+    for (const auto &f : fields) {
+        const unsigned size = fieldSize(f.first);
+        if (!size || (size < 4 && f.second >= (uint32_t(1) << (size*8)))) return {};
+        for (unsigned i=0; i<size; ++i) result.push_back(static_cast<uint8_t>(f.second >> (8*i)));
+    }
+    result.push_back(0);
+    return result;
+}
+// No partial decoding: a different payload layout must never become a motor command.
+inline bool decodeFields(const Bytes &frame, const FieldIds &ids, Fields &fields) {
+    fields.clear();
+    if (!successfulReply(frame, 2, 5)) return false;
+    Fields result;
+    std::size_t offset=4;
+    for (unsigned id : ids) {
+        const unsigned size=fieldSize(id);
+        if (!size || offset+size > frame.size()-1 || result.count(id)) return false;
+        uint32_t value=0;
+        for (unsigned i=0;i<size;++i) value |= uint32_t(frame[offset++]) << (8*i);
+        result[id]=value;
+    }
+    if (offset != frame.size()-1) return false;
+    fields.swap(result); return true;
+}
+inline double signedHundredths(uint32_t v) { return (v<0x8000u ? double(v) : double(v)-65536.0)/100.0; }
+inline uint32_t wireHundredths(double v) { return static_cast<uint16_t>(static_cast<int>(std::round(v*100.0))); }
+inline bool within(double v, double low, double high) {
+    return std::isfinite(v) && std::isfinite(low) && std::isfinite(high) &&
+        low<=high && v>=low && v<=high && std::round(v*100.0)/100.0>=low && std::round(v*100.0)/100.0<=high;
+}
+class ReplyAssembler {
+    Chunks chunks;
+public:
+    void reset() { chunks.clear(); }
+    Bytes append(const Bytes &chunk) {
+        if (chunk.empty()) return {};
+        if (chunk[0]==0xfe) {
+            reset();
+            if (chunk.size()>=4 && chunk.size()<=20 && chunk[1]==2 && chunk[3]>=2 && chunk[3]<=16)
+                chunks.push_back(chunk);
+            return {};
+        }
+        if (chunks.empty()) return {};
+        chunks.push_back(chunk);
+        if (chunk[0]==0xff || chunks.size()>=chunks.front()[3]) {
+            Bytes frame=decodeReply(chunks);
+            reset(); return frame;
+        }
+        return {};
+    }
+};
 } // namespace FitProProtocol
 #endif
