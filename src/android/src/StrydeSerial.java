@@ -1,6 +1,7 @@
 package org.cagnulen.qdomyoszwift;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
@@ -35,6 +36,10 @@ public final class StrydeSerial {
             try {
                 Context context = QtNative.activity();
                 if (context == null) throw new Exception("Android activity unavailable");
+                final int serialPermission = context.checkSelfPermission("android.permission.SERIAL_PORT");
+                event("PERMISSION SERIAL_PORT " + (serialPermission == PackageManager.PERMISSION_GRANTED ? "GRANTED" : "DENIED"));
+                if (serialPermission != PackageManager.PERMISSION_GRANTED)
+                    throw new SecurityException("SERIAL_PORT requires privileged system installation of QZ");
                 Object service = context.getSystemService("serial");
                 if (service == null) throw new Exception("OEM serial service unavailable");
                 String[] ports = (String[]) service.getClass().getMethod("getSerialPorts").invoke(service);
