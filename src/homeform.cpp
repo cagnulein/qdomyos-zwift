@@ -5554,6 +5554,8 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
         !settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/WearableController", "start",
                                                   "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+        wearHeartUsed = true;
+        setWatchAwake(false); // the watch sleeps until a workout starts
     }
 #endif
 
@@ -6766,6 +6768,9 @@ void homeform::Start_inner(bool send_event_to_device) {
             bluetoothManager->device()->start();
         }
 
+        watchActiveAt = QDateTime::currentDateTime();
+        setWatchAwake(true);
+
         if (stopped) {
             trainProgram->restart();
             if (bluetoothManager->device()) {
@@ -6906,6 +6911,10 @@ void homeform::Stop() {
 #endif
 
     qDebug() << QStringLiteral("Stop pressed - paused") << paused << QStringLiteral("stopped") << stopped;
+
+    watchActiveAt = QDateTime();
+    if (watchAwake)
+        setWatchAwake(false);
 
     const auto device = bluetoothManager ? bluetoothManager->device() : nullptr;
     auto treadmillDevice = device && device->deviceType() == TREADMILL
@@ -7133,9 +7142,44 @@ void homeform::handleRestoreDefaultWheelDiameter() {
     }
 }
 
+// QZ for Wear OS sends heart rate only during a workout: awake from Start (or the equipment
+// moving) until Stop, or 5 minutes after it stopped moving. Wakes repeat every minute because
+// the watch falls asleep by itself 3 minutes after the last one (so a dead phone can't leave
+// it running). A watch app that doesn't know these messages ignores them.
+void homeform::setWatchAwake(bool awake) {
+#ifdef Q_OS_ANDROID
+    if (!wearHeartUsed)
+        return;
+    watchAwake = awake;
+    if (awake)
+        watchLastWake = QDateTime::currentDateTime();
+    qDebug() << "watch heart rate" << (awake ? "wake" : "sleep");
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/WearableController", "setWatchAwake",
+                                              "(Landroid/content/Context;Z)V",
+                                              QtAndroid::androidContext().object(), (jboolean)awake);
+#else
+    Q_UNUSED(awake);
+#endif
+}
+
+void homeform::watchHeartTick() {
+    if (!wearHeartUsed)
+        return;
+    const QDateTime now = QDateTime::currentDateTime();
+    bluetoothdevice *dev = bluetoothManager ? bluetoothManager->device() : nullptr;
+    if (dev && (dev->currentSpeed().value() > 0 || dev->currentCadence().value() > 0))
+        watchActiveAt = now;
+    const bool wanted = watchActiveAt.isValid() && watchActiveAt.secsTo(now) < 5 * 60;
+    if (wanted && (!watchAwake || !watchLastWake.isValid() || watchLastWake.secsTo(now) >= 60))
+        setWatchAwake(true);
+    else if (!wanted && watchAwake)
+        setWatchAwake(false);
+}
+
 void homeform::update() {
 
     QSettings settings;
+    watchHeartTick();
     double currentHRZone = 1;
     double ftpZone = 1;
 

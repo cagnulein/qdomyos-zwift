@@ -39,4 +39,21 @@ public class WearableController {
         public static int getHeart() {
             return WearableMessageListenerService.getHeart();
         }
+
+        // Wakes the QZ watch app's heart-rate service (awake=true) or puts it to sleep.
+        // Sent to every connected watch; the watch drops it if QZ isn't installed there.
+        public static void setWatchAwake(Context context, final boolean awake) {
+            final Context ctx = context.getApplicationContext();
+            final String path = awake ? "/qz/hr/wake" : "/qz/hr/sleep";
+            com.google.android.gms.wearable.Wearable.getNodeClient(ctx).getConnectedNodes()
+                .addOnSuccessListener(nodes -> {
+                    for (com.google.android.gms.wearable.Node node : nodes) {
+                        com.google.android.gms.wearable.Wearable.getMessageClient(ctx)
+                            .sendMessage(node.getId(), path, new byte[0])
+                            .addOnFailureListener(e -> QLog.w("WearableController", path + " failed: " + e));
+                    }
+                    QLog.v("WearableController", path + " sent to " + nodes.size() + " node(s)");
+                })
+                .addOnFailureListener(e -> QLog.w("WearableController", "getConnectedNodes failed: " + e));
+        }
 }
