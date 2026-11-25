@@ -70,6 +70,7 @@ SOURCES += \
         Devices/TestBkoolStandaloneResistance.cpp \
         Devices/TestPafersRowerRouting.cpp \
         Devices/TestHeartRateSensorOffer.cpp \
+        Devices/TestCompanionHeartRate.cpp \
         Devices/TestFreebeatBoomBikeParser.cpp \
         Devices/TestKettlerClassicProtocol.cpp \
         Devices/TestFitPlusBikeResistance.cpp \
