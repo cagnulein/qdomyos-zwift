@@ -1253,6 +1253,14 @@ public:
 
     // Timer jitter detection variables (same logic as trainprogram::scheduler)
     QDateTime lastUpdateCall = QDateTime::currentDateTime();
+
+    // Watch heart-rate wake/sleep (Android, QZ watch app)
+    bool wearHeartUsed = false;
+    bool watchAwake = false;
+    QDateTime watchLastWake;
+    QDateTime watchActiveAt; // last time the equipment moved or Start was pressed
+    void setWatchAwake(bool awake);
+    void watchHeartTick();
     qint64 currentUpdateJitter = 0;
 
     peloton *pelotonHandler = nullptr;
