@@ -4,9 +4,10 @@
 
 For the captured name `iConsole+0014` (also accepting `I-CONSOLE+0014`, case-insensitively), the native driver initializes the session, reads metrics, and uploads speed/incline programs from parsed QZ `trainrow` input. Other iConsole/AppGate names retain their existing path.
 
-Hardware has verified complete twenty-minute and ten-minute runs, including countdown and automatic stop. The encoder still accepts only those total durations. With exactly twenty positive, non-ramp rows it now maps each row directly to a protocol slot and preserves its duration in seconds. This variable-duration path awaits hardware validation. Other row counts retain the previous exact expansion into 60-second slots (twenty minutes) or 30-second slots (ten minutes), requiring each row to align to that slot length. Speeds must be finite, nonnegative and encodable; missing incline becomes zero. Unsupported input is rejected without rescaling or sampling.
+Hardware has verified complete twenty-minute and ten-minute runs, including countdown and automatic stop. The encoder now accepts totals of **1–254 whole minutes** using A4=`total minutes + 1`. Other totals require new hardware validation. A total with remaining seconds is rejected rather than rounded because the known A4 field expresses whole minutes.
 
-November 9 established that A9/AA controlled the 30-second interval changes while A4=`0x15` still kept the total countdown at twenty minutes. On November 12, changing only the ten-minute A4 parameter to `0x0b` produced a 9:59 countdown and automatic stop after ten minutes. A4 therefore behaves as total minutes + 1 for the two verified totals; arbitrary durations remain untested.
+Input must contain 1–20 positive whole-second timed rows, with finite nonnegative encodable speeds. Lap, distance and ramp conditions cannot be represented by this upload and are rejected, including mixed time/distance rows. Missing incline becomes zero. The encoder uses twenty equal slots when every original row boundary fits that representation (preserving verified 10/20-minute bytes). Otherwise it preserves each original row and splits the longest intervals at unchanged targets until all twenty slots are filled. No original interval boundary, target or second is removed, rescaled or padded. Totals of at least sixty seconds guarantee these splits remain positive. Speed is quantized to the protocol's existing 0.1 km/h precision.
+November 9 established that A9/AA controlled the 30-second interval changes while A4=`0x15` still kept the total countdown at twenty minutes. On November 12, changing only the ten-minute A4 parameter to `0x0b` produced a 9:59 countdown and automatic stop after ten minutes. A4 therefore behaves as total minutes + 1 for the two verified totals; other total durations remain untested on hardware.
 
 Examples: `train-programs-examples/iconsole-tx90-20min.xml` and `iconsole-tx90-10min-30sec.xml` are hardware-verified. The new `iconsole-tx90-10min-variable.xml` alternates 20/40-second intervals, preserving the same twenty speed/incline slots and verified ten-minute A4.
 
@@ -46,7 +47,7 @@ The ordered upload is A3, A4, A6, A7, A8, A9, AA, AF. Each request receives its 
 | Command | Captured meaning established by the complete flow |
 | --- | --- |
 | A3 | Program selection payload `02 01 01 01 01 01 01` |
-| A4 | Hardware-verified 20-minute payload: `15` followed by ten `01` bytes. New **unverified** 10-minute probe: `0b` followed by the same ten `01` bytes (possible total-minutes-plus-one field) |
+| A4 | Total minutes + 1, followed by ten `01` bytes. Verified: 20 minutes=`15`, 10 minutes=`0b`. New 9-minute test=`0a`; other totals await hardware validation |
 | A6 | First ten speed slots |
 | A7 | Second ten speed slots; the recorded second half repeats the first half |
 | A8 | Twenty inclination values |
@@ -93,12 +94,12 @@ Completing the upload and readiness handshake addresses concrete software defect
 
 - Actual driver and parser-test translation units compiled with Qt 5.15.13. One existing `PlayerStateWrapper::getCadence()` missing-return warning is outside this change.
 - Prior revision: **39 focused tests passed**, linked with the actual driver object, including the full eight-request captured profile and recorded idle/ready/running/pause/resume B2 frames.
-- Current revision: **46 parser/encoder tests passed** in an isolated Qt 5.15.13 harness using production static helper bodies verbatim. Checks include the twenty-minute golden upload, ten-minute A4/B4, variable 20/40-second A9/AA bytes, minute/second encoding and rejection of nonrepresentable row counts. A pre-existing constant-ten-minute test fixture was corrected to contain all ten duration pairs. This is not a complete application build; platform CI is separate.
+- Previous revision: **46 parser/encoder tests passed** in an isolated Qt 5.15.13 harness using production static helper bodies verbatim. Checks include the twenty-minute golden upload, ten-minute A4/B4, variable 20/40-second A9/AA bytes, minute/second encoding and rejection of nonrepresentable row counts. A pre-existing constant-ten-minute test fixture was corrected to contain all ten duration pairs. This is not a complete application build; platform CI is separate.
 - Same sixteen-byte B4 regression check against the old and revised compiled driver: old REJECTED, revised ACCEPTED.
 - All 3,413 received notifications in the four available QZ logs reassemble without residual bytes. The original HCI contributes 1,049 treadmill notifications, including 1,036 B2 telemetry frames and thirteen ACKs.
 - The November 3 TX90 hardware test completed the full twenty minutes: all eight upload requests were acknowledged, Start followed readiness, all twenty speed/incline slots matched, and the treadmill stopped at countdown zero before QZ Stop. The photo shows `00:09` remaining near the end; additional graph columns do not establish additional running time.
 - November 12: all 1,517 received frames have valid checksums (1,505 B2 telemetry records, initialization ACKs, eight upload ACKs and B5). A4=`0x0b` is echoed by B4; readiness precedes A5. The first populated countdown is 599 seconds. All twenty interval midpoint speed/incline values match. Positive-speed telemetry runs from 13:52:50 to 14:02:51 (600.039 seconds between first/last positive samples), followed by zero speed and end state `02 04 02`. No remote Stop write occurs. The user's email independently confirms automatic termination.
-- The new variable-duration test and pause/resume/reload checks remain pending. Other total durations and ramps remain unsupported. No timeline is silently changed.
+- Other total durations, variable-duration splitting and revised-session pause/resume/reload need hardware validation. Ramps, distance, Lap, more than twenty input rows and non-whole-minute totals remain unsupported. No timeline is silently changed.
 - Live speed writes and a physical iConsole Stop command remain unimplemented; the capture contains neither. Use the treadmill's physical stop for hardware testing.
 - QZ's general UI/workout scheduler is unchanged. Emitting `tapeStarted` after movement is the driver's confirmation; this is not a claim that every UI clock path waits for that signal, particularly when continuous-moving settings are enabled.
 
@@ -112,3 +113,15 @@ Use the updated build and `train-programs-examples/iconsole-tx90-10min-variable.
 4. After physical stop and return to idle, load the already verified uniform ten-minute XML again without restarting QZ or reconnecting. A short start confirms that a second upload works in the same connection. End that check with physical Stop.
 5. Separately, with the verified uniform XML, test the console's physical Pause and normal Resume/Start controls and note which controls were used. Check whether the remaining countdown is preserved. Do not assume that QZ remote Pause/Stop works. Resume behavior on the revised QZ session is still pending hardware validation.
 6. Return the complete log. The November 12 email mentions two videos, but its MIME attachments contain only the debug log; request the videos again before investigating the console graph. Extra graph columns alone do not establish extra execution time.
+
+## November 25: timed Garmin workout and arbitrary minute totals
+
+The new Garmin workout contains eight timed rows, no distance and no Lap: durations **180, 30, 20, 60, 20, 30, 20, 180 seconds**, speeds **8.365, 11.976, 8.571, 11.308, 8.571, 11.976, 8.571, 8.365 km/h**, no incline targets (encoded as zero). Total: **540 seconds / nine minutes**.
+
+Authentication, download, XML conversion and TX90 initialization all succeed. The previous encoder rejects this program at the hard-coded 600/1200-second check, before sending A3 or Start. This is a software restriction, not evidence that the console rejected nine minutes. The earlier November 24 Lap/distance workout is a separate unsupported case.
+
+The new encoder preserves the full nine-minute timeline in twenty positive-duration slots. A4 is `f0 a4 01 d3 0a 01 01 01 01 01 01 01 01 01 01 7c`. New countdown and termination behavior remain to be validated; an upload ACK alone does not establish successful execution. A standalone reproduction is in `train-programs-examples/iconsole-tx90-garmin-9min.xml`.
+
+Test with the new build and the same Garmin workout. Initial countdown should be near **8:59**. Target changes from belt movement: 3:00 → 12.0 km/h; 3:30 → 8.6; 3:50 → 11.3; 4:50 → 8.6; 5:10 → 12.0; 5:40 → 8.6; 6:00 → 8.4. Check automatic stop at nine minutes. If behavior differs, end the test with the physical treadmill Stop; remote Stop remains unverified. Return the complete debug log and initial/final console photos.
+
+Validation for this revision: parser/encoder tests use an isolated Qt 5.15.15 harness containing the production static helper bodies verbatim. Tests cover this exact Garmin timeline at every second, all 254 representable whole-minute totals and checksums, rejection of fractional totals/overflow/Lap/distance/subsecond rows, and unchanged 10/20-minute golden frames. Full application/platform builds are separate CI checks.

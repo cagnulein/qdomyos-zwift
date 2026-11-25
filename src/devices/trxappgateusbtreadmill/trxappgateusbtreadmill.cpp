@@ -243,9 +243,10 @@ bool trxappgateusbtreadmill::buildIconsoleWorkoutFrames(const QList<trainrow> &r
     qint64 totalDurationSeconds = 0;
     for (const trainrow &row : rows) {
         const int durationSeconds = QTime(0, 0, 0).secsTo(row.duration);
-        if (durationSeconds <= 0 || row.rampDuration != QTime(0, 0, 0) || row.rampElapsed != QTime(0, 0, 0) ||
+        if (!row.duration.isValid() || row.duration.msec() != 0 || durationSeconds <= 0 || row.waitForLap ||
+            row.distance > 0.0 || row.rampDuration != QTime(0, 0, 0) || row.rampElapsed != QTime(0, 0, 0) ||
             !std::isfinite(row.speed)) {
-            return fail(QStringLiteral("iConsole programs require positive-duration non-ramp rows with finite speeds"));
+            return fail(QStringLiteral("iConsole programs require positive-duration whole-second timed rows without distance, Lap or ramps and with finite speeds"));
         }
 
         if (row.speed < 0.0 || row.speed > 254.9) {
@@ -259,36 +260,55 @@ bool trxappgateusbtreadmill::buildIconsoleWorkoutFrames(const QList<trainrow> &r
         totalDurationSeconds += durationSeconds;
     }
 
-    // Hardware runs verified 20 minutes with A4 0x15 and 10 minutes with
-    // A4 0x0b, including countdown and automatic stop. Keep those totals;
-    // variable slot durations are the next controlled hardware test.
-    if (totalDurationSeconds != 1200 && totalDurationSeconds != 600) {
-        return fail(QStringLiteral("iConsole programs currently require exactly twenty minutes or the ten-minute test; duration is not rescaled"));
+    // A4 encodes total minutes + 1; only 10/20 minutes are hardware-verified.
+    // Do not round a fractional total or overflow the one-byte field.
+    if (totalDurationSeconds % 60 != 0 || totalDurationSeconds < 60 || totalDurationSeconds > 254 * 60) {
+        return fail(QStringLiteral("iConsole total duration must be 1 to 254 whole minutes; duration is not rescaled"));
     }
-    const int slotDurationSeconds = totalDurationSeconds == 600 ? 30 : 60;
+    if (stages.size() > 20) {
+        return fail(QStringLiteral("iConsole programs support at most twenty timed rows"));
+    }
+
+    // Preserve the verified equal-slot uploads whenever all row boundaries fit.
+    const int equalSlotSeconds = totalDurationSeconds % 20 == 0 ? totalDurationSeconds / 20 : 0;
+    bool useEqualSlots = equalSlotSeconds > 0;
+    for (const WorkoutStage &stage : stages) {
+        if (equalSlotSeconds == 0 || stage.durationSeconds % equalSlotSeconds != 0) {
+            useEqualSlots = false;
+        }
+    }
+    QList<WorkoutStage> workoutSlots;
+    for (const WorkoutStage &stage : stages) {
+        if (useEqualSlots) {
+            for (int slot = 0; slot < stage.durationSeconds / equalSlotSeconds; ++slot) {
+                workoutSlots.append({stage.speed, stage.incline, equalSlotSeconds});
+            }
+        } else {
+            workoutSlots.append(stage);
+        }
+    }
+    // Fill the fixed twenty slots by splitting intervals at unchanged targets.
+    // Each original boundary and every second remain intact; no padding/truncation.
+    while (workoutSlots.size() < 20) {
+        int longest = 0;
+        for (int slot = 1; slot < workoutSlots.size(); ++slot) {
+            if (workoutSlots.at(slot).durationSeconds > workoutSlots.at(longest).durationSeconds) {
+                longest = slot;
+            }
+        }
+        WorkoutStage second = workoutSlots.at(longest);
+        workoutSlots[longest].durationSeconds /= 2;
+        second.durationSeconds -= workoutSlots.at(longest).durationSeconds;
+        workoutSlots.insert(longest + 1, second);
+    }
 
     QList<double> speedSlots;
     QByteArray inclinePayload;
     QList<int> slotDurations;
-    for (const WorkoutStage &stage : stages) {
-        // Twenty explicit rows map directly to the twenty protocol slots.
-        // Preserve each interval exactly, without sampling or rescaling it.
-        if (stages.size() == 20) {
-            speedSlots.append(stage.speed);
-            inclinePayload.append(static_cast<char>(qRound(stage.incline) + 1));
-            slotDurations.append(stage.durationSeconds);
-            continue;
-        }
-        if (stage.durationSeconds % slotDurationSeconds != 0) {
-            return fail(slotDurationSeconds == 60
-                            ? QStringLiteral("iConsole twenty-minute programs require whole-minute rows")
-                            : QStringLiteral("iConsole ten-minute test requires rows in whole 30-second multiples"));
-        }
-        for (int slot = 0; slot < stage.durationSeconds / slotDurationSeconds; ++slot) {
-            speedSlots.append(stage.speed);
-            inclinePayload.append(static_cast<char>(qRound(stage.incline) + 1));
-            slotDurations.append(slotDurationSeconds);
-        }
+    for (const WorkoutStage &slot : workoutSlots) {
+        speedSlots.append(slot.speed);
+        inclinePayload.append(static_cast<char>(qRound(slot.incline) + 1));
+        slotDurations.append(slot.durationSeconds);
     }
 
     auto frameWithPayload = [](quint8 command, const QByteArray &payload) {
@@ -311,9 +331,7 @@ bool trxappgateusbtreadmill::buildIconsoleWorkoutFrames(const QList<trainrow> &r
     modePayload.append(QByteArray(6, static_cast<char>(0x01)));
 
     QByteArray parameterPayload;
-    // Total minutes + 1 is hardware-verified for the 10/20-minute formats.
-    // Keep both acknowledged parameter payloads byte-identical.
-    const quint8 totalMinutesParameter = totalDurationSeconds == 600 ? 0x0b : 0x15;
+    const quint8 totalMinutesParameter = static_cast<quint8>(totalDurationSeconds / 60 + 1);
     parameterPayload.append(static_cast<char>(totalMinutesParameter));
     parameterPayload.append(QByteArray(10, static_cast<char>(0x01)));
 

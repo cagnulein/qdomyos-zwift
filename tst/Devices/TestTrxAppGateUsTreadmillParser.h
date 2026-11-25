@@ -404,21 +404,17 @@ TEST(TrxAppGateUsTreadmillParserTest, ResynchronizesAfterCorruptAckAndNoise) {
     EXPECT_TRUE(buffer.isEmpty());
 }
 
-TEST(TrxAppGateUsTreadmillParserTest, RejectsDurationRescalingAndUnrepresentableIntervals) {
+TEST(TrxAppGateUsTreadmillParserTest, RejectsUnencodableTotalsWithoutRescaling) {
     trainrow row;
     row.speed = 6;
-    row.duration = QTime(0, 2, 0);
     QList<QByteArray> frames;
     QString error;
-    EXPECT_FALSE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({row}, &frames, &error));
-    EXPECT_TRUE(error.contains(QStringLiteral("exactly twenty minutes")));
-    EXPECT_TRUE(frames.isEmpty());
-    row.duration = QTime(0, 5, 0);
-    trainrow second = row;
-    row.duration = QTime(0, 4, 45);
-    second.duration = QTime(0, 5, 15);
-    EXPECT_FALSE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({row, second}, &frames, &error));
-    EXPECT_TRUE(error.contains(QStringLiteral("30-second")));
+    for (int seconds : {59, 121, 599, 15241, 15300}) {
+        row.duration = QTime(0, 0, 0).addSecs(seconds);
+        EXPECT_FALSE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({row}, &frames, &error));
+        EXPECT_TRUE(error.contains(QStringLiteral("whole minutes")));
+        EXPECT_TRUE(frames.isEmpty());
+    }
     row.duration = QTime(0, 20, 0);
     row.speed = -1;
     EXPECT_FALSE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({row}, &frames, &error));
@@ -529,17 +525,30 @@ TEST(TrxAppGateUsTreadmillParserTest, ExpandsConstantTenMinuteTestWithoutRescali
     EXPECT_EQ(frames.at(5), QByteArray::fromHex("f0a901d3011f011f011f011f011f011f011f011f011f011fad"));
 }
 
-TEST(TrxAppGateUsTreadmillParserTest, KeepsTwentyMinuteRowsAlignedToVerifiedMinuteSlots) {
+TEST(TrxAppGateUsTreadmillParserTest, PreservesPreviouslyMisalignedTimedRows) {
     trainrow first;
     first.duration = QTime(0, 9, 30);
     first.speed = 3;
     trainrow second = first;
     second.duration = QTime(0, 10, 30);
+    second.speed = 4;
     QList<QByteArray> frames;
-    QString error;
-    EXPECT_FALSE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({first, second}, &frames, &error));
-    EXPECT_TRUE(error.contains(QStringLiteral("whole-minute")));
-    EXPECT_TRUE(frames.isEmpty());
+    ASSERT_TRUE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({first, second}, &frames));
+    int elapsed = 0;
+    int firstSeconds = 0;
+    for (int i = 0; i < 20; ++i) {
+        const int offset = 4 + 2 * (i % 10);
+        const QByteArray &duration = frames.at(i < 10 ? 5 : 6);
+        const QByteArray &speed = frames.at(i < 10 ? 2 : 3);
+        const int seconds = (quint8(duration.at(offset)) - 1) * 60 + quint8(duration.at(offset + 1)) - 1;
+        const int deciKmh = (quint8(speed.at(offset)) - 1) * 100 + quint8(speed.at(offset + 1)) - 1;
+        EXPECT_GT(seconds, 0);
+        EXPECT_EQ(deciKmh, elapsed < 570 ? 30 : 40);
+        if (deciKmh == 30) firstSeconds += seconds;
+        elapsed += seconds;
+    }
+    EXPECT_EQ(firstSeconds, 570);
+    EXPECT_EQ(elapsed, 1200);
 }
 
 TEST(TrxAppGateUsTreadmillParserTest, PreservesAlternatingTwentyAndFortySecondSlots) {
@@ -583,7 +592,7 @@ TEST(TrxAppGateUsTreadmillParserTest, EncodesMinuteAndSecondPartsOfExplicitSlots
 }
 
 TEST(TrxAppGateUsTreadmillParserTest, RejectsVariableRowsThatCannotMapExactlyToTwentySlots) {
-    for (int count : {19, 21}) {
+    for (int count : {21, 22}) {
         QList<trainrow> rows;
         for (int i = 0; i < count; ++i) {
             trainrow row;
@@ -602,4 +611,82 @@ TEST(TrxAppGateUsTreadmillParserTest, AcceptsHardwareVerifiedTenMinuteB4Reply) {
     const QByteArray ack = QByteArray::fromHex("f0b401d30b010101010101010101018d");
     EXPECT_TRUE(trxappgateusbtreadmill::iconsoleResponseMatches(0xa4, ack));
     EXPECT_FALSE(trxappgateusbtreadmill::iconsoleResponseMatches(0xa4, ack.left(15)));
+}
+
+// Exact rows parsed from the November 25 Garmin support log (540 seconds).
+TEST(TrxAppGateUsTreadmillParserTest, PreservesGarminNineMinuteWorkoutAtEverySecond) {
+    const QList<int> durations = {180, 30, 20, 60, 20, 30, 20, 180};
+    const QList<double> speeds = {8.365, 11.976, 8.571, 11.308, 8.571, 11.976, 8.571, 8.365};
+    QList<trainrow> rows;
+    for (int i = 0; i < durations.size(); ++i) {
+        trainrow row;
+        row.duration = QTime(0, 0, 0).addSecs(durations.at(i));
+        row.speed = speeds.at(i);
+        rows.append(row);
+    }
+    QList<QByteArray> frames;
+    ASSERT_TRUE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames(rows, &frames));
+    ASSERT_EQ(frames.size(), 8);
+    EXPECT_EQ(frames.at(1), QByteArray::fromHex("f0a401d30a010101010101010101017c"));
+    int elapsed = 0;
+    int sourceRow = 0;
+    int sourceEnd = durations.at(0);
+    for (int i = 0; i < 20; ++i) {
+        const int offset = 4 + 2 * (i % 10);
+        const QByteArray &duration = frames.at(i < 10 ? 5 : 6);
+        const QByteArray &speed = frames.at(i < 10 ? 2 : 3);
+        const int seconds = (quint8(duration.at(offset)) - 1) * 60 + quint8(duration.at(offset + 1)) - 1;
+        const int deciKmh = (quint8(speed.at(offset)) - 1) * 100 + quint8(speed.at(offset + 1)) - 1;
+        ASSERT_GT(seconds, 0);
+        for (int second = 0; second < seconds; ++second, ++elapsed) {
+            ASSERT_LT(elapsed, 540);
+            if (elapsed == sourceEnd) sourceEnd += durations.at(++sourceRow);
+            EXPECT_EQ(deciKmh, qRound(speeds.at(sourceRow) * 10)) << "second " << elapsed;
+            EXPECT_EQ(quint8(frames.at(4).at(4 + i)), 1);
+        }
+    }
+    EXPECT_EQ(elapsed, 540);
+    EXPECT_EQ(sourceRow, 7);
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, EncodesEveryRepresentableWholeMinuteTotal) {
+    for (int minutes = 1; minutes <= 254; ++minutes) {
+        trainrow row;
+        row.duration = QTime(0, 0, 0).addSecs(minutes * 60);
+        row.speed = 3;
+        QList<QByteArray> frames;
+        ASSERT_TRUE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({row}, &frames)) << minutes;
+        ASSERT_EQ(frames.size(), 8);
+        EXPECT_EQ(quint8(frames.at(1).at(4)), minutes + 1);
+        int total = 0;
+        for (int i = 0; i < 20; ++i) {
+            const auto &duration = frames.at(i < 10 ? 5 : 6);
+            const int offset = 4 + 2 * (i % 10);
+            const int seconds = (quint8(duration.at(offset)) - 1) * 60 + quint8(duration.at(offset + 1)) - 1;
+            EXPECT_GT(seconds, 0);
+            total += seconds;
+        }
+        EXPECT_EQ(total, minutes * 60);
+        for (const auto &frame : frames) {
+            quint8 checksum = 0;
+            for (int i = 0; i < frame.size() - 1; ++i) checksum += quint8(frame.at(i));
+            EXPECT_EQ(quint8(frame.back()), checksum);
+        }
+    }
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, RejectsDistanceLapAndFractionalSecondRows) {
+    trainrow row;
+    row.duration = QTime(0, 10, 0);
+    row.speed = 3;
+    QList<QByteArray> frames;
+    row.waitForLap = true;
+    EXPECT_FALSE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({row}, &frames));
+    row.waitForLap = false;
+    row.distance = 1;
+    EXPECT_FALSE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({row}, &frames));
+    row.distance = -1;
+    row.duration = QTime(0, 10, 0, 500);
+    EXPECT_FALSE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({row}, &frames));
+    EXPECT_TRUE(frames.isEmpty());
 }

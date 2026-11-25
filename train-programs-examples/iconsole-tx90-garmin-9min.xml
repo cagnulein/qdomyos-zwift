@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Exact timed rows from the November 25 Garmin test; nine minutes total. -->
+<rows>
+    <row duration="00:03:00" speed="8.365" inclination="0" forcespeed="1"/>
+    <row duration="00:00:30" speed="11.976" inclination="0" forcespeed="1"/>
+    <row duration="00:00:20" speed="8.571" inclination="0" forcespeed="1"/>
+    <row duration="00:01:00" speed="11.308" inclination="0" forcespeed="1"/>
+    <row duration="00:00:20" speed="8.571" inclination="0" forcespeed="1"/>
+    <row duration="00:00:30" speed="11.976" inclination="0" forcespeed="1"/>
+    <row duration="00:00:20" speed="8.571" inclination="0" forcespeed="1"/>
+    <row duration="00:03:00" speed="8.365" inclination="0" forcespeed="1"/>
+</rows>
