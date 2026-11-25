@@ -6,8 +6,15 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:9.1.1'
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.10.0'
+        // Variant PR workflows still use Gradle 8.13. The nightly uses Gradle 9 and API 37.
+        if (gradle.gradleVersion.startsWith('8.')) {
+            classpath 'com.android.tools.build:gradle:8.13.2'
+            classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20'
+            classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.5'
+        } else {
+            classpath 'com.android.tools.build:gradle:9.1.1'
+            classpath 'com.google.protobuf:protobuf-gradle-plugin:0.10.0'
+        }
     }
 }
 
@@ -17,11 +24,16 @@ repositories {
     maven { url = 'https://jitpack.io' }
 }
 
+def legacyGradle = gradle.gradleVersion.startsWith('8.')
+
 apply plugin: 'com.android.application'
+if (legacyGradle) {
+    apply plugin: 'org.jetbrains.kotlin.android'
+}
 apply plugin: 'com.google.protobuf'
 
 def amazon = System.getenv('AMAZON')
-def androidCompileSdk = (project.findProperty('androidCompileSdkVersion') ?: '35').toString()
+def androidCompileSdk = legacyGradle ? 35 : (project.findProperty('androidCompileSdkVersion') ?: '37').toInteger()
 def qtAndroidDir = project.findProperty('qt5AndroidDir') ?: System.getenv('QT_ANDROID_DIR')
 println(amazon)
 def qtAndroidBaseDir = qtAndroidDir ? qtAndroidDir.toString().replaceAll('/src/android/java/?$', '') : null
@@ -92,7 +104,7 @@ dependencies {
     implementation("com.garmin.connectiq:ciq-companion-app-sdk:2.3.0@aar")
 
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit:2.2.10'
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:${legacyGradle ? '2.1.20' : '2.2.10'}"
     testImplementation 'androidx.health.connect:connect-client:1.1.0-alpha11'
     testImplementation 'org.json:json:20231013'
 }
@@ -141,11 +153,17 @@ android {
      * Changing them manually might break the compilation!
      *******************************************************/
     namespace = 'org.cagnulen.qdomyoszwift'
-    compileSdk androidCompileSdk.toInteger()
+    compileSdk androidCompileSdk
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    if (legacyGradle) {
+        kotlinOptions {
+            jvmTarget = '1.8'
+        }
     }
 
     sourceSets {
@@ -217,7 +235,7 @@ android {
         applicationId = "org.cagnulen.qdomyoszwift"
         resConfig "en"
         minSdk 21
-        targetSdk 37
+        targetSdk (legacyGradle ? 36 : 37)
     }
 
     // FIXED: Packaging options ottimizzato per gestire i conflitti protobuf
