@@ -104,3 +104,60 @@ TEST(RowerWorkoutCounters, KeepsVirtualDistanceAcrossHardwareResetAndRebasesOnCo
     device.setHardwareDistance(0.375);
     EXPECT_EQ(250u, decodeDistance(distance.field(device)));
 }
+
+
+// Issue #5933, 25 Nov: virtual FTMS frames at 07:04:57 and 07:04:58
+// carried 518 then 0 strokes, while distance stayed at 4196 metres.
+TEST(RowerWorkoutCounters, KeepsVirtualStrokesAcrossConsecutivePelotonClasses) {
+    ReplayRower device;
+    virtualrower::FtmsStrokeCount strokes;
+    virtualrower::FtmsDistance distance;
+    const auto readStrokes = [&]() {
+        return strokes.field(device.currentStrokesCount(), 0);
+    };
+
+    // Recorded CE060036 frame at 06:41:22, physical counter 518.
+    device.concept2Stroke(QByteArray::fromHex("08 08 02 2c 00 c3 01 06 02 00 00 00 ee 14 00"));
+    device.advanceDistance(4.19601);
+    EXPECT_EQ(QByteArray::fromHex("06 02"), readStrokes());
+    EXPECT_EQ(QByteArray::fromHex("64 10 00"), distance.field(device));
+
+    device.clearStats();
+    EXPECT_DOUBLE_EQ(0, device.currentStrokesCount().value());
+    EXPECT_DOUBLE_EQ(0, device.odometer());
+    EXPECT_EQ(QByteArray::fromHex("06 02"), readStrokes());
+    EXPECT_EQ(QByteArray::fromHex("64 10 00"), distance.field(device));
+
+    // Recorded CE060036 frame at 07:05:04, physical counter 520.
+    device.concept2Stroke(QByteArray::fromHex("2b 0c 02 28 00 b7 01 08 02 00 00 00 c8 14 00"));
+    EXPECT_DOUBLE_EQ(2, device.currentStrokesCount().value());
+    EXPECT_EQ(QByteArray::fromHex("08 02"), readStrokes());
+
+    // Hardware resets are independent of QZ workout resets.
+    device.concept2Stroke(QByteArray::fromHex("00 00 00 00 00 00 00 00 00"));
+    EXPECT_EQ(QByteArray::fromHex("08 02"), readStrokes());
+    device.concept2Stroke(QByteArray::fromHex("00 00 00 00 00 00 00 01 00"));
+    EXPECT_EQ(QByteArray::fromHex("09 02"), readStrokes());
+
+    // New FTMS connection starts from the current workout count.
+    strokes = virtualrower::FtmsStrokeCount{};
+    EXPECT_EQ(QByteArray::fromHex("03 00"), readStrokes());
+}
+
+TEST(RowerWorkoutCounters, RetainsEstimatedStrokesWithoutHardwareCounter) {
+    virtualrower::FtmsStrokeCount strokes;
+    metric unavailable;
+    EXPECT_EQ(QByteArray::fromHex("00 00"), strokes.field(unavailable, 0));
+    EXPECT_EQ(QByteArray::fromHex("0c 00"), strokes.field(unavailable, 12));
+}
+
+TEST(RowerWorkoutCounters, KeepsVirtualStrokeCountWhenRawHardwareCounterResets) {
+    virtualrower::FtmsStrokeCount strokes;
+    metric hardware;
+    hardware = 518;
+    EXPECT_EQ(QByteArray::fromHex("06 02"), strokes.field(hardware, 0));
+    hardware = 0;
+    EXPECT_EQ(QByteArray::fromHex("06 02"), strokes.field(hardware, 0));
+    hardware = 1;
+    EXPECT_EQ(QByteArray::fromHex("07 02"), strokes.field(hardware, 0));
+}
