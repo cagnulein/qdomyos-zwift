@@ -158,6 +158,17 @@ function process_arr(arr) {
         inclination.push(inclinationel);
     }
 
+    // With the animation off Chart.js 3.4.1 updates only the points up to the first one at the x
+    // axis max (the time of the last point): when the session ends with points of one second, the
+    // ones after the first kept their old place on a resize (full screen, a turn of the phone).
+    // The lines keep the first point of that second
+    let lines = [watts, reqpower, reqcadence, heart, cadence, resistance, reqresistance,
+                 pelotonresistance, pelotonreqresistance, speed, inclination];
+    while (watts.length > 1 && watts[watts.length - 2].x === maxEl) {
+        for (let line of lines)
+            line.pop();
+    }
+
     $('.workoutName').text(workoutName);
     $('.workoutStartDate').text(workoutStartDate);
     $('.instructorName').text((instructorName));
