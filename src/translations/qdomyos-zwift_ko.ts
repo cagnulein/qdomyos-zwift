@@ -6510,8 +6510,8 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
         <translation>Garmin Bluetooth 센서</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Mac에서 Garmin 기기로 측정값을 보내려면 이 설정을 켜세요. 그렇지 않으면 꺼 두세요.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Garmin 또는 다른 스포츠 시계가 QZ를 Bluetooth 센서로 사용할 수 있습니다. 트레드밀에서는 풋팟, 자전거에서는 파워미터가 됩니다(Android에서는 &apos;자전거 파워 센서&apos;도 켜세요). 시계는 QZ가 실행 중인 휴대폰 또는 태블릿과 Bluetooth로 페어링되어 있어야 합니다. 시계가 QZ를 찾지 못하면 한 번 페어링한 다음 시계에서 센서를 추가하고 페어링 요청을 수락하세요. 같은 휴대폰에서 Garmin Connect가 시계와 연결되어 있으면 시계가 연결되는 동안 Garmin Connect를 두세 번 연속으로 강제 중지하세요. Garmin Connect가 없는 별도의 휴대폰이나 태블릿이 더 쉽습니다. QZ가 시계용 센서로 작동하는 동안 Zwift는 QZ를 풋팟이나 파워미터로만 인식하며, 제어할 수 있는 기기로는 인식하지 않습니다.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>

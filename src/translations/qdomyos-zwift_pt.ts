@@ -6843,8 +6843,8 @@ Permitir que o QZ altere esse valor?
         <translation>Sensor Bluetooth Garmin</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Para enviar métricas para o seu dispositivo Garmin a partir do Mac, ative esta opção. Caso contrário, mantenha desativado.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Permite que o seu relógio Garmin ou outro relógio desportivo use o QZ como sensor Bluetooth: um sensor de passada com uma passadeira, um medidor de potência com uma bicicleta (no Android, ative também «Sensor de Potência da Bicicleta»). O relógio tem de estar emparelhado por Bluetooth com o telemóvel ou tablet que executa o QZ: se não encontrar o QZ, emparelhe-os uma vez, depois adicione o sensor no relógio e aceite o pedido de emparelhamento. Se o Garmin Connect estiver ligado ao relógio no mesmo telemóvel, force a paragem dele duas ou três vezes seguidas enquanto o relógio se liga; é mais fácil um telemóvel ou tablet separado sem Garmin Connect. Enquanto o QZ funciona como sensor para o relógio, o Zwift vê-o apenas como sensor de passada ou medidor de potência, não como uma máquina que possa controlar.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>

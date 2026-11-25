@@ -6803,8 +6803,8 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Garmin 蓝牙传感器</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>如果您想从 Mac 将数据发送到您的 Garmin 设备，请启用此项。否则请保持禁用。</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>让您的 Garmin 或其他运动手表把 QZ 当作蓝牙传感器使用：跑步机时为步频传感器，单车时为功率计（在 Android 上还需打开“自行车功率传感器”）。手表需要与运行 QZ 的手机或平板进行蓝牙配对：如果找不到 QZ，请先配对一次，然后在手表上添加传感器并接受配对请求。如果同一部手机上的 Garmin Connect 已与手表连接，请在手表连接时连续强制停止 Garmin Connect 两到三次；使用一部没有 Garmin Connect 的单独手机或平板更简单。当 QZ 作为手表的传感器工作时，Zwift 只会把它识别为步频传感器或功率计，而不是可以控制的设备。</translation>
     </message>
     <message>
         <source>Enable Companion App</source>

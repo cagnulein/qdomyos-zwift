@@ -6285,7 +6285,7 @@ Si tries No, QZ activa Without Wheel Diameter Protocol (Configuració &gt; Opcio
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift sees it only as a foot pod or a power meter, not as a machine it can control.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
