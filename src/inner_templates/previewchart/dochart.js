@@ -262,11 +262,10 @@ function process_arr(arr) {
             ]
         },
         options: {
-            animation: {
-              onComplete: function() {
-                  // Preview mode - no chart saving
-              }
-            },
+            // A finished workout has no live updates to animate, and Chart.js resolves the animation
+            // of every point of every line (thousands on a long workout) before it draws: no
+            // animation on any chart of the preview, so the page shows the charts at once
+            animation: false,
             responsive: true,
             aspectRatio: 1.5,
             grid: {
@@ -439,11 +438,7 @@ function process_arr(arr) {
             }]
         },
         options: {
-            animation: {
-              onComplete: function() {
-                  // Preview mode - no chart saving
-              }
-            },
+            animation: false,
             responsive: true,
             aspectRatio: 1.5,
             grid: {
@@ -592,11 +587,7 @@ function process_arr(arr) {
             ]
         },
         options: {
-            animation: {
-              onComplete: function() {
-                  // Preview mode - no chart saving
-              }
-            },
+            animation: false,
             responsive: true,
             aspectRatio: 1.5,
             grid: {
@@ -692,11 +683,7 @@ function process_arr(arr) {
             ]
         },
         options: {
-            animation: {
-              onComplete: function() {
-                  // Preview mode - no chart saving
-              }
-            },
+            animation: false,
             responsive: true,
             aspectRatio: 1.5,
             grid: {
@@ -792,11 +779,7 @@ function process_arr(arr) {
             ]
         },
         options: {
-            animation: {
-              onComplete: function() {
-                  // Preview mode - no chart saving
-              }
-            },
+            animation: false,
             responsive: true,
             aspectRatio: 1.5,
             grid: {
@@ -879,11 +862,7 @@ function process_arr(arr) {
             ]
         },
         options: {
-            animation: {
-              onComplete: function() {
-                  // Preview mode - no chart saving
-              }
-            },
+            animation: false,
             responsive: true,
             aspectRatio: 1.5,
             plugins: {
@@ -955,11 +934,7 @@ function process_arr(arr) {
             ]
         },
         options: {
-            animation: {
-              onComplete: function() {
-                  // Preview mode - no chart saving
-              }
-            },
+            animation: false,
             responsive: true,
             aspectRatio: 1.5,
             grid: {
