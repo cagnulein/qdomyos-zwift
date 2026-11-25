@@ -205,7 +205,7 @@ Vil du gøre det nu?</translation>
     </message>
     <message>
         <source>Try the new interface?</source>
-        <translation>Prøv den nye brugerflade?</translation>
+        <translation>Vil du prøve den nye brugerflade?</translation>
     </message>
     <message>
         <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>

@@ -452,8 +452,9 @@ HomeForm {
             rootItem.enableLocationServices()
         }
         onNoClicked: {
-            locationServicesDeclined = true
+            // the reminder first: locationQuestions below stays true from this question to the reminder
             remindLocationServicesDialog.visible = true
+            locationServicesDeclined = true
         }
         visible: !locationServicesOn && !locationServiceRequsted && !locationServicesDeclined && !settings.skipLocationServicesDialog
     }
@@ -477,22 +478,39 @@ HomeForm {
         visible: locationServiceRequsted && !locationServicesOn
     }
 
+    // A Bluetooth/Location question is open or still to come: the permission question, "Restart the
+    // app" after its Yes (both while Location stays off), the reminder after its No. By the state the
+    // questions follow, not by their visible: one answer hides one and shows the next, and a
+    // binding on both could see neither for a moment
+    readonly property bool locationQuestions: (!locationServicesOn && !locationServicesDeclined
+                                               && !settings.skipLocationServicesDialog)
+                                              || remindLocationServicesDialog.visible
+
     // Who used QZ before the modern look became the look of a new install is asked once
     // (homeform::startModernForNewInstall()); the classic side menu offers it again (main.qml).
-    // After the Bluetooth and Location questions, not over them
+    // After the Bluetooth and Location questions, not over them: with "Restart the app" declined,
+    // at the next start
     UiMessageDialog {
         id: modernOfferDialog
+        // Yes switches the look once this popup has closed: switched while it closes, the popup
+        // takes the size and the card of the modern look for the rest of its exit
+        property bool switchWhenClosed: false
         text: qsTr("Try the new interface?")
         informativeText: qsTr("QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings > General UI Options.")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         backAnswersNo: true
         onYesClicked: {
+            switchWhenClosed = true
             rootItem.answerModernOffer()
-            window.ui.setOption("ui_modern", true)
         }
         onNoClicked: rootItem.answerModernOffer()
-        visible: rootItem.modernOfferRequested && !window.ui.modern && !locationServicesDialog.visible
-                 && !remindLocationServicesDialog.visible
+        onClosed: {
+            if (switchWhenClosed) {
+                switchWhenClosed = false
+                window.ui.setOption("ui_modern", true)
+            }
+        }
+        visible: rootItem.modernOfferRequested && !window.ui.modern && !locationQuestions
     }
 
     Timer {

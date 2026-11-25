@@ -500,6 +500,13 @@ class homeform : public QObject {
             settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
         bool antbike =
             settings.value(QZSettings::antbike, QZSettings::default_antbike).toBool();
+        // bluetooth.cpp connects these with no Bluetooth name stored: the Peloton OCR bike in its constructor,
+        // a DirCon device by the name picked in filter_device (connectDirconDevice())
+        bool peloton_bike_ocr =
+            settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool();
+        bool dircon = settings.value(QZSettings::filter_device, QZSettings::default_filter_device)
+                          .toString()
+                          .contains(QStringLiteral("(DirCon)"), Qt::CaseInsensitive);
 
         return settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name).toString().isEmpty() && 
                 nordictrack_2950_ip.isEmpty() && tdf_10_ip.isEmpty() && !fake_bike && !fakedevice_elliptical &&
@@ -507,7 +514,7 @@ class homeform : public QObject {
                 proformtdf4ip.isEmpty() && proformtdf1ip.isEmpty() && proformtreadmillip.isEmpty() &&
                 freebeatSerialPort.isEmpty() && daumSerialPort.isEmpty() && computrainerSerialPort.isEmpty() &&
                 kettlerUsbSerialPort.isEmpty() && csafeRowerSerialPort.isEmpty() && csafeEllipticalSerialPort.isEmpty() &&
-                proform_rower_ip.isEmpty();
+                proform_rower_ip.isEmpty() && !peloton_bike_ocr && !dircon;
     }
 
     Q_INVOKABLE bool firstRun() { return neverConnected(); }
