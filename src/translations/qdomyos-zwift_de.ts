@@ -312,6 +312,14 @@ Would you like to do that now?</source>
 Möchten Sie das jetzt tun?</translation>
     </message>
     <message>
+        <source>Try the new interface?</source>
+        <translation>Neue Oberfläche ausprobieren?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ hat ein neues Aussehen für den Hauptbildschirm, das Seitenmenü, die Einstellungen und den Assistenten. Zurückwechseln können Sie jederzeit unter Einstellungen &gt; Allgemeine UI-Optionen.</translation>
+    </message>
+    <message>
         <source>Adjustable. Current value: </source>
         <translation>Einstellbar. Aktueller Wert: </translation>
     </message>
@@ -4704,6 +4712,10 @@ Erlauben Sie im nächsten Fenster den Zugriff auf den QZ-Ordner.</translation>
     <message>
         <source>Settings</source>
         <translation>Einstellungen</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>Neue Oberfläche ausprobieren</translation>
     </message>
     <message>
         <source>Workouts History</source>

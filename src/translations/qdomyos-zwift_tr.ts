@@ -220,6 +220,14 @@ Would you like to do that now?</source>
 Şimdi yeniden başlatılsın mı?</translation>
     </message>
     <message>
+        <source>Try the new interface?</source>
+        <translation>Yeni arayüzü denemek ister misiniz?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ&apos;nin ana ekranı, yan menüsü, ayarları ve sihirbazı yeni bir görünüme kavuştu. İstediğiniz zaman Ayarlar &gt; Genel arayüz seçenekleri bölümünden eskisine dönebilirsiniz.</translation>
+    </message>
+    <message>
         <source>Adjustable. Current value: </source>
         <translation>Ayarlanabilir. Geçerli değer: </translation>
     </message>
@@ -4594,6 +4602,10 @@ Sonraki pencerede QZ klasörüne erişime izin verin.</translation>
     <message>
         <source>Settings</source>
         <translation>Ayarlar</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>Yeni arayüzü deneyin</translation>
     </message>
     <message>
         <source>Workouts History</source>

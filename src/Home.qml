@@ -477,11 +477,31 @@ HomeForm {
         visible: locationServiceRequsted && !locationServicesOn
     }
 
+    // Who used QZ before the modern look became the look of a new install is asked once
+    // (homeform::startModernForNewInstall()); the classic side menu offers it again (main.qml).
+    // After the Bluetooth and Location questions, not over them
+    UiMessageDialog {
+        id: modernOfferDialog
+        text: qsTr("Try the new interface?")
+        informativeText: qsTr("QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings > General UI Options.")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        backAnswersNo: true
+        onYesClicked: {
+            rootItem.answerModernOffer()
+            window.ui.setOption("ui_modern", true)
+        }
+        onNoClicked: rootItem.answerModernOffer()
+        visible: rootItem.modernOfferRequested && !window.ui.modern && !locationServicesDialog.visible
+                 && !remindLocationServicesDialog.visible
+    }
+
     Timer {
         interval: 200; running: true; repeat: false
         onTriggered: {
             if(rootItem.firstRun()) {
                 stackView.push("Wizard.qml")
+            } else {
+                rootItem.requestModernOffer()
             }
         }
     }

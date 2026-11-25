@@ -312,6 +312,14 @@ Would you like to do that now?</source>
 Перезапустити зараз?</translation>
     </message>
     <message>
+        <source>Try the new interface?</source>
+        <translation>Спробувати новий інтерфейс?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>У QZ новий вигляд головного екрана, бічного меню, налаштувань і майстра. Повернути попередній можна будь-коли: Налаштування &gt; Загальні параметри інтерфейсу.</translation>
+    </message>
+    <message>
         <source>Adjustable. Current value: </source>
         <translation>Регулюється. Поточне значення: </translation>
     </message>
@@ -4696,6 +4704,10 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>Settings</source>
         <translation>Налаштування</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>Спробувати новий інтерфейс</translation>
     </message>
     <message>
         <source>Workouts History</source>

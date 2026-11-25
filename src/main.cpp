@@ -1569,6 +1569,9 @@ int main(int argc, char *argv[]) {
         LogWriter::maxFileSize = 50 * 1024 * 1024;
     }
 
+    // Before the QML is loaded: a new install opens in the modern look at once
+    homeform::startModernForNewInstall();
+
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
 
     if (fit_file_saved_on_quit) {

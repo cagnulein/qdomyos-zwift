@@ -1375,6 +1375,8 @@ const QString QZSettings::ui_accent = QStringLiteral("ui_accent");
 const QString QZSettings::default_ui_accent = QStringLiteral("violet");
 const QString QZSettings::ui_theme_mode = QStringLiteral("ui_theme_mode");
 const QString QZSettings::default_ui_theme_mode = QStringLiteral("auto");
+const QString QZSettings::ui_modern_new_install_checked = QStringLiteral("ui_modern_new_install_checked");
+const QString QZSettings::ui_modern_offer_pending = QStringLiteral("ui_modern_offer_pending");
 
 const QString QZSettings::wahoo_wheel_question_answered = QStringLiteral("wahoo_wheel_question_answered");
 

@@ -312,6 +312,14 @@ Would you like to do that now?</source>
 现在是否重启？</translation>
     </message>
     <message>
+        <source>Try the new interface?</source>
+        <translation>要试用新界面吗？</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ 的主屏幕、侧边菜单、设置和向导采用了全新外观。您可以随时在 设置 &gt; 通用 UI 选项 中切换回来。</translation>
+    </message>
+    <message>
         <source>Adjustable. Current value: </source>
         <translation>可调。当前值： </translation>
     </message>
@@ -4712,6 +4720,10 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>Settings</source>
         <translation>设置</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>试用新界面</translation>
     </message>
     <message>
         <source>Workouts History</source>

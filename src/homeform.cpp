@@ -2201,6 +2201,62 @@ bool homeform::startFirstSetupLog() {
     return true;
 }
 
+// The modern look for a new install: a QZ that has never connected a device (the first start after the
+// install, or one that never got as far as a device) opens in the modern look; who used QZ before keeps the
+// classic look and is asked once on the home page (requestModernOffer()). default_ui_modern stays false, so
+// the saved settings of everyone else are untouched. Decided once, at the first start of a QZ with this code
+void homeform::startModernForNewInstall() {
+    QSettings settings;
+    if (settings.value(QZSettings::ui_modern_new_install_checked, QZSettings::default_ui_modern_new_install_checked)
+            .toBool()) {
+        return;
+    }
+    settings.setValue(QZSettings::ui_modern_new_install_checked, true);
+    if (settings.value(QZSettings::ui_modern, QZSettings::default_ui_modern).toBool()) {
+        qDebug() << "modern look for a new install: already on";
+        return;
+    }
+    if (neverConnected()) {
+        settings.setValue(QZSettings::ui_modern, true);
+        qDebug() << "modern look for a new install: turned on";
+    } else {
+        settings.setValue(QZSettings::ui_modern_offer_pending, true);
+        qDebug() << "modern look for a new install: used before, the home page will ask";
+    }
+}
+
+void homeform::requestModernOffer(bool fromMenu) {
+    if (!fromMenu) {
+        QSettings settings;
+        if (!settings.value(QZSettings::ui_modern_offer_pending, QZSettings::default_ui_modern_offer_pending)
+                 .toBool()) {
+            return;
+        }
+        // Turned on in the settings meanwhile: nothing to ask
+        if (settings.value(QZSettings::ui_modern, QZSettings::default_ui_modern).toBool()) {
+            settings.setValue(QZSettings::ui_modern_offer_pending, false);
+            return;
+        }
+        // Not over a workout: the question waits for the next start
+        if (!Session.isEmpty() && !paused && !stopped) {
+            qDebug() << "modern look offer: a workout is under way, asked at the next start";
+            return;
+        }
+    }
+    if (!m_modernOfferRequested) {
+        m_modernOfferRequested = true;
+        emit modernOfferRequestedChanged(true);
+    }
+}
+
+void homeform::answerModernOffer() {
+    QSettings().setValue(QZSettings::ui_modern_offer_pending, false);
+    if (m_modernOfferRequested) {
+        m_modernOfferRequested = false;
+        emit modernOfferRequestedChanged(false);
+    }
+}
+
 bool homeform::hasConnectedDevice() const {
     return bluetoothManager && bluetoothManager->device();
 }

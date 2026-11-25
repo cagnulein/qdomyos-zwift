@@ -2361,6 +2361,18 @@ ApplicationWindow {
                     onClicked: drawerAction("settings")
                 }
 
+                // The question of the home page again (Home.qml), for who said no or closed it
+                ItemDelegate {
+                    text: qsTr("Try the new interface")
+                    width: parent.width
+                    onClicked: {
+                        drawer.close()
+                        rootItem.requestModernOffer(true)
+                    }
+                    // Qt 5.15: the double tap of the screen reader does not send clicked()
+                    Accessible.onPressAction: clicked()
+                }
+
             ItemDelegate {
                 text: qsTr("Workouts History")
                 width: parent.width
