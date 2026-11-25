@@ -196,25 +196,39 @@ class HealthConnectHelper {
             else -> null
         }
 
-        // The samples the session covers: from the first sample that moves to the sample after the
-        // last one that moves (where it stopped). The whole session when the equipment never shows
-        // movement this way, or is of another kind. QZ records from the moment the equipment
-        // connects, so without this the minutes before Start and after Stop count as exercise;
-        // the elapsed time is no guide, as it also runs at zero speed with continuous_moving.
-        // Pauses in the middle stay inside the session
+        // Whether anything at all still shows the workout going on: speed, cadence or power, or the
+        // distance still growing. Used for the end of the session, so that a sensor that stops
+        // reporting halfway (cadence lost while power and distance still arrive) does not end it
+        private fun anyActivity(sample: JSONObject, previous: JSONObject?): Boolean =
+            sample.optDouble("speed", 0.0) > 0.0 ||
+                sample.optDouble("cadence", 0.0) > 0.0 ||
+                sample.optDouble("watt", 0.0) > 0.0 ||
+                (previous != null && sample.optDouble("distance", 0.0) > previous.optDouble("distance", 0.0))
+
+        // The samples the session covers: from the first sample that moves (movingTest) to the
+        // sample after the last one with any activity (anyActivity), where it stopped. The whole
+        // session when the equipment never shows movement by movingTest, or is of another kind.
+        // QZ records from the moment the equipment connects, so without this the minutes before
+        // Start and after Stop count as exercise; the elapsed time is no guide, as it also runs at
+        // zero speed with continuous_moving. Pauses in the middle stay inside the session
         @JvmStatic
         fun activeRange(samples: JSONArray, deviceType: Int): IntRange {
             val whole = 0 until samples.length()
             val moving = movingTest(deviceType) ?: return whole
             var first = -1
-            var last = -1
             for (i in 0 until samples.length()) {
                 if (moving(samples.getJSONObject(i))) {
-                    if (first < 0) first = i
-                    last = i
+                    first = i
+                    break
                 }
             }
             if (first < 0) return whole
+            var last = first
+            for (i in first + 1 until samples.length()) {
+                if (anyActivity(samples.getJSONObject(i), samples.getJSONObject(i - 1))) {
+                    last = i
+                }
+            }
             return first..minOf(last + 1, samples.length() - 1)
         }
 
