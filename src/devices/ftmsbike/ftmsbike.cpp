@@ -179,6 +179,11 @@ bool ftmsbike::matchesRecentResistanceCommand(resistance_t nativeLevel,
     return false;
 }
 
+bool ftmsbike::isPhysicalResistanceCommandSettling(qint64 elapsedSinceWriteMs,
+                                                    qint64 settlingWindowMs) {
+    return elapsedSinceWriteMs >= 0 && elapsedSinceWriteMs < settlingWindowMs;
+}
+
 resistance_t ftmsbike::relativeResistanceTarget(resistance_t desiredLevel, resistance_t oldGradeBase,
                                                  resistance_t newGradeBase) {
     // Shift the CURRENT manual/native position by the gradient delta, not to an
@@ -1977,6 +1982,14 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
                 const bool commandEcho = matchesRecentResistanceCommand(
                     nativeLevel, recentPhysicalResistanceCommands, nowMs, commandHistoryMs);
+                const qint64 sinceResistanceWriteMs = lastPhysicalResistanceWrite.isValid()
+                    ? lastPhysicalResistanceWrite.msecsTo(now) : -1;
+                // Delayed motor responses may overshoot the command target.
+                // In build 1707, 4->6 was reported 1.5 s after a target of 5
+                // and was falsely counted as a +2 physical shift. A settling
+                // window prevents this feedback even outside the target range.
+                const bool resistanceSettling = isPhysicalResistanceCommandSettling(
+                    sinceResistanceWriteMs, 2000);
                 const qint64 sinceOtherControlMs = lastPhysicalGearOtherControlCommand.isValid()
                     ? lastPhysicalGearOtherControlCommand.msecsTo(now) : -1;
                 const bool otherControlEcho = sinceOtherControlMs >= 0 && sinceOtherControlMs < 3000;
@@ -1984,7 +1997,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 resistance_t gearDelta = 0;
                 // Only unscripted changes OUTSIDE every recent command's
                 // response trajectory can count as a hardware shift.
-                if (!commandEcho && !otherControlEcho &&
+                if (!commandEcho && !resistanceSettling && !otherControlEcho &&
                     physicalResistanceGearDelta(lastPhysicalGearResistance, nativeLevel,
                                                 -1, bi9200Limits, &gearDelta)) {
                     qDebug() << QStringLiteral("BH BI9200 physical shift")
