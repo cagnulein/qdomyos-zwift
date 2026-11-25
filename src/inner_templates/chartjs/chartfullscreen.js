@@ -1,11 +1,10 @@
 // Full screen charts (chartjs/chart.htm and the workout history, previewchart/chart.htm, with
 // chartfullscreen.css): a button in the top-left corner of every chart card spreads the card over
-// the whole page; there the shown charts go one after another with a swipe, and the button, the
-// back key (ChartJsTest.qml, PreviewChart.qml: handleBack) or the back arrow bring the page back.
+// the whole page; there the shown charts go one after another with a swipe, and the button or the
+// back key (ChartJsTest.qml, PreviewChart.qml: handleBack) bring the page back.
 // The charts come through qzcharttheme.js (create, restyle), which calls prepare/chartChanged.
-// A CSS overlay, not the Fullscreen API: that one does not work in the app's web view.
 // The app learns the state from the page title (WebView.title): FS_TITLE while spread.
-// Plain ES5, the syntax of dochartlive.js: the web view of Android 5.1 runs it.
+// Plain ES5.
 (function () {
     var FS_TITLE = 'Line Chart #fullscreen';
     var ICON_EXPAND = 'M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z';
@@ -15,6 +14,10 @@
     var TOAST_MS = 3000;
     var BUTTON_ROW_PX = 36; // the height of the button (chartfullscreen.css)
     var BASE_FONT_PX = 12;  // Chart.js default font size, the one the page's charts use
+    // room kept free on each side of the centred title of a spread chart: the button (48 px) on the
+    // left, the counter "i / N" (chartfullscreen.css: 20 px, 16 px from the edge) on the right
+    var TITLE_SIDE_PX = 72;
+    var measure = null;     // a 2d context to measure the title
 
     var normalTitle = document.title;
     var current = null;     // the spread card
@@ -167,11 +170,57 @@
             if (scale.title && scale.title.display)
                 setPath(options, ['scales', id, 'title', 'font', 'size'], tick);
         });
-        setPath(options, ['plugins', 'title', 'font', 'size'], Math.round(tick * 1.2));
+        bigTitle(options, tick);
         setPath(options, ['plugins', 'legend', 'labels', 'font', 'size'], tick);
         // the values under a held finger, readable as the axes
         setPath(options, ['plugins', 'tooltip', 'titleFont', 'size'], tick);
         setPath(options, ['plugins', 'tooltip', 'bodyFont', 'size'], tick);
+    }
+
+    // the title of the spread chart, 1.2 times the labels; one that does not fit between the button
+    // and the counter (the uk "Peloton Resistance vs Target Peloton Resistance" went under both)
+    // gets smaller, down to the size of the labels, then goes on two lines: Chart.js does not wrap it
+    function bigTitle(options, tick) {
+        var size = Math.round(tick * 1.2);
+        var title = options.plugins && options.plugins.title;
+        var text = title && title.display ? title.text : null;
+        if (typeof text === 'string' && text.length) {
+            var room = window.innerWidth - 2 * TITLE_SIDE_PX;
+            var font = title.font || {};
+            var family = font.family || (Chart.defaults.font && Chart.defaults.font.family) || 'sans-serif';
+            var weight = font.weight || 'bold'; // Chart.js default of the title
+            if (!measure)
+                measure = document.createElement('canvas').getContext('2d');
+            var width = function (t) {
+                measure.font = weight + ' ' + size + 'px ' + family;
+                return measure.measureText(t).width;
+            };
+            var full = width(text);
+            if (full > room)
+                size = Math.max(tick, Math.floor(size * room / full));
+            if (width(text) > room) {
+                var lines = twoLines(text, width);
+                if (lines)
+                    setPath(options, ['plugins', 'title', 'text'], lines);
+            }
+        }
+        setPath(options, ['plugins', 'title', 'font', 'size'], size);
+    }
+
+    // the text split at the space that makes the longer of the two lines the shortest; null
+    // without a space
+    function twoLines(text, width) {
+        var best = null;
+        var bestWidth = 0;
+        for (var i = text.indexOf(' '); i > 0; i = text.indexOf(' ', i + 1)) {
+            var lines = [text.slice(0, i), text.slice(i + 1)];
+            var w = Math.max(width(lines[0]), width(lines[1]));
+            if (!best || w < bestWidth) {
+                best = lines;
+                bestWidth = w;
+            }
+        }
+        return best;
     }
 
     // the button sits in the title row: a taller row keeps it off the top label of the y axis

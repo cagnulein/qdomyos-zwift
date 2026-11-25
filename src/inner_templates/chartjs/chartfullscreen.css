@@ -19,6 +19,15 @@
     line-height: 0;
     -webkit-tap-highlight-color: transparent;
 }
+/* a touch target of 48 px around the 36 px button, to the right and down (it sits in the corner) */
+.qz-fs-button::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 48px;
+    height: 48px;
+}
 .qz-fs-button:active {
     background-color: rgba(128,128,128,0.25);
 }
@@ -34,6 +43,7 @@ html.modern div.qz-fs-card.qz-fs-on {   /* over the rounded cards of the modern 
     right: 0;
     bottom: 0;
     z-index: 90;
+    margin: 0 !important;   /* the 8 px above the cards of the modern look left the page seen above it */
     border-radius: 0 !important;
 }
 .qz-fs-on .qz-fs-button {
