@@ -112,6 +112,14 @@ horizontreadmill::processParagonNotification(const QByteArray &newValue) {
     return result;
 }
 
+void horizontreadmill::applyParagonTelemetry(const ParagonXTelemetry::Metrics &metrics) {
+    // Preserve the raw speed for diagnostics while exposing a true zero to
+    // Zwift when the belt reports Pause/Stop (0x02/0x04).
+    paragonSessionState.observe(metrics.machineState);
+    parseSpeed(paragonSessionState.publishedSpeed(metrics.speedKmh));
+    parseInclination(treadmillInclinationOverride(metrics.inclinePercent));
+}
+
 void horizontreadmill::btinit() {
     QSettings settings;
     QStringList horizon_treadmill_profile_users;
@@ -1764,11 +1772,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                        reinterpret_cast<const uint8_t *>(lastPacketComplete.constData()),
                        static_cast<std::size_t>(lastPacketComplete.size()), false, metrics));
         if (decoded) {
-            // Status 0x02/0x04 means the belt is stopped even if the firmware
-            // keeps reporting the previous non-zero target speed.
-            paragonSessionState.observe(metrics.machineState);
-            parseSpeed(paragonSessionState.publishedSpeed(metrics.speedKmh));
-            parseInclination(treadmillInclinationOverride(metrics.inclinePercent));
+            applyParagonTelemetry(metrics);
         } else {
             // Retain the preexisting complete-frame parsing for every other
             // Horizon model (and any Paragon frame of an older format).
