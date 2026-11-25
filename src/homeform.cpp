@@ -2960,11 +2960,11 @@ void homeform::toggleFloatingMetrics() {
 
 void homeform::updateFloatingMetrics() {
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
-    QList<QPair<QString, QString>> metrics;
+    QList<iosFloatingMetrics::Metric> metrics;
     for (QObject *object : dataList) {
         DataObject *tile = static_cast<DataObject *>(object);
         if (tile->visibleItem() && !tile->largeButton() && !tile->value().isEmpty())
-            metrics.append(qMakePair(tile->name(), tile->value()));
+            metrics.append(iosFloatingMetrics::Metric{tile->name(), tile->value(), tile->valueFontColor()});
     }
     iosFloatingMetrics::update(metrics, tr("No enabled metrics"));
 #endif

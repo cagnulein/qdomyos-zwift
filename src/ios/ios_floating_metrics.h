@@ -2,7 +2,6 @@
 #define IOS_FLOATING_METRICS_H
 
 #include <QList>
-#include <QPair>
 #include <QString>
 
 class iosFloatingMetrics {
@@ -10,7 +9,12 @@ public:
     static bool supported();
     static void start();
     static void stop();
-    static void update(const QList<QPair<QString, QString>> &metrics, const QString &emptyLabel);
+    struct Metric {
+        QString name;
+        QString value;
+        QString valueFontColor;
+    };
+    static void update(const QList<Metric> &metrics, const QString &emptyLabel);
     static bool running();
 };
 #endif

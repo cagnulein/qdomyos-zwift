@@ -3,6 +3,7 @@
 #import <AVKit/AVKit.h>
 #import <UIKit/UIKit.h>
 #include <QDebug>
+#include <QColor>
 #include "ios/ios_floating_metrics.h"
 
 // Draw the complete text on one line, scaling it to fit rather than truncating it.
@@ -174,7 +175,13 @@ API_AVAILABLE(ios(15.0))
         CGFloat x = (i % columns) * cellWidth + horizontalPadding;
         CGFloat y = topPadding + (i / columns) * cellHeight + verticalPadding;
         QZDrawFittedText(shown[i][0], CGRectMake(x, y, textWidth, labelHeight), labelFont, UIColor.lightGrayColor);
-        QZDrawFittedText(shown[i][1], CGRectMake(x, y + labelHeight + gap, textWidth, valueHeight), valueFont, UIColor.whiteColor);
+        // Qt parses the same named and hexadecimal colors used by QML.
+        // The PiP always has a dark background, like the original dark QZ tiles.
+        const QColor color(QString::fromUtf8(shown[i][2].UTF8String));
+        UIColor *valueColor = color.isValid()
+            ? [UIColor colorWithRed:color.redF() green:color.greenF() blue:color.blueF() alpha:color.alphaF()]
+            : UIColor.whiteColor;
+        QZDrawFittedText(shown[i][1], CGRectMake(x, y + labelHeight + gap, textWidth, valueHeight), valueFont, valueColor);
     }
     // Keep the empty state and page indicator at their original nominal size.
     UIFont *smallFont = [UIFont systemFontOfSize:17 weight:UIFontWeightMedium];
@@ -229,10 +236,16 @@ bool iosFloatingMetrics::supported() {
 void iosFloatingMetrics::start() { if (@available(iOS 15.0, *)) dispatch_async(dispatch_get_main_queue(), ^{ [[QZFloatingMetrics shared] start]; }); }
 void iosFloatingMetrics::stop() { if (@available(iOS 15.0, *)) dispatch_async(dispatch_get_main_queue(), ^{ QZFloatingMetrics *pip = [QZFloatingMetrics shared]; if (pip.controller.isPictureInPictureActive) [pip.controller stopPictureInPicture]; else [pip finish]; }); }
 bool iosFloatingMetrics::running() { if (@available(iOS 15.0, *)) return [QZFloatingMetrics shared].controller != nil; return false; }
-void iosFloatingMetrics::update(const QList<QPair<QString, QString>> &metrics, const QString &emptyLabel) {
+void iosFloatingMetrics::update(const QList<iosFloatingMetrics::Metric> &metrics, const QString &emptyLabel) {
     if (@available(iOS 15.0, *)) {
         NSMutableArray *items = [NSMutableArray arrayWithCapacity:metrics.size()];
-        for (const auto &metric : metrics) [items addObject:@[[NSString stringWithUTF8String:metric.first.toUtf8().constData()], [NSString stringWithUTF8String:metric.second.toUtf8().constData()]]];
+        // Include the color in the frame signature as well as the display data:
+        // a zone/color change must refresh even when the formatted value is unchanged.
+        for (const auto &metric : metrics) {
+            [items addObject:@[[NSString stringWithUTF8String:metric.name.toUtf8().constData()],
+                               [NSString stringWithUTF8String:metric.value.toUtf8().constData()],
+                               [NSString stringWithUTF8String:metric.valueFontColor.toUtf8().constData()]]];
+        }
         NSString *emptyText = [NSString stringWithUTF8String:emptyLabel.toUtf8().constData()];
         dispatch_async(dispatch_get_main_queue(), ^{ [QZFloatingMetrics shared].metrics = items; [QZFloatingMetrics shared].emptyLabel = emptyText; [[QZFloatingMetrics shared] render]; });
     }
