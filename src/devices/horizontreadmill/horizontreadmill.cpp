@@ -975,6 +975,26 @@ void horizontreadmill::update() {
             settings.value(QZSettings::moovio_lynx_konect_2_0, QZSettings::default_moovio_lynx_konect_2_0).toBool();
         bool treadmill_direct_distance =
             settings.value(QZSettings::treadmill_direct_distance, QZSettings::default_treadmill_direct_distance).toBool();
+        // Paragon X (not Omega Z): the console continues to report the last
+        // speed while paused. Hold outgoing virtual speed at zero immediately
+        // after a local Stop/Pause; do not let a Zwift grade or speed request
+        // move the belt until the user resumes.
+        const bool paragonOnly =
+            gattCustomService &&
+            settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool() &&
+            !horizon_treadmill_omega_z;
+        if (paragonOnly) {
+            if (requestStop != -1) {
+                paragonSessionState.stopRequested();
+                Speed = 0;
+            } else if (requestStart != -1) {
+                paragonSessionState.startRequested();
+            }
+            if (paragonSessionState.commandsSuspended() && requestStart == -1) {
+                requestSpeed = -1;
+                requestInclination = -100;
+            }
+        }
         update_metrics(!powerReceivedFromPowerSensor, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         if (firstDistanceCalculated) {
@@ -1744,15 +1764,22 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                        reinterpret_cast<const uint8_t *>(lastPacketComplete.constData()),
                        static_cast<std::size_t>(lastPacketComplete.size()), false, metrics));
         if (decoded) {
-            parseSpeed(metrics.speedKmh);
+            // Status 0x02/0x04 means the belt is stopped even if the firmware
+            // keeps reporting the previous non-zero target speed.
+            paragonSessionState.observe(metrics.machineState);
+            parseSpeed(paragonSessionState.publishedSpeed(metrics.speedKmh));
             parseInclination(treadmillInclinationOverride(metrics.inclinePercent));
         } else {
             // Retain the preexisting complete-frame parsing for every other
             // Horizon model (and any Paragon frame of an older format).
-            parseSpeed((((double)(((uint16_t)((uint8_t)lastPacketComplete.at(25)) << 8) |
-                                    (uint16_t)((uint8_t)lastPacketComplete.at(24)))) /
-                          100.0) *
-                        1.60934);
+            double speedKmh = (((double)(((uint16_t)((uint8_t)lastPacketComplete.at(25)) << 8) |
+                                           (uint16_t)((uint8_t)lastPacketComplete.at(24)))) /
+                                100.0) * 1.60934;
+            if (paragonOnly) {
+                paragonSessionState.observe(static_cast<uint8_t>(lastPacketComplete.at(14)));
+                speedKmh = paragonSessionState.publishedSpeed(speedKmh);
+            }
+            parseSpeed(speedKmh);
             parseInclination(treadmillInclinationOverride((double)((uint8_t)lastPacketComplete.at(30)) / 10.0));
         }
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
