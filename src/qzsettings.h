@@ -3544,8 +3544,9 @@ class QZSettings {
     // The modern look for a new install, decided once, at the first start of a QZ with this code
     // (homeform::startModernForNewInstall()): a QZ that has never connected a device turns ui_modern on, any
     // other one is asked once instead (ui_modern_offer_pending). Set after that start, so the decision is not
-    // taken again, even when the user goes back to the classic look. Neither is in allSettings: a new profile
-    // with the default settings (restoreAll()) does not take the decision again
+    // taken again, even when the user goes back to the classic look. Both are in allSettings like any other
+    // setting: a new profile with the default settings (restoreAll()) clears them with the rest, and the next
+    // start decides again on those default settings
     static const QString ui_modern_new_install_checked;
     static constexpr bool default_ui_modern_new_install_checked = false;
     // The question "Try the new interface?" on the home page is still to be asked: cleared by the answer
