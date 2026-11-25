@@ -77,6 +77,7 @@ class horizontreadmill : public treadmill {
     QByteArray lastPacket;
     QByteArray lastPacketComplete;
     ParagonXTelemetry::NotificationAssembler paragonPacketAssembler;
+    ParagonXTelemetry::SessionState paragonSessionState;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     bool firstDistanceCalculated = false;
     double lastDirectDistance = -1;
