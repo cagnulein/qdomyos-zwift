@@ -1,0 +1,25 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+import "workout/data/ControlType.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "SmartAdjustServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message SmartAdjustScaleChangeNotificationResponse {
+  ControlType type = 1;
+  int32 from = 2;
+  int32 to = 3;
+}
+
+service SmartAdjustService {
+  // gets the current active state of the service
+  rpc GetIsActive(Empty) returns (BooleanResponse) {}
+
+  // sets the active state of the service
+  rpc SetIsActive(BooleanRequest) returns (Empty) {}
+
+  // subscribe to notification updates
+  rpc ScaleChangeNotificationSubscription(Empty) returns (stream SmartAdjustScaleChangeNotificationResponse) {}
+}

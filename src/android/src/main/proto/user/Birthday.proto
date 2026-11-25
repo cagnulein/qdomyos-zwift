@@ -1,0 +1,20 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.user";
+option java_outer_classname = "BirthdayProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+import "util/IFitError.proto";
+import "google/protobuf/timestamp.proto";
+
+message Birthday {
+  google.protobuf.Timestamp birthday = 1;
+}
+
+message BirthdayResult {
+  oneof errorOrBirthday {
+    IFitError error = 1;
+    Birthday birthday = 2;
+  }
+}

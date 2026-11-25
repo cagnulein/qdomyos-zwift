@@ -1,0 +1,22 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.console";
+option java_outer_classname = "ConsoleTypeProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum ConsoleType {
+    CONSOLE_TYPE_UNKNOWN = 0;
+    TREADMILL = 1;
+    INCLINE_TRAINER = 2;
+    ELLIPTICAL = 3;
+    BIKE = 4;
+    STRIDER = 5;
+    FREE_STRIDER = 6;
+    VERTICAL_ELLIPTICAL = 7;
+    SPIN_BIKE = 8;
+    ROWER = 9;
+    EQUIPMENTLESS = 10;
+    MIRROR = 11;
+    VIBRATION = 12;
+}
