@@ -27,6 +27,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONArray
+import org.json.JSONObject
 import java.time.Instant
 import java.time.ZoneId
 
@@ -185,32 +186,36 @@ class HealthConnectHelper {
             }
         }
 
-        // The sample before the elapsed time first counts (the workout starts there), or the first
-        // sample when it never counts: some equipment does not report it
-        @JvmStatic
-        fun firstActiveIndex(samples: JSONArray): Int {
-            for (i in 0 until samples.length()) {
-                if (samples.getJSONObject(i).optLong("elapsedTime", 0L) > 0L) {
-                    return maxOf(0, i - 1)
-                }
-            }
-            return 0
+        // Whether a sample shows the workout actually moving, by the rule the FIT export uses to
+        // find the start of a workout (qfit.cpp, firstRealIndex): speed on treadmills and
+        // ellipticals, cadence on bikes and rowers. Null for the other kinds of equipment: there
+        // the whole session is kept
+        private fun movingTest(deviceType: Int): ((JSONObject) -> Boolean)? = when (deviceType) {
+            1, 4 -> { s -> s.optDouble("speed", 0.0) > 0.0 }
+            2, 3 -> { s -> s.optDouble("cadence", 0.0) > 0.0 }
+            else -> null
         }
 
-        // The last sample where the elapsed time or a total (distance, calories, elevation, steps)
-        // changed, or the last sample when nothing ever changed. Later samples only repeat the
-        // totals of the last one, so ending here loses nothing
+        // The samples the session covers: from the first sample that moves to the sample after the
+        // last one that moves (where it stopped). The whole session when the equipment never shows
+        // movement this way, or is of another kind. QZ records from the moment the equipment
+        // connects, so without this the minutes before Start and after Stop count as exercise;
+        // the elapsed time is no guide, as it also runs at zero speed with continuous_moving.
+        // Pauses in the middle stay inside the session
         @JvmStatic
-        fun lastActiveIndex(samples: JSONArray): Int {
-            val keys = arrayOf("elapsedTime", "distance", "calories", "elevationGain", "stepCount")
-            for (i in samples.length() - 1 downTo 1) {
-                val cur = samples.getJSONObject(i)
-                val prev = samples.getJSONObject(i - 1)
-                if (keys.any { cur.optDouble(it, 0.0) != prev.optDouble(it, 0.0) }) {
-                    return i
+        fun activeRange(samples: JSONArray, deviceType: Int): IntRange {
+            val whole = 0 until samples.length()
+            val moving = movingTest(deviceType) ?: return whole
+            var first = -1
+            var last = -1
+            for (i in 0 until samples.length()) {
+                if (moving(samples.getJSONObject(i))) {
+                    if (first < 0) first = i
+                    last = i
                 }
             }
-            return samples.length() - 1
+            if (first < 0) return whole
+            return first..minOf(last + 1, samples.length() - 1)
         }
 
         // Visible for testing — grantedPermissions defaults to all permissions so existing tests pass unchanged.
@@ -222,11 +227,11 @@ class HealthConnectHelper {
             deviceName: String?,
             grantedPermissions: Set<String> = writePermissions()
         ): List<Record> {
-            // The totals come from the last sample. The session itself runs from the moment the
-            // workout started to the last moment anything counted: QZ records from the moment the
-            // equipment connects, and the minutes before Start and after Stop are no exercise
-            val firstActive = firstActiveIndex(samples)
-            val lastActive = lastActiveIndex(samples)
+            // The totals come from the last sample, as before. The session and the per-sample
+            // records cover the active samples only (activeRange)
+            val active = activeRange(samples, deviceType)
+            val firstActive = active.first
+            val lastActive = active.last
             val first = samples.getJSONObject(firstActive)
             val last = samples.getJSONObject(samples.length() - 1)
             val start = Instant.ofEpochMilli(first.getLong("time"))
