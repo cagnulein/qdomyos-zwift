@@ -2405,6 +2405,18 @@ Do you want to update QZ settings?</source>
         <translation>1 英里</translation>
     </message>
     <message>
+        <source>Full screen</source>
+        <translation>全屏</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>退出全屏</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>左右滑动切换图表</translation>
+    </message>
+    <message>
         <source>Peloton Workout in progress!</source>
         <translation>Peloton 训练进行中！</translation>
     </message>

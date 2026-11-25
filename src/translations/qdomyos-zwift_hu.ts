@@ -2409,6 +2409,18 @@ Szeretné frissíteni a QZ beállításait?</translation>
         <translation>1 mérföld</translation>
     </message>
     <message>
+        <source>Full screen</source>
+        <translation>Teljes képernyő</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Kilépés a teljes képernyőből</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>A diagramok közötti váltáshoz pöccintsen balra vagy jobbra</translation>
+    </message>
+    <message>
         <source>AVG</source>
         <translation>ÁTL</translation>
     </message>

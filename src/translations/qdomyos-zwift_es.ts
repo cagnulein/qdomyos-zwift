@@ -2405,6 +2405,18 @@ Do you want to update QZ settings?</source>
         <translation>1 milla</translation>
     </message>
     <message>
+        <source>Full screen</source>
+        <translation>Pantalla completa</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Salir de pantalla completa</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Desliza a la izquierda o a la derecha para cambiar de gráfico</translation>
+    </message>
+    <message>
         <source>Peloton Workout in progress!</source>
         <translation>¡Entrenamiento de Peloton en curso!</translation>
     </message>

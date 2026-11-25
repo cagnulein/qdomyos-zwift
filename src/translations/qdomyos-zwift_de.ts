@@ -2405,6 +2405,18 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
         <translation>1 Meile</translation>
     </message>
     <message>
+        <source>Full screen</source>
+        <translation>Vollbild</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Vollbild beenden</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Zum Wechseln der Diagramme nach links oder rechts wischen</translation>
+    </message>
+    <message>
         <source>Peloton Workout in progress!</source>
         <translation>Peloton Workout läuft!</translation>
     </message>

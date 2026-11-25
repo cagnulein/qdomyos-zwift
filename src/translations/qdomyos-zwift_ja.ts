@@ -2405,6 +2405,18 @@ QZの設定を更新しますか?</translation>
         <translation>1マイル</translation>
     </message>
     <message>
+        <source>Full screen</source>
+        <translation>全画面表示</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>全画面表示を終了</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>左右にスワイプしてグラフを切り替え</translation>
+    </message>
+    <message>
         <source>Peloton Workout in progress!</source>
         <translation>Pelotonワークアウト進行中！</translation>
     </message>

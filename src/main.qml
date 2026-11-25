@@ -1655,10 +1655,15 @@ ApplicationWindow {
         // is how much of it has gone up under the status bar. The page never changes size, so the
         // tiles do not move under the finger
         property real barShift: 0
+        // A chart spread over the page shown (ChartJsTest, PreviewChart: chartFullscreen): the toolbar
+        // is gone and the page takes its room as well. Bound to the current page, so a page left with
+        // a spread chart (or a title of it coming late) does not fold the toolbar of the next one
+        readonly property bool folded: !!(stackView.currentItem && stackView.currentItem.chartFullscreen === true)
         // Moving the tiles keeps it shown: the lock button is on the toolbar. So does any other page
         // (the tile grid can still be gliding or snapping under it when one is opened); back on the
         // home page it is where the scroll left it, not over the Start/Stop row
-        readonly property real barHidden: window.lockTiles || stackView.depth > 1 ? 0 : Math.max(0, Math.min(barShift, contentHeight))
+        readonly property real barHidden: folded ? contentHeight
+                                          : window.lockTiles || stackView.depth > 1 ? 0 : Math.max(0, Math.min(barShift, contentHeight))
         // Set, not derived from the style, which counts the height of the background (48) as well
         implicitHeight: getTopPadding()
         // The content keeps its height and slides up with the bar
@@ -1670,11 +1675,12 @@ ApplicationWindow {
         topInset: -barHidden
         bottomInset: barHidden - contentHeight
         // The buttons fade out as the bar goes and are hidden once it is gone, from TalkBack as
-        // well; the background goes then too. Android, modern look: it stays – the status bar is
+        // well; the background goes then too. Folded for a chart it stays under the status bar,
+        // in the colour of the bar. Android, modern look: it stays as well – the status bar is
         // transparent there (applySystemBars), and the tiles would slide under its icons
         contentItem.opacity: 1 - barHidden / contentHeight
         contentItem.visible: barHidden < contentHeight
-        background.visible: barHidden < contentHeight
+        background.visible: folded || barHidden < contentHeight
                             || (window.ui.modern && Qt.platform.os === "android")
 
         // The bar takes the touches on it, as a toolbar the height of its content did: drawn
@@ -2783,8 +2789,9 @@ ApplicationWindow {
                 }
             }
             anchors.fill: parent
-            // Below the toolbar, which hangs over the pages (headerToolbar)
-            anchors.topMargin: headerToolbar.contentHeight
+            // Below the toolbar, which hangs over the pages (headerToolbar); a spread chart takes
+            // its room too
+            anchors.topMargin: headerToolbar.folded ? 0 : headerToolbar.contentHeight
             // Clear of the bottom system bar in any orientation: held sideways with gesture
             // navigation the bar stays at the bottom (with buttons it moves to the side, and the
             // bottom inset is 0 then)
