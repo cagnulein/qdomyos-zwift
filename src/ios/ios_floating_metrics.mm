@@ -123,9 +123,13 @@ API_AVAILABLE(ios(15.0))
 - (void)render {
     if (!self.layer) return;
     NSArray<NSArray<NSString *> *> *all = self.metrics ?: @[];
-    NSUInteger pages = MAX((NSUInteger)1, (all.count + 8) / 9);
+    const NSUInteger columns = 4;
+    const NSUInteger rows = 3;
+    const NSUInteger metricsPerPage = columns * rows;
+    NSUInteger pages = MAX((NSUInteger)1, (all.count + metricsPerPage - 1) / metricsPerPage);
     NSUInteger page = ((NSUInteger)(NSDate.date.timeIntervalSince1970 / 6)) % pages;
-    NSRange range = NSMakeRange(MIN(page * 9, all.count), MIN((NSUInteger)9, all.count - MIN(page * 9, all.count)));
+    NSUInteger offset = MIN(page * metricsPerPage, all.count);
+    NSRange range = NSMakeRange(offset, MIN(metricsPerPage, all.count - offset));
     NSArray<NSArray<NSString *> *> *shown = [all subarrayWithRange:range];
     NSString *signature = [NSString stringWithFormat:@"%@/%lu/%lu/%@", shown, (unsigned long)page, (unsigned long)pages, self.emptyLabel ?: @""];
     if ([signature isEqualToString:self.lastFrame] && self.layer.status != AVQueuedSampleBufferRenderingStatusFailed) return;
@@ -143,11 +147,14 @@ API_AVAILABLE(ios(15.0))
     [[UIColor colorWithWhite:0.06 alpha:1] setFill]; UIRectFill(CGRectMake(0, 0, 480, 270));
     UIFont *labelFont = [UIFont systemFontOfSize:17 weight:UIFontWeightMedium];
     UIFont *valueFont = [UIFont monospacedDigitSystemFontOfSize:31 weight:UIFontWeightBold];
-    // Nine metrics: 3 columns and 3 rows. Reserve a separate footer for the page number.
+    // Twelve metrics: 4 columns and 3 rows. Reserve a separate footer for the page number.
+    const CGFloat cellWidth = 480.0 / columns;
+    const CGFloat horizontalPadding = 3.0;
+    const CGFloat textWidth = cellWidth - 2 * horizontalPadding;
     for (NSUInteger i = 0; i < shown.count; ++i) {
-        CGFloat x = (i % 3) * 160, y = 9 + (i / 3) * 80;
-        QZDrawFittedText(shown[i][0], CGRectMake(x + 7, y, 146, 22), labelFont, UIColor.lightGrayColor);
-        QZDrawFittedText(shown[i][1], CGRectMake(x + 7, y + 23, 146, 45), valueFont, UIColor.whiteColor);
+        CGFloat x = (i % columns) * cellWidth, y = 9 + (i / columns) * 80;
+        QZDrawFittedText(shown[i][0], CGRectMake(x + horizontalPadding, y, textWidth, 22), labelFont, UIColor.lightGrayColor);
+        QZDrawFittedText(shown[i][1], CGRectMake(x + horizontalPadding, y + 23, textWidth, 45), valueFont, UIColor.whiteColor);
     }
     if (shown.count == 0) QZDrawFittedText(self.emptyLabel ?: @"", CGRectMake(10, 110, 460, 30), labelFont, UIColor.lightGrayColor);
     if (pages > 1) QZDrawFittedText([NSString stringWithFormat:@"%lu / %lu", (unsigned long)page + 1, (unsigned long)pages], CGRectMake(10, 250, 460, 17), labelFont, UIColor.lightGrayColor);
