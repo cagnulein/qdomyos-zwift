@@ -1373,7 +1373,8 @@ const QString QZSettings::resistance_compatibility = QStringLiteral("resistance_
 
 const QString QZSettings::strava_synthetic_gps_track = QStringLiteral("strava_synthetic_gps_track");
 
-const uint32_t allSettingsCount = 1059;
+const QString QZSettings::proform_treadmill_generic = QStringLiteral("proform_treadmill_generic");
+const uint32_t allSettingsCount = 1060;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2459,6 +2460,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::resistance_compatibility, QZSettings::default_resistance_compatibility},
     {QZSettings::rouvy_virtual_gearing_profile, QZSettings::default_rouvy_virtual_gearing_profile},
     {QZSettings::strava_synthetic_gps_track, QZSettings::default_strava_synthetic_gps_track},
+    {QZSettings::proform_treadmill_generic, QZSettings::default_proform_treadmill_generic},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

@@ -2983,6 +2983,7 @@ import AndroidStatusBar 1.0
             property bool strava_synthetic_gps_track: false
 
             property int rouvy_virtual_gearing_profile: 0
+            property bool proform_treadmill_generic: false
 
         }
 
@@ -13644,6 +13645,7 @@ import AndroidStatusBar 1.0
                                     "Proform Sport 5.5",
                                     "Proform Sport 6.0",
                                      "ProForm 505 CST PFTL59420 (iFIT 2026)",
+                                    qsTr("ProForm/NordicTrack Generic (Experimental)"),
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -13730,7 +13732,8 @@ import AndroidStatusBar 1.0
                                                     settings.freemotion_t10_9b_hci ? 67 :
                                                     settings.proform_treadmill_sport_55 ? 68 :
                                                     settings.proform_treadmill_sport_6_0 ? 69 :
-                                                     settings.proform_treadmill_cst_505_pftl59420_2026 ? 70 : 0;
+                                                     settings.proform_treadmill_cst_505_pftl59420_2026 ? 70 :
+                                                    settings.proform_treadmill_generic ? 71 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -13815,6 +13818,7 @@ import AndroidStatusBar 1.0
                                     settings.proform_treadmill_sport_55 = false;
                                     settings.proform_treadmill_sport_6_0 = false;
                                      settings.proform_treadmill_cst_505_pftl59420_2026 = false;
+                                    settings.proform_treadmill_generic = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -13888,10 +13892,18 @@ import AndroidStatusBar 1.0
                                         case 68: settings.proform_treadmill_sport_55 = true; break;
                                         case 69: settings.proform_treadmill_sport_6_0 = true; break;
                                          case 70: settings.proform_treadmill_cst_505_pftl59420_2026 = true; break;
+                                        case 71: settings.proform_treadmill_generic = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
                                 }
+                            }
+                            Label {
+                                visible: settings.proform_treadmill_generic
+                                text: qsTr("Experimental BLE protocol. Restart QZ. For first testing stand beside the belt, attach the safety key and use the physical STOP button if communication fails.")
+                                Layout.fillWidth: true
+                                wrapMode: Text.WordWrap
+                                color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Yellow)
                             }
                             UiSettingsRow {
                                 spacing: 10

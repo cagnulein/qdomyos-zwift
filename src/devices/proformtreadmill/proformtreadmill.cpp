@@ -22,7 +22,7 @@ proformtreadmill::proformtreadmill(bool noWriteResistance, bool noHeartService) 
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
-    genericMode = QSettings().value(QStringLiteral("proform_treadmill_generic"), false).toBool();
+    genericMode = QSettings().value(QZSettings::proform_treadmill_generic, QZSettings::default_proform_treadmill_generic).toBool();
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &proformtreadmill::update);
     refresh->start(200ms);
