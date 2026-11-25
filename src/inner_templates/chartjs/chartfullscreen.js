@@ -156,6 +156,10 @@
             if (!scale || typeof scale !== 'object')
                 return;
             setPath(options, ['scales', id, 'ticks', 'font', 'size'], tick);
+            // the big labels side by side, some skipped: turned ones (Chart.js turns what does not fit)
+            // went off the bottom edge with the negative padding below (the empty heart rate chart
+            // of the workout history: 11 labels turned by 46 degrees)
+            setPath(options, ['scales', id, 'ticks', 'maxRotation'], 0);
             // zone names drawn inside the chart (a negative padding in px) grow with the font
             var padding = scale.ticks && scale.ticks.padding; // raw options: ticks may be missing
             if (typeof padding === 'number' && padding < 0)
