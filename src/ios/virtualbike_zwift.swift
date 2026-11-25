@@ -59,6 +59,15 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
         peripheralManager.LastFTMSMessageReceived?.removeAll()
         return peripheralManager.LastFTMSMessageReceivedAndPassed
     }
+
+    // the latest load command (inclination, resistance level, target power, simulation) written to the control point
+    // since the previous call, nil if none arrived: getLastFTMSMessage() keeps
+    // only the first unread frame, so a newer command written before the next tick only shows up here
+    @objc public func getLatestFTMSMessage() -> Data? {
+        let latest = peripheralManager.LatestFTMSMessageUnread
+        peripheralManager.LatestFTMSMessageUnread = nil
+        return latest
+    }
 }
 
 class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
@@ -115,6 +124,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     
     public var LastFTMSMessageReceived: Data?
     public var LastFTMSMessageReceivedAndPassed: Data?
+    public var LatestFTMSMessageUnread: Data?
     
     public var serviceToggle: UInt8 = 0
     
@@ -417,6 +427,10 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         if(LastFTMSMessageReceived == nil || LastFTMSMessageReceived?.count == 0) {
             LastFTMSMessageReceived = requests.first!.value
         }
+        // only commands that set the load: a start (0x07) or a request control (0x00) right after a grade must not hide it
+        if let code = requests.first!.value?.first, code == 0x03 || code == 0x04 || code == 0x05 || code == 0x11 {
+            LatestFTMSMessageUnread = requests.first!.value
+        }
         if(requests.first!.value?.first == 0x11)
         {
                var high : Int16 = ((Int16)(requests.first!.value![4])) << 8;
@@ -527,6 +541,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
           slope[0] = UInt8(Int16(self.CurrentSlope) & 0xFF)
           slope[1] = UInt8((Int16(self.CurrentSlope) >> 8) & 0x00FF)
           LastFTMSMessageReceived = Data([0x11, 0x69, 0x01, slope[0], slope[1], 0x32, 0x28])
+          LatestFTMSMessageUnread = LastFTMSMessageReceived
           
           do {
               let response = try ZwiftHubBike.ridingData(power: UInt32(self.CurrentWatt), cadence: UInt32(self.CurrentCadence / 2), speed: 0, HR: UInt32(self.heartRate), unkown1: self.calculateUnknown1(power: self.CurrentWatt), unkown2: 0)
@@ -590,6 +605,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         let (power, _)  = decodeVarint(protobuf, startIndex: 0)
         self.PowerRequested = (Double)(power);
         LastFTMSMessageReceived = Data([0x05, UInt8(UInt16(power) & 0xff), UInt8(((UInt16(power) & 0xff00) >> 8) & 0x00ff)])
+        LatestFTMSMessageUnread = LastFTMSMessageReceived
           
           do {
               let response = try ZwiftHubBike.ridingData(power: UInt32(power), cadence: UInt32(self.CurrentCadence / 2), speed: Double(self.NormalizeSpeed) / 100.0, HR: UInt32(self.heartRate), unkown1: self.calculateUnknown1(power: self.CurrentWatt), unkown2: 0)

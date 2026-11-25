@@ -619,6 +619,8 @@ jobs:
         run: |
           SDKMANAGER="/usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager"
           echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-35" "build-tools;35.0.0"
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          bash "${{ github.workspace }}/qt-patches/android/5.15.0/build_qtandroid_bluetooth_jar.sh" "$QT_BT_JAR" "/usr/local/lib/android/sdk/platforms/android-35/android.jar" "$QT_BT_JAR"
 
       - name: Setup ccache
         run: |
@@ -2134,6 +2136,8 @@ jobs:
           ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
           echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-35" "build-tools;35.0.0"
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          bash "${{ github.workspace }}/qt-patches/android/5.15.0/build_qtandroid_bluetooth_jar.sh" "$QT_BT_JAR" "/usr/local/lib/android/sdk/platforms/android-35/android.jar" "$QT_BT_JAR"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -2275,6 +2279,8 @@ jobs:
           ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
           echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-35" "build-tools;35.0.0"
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          bash "${{ github.workspace }}/qt-patches/android/5.15.0/build_qtandroid_bluetooth_jar.sh" "$QT_BT_JAR" "/usr/local/lib/android/sdk/platforms/android-35/android.jar" "$QT_BT_JAR"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -2412,6 +2418,8 @@ jobs:
           ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
           echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-35" "build-tools;35.0.0"
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          bash "${{ github.workspace }}/qt-patches/android/5.15.0/build_qtandroid_bluetooth_jar.sh" "$QT_BT_JAR" "/usr/local/lib/android/sdk/platforms/android-35/android.jar" "$QT_BT_JAR"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -2535,6 +2543,8 @@ jobs:
           ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
           echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-35" "build-tools;35.0.0"
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          bash "${{ github.workspace }}/qt-patches/android/5.15.0/build_qtandroid_bluetooth_jar.sh" "$QT_BT_JAR" "/usr/local/lib/android/sdk/platforms/android-35/android.jar" "$QT_BT_JAR"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src

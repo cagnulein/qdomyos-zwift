@@ -83,6 +83,12 @@ class echelonconnectsport : public bike {
     bool classicBridgePromptShown = false;
     bool classicVirtualBridgeActive = false;
     bool lockedBikePromptShown = false;
+    QTimer *directUnlockActivationTimer = nullptr;
+    QTimer *directUnlockFallbackTimer = nullptr;
+    QByteArray directUnlockChallenge;
+    bool directUnlockInProgress = false;
+    bool directUnlockActivationSent = false;
+    bool directUnlockSucceeded = false;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
@@ -114,6 +120,12 @@ class echelonconnectsport : public bike {
 
     void maybePromptForClassicBridge();
     void maybePromptToEnableVirtualEchelon(const QByteArray &newValue);
+    void handleDirectUnlockChallenge(const QByteArray &newValue);
+    void sendDirectUnlockActivation();
+    void directUnlockFailed(const QString &reason);
+    bool directUnlockTelemetryFrame(const QByteArray &newValue) const;
+    bool virtualEchelonSessionActive();
+    void resetDirectUnlockState();
     void requestClassicBridgePrompt();
     void createVirtualBike(bool forceClassicMode = false, DirconManager *existingDirconManager = nullptr);
 };

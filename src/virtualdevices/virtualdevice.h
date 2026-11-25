@@ -11,6 +11,9 @@ public:
     ~virtualdevice() override;
     virtual bool connected()=0;
 
+protected:
+    static bool noBluetoothAdapter();
+
 signals:
 
 };

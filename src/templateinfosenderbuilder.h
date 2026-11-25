@@ -108,7 +108,7 @@ class TemplateInfoSenderBuilder : public QObject {
     void onWorkoutEditorStart(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onWebTranslations(TemplateInfoSender *tempSender);
     void onAppendActivityDescription(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
-    void onGetSessionArray(TemplateInfoSender *tempSender);
+    void onGetSessionArray(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onGetPreviewSessionArray(TemplateInfoSender *tempSender);
     void onGetLatLon(TemplateInfoSender *tempSender);
     void onNextInclination300Meters(TemplateInfoSender *tempSender);

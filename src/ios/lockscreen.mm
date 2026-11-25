@@ -3,8 +3,10 @@
 #import <UIKit/UIKit.h>
 #import <WatchConnectivity/WatchConnectivity.h>
 #import <CoreBluetooth/CoreBluetooth.h>
+#import <HealthKit/HealthKit.h>
 #import <WebKit/WKWebsiteDataStore.h>
 #import <AVFoundation/AVFoundation.h>
+#import <objc/runtime.h>
 #import <ConnectIQ/ConnectIQ.h>
 #import "qdomyoszwift-Swift2.h"
 #import "swiftDebug.h"
@@ -48,6 +50,43 @@ static NSString *LockscreenStringFromCString(const char *message)
         string = [NSString stringWithFormat:@"(invalid UTF8) %s", message];
     }
     return string;
+}
+
+static HKWorkoutActivityType HistoricalHealthKitActivityType(unsigned short sport)
+{
+    switch (sport) {
+    case 1: // FIT_SPORT_RUNNING
+        return HKWorkoutActivityTypeRunning;
+    case 11: // FIT_SPORT_WALKING
+        return HKWorkoutActivityTypeWalking;
+    case 2: // FIT_SPORT_CYCLING
+        return HKWorkoutActivityTypeCycling;
+    case 15: // FIT_SPORT_ROWING
+        return HKWorkoutActivityTypeRowing;
+    case 4: // FIT_SPORT_FITNESS_EQUIPMENT
+        return HKWorkoutActivityTypeElliptical;
+    default:
+        return HKWorkoutActivityTypeOther;
+    }
+}
+
+static HKQuantityType *HistoricalHealthKitDistanceType(unsigned short sport)
+{
+    switch (sport) {
+    case 1:
+    case 11:
+        return [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];
+    case 2:
+    case 4:
+        return [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling];
+    case 15:
+        if (@available(iOS 18.0, *)) {
+            return [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceRowing];
+        }
+        return nil;
+    default:
+        return nil;
+    }
 }
 
 static ios_eliteariafan* ios_eliteAriaFan = nil;
@@ -102,7 +141,35 @@ bool lockscreen::appleWatchAppInstalled() {
 }
 
 void lockscreen::setTimerDisabled() {
-     [[UIApplication sharedApplication] setIdleTimerDisabled: YES];
+    [UIApplication sharedApplication].idleTimerDisabled = YES;
+
+    // Qt's UIScene lifecycle can activate a window without calling the
+    // UIApplicationDelegate activation callback. Reassert the awake setting
+    // for both application and scene activation, including after unlock.
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+        void (^restoreIdleTimer)(NSNotification *) = ^(NSNotification *notification) {
+            UIApplication *application = [UIApplication sharedApplication];
+            const bool wasDisabled = application.idleTimerDisabled;
+            application.idleTimerDisabled = YES;
+            qDebug() << "QZ iOS idle timer on activation:"
+                     << QString::fromUtf8(notification.name.UTF8String)
+                     << "wasDisabled:" << wasDisabled
+                     << "nowDisabled:" << static_cast<bool>(application.idleTimerDisabled);
+        };
+        // These observers intentionally live until the process exits.
+        [center addObserverForName:UIApplicationDidBecomeActiveNotification
+                           object:nil
+                            queue:[NSOperationQueue mainQueue]
+                       usingBlock:restoreIdleTimer];
+        if (@available(iOS 13.0, *)) {
+            [center addObserverForName:UISceneDidActivateNotification
+                               object:nil
+                                queue:[NSOperationQueue mainQueue]
+                           usingBlock:restoreIdleTimer];
+        }
+    });
 }
 
 void lockscreen::request()
@@ -129,6 +196,98 @@ void lockscreen::startWorkout(unsigned short deviceType) {
 void lockscreen::stopWorkout() {
     if(workoutTracking != nil && !appleWatchAppInstalled())
         [workoutTracking stopWorkOut];
+}
+
+bool lockscreen::canWriteHistoricalWorkoutToHealthKit(unsigned short sport) {
+    if (![HKHealthStore isHealthDataAvailable]) {
+        return false;
+    }
+
+    HKHealthStore *healthStore = [[HKHealthStore alloc] init];
+    HKWorkoutType *workoutType = [HKObjectType workoutType];
+    HKQuantityType *energyType = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierActiveEnergyBurned];
+    HKQuantityType *distanceType = HistoricalHealthKitDistanceType(sport);
+
+    if ([healthStore authorizationStatusForType:workoutType] != HKAuthorizationStatusSharingAuthorized ||
+        !energyType || [healthStore authorizationStatusForType:energyType] != HKAuthorizationStatusSharingAuthorized) {
+        return false;
+    }
+
+    return !distanceType || [healthStore authorizationStatusForType:distanceType] == HKAuthorizationStatusSharingAuthorized;
+}
+
+bool lockscreen::saveHistoricalWorkoutToHealthKit(unsigned short sport, double startTimestamp, double endTimestamp,
+                                                   double distanceMeters, double calories) {
+    if (endTimestamp <= startTimestamp || !canWriteHistoricalWorkoutToHealthKit(sport)) {
+        return false;
+    }
+
+    HKHealthStore *healthStore = [[HKHealthStore alloc] init];
+    HKWorkoutConfiguration *configuration = [[HKWorkoutConfiguration alloc] init];
+    configuration.activityType = HistoricalHealthKitActivityType(sport);
+    configuration.locationType = HKWorkoutSessionLocationTypeIndoor;
+
+    HKWorkoutBuilder *builder = [[HKWorkoutBuilder alloc] initWithHealthStore:healthStore
+                                                                configuration:configuration
+                                                                       device:[HKDevice localDevice]];
+    NSDate *startDate = [NSDate dateWithTimeIntervalSince1970:startTimestamp];
+    NSDate *endDate = [NSDate dateWithTimeIntervalSince1970:endTimestamp];
+
+    [builder beginCollectionWithStartDate:startDate completion:^(BOOL success, NSError *error) {
+        if (!success) {
+            qDebug() << "Historical Apple Health workout begin failed:" << error.localizedDescription.UTF8String;
+            return;
+        }
+
+        NSMutableArray<HKSample *> *samples = [NSMutableArray array];
+        HKQuantityType *energyType = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierActiveEnergyBurned];
+        if (calories > 0 && energyType) {
+            HKQuantity *energy = [HKQuantity quantityWithUnit:[HKUnit kilocalorieUnit] doubleValue:calories];
+            [samples addObject:[HKQuantitySample quantitySampleWithType:energyType
+                                                               quantity:energy
+                                                              startDate:startDate
+                                                                endDate:endDate]];
+        }
+
+        HKQuantityType *distanceType = HistoricalHealthKitDistanceType(sport);
+        if (distanceMeters > 0 && distanceType) {
+            HKQuantity *distance = [HKQuantity quantityWithUnit:[HKUnit meterUnit] doubleValue:distanceMeters];
+            [samples addObject:[HKQuantitySample quantitySampleWithType:distanceType
+                                                               quantity:distance
+                                                              startDate:startDate
+                                                                endDate:endDate]];
+        }
+
+        void (^finishWorkout)(void) = ^{
+            [builder endCollectionWithEndDate:endDate completion:^(BOOL endSuccess, NSError *endError) {
+                if (!endSuccess) {
+                    qDebug() << "Historical Apple Health workout end failed:" << endError.localizedDescription.UTF8String;
+                    return;
+                }
+                [builder finishWorkoutWithCompletion:^(HKWorkout *workout, NSError *finishError) {
+                    if (finishError) {
+                        qDebug() << "Historical Apple Health workout save failed:" << finishError.localizedDescription.UTF8String;
+                    } else {
+                        qDebug() << "Historical workout saved to Apple Health";
+                    }
+                }];
+            }];
+        };
+
+        if (samples.count == 0) {
+            finishWorkout();
+        } else {
+            [builder addSamples:samples completion:^(BOOL addSuccess, NSError *addError) {
+                if (!addSuccess) {
+                    qDebug() << "Historical Apple Health workout samples failed:" << addError.localizedDescription.UTF8String;
+                    return;
+                }
+                finishWorkout();
+            }];
+        }
+    }];
+
+    return true;
 }
 
 long lockscreen::heartRate()
@@ -209,12 +368,13 @@ void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigne
 void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt,
                                        unsigned short currentCalories, unsigned long long currentSteps,
                                        unsigned char deviceType, double currentDistance, double totalKcal,
-                                       bool useMiles, unsigned char heartRate, int liveActivityHeartRate,
+                                       double elevationGain, bool useMiles, unsigned char heartRate, int liveActivityHeartRate,
                                        const char *compactLeadingMetric, int compactLeadingValue, const char *compactTrailingMetric,
                                        int compactTrailingValue) {
     const double healthCadence = (deviceType == BIKE) ? cadence : cadence * 2.0;
+    qDebug() << "Apple Health workout elevation gain:" << elevationGain;
     if(workoutTracking != nil && !appleWatchAppInstalled())
-        [workoutTracking addMetricsWithPower:watt cadence:healthCadence speed:speed * 100 kcal:currentCalories steps:currentSteps deviceType:deviceType distance:currentDistance totalKcal:totalKcal elevationGain:0 heartRate:heartRate];
+        [workoutTracking addMetricsWithPower:watt cadence:healthCadence speed:speed * 100 kcal:currentCalories steps:currentSteps deviceType:deviceType distance:currentDistance totalKcal:totalKcal elevationGain:elevationGain heartRate:heartRate];
 
     // Start Live Activity on first update, then keep updating
     if (!ios_liveactivity::isLiveActivityRunning()) {
@@ -304,9 +464,9 @@ void lockscreen::virtualrower_setPM5Mode(bool enabled)
 
 
 // virtual treadmill
-void lockscreen::virtualtreadmill_zwift_ios(bool garmin_bluetooth_compatibility, bool bike_cadence_sensor)
+void lockscreen::virtualtreadmill_zwift_ios(bool garmin_bluetooth_compatibility, bool bike_cadence_sensor, bool disable_hr)
 {
-    _virtualtreadmill_zwift = [[virtualtreadmill_zwift alloc] initWithGarmin_bluetooth_compatibility:garmin_bluetooth_compatibility bike_cadence_sensor:bike_cadence_sensor];
+    _virtualtreadmill_zwift = [[virtualtreadmill_zwift alloc] initWithGarmin_bluetooth_compatibility:garmin_bluetooth_compatibility bike_cadence_sensor:bike_cadence_sensor disable_hr:disable_hr];
 }
 
 void lockscreen::virtualtreadmill_setHeartRate(unsigned char heartRate)
@@ -360,6 +520,22 @@ uint64_t lockscreen::virtualtreadmill_lastChangeRequestedSpeed()
     return 0;
 }
 
+void lockscreen::virtualtreadmill_enableControlPointForwarding(const QByteArray &speedRange,
+                                                             const QByteArray &inclineRange) {
+    [_virtualtreadmill_zwift
+        enableControlPointForwardingWithSpeedRange:[NSData dataWithBytes:speedRange.constData() length:speedRange.size()]
+        inclineRange:[NSData dataWithBytes:inclineRange.constData() length:inclineRange.size()]];
+}
+
+QByteArray lockscreen::virtualtreadmill_takeControlPointWrite() {
+    NSData *data = [_virtualtreadmill_zwift takeControlPointWrite];
+    return data ? QByteArray(static_cast<const char *>(data.bytes), static_cast<int>(data.length)) : QByteArray();
+}
+
+void lockscreen::virtualtreadmill_clearControlPointWrites() {
+    [_virtualtreadmill_zwift clearControlPointWrites];
+}
+
 bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 currentInclination, UInt64 currentDistance, double elevationGain, unsigned short currentCalories, qint32 currentSteps,  unsigned short elapsedSeconds, UInt8 deviceType)
 {
     if(_virtualtreadmill_zwift != nil)
@@ -371,6 +547,18 @@ int lockscreen::virtualbike_getLastFTMSMessage(unsigned char* message) {
     if(message) {
         if(_virtualbike_zwift != nil) {
             NSData* data = [_virtualbike_zwift getLastFTMSMessage];
+            [data getBytes:message length:data.length];
+            return (int)data.length;
+        }
+        return 0;
+    }
+    return 0;
+}
+
+int lockscreen::virtualbike_getLatestFTMSMessage(unsigned char* message) {
+    if(message) {
+        if(_virtualbike_zwift != nil) {
+            NSData* data = [_virtualbike_zwift getLatestFTMSMessage];
             [data getBytes:message length:data.length];
             return (int)data.length;
         }
@@ -687,5 +875,227 @@ void lockscreen::clearWebViewCache() {
     for (NSHTTPCookie *cookie in cookieStorage.cookies) {
         [cookieStorage deleteCookie:cookie];
     }
+}
+
+double lockscreen::systemFontScale() {
+    // Body text is 17 pt at the default Dynamic Type size. The size category is passed in:
+    // outside a UIKit call the current trait collection may still hold the old one
+    const CGFloat body = 17.0;
+    UITraitCollection *traits = [UITraitCollection traitCollectionWithPreferredContentSizeCategory:
+                                     UIApplication.sharedApplication.preferredContentSizeCategory];
+    const CGFloat scaled = [[UIFontMetrics defaultMetrics] scaledValueForValue:body
+                                                compatibleWithTraitCollection:traits];
+    return scaled > 0 ? scaled / body : 1.0;
+}
+
+bool lockscreen::systemDarkMode() {
+    // The screen carries the appearance of the system, not an override of a window
+    if (@available(iOS 13.0, *)) {
+        return UIScreen.mainScreen.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark;
+    }
+    return true;
+}
+
+// Status bar of the Qt window while setSystemBarsColor() has set its style. Qt writes its own
+// style (light text, without Qt::MaximizeUsingFullscreenGeometryHint) into the view controller
+// whenever the focus window changes, e.g. on the first tap, and hides the bar for a full screen
+// window, the state the modern look takes the whole screen with: UIKit reads these instead.
+// Qt has no API for the style and leaves it to native code (QTBUG-57062, Won't Do); Qt 6.8
+// still sets it and hides the bar the same way (qiosviewcontroller.mm, updateProperties; 6.10:
+// updateStatusBarProperties)
+static bool qzStatusBarStyleSet = false;
+static UIStatusBarStyle qzStatusBarStyle = UIStatusBarStyleLightContent;
+
+// The getters are synthesized in QIOSViewController itself, so only its windows change.
+// Inherited from UIViewController instead, a getter would change every view controller: left alone
+static IMP qzOwnGetter(UIViewController *controller, SEL selector, Method *method) {
+    *method = class_getInstanceMethod([controller class], selector);
+    if (!*method || *method == class_getInstanceMethod([UIViewController class], selector)) {
+        return nullptr;
+    }
+    return method_getImplementation(*method);
+}
+
+static void qzKeepStatusBar(UIViewController *controller) {
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        Method method;
+        IMP original = qzOwnGetter(controller, @selector(preferredStatusBarStyle), &method);
+        if (original) {
+            method_setImplementation(method, imp_implementationWithBlock(^UIStatusBarStyle(UIViewController *self_) {
+                if (qzStatusBarStyleSet) {
+                    return qzStatusBarStyle;
+                }
+                return ((UIStatusBarStyle(*)(id, SEL))original)(self_, @selector(preferredStatusBarStyle));
+            }));
+        }
+        IMP originalHidden = qzOwnGetter(controller, @selector(prefersStatusBarHidden), &method);
+        if (originalHidden) {
+            method_setImplementation(method, imp_implementationWithBlock(^BOOL(UIViewController *self_) {
+                if (qzStatusBarStyleSet) {
+                    return NO;
+                }
+                return ((BOOL(*)(id, SEL))originalHidden)(self_, @selector(prefersStatusBarHidden));
+            }));
+        }
+    });
+}
+
+static NSArray<UIWindow *> *qzAppWindows() {
+    NSMutableArray<UIWindow *> *windows = [NSMutableArray array];
+    if (@available(iOS 13.0, *)) {
+        for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+            if ([scene isKindOfClass:[UIWindowScene class]]) {
+                [windows addObjectsFromArray:((UIWindowScene *)scene).windows];
+            }
+        }
+    } else {
+        [windows addObjectsFromArray:UIApplication.sharedApplication.windows];
+    }
+    return windows;
+}
+
+void lockscreen::setSystemBarsColor(double red, double green, double blue, bool darkPage) {
+    UIColor *color = [UIColor colorWithRed:red green:green blue:blue alpha:1.0];
+    UIStatusBarStyle style = UIStatusBarStyleLightContent;
+    if (!darkPage) {
+        if (@available(iOS 13.0, *)) {
+            style = UIStatusBarStyleDarkContent;
+        } else {
+            style = UIStatusBarStyleDefault;
+        }
+    }
+
+    for (UIWindow *window in qzAppWindows()) {
+        UIViewController *controller = window.rootViewController;
+        // Only the window of Qt (QIOSViewController); the keyboard and other system windows are left alone
+        if (!controller || ![controller isKindOfClass:NSClassFromString(@"QIOSViewController")]) {
+            continue;
+        }
+        window.backgroundColor = color;
+        controller.view.backgroundColor = color;
+        qzKeepStatusBar(controller);
+        qzStatusBarStyle = style;
+        qzStatusBarStyleSet = true;
+        [controller setNeedsStatusBarAppearanceUpdate];
+    }
+}
+
+void lockscreen::safeAreaInsets(double *top, double *bottom, double *left, double *right, double *width,
+                                double *height) {
+    *top = *bottom = *left = *right = *width = *height = 0;
+    for (UIWindow *window in qzAppWindows()) {
+        if (![window.rootViewController isKindOfClass:NSClassFromString(@"QIOSViewController")]) {
+            continue;
+        }
+        const UIEdgeInsets insets = window.safeAreaInsets;
+        *top = insets.top;
+        *bottom = insets.bottom;
+        *left = insets.left;
+        *right = insets.right;
+        *width = window.bounds.size.width;
+        *height = window.bounds.size.height;
+        return;
+    }
+}
+
+// The view of a Qt window (QUIView) gets safeAreaInsetsDidChange from UIKit and hands it to
+// QWindowSystemInterface::handleSafeAreaMarginsChanged() (quiview.mm), which in Qt 5.15 ends in an
+// empty QWindowPrivate::processSafeAreaMarginsChanged() (qwindow_p.h): nothing reaches QML. The
+// screen does not report it either: the iOS plugin of the app (qt-patches/ios/5.15.2) keeps the
+// available geometry equal to the screen geometry. So the callback runs after Qt's own handler.
+// Only QUIView's own method is replaced, the one of UIView is left alone
+static void (*qzSafeAreaChanged)() = nullptr;
+
+void lockscreen::setSafeAreaChangedCallback(void (*callback)()) {
+    qzSafeAreaChanged = callback;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        Class viewClass = NSClassFromString(@"QUIView");
+        SEL selector = @selector(safeAreaInsetsDidChange);
+        Method method = viewClass ? class_getInstanceMethod(viewClass, selector) : nullptr;
+        if (!method || method == class_getInstanceMethod([UIView class], selector)) {
+            return;
+        }
+        IMP original = method_getImplementation(method);
+        method_setImplementation(method, imp_implementationWithBlock(^(UIView *self_) {
+            ((void (*)(id, SEL))original)(self_, selector);
+            if (qzSafeAreaChanged) {
+                qzSafeAreaChanged();
+            }
+        }));
+    });
+}
+
+// The window of Qt (QUIWindow) sees the system switch between light and dark in
+// traitCollectionDidChange: (qiosscreen.mm), but in Qt 5.15 that only rebuilds the palette:
+// QWindowSystemInterface::handleThemeChange(nullptr) sends no event to the windows, and QML has
+// no colour scheme to read (Qt 6.5 adds QStyleHints::colorSchemeChanged on the same call). So the
+// callback runs after Qt's own handler, on the same condition. Only QUIWindow's own method is
+// replaced, the one of UIWindow (the keyboard and the other windows) is left alone
+static void (*qzSystemThemeChanged)() = nullptr;
+
+void lockscreen::setSystemThemeChangedCallback(void (*callback)()) {
+    qzSystemThemeChanged = callback;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        Class windowClass = NSClassFromString(@"QUIWindow");
+        SEL selector = @selector(traitCollectionDidChange:);
+        Method method = windowClass ? class_getInstanceMethod(windowClass, selector) : nullptr;
+        if (!method || method == class_getInstanceMethod(class_getSuperclass(windowClass), selector)) {
+            return;
+        }
+        IMP original = method_getImplementation(method);
+        method_setImplementation(method, imp_implementationWithBlock(^(UIWindow *self_,
+                                                                       UITraitCollection *previous) {
+            ((void (*)(id, SEL, UITraitCollection *))original)(self_, selector, previous);
+            if (@available(iOS 13.0, *)) {
+                if (qzSystemThemeChanged && self_.screen == UIScreen.mainScreen &&
+                    previous.userInterfaceStyle != self_.traitCollection.userInterfaceStyle) {
+                    qzSystemThemeChanged();
+                }
+            }
+        }));
+    });
+}
+
+void lockscreen::shareFile(const char* path) {
+    NSURL *url = [NSURL fileURLWithPath:[NSString stringWithUTF8String:path]];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIWindow *window = nil;
+        if (@available(iOS 13.0, *)) {
+            for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+                if (scene.activationState == UISceneActivationStateForegroundActive &&
+                    [scene isKindOfClass:[UIWindowScene class]]) {
+                    for (UIWindow *w in ((UIWindowScene *)scene).windows) {
+                        if (w.isKeyWindow) {
+                            window = w;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if (!window) {
+            window = UIApplication.sharedApplication.windows.firstObject;
+        }
+        UIViewController *root = window.rootViewController;
+        if (!root) {
+            NSLog(@"shareFile: no view controller");
+            return;
+        }
+        // over whatever is shown already
+        while (root.presentedViewController) {
+            root = root.presentedViewController;
+        }
+        UIActivityViewController *sheet = [[UIActivityViewController alloc] initWithActivityItems:@[url]
+                                                                            applicationActivities:nil];
+        // on iPad the sheet is a popover: from the middle of the screen, without an arrow
+        sheet.popoverPresentationController.sourceView = root.view;
+        sheet.popoverPresentationController.sourceRect =
+            CGRectMake(CGRectGetMidX(root.view.bounds), CGRectGetMidY(root.view.bounds), 0, 0);
+        sheet.popoverPresentationController.permittedArrowDirections = 0;
+        [root presentViewController:sheet animated:YES completion:nil];
+    });
 }
 #endif

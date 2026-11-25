@@ -69,6 +69,7 @@ class rower : public bluetoothdevice {
     double CrankRevs = 0;
     double m_gears = 0;
     resistance_t lastRawRequestedResistanceValue = -1;
+    double lastRawRequestedResistanceDifficult = 1.0;
 
     metric m_pelotonResistance;
 

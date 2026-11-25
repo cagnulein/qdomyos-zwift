@@ -1,0 +1,89 @@
+#pragma once
+
+#include <gtest/gtest.h>
+
+#include "devices/echelonconnectsport/echelonunlock.h"
+
+TEST(EchelonUnlockTest, BuildsMailExampleResponse) {
+    const auto result = echelonunlock::responseForChallenge(QByteArray::fromHex("f0e0354412468122"));
+
+    ASSERT_TRUE(result.valid());
+    EXPECT_EQ(result.authValue, 63);
+    EXPECT_EQ(result.response, QByteArray::fromHex("f0e0000063000033"));
+}
+
+TEST(EchelonUnlockTest, PreservesJavascriptDecimalPrefixParsing) {
+    const auto result = echelonunlock::responseForChallenge(QByteArray::fromHex("f0e09c01240d11aa"));
+
+    ASSERT_TRUE(result.valid());
+    EXPECT_EQ(result.authValue, 4);
+    EXPECT_EQ(result.response, QByteArray::fromHex("f0e00000040000d4"));
+}
+
+TEST(EchelonUnlockTest, MatchesRowerChallengeVector) {
+    const auto result = echelonunlock::responseForChallenge(QByteArray::fromHex("f0e09800013140da"));
+
+    ASSERT_TRUE(result.valid());
+    EXPECT_EQ(result.authValue, 18);
+    EXPECT_EQ(result.response, QByteArray::fromHex("f0e00000180000e8"));
+}
+
+TEST(EchelonUnlockTest, MatchesStrideChallengeVectors) {
+    const auto first = echelonunlock::responseForChallenge(QByteArray::fromHex("f0e088293570678d"));
+    const auto second = echelonunlock::responseForChallenge(QByteArray::fromHex("f0e0142910648304"));
+
+    ASSERT_TRUE(first.valid());
+    ASSERT_TRUE(second.valid());
+    EXPECT_EQ(first.authValue, 10);
+    EXPECT_EQ(first.response, QByteArray::fromHex("f0e00000100000e0"));
+    EXPECT_EQ(second.authValue, 66);
+    EXPECT_EQ(second.response, QByteArray::fromHex("f0e0000066000036"));
+}
+
+TEST(EchelonUnlockTest, MatchesRecordedTreadmillChallengeVectors) {
+    struct Vector {
+        const char *challenge;
+        int authValue;
+        const char *response;
+    };
+
+    const Vector vectors[] = {
+        {"f0e0270093865060", 22, "f0e00000220000f2"},
+        {"f0e0671654870129", 0, "f0e00000000000d0"},
+        {"f0e062976153017e", 0, "f0e00000000000d0"},
+        {"f0e07445488583d9", 38, "f0e0000038000008"},
+    };
+
+    for (const auto &vector : vectors) {
+        const auto result = echelonunlock::responseForChallenge(QByteArray::fromHex(vector.challenge));
+        ASSERT_TRUE(result.valid()) << vector.challenge;
+        EXPECT_EQ(result.authValue, vector.authValue) << vector.challenge;
+        EXPECT_EQ(result.response, QByteArray::fromHex(vector.response)) << vector.challenge;
+    }
+}
+
+TEST(EchelonUnlockTest, UsesTheCandidateTreadmillEnvelope) {
+    const auto result = echelonunlock::responseForChallenge(QByteArray::fromHex("f0e0270093865060"));
+
+    ASSERT_TRUE(result.valid());
+    ASSERT_EQ(result.response.size(), 8);
+    EXPECT_EQ(result.response.left(4), QByteArray::fromHex("f0e00000"));
+    EXPECT_EQ(static_cast<uint8_t>(result.response.at(4)), 0x22);
+    EXPECT_EQ(result.response.mid(5, 2), QByteArray::fromHex("0000"));
+    EXPECT_EQ(static_cast<uint8_t>(result.response.at(7)), 0xf2);
+}
+
+TEST(EchelonUnlockTest, RejectsMalformedChallenges) {
+    EXPECT_EQ(echelonunlock::responseForChallenge(QByteArray::fromHex("f0e03544124681" )).error,
+              echelonunlock::Error::InvalidLength);
+    EXPECT_EQ(echelonunlock::responseForChallenge(QByteArray::fromHex("f1e0354412468122")).error,
+              echelonunlock::Error::InvalidPrefix);
+    EXPECT_EQ(echelonunlock::responseForChallenge(QByteArray::fromHex("f0e0fd3e6548d58d")).error,
+              echelonunlock::Error::InvalidDecimalPrefix);
+    EXPECT_EQ(echelonunlock::responseForChallenge(QByteArray::fromHex("f0e03544124600aa")).error,
+              echelonunlock::Error::ZeroDivisor);
+}
+
+TEST(EchelonUnlockTest, BuildsActivationCommand) {
+    EXPECT_EQ(echelonunlock::activationCommand(), QByteArray::fromHex("f0b00101a2"));
+}
