@@ -1945,10 +1945,12 @@ void virtualbike::applyIosAppCommands(CharacteristicWriteProcessor2AD9 *writeP, 
 }
 
 // A Garmin watch takes a power meter, not FTMS; on Android it is found only with the Java advertiser.
+// Bikes only: CharacteristicNotifier2A63 sends no power for ellipticals and rowers, so they keep the Qt advertiser.
 bool virtualbike::garminPowerMeter() const {
 #ifdef Q_OS_ANDROID
     QSettings settings;
-    return settings.value(QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility).toBool() &&
+    return Bike->deviceType() == BIKE &&
+           settings.value(QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility).toBool() &&
            settings.value(QZSettings::bike_power_sensor, QZSettings::default_bike_power_sensor).toBool() &&
            !settings.value(QZSettings::virtual_device_tacx, QZSettings::default_virtual_device_tacx).toBool() &&
            !settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool() &&
