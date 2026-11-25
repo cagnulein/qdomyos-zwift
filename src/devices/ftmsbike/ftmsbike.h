@@ -100,6 +100,8 @@ class ftmsbike : public bike {
     static bool matchesRecentResistanceCommand(resistance_t nativeLevel,
                                                 const QList<PhysicalResistanceCommand> &commands,
                                                 qint64 nowMs, qint64 guardMs);
+    static bool isPhysicalResistanceCommandSettling(qint64 elapsedSinceWriteMs,
+                                                     qint64 settlingWindowMs);
     static resistance_t relativeResistanceTarget(resistance_t desiredLevel, resistance_t oldGradeBase,
                                                   resistance_t newGradeBase);
     static resistance_t limitedResistanceTarget(resistance_t anchorLevel, resistance_t desiredLevel,
