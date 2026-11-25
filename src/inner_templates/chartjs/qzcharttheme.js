@@ -177,6 +177,14 @@
         });
     }
 
+    // Full screen charts (chartfullscreen.js), on the pages that load it: every chart made or
+    // redrawn here gets its button and, while spread, the big look
+    function fullscreen(hook, a, b) {
+        if (window.qzChartFullscreen) {
+            window.qzChartFullscreen[hook](a, b);
+        }
+    }
+
     function rootOf(chart) {
         return { options: chart.config.options, data: chart.config.data };
     }
@@ -186,19 +194,21 @@
             var list = patches(config);
             var pal = palette();
             apply(config, list, pal);
+            fullscreen('prepare', ctx.canvas, config.options);
             var chart = new Chart(ctx, config);
             chart.$qzPatches = list;
             chart.$qzPalette = pal;
             // Pages that recreate their chart drop the destroyed ones here
             charts = charts.filter(function (c) { return !!c.canvas; });
             charts.push(chart);
+            fullscreen('chartChanged'); // the full screen button of its card
             return chart;
         },
 
-        // A chart made by create() takes the config of a redraw in place (new scales and
-        // datasets from qzmetriccharts.js): they get the chart's palette and become its patches,
-        // so refresh() and withLight() keep working on them. The rest of the options are the ones
-        // already themed: their patches keep the original values
+        // A chart made by create() takes the config of a redraw in place (the live update of
+        // dochart.js, new scales and datasets from qzmetriccharts.js): they get the chart's
+        // palette and become its patches, so refresh() and withLight() keep working on them.
+        // The rest of the options are the ones already themed: their patches keep the original values
         restyle: function (chart, config) {
             var kept = {};
             (chart.$qzPatches || []).forEach(function (p) {
@@ -210,6 +220,8 @@
             });
             apply(config, list, chart.$qzPalette);
             chart.$qzPatches = list;
+            fullscreen('prepare', chart.canvas, config.options); // a spread chart stays big
+            fullscreen('chartChanged'); // a card shown by the new data counts in "i / n"
         },
 
         // The fill of the canvas, drawn by dochart.js under each chart: the card colour of the

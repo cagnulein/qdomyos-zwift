@@ -23,6 +23,23 @@ ColumnLayout {
     // its surface), the page was laid out for a wrong width and opened zoomed in
     property bool pageShown: !window.ui.modern
     readonly property real offScreen: pageShown ? 0 : Screen.width + Screen.height
+    // A chart spread over the page (chartfullscreen.js): the page tells it in its title
+    property bool chartFullscreen: false
+    // The spread chart takes the app header's room too: the header folds to the status bar
+    // inset (hidden, it left the page under the status bar).
+    // Back is the key or the collapse button of the chart then, the toolbar arrow folds away
+    onChartFullscreenChanged: headerToolbar.folded = chartFullscreen
+
+    // Back (the key; in the modern look also the arrow of the toolbar, main.qml navigateBack)
+    // closes the spread chart first instead of the page. Cleared at once: a second back
+    // before the new title comes leaves the page as usual
+    function handleBack() {
+        if (!chartFullscreen)
+            return false
+        chartFullscreen = false
+        webView.runJavaScript("window.qzChartFullscreen && window.qzChartFullscreen.exit()")
+        return true
+    }
 
     // The theme the page has, as JSON: that of the fragment of the first load, then of each script sent
     property string sentTheme: ""
@@ -46,6 +63,7 @@ ColumnLayout {
         anchors.leftMargin: -column1.offScreen
         anchors.rightMargin: column1.offScreen
         visible: true
+        onTitleChanged: column1.chartFullscreen = title.indexOf("#fullscreen") >= 0
         onLoadingChanged: {
             if (loadRequest.errorString) {
                 console.error(loadRequest.errorString);
