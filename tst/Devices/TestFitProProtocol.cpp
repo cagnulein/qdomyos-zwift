@@ -105,4 +105,36 @@ TEST(FitProProtocolTest, FramingAndChecksumForStandardSpeedCommand) {
     EXPECT_TRUE(command(4, 2, Bytes(252, 0)).empty());
     EXPECT_TRUE(encode(command(4, 2, Bytes(248, 0))).empty());
 }
+TEST(FitProProtocolTest, CapturedTelemetryAndArmingFields) {
+    ReplyAssembler assembler;
+    EXPECT_TRUE(assembler.append(hex("fe0235040000005802000000000000000000c12c")).empty());
+    EXPECT_TRUE(assembler.append(hex("0012010402310431020200000000000000000000")).empty());
+    EXPECT_TRUE(assembler.append(hex("011200000000010000000000000000000000002c")).empty());
+    const Bytes frame = assembler.append(hex("ff1101000000005802000000000000000000c12c"));
+    Fields values;
+    ASSERT_TRUE(decodeFields(frame, telemetryFields(), values));
+    EXPECT_EQ(0u, values.at(0));
+    EXPECT_EQ(0u, values.at(16));
+    EXPECT_EQ(1u, values.at(12));
+    EXPECT_FALSE(decodeFields(command(4, 2, {2, 0, 0}), telemetryFields(), values));
+    EXPECT_TRUE(values.empty());
+    EXPECT_EQ(hex("0415020e000000000000000000000000001001003a"), command(4, 2, writeFields({{108, 1}})));
+    EXPECT_EQ(hex("0413020c0000000000000000000000800000a5"), command(4, 2, writeFields({{95, 0}})));
+    EXPECT_EQ(hex("020310a000ceff0200"), writeFields({{12, 2}, {1, wireHundredths(-0.5)}, {0, 160}}));
+    EXPECT_DOUBLE_EQ(-0.5, signedHundredths(wireHundredths(-0.5)));
+    EXPECT_FALSE(within(22.1, 0.5, 22.0));
+    EXPECT_FALSE(within(0.1, 0.5, 22.0));
+    EXPECT_TRUE(within(1.0, 0.5, 22.0));
+}
+
+TEST(FitProProtocolTest, RunningCaptureAndSignedIncline) {
+    const Bytes running = hex("04310202a00096007f000700000000000000021100000011000000106101002c014f007400b400580200005802000000e3");
+    Fields fields;
+    ASSERT_TRUE(decodeFields(running, telemetryFields(), fields));
+    EXPECT_EQ(160u, fields.at(0));
+    EXPECT_EQ(150u, fields.at(1));
+    EXPECT_EQ(2u, fields.at(12));
+    EXPECT_EQ(0u, fields.at(16)); // actual speed can be zero despite target
+    EXPECT_EQ(hex("040902020010040025"), command(4, 2, writeFields({{12, 4}})));
+}
 } // namespace

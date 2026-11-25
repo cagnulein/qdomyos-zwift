@@ -15,7 +15,7 @@ void proformtreadmill::genericClearRequests() {
 }
 void proformtreadmill::genericReset() {
     genericFailed=genericReady=genericArmed=genericOwned=genericStartPending=false;
-    genericStopping=genericPausing=genericAwaitRunning=false;
+    genericStopping=genericPausing=genericAwaitRunning=genericArmPartial=false;
     genericWorkoutMode=0; genericActualSpeed=0;
     genericMinSpeed=genericMaxSpeed=genericMinGrade=genericMaxGrade=0;
     genericPending=genericNext=GenericStep::None;
@@ -73,14 +73,20 @@ void proformtreadmill::genericWriteFields(GenericStep step, const Fields &fields
 }
 bool proformtreadmill::genericSpeedAllowed(double speed) const {
     QSettings s;
-    const double lo=std::max(genericMinSpeed,s.value(QZSettings::treadmill_speed_min,QZSettings::default_treadmill_speed_min).toDouble());
-    const double hi=std::min(std::min(genericMaxSpeed,22.0),s.value(QZSettings::treadmill_speed_max,QZSettings::default_treadmill_speed_max).toDouble());
+    const double userMin=s.value(QZSettings::treadmill_speed_min,QZSettings::default_treadmill_speed_min).toDouble();
+    const double userMax=s.value(QZSettings::treadmill_speed_max,QZSettings::default_treadmill_speed_max).toDouble();
+    if (!std::isfinite(userMin) || !std::isfinite(userMax)) return false;
+    const double lo=std::max(genericMinSpeed,userMin);
+    const double hi=std::min(std::min(genericMaxSpeed,22.0),userMax);
     return speed>0 && within(speed,lo,hi);
 }
 bool proformtreadmill::genericGradeAllowed(double grade) const {
     QSettings s;
-    const double lo=std::max(std::max(genericMinGrade,-3.0),s.value(QZSettings::treadmill_incline_min,QZSettings::default_treadmill_incline_min).toDouble());
-    const double hi=std::min(std::min(genericMaxGrade,15.0),s.value(QZSettings::treadmill_incline_max,QZSettings::default_treadmill_incline_max).toDouble());
+    const double userMin=s.value(QZSettings::treadmill_incline_min,QZSettings::default_treadmill_incline_min).toDouble();
+    const double userMax=s.value(QZSettings::treadmill_incline_max,QZSettings::default_treadmill_incline_max).toDouble();
+    if (!std::isfinite(userMin) || !std::isfinite(userMax)) return false;
+    const double lo=std::max(std::max(genericMinGrade,-3.0),userMin);
+    const double hi=std::min(std::min(genericMaxGrade,15.0),userMax);
     return within(grade,lo,hi);
 }
 void proformtreadmill::genericStartBelt() {
@@ -95,6 +101,11 @@ void proformtreadmill::genericStartBelt() {
 void proformtreadmill::genericHandleReply(GenericStep step,const Bytes &frame) {
     if (!successfulReply(frame,genericExpectedOpcode,5)) {
         genericFail(QStringLiteral("console rejected command 0x%1 status %2").arg(int(genericExpectedOpcode),2,16,QLatin1Char('0')).arg(int(frame[3]))); return;
+    }
+    // Read and write share opcode 02. A delayed telemetry frame cannot
+    // satisfy a write acknowledgement (captured successful write is 04 05 02 02 0d).
+    if (genericExpectedOpcode == 2 && step != GenericStep::Limits && step != GenericStep::Poll && frame.size() != 5) {
+        genericFail(QStringLiteral("unexpected write response length")); return;
     }
     Fields v;
     switch(step) {
@@ -114,7 +125,8 @@ void proformtreadmill::genericHandleReply(GenericStep step,const Bytes &frame) {
             genericFail(QStringLiteral("invalid machine limits")); return;
         }
         emit debug(QStringLiteral("FitPro limits speed %1..%2 incline %3..%4").arg(genericMinSpeed).arg(genericMaxSpeed).arg(genericMinGrade).arg(genericMaxGrade));
-        genericNext=GenericStep::Poll; return;
+        genericNext=GenericStep::SerialNumber; return;
+    case GenericStep::SerialNumber: genericNext=GenericStep::Poll; return;
     case GenericStep::Poll: {
         if (!decodeFields(frame,telemetryFields(),v)) { genericFail(QStringLiteral("invalid telemetry reply")); return; }
         const int mode=int(v.at(12));
@@ -144,7 +156,11 @@ void proformtreadmill::genericHandleReply(GenericStep step,const Bytes &frame) {
             const double cadence=calculateCadenceFromSpeed(speed);
             if (cadence>0) { evaluateStepCount(); Cadence=cadence; }
         }
-        if (!genericReady) { genericClearRequests(); genericReady=initDone=true; emit debug(QStringLiteral("FitPro generic telemetry ready")); }
+        if (!genericReady) {
+            genericClearRequests(); genericReady=initDone=true;
+            emit debug(QStringLiteral("FitPro generic telemetry ready"));
+            emit connectedAndDiscovered();
+        }
         if (genericAwaitRunning && mode==2) { genericAwaitRunning=false; emit tapeStarted(); }
         if (genericStopping && stoppedMode(mode) && genericActualSpeed==0) { genericStopping=false; genericOwned=false; }
         if (genericPausing && mode==3 && genericActualSpeed==0) genericPausing=false;
@@ -157,12 +173,13 @@ void proformtreadmill::genericHandleReply(GenericStep step,const Bytes &frame) {
         return;
     }
     case GenericStep::Unlock: genericNext=GenericStep::ArmStart; return;
-    case GenericStep::ArmStart: genericArmed=true; genericNext=GenericStep::ArmLockout; return;
-    case GenericStep::ArmLockout: case GenericStep::ToIdle: case GenericStep::Change: genericNext=GenericStep::Poll; return;
+    case GenericStep::ArmStart: genericArmPartial=true; genericNext=GenericStep::ArmLockout; return;
+    case GenericStep::ArmLockout: genericArmPartial=false; genericArmed=true; genericNext=GenericStep::Poll; return;
+    case GenericStep::ToIdle: case GenericStep::Change: genericNext=GenericStep::Poll; return;
     case GenericStep::Start: genericOwned=true; genericAwaitRunning=true; genericMotionDeadline.start(); genericNext=GenericStep::Poll; return;
     case GenericStep::Stop: genericAwaitRunning=genericPausing=false; genericStopping=true; genericMotionDeadline.start(); genericNext=GenericStep::Poll; return;
     case GenericStep::Pause: genericAwaitRunning=false; genericPausing=true; genericMotionDeadline.start(); genericNext=GenericStep::Poll; return;
-    case GenericStep::Release: genericArmed=false; genericNext=GenericStep::Poll; return;
+    case GenericStep::Release: genericArmed=genericArmPartial=false; genericNext=GenericStep::Poll; return;
     case GenericStep::None: return;
     }
 }
@@ -198,6 +215,7 @@ void proformtreadmill::genericUpdate() {
     case GenericStep::SystemInfo: genericSend(next,2,0x82,{0,0,0}); return;
     case GenericStep::VersionInfo: genericSend(next,2,0x84,{0,0}); return;
     case GenericStep::Limits: genericSend(next,4,2,readFields(limitFields())); return;
+    case GenericStep::SerialNumber: genericSend(next,2,0x95); return;
     case GenericStep::Poll: genericSend(next,4,2,readFields(telemetryFields())); return;
     case GenericStep::Unlock: genericSend(next,4,0x90,genericUnlock); return;
     case GenericStep::ArmStart: if (genericStartPending) genericWriteFields(next,{{108,1}}); return;
@@ -208,6 +226,11 @@ void proformtreadmill::genericUpdate() {
     if (genericStopping||genericPausing||genericAwaitRunning) {
         requestSpeed=-1; requestInclination=-100; requestStart=-1;
         genericSend(GenericStep::Poll,4,2,readFields(telemetryFields())); return;
+    }
+    // If Stop cancelled arming after the first write, release that partial
+    // state before allowing another explicit Start.
+    if (genericArmPartial && !genericStartPending && !genericOwned && stoppedMode(genericWorkoutMode) && genericActualSpeed==0) {
+        genericWriteFields(GenericStep::Release,{{108,0}}); return;
     }
     if (requestStart!=-1) {
         requestStart=-1;
@@ -220,7 +243,7 @@ void proformtreadmill::genericUpdate() {
         if ((genericWorkoutMode==1||(genericOwned&&genericWorkoutMode==3))&&genericActualSpeed==0) { genericStartBelt(); return; }
         genericStartPending=false;
     }
-    if (genericArmed&&!genericOwned&&stoppedMode(genericWorkoutMode)&&genericActualSpeed==0) { genericWriteFields(GenericStep::Release,{{108,0}}); return; }
+    if ((genericArmed||genericArmPartial)&&!genericOwned&&stoppedMode(genericWorkoutMode)&&genericActualSpeed==0) { genericWriteFields(GenericStep::Release,{{108,0}}); return; }
     Fields changes;
     if (genericArmed&&genericOwned&&genericWorkoutMode==2&&autoResistanceEnable) {
         if (requestSpeed!=-1&&genericSpeedAllowed(requestSpeed)) changes[0]=wireHundredths(requestSpeed);

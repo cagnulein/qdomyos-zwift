@@ -10364,6 +10364,7 @@ void proformtreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor,
         if (descriptor.uuid() != QBluetoothUuid::ClientCharacteristicConfiguration || newValue != QByteArray::fromHex("0100")) return;
         genericReset();
         genericNext = GenericStep::DeviceInfo;
+        return; // signal readiness only after a valid FitPro poll
     } else { initRequest = true; }
     emit connectedAndDiscovered();
 }

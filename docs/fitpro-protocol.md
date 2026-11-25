@@ -1,8 +1,20 @@
 # FitPro BLE protocol foundation
 
-This is an offline, transport-independent C++11 implementation. No production
-driver calls it yet. No settings, device routing, BLE writes, polling, or
-existing treadmill behavior change.
+The transport-independent C++11 implementation now has an opt-in BLE adapter.
+Choose **ProForm/NordicTrack Generic (Experimental)** under Treadmill Options
+→ Proform/Nordictrack Options → Specific Model, then restart QZ. The default
+Other and all existing model profiles retain the previous behavior.
+
+The generic adapter targets the device-04 treadmill family. Discovery,
+limits and capture-verified polling must succeed before control. Explicit QZ
+Start unlocks and arms; speed/incline writes are limited to workouts started
+by QZ, and to the machine and QZ safety ceilings. It starts conservatively at
+1–2 km/h (if allowed) and zero incline. Stop/pause use workout-mode writes;
+no automatic legacy fallback, movement retries, or workout resume on reconnect.
+Use the safety key and stand beside the belt when first testing. A communication
+failure requires physical STOP; software cannot guarantee stopping a disconnected
+machine. Unknown firmware, physical START takeover, and additional families
+are not yet supported.
 
 ## Attribution
 
@@ -28,17 +40,15 @@ the existing driver is wrong. The upstream model-specific correction remains
 unverified independently. The tests are in the regular qdomyos-zwift-tests
 target; no new workflow is needed.
 
-## Next steps before any runtime integration
+## Next steps before wider rollout
 
 1. Replay more complete discovery exchanges from known working legacy models;
    compare candidates against transmitted payloads AND accepted responses.
 2. Investigate equipment-family differences (including 0x07), checksum variants
    and the upstream model-specific correction. Do not assume every console
    uses the same handshake or command family.
-3. Add a streaming notification assembler with timeouts and response matching;
-   collect field capabilities and machine limits; validate arming and actual
-   speed/incline readback. Keep existing QZ safety limits.
-4. Only after offline validation, consider an opt-in experimental mode,
-   disabled by default. Preserve legacy routing. Never switch or retry control
-   strategies automatically while a belt is moving; hardware-test start,
-   stop, disconnect and physical controls before wider rollout.
+3. Validate the opt-in session on real treadmills: arming, start, stop,
+   pause, readback, manual operation, and disconnect/reconnect. The adapter
+   rejects unexpected status or telemetry lengths. Do not enable by default.
+4. Add wider field-capability negotiation and hardware coverage before expanding
+   to other equipment families.

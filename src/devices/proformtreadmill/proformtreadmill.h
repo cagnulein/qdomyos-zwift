@@ -53,10 +53,10 @@ class proformtreadmill : public treadmill {
     void forceSpeed(double speed);
 
     enum class GenericStep { None, DeviceInfo, SupportedDevices, SupportedCommands,
-        SystemInfo, VersionInfo, Limits, Poll, Unlock, ArmStart, ArmLockout,
+        SystemInfo, VersionInfo, Limits, SerialNumber, Poll, Unlock, ArmStart, ArmLockout,
         ToIdle, Start, Change, Stop, Pause, Release };
     bool genericMode=false, genericFailed=false, genericReady=false, genericArmed=false;
-    bool genericOwned=false, genericStartPending=false, genericStopping=false;
+    bool genericOwned=false, genericStartPending=false, genericStopping=false, genericArmPartial=false;
     bool genericPausing=false, genericAwaitRunning=false;
     int genericWorkoutMode=0;
     double genericMinSpeed=0, genericMaxSpeed=0, genericMinGrade=0, genericMaxGrade=0, genericActualSpeed=0;
