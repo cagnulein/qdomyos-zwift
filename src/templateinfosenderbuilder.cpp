@@ -1210,6 +1210,12 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
             if (row.contains(QStringLiteral("cadence"))) {
                 tR.cadence = row[QStringLiteral("cadence")].toInt();
             }
+            if (row.contains(QStringLiteral("lower_cadence"))) {
+                tR.lower_cadence = row[QStringLiteral("lower_cadence")].toInt();
+            }
+            if (row.contains(QStringLiteral("upper_cadence"))) {
+                tR.upper_cadence = row[QStringLiteral("upper_cadence")].toInt();
+            }
             if (row.contains(QStringLiteral("mets"))) {
                 tR.mets = row[QStringLiteral("mets")].toInt();
             }

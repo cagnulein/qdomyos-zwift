@@ -10307,12 +10307,10 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
 
             trainProgram = trainprogram::load(file.fileName(), bluetoothManager, file.fileName().right(3).toUpper());
             if (trainProgram->isFitWorkout) {
-                if (!trainProgram->fitWorkoutMatchesDevice()) {
-                    setToastRequested(tr("This workout sport does not match the connected device."));
-                } else if (trainProgram->loadedRows.isEmpty()) {
-                    setToastRequested(tr("The workout file could not be opened."));
-                } else {
-                    // Keep the original FIT, not an automatically converted XML, so the editor can find it.
+                const bool matchesDevice = trainProgram->fitWorkoutMatchesDevice();
+                // A known incompatible sport is only exposed after a successful decode, so keep
+                // that valid FIT too: the editor can read it without controlling the current device.
+                if (!trainProgram->loadedRows.isEmpty() || !matchesDevice) {
                     const QString savedFit = workoutimport::keepFitInTrainingFolder(
                         file.fileName(), getWritableAppDir() + QStringLiteral("training/"));
                     if (savedFit.isEmpty()) {
@@ -10320,6 +10318,11 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
                     } else {
                         emit folderFilesRestored();
                     }
+                }
+                if (!matchesDevice) {
+                    setToastRequested(tr("This workout sport does not match the connected device."));
+                } else if (trainProgram->loadedRows.isEmpty()) {
+                    setToastRequested(tr("The workout file could not be opened."));
                 }
             }
 

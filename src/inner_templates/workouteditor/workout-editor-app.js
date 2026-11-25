@@ -561,8 +561,8 @@
         state.lastSaved = name;
         state.sourceFit = /\.fit$/i.test(name);
         // HR-only FIT workouts otherwise look empty because HR fields are advanced.
-        if (state.sourceFit && rows.some(row => row.HRmin > 0 || row.HRmax > 0 || row.zoneHR > 0 ||
-                                               row.waitForLap || row.lower_cadence >= 0 || row.upper_cadence >= 0)) {
+        if (rows.some(row => row.HRmin > 0 || row.HRmax > 0 || row.zoneHR > 0 ||
+                             row.waitForLap || row.lower_cadence >= 0 || row.upper_cadence >= 0)) {
             state.showAdvanced = true;
             selectors.advanced.checked = true;
         }
@@ -1553,7 +1553,7 @@
                 payload.name = content.name || payload.name;
                 state.sourceFit = false;
             }
-            state.lastSaved = payload.name;
+            state.lastSaved = payload.sourceFit ? payload.name + '.xml' : payload.name;
             selectors.name.value = payload.name;
             updateChart();
             announce(t('workoutEditor.savedName', 'Saved {name}').replace('{name}', payload.name));
@@ -1561,7 +1561,7 @@
             console.log('[saveWorkflow] Refreshing program list...');
             return refreshProgramList().then(() => {
                 console.log('[saveWorkflow] Program list refreshed. programFiles:', Object.keys(state.programFiles));
-                selectors.programSelect.value = payload.name;
+                selectors.programSelect.value = state.lastSaved;
                 if (startAfter) {
                     console.log('[saveWorkflow] startAfter is true, checking for file:', payload.name);
 
@@ -1823,15 +1823,16 @@
         let cursor = 0;
         const rows = [];
         const seriesDefs = (SERIES_DEFS[state.device] || []).slice();
-        if (state.sourceFit) {
-            // Show HR targets (rather than a blank chart for HR-only FIT workouts).
+        // Show actual HR targets, including after explicitly saving a FIT as XML.
+        if (state.intervals.some(row => (row.__enabled_HRmin !== false && row.HRmin > 0) ||
+                                        (row.__enabled_HRmax !== false && row.HRmax > 0))) {
             seriesDefs.push(
-                { key: 'HRmin', label: () => t('workoutEditor.hrMin', 'HR Min'), color: '#e57373', unit: () => 'bpm' },
-                { key: 'HRmax', label: () => t('workoutEditor.hrMax', 'HR Max'), color: '#c62828', unit: () => 'bpm' }
+                { key: 'HRmin', label: () => t('workoutEditor.hrMin', 'HR Min'), color: '#e57373', unit: () => 'bpm', axisLabel: () => 'bpm' },
+                { key: 'HRmax', label: () => t('workoutEditor.hrMax', 'HR Max'), color: '#c62828', unit: () => 'bpm', axisLabel: () => 'bpm' }
             );
-            if (state.device === 'treadmill')
-                seriesDefs.push({ key: 'power', label: () => t('workoutEditor.power', 'Power'), color: '#ef6c00', unit: () => 'W' });
         }
+        if (state.device === 'treadmill' && state.intervals.some(row => row.__enabled_power !== false && row.power >= 0))
+            seriesDefs.push({ key: 'power', label: () => t('workoutEditor.power', 'Power'), color: '#ef6c00', unit: () => 'W', axisLabel: () => 'W' });
         const series = seriesDefs.map(def => ({
             key: def.key,
             label: def.label(),
