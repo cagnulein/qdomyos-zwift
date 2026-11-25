@@ -701,8 +701,10 @@ void trainprogram::scheduler() {
         }
     }
 
+    if (!fitWorkoutMatchesDevice())
+        return;
+
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
-        !fitWorkoutMatchesDevice() ||
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
          !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
         bluetoothManager->device()->isPaused()) {
@@ -2419,7 +2421,7 @@ int trainprogram::currentRowElapsedSeconds() const {
 }
 
 trainrow trainprogram::currentRow() {
-    if (started && !rows.isEmpty()) {
+    if (started && !rows.isEmpty() && fitWorkoutMatchesDevice()) {
 
         return rows.at(currentStep);
     }
@@ -2427,7 +2429,7 @@ trainrow trainprogram::currentRow() {
 }
 
 trainrow trainprogram::getRowFromCurrent(uint32_t offset) {
-    if (started && !rows.isEmpty() && (currentStep + offset) < (uint32_t)rows.length()) {
+    if (started && !rows.isEmpty() && (currentStep + offset) < (uint32_t)rows.length() && fitWorkoutMatchesDevice()) {
         return rows.at(currentStep + offset);
     }
     return trainrow();

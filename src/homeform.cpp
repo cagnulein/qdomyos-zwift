@@ -9792,6 +9792,8 @@ bool homeform::startTrainingProgramFromFile(const QString &filePath) {
         return false;
     }
     trainprogram_open_clicked(QUrl::fromLocalFile(localPath));
+    if (trainProgram && trainProgram->isFitWorkout)
+        return !trainProgram->loadedRows.isEmpty() && trainProgram->fitWorkoutMatchesDevice();
     return true;
 }
 

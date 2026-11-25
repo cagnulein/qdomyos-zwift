@@ -303,7 +303,7 @@ TEST(WorkoutImport, FitRejectsActivityTruncationAndInvalidRepeats) {
     EXPECT_TRUE(workoutimport::loadFit(makeFitWorkout({step, fitRepeat(1, 1, 4)}), 250, 250, 200).isEmpty());
     EXPECT_TRUE(workoutimport::loadFit(makeFitWorkout({step, fitRepeat(1, 0, 10001)}), 250, 250, 200).isEmpty());
     EXPECT_TRUE(workoutimport::loadFit(makeFitWorkout({step, timedFitStep(1, 60, FIT_WKT_STEP_TARGET_GRADE)}),
-                                       250, 200).isEmpty());
+                                       250, 250, 200).isEmpty());
 }
 
 TEST(WorkoutImport, FitFileDispatch) {
