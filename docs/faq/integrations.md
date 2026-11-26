@@ -197,6 +197,14 @@ The RENPHO physical knob can also be used first to tune and test the virtual gea
 
 If using a Bluetooth media/volume remote instead, QZ handles volume-up and volume-down key events as gear controls when the corresponding option is enabled. On Android, the system volume overlay may still briefly appear when those keys are pressed; that does not prevent QZ from using the key presses as gear changes.
 
+## Can I keep my ProForm TDF bike's physical gears under manual control while ROUVY changes its incline?
+
+On a supported ProForm TDF bike with independently adjustable physical incline and electronic resistance, try disabling **Zwift Force Resistance** in QZ's **Experimental Settings**. Despite the setting name, this can affect the ROUVY bridge as well.
+
+A rider using a ProForm TDF (PFEX01218C.0) explicitly confirmed that after turning this option off, the bike continued physically tilting to follow ROUVY terrain while the rider could select the bike's own electronic resistance levels without them being immediately overridden. Verify both functions separately on your own model.
+
+If QZ's **Resistance** tile matches the bike's own gear number, you are using the bike's physical resistance levels, not necessarily QZ's virtual gear table. **Gears Gain** adjusts QZ's virtual gear steps; it does not increase the maximum resistance of the bike's own 26-level system. If the highest physical gear is too easy, compare the bike's standalone resistance at the same incline and cadence before changing QZ gearing settings.
+
 ## How do I follow Peloton resistance targets when my bike uses a different resistance scale?
 
 Do not try to make the bike's native resistance scale match Peloton numerically. QZ calculates a separate **Peloton Resistance** value for supported bikes so you can follow the resistance target shown by a Peloton workout while the physical bike continues to use its own native levels.
