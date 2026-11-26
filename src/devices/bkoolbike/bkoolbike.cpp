@@ -53,44 +53,90 @@ bkoolbike::bkoolbike(bool noWriteResistance, bool noHeartService) {
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &bkoolbike::update);
     refresh->start(200ms);
+
+    writeTimeoutTimer = new QTimer(this);
+    writeTimeoutTimer->setSingleShot(true);
+    connect(writeTimeoutTimer, &QTimer::timeout, this, &bkoolbike::completeCurrentWrite);
+}
+
+bool bkoolbike::customServiceReady() const {
+    return m_control && m_control->state() == QLowEnergyController::DiscoveredState &&
+           gattCustomService && gattCustomService->state() == QLowEnergyService::ServiceDiscovered &&
+           gattWriteCharCustomId.isValid();
+}
+
+void bkoolbike::clearServices() {
+    initRequest = false;
+    initDone = false;
+    writeTimeoutTimer->stop();
+    writeQueue.clear();
+    writeInProgress = false;
+    currentWriteWaitingForResponse = false;
+    gattCustomService.clear();
+    gattPowerService = nullptr;
+    gattWriteCharCustomId = QLowEnergyCharacteristic();
+    gattWriteCharControlPointId = QLowEnergyCharacteristic();
+
+    // Do not retain service objects from a previous BLE connection.
+    const auto oldServices = gattCommunicationChannelService;
+    gattCommunicationChannelService.clear();
+    for (QLowEnergyService *service : oldServices) {
+        disconnect(service, nullptr, this, nullptr);
+        service->deleteLater();
+    }
 }
 
 void bkoolbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                     bool wait_for_response) {
-    QEventLoop loop;
-    QTimer timeout;
-
-    if (!gattCustomService) {
-        qDebug() << QStringLiteral("ERROR: no gattCustomService!");
+    if (!customServiceReady()) {
+        qDebug() << QStringLiteral("BKOOL: custom service not ready");
         return;
     }
 
-    if (wait_for_response) {
-        connect(gattCustomService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
-    } else {
-        connect(gattCustomService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+    WriteRequest request;
+    request.data = QByteArray(reinterpret_cast<const char *>(data), data_len);
+    request.info = info;
+    request.disableLog = disable_log;
+    request.waitForResponse = wait_for_response;
+    writeQueue.enqueue(request);
+    processWriteQueue();
+}
+
+void bkoolbike::processWriteQueue() {
+    if (writeInProgress || writeQueue.isEmpty()) {
+        return;
+    }
+    if (!customServiceReady()) {
+        writeQueue.clear();
+        return;
     }
 
-    if (writeBuffer) {
-        delete writeBuffer;
-    }
-    writeBuffer = new QByteArray((const char *)data, data_len);
-
+    const WriteRequest request = writeQueue.dequeue();
+    writeInProgress = true;
+    currentWriteWaitingForResponse = request.waitForResponse;
+    // Keep the original response/timeout pacing, without a nested event loop.
+    writeTimeoutTimer->start(300);
     if (gattWriteCharCustomId.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
-        gattCustomService->writeCharacteristic(gattWriteCharCustomId, *writeBuffer,
-                                                             QLowEnergyService::WriteWithoutResponse);
+        gattCustomService->writeCharacteristic(gattWriteCharCustomId, request.data,
+                                               QLowEnergyService::WriteWithoutResponse);
     } else {
-        gattCustomService->writeCharacteristic(gattWriteCharCustomId, *writeBuffer);
-    }    
-
-    if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        gattCustomService->writeCharacteristic(gattWriteCharCustomId, request.data);
     }
 
-    loop.exec();
+    if (!request.disableLog) {
+        emit debug(QStringLiteral(" >> ") + request.data.toHex(' ') + QStringLiteral(" // ") + request.info);
+    }
+}
+
+void bkoolbike::completeCurrentWrite() {
+    if (!writeInProgress) {
+        return;
+    }
+    writeTimeoutTimer->stop();
+    writeInProgress = false;
+    currentWriteWaitingForResponse = false;
+    // Dispatch the next packet after the current BLE callback has returned.
+    QTimer::singleShot(0, this, &bkoolbike::processWriteQueue);
 }
 
 void bkoolbike::changePower(int32_t power) {
@@ -150,13 +196,17 @@ void bkoolbike::forceInclination(double inclination) {
 }
 
 void bkoolbike::update() {
+    if (!m_control) {
+        return;
+    }
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
     }
 
-    if (initRequest) {
+    if (initRequest && customServiceReady()) {
         initRequest = false;
+        initDone = true;
         QSettings settings;
         bool tacx_neo2_peloton =
             settings.value(QZSettings::tacx_neo2_peloton, QZSettings::default_tacx_neo2_peloton).toBool();
@@ -188,13 +238,14 @@ void bkoolbike::update() {
             writeCharacteristic(init5, sizeof(init5), QStringLiteral("init5"), false, true);
         }
 
-    } else if (bluetoothDevice.isValid() &&
-               m_control->state() == QLowEnergyController::DiscoveredState //&&
-                                                                           // gattCommunicationChannelService &&
-                                                                           // gattWriteCharacteristic.isValid() &&
-                                                                           // gattNotify1Characteristic.isValid() &&
-               /*initDone*/) {
+    } else if (bluetoothDevice.isValid() && customServiceReady() && initDone) {
         update_metrics(false, watts());
+
+        // Do not consume pending control requests while the initialization or
+        // previous write is still queued. Telemetry continues to update.
+        if (writeInProgress || !writeQueue.isEmpty()) {
+            return;
+        }
 
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
@@ -285,6 +336,9 @@ void bkoolbike::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    if (writeInProgress && currentWriteWaitingForResponse && sender() == gattCustomService.data()) {
+        completeCurrentWrite();
+    }
     QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
@@ -613,6 +667,9 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
 }
 
 void bkoolbike::stateChanged(QLowEnergyService::ServiceState state) {
+    if (!m_control || m_control->state() != QLowEnergyController::DiscoveredState) {
+        return;
+    }
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
@@ -737,7 +794,9 @@ void bkoolbike::stateChanged(QLowEnergyService::ServiceState state) {
 void bkoolbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + " " + newValue.toHex(' '));
 
-    initRequest = true;
+    if (!initDone) {
+        initRequest = true;
+    }
     emit connectedAndDiscovered();
 }
 
@@ -746,7 +805,10 @@ void bkoolbike::descriptorRead(const QLowEnergyDescriptor &descriptor, const QBy
 }
 
 void bkoolbike::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
-    Q_UNUSED(characteristic);
+    if (writeInProgress && !currentWriteWaitingForResponse && sender() == gattCustomService.data() &&
+        characteristic == gattWriteCharCustomId) {
+        completeCurrentWrite();
+    }
     emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
 }
 
@@ -765,12 +827,18 @@ void bkoolbike::serviceScanDone(void) {
     m_control->requestConnectionUpdate(c);
 #endif
 
-    auto services = m_control->services();
+    clearServices();
+    const auto services = m_control->services();
     for (const QBluetoothUuid &s : services) {
-        gattCommunicationChannelService.append(m_control->createServiceObject(s));
-        connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
-                &bkoolbike::stateChanged);
-        gattCommunicationChannelService.constLast()->discoverDetails();
+        auto *service = m_control->createServiceObject(s, this);
+        if (!service) {
+            continue;
+        }
+        gattCommunicationChannelService.append(service);
+        connect(service, &QLowEnergyService::stateChanged, this, &bkoolbike::stateChanged);
+    }
+    for (QLowEnergyService *service : qAsConst(gattCommunicationChannelService)) {
+        service->discoverDetails();
     }
 }
 
@@ -849,6 +917,7 @@ void bkoolbike::controllerStateChanged(QLowEnergyController::ControllerState sta
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
+        clearServices();
         connectBackLater();
     }
 }

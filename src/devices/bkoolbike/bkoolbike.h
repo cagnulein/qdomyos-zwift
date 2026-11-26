@@ -23,6 +23,8 @@
 #include <QtCore/qtimer.h>
 
 #include <QDateTime>
+#include <QPointer>
+#include <QQueue>
 #include <QObject>
 #include <QString>
 
@@ -63,7 +65,21 @@ class bkoolbike : public bike {
     QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyCharacteristic gattWriteCharCustomId;
     QLowEnergyService *gattPowerService = nullptr;
-    QLowEnergyService *gattCustomService;
+    QPointer<QLowEnergyService> gattCustomService;
+    struct WriteRequest {
+        QByteArray data;
+        QString info;
+        bool disableLog = false;
+        bool waitForResponse = false;
+    };
+    QQueue<WriteRequest> writeQueue;
+    QTimer *writeTimeoutTimer = nullptr;
+    bool writeInProgress = false;
+    bool currentWriteWaitingForResponse = false;
+    bool customServiceReady() const;
+    void clearServices();
+    void processWriteQueue();
+    void completeCurrentWrite();
     // QLowEnergyCharacteristic gattNotify1Characteristic;
 
     uint8_t sec1Update = 0;
