@@ -3428,7 +3428,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(trxappgateusb, &trxappgateusbtreadmill::debug, this, &bluetooth::debug);
                 trxappgateusb->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(trxappgateusb);
-            } else if (isTrxAppGateUsbBikeTC ||
+            } else if (((isTrxAppGateUsbBikeTC && !ftmsBike &&
+                         b.name().compare(ftms_bike, Qt::CaseInsensitive) != 0) ||
                         (upperDeviceName.startsWith(QStringLiteral("TUN ")) ||
                         upperDeviceName.startsWith(QStringLiteral("FITHIWAY")) ||
                         upperDeviceName.startsWith(QStringLiteral("FIT HI WAY")) ||
@@ -3451,7 +3452,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                           upperDeviceName.contains(QStringLiteral("CR011R")) ||
                           (upperDeviceName.startsWith(QStringLiteral("FAL-SPORTS")) && toorx_bike) ||
                           upperDeviceName.startsWith(QStringLiteral("DKN MOTION"))) &&
-                         (toorx_bike))) &&
+                         (toorx_bike)))) &&
                        !trxappgateusb && !toorx_ftms && !toorx_ftms_treadmill && !trxappgateusbBike && !isConfiguredFtmsRowerDevice && (filter || isRI009R) && !iconsole_elliptical && !iconsole_rower && ftms_elliptical.contains(QZSettings::default_ftms_elliptical) && !csc_as_bike) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();

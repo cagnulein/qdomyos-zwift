@@ -67,6 +67,8 @@ void trxappgateusbbike::writeCharacteristic(uint8_t *data, uint8_t data_len, con
 }
 
 void trxappgateusbbike::forceResistance(resistance_t requestResistance) {
+    if (finnloLegacy)
+        return; // No resistance-control frames have been verified for this protocol.
 
     if (!initDone) {
         emit debug(QStringLiteral("forceResistance Ignored, init not done yet"));
@@ -103,9 +105,36 @@ void trxappgateusbbike::update() {
     // qDebug() << bike.isValid() << m_control->state() << gattCommunicationChannelService <<
     // gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
 
+    if (!m_control)
+        return;
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
-
         emit disconnected();
+        return;
+    }
+
+    if (finnloLegacy) {
+        if (m_control->state() != QLowEnergyController::DiscoveredState ||
+            !gattCommunicationChannelService || !gattWriteCharacteristic.isValid() ||
+            !gattNotify1Characteristic.isValid())
+            return;
+        const qint64 now = finnloClock.elapsed();
+        if (requestStop != -1) {
+            sendFinnloCommand(finnloProtocol.stop());
+            requestStop = -1;
+            Speed = 0;
+            finnloLastSample = -1;
+        }
+        if (requestStart != -1) {
+            sendFinnloCommand(finnloProtocol.resume(now));
+            requestStart = -1;
+        }
+        sendFinnloCommand(finnloProtocol.tick(now));
+        if (finnloLastSample >= 0 && now - finnloLastSample > 3500) {
+            Speed = 0;
+            finnloLastSample = -1;
+        }
+        requestResistance = -1;
+        update_metrics(false, 0);
         return;
     }
 
@@ -223,6 +252,44 @@ void trxappgateusbbike::update() {
     }
 }
 
+void trxappgateusbbike::sendFinnloCommand(FinnloVaronProtocol::Command command) {
+    if (command == FinnloVaronProtocol::Command::None || !gattCommunicationChannelService ||
+        !gattWriteCharacteristic.isValid())
+        return;
+    const auto frame = FinnloVaronProtocol::encode(command);
+    const QByteArray packet(reinterpret_cast<const char *>(frame.data()), static_cast<int>(frame.size()));
+    // ATT Write Request, as observed in the capture; never enter the generic TRX nested event loop.
+    if (!(gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::Write)) {
+        emit debug(QStringLiteral("FINNLO legacy: write-with-response characteristic unavailable"));
+        return;
+    }
+    emit debug(QStringLiteral("FINNLO legacy >> ") + packet.toHex(' '));
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, packet,
+                                                         QLowEnergyService::WriteWithResponse);
+}
+
+void trxappgateusbbike::handleFinnloPacket(const QByteArray &packet) {
+    const auto *bytes = reinterpret_cast<const uint8_t *>(packet.constData());
+    const auto size = static_cast<size_t>(packet.size());
+    const qint64 now = finnloClock.elapsed();
+    emit debug(QStringLiteral("FINNLO legacy << ") + packet.toHex(' '));
+    if (!FinnloVaronProtocol::validFrame(bytes, size))
+        return;
+    sendFinnloCommand(finnloProtocol.receive(bytes, size, now));
+    FinnloVaronProtocol::Telemetry sample{};
+    if (!finnloProtocol.streaming() || !FinnloVaronProtocol::telemetry(bytes, size, sample))
+        return;
+    emit debug(QStringLiteral("FINNLO legacy raw fields: %1 / %2 / %3")
+                   .arg(sample.first).arg(sample.middle).arg(sample.second));
+    // Experimental hypothesis only: first raw field is speed in tenths of km/h.
+    // Do not publish unverified cadence, power or resistance.
+    Speed = sample.first / 10.0;
+    if (finnloLastSample >= 0 && now > finnloLastSample && now - finnloLastSample <= 3500)
+        Distance += Speed.value() * (now - finnloLastSample) / 3600000.0;
+    finnloLastSample = now;
+    update_hr_from_external();
+}
+
 void trxappgateusbbike::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
@@ -231,6 +298,11 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
                                               const QByteArray &newValue) {
     double heart = 0;
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
+    if (finnloLegacy) {
+        if (characteristic == gattNotify1Characteristic)
+            handleFinnloPacket(newValue);
+        return;
+    }
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
@@ -955,6 +1027,13 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state) {
             gattNotify2Characteristic = gattCommunicationChannelService->characteristic(_gattNotify2CharacteristicId);
         }
 
+        if (finnloLegacy &&
+            (!gattWriteCharacteristic.isValid() || !gattNotify1Characteristic.isValid() ||
+             !(gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::Write) ||
+             !gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid())) {
+            emit debug(QStringLiteral("FINNLO legacy: required GATT characteristics not found"));
+            return;
+        }
         Q_ASSERT(gattWriteCharacteristic.isValid());
         Q_ASSERT(gattNotify1Characteristic.isValid());
         if (bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW) {
@@ -1012,7 +1091,8 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state) {
 void trxappgateusbbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
-    initRequest = true;
+    if (!finnloLegacy)
+        initRequest = true;
     emit connectedAndDiscovered();
 }
 
@@ -1028,6 +1108,15 @@ void trxappgateusbbike::serviceScanDone(void) {
     QString uuid = QStringLiteral("0000fff0-0000-1000-8000-00805f9b34fb");
     QString uuid2 = QStringLiteral("49535343-FE7D-4AE5-8FA9-9FAFD205E455");
     QString uuid3 = QStringLiteral("0000fff0-0000-1000-8000-00805f9b34fb");
+    if (finnloLegacy) {
+        // Actual connected GATT discovery, not the optional advertised UUID list.
+        const auto services = m_control->services();
+        if (services.contains(QBluetoothUuid(static_cast<quint16>(0x1826))) ||
+            !services.contains(QBluetoothUuid::fromString(uuid2))) {
+            emit debug(QStringLiteral("FINNLO legacy: unexpected services; no proprietary commands sent. Check FTMS Bike setting."));
+            return;
+        }
+    }
     if (bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW || bike_type == TYPE::ICONSOLE ||
         bike_type == TYPE::JLL_IC400 || bike_type == TYPE::FYTTER_RI08 || bike_type == TYPE::TUNTURI ||
         bike_type == TYPE::FITHIWAY || bike_type == TYPE::FAL_SPORTS || bike_type == TYPE::TRXAPPGATE_TC ||
@@ -1334,6 +1423,15 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("BODYSCULPTURE203 bike found");
         }
 
+        finnloLegacy = upperDeviceName == QStringLiteral("TC174") &&
+            settings.value(QZSettings::finnlo_varon_legacy, QZSettings::default_finnlo_varon_legacy).toBool();
+        if (finnloLegacy) {
+            bike_type = TYPE::TRXAPPGATE_TC;
+            noWriteResistance = true;
+            finnloProtocol.reset();
+            finnloClock.start();
+            emit debug(QStringLiteral("FINNLO Varon legacy TC174 experimental mode"));
+        }
         bluetoothDevice = device;
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &trxappgateusbbike::serviceDiscovered);
@@ -1390,6 +1488,13 @@ void trxappgateusbbike::controllerStateChanged(QLowEnergyController::ControllerS
         qDebug() << QStringLiteral("trying to connect back again...");
 
         initDone = false;
+        if (finnloLegacy) {
+            finnloProtocol.reset();
+            finnloLastSample = -1;
+            Speed = 0;
+            gattWriteCharacteristic = QLowEnergyCharacteristic();
+            gattNotify1Characteristic = QLowEnergyCharacteristic();
+        }
         connectBackLater();
     }
 }

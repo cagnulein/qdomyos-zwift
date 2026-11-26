@@ -1385,8 +1385,9 @@ const QString QZSettings::treadmill_calories_model = QStringLiteral("treadmill_c
 
 const QString QZSettings::ui_modern_new_install_checked = QStringLiteral("ui_modern_new_install_checked");
 const QString QZSettings::ui_modern_offer_pending = QStringLiteral("ui_modern_offer_pending");
+const QString QZSettings::finnlo_varon_legacy = QStringLiteral("finnlo_varon_legacy");
 
-const uint32_t allSettingsCount = 1062;
+const uint32_t allSettingsCount = 1063;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2475,6 +2476,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::treadmill_calories_model, QZSettings::default_treadmill_calories_model},
     {QZSettings::ui_modern_new_install_checked, QZSettings::default_ui_modern_new_install_checked},
     {QZSettings::ui_modern_offer_pending, QZSettings::default_ui_modern_offer_pending},
+    {QZSettings::finnlo_varon_legacy, QZSettings::default_finnlo_varon_legacy},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

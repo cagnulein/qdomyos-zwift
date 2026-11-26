@@ -2995,6 +2995,7 @@ import AndroidStatusBar 1.0
             property bool treadmill_calories_model: false
             property bool ui_modern_new_install_checked: false
             property bool ui_modern_offer_pending: false
+            property bool finnlo_varon_legacy: false
 
         }
 
@@ -6436,6 +6437,24 @@ import AndroidStatusBar 1.0
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("FINNLO Varon XTR BT (legacy TC174, experimental)")
+                        checked: settings.finnlo_varon_legacy
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.finnlo_varon_legacy = checked; window.settings_restart_to_apply = true; }
+                    }
+                    Label {
+                        text: qsTr("Only for the older non-FTMS TC174. Set FTMS Bike to Disabled and restart QZ. Read-only experimental support.")
+                        font.bold: !window.ui.modern
+                        font.italic: !window.ui.modern
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
+                        wrapMode: Text.WordWrap
                         Layout.fillWidth: true
                         color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
                     }

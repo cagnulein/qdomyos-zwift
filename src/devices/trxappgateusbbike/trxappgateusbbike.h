@@ -27,6 +27,8 @@
 
 #include "devices/bike.h"
 #include "ergtable.h"
+#include "finnlovaronprotocol.h"
+#include <QElapsedTimer>
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -80,6 +82,14 @@ class trxappgateusbbike : public bike {
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
     QLowEnergyCharacteristic gattNotify2Characteristic;
+
+    // Isolated, explicitly selected non-FTMS TC174 mode.
+    bool finnloLegacy = false;
+    FinnloVaronProtocol finnloProtocol;
+    QElapsedTimer finnloClock;
+    qint64 finnloLastSample = -1;
+    void sendFinnloCommand(FinnloVaronProtocol::Command command);
+    void handleFinnloPacket(const QByteArray &packet);
 
     bool initDone = false;
     bool initRequest = false;
