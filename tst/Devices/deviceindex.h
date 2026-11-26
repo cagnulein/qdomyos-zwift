@@ -90,6 +90,8 @@ public:
     DEFINE_DEVICE(FitShowBF, "FitShow BF");
     DEFINE_DEVICE(FitShowFS, "FitShow FS");
     DEFINE_DEVICE(FitShowTR510T, "FitShow TR510-T");
+    DEFINE_DEVICE(FitShowTF04, "FitShow TF04-S001");
+    DEFINE_DEVICE(HorizonTF04FTMS, "Horizon TF04-S001 configured FTMS");
     DEFINE_DEVICE(FitShowMerachT12, "FitShow Merach T12 Pro");
     DEFINE_DEVICE(FitShowSW, "FitShow SW");
     DEFINE_DEVICE(FlywheelBike, "Flywheel Bike");
