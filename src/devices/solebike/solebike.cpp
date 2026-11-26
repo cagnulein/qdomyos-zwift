@@ -77,6 +77,16 @@ void solebike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
 }
 
 void solebike::forceResistance(resistance_t requestResistance) {
+    // The legacy Sole LCR reports 0-based levels and uses opcode 0x13 for direct resistance control.
+    // Keep the existing keypad behavior for LCB/R92 until their control protocol is verified.
+    if (bluetoothDevice.name().startsWith(QLatin1String("LCR"), Qt::CaseInsensitive)) {
+        const uint8_t level = static_cast<uint8_t>(
+            qBound(1, static_cast<int>(requestResistance), static_cast<int>(max_resistance)) - 1);
+        uint8_t setResistance[] = {0x5b, 0x02, 0x13, level, 0x5d};
+        writeCharacteristic(setResistance, sizeof(setResistance), QStringLiteral("set resistance"), false, true);
+        return;
+    }
+
     uint8_t up[] = {0x5b, 0x02, 0xf1, 0x02, 0x5d};
     uint8_t down[] = {0x5b, 0x02, 0xf1, 0x03, 0x5d};
 
@@ -236,9 +246,12 @@ void solebike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     // resistance value is in another frame
     if (newValue.length() == 5 && ((unsigned char)newValue.at(0)) == 0x5b && ((unsigned char)newValue.at(1)) == 0x02 &&
         ((unsigned char)newValue.at(2)) == 0x13) {
-        double res = 1.0;
-        if (newValue.at(3) > 0)
-            res = newValue.at(3);
+        const uint8_t reportedResistance = static_cast<uint8_t>(newValue.at(3));
+        double res = reportedResistance > 0 ? reportedResistance : 1.0;
+        if (bluetoothDevice.name().startsWith(QLatin1String("LCR"), Qt::CaseInsensitive)) {
+            // LCR sends 0x00 for console level 1 through 0x27 for level 40.
+            res = reportedResistance + 1.0;
+        }
         Resistance = res;
         emit resistanceRead(Resistance.value());
         m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
@@ -334,13 +347,15 @@ void solebike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 }
 
 QTime solebike::GetElapsedFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(3) << 8) | packet.at(4);
-    QTime t(0, convertedData / 60, convertedData % 60);
-    return t;
+    // The Sole status packet contains elapsed minutes and seconds in separate bytes.
+    const int elapsedSeconds = static_cast<uint8_t>(packet.at(3)) * 60 +
+                               static_cast<uint8_t>(packet.at(4));
+    return QTime(0, 0).addSecs(elapsedSeconds);
 }
 
 double solebike::GetDistanceFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(7) << 8) | packet.at(8);
+    uint16_t convertedData = (static_cast<uint8_t>(packet.at(7)) << 8) |
+                             static_cast<uint8_t>(packet.at(8));
     double data = ((double)convertedData) / 100.0f;
     
     // the bike send the distance in miles always
@@ -353,13 +368,15 @@ double solebike::GetDistanceFromPacket(const QByteArray &packet) {
 }
 
 double solebike::GetWattFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(13) << 8) | packet.at(14);
+    uint16_t convertedData = (static_cast<uint8_t>(packet.at(13)) << 8) |
+                             static_cast<uint8_t>(packet.at(14));
     double data = ((double)convertedData);
     return data;
 }
 
 double solebike::GetSpeedFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(11) << 8) | packet.at(12);
+    uint16_t convertedData = (static_cast<uint8_t>(packet.at(11)) << 8) |
+                             static_cast<uint8_t>(packet.at(12));
     double data = ((double)convertedData) / 100.0f;
     
     // the bike send the speed in miles always
@@ -527,7 +544,7 @@ void solebike::serviceScanDone(void) {
             settings.setValue(QZSettings::ftms_bike, bluetoothDevice.name());
             qDebug() << "forcing FTMS bike since Sole main service is missing but FTMS service is available";
             if (homeform::singleton()) {
-                homeform::singleton()->setToastRequested("FTMS bike found, restart the app to apply the change");
+                homeform::singleton()->setToastRequested(QObject::tr("FTMS bike found, restart the app to apply the change"));
             }
             delete ftmsService;
         } else {
@@ -616,6 +633,6 @@ void solebike::controllerStateChanged(QLowEnergyController::ControllerState stat
         lastResistanceBeforeDisconnection = Resistance.value();
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

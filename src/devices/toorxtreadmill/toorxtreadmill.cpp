@@ -454,6 +454,7 @@ void toorxtreadmill::readSocket() {
         if (line.length() == 17 && line.at(1) != 0x27) {
             elapsed = GetElapsedTimeFromPacket(line);
             Distance = GetDistanceFromPacket(line);
+            caloriesFromConsole = true; // the console reports the calories (treadmill calorie model)
             KCal = GetCaloriesFromPacket(line);
             Speed = GetSpeedFromPacket(line);
             Inclination = GetInclinationFromPacket(line);

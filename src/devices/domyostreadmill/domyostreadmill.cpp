@@ -979,7 +979,7 @@ void domyostreadmill::controllerStateChanged(QLowEnergyController::ControllerSta
         qDebug() << QStringLiteral("trying to connect back again...");
 
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 

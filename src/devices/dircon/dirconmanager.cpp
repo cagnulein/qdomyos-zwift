@@ -242,6 +242,17 @@ DirconManager::DirconManager(bluetoothdevice *Bike, int8_t bikeResistanceOffset,
     } else {
         DM_MACHINE_OP(DM_MACHINE_INIT_OP, services, proc_services, type)
     }
+    foreach (DirconProcessor *processor, processors) {
+        connect(processor, &DirconProcessor::clientDisconnected, this, [this]() {
+            // an app may keep more than one service open (the trainer and the HRM): only the last one closing counts
+            foreach (DirconProcessor *p, processors) {
+                if (p->hasClients()) {
+                    return;
+                }
+            }
+            emit clientDisconnected();
+        });
+    }
     
     if (zwift_play_emulator || settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool())
         bikeTimer.start(50ms);

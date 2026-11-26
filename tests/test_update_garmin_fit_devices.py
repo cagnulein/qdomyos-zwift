@@ -29,7 +29,11 @@ class GarminFitUpdaterTest(unittest.TestCase):
         self.assertIn("Zwift", macros)
 
     def test_adds_one_and_is_idempotent(self):
-        catalog = dict(self.catalog, FENIX_TEST=5000)
+        start, end = updater.locate_control(QML)
+        used_ids = set(self.catalog.values())
+        used_ids.update(device.product for device in updater.parse_current(QML[start:end]))
+        test_id = next(candidate for candidate in range(60000, 65535) if candidate not in used_ids)
+        catalog = dict(self.catalog, FENIX_TEST=test_id)
         updated, added, old = updater.update_qml(QML, catalog)
         self.assertIn("FENIX_TEST", [d.macro for d in added])
         self.assertTrue(all(d.macro in updated for d in old))

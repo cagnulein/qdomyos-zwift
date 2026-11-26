@@ -8,6 +8,7 @@ The Workout Editor lets you create multi-device training sessions without leavin
 
 ## Build Intervals
 - Every interval exposes the parameters supported by the selected device.
+- Rower intervals can optionally target a resistance level; enable **Resistance** on each interval where QZ should change the machine level.
 - Use **Add Interval**, **Copy**, **Up/Down**, or **Del** to manage the timeline.
 - Select a block of consecutive intervals and hit **Repeat Selection** to clone it quickly (perfect for repeat sets like work/rest pairs).
 - Toggle **Show advanced parameters** to edit cadence targets, Peloton levels, heart-rate limits, GPS metadata, etc.

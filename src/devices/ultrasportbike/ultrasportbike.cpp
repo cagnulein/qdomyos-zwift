@@ -456,6 +456,6 @@ void ultrasportbike::controllerStateChanged(QLowEnergyController::ControllerStat
         lastResistanceBeforeDisconnection = Resistance.value();
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
