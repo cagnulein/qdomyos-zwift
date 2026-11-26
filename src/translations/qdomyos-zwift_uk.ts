@@ -6390,6 +6390,14 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Виберіть, які графіки показувати внизу екрана: пульс і потужність, лише пульс або лише потужність.</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines</source>
+        <translation>Згладжувати лінії графіків</translation>
+    </message>
+    <message>
+        <source>On the Charts page, draw the power, cadence and speed lines as a 5-second moving average instead of the raw second-by-second values. Averages, maximums and zones still use the raw values. Default is off.</source>
+        <translation>На сторінці «Графіки» лінії потужності, каденсу та швидкості малюються ковзним середнім за 5 секунд, а не посекундними вихідними значеннями. Середні, максимуми та зони, як і раніше, рахуються за вихідними значеннями. Типово вимкнено.</translation>
+    </message>
+    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>Лівий показник Live Activity (iOS):</translation>
     </message>

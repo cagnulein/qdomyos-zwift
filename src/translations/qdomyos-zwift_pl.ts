@@ -6246,6 +6246,14 @@ Zezwolić QZ na zmianę tej wartości?
         <translation>Wybierz, które wykresy mają być wyświetlane w stopce: zarówno wykresy tętna, jak i mocy, tylko wykres tętna lub tylko wykres mocy.</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines</source>
+        <translation>Wygładzaj linie wykresów</translation>
+    </message>
+    <message>
+        <source>On the Charts page, draw the power, cadence and speed lines as a 5-second moving average instead of the raw second-by-second values. Averages, maximums and zones still use the raw values. Default is off.</source>
+        <translation>Na stronie Wykresy linie mocy, kadencji i prędkości są rysowane jako średnia krocząca z 5 sekund zamiast surowych wartości z każdej sekundy. Średnie, maksima i strefy nadal są liczone z surowych wartości. Domyślnie wyłączone.</translation>
+    </message>
+    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>Lewy wskaźnik funkcji Live Activity w iOS:</translation>
     </message>

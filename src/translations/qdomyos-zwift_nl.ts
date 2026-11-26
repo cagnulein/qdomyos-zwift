@@ -6246,6 +6246,14 @@ Mag QZ deze waarde wijzigen?
         <translation>Kies welke grafieken onderaan worden getoond: hartslag en vermogen, alleen hartslag of alleen vermogen.</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines</source>
+        <translation>Grafieklijnen afvlakken</translation>
+    </message>
+    <message>
+        <source>On the Charts page, draw the power, cadence and speed lines as a 5-second moving average instead of the raw second-by-second values. Averages, maximums and zones still use the raw values. Default is off.</source>
+        <translation>Op de pagina Grafieken worden de lijnen voor vermogen, cadans en snelheid getekend als een voortschrijdend gemiddelde over 5 seconden in plaats van de ruwe waarden per seconde. Gemiddelden, maxima en zones worden nog steeds berekend op de ruwe waarden. Standaard uit.</translation>
+    </message>
+    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>Linker waarde Live Activity (iOS):</translation>
     </message>

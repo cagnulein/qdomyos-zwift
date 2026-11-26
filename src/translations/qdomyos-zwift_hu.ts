@@ -6206,6 +6206,14 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
         <translation>Válassza ki, mely diagramok jelenjenek meg a láblécben: a pulzus- és a teljesítménydiagram is, csak a pulzusdiagram vagy csak a teljesítménydiagram.</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines</source>
+        <translation>Diagramvonalak simítása</translation>
+    </message>
+    <message>
+        <source>On the Charts page, draw the power, cadence and speed lines as a 5-second moving average instead of the raw second-by-second values. Averages, maximums and zones still use the raw values. Default is off.</source>
+        <translation>A Diagramok oldalon a teljesítmény, a kadencia és a sebesség vonala 5 másodperces mozgóátlagként jelenik meg a másodpercenkénti nyers értékek helyett. Az átlagok, maximumok és zónák továbbra is a nyers értékekből számolódnak. Alapértelmezés szerint ki van kapcsolva.</translation>
+    </message>
+    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>iOS Élő tevékenység, bal oldali mérőszám:</translation>
     </message>

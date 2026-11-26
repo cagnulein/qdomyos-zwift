@@ -6066,6 +6066,14 @@ Autoriser QZ à modifier cette valeur ?
         <translation>Choisissez les graphiques à afficher dans le pied de page : fréquence cardiaque et puissance, uniquement la fréquence cardiaque, ou uniquement la puissance.</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines</source>
+        <translation>Lisser les courbes des graphiques</translation>
+    </message>
+    <message>
+        <source>On the Charts page, draw the power, cadence and speed lines as a 5-second moving average instead of the raw second-by-second values. Averages, maximums and zones still use the raw values. Default is off.</source>
+        <translation>Sur la page Graphiques, les courbes de puissance, de cadence et de vitesse sont tracées en moyenne glissante sur 5 secondes au lieu des valeurs brutes seconde par seconde. Les moyennes, maximums et zones restent calculés sur les valeurs brutes. Désactivé par défaut.</translation>
+    </message>
+    <message>
         <source>UI Themes</source>
         <translation>Thèmes de l&apos;interface</translation>
     </message>

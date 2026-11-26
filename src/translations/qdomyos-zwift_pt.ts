@@ -6098,6 +6098,14 @@ Permitir que o QZ altere esse valor?
         <translation>Escolha quais gráficos exibir no rodapé: gráficos de frequência cardíaca e potência, apenas gráfico de frequência cardíaca ou apenas gráfico de potência.</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines</source>
+        <translation>Suavizar linhas dos gráficos</translation>
+    </message>
+    <message>
+        <source>On the Charts page, draw the power, cadence and speed lines as a 5-second moving average instead of the raw second-by-second values. Averages, maximums and zones still use the raw values. Default is off.</source>
+        <translation>Na página Gráficos, as linhas de potência, cadência e velocidade são desenhadas como uma média móvel de 5 segundos em vez dos valores brutos segundo a segundo. Médias, máximos e zonas continuam a ser calculados com os valores brutos. Desativado por predefinição.</translation>
+    </message>
+    <message>
         <source>UI Themes</source>
         <translation>Temas da Interface</translation>
     </message>

@@ -6206,6 +6206,14 @@ Må QZ ændre værdien?
         <translation>Vælg, hvilke grafer der skal vises i bunden af skærmen: både puls og effekt, kun puls eller kun effekt.</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines</source>
+        <translation>Udjævn graflinjer</translation>
+    </message>
+    <message>
+        <source>On the Charts page, draw the power, cadence and speed lines as a 5-second moving average instead of the raw second-by-second values. Averages, maximums and zones still use the raw values. Default is off.</source>
+        <translation>På siden Grafer tegnes linjerne for effekt, kadence og hastighed som et glidende gennemsnit over 5 sekunder i stedet for værdierne sekund for sekund. Gennemsnit, maksimum og zoner beregnes stadig ud fra de rå værdier. Slået fra som standard.</translation>
+    </message>
+    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>Venstre måleværdi i Liveaktivitet (iOS):</translation>
     </message>

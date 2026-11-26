@@ -6591,6 +6591,14 @@ Consentire a QZ di modificare questo valore?
         <translation>Scegli quali grafici visualizzare nel piè di pagina: grafico frequenza cardiaca e potenza, solo grafico frequenza cardiaca, o solo grafico potenza.</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines</source>
+        <translation>Linee dei grafici smussate</translation>
+    </message>
+    <message>
+        <source>On the Charts page, draw the power, cadence and speed lines as a 5-second moving average instead of the raw second-by-second values. Averages, maximums and zones still use the raw values. Default is off.</source>
+        <translation>Nella pagina Grafici le linee di potenza, cadenza e velocità vengono disegnate come media mobile su 5 secondi invece dei valori grezzi secondo per secondo. Medie, massimi e zone restano calcolati sui valori grezzi. Disattivato per impostazione predefinita.</translation>
+    </message>
+    <message>
         <source>Please choose a color</source>
         <translation>Seleziona un colore</translation>
     </message>

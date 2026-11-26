@@ -6082,6 +6082,14 @@ QZ がこの値を変更することを許可しますか？
         <translation>フッターに表示するチャートを選択します：心拍数とパワーの両方、心拍数のみ、またはパワーのみ。</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines</source>
+        <translation>グラフの線を滑らかにする</translation>
+    </message>
+    <message>
+        <source>On the Charts page, draw the power, cadence and speed lines as a 5-second moving average instead of the raw second-by-second values. Averages, maximums and zones still use the raw values. Default is off.</source>
+        <translation>グラフ画面で、パワー、ケイデンス、スピードの線を1秒ごとの生の値ではなく5秒間の移動平均で描きます。平均、最大、ゾーンは引き続き生の値で計算されます。初期設定はオフです。</translation>
+    </message>
+    <message>
         <source>UI Themes</source>
         <translation>UIテーマ</translation>
     </message>

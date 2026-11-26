@@ -6146,6 +6146,14 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>选择在页脚显示的图表：心率和功率图表，仅心率图表，或仅功率图表。</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines</source>
+        <translation>平滑图表曲线</translation>
+    </message>
+    <message>
+        <source>On the Charts page, draw the power, cadence and speed lines as a 5-second moving average instead of the raw second-by-second values. Averages, maximums and zones still use the raw values. Default is off.</source>
+        <translation>在“图表”页面上，功率、踏频和速度曲线按 5 秒移动平均绘制，而不是逐秒的原始值。平均值、最大值和区间仍按原始值计算。默认关闭。</translation>
+    </message>
+    <message>
         <source>UI Themes</source>
         <translation>主题</translation>
     </message>

@@ -6246,6 +6246,14 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
         <translation>화면 하단에 표시할 그래프를 선택하세요: 심박수와 파워 그래프 모두, 심박수 그래프만, 파워 그래프만.</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines</source>
+        <translation>그래프 선 부드럽게</translation>
+    </message>
+    <message>
+        <source>On the Charts page, draw the power, cadence and speed lines as a 5-second moving average instead of the raw second-by-second values. Averages, maximums and zones still use the raw values. Default is off.</source>
+        <translation>그래프 화면에서 파워, 케이던스, 속도 선을 초 단위 원래 값 대신 5초 이동 평균으로 그립니다. 평균, 최대값, 구간은 계속 원래 값으로 계산됩니다. 기본값은 꺼짐입니다.</translation>
+    </message>
+    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>iOS 실시간 현황 왼쪽 지표:</translation>
     </message>

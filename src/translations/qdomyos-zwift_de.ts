@@ -6062,6 +6062,14 @@ Darf QZ diesen Wert ändern?
         <translation>Wählen Sie aus, welche Diagramme in der Fußzeile angezeigt werden sollen: Herzfrequenz- und Leistungsdiagramme, nur Herzfrequenzdiagramm oder nur Leistungsdiagramm.</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines</source>
+        <translation>Diagrammlinien glätten</translation>
+    </message>
+    <message>
+        <source>On the Charts page, draw the power, cadence and speed lines as a 5-second moving average instead of the raw second-by-second values. Averages, maximums and zones still use the raw values. Default is off.</source>
+        <translation>Auf der Seite „Diagramme“ werden die Linien für Leistung, Trittfrequenz und Geschwindigkeit als gleitender 5-Sekunden-Durchschnitt statt mit den sekündlichen Rohwerten gezeichnet. Durchschnitte, Maxima und Zonen werden weiterhin aus den Rohwerten berechnet. Standardmäßig aus.</translation>
+    </message>
+    <message>
         <source>UI Themes</source>
         <translation>UI-Themen</translation>
     </message>
