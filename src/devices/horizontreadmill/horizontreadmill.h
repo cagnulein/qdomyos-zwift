@@ -39,6 +39,8 @@ class horizontreadmill : public treadmill {
   public:
     horizontreadmill(bool noWriteResistance, bool noHeartService);
     bool connected() override;
+    // Pure protocol helper, exposed for captured-packet regression tests.
+    static bool isExpectedInitPacket(const QByteArray &packet, uint8_t stage);
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
     double minStepInclination() override;
@@ -92,6 +94,9 @@ class horizontreadmill : public treadmill {
     bool initDone = false;
     bool initRequest = false;
     bool initPacketRecv = false;
+    // Strict acknowledgement checks are limited to the opt-in proprietary Horizon 7.8 start workaround.
+    bool validateHorizonInitResponse = false;
+    uint8_t expectedHorizonInitStage = 0;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
