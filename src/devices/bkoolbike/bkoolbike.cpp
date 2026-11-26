@@ -1,4 +1,5 @@
 #include "bkoolbike.h"
+#include "bkoolcadenceparser.h"
 #include "virtualdevices/virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -17,31 +18,10 @@
 using namespace std::chrono_literals;
 
 namespace {
-constexpr double bkoolCustomCadenceScale = 36.0;
-constexpr double bkoolMaxCadence = 255.0;
-
 bool hasExternalCadenceSensor(const QSettings &settings) {
     return !settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled"));
-}
-
-double parseBkoolCustomCadence(const QByteArray &newValue) {
-    if (newValue.length() != 5) {
-        return -1.0;
-    }
-
-    const uint16_t cadenceRaw =
-        (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
-    if (cadenceRaw == 0) {
-        return 0.0;
-    }
-
-    const double cadence = cadenceRaw / bkoolCustomCadenceScale;
-    if (cadence <= 0.0 || cadence >= bkoolMaxCadence) {
-        return -1.0;
-    }
-    return cadence;
 }
 } // namespace
 
@@ -412,11 +392,15 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
     } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("f03ee006-4910-473c-be46-960948c2f59c"))) {
-        const double customCadence = parseBkoolCustomCadence(newValue);
-        if (!hasExternalCadenceSensor(settings) && customCadence >= 0.0) {
-            Cadence = customCadence;
-            lastGoodCadence = now;
-            emit debug(QStringLiteral("Bkool Custom Cadence: ") + QString::number(Cadence.value()));
+        const double customCadence = BkoolCadence::parseCustomCadence(newValue, bkool_fitness_bike);
+        if (!hasExternalCadenceSensor(settings)) {
+            if (customCadence >= 0.0) {
+                Cadence = customCadence;
+                lastGoodCadence = now;
+                emit debug(QStringLiteral("Bkool Custom Cadence: ") + QString::number(Cadence.value()));
+            } else {
+                emit debug(QStringLiteral("Bkool Custom Cadence rejected: ") + newValue.toHex(' '));
+            }
         }
     } else if (characteristic.uuid() == QBluetoothUuid::HeartRateMeasurement) {
         if (newValue.length() > 1) {
@@ -425,11 +409,14 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
         emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
     } else if (characteristic.uuid() == QBluetoothUuid::CyclingPowerMeasurement) {
+        // Flags and instantaneous power require at least four bytes.
+        if (newValue.size() < 4) {
+            emit debug(QStringLiteral("Bkool Cycling Power packet too short: ") + newValue.toHex(' '));
+            return;
+        }
         uint16_t flags = (((uint16_t)((uint8_t)newValue.at(1)) << 8) | (uint16_t)((uint8_t)newValue.at(0)));
-        bool cadence_present = false;
-        bool wheel_revs = false;
-        uint16_t time_division = 1024;
-        uint8_t index = 4;
+        const bool cadence_present = (flags & 0x30u) != 0u;
+        int index = 4;
 
         if (newValue.length() > 3) {
             m_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
@@ -453,59 +440,43 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
         {
         }
 
-        if ((flags & 0x10) == 0x10) // Wheel Revolution Data Present
-        {
-            cadence_present = true;
-            wheel_revs = true;
-            time_division = 2048;
-        } else if ((flags & 0x20) == 0x20) // Crank Revolution Data Present
-        {
-            cadence_present = true;
-        }
-
         if (cadence_present) {
-            if (!wheel_revs) {
-                CrankRevs =
-                    (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
-                index += 2;
-            } else {
-                CrankRevs =
-                    (((uint32_t)((uint8_t)newValue.at(index + 3)) << 24) |
-                     ((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                     ((uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)));
-                index += 4;
+            const BkoolCadence::PowerSample sample =
+                BkoolCadence::parsePowerSample(newValue, flags, index, bkool_fitness_bike);
+            // Retain the existing revolution/timestamp publication for virtual
+            // CSC/DirCon clients, even when the advertised crank data is empty.
+            if (sample.hasPublicationCounter) {
+                CrankRevs = sample.publicationCounter.revolutions;
+                LastCrankEventTime = sample.publicationCounter.eventTime;
             }
-            LastCrankEventTime =
-                (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
-
-            int16_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
-            if (deltaT < 0) {
-                deltaT = LastCrankEventTime + time_division - oldLastCrankEventTime;
-            }
-
-            const bool reportedCrankDataIsEmpty =
-                wheel_revs && (flags & 0x20) == 0x20 && index + 3 < (uint8_t)newValue.length() &&
-                newValue.at(index) == 0x00 && newValue.at(index + 1) == 0x00 &&
-                newValue.at(index + 2) == 0x00 && newValue.at(index + 3) == 0x00;
 
             if (!hasExternalCadenceSensor(settings)) {
-                if (reportedCrankDataIsEmpty) {
+                if (sample.emptyCrankFields) {
                     emit debug(QStringLiteral("Bkool Cycling Power crank fields are empty, waiting for custom cadence"));
-                } else if (CrankRevs != oldCrankRevs && deltaT) {
-                    double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * time_division * 60;
-                    if (cadence >= 0) {
-                        Cadence = cadence;
+                }
+                if (sample.hasCadenceCounter) {
+                    // The first cumulative reading is a baseline, not a
+                    // revolution since the bike was connected. Wheel and crank
+                    // counters also need independent baselines on source switches.
+                    if (powerCadenceBaselineValid &&
+                        powerCadencePrevious.isWheel == sample.cadenceCounter.isWheel) {
+                        const double cadence = BkoolCadence::cadenceFromCounters(
+                            powerCadencePrevious, sample.cadenceCounter,
+                            bkool_fitness_bike ? BkoolCadence::kMaxCadenceRpm : 0.0);
+                        if (cadence > 0.0) {
+                            Cadence = cadence;
+                            lastGoodCadence = now;
+                        }
                     }
-                    lastGoodCadence = now;
-                } else if (lastGoodCadence.msecsTo(now) > 2000) {
+                    powerCadencePrevious = sample.cadenceCounter;
+                    powerCadenceBaselineValid = true;
+                }
+                if (lastGoodCadence.msecsTo(now) > 2000) {
                     Cadence = 0;
                 }
             }
 
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
-
-            oldLastCrankEventTime = LastCrankEventTime;
-            oldCrankRevs = CrankRevs;
 
             if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 Speed = Cadence.value() * settings
@@ -847,6 +818,7 @@ uint16_t bkoolbike::watts() {
 void bkoolbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
+        powerCadenceBaselineValid = false;
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
         connectBackLater();
