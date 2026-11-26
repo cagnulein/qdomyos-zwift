@@ -1,4 +1,5 @@
 #include "pitpatbike.h"
+#include "pitpaterg.h"
 #include "homeform.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
@@ -27,26 +28,6 @@ uint8_t pitpatXorCrc(const QByteArray &packet) {
     return crc;
 }
 
-uint16_t pitpatEstimatedWatts(double cadence, double resistance) {
-    if (cadence <= 0.0)
-        return 0;
-
-    // The S01PRO native profile reports an unrealistic cadence-only power value
-    // (roughly cadence * 4), independent of resistance. For QZ we instead use
-    // resistance as a linear scale: at 100 RPM level 1 is about 40 W and level
-    // 32 is about 400 W, with the 30 intermediate levels evenly interpolated.
-    double level = resistance;
-    if (level < 1.0)
-        level = 1.0;
-    else if (level > 32.0)
-        level = 32.0;
-
-    const double resistanceScale = 0.10 + (0.90 * ((level - 1.0) / 31.0));
-    const double watts = cadence * 4.0 * resistanceScale;
-    if (watts >= 65535.0)
-        return 65535;
-    return static_cast<uint16_t>(watts + 0.5);
-}
 } // namespace
 
 #ifdef Q_OS_IOS
@@ -311,7 +292,7 @@ void pitpatbike::characteristicChanged(const QLowEnergyCharacteristic &character
         if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled"))) {
-            m_watt = pitpatEstimatedWatts(Cadence.value(), Resistance.value());
+            m_watt = PitPatErg::estimatedWatts(Cadence.value(), Resistance.value());
         }
         lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
@@ -599,6 +580,20 @@ bool pitpatbike::connected() {
         return false;
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
+}
+
+resistance_t pitpatbike::resistanceFromPowerRequest(uint16_t power) {
+    // Only the S01PRO legacy path uses the estimated power model. Preserve the
+    // existing behaviour for other PitPat bikes and external power meters.
+    QSettings settings;
+    if (!legacyProtocol ||
+        bluetoothDevice.name().compare(QStringLiteral("PitPat-S01PRO"), Qt::CaseInsensitive) != 0 ||
+        !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+             .toString().startsWith(QStringLiteral("Disabled"))) {
+        return bike::resistanceFromPowerRequest(power);
+    }
+
+    return PitPatErg::resistanceForPower(power, Cadence.value());
 }
 
 uint16_t pitpatbike::watts() {

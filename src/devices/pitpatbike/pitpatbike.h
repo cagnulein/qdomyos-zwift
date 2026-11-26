@@ -40,6 +40,7 @@ class pitpatbike : public bike {
     pitpatbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                         double bikeResistanceGain);
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    resistance_t resistanceFromPowerRequest(uint16_t power) override;
     resistance_t maxResistance() override { return max_resistance; }
     bool connected() override;
 
