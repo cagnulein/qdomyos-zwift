@@ -115,6 +115,7 @@ class V1Session(
      * NordicTrack 2950 Argon-firmware -10595 kcal / 139 km screenshot).
      */
     private var pollFields: Set<V1DataField> = V1DataField.periodicReadFields
+    private var pollReadBatches: List<Set<V1DataField>> = listOf(pollFields)
 
     /** Tracks whether the previous poll's response was flagged truncated, so we log only on the edge. */
     private var lastTruncatedSeen: Boolean = false
@@ -423,6 +424,11 @@ class V1Session(
         )
         pollFields = computePollFields(supportedBitFields)
         detectedDeviceType = DeviceDatabase.deviceTypeFromEquipmentId(equipmentDeviceId)
+        pollReadBatches = if (detectedDeviceType == DeviceType.BIKE) {
+            bikeUsbReadBatches(pollFields).also { batches ->
+                logger.i(TAG, "V1 bike USB read batches: ${batches.map { 5 + it.sumOf { field -> field.sizeBytes } }} bytes")
+            }
+        } else listOf(pollFields)
         logger.d(TAG, "Detected device type: $detectedDeviceType")
 
         delay(COMMAND_DELAY_MS)
@@ -776,6 +782,16 @@ class V1Session(
             writeFields = pendingWriteFields
             pendingWriteFields = emptyMap()
         }
+        for ((index, readFields) in pollReadBatches.withIndex()) {
+            // Send queued commands once, with the small control readback batch.
+            if (!pollReadWriteLocked(if (index == 0) writeFields else emptyMap(), readFields)) return
+        }
+    }
+
+    private suspend fun pollReadWriteLocked(
+        writeFields: Map<V1DataField, Float>,
+        readFields: Set<V1DataField>,
+    ): Boolean {
         logSafetyWrites(writeFields)
         val resistanceWrite = if (detectedDeviceType == DeviceType.BIKE) writeFields[V1DataField.RESISTANCE] else null
         if (resistanceWrite != null) {
@@ -787,7 +803,7 @@ class V1Session(
         // the decoder's positional read; see V1Codec.decodeDataResponseForFields.
         writeMessage(V1Message.Outgoing.ReadWriteData(
             writeFields = writeFields,
-            readFields = pollFields,
+            readFields = readFields,
         ))
 
         delay(READ_DELAY_MS)
@@ -800,11 +816,14 @@ class V1Session(
                     pendingWriteFields = writeFields + pendingWriteFields
                 }
             }
-            return
+            return false
         }
 
         val decoded = try {
-            readResponse(firstPacket, pollFields)
+            if (detectedDeviceType == DeviceType.BIKE) {
+                V1Codec.decodeUsbDataResponse(firstPacket, readFields)
+                    ?: throw IllegalStateException("Invalid USB data reply: bytes=${firstPacket.size}, declared=${firstPacket.getOrNull(1)?.toInt()?.and(0xFF)}, expected=${5 + readFields.sumOf { it.sizeBytes }}")
+            } else readResponse(firstPacket, readFields)
         } catch (e: Exception) {
             logger.w(TAG, "Malformed response (${firstPacket.size} bytes): ${e.message}")
             // Re-queue write fields so commands aren't lost
@@ -813,11 +832,11 @@ class V1Session(
                     pendingWriteFields = writeFields + pendingWriteFields
                 }
             }
-            return
+            return false
         }
         if (decoded is V1Message.Incoming.DataResponse) {
             if (resistanceWrite != null) {
-                logger.i(TAG, "V1 bike resistance response: status=${decoded.status}, raw=${decoded.fields[V1DataField.RESISTANCE]}, mode=${decoded.fields[V1DataField.IS_CONSTANT_WATTS_MODE]}, truncated=${decoded.isTruncated}")
+                logger.i(TAG, "V1 bike resistance response: status=${decoded.status}, raw=${decoded.fields[V1DataField.RESISTANCE]}, gear=${decoded.fields[V1DataField.GEAR]}, mode=${decoded.fields[V1DataField.IS_CONSTANT_WATTS_MODE]}, truncated=${decoded.isTruncated}")
             }
             if (decoded.status == V1Message.STATUS_SECURITY_BLOCK) {
                 logger.w(TAG, "Security block — re-verifying")
@@ -827,15 +846,15 @@ class V1Session(
                     }
                 }
                 verifySecurity()
-                return
+                return false
             }
             if (decoded.status != V1Message.STATUS_DONE) {
-                return
+                return false
             }
 
             if (decoded.fields.isEmpty()) {
                 logger.w(TAG, "DataResponse OK but empty fields (payload size mismatch)")
-                return
+                return false
             }
 
             // Edge-triggered: log once when the response shape stops matching the request shape,
@@ -844,8 +863,8 @@ class V1Session(
             if (decoded.isTruncated && !lastTruncatedSeen) {
                 logger.w(
                     TAG,
-                    "DataResponse payload size doesn't match the requested ${pollFields.size}-field shape " +
-                        "(requested=[${pollFields.sortedBy { it.fieldIndex }.joinToString { it.name }}], " +
+                    "DataResponse payload size doesn't match the requested ${readFields.size}-field shape " +
+                        "(requested=[${readFields.sortedBy { it.fieldIndex }.joinToString { it.name }}], " +
                         "decoded ${decoded.fields.size}=[${decoded.fields.keys.joinToString { it.name }}], " +
                         "supportedBitFields=${supportedBitFields.sorted()}) — later field offsets may be unreliable.",
                 )
@@ -854,7 +873,7 @@ class V1Session(
             }
             lastTruncatedSeen = decoded.isTruncated
 
-            if (detectedDeviceType == DeviceType.BIKE) {
+            if (detectedDeviceType == DeviceType.BIKE && V1DataField.IS_CONSTANT_WATTS_MODE in readFields) {
                 // Positional decode is not authoritative when the response shape is wrong.
                 val mode = if (decoded.isTruncated) null else decoded.fields[V1DataField.IS_CONSTANT_WATTS_MODE]
                 if (mode != lastBikeErgReadback) {
@@ -877,6 +896,7 @@ class V1Session(
                 }
             }
         }
+        return decoded is V1Message.Incoming.DataResponse
     }
 
     private fun applyDataResponse(fields: Map<V1DataField, Float>) {

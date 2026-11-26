@@ -121,6 +121,25 @@ object V1Codec {
         return decodeDataResponse(status, payload, expectedFields) as? V1Message.Incoming.DataResponse
     }
 
+    /** Strict raw USB reply validation, used only by the V1 bike polling path. */
+    internal fun decodeUsbDataResponse(
+        packet: ByteArray,
+        expectedFields: Set<V1DataField>,
+    ): V1Message.Incoming.DataResponse? {
+        if (packet.size < 5 || packet[2] != CMD_READ_WRITE_DATA) return null
+        val length = packet[1].toInt() and 0xFF
+        if (length !in 5..64 || length > packet.size) return null
+        val frame = packet.copyOf(length)
+        if (!verifyChecksum(frame)) return null
+        val status = frame[3].toInt() and 0xFF
+        // Error replies have no data; preserve SECURITY_BLOCK so the session can re-verify.
+        if (status != V1Message.STATUS_DONE) {
+            return V1Message.Incoming.DataResponse(status, emptyMap())
+        }
+        if (length != 5 + expectedFields.sumOf { it.sizeBytes }) return null
+        return decodeSingleDataResponse(frame, expectedFields)
+    }
+
     /** Trims a received packet to the declared length in byte[1] — USB always pads reads to 64 bytes. */
     private fun trimToDeclaredLength(packet: ByteArray): ByteArray {
         if (packet.size <= 1) return packet
