@@ -192,7 +192,7 @@ object V1Codec {
      *   - remaining bytes: field data values in field index order
      */
     private fun encodeReadWriteData(message: V1Message.Outgoing.ReadWriteData): List<ByteArray> {
-        val writePayload = buildBitFieldPayload(message.writeFields, includeData = true)
+        val writePayload = buildBitFieldPayload(message.writeFields, includeData = true, gearPayload = message.gearPayload)
         val readPayload = buildBitFieldPayload(message.readFields, includeData = false)
         val payload = writePayload + readPayload
 
@@ -206,6 +206,7 @@ object V1Codec {
     private fun buildBitFieldPayload(
         fields: Map<V1DataField, Float>,
         includeData: Boolean,
+        gearPayload: List<Byte>? = null,
     ): ByteArray {
         if (fields.isEmpty()) return byteArrayOf(0)
 
@@ -231,7 +232,10 @@ object V1Codec {
         if (includeData) {
             var offset = 1 + numSections
             for (field in sortedFields) {
-                val bytes = convertToBytes(field, fields[field]!!)
+                val bytes = if (field == V1DataField.GEAR && gearPayload != null) {
+                    require(gearPayload.size == V1DataField.GEAR.sizeBytes)
+                    gearPayload.toByteArray().also { it[4] = fields.getValue(field).toInt().toByte() }
+                } else convertToBytes(field, fields[field]!!)
                 bytes.copyInto(result, offset)
                 offset += bytes.size
             }
@@ -495,6 +499,7 @@ object V1Codec {
 
         val fields = mutableMapOf<V1DataField, Float>()
         var keyObject: KeyObject? = null
+        var gearPayload: List<Byte>? = null
         var offset = 0
         val readFields = fieldSet.sortedBy { it.fieldIndex }
         val expectedSize = readFields.sumOf { it.sizeBytes }
@@ -510,6 +515,7 @@ object V1Codec {
                 keyObject = decodeKeyObject(fieldData)
             } else {
                 fields[field] = convertFromBytes(field, fieldData)
+                if (field == V1DataField.GEAR) gearPayload = fieldData.toList()
             }
             offset += field.sizeBytes
         }
@@ -520,7 +526,7 @@ object V1Codec {
         // unreliable. The caller should treat `fields` as suspect and ideally
         // shrink the request to what the device actually supports.
         val isTruncated = payload.size != expectedSize
-        return V1Message.Incoming.DataResponse(status, fields, keyObject, isTruncated)
+        return V1Message.Incoming.DataResponse(status, fields, keyObject, isTruncated, gearPayload)
     }
 
     /** 14-byte KEY_OBJECT payload: code(2 LE), rawKey(8), timePressed(2 LE), timeHeld(2 LE). */

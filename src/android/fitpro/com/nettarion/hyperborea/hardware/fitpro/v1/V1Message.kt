@@ -32,6 +32,8 @@ sealed interface V1Message {
             val deviceId: Int = DEVICE_MAIN,
             val writeFields: Map<V1DataField, Float> = emptyMap(),
             val readFields: Set<V1DataField> = emptySet(),
+            /** Optional last MCU GEAR composite; change only its current-gear byte when writing. */
+            val gearPayload: List<Byte>? = null,
         ) : Outgoing
         data class Calibrate(val deviceId: Int = DEVICE_GRADE) : Outgoing
     }
@@ -82,6 +84,7 @@ sealed interface V1Message {
              * later fields as suspect.
              */
             val isTruncated: Boolean = false,
+            val gearPayload: List<Byte>? = null,
         ) : Incoming
         data class GenericResponse(val commandId: Int, val status: Int, val payload: ByteArray) : Incoming {
             override fun equals(other: Any?) = other is GenericResponse &&
