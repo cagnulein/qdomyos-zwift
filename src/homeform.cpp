@@ -1,4 +1,10 @@
 #include "homeform.h"
+
+// Never ship a native macOS desktop build with the trial macro missing.
+// Qt/qmake sets LICENSE in qdomyos-zwift.pri; this fails closed if that changes.
+#if defined(Q_OS_MACOS) && !defined(Q_OS_IOS) && !defined(LICENSE)
+#error "Native macOS QZ builds must define LICENSE (trial)"
+#endif
 #include <QTranslator>
 #include "devices/lifefitnesstreadmill/lifefitnessworkout.h"
 #include "devices/echelonconnectsport/echelonconnectsport.h"

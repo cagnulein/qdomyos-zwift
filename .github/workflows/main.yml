@@ -661,6 +661,8 @@ jobs:
         run: |
           cd src
           qmake qdomyos-zwift.pro "CONFIG-=debug" "CONFIG+=release" "CONFIG-=static"
+          # Trial is a mandatory compile-time feature of every native macOS build.
+          grep -Fq -- '-DLICENSE' Makefile
           make -j3
           test -x qdomyos-zwift.app/Contents/MacOS/qdomyos-zwift
           lipo qdomyos-zwift.app/Contents/MacOS/qdomyos-zwift -verify_arch x86_64
@@ -766,6 +768,8 @@ jobs:
           set -euo pipefail
           cd src
           "$QT_ROOT_DIR/bin/qmake" qdomyos-zwift.pro 'QMAKE_APPLE_DEVICE_ARCHS=arm64' 'CONFIG-=debug' 'CONFIG+=release' 'CONFIG-=static'
+          # Verify LICENSE is in the compiler flags, independent of secret.h.
+          grep -Fq -- '-DLICENSE' Makefile
           make -j2
           test -x qdomyos-zwift.app/Contents/MacOS/qdomyos-zwift
           lipo qdomyos-zwift.app/Contents/MacOS/qdomyos-zwift -verify_arch arm64
