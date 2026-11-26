@@ -81,12 +81,14 @@ API_AVAILABLE(ios(15.0))
     if (!self.controller) { qWarning() << "Floating metrics: controller creation failed"; [self finish]; return; }
     self.controller.delegate = self;
     self.controller.requiresLinearPlayback = YES;
-    self.controller.canStartPictureInPictureAutomaticallyFromInline = YES;
     self.pending = UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad;
+    // On iPad the toolbar starts PiP explicitly. Keep AVKit from also starting it during an app switch.
+    self.controller.canStartPictureInPictureAutomaticallyFromInline = !self.pending;
     [self render];
     [self.controller addObserver:self forKeyPath:@"pictureInPicturePossible" options:NSKeyValueObservingOptionNew context:NULL];
     self.observing = YES;
-    qDebug() << "Floating metrics: controller ready; PiP possible" << self.controller.isPictureInPicturePossible << "layer status" << (int)self.layer.status;
+    qDebug() << "Floating metrics: controller ready" << (__bridge const void *)self.controller
+             << "PiP possible" << self.controller.isPictureInPicturePossible << "layer status" << (int)self.layer.status;
     if (self.pending) {
         qDebug() << "Floating metrics: iPad foreground start scheduled";
         [self scheduleForegroundStart:0 controller:self.controller];
@@ -96,20 +98,22 @@ API_AVAILABLE(ios(15.0))
 }
 - (void)scheduleForegroundStart:(NSUInteger)attempt controller:(AVPictureInPictureController *)controller {
     if (attempt >= 8) {
-        if (self.controller == controller) {
+        if (self.controller == controller && self.pending) {
             self.pending = NO;
-            qWarning() << "Floating metrics: foreground PiP unavailable after 8 attempts; automatic background start remains armed";
+            controller.canStartPictureInPictureAutomaticallyFromInline = YES;
+            qWarning() << "Floating metrics: foreground PiP unavailable after 8 attempts; armed automatic background start"
+                       << (__bridge const void *)controller;
         }
         return;
     }
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        if (self.controller != controller || controller.isPictureInPictureActive) return;
+        if (self.controller != controller || !self.pending || controller.isPictureInPictureActive) return;
         qDebug() << "Floating metrics: foreground start check" << (int)attempt + 1
                  << "possible" << controller.isPictureInPicturePossible << "layer status" << (int)self.layer.status
                  << "ready" << self.layer.readyForMoreMediaData;
         if (controller.isPictureInPicturePossible) {
             self.pending = NO;
-            qDebug() << "Floating metrics: requesting foreground PiP";
+            qDebug() << "Floating metrics: requesting foreground PiP" << (__bridge const void *)controller;
             [controller startPictureInPicture];
         } else {
             [self scheduleForegroundStart:attempt + 1 controller:controller];
@@ -211,17 +215,36 @@ API_AVAILABLE(ios(15.0))
     CVPixelBufferRelease(pixel);
 }
 - (void)finish {
-    qDebug() << "Floating metrics: cleanup";
+    qDebug() << "Floating metrics: cleanup" << (__bridge const void *)self.controller;
     self.pending = NO;
+    self.controller.canStartPictureInPictureAutomaticallyFromInline = NO;
     if (self.observing) { [self.controller removeObserver:self forKeyPath:@"pictureInPicturePossible"]; self.observing = NO; }
     [self.preview removeFromSuperview]; self.preview = nil; self.layer = nil; self.controller = nil; self.lastFrame = nil;
 }
-- (void)pictureInPictureControllerWillStartPictureInPicture:(AVPictureInPictureController *)controller { Q_UNUSED(controller); qDebug() << "Floating metrics: PiP will start"; }
-- (void)pictureInPictureControllerWillStopPictureInPicture:(AVPictureInPictureController *)controller { Q_UNUSED(controller); qDebug() << "Floating metrics: PiP will stop"; }
-- (void)pictureInPictureControllerDidStartPictureInPicture:(AVPictureInPictureController *)controller { Q_UNUSED(controller); qDebug() << "Floating metrics: PiP started"; self.preview.alpha = 0.01; }
+- (void)pictureInPictureControllerWillStartPictureInPicture:(AVPictureInPictureController *)controller {
+    qDebug() << "Floating metrics: PiP will start" << (__bridge const void *)controller;
+}
+- (void)pictureInPictureControllerWillStopPictureInPicture:(AVPictureInPictureController *)controller {
+    qDebug() << "Floating metrics: PiP will stop" << (__bridge const void *)controller;
+}
+- (void)pictureInPictureControllerDidStartPictureInPicture:(AVPictureInPictureController *)controller {
+    qDebug() << "Floating metrics: PiP started" << (__bridge const void *)controller
+             << "current" << (self.controller == controller);
+    if (self.controller != controller) return;
+    self.pending = NO;
+    self.preview.alpha = 0.01;
+}
 - (void)pictureInPictureController:(AVPictureInPictureController *)controller restoreUserInterfaceForPictureInPictureStopWithCompletionHandler:(void (^)(BOOL))completion { Q_UNUSED(controller); completion(YES); }
-- (void)pictureInPictureControllerDidStopPictureInPicture:(AVPictureInPictureController *)controller { Q_UNUSED(controller); qDebug() << "Floating metrics: PiP stopped"; [self finish]; }
-- (void)pictureInPictureController:(AVPictureInPictureController *)controller failedToStartPictureInPictureWithError:(NSError *)error { Q_UNUSED(controller); qWarning() << "Floating metrics: PiP start failed" << error.localizedDescription.UTF8String; [self finish]; }
+- (void)pictureInPictureControllerDidStopPictureInPicture:(AVPictureInPictureController *)controller {
+    qDebug() << "Floating metrics: PiP stopped" << (__bridge const void *)controller
+             << "current" << (self.controller == controller) << "active" << controller.isPictureInPictureActive;
+    if (self.controller == controller) [self finish];
+}
+- (void)pictureInPictureController:(AVPictureInPictureController *)controller failedToStartPictureInPictureWithError:(NSError *)error {
+    qWarning() << "Floating metrics: PiP start failed" << (__bridge const void *)controller
+               << "current" << (self.controller == controller) << error.localizedDescription.UTF8String;
+    if (self.controller == controller) [self finish];
+}
 - (void)pictureInPictureController:(AVPictureInPictureController *)controller setPlaying:(BOOL)playing { Q_UNUSED(controller); Q_UNUSED(playing); }
 - (CMTimeRange)pictureInPictureControllerTimeRangeForPlayback:(AVPictureInPictureController *)controller { Q_UNUSED(controller); return CMTimeRangeMake(kCMTimeZero, kCMTimePositiveInfinity); }
 - (BOOL)pictureInPictureControllerIsPlaybackPaused:(AVPictureInPictureController *)controller { Q_UNUSED(controller); return NO; }
