@@ -221,13 +221,21 @@
     window.qzChartTheme = {
         create: function (ctx, config) {
             var list = patches(config);
-            config.plugins = (config.plugins || []).concat(scrollGuard);
             var pal = palette();
+            // Without an animation Chart.js draws the chart inside new Chart(), and the canvas
+            // fill of the page (background()) reads the palette in that draw: the chart takes
+            // it at its init, before the first draw, or the first look has a white fill
+            var themeOf = {
+                id: 'qzChartTheme',
+                beforeInit: function (chart) {
+                    chart.$qzPatches = list;
+                    chart.$qzPalette = pal;
+                }
+            };
+            config.plugins = (config.plugins || []).concat(scrollGuard, themeOf);
             apply(config, list, pal);
             fullscreen('prepare', ctx.canvas, config.options);
             var chart = new Chart(ctx, config);
-            chart.$qzPatches = list;
-            chart.$qzPalette = pal;
             // Pages that recreate their chart drop the destroyed ones here
             charts = charts.filter(function (c) { return !!c.canvas; });
             charts.push(chart);
