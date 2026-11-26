@@ -1386,7 +1386,7 @@ const QString QZSettings::treadmill_calories_model = QStringLiteral("treadmill_c
 const QString QZSettings::ui_modern_new_install_checked = QStringLiteral("ui_modern_new_install_checked");
 const QString QZSettings::ui_modern_offer_pending = QStringLiteral("ui_modern_offer_pending");
 
-const uint32_t allSettingsCount = 1071;
+const uint32_t allSettingsCount = 1078;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2485,6 +2485,13 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::treadmill_calories_model, QZSettings::default_treadmill_calories_model},
     {QZSettings::ui_modern_new_install_checked, QZSettings::default_ui_modern_new_install_checked},
     {QZSettings::ui_modern_offer_pending, QZSettings::default_ui_modern_offer_pending},
+    {QZSettings::tile_avg_pace_enabled, QZSettings::default_tile_avg_pace_enabled},
+    {QZSettings::tile_avg_pace_order, QZSettings::default_tile_avg_pace_order},
+    {QZSettings::proform_treadmill_995i, QZSettings::default_proform_treadmill_995i},
+    {QZSettings::nordictrack_series_7, QZSettings::default_nordictrack_series_7},
+    {QZSettings::nordictrack_se7i, QZSettings::default_nordictrack_se7i},
+    {QZSettings::wahoo_without_wheel_diameter, QZSettings::default_wahoo_without_wheel_diameter},
+    {QZSettings::nordictrack_vr21, QZSettings::default_nordictrack_vr21},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
