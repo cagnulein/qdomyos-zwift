@@ -84,6 +84,8 @@ class ftmsbike : public bike {
     resistance_t maxResistance() override { return max_resistance; }
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
     void changePower(int32_t power) override;
+    void changeInclination(double grade, double percentage) override;
+    static bool usesSlopePowerForDevice(const QString &deviceName);
     double maxGears() override;
     double minGears() override;
     void enableManualResistancePowerAdjustment(resistance_t resistance);
@@ -127,6 +129,7 @@ class ftmsbike : public bike {
     void forceResistance(resistance_t requestResistance);
     void forcePower(int16_t requestPower);
     void forceInclination(double requestInclination);
+    void stopBodytoneSlopePower();
     void sendZwiftPlayInclination(double inclination);
     uint16_t wattsFromResistance(double resistance);
     bool isManualResistanceBike() const;
