@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 import QtQuick.Dialogs 1.0
+import Qt.labs.platform 1.1 as P
 import QtCharts 2.2
 import Qt.labs.settings 1.0
 
@@ -51,11 +52,15 @@ ColumnLayout {
         rootItem.folderPageOpened()
     }
 
-    MessageDialog {
+    // UiMessageDialog as in TrainingProgramsListJS.qml: modern look - Cancel / Delete in red,
+    // as the other questions that cannot be undone; classic look - the native Yes / No
+    UiMessageDialog {
         id: deleteDialog
         text: qsTr("Delete workout?")
         informativeText: qsTr("This cannot be undone.")
-        buttons: (MessageDialog.Yes | MessageDialog.No)
+        buttons: modern ? (P.MessageDialog.Yes | P.MessageDialog.Cancel) : (P.MessageDialog.Yes | P.MessageDialog.No)
+        yesText: qsTr("Delete")
+        destructive: true
         onYesClicked: {
             if (rootItem.deleteTrainingProgramFile(selectedWorkoutUrl)) {
                 selectedWorkoutUrl = ""
@@ -75,7 +80,7 @@ ColumnLayout {
             FileDialog {
                 title: qsTr("Please choose a file")
                 folder: shortcuts.home
-                nameFilters: [qsTr("Training programs (*.xml *.zwo *.mrc *.erg *.json *.xsr)"), qsTr("All files (*)")]
+                nameFilters: [qsTr("Training programs") + " (*.xml *.zwo *.mrc *.erg *.json *.xsr *.fit *.FIT)", qsTr("All files (*)")]
                 visible: true
                 onAccepted: {
                     console.log("You chose: " + fileUrl)
@@ -127,7 +132,7 @@ ColumnLayout {
                            filter+= "[%1%2]".arg(text[i].toUpperCase()).arg(text[i].toLowerCase())
                         filter+="*"
                         print(filter)
-                        folderModel.nameFilters = [filter + ".zwo", filter + ".xml", filter + ".mrc", filter + ".erg", filter + ".json", filter + ".xsr"]
+                        folderModel.nameFilters = [filter + ".zwo", filter + ".xml", filter + ".mrc", filter + ".erg", filter + ".json", filter + ".xsr", filter + ".fit", filter + ".FIT"]
                     }
                     id: filterField
                     // the field kept its 120 of Material and showed less of the hint as the text grew.
@@ -168,8 +173,8 @@ ColumnLayout {
                 id: list
                 FolderListModel {
                     id: folderModel
-                    nameFilters: ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr"]
-                    folder: "file://" + rootItem.getWritableAppDir() + 'training'
+                    nameFilters: ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr", "*.fit", "*.FIT"]
+                    folder: rootItem.localFileUrl(rootItem.getWritableAppDir() + 'training')
                           showDotAndDotDot: false
                     showDirs: true
                           sortField: "Name"

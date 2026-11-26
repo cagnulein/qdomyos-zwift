@@ -53,7 +53,7 @@ jobs:
         with:
           repository: google/googletest
           path: "tst/googletest/"
-          ref: "release-1.12.1"
+          ref: "v1.18.0"
       - name: Checkout MSIX-Toolkit
         uses: actions/checkout@v4
         with:
@@ -88,7 +88,7 @@ jobs:
 
       - uses: msys2/setup-msys2@v2
         with:
-          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview perl
+          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-make perl
           msystem: mingw64
           release: false
 
@@ -461,7 +461,7 @@ jobs:
         with:
           repository: google/googletest
           path: "tst/googletest/"
-          ref: "release-1.12.1"
+          ref: "v1.18.0"
       - name: Checkout qHttpServer
         uses: actions/checkout@v4
         with:
@@ -469,7 +469,7 @@ jobs:
           path: "src/qthttpserver"
 
       - name: Install packages required to run QZ inside workflow
-        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql
+        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql libqt5serialport5-dev
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
@@ -863,7 +863,7 @@ jobs:
           git submodule update --init --recursive 
 
       - name: Install packages required to run QZ inside workflow
-        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev libqt5serialport5-dev
 
 #      - name: Test Peloton API
 #        if: github.event_name == 'push' || github.event_name == 'schedule'
@@ -947,6 +947,9 @@ jobs:
           if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
             ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
           fi
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          bash "${{ github.workspace }}/qt-patches/android/5.15.0/build_qtandroid_bluetooth_jar.sh" "$QT_BT_JAR" "$SDK_ROOT/platforms/android-37.0/android.jar" "$QT_BT_JAR"
+          python3 "${{ github.workspace }}/qt-patches/android/5.15.0/test_qtandroid_bluetooth_utility.py"
 
       - name: Setup ccache
         run: |
@@ -1124,6 +1127,13 @@ jobs:
           name: fdroid-android-trial
           path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk
 
+      - name: Archive AAB for split APK regression
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-debug-bundle
+          path: ${{ github.workspace }}/output/android/build/outputs/bundle/debug/android-debug.aab
+          if-no-files-found: error
+
   android-emulator-test:
     runs-on: ubuntu-latest
     needs: android-build
@@ -1203,6 +1213,17 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Download AAB for split APK regression
+        if: matrix.api-level >= 30
+        uses: actions/download-artifact@v4
+        with:
+          name: android-debug-bundle
+          path: aab-debug
+
+      - name: Install bundletool
+        if: matrix.api-level >= 30
+        run: curl -fL --retry 3 -o bundletool.jar https://github.com/google/bundletool/releases/download/1.18.1/bundletool-all-1.18.1.jar
+
       # The accessibility test runs on the emulator through app_process: compile it to a dex jar
       - name: Build the accessibility test
         run: |
@@ -1239,8 +1260,17 @@ jobs:
             echo "Files in apk-debug directory:"
             ls -la apk-debug/
 
-            # Install the APK
-            adb install apk-debug/android-debug.apk
+            # No "app isn't responding" dialogs of other apps from the start: an ANR of the launcher during the
+            # split test below left its dialog over QZ in the back button test. Applied at once from API 28;
+            # API 24 and 26 do not have this setting
+            adb shell settings put global hide_error_dialogs 1
+
+            # First test real split APKs with no Location permission, then uninstall.
+            if [ "${{ matrix.api-level }}" -ge 30 ]; then bash .github/scripts/android_split_bluetooth_test.sh; fi
+
+            # Install the APK. Not streamed: on API 24 the stream through the adbd pty sometimes loses a few bytes
+            # and the install waits for them until the step limit; adb push and pm install from the file do not
+            adb install --no-streaming apk-debug/android-debug.apk
 
             # Grant runtime (dangerous) permissions
             echo "Granting runtime permissions..."
@@ -1278,8 +1308,9 @@ jobs:
             # Start the main activity and wait for its process (retries a lost start, prints the logcat on failure)
             sh .github/scripts/android_app_start_test.sh
 
-            # A fresh install that has never connected a device writes the debug log by itself (log_debug_first_setup)
-            adb shell "run-as org.cagnulen.qdomyoszwift cat 'files/.config/Roberto Viola/qDomyos-Zwift.conf'" | grep -q -F 'log_debug_first_setup=true' || { echo "first-setup debug log is not on after a fresh install"; exit 1; }
+            # A fresh install that has never connected a device writes the debug log by itself (log_debug_first_setup).
+            # On a failure: the settings, the window on top, the screen and the logcat (the steps below would not save them)
+            adb shell "run-as org.cagnulen.qdomyoszwift cat 'files/.config/Roberto Viola/qDomyos-Zwift.conf'" | grep -q -F 'log_debug_first_setup=true' || { echo "first-setup debug log is not on after a fresh install"; adb shell "run-as org.cagnulen.qdomyoszwift cat 'files/.config/Roberto Viola/qDomyos-Zwift.conf'"; adb shell dumpsys window | grep -m 1 mCurrentFocus; adb shell screencap -p /sdcard/screenshot.png; adb pull /sdcard/screenshot.png; adb logcat -d -b all > full_logcat.txt; exit 1; }
 
             # Take a screenshot for verification
             adb shell screencap -p /sdcard/screenshot.png
@@ -1327,7 +1358,7 @@ jobs:
             # preexisting orientation tests leave the emulator sideways.
             adb shell settings put system accelerometer_rotation 0 || true
             adb shell settings put system user_rotation 0 || true
-            adb install -r support-mail-probe.apk
+            adb install -r --no-streaming support-mail-probe.apk
             python3 .github/scripts/android_support_email_test.py
 
             # Check if the package is installed
@@ -1353,6 +1384,7 @@ jobs:
             full_logcat.txt
             qdomyos_logcat.txt
             support_email_evidence/**
+            split_bluetooth_evidence/**
           if-no-files-found: warn                
 
   ios-build:
@@ -1375,7 +1407,7 @@ jobs:
         with:
           repository: google/googletest
           path: "tst/googletest/"
-          ref: "release-1.12.1"
+          ref: "v1.18.0"
 
       - name: Install Qt iOS
         uses: jurplel/install-qt-action@v3
@@ -1513,7 +1545,7 @@ jobs:
         with:
           repository: google/googletest
           path: "tst/googletest/"
-          ref: "release-1.12.1"
+          ref: "v1.18.0"
       - name: Checkout qHttpServer
         uses: actions/checkout@v4
         with:
@@ -1735,7 +1767,7 @@ jobs:
         with:
           repository: google/googletest
           path: "tst/googletest/"
-          ref: "release-1.12.1"
+          ref: "v1.18.0"
       - name: Checkout qHttpServer
         uses: actions/checkout@v4
         with:
@@ -1920,7 +1952,7 @@ jobs:
             bash -c "
               set -ex &&
               for i in 1 2 3; do apt-get update && break || sleep 5; done &&
-              for i in 1 2 3; do apt-get install -y --fix-missing build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql && break || sleep 5; done &&
+              for i in 1 2 3; do apt-get install -y --fix-missing build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql libqt5serialport5-dev && break || sleep 5; done &&
               export QT_SELECT=qt5 &&
               export PATH=/usr/lib/qt5/bin:\$PATH &&
               sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
@@ -1982,7 +2014,7 @@ jobs:
             rm -f /etc/apt/sources.list.d/* /etc/apt/sources.list &&
             printf '%s\n' 'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/20260608T080000Z/ bullseye main' 'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20260608T080000Z/ bullseye-security main' > /etc/apt/sources.list &&
             for i in 1 2 3; do apt-get update && break || sleep 5; done &&
-            for i in 1 2 3; do apt-get install -y --fix-missing build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql && break || sleep 5; done &&
+            for i in 1 2 3; do apt-get install -y --fix-missing build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql libqt5serialport5-dev && break || sleep 5; done &&
             export QT_SELECT=qt5 &&
             export PATH=/usr/lib/qt5/bin:$PATH &&
             cd /github/workspace &&
@@ -2078,7 +2110,7 @@ jobs:
                 libqt5core5a libqt5bluetooth5 libqt5charts5 libqt5widgets5 \
                 libqt5network5 libqt5websockets5 libqt5xml5 libqt5sql5 \
                 libqt5multimedia5 libqt5positioning5 libqt5qml5 libqt5quick5 \
-                libqt5texttospeech5 libqt5networkauth5 libqt5gui5 || true && break || sleep 5; done
+                libqt5texttospeech5 libqt5networkauth5 libqt5gui5 libqt5serialport5-dev || true && break || sleep 5; done
               OUTPUT=\$(/app/qdomyos-zwift-armv6hf -no-gui -smoke-test 2>&1) || true
               echo \"\$OUTPUT\"
               if echo \"\$OUTPUT\" | grep -q 'SMOKE_OK'; then
@@ -2103,7 +2135,7 @@ jobs:
                 libqt5core5a libqt5bluetooth5 libqt5charts5 libqt5widgets5 \
                 libqt5network5 libqt5websockets5 libqt5xml5 libqt5sql5 \
                 libqt5multimedia5 libqt5positioning5 libqt5qml5 libqt5quick5 \
-                libqt5texttospeech5 libqt5networkauth5 libqt5gui5 || true
+                libqt5texttospeech5 libqt5networkauth5 libqt5gui5 libqt5serialport5-dev || true
               OUTPUT=\$(/app/qdomyos-zwift-aarch64 -no-gui -smoke-test 2>&1) || true
               echo \"\$OUTPUT\"
               if echo \"\$OUTPUT\" | grep -q 'SMOKE_OK'; then
@@ -2601,6 +2633,8 @@ jobs:
           if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
             ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
           fi
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          bash "${{ github.workspace }}/qt-patches/android/5.15.0/build_qtandroid_bluetooth_jar.sh" "$QT_BT_JAR" "$SDK_ROOT/platforms/android-37.0/android.jar" "$QT_BT_JAR"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -2774,6 +2808,8 @@ jobs:
           if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
             ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
           fi
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          bash "${{ github.workspace }}/qt-patches/android/5.15.0/build_qtandroid_bluetooth_jar.sh" "$QT_BT_JAR" "$SDK_ROOT/platforms/android-37.0/android.jar" "$QT_BT_JAR"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -2950,6 +2986,8 @@ jobs:
           if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
             ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
           fi
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          bash "${{ github.workspace }}/qt-patches/android/5.15.0/build_qtandroid_bluetooth_jar.sh" "$QT_BT_JAR" "$SDK_ROOT/platforms/android-37.0/android.jar" "$QT_BT_JAR"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -3080,6 +3118,8 @@ jobs:
           if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
             ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
           fi
+          QT_BT_JAR="${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/QtAndroidBluetooth.jar"
+          bash "${{ github.workspace }}/qt-patches/android/5.15.0/build_qtandroid_bluetooth_jar.sh" "$QT_BT_JAR" "$SDK_ROOT/platforms/android-37.0/android.jar" "$QT_BT_JAR"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src

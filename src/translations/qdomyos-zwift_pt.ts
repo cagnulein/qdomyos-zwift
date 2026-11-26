@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="pt_PT">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Fechar</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -167,6 +174,22 @@
         <translation>Parar</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>A resistência automática está desligada</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>O QZ não está a alterar a resistência agora. «Aplicar»: os níveis dos mosaicos Resistência, Resist. alvo e das predefinições aplicam-se enquanto a resistência automática estiver desligada. Os comandos das apps (por exemplo, Zwift) continuam a ser ignorados.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Aplicar</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Ligar resistência automática</translation>
+    </message>
+    <message>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
@@ -289,6 +312,14 @@ Would you like to do that now?</source>
 Deseja fazer isso agora?</translation>
     </message>
     <message>
+        <source>Try the new interface?</source>
+        <translation>Quer experimentar a nova interface?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>O QZ tem um novo visual na tela principal, no menu lateral, nas configurações e no assistente. Você pode voltar ao anterior a qualquer momento em Configurações &gt; Opções gerais da interface.</translation>
+    </message>
+    <message>
         <source>Adjustable. Current value: </source>
         <translation>Ajustável. Valor atual: </translation>
     </message>
@@ -382,6 +413,14 @@ Pretende ativar os serviços necessários?</translation>
     <message>
         <source>Not connecting?</source>
         <translation>Não conecta?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Equipamento não encontrado</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Ligue a bicicleta, a esteira ou o remo e toque no ícone Bluetooth no topo para procurar de novo.</translation>
     </message>
 </context>
 <context>
@@ -1145,6 +1184,10 @@ Deseja atualizar as configurações do QZ?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>Falha ao inicializar a YPOO M5; é necessário reconectar</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S conectado!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1363,6 +1406,21 @@ Deseja atualizar as configurações do QZ?</translation>
     <message>
         <source>Open email</source>
         <translation>Abrir e-mail</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Comprando...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Compra concluída</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Falha na compra</translation>
     </message>
 </context>
 <context>
@@ -2147,6 +2205,11 @@ Deseja atualizar as configurações do QZ?</translation>
         <translation>Inclinação (%)</translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>Em um gráfico:</translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation>Potência média</translation>
@@ -2348,6 +2411,18 @@ Deseja atualizar as configurações do QZ?</translation>
     <message>
         <source>1 Mile</source>
         <translation>1 milha</translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation>Tela cheia</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Sair da tela cheia</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Deslize para a esquerda ou direita para trocar de gráfico</translation>
     </message>
     <message>
         <source>Peloton Workout in progress!</source>
@@ -3365,6 +3440,10 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
 <context>
     <name>homeform</name>
     <message>
+        <source>No enabled metrics</source>
+        <translation>Nenhuma métrica ativada</translation>
+    </message>
+    <message>
         <source>Speed (%1/h)</source>
         <translation>Velocidade (%1/h)</translation>
     </message>
@@ -4007,6 +4086,10 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <translation>Procurando o dispositivo...</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Conectando a %1...</translation>
+    </message>
+    <message>
         <source>Search stopped, tap the Bluetooth icon</source>
         <translation>Pesquisa parada, toque no ícone Bluetooth</translation>
     </message>
@@ -4295,9 +4378,17 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <source>Unable to open an email application</source>
         <translation>Não foi possível abrir uma aplicação de e-mail</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>O Bluetooth está desligado</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Métricas flutuantes (imagem sobre imagem)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -4633,6 +4724,10 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
     <message>
         <source>Settings</source>
         <translation>Configurações</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>Experimentar a nova interface</translation>
     </message>
     <message>
         <source>Workouts History</source>
@@ -6283,6 +6378,75 @@ Permitir que o QZ altere esse valor?
         <translation type="vanished">Abrir</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Interface moderna</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Novo visual da tela principal, do menu lateral, das configurações e do assistente. Desative para voltar ao visual clássico.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Aparência</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Como no celular</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Escuro</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Claro</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Tema</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafite</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Preto / branco</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Azul-noite</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Cor de destaque</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Violeta</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Azul</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Azul-petróleo</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Verde</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Laranja</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Rosa</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Tamanho dos blocos:</translation>
     </message>
@@ -6361,6 +6525,30 @@ Permitir que o QZ altere esse valor?
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>Posição deste gráfico no histórico de treinos. A ordem é alterada com os botões para cima e para baixo em Opções gerais da interface.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Configuração redefinida</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Configurações redefinidas: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Redefinir tudo</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Redefinir configurações alteradas?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Configurações que voltam aos valores padrão: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Redefinir</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -6695,8 +6883,8 @@ Permitir que o QZ altere esse valor?
         <translation>Sensor Bluetooth Garmin</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Para enviar métricas para o seu dispositivo Garmin a partir do Mac, ative esta opção. Caso contrário, mantenha desativado.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Permite que o seu relógio Garmin ou outro relógio desportivo use o QZ como sensor Bluetooth: um sensor de passada com uma passadeira, um medidor de potência com uma bicicleta (no Android, ative também «Sensor de Potência da Bicicleta»). O relógio tem de estar emparelhado por Bluetooth com o telemóvel ou tablet que executa o QZ: se não encontrar o QZ, emparelhe-os uma vez, depois adicione o sensor no relógio e aceite o pedido de emparelhamento. Se o Garmin Connect estiver ligado ao relógio no mesmo telemóvel, force a paragem dele duas ou três vezes seguidas enquanto o relógio se liga; é mais fácil um telemóvel ou tablet separado sem Garmin Connect. Enquanto o QZ funciona como sensor para o relógio, o Zwift por Bluetooth vê-o apenas como sensor de passada ou medidor de potência, não como uma máquina que possa controlar.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -8106,6 +8294,18 @@ Padrão: A = -0.96, B = 1.33</translation>
         <translation>Potência</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>Redefinir seção?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Configurações em “%2” que voltam aos valores padrão: %1</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Redefinir seção</translation>
+    </message>
+    <message>
         <source>Manual</source>
         <translation>Manual</translation>
     </message>
@@ -8732,6 +8932,14 @@ Padrão: A = -0.96, B = 1.33</translation>
     <message>
         <source>Use Console Gears</source>
         <translation>Usar mudanças da consola</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Calorias da esteira por modelo de caminhada/corrida</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Para esteiras cuja consola não envia calorias. As calorias são calculadas a partir da velocidade da esteira, da inclinação e do seu peso, altura, idade e sexo: um modelo de caminhada abaixo da sua velocidade de transição da caminhada para a corrida (definida pela sua altura) e um modelo de corrida acima dela. Desative para usar em vez disso o valor baseado na potência. As calorias de uma consola, um sensor de potência externo (Stryd, etc.) e Calcular Calorias a partir da Frequência Cardíaca (quando ativo) continuam a ter prioridade.</translation>
     </message>
 </context>
 <context>

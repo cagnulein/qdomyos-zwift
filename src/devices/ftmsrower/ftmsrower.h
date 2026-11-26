@@ -39,6 +39,12 @@ class ftmsrower : public rower {
   public:
     ftmsrower(bool noWriteResistance, bool noHeartService);
     bool connected() override;
+    void clearStats() override;
+
+  protected:
+    void parseConcept2Data(const QBluetoothUuid &uuid, const QByteArray &newValue);
+    enum class PM5StrokeSource { None, Concept2, Ftms };
+    void updatePM5StrokeCount(uint16_t raw, PM5StrokeSource source);
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
@@ -46,7 +52,6 @@ class ftmsrower : public rower {
     void startDiscover();
     uint16_t watts() override;
     void forceResistance(resistance_t requestResistance);
-    void parseConcept2Data(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 
     QTimer *refresh;
 
@@ -88,6 +93,8 @@ class ftmsrower : public rower {
     double lastStrokesCount = 0;
     
     // PM5 specific variables
+    uint16_t pm5LastRawStrokeCount = 0;
+    PM5StrokeSource pm5StrokeSource = PM5StrokeSource::None;
     uint8_t pm5RowState = 0;
     bool pm5RowStateReceived = false;
 

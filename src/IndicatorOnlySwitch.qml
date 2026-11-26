@@ -6,8 +6,11 @@ import QtQuick.Controls.Material 2.0
 import Qt.labs.settings 1.0
 import QtQuick.Dialogs 1.0
 
-SwitchDelegate {
+UiSwitchDelegate {
     id: root
+    wrapsTitle: true
+    // it wraps its title itself (configureTextItem), not by the one of UiSwitchDelegate
+    pageWrap: false
 
     // Preserve Material styling while making translated setting titles responsive.
     function configureTextItem(item) {
@@ -19,9 +22,12 @@ SwitchDelegate {
             if (item === titleText)
                 return true
             item.wrapMode = Text.WrapAtWordBoundaryOrAnywhere
+            // two lines; the modern look and a bigger text lift the limit (the Binding below)
             item.maximumLineCount = 2
             if (item.elide !== undefined)
                 item.elide = Text.ElideRight
+            // a wrapped title of the modern look: the lines closer (UiSwitchDelegate.titleLeading)
+            item.lineHeight = Qt.binding(function () { return root.titleLeading })
             // last: the Bindings below start with it and keep these values to restore at 100 %
             titleText = item
             return true
@@ -47,7 +53,8 @@ SwitchDelegate {
     // (emulator log, 39172099490: the row high enough, the text moved). A wrapped title makes the row
     // higher than the one for one line, so the label places the text again, 6 px clear above and
     // below. The first three terms are those of the Material style: at 100 % the height is the one of
-    // the style
+    // the style. The last one is the wrapped title of the modern look (UiSwitchDelegate): this
+    // implicitHeight replaces the one of the base component
     property var titleText: null
     // The text size of the app (main.qml). Without the app window, as in the layout test of the
     // settings labels, the switch is the one of 100 %
@@ -59,7 +66,8 @@ SwitchDelegate {
                              textScale !== 1 && titleText && titleText.lineCount > 1
                                  ? Math.max(implicitBackgroundHeight + topInset + bottomInset + 1,
                                             titleText.contentHeight + topPadding + bottomPadding + 12)
-                                 : 0)
+                                 : 0,
+                             modernTitleHeight)
 
     // On iOS the title kept the size of the style while the text around it grew (the hint under it
     // too): with a size other than 100 % it takes the one of the window font, family, weight and
@@ -70,7 +78,9 @@ SwitchDelegate {
         if (!titleText)
             return
         if (scaledFontPx > 0) {
-            titleText.font.pixelSize = scaledFontPx
+            // the size of the switch font: the window font (scaledFontPx) as before, Body Large
+            // on a settings page of the modern look, which sets it on its root
+            titleText.font.pixelSize = root.modern && font.pixelSize > 0 ? font.pixelSize : scaledFontPx
             titleFontSet = true
         } else if (titleFontSet && contentItem && contentItem.font !== undefined) {
             titleText.font = contentItem.font
@@ -78,13 +88,16 @@ SwitchDelegate {
         }
     }
     onScaledFontPxChanged: applyTitleFont()
+    onFontChanged: applyTitleFont()
     onTitleTextChanged: applyTitleFont()
-    // With a bigger text a long title needs more than two lines; back to two at 100 %
+    // With a bigger text a long title needs more than two lines; back to two at 100 %. The modern
+    // look: the whole title, on as many lines as it takes (the ellipsis hid the end of a long
+    // translation at a large text size)
     Binding {
         target: root.titleText
         property: "maximumLineCount"
         value: 100
-        when: root.titleText !== null && root.textScale !== 1
+        when: root.titleText !== null && (root.textScale !== 1 || root.modern)
         restoreMode: Binding.RestoreBindingOrValue
     }
 

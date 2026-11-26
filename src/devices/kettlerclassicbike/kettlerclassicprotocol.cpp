@@ -136,6 +136,32 @@ quint16 CoachSStrokePowerSmoother::addSample(quint16 strokeCounter,
     return value(nowMs);
 }
 
+void CoachSCadenceSmoother::reset() {
+    samples.clear();
+}
+
+double CoachSCadenceSmoother::completedStroke(quint16 strokeCounter, qint64 nowMs,
+                                              bool previousStrokeActive) {
+    // A new session, stop/resume or stale console counter starts a new window.
+    // Never average a long idle gap into the next rowing cadence.
+    if (!previousStrokeActive) reset();
+    if (!samples.isEmpty()) {
+        const StrokeSample &previous = samples.constLast();
+        const qint64 elapsedMs = nowMs - previous.timestampMs;
+        if (strokeCounter <= previous.counter || elapsedMs < 300 || elapsedMs > 6500)
+            reset();
+    }
+    samples.append({strokeCounter, nowMs});
+    if (samples.size() > 4) samples.remove(0); // three completed-stroke intervals
+    // Publish after the first valid interval (stroke 2), then average up to 3.
+    if (samples.size() < 2) return 0.0;
+
+    const StrokeSample &first = samples.constFirst();
+    const StrokeSample &last = samples.constLast();
+    return qBound(0.0, 60000.0 * (last.counter - first.counter) /
+                            (last.timestampMs - first.timestampMs), 80.0);
+}
+
 void CoachSPowerBasedPace::reset(double initialMeters) {
     sessionMeters = qMax(0.0, initialMeters);
     strokeSpeedKmh = 0.0;

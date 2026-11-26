@@ -28,9 +28,9 @@ HomeForm {
         // connected", and the line would read "Searching for the device..." beside the green card
         if (rootItem.info === "Connecting..." && window.equipmentConnected)
             return false
-        // homeform writes "<device> found" into info once the device is found (name + " found");
-        // a loaded workout puts its name there
-        return !String(rootItem.info).endsWith(" found")
+        // info is "<device> found" (translated) once the device is found, or the name of a loaded
+        // workout: homeform says which, the translated text cannot be matched
+        return !rootItem.infoDeviceFound
     }
     background: Rectangle {
         anchors.fill: parent
@@ -57,6 +57,30 @@ HomeForm {
     signal plus_clicked(string name)
     signal minus_clicked(string name)
     signal largeButton_clicked(string name)
+
+    // Tile buttons. With Auto Resistance off the Resistance and Target R. tiles and the resistance presets
+    // would do nothing on a bike or a rower: the rider is asked until Apply, then not again until Auto Resistance
+    // is toggled (homeform::resistanceTilePressed)
+    function tileButtonPressed(kind, name) {
+        var result = rootItem.resistanceTilePressed(kind, name)
+        if (result === 2) {
+            autoResistanceOffDialog.kind = kind
+            autoResistanceOffDialog.name = name
+            // the modern look asks with its own question card, the classic look with the popup below
+            autoResistanceOffDialog.answered = false
+            if (window.ui.modern)
+                autoResistanceOffCard.open()
+            else
+                autoResistanceOffDialog.open()
+        } else if (result === 0) {
+            if (kind === "plus")
+                plus_clicked(name)
+            else if (kind === "minus")
+                minus_clicked(name)
+            else
+                largeButton_clicked(name)
+        }
+    }
 
     Settings {
         id: settings
@@ -131,6 +155,142 @@ HomeForm {
             inner_stop();
         }
         onNoClicked: close()
+    }
+
+    // The same question in the modern look: its standard question card, the answers go to the popup below
+    UiMessageDialog {
+        id: autoResistanceOffCard
+        title: qsTr("Auto Resistance is off")
+        text: qsTr("QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.")
+        buttons: (MessageDialog.Yes | MessageDialog.No | MessageDialog.Cancel)
+        yesText: qsTr("Apply")
+        noText: qsTr("Enable Auto Resistance")
+        cancelText: qsTr("Cancel")
+        onYesClicked: autoResistanceOffDialog.answer("apply")
+        onNoClicked: autoResistanceOffDialog.answer("enable")
+        onCancelClicked: autoResistanceOffDialog.answer("cancel")
+    }
+
+    // Asked on the first Resistance / Target R. / resistance preset press with Auto Resistance off.
+    // The platform MessageDialog only has standard button texts, so this is a Popup that looks like it.
+    Popup {
+        id: autoResistanceOffDialog
+        property string kind: ""
+        property string name: ""
+        parent: Overlay.overlay
+        // the overlay also covers the system bars (edge to edge): keep the dialog clear of them
+        readonly property real roomLeft: window.getLeftPadding()
+        readonly property real roomRight: window.getRightPadding()
+        readonly property real roomTop: 12 + window.getTopPadding()
+        readonly property real roomBottom: 12 + window.getBottomPadding()
+        x: Math.round(roomLeft + (parent.width - roomLeft - roomRight - width) / 2)
+        y: Math.round(roomTop + (parent.height - roomTop - roomBottom - height) / 2)
+        width: Math.min(Math.round((parent.width - roomLeft - roomRight) * 0.87), 560)
+        modal: true
+        focus: true
+        padding: 0
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        // opened only in the classic look (the modern look asks with autoResistanceOffCard)
+        background: Rectangle {
+            visible: !window.ui.modern
+            color: "#f5f5f5"
+        }
+
+        // the buttons stay tappable during the closing animation: one answer per opening
+        property bool answered: false
+        onAboutToShow: answered = false
+
+        function answer(action) {
+            if (answered)
+                return
+            answered = true
+            close()
+            console.log("auto resistance off question: " + action + " " + kind + " " + name)
+            if (action === "apply") {
+                rootItem.applyResistanceTileWithAutoResistanceOff(kind, name)
+            } else if (action === "enable") {
+                rootItem.autoResistance = true
+                tileButtonPressed(kind, name)
+            }
+        }
+
+        // a big text size or a low landscape screen: the content scrolls instead of leaving the screen
+        height: Math.min(implicitHeight, parent.height - roomTop - roomBottom)
+        contentItem: Flickable {
+            visible: !window.ui.modern
+            implicitHeight: autoResistanceOffColumn.implicitHeight
+            contentHeight: autoResistanceOffColumn.implicitHeight
+            clip: true
+            boundsBehavior: Flickable.StopAtBounds
+            ScrollIndicator.vertical: ScrollIndicator {}
+
+            Column {
+                id: autoResistanceOffColumn
+                width: autoResistanceOffDialog.availableWidth
+                Label {
+                    width: parent.width
+                    leftPadding: 6
+                    rightPadding: 6
+                    topPadding: 8
+                    text: qsTr("Auto Resistance is off")
+                    color: "black"
+                    font.pixelSize: window.fontPx(18)
+                    wrapMode: Text.Wrap
+                    Accessible.role: Accessible.Heading
+                    Accessible.name: text
+                }
+                Label {
+                    width: parent.width
+                    leftPadding: 6
+                    rightPadding: 6
+                    topPadding: 10
+                    bottomPadding: 10
+                    text: qsTr("QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.")
+                    color: "black"
+                    font.pixelSize: window.fontPx(18)
+                    wrapMode: Text.Wrap
+                    Accessible.role: Accessible.StaticText
+                    Accessible.name: text
+                }
+                Repeater {
+                    model: [
+                        { "action": "apply", "label": qsTr("Apply") },
+                        { "action": "enable", "label": qsTr("Enable Auto Resistance") },
+                        { "action": "cancel", "label": qsTr("Cancel") }
+                    ]
+                    delegate: Button {
+                        id: answerButton
+                        width: parent.width
+                        height: window.fontPx(48)
+                        // Material keeps a band above and below the background: no gap to the separator
+                        topInset: 0
+                        bottomInset: 0
+                        flat: true
+                        text: modelData.label
+                        background: Rectangle {
+                            color: answerButton.down ? "#dcdcdc" : "#f1f1f1"
+                            Rectangle {
+                                width: parent.width
+                                height: 1
+                                color: "#dcdcdc"
+                            }
+                        }
+                        contentItem: Text {
+                            text: answerButton.text
+                            color: "black"
+                            font.pixelSize: window.fontPx(18)
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                            elide: Text.ElideRight
+                        }
+                        onClicked: autoResistanceOffDialog.answer(modelData.action)
+                        Accessible.role: Accessible.Button
+                        Accessible.name: text
+                        Accessible.onPressAction: autoResistanceOffDialog.answer(modelData.action)
+                    }
+                }
+            }
+        }
     }
 
     // Optional post-workout popup (settings.rpe_feel_popup_enabled) asking for perceived exertion
@@ -252,7 +412,12 @@ HomeForm {
         // Always running: rootItem.device blinks while no device is connected (it drives the icon),
         // and bluetoothSearchStatus() is empty once a device is connected
         interval: 1000; repeat: true; triggeredOnStart: true; running: true
-        onTriggered: searchStatus = rootItem.bluetoothSearchStatus()
+        onTriggered: {
+            searchStatus = rootItem.bluetoothSearchStatus()
+            searchStopped = rootItem.bluetoothSearchStopped()
+            bluetoothOff = rootItem.bluetoothSearchOff()
+            window.bluetoothSearchPolled()
+        }
     }
 
     Timer {
@@ -287,8 +452,9 @@ HomeForm {
             rootItem.enableLocationServices()
         }
         onNoClicked: {
-            locationServicesDeclined = true
+            // the reminder first: locationQuestions below stays true from this question to the reminder
             remindLocationServicesDialog.visible = true
+            locationServicesDeclined = true
         }
         visible: !locationServicesOn && !locationServiceRequsted && !locationServicesDeclined && !settings.skipLocationServicesDialog
     }
@@ -308,8 +474,48 @@ HomeForm {
         informativeText: qsTr("To apply the changes, you need to restart the app.\nWould you like to do that now?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: Qt.callLater(Qt.quit)
-        onNoClicked: this.visible = false;
+        onNoClicked: {
+            this.visible = false;
+            // Location stays off for this run: the questions after it (locationQuestions) go on
+            locationServicesDeclined = true
+        }
         visible: locationServiceRequsted && !locationServicesOn
+    }
+
+    // A Bluetooth/Location question is open or still to come: the permission question, "Restart the
+    // app" after its Yes (both while Location stays off), the reminder after its No. By the state the
+    // questions follow, not by their visible: one answer hides one and shows the next, and a
+    // binding on both could see neither for a moment
+    readonly property bool locationQuestions: (!locationServicesOn && !locationServicesDeclined
+                                               && !settings.skipLocationServicesDialog)
+                                              || remindLocationServicesDialog.visible
+
+    // Users who used QZ before the modern look became the look of a new install are asked once
+    // (homeform::startModernForNewInstall()); the classic side menu offers it again (main.qml).
+    // After the Bluetooth and Location questions, not over them
+    UiMessageDialog {
+        id: modernOfferDialog
+        // Yes switches the look once this popup has closed: switched while it closes, the popup
+        // takes the size and the card of the modern look for the rest of its exit
+        property bool switchWhenClosed: false
+        text: qsTr("Try the new interface?")
+        informativeText: qsTr("QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings > General UI Options.")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: {
+            switchWhenClosed = true
+            rootItem.answerModernOffer()
+        }
+        onNoClicked: rootItem.answerModernOffer()
+        // opened again during the exit (the menu entry), closed never came: a No then must not switch
+        onAboutToShow: switchWhenClosed = false
+        onClosed: {
+            if (switchWhenClosed) {
+                switchWhenClosed = false
+                window.ui.setOption("ui_modern", true)
+            }
+        }
+        visible: typeof rootItem !== "undefined" && rootItem.modernOfferRequested && !window.ui.modern
+                 && !locationQuestions
     }
 
     Timer {
@@ -317,6 +523,8 @@ HomeForm {
         onTriggered: {
             if(rootItem.firstRun()) {
                 stackView.push("Wizard.qml")
+            } else {
+                rootItem.requestModernOffer()
             }
         }
     }
@@ -703,6 +911,46 @@ HomeForm {
                     Accessible.ignored: true
                 }
 
+                // "Return to app" in the empty second line of T.Power(W), as on the classic tile
+                RoundButton {
+                    id: modernRelease
+                    objectName: "target_power_release"
+                    text: qsTr("Return to app")
+                    onClicked: rootItem.releaseTargetPower()
+                    visible: identificator === "target_power" && rootItem.targetPowerReleaseVisible && !largeButton
+                    anchors.top: modernValue.bottom
+                    anchors.horizontalCenter: modernCard.horizontalCenter
+                    // over the touch areas of -/+ below (64 x 80 around their circles, down to
+                    // the middle of this button): a tap on its edge returns control, not a step
+                    z: 1
+                    // 32, not 48: the line between the value and the bottom of the card is 39
+                    height: 32 * modernTile.zoom
+                    width: Math.min(implicitWidth, modernCard.width - 16 * modernTile.zoom)
+                    topInset: 0
+                    bottomInset: 0
+                    leftInset: 0
+                    rightInset: 0
+                    font.pointSize: settings.theme_tile_secondline_textsize * modernTile.zoom
+                    background: Rectangle {
+                        radius: height / 2
+                        color: modernRelease.down ? window.ui.alpha(window.ui.accent, 0.35) : window.ui.surfaceHighest
+                    }
+                    contentItem: Text {
+                        text: modernRelease.text
+                        font: modernRelease.font
+                        color: window.ui.textMain
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                        elide: Text.ElideRight
+                    }
+
+                    Accessible.role: Accessible.Button
+                    Accessible.name: text
+                    Accessible.description: qsTr("Give load control back to the app")
+                    Accessible.focusable: true
+                    Accessible.onPressAction: { rootItem.releaseTargetPower() }
+                }
+
                 RoundButton {
                     id: modernMinus
                     objectName: minusName
@@ -719,7 +967,7 @@ HomeForm {
                     bottomInset: 0
                     leftInset: 0
                     rightInset: 0
-                    onClicked: minus_clicked(objectName)
+                    onClicked: tileButtonPressed("minus", objectName)
                     background: Item {
                         Rectangle {
                             x: 14 * modernTile.zoom
@@ -743,7 +991,7 @@ HomeForm {
                     Accessible.name: qsTr("Decrease ") + name
                     Accessible.description: qsTr("Decrease the value of ") + name
                     Accessible.focusable: true
-                    Accessible.onPressAction: { minus_clicked(objectName) }
+                    Accessible.onPressAction: { tileButtonPressed("minus", objectName) }
                 }
 
                 RoundButton {
@@ -762,7 +1010,7 @@ HomeForm {
                     bottomInset: 0
                     leftInset: 0
                     rightInset: 0
-                    onClicked: plus_clicked(objectName)
+                    onClicked: tileButtonPressed("plus", objectName)
                     background: Item {
                         Rectangle {
                             x: 18 * modernTile.zoom
@@ -786,7 +1034,7 @@ HomeForm {
                     Accessible.name: qsTr("Increase ") + name
                     Accessible.description: qsTr("Increase the value of ") + name
                     Accessible.focusable: true
-                    Accessible.onPressAction: { plus_clicked(objectName) }
+                    Accessible.onPressAction: { tileButtonPressed("plus", objectName) }
                 }
 
                 RoundButton {
@@ -796,7 +1044,7 @@ HomeForm {
                     visible: largeButton
                     width: modernTile.width - 2 * modernTile.zoom
                     height: 123 * modernTile.zoom
-                    onClicked: largeButton_clicked(objectName)
+                    onClicked: tileButtonPressed("large", objectName)
                     background: Rectangle {
                         radius: 16 * modernTile.zoom
                         color: largeButtonColor
@@ -816,7 +1064,7 @@ HomeForm {
                     Accessible.name: largeButtonLabel
                     Accessible.description: name + ": " + largeButtonLabel
                     Accessible.focusable: true
-                    Accessible.onPressAction: { largeButton_clicked(objectName) }
+                    Accessible.onPressAction: { tileButtonPressed("large", objectName) }
                 }
             }
             }
@@ -966,7 +1214,7 @@ HomeForm {
                 text: "−"
                 // the sign is a share of the button, so it grows with Tile size
                 font.pixelSize: Math.round(height * 0.45)
-                onClicked: minus_clicked(objectName)
+                onClicked: tileButtonPressed("minus", objectName)
                 visible: writable && !largeButton
                 anchors.top: myValue.top
                 anchors.left: parent.left
@@ -979,14 +1227,14 @@ HomeForm {
                 Accessible.name: qsTr("Decrease ") + name
                 Accessible.description: qsTr("Decrease the value of ") + name
                 Accessible.focusable: true
-                Accessible.onPressAction: { minus_clicked(objectName) }
+                Accessible.onPressAction: { tileButtonPressed("minus", objectName) }
             }
             RoundButton {
                 autoRepeat: true
                 objectName: plusName
                 text: "+"
                 font.pixelSize: Math.round(height * 0.45)
-                onClicked: plus_clicked(objectName)
+                onClicked: tileButtonPressed("plus", objectName)
                 visible: writable && !largeButton
                 anchors.top: myValue.top
                 anchors.right: parent.right
@@ -999,13 +1247,13 @@ HomeForm {
                 Accessible.name: qsTr("Increase ") + name
                 Accessible.description: qsTr("Increase the value of ") + name
                 Accessible.focusable: true
-                Accessible.onPressAction: { plus_clicked(objectName) }
+                Accessible.onPressAction: { tileButtonPressed("plus", objectName) }
             }
             RoundButton {
                 autoRepeat: true
                 objectName: identificator
                 text: largeButtonLabel
-                onClicked: largeButton_clicked(objectName)
+                onClicked: tileButtonPressed("large", objectName)
                 visible: largeButton
                 anchors.fill: rect
                       background: Rectangle {
@@ -1019,7 +1267,7 @@ HomeForm {
                 Accessible.name: largeButtonLabel
                 Accessible.description: name + ": " + largeButtonLabel
                 Accessible.focusable: true
-                Accessible.onPressAction: { largeButton_clicked(objectName) }
+                Accessible.onPressAction: { tileButtonPressed("large", objectName) }
             }
             }
             }

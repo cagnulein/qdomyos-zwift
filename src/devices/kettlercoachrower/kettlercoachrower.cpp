@@ -335,6 +335,7 @@ void kettlercoachrower::processFrame(const kettlerclassicprotocol::Frame &frame)
 
 void kettlercoachrower::resetStrokeMetrics() {
     strokePower.reset();
+    cadenceSmoother.reset();
     lastStrokeMs = -1;
     lastStrokes = sessionCounters.rawStrokes();
     lastStrokeDistanceMeters = sessionCounters.rawMeters();
@@ -361,6 +362,7 @@ void kettlercoachrower::clearStats() {
 
 void kettlercoachrower::updateStrokeIdle(qint64 nowMs) {
     if (strokePower.active(nowMs)) return;
+    cadenceSmoother.reset();
     if (currentWatts != 0 || Speed.value() != 0 || Cadence.value() != 0) {
         currentWatts = 0;
         m_watt = 0;
@@ -413,6 +415,8 @@ void kettlercoachrower::processTelemetry(const QByteArray &payload) {
     }
 
     if (strokes > lastStrokes) {
+        // Smooth only Coach S SPM; preserve watts, speed, distance and PM5.
+        Cadence = cadenceSmoother.completedStroke(strokes, nowMs, precedingStrokeActive);
         if (powerBasedMode) {
             const qint64 elapsedMs = lastStrokeMs >= 0 ? nowMs - lastStrokeMs : -1;
             powerBasedPace.completedStroke(currentWatts, elapsedMs,
@@ -426,7 +430,6 @@ void kettlercoachrower::processTelemetry(const QByteArray &payload) {
             const qint64 elapsedMs = nowMs - lastStrokeMs;
             if (elapsedMs >= 300 && elapsedMs <= 6500) {
                 const quint16 strokesDelta = strokes - lastStrokes;
-                Cadence = qBound(0.0, (60000.0 * strokesDelta) / elapsedMs, 80.0);
                 if (!powerBasedMode && meters > lastStrokeDistanceMeters) {
                     const int distanceDelta = meters - lastStrokeDistanceMeters;
                     const double strokeSpeedKmh =

@@ -1,4 +1,5 @@
 #include "horizontreadmill.h"
+#include "paragonxtelemetry.h"
 #include "homeform.h"
 #include "devices/ftmsbike/ftmsbike.h"
 #include "virtualdevices/virtualbike.h"
@@ -85,6 +86,38 @@ void horizontreadmill::waitForAPacket() {
     connect(this, &horizontreadmill::packetReceived, &loop, &QEventLoop::quit);
     timeout.singleShot(3000, &loop, SLOT(quit()));
     loop.exec();
+}
+
+ParagonXTelemetry::NotificationResult
+horizontreadmill::processParagonNotification(const QByteArray &newValue) {
+    // This is the real production notification path. Unit tests call it with
+    // captured BLE fragments and observe the driver's packetReceived signal.
+    auto result = paragonPacketAssembler.accept(
+        reinterpret_cast<const uint8_t *>(newValue.constData()),
+        static_cast<std::size_t>(newValue.size()), [this]() {
+            initPacketRecv = true;
+            emit packetReceived();
+        });
+    const auto &buffer = paragonPacketAssembler.frame();
+    lastPacketComplete = QByteArray(reinterpret_cast<const char *>(buffer.data()),
+                                    static_cast<int>(buffer.size()));
+    customRecv = paragonPacketAssembler.remaining();
+    if (result.recovered) {
+        qDebug() << "Paragon X: recovered truncated status frame at next BLE header";
+    }
+    if (result.completed) {
+        emit debug(QStringLiteral(" << FULL ") + " " + lastPacketComplete.toHex(' '));
+        qDebug() << "full custom packet received";
+    }
+    return result;
+}
+
+void horizontreadmill::applyParagonTelemetry(const ParagonXTelemetry::Metrics &metrics) {
+    // Preserve the raw speed for diagnostics while exposing a true zero to
+    // Zwift when the belt reports Pause/Stop (0x02/0x04).
+    paragonSessionState.observe(metrics.machineState);
+    parseSpeed(paragonSessionState.publishedSpeed(metrics.speedKmh));
+    parseInclination(treadmillInclinationOverride(metrics.inclinePercent));
 }
 
 void horizontreadmill::btinit() {
@@ -950,6 +983,26 @@ void horizontreadmill::update() {
             settings.value(QZSettings::moovio_lynx_konect_2_0, QZSettings::default_moovio_lynx_konect_2_0).toBool();
         bool treadmill_direct_distance =
             settings.value(QZSettings::treadmill_direct_distance, QZSettings::default_treadmill_direct_distance).toBool();
+        // Paragon X (not Omega Z): the console continues to report the last
+        // speed while paused. Hold outgoing virtual speed at zero immediately
+        // after a local Stop/Pause; do not let a Zwift grade or speed request
+        // move the belt until the user resumes.
+        const bool paragonOnly =
+            gattCustomService &&
+            settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool() &&
+            !horizon_treadmill_omega_z;
+        if (paragonOnly) {
+            if (requestStop != -1) {
+                paragonSessionState.stopRequested();
+                Speed = 0;
+            } else if (requestStart != -1) {
+                paragonSessionState.startRequested();
+            }
+            if (paragonSessionState.commandsSuspended() && requestStart == -1) {
+                requestSpeed = -1;
+                requestInclination = -100;
+            }
+        }
         update_metrics(!powerReceivedFromPowerSensor, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         if (firstDistanceCalculated) {
@@ -1014,8 +1067,12 @@ void horizontreadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
-            if (!adidas_treadmill && (!FS_TREADMILL || !areInclinationSettingsDefault())) {
-                requestInclination = treadmillInclinationOverrideReverse(requestInclination);
+            // The generic override table only covers 0..15%. Do not clamp ZIPRO Shred's
+            // higher FTMS grades through the reverse lookup.
+            if (!adidas_treadmill && (!FS_TREADMILL || !areInclinationSettingsDefault()) &&
+                !(zipro_shred_treadmill && requestInclination > 15.0)) {
+                requestInclination = treadmillInclinationOverrideReverse(requestInclination,
+                                                                          ks_esp_treadmill ? maxInclination : 15.0);
             }
 
             // this treadmill doesn't send the incline, so i'm forcing it manually
@@ -1634,21 +1691,61 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
 
-    if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4)) {
-        if (newValue.at(0) == 0x55 && newValue.length() > 7) {
-            lastPacketComplete.clear();
-            customRecv = (((uint16_t)((uint8_t)newValue.at(7)) << 8) | (uint16_t)((uint8_t)newValue.at(6))) + 10;
-            qDebug() << "new custom packet received. Len expected: " << customRecv;
+    // Run BT-* treadmills report physical console actions through the FTMS
+    // Fitness Machine Status characteristic. These existing treadmill signals
+    // are connected to HomeForm's Start/Pause/StopFromDevice slots.
+    if (run_bt_treadmill && characteristic.uuid() == QBluetoothUuid((quint16)0x2ADA)) {
+        if (newValue.size() == 1 && (uint8_t)newValue.at(0) == 0x04) {
+            // A genuine FTMS Start/Resume supersedes the one-time speed fallback.
+            runBtInitialStartPending = false;
+            if (isPaused()) {
+                emit debug(QStringLiteral("RUN BT- FTMS physical Start/Resume"));
+                emit buttonHWStart();
+            }
+        } else if (newValue.size() == 2 && (uint8_t)newValue.at(0) == 0x02) {
+            // Fitness Machine Stopped or Paused by User.
+            if ((uint8_t)newValue.at(1) == 0x01) {
+                // Do not start another session from speed after a definitive Stop.
+                runBtInitialStartPending = false;
+                emit debug(QStringLiteral("RUN BT- FTMS physical Stop"));
+                emit buttonHWStop();
+            } else if ((uint8_t)newValue.at(1) == 0x02) {
+                // Subsequent resumes must use the explicit FTMS 0x04 event.
+                runBtInitialStartPending = false;
+                if (!isPaused()) {
+                    emit debug(QStringLiteral("RUN BT- FTMS physical Pause"));
+                    emit buttonHWPause();
+                }
+            }
         }
+    }
 
-        lastPacketComplete.append(newValue);
-        customRecv -= newValue.length();
-        if (customRecv <= 0) {
-            emit debug(QStringLiteral(" << FULL ") + " " + lastPacketComplete.toHex(' '));
-            qDebug() << "full custom packet received";
-            initPacketRecv = true;
-            customRecv = 0;
-            emit packetReceived();
+    const bool paragonOnly =
+        settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool() &&
+        !settings.value(QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z).toBool();
+    ParagonXTelemetry::NotificationResult paragonNotification{};
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4)) {
+        if (paragonOnly) {
+            paragonNotification = processParagonNotification(newValue);
+        } else {
+            // Keep the original frame assembly and completion signals for
+            // other Horizon models completely unchanged.
+            if (newValue.at(0) == 0x55 && newValue.length() > 7) {
+                lastPacketComplete.clear();
+                customRecv = (((uint16_t)((uint8_t)newValue.at(7)) << 8) |
+                              (uint16_t)((uint8_t)newValue.at(6))) + 10;
+                qDebug() << "new custom packet received. Len expected: " << customRecv;
+            }
+
+            lastPacketComplete.append(newValue);
+            customRecv -= newValue.length();
+            if (customRecv <= 0) {
+                emit debug(QStringLiteral(" << FULL ") + " " + lastPacketComplete.toHex(' '));
+                qDebug() << "full custom packet received";
+                initPacketRecv = true;
+                customRecv = 0;
+                emit packetReceived();
+            }
         }
     }
 
@@ -1660,15 +1757,36 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         return;
     }
 
-    if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && lastPacketComplete.length() > 70 &&
-        lastPacketComplete.at(0) == 0x55 && lastPacketComplete.at(5) == 0x17) {
-        parseSpeed((((double)(((uint16_t)((uint8_t)lastPacketComplete.at(25)) << 8) |
-                           (uint16_t)((uint8_t)lastPacketComplete.at(24)))) /
-                 100.0) *
-                1.60934); // miles/h
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) &&
+        ((paragonOnly && (paragonNotification.recovered ||
+                         (paragonNotification.completed && lastPacketComplete.size() > 70 &&
+                          lastPacketComplete.at(0) == 0x55 && lastPacketComplete.at(5) == 0x17))) ||
+         (!paragonOnly && lastPacketComplete.length() > 70 &&
+          lastPacketComplete.at(0) == 0x55 && lastPacketComplete.at(5) == 0x17))) {
+        ParagonXTelemetry::Metrics metrics{};
+        const bool decoded =
+            paragonOnly &&
+            (paragonNotification.recovered
+                 ? (metrics = paragonNotification.recoveredMetrics, true)
+                 : ParagonXTelemetry::decode(
+                       reinterpret_cast<const uint8_t *>(lastPacketComplete.constData()),
+                       static_cast<std::size_t>(lastPacketComplete.size()), false, metrics));
+        if (decoded) {
+            applyParagonTelemetry(metrics);
+        } else {
+            // Retain the preexisting complete-frame parsing for every other
+            // Horizon model (and any Paragon frame of an older format).
+            double speedKmh = (((double)(((uint16_t)((uint8_t)lastPacketComplete.at(25)) << 8) |
+                                           (uint16_t)((uint8_t)lastPacketComplete.at(24)))) /
+                                100.0) * 1.60934;
+            if (paragonOnly) {
+                paragonSessionState.observe(static_cast<uint8_t>(lastPacketComplete.at(14)));
+                speedKmh = paragonSessionState.publishedSpeed(speedKmh);
+            }
+            parseSpeed(speedKmh);
+            parseInclination(treadmillInclinationOverride((double)((uint8_t)lastPacketComplete.at(30)) / 10.0));
+        }
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-
-        parseInclination(treadmillInclinationOverride((double)((uint8_t)lastPacketComplete.at(30)) / 10.0));
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
 
         if (firstDistanceCalculated && watts(weight))
@@ -2741,6 +2859,11 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     {
         QSettings settings;
         bluetoothDevice = device;
+        ks_esp_treadmill = device.name().toUpper().startsWith(QStringLiteral("KS-ESP-"));
+        if (ks_esp_treadmill) {
+            maxInclination = 25.0;
+            qDebug() << QStringLiteral("KS-ESP treadmill: 25% max inclination");
+        }
         JFTM_T202 = device.name().toUpper().startsWith(QStringLiteral("JFTM T202"));
         SW3925EAI_TREADMILL = device.name().toUpper().startsWith(QStringLiteral("SW3925EAI-"));
         if (SW3925EAI_TREADMILL) {
@@ -2787,6 +2910,10 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             minInclination = -6.0;
             maxInclination = 40.0;
             qDebug() << QStringLiteral("ADIDAS TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("SHRED"))) {
+            zipro_shred_treadmill = true;
+            maxInclination = 40.0;
+            qDebug() << QStringLiteral("ZIPRO SHRED TREADMILL 40% inclination enabled");
         } else if (device.name().toUpper().startsWith(QStringLiteral("S77"))) {
             sole_s77_treadmill = true;
             qDebug() << QStringLiteral("SOLE S77 TREADMILL workaround ON!");
@@ -2825,7 +2952,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             if(domyos_treadmill_ts100) {
                 qDebug() << QStringLiteral("Domyos TS100 mode ON - Fixed 15° inclination");
             }
-        } else if ((device.name().toUpper().startsWith(QStringLiteral("BFX_T9_")))) {
+        } else if ((device.name().toUpper().startsWith(QStringLiteral("BFX_T9")))) {
             qDebug() << QStringLiteral("BOWFLEX T9 found");
             BOWFLEX_T9 = true;
         } else if ((device.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")))) {
@@ -2984,6 +3111,9 @@ int horizontreadmill::GenerateCRC_CCITT(uint8_t *PUPtr8, int PU16_Count, int crc
 }
 
 bool horizontreadmill::autoPauseWhenSpeedIsZero() {
+    // RUN BT- uses explicit FTMS console events instead of zero-speed heuristics.
+    if (run_bt_treadmill)
+        return false;
     if(disableAutoPause == true)
         return false;
 
@@ -3000,6 +3130,23 @@ bool horizontreadmill::autoPauseWhenSpeedIsZero() {
 }
 
 bool horizontreadmill::autoStartWhenSpeedIsGreaterThenZero() {
+    if (run_bt_treadmill) {
+        // RUN BT- does not send FTMS 0x04 for the first physical Start.
+        // HomeForm polls this method even at zero speed, so require an observed
+        // zero -> positive transition and consume it just once per connection.
+        // Do not use speed for later Pause/Resume cycles or after Stop.
+        if (!runBtInitialStartPending)
+            return false;
+        if (currentSpeed().value() <= 0.0) {
+            runBtSeenZeroSpeed = true;
+            return false;
+        }
+        if (!runBtSeenZeroSpeed)
+            return false;
+        runBtInitialStartPending = false;
+        emit debug(QStringLiteral("RUN BT- initial belt motion: starting QZ workout"));
+        return true;
+    }
     QSettings settings;
     bool horizon_treadmill_omega_z =
         settings.value(QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z).toBool();

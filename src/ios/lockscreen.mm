@@ -6,6 +6,7 @@
 #import <HealthKit/HealthKit.h>
 #import <WebKit/WKWebsiteDataStore.h>
 #import <AVFoundation/AVFoundation.h>
+#import <objc/runtime.h>
 #import <ConnectIQ/ConnectIQ.h>
 #import "qdomyoszwift-Swift2.h"
 #import "swiftDebug.h"
@@ -893,6 +894,169 @@ bool lockscreen::systemDarkMode() {
         return UIScreen.mainScreen.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark;
     }
     return true;
+}
+
+// Status bar of the Qt window while setSystemBarsColor() has set its style. Qt writes its own
+// style (light text, without Qt::MaximizeUsingFullscreenGeometryHint) into the view controller
+// whenever the focus window changes, e.g. on the first tap, and hides the bar for a full screen
+// window, the state the modern look takes the whole screen with: UIKit reads these instead.
+// Qt has no API for the style and leaves it to native code (QTBUG-57062, Won't Do); Qt 6.8
+// still sets it and hides the bar the same way (qiosviewcontroller.mm, updateProperties; 6.10:
+// updateStatusBarProperties)
+static bool qzStatusBarStyleSet = false;
+static UIStatusBarStyle qzStatusBarStyle = UIStatusBarStyleLightContent;
+
+// The getters are synthesized in QIOSViewController itself, so only its windows change.
+// Inherited from UIViewController instead, a getter would change every view controller: left alone
+static IMP qzOwnGetter(UIViewController *controller, SEL selector, Method *method) {
+    *method = class_getInstanceMethod([controller class], selector);
+    if (!*method || *method == class_getInstanceMethod([UIViewController class], selector)) {
+        return nullptr;
+    }
+    return method_getImplementation(*method);
+}
+
+static void qzKeepStatusBar(UIViewController *controller) {
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        Method method;
+        IMP original = qzOwnGetter(controller, @selector(preferredStatusBarStyle), &method);
+        if (original) {
+            method_setImplementation(method, imp_implementationWithBlock(^UIStatusBarStyle(UIViewController *self_) {
+                if (qzStatusBarStyleSet) {
+                    return qzStatusBarStyle;
+                }
+                return ((UIStatusBarStyle(*)(id, SEL))original)(self_, @selector(preferredStatusBarStyle));
+            }));
+        }
+        IMP originalHidden = qzOwnGetter(controller, @selector(prefersStatusBarHidden), &method);
+        if (originalHidden) {
+            method_setImplementation(method, imp_implementationWithBlock(^BOOL(UIViewController *self_) {
+                if (qzStatusBarStyleSet) {
+                    return NO;
+                }
+                return ((BOOL(*)(id, SEL))originalHidden)(self_, @selector(prefersStatusBarHidden));
+            }));
+        }
+    });
+}
+
+static NSArray<UIWindow *> *qzAppWindows() {
+    NSMutableArray<UIWindow *> *windows = [NSMutableArray array];
+    if (@available(iOS 13.0, *)) {
+        for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+            if ([scene isKindOfClass:[UIWindowScene class]]) {
+                [windows addObjectsFromArray:((UIWindowScene *)scene).windows];
+            }
+        }
+    } else {
+        [windows addObjectsFromArray:UIApplication.sharedApplication.windows];
+    }
+    return windows;
+}
+
+void lockscreen::setSystemBarsColor(double red, double green, double blue, bool darkPage) {
+    UIColor *color = [UIColor colorWithRed:red green:green blue:blue alpha:1.0];
+    UIStatusBarStyle style = UIStatusBarStyleLightContent;
+    if (!darkPage) {
+        if (@available(iOS 13.0, *)) {
+            style = UIStatusBarStyleDarkContent;
+        } else {
+            style = UIStatusBarStyleDefault;
+        }
+    }
+
+    for (UIWindow *window in qzAppWindows()) {
+        UIViewController *controller = window.rootViewController;
+        // Only the window of Qt (QIOSViewController); the keyboard and other system windows are left alone
+        if (!controller || ![controller isKindOfClass:NSClassFromString(@"QIOSViewController")]) {
+            continue;
+        }
+        window.backgroundColor = color;
+        controller.view.backgroundColor = color;
+        qzKeepStatusBar(controller);
+        qzStatusBarStyle = style;
+        qzStatusBarStyleSet = true;
+        [controller setNeedsStatusBarAppearanceUpdate];
+    }
+}
+
+void lockscreen::safeAreaInsets(double *top, double *bottom, double *left, double *right, double *width,
+                                double *height) {
+    *top = *bottom = *left = *right = *width = *height = 0;
+    for (UIWindow *window in qzAppWindows()) {
+        if (![window.rootViewController isKindOfClass:NSClassFromString(@"QIOSViewController")]) {
+            continue;
+        }
+        const UIEdgeInsets insets = window.safeAreaInsets;
+        *top = insets.top;
+        *bottom = insets.bottom;
+        *left = insets.left;
+        *right = insets.right;
+        *width = window.bounds.size.width;
+        *height = window.bounds.size.height;
+        return;
+    }
+}
+
+// The view of a Qt window (QUIView) gets safeAreaInsetsDidChange from UIKit and hands it to
+// QWindowSystemInterface::handleSafeAreaMarginsChanged() (quiview.mm), which in Qt 5.15 ends in an
+// empty QWindowPrivate::processSafeAreaMarginsChanged() (qwindow_p.h): nothing reaches QML. The
+// screen does not report it either: the iOS plugin of the app (qt-patches/ios/5.15.2) keeps the
+// available geometry equal to the screen geometry. So the callback runs after Qt's own handler.
+// Only QUIView's own method is replaced, the one of UIView is left alone
+static void (*qzSafeAreaChanged)() = nullptr;
+
+void lockscreen::setSafeAreaChangedCallback(void (*callback)()) {
+    qzSafeAreaChanged = callback;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        Class viewClass = NSClassFromString(@"QUIView");
+        SEL selector = @selector(safeAreaInsetsDidChange);
+        Method method = viewClass ? class_getInstanceMethod(viewClass, selector) : nullptr;
+        if (!method || method == class_getInstanceMethod([UIView class], selector)) {
+            return;
+        }
+        IMP original = method_getImplementation(method);
+        method_setImplementation(method, imp_implementationWithBlock(^(UIView *self_) {
+            ((void (*)(id, SEL))original)(self_, selector);
+            if (qzSafeAreaChanged) {
+                qzSafeAreaChanged();
+            }
+        }));
+    });
+}
+
+// The window of Qt (QUIWindow) sees the system switch between light and dark in
+// traitCollectionDidChange: (qiosscreen.mm), but in Qt 5.15 that only rebuilds the palette:
+// QWindowSystemInterface::handleThemeChange(nullptr) sends no event to the windows, and QML has
+// no colour scheme to read (Qt 6.5 adds QStyleHints::colorSchemeChanged on the same call). So the
+// callback runs after Qt's own handler, on the same condition. Only QUIWindow's own method is
+// replaced, the one of UIWindow (the keyboard and the other windows) is left alone
+static void (*qzSystemThemeChanged)() = nullptr;
+
+void lockscreen::setSystemThemeChangedCallback(void (*callback)()) {
+    qzSystemThemeChanged = callback;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        Class windowClass = NSClassFromString(@"QUIWindow");
+        SEL selector = @selector(traitCollectionDidChange:);
+        Method method = windowClass ? class_getInstanceMethod(windowClass, selector) : nullptr;
+        if (!method || method == class_getInstanceMethod(class_getSuperclass(windowClass), selector)) {
+            return;
+        }
+        IMP original = method_getImplementation(method);
+        method_setImplementation(method, imp_implementationWithBlock(^(UIWindow *self_,
+                                                                       UITraitCollection *previous) {
+            ((void (*)(id, SEL, UITraitCollection *))original)(self_, selector, previous);
+            if (@available(iOS 13.0, *)) {
+                if (qzSystemThemeChanged && self_.screen == UIScreen.mainScreen &&
+                    previous.userInterfaceStyle != self_.traitCollection.userInterfaceStyle) {
+                    qzSystemThemeChanged();
+                }
+            }
+        }));
+    });
 }
 
 void lockscreen::shareFile(const char* path) {

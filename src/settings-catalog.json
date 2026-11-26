@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 1051,
+  "settingCount": 1064,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -2902,7 +2902,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "jtx_fitness_sprint_treadmill",
@@ -3886,7 +3886,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "battery_service",
@@ -4593,7 +4593,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "bike_weight",
@@ -7204,7 +7204,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "proform_hybrid_trainer_xt",
@@ -7937,7 +7937,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "gears_from_bike",
@@ -8021,7 +8021,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "tacx_neo2_peloton",
@@ -8274,7 +8274,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "kingsmith_encrypt_v5",
@@ -8862,7 +8862,7 @@
     {
       "key": "garmin_bluetooth_compatibility",
       "name": "Garmin Bluetooth Sensor",
-      "description": "If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.",
+      "description": "Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.",
       "parent": "Garmin Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -8972,7 +8972,7 @@
       "defaultValue": true,
       "defaultExpression": "true",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "domyos_treadmill_button_5kmh",
@@ -8986,7 +8986,7 @@
       "defaultValue": 5.0,
       "defaultExpression": "5.0",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "domyos_treadmill_button_10kmh",
@@ -9000,7 +9000,7 @@
       "defaultValue": 10.0,
       "defaultExpression": "10.0",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "domyos_treadmill_button_16kmh",
@@ -9014,7 +9014,7 @@
       "defaultValue": 16.0,
       "defaultExpression": "16.0",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "domyos_treadmill_button_22kmh",
@@ -9028,7 +9028,7 @@
       "defaultValue": 22.0,
       "defaultExpression": "22.0",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "proform_treadmill_sport_8_5",
@@ -9187,7 +9187,7 @@
       "defaultValue": 5,
       "defaultExpression": "5",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "tile_step_count_enabled",
@@ -9916,13 +9916,13 @@
     },
     {
       "key": "gear_crankset_size",
-      "name": "Gear Crankset Size",
-      "description": null,
-      "parent": "General",
+      "name": "Chainring Size",
+      "description": "Tooth count of your chainring on the bike you are currently riding on your trainer - enter 42 for Zwift Ride",
+      "parent": "Wahoo Options",
       "type": "integer",
       "qmlType": "int",
       "control": "text",
-      "visible": false,
+      "visible": true,
       "defaultValue": 42,
       "defaultExpression": "42",
       "options": null,
@@ -9930,13 +9930,13 @@
     },
     {
       "key": "gear_cog_size",
-      "name": "Gear Cog Size",
-      "description": null,
-      "parent": "General",
+      "name": "Cog Size",
+      "description": "Tooth count of your rear cog on your trainer - enter 14 if you have the Zwift Cog",
+      "parent": "Wahoo Options",
       "type": "integer",
       "qmlType": "int",
       "control": "text",
-      "visible": false,
+      "visible": true,
       "defaultValue": 14,
       "defaultExpression": "14",
       "options": null,
@@ -9944,13 +9944,13 @@
     },
     {
       "key": "gear_wheel_size",
-      "name": "Gear Wheel Size",
+      "name": "Virtual Wheel Size",
       "description": null,
-      "parent": "General",
+      "parent": "Wahoo Options",
       "type": "string",
       "qmlType": "string",
       "control": "text",
-      "visible": false,
+      "visible": true,
       "defaultValue": "700 x 18C",
       "defaultExpression": "\"700 x 18C\"",
       "options": null,
@@ -11672,7 +11672,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "fit_file_garmin_device_training_effect_device",
@@ -11834,13 +11834,13 @@
     },
     {
       "key": "wahoo_without_wheel_diameter",
-      "name": "Wahoo Without Wheel Diameter",
-      "description": null,
-      "parent": "General",
+      "name": "Without Wheel Diameter Protocol",
+      "description": "Enable this for simplified Wahoo protocol that adds gears directly to grade instead of using wheel diameter changes. Default is false.",
+      "parent": "Wahoo Options",
       "type": "boolean",
       "qmlType": "bool",
       "control": "switch",
-      "visible": false,
+      "visible": true,
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
@@ -12335,6 +12335,20 @@
       "key": "calories_from_hr",
       "name": "Calculate Calories from Heart Rate",
       "description": "Enable to calculate calories based on heart rate data instead of power. Requires heart rate sensor connection for accurate calorie estimation.",
+      "parent": "Heart Rate Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "restartRequired": false
+    },
+    {
+      "key": "treadmill_calories_model",
+      "name": "Treadmill Calories from Walking/Running Model",
+      "description": "Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.",
       "parent": "Heart Rate Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -13142,7 +13156,7 @@
       "defaultValue": "",
       "defaultExpression": "\"\"",
       "options": null,
-      "restartRequired": false
+      "restartRequired": true
     },
     {
       "key": "life_fitness_password",
@@ -13156,7 +13170,7 @@
       "defaultValue": "",
       "defaultExpression": "\"\"",
       "options": null,
-      "restartRequired": false
+      "restartRequired": true
     },
     {
       "key": "life_fitness_api_key",
@@ -13226,7 +13240,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "treadmill_direct_distance",
@@ -13384,7 +13398,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "proform_bike_325_csx_PFEX439210INT_0",
@@ -13579,7 +13593,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "gym_mode",
@@ -13709,7 +13723,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "cscbike_custom_resistance_level_1",
@@ -13779,7 +13793,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "gears_custom_table_enabled",
@@ -16073,7 +16087,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "custom_inclination_resistance_table",
@@ -16087,7 +16101,7 @@
       "defaultValue": "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16",
       "defaultExpression": "\"0|4\\n1|6\\n2|8\\n3|10\\n4|11\\n5|11.5\\n6|12\\n8|13\\n10|14\\n12|15\\n15|16\"",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "watt_max",
@@ -16229,7 +16243,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": false
+      "restartRequired": true
     },
     {
       "key": "ui_text_scale",
@@ -16471,7 +16485,6 @@
       "restartRequired": false
     },
     {
-
       "key": "proform_treadmill_sport_6_0",
       "name": "Proform Treadmill Sport 6.0",
       "description": null,
@@ -16489,12 +16502,12 @@
     {
       "key": "ui_modern",
       "name": "Modern interface",
-      "description": "New look of the app. Turn it off to get the classic look back.",
+      "description": "New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.",
       "parent": "General UI Options",
       "type": "boolean",
       "qmlType": "bool",
       "control": "switch",
-      "visible": false,
+      "visible": true,
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
@@ -16508,7 +16521,7 @@
       "type": "string",
       "qmlType": "string",
       "control": "select",
-      "visible": false,
+      "visible": true,
       "defaultValue": "graphite",
       "defaultExpression": "\"graphite\"",
       "options": {
@@ -16533,7 +16546,7 @@
       "type": "string",
       "qmlType": "string",
       "control": "select",
-      "visible": false,
+      "visible": true,
       "defaultValue": "violet",
       "defaultExpression": "\"violet\"",
       "options": {
@@ -16564,7 +16577,7 @@
       "type": "string",
       "qmlType": "string",
       "control": "select",
-      "visible": false,
+      "visible": true,
       "defaultValue": "auto",
       "defaultExpression": "\"auto\"",
       "options": {
@@ -16580,7 +16593,133 @@
         ]
       },
       "restartRequired": false
-    },
+       },
+	{
+	  "key": "trixter_xdream_bike_enabled",
+      "name": "Trixter X-Dream Enabled",
+      "description": null,
+      "parent": "Trixter X-Dream Bike Options (Windows/Linux only)",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "restartRequired": false
+	},
+	{
+      "key": "trixter_xdream_bike_connection_timeout_ms",
+      "name": "Initial connection timeout (ms)",
+      "description": null,
+      "parent": "Trixter X-Dream Bike Options (Windows/Linux only)",
+      "type": "integer",
+      "qmlType": "int",
+      "control": "spinbox",
+      "visible": true,
+      "defaultValue": 500,
+      "defaultExpression": "500",
+      "options": null,
+      "restartRequired": false	
+	},
+	{
+      "key": "trixter_xdream_bike_heartrate_enabled",
+      "name": "Heart Rate Signal Enabled",
+      "description": null,
+      "parent": "Trixter X-Dream Bike Options (Windows/Linux only)",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": true,
+      "defaultExpression": "true",
+      "options": null,
+      "restartRequired": false	
+	},
+	{
+      "key": "trixter_xdream_bike_steering_enabled",
+      "name": "Steering Enabled",
+      "description": null,
+      "parent": "Trixter X-Dream Bike Options (Windows/Linux only)",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": true,
+      "defaultExpression": "true",
+      "options": null,
+      "restartRequired": false	
+	},
+	{
+      "key": "trixter_xdream_bike_steering_l",
+      "name": "Unadjusted steering angle that is 100% left.",
+      "description": null,
+      "parent": "Trixter X-Dream Bike Options (Windows/Linux only)",
+      "type": "integer",
+      "qmlType": "int",
+      "control": "spinbox",
+      "visible": true,
+      "defaultValue": -45,
+      "defaultExpression": "-45",
+      "options": null,
+      "restartRequired": false	
+	},
+	{
+      "key": "trixter_xdream_bike_steering_cl",
+      "name": "Leftmost unadjusted steering angle to be mapped to 0 degrees.",
+      "description": null,
+      "parent": "Trixter X-Dream Bike Options (Windows/Linux only)",
+      "type": "integer",
+      "qmlType": "int",
+      "control": "spinbox",
+      "visible": true,
+      "defaultValue": -2,
+      "defaultExpression": "-2",
+      "options": null,
+      "restartRequired": false	
+	},
+	{
+      "key": "trixter_xdream_bike_steering_cr",
+      "name": "Rightmost unadjusted steering angle to be mapped to 0 degrees.",
+      "description": null,
+      "parent": "Trixter X-Dream Bike Options (Windows/Linux only)",
+      "type": "integer",
+      "qmlType": "int",
+      "control": "spinbox",
+      "visible": true,
+      "defaultValue": 2,
+      "defaultExpression": "2",
+      "options": null,
+      "restartRequired": false	
+	},
+	{
+      "key": "trixter_xdream_bike_steering_r",
+      "name": "Unadjusted steering angle that is 100% right.",
+      "description": null,
+      "parent": "Trixter X-Dream Bike Options (Windows/Linux only)",
+      "type": "integer",
+      "qmlType": "int",
+      "control": "spinbox",
+      "visible": true,
+      "defaultValue": 45,
+      "defaultExpression": "45",
+      "options": null,
+      "restartRequired": false	
+	},
+	{
+      "key": "trixter_xdream_bike_steering_max",
+      "name": "Maximum steering value.",
+      "description": null,
+      "parent": "Trixter X-Dream Bike Options (Windows/Linux only)",
+      "type": "integer",
+      "qmlType": "int",
+      "control": "text",
+      "visible": false,
+      "defaultValue": 45,
+      "defaultExpression": "45",
+      "options": null,
+      "restartRequired": false	
+	},
     {
       "key": "proform_treadmill_cst_505_pftl59420_2026",
       "name": "ProForm 505 CST PFTL59420 (iFIT 2026)",
@@ -16619,6 +16758,61 @@
       "qmlType": "bool",
       "control": "switch",
       "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "restartRequired": false
+    },
+    {
+      "key": "rouvy_virtual_gearing_profile",
+      "name": "Virtual Gearing Profile",
+      "description": "Select the same sequential gearing profile as in Rouvy.",
+      "parent": "Rouvy Options",
+      "type": "integer",
+      "qmlType": "int",
+      "control": "select",
+      "visible": true,
+      "defaultValue": 0,
+      "defaultExpression": "0",
+      "options": {
+        "values": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "labels": [
+          "Mixed Terrain (1×24)",
+          "Flat",
+          "All-Arounder",
+          "Climbing"
+        ]
+      },
+      "restartRequired": false
+    },
+    {
+      "key": "ui_modern_new_install_checked",
+      "name": "Modern look for a new install decided",
+      "description": "Internal: set at the first start of a QZ with this code, after it decided whether this is a new install (modern look) or a user who used QZ before (one question).",
+      "parent": "General UI Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "internal",
+      "visible": false,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "restartRequired": false
+    },
+    {
+      "key": "ui_modern_offer_pending",
+      "name": "Modern look question pending",
+      "description": "Internal: the question \"Try the new interface?\" on the home page is still to be asked; cleared by the answer.",
+      "parent": "General UI Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "internal",
+      "visible": false,
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
@@ -17252,6 +17446,7 @@
       "cadence_sensor_speed_ratio": "cadenceSensorOptionsAccordion",
       "calories_active_only": "heartRateOptionsAccordion",
       "calories_from_hr": "heartRateOptionsAccordion",
+      "treadmill_calories_model": "heartRateOptionsAccordion",
       "chart_display_mode": "uiGeneralOptionsAccordion",
       "computrainer_serialport": "computrainerBikeAccordion",
       "confirm_stop_workout": "advancedSettingsAccordion",
@@ -17854,6 +18049,7 @@
       "cadence_sensor_speed_ratio": "settings.qml",
       "calories_active_only": "settings.qml",
       "calories_from_hr": "settings.qml",
+      "treadmill_calories_model": "settings.qml",
       "chart_display_mode": "settings.qml",
       "computrainer_serialport": "settings.qml",
       "confirm_stop_workout": "settings.qml",

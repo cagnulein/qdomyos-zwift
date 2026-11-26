@@ -30,6 +30,8 @@ This setting is especially relevant when the treadmill advertises a usable FTMS 
 
 Note that some treadmill consoles disable their physical controls while an app has an active Bluetooth control connection. That behavior can be firmware-specific and is separate from QZ's protocol selection.
 
+**Horizon Paragon X: Zwift incline does not move the treadmill.** If QZ is already connected and the treadmill supports physical incline control, check that **Simulate Inclination with Speed** is disabled. A Paragon X rider explicitly confirmed that physical incline started following Zwift's hills after disabling this option. Test at a low speed with the emergency stop accessible. This fixed incline control only; the rider's separate stop and stale-speed reporting issues were still under investigation.
+
 ## My Horizon 7.4AT is set to km/h, but QZ shows a value about 1.609 times higher. How can I keep Peloton automatic speed control working?
 
 On some Horizon 7.4AT setups, the proprietary Horizon protocol can report a speed value that QZ interprets as miles per hour even though the treadmill itself is configured for km/h. A typical symptom is that the treadmill shows **0.8** while QZ shows about **1.3 km/h**.
@@ -259,3 +261,9 @@ Start the QZ workout session **before** starting the Runna workout. Connect QZ t
 In a confirmed support test, QZ had previously remained paused with an elapsed time of zero while Runna's speed and incline commands still reached the treadmill. Starting QZ first allowed its timer to advance alongside the treadmill timer, and Runna connected and sent speed/incline commands during the subsequent test. The user reported that this sequence appeared to work. This is a useful workaround to try, **not a guarantee** that every Runna interval transition or treadmill model will work.
 
 For Runna to connect to QZ as a treadmill, QZ's **Virtual Device Bluetooth** must be enabled. If the incompatibility warning persists, capture a QZ debug log including the transition between workout steps.
+
+## My Yesoul T5 Max appears in Zwift but not in QZ. How can I select it?
+
+With Zwift and any other app that might connect to the treadmill **fully closed**, open **QZ Settings > Treadmill Options > FTMS Treadmill** and select the treadmill's advertised Bluetooth name. Scroll the device list if necessary, confirm the selection, then **fully close and restart QZ** while the treadmill is powered on and advertising. Check that live treadmill metrics appear in QZ before opening Zwift again.
+
+A Yesoul T5 Max owner confirmed that the treadmill was detected after applying the FTMS selection during the QZ restart procedure. This confirms discovery/connection for that setup, not automatic speed or incline control on every T5 Max firmware. Do not force the FTMS profile for unrelated treadmills without checking that they expose the FTMS service.

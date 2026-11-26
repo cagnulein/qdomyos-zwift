@@ -53,6 +53,7 @@ var codes = {
     "power_settings_new": 0xf8c7,
     "redeem": 0xe8f6,
     "remove": 0xe15b,
+    "restart_alt": 0xf053,
     "rocket_launch": 0xeb9b,
     "route": 0xeacd,
     "rowing": 0xe921,

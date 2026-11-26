@@ -395,6 +395,9 @@ Page {
                     font.bold: true
                     fontSizeMode: Text.HorizontalFit
                     minimumPixelSize: 14
+                    // the fitted (smaller) line keeps the height of the full font size (QTBUG-55873):
+                    // centred, so a long translation or a bigger text stays in the middle of the header
+                    verticalAlignment: Text.AlignVCenter
                     elide: Text.ElideRight
                 }
 

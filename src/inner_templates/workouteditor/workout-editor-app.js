@@ -7,9 +7,15 @@
         programFiles: {}, // Map of program name -> file object (with url, path, etc.)
         showAdvanced: false,
         lastSaved: '',
+        sourceFit: false,
         loading: false,
         translations: {}
     };
+
+    // The units the speed and distance of the intervals are in now (null before the first answer
+    // of the app): a reopening converts from these, not from the units seen when it was asked -
+    // two reopenings before the replies would convert twice (qzEditorReopened)
+    let intervalsMiles = null;
 
     const selectors = {};
     const DEVICE_KEYS = ['bike', 'treadmill', 'elliptical', 'rower', 'jumprope', 'stairclimber'];
@@ -34,13 +40,16 @@
     const FIELD_DEFS = [
         { key: 'name', labelKey: 'workoutEditor.label', label: 'Label', type: 'text', group: 'basic', devices: 'all' },
         { key: 'duration', labelKey: 'workoutEditor.duration', label: 'Duration', type: 'duration', group: 'basic', devices: 'all' },
+        { key: 'waitForLap', label: 'Wait for Lap', type: 'bool', group: 'advanced', devices: 'all', noToggle: true },
         { key: 'distance', labelKey: 'workoutEditor.distance', label: 'Distance', type: 'number', unitKey: 'distance', step: 0.1, min: 0, group: 'basic', devices: 'all', defaultValue: -1 },
         { key: 'speed', labelKey: 'workoutEditor.speed', label: 'Speed', type: 'number', unitKey: 'speed', step: 0.1, min: 0, group: 'basic', devices: ['treadmill'], defaultValue: () => state.miles ? 6.0 : 9.5 },
         { key: 'pace', labelKey: 'workoutEditor.pace', label: 'Pace', type: 'pace', unitKey: 'pace', group: 'basic', devices: ['treadmill'], syncWith: 'speed' },
         { key: 'inclination', labelKey: 'workoutEditor.incline', label: 'Incline', type: 'number', unitSuffix: '%', step: 0.5, min: -10, max: 40, group: 'basic', devices: ['treadmill', 'elliptical'], defaultValue: 1.0 },
         { key: 'resistance', labelKey: 'workoutEditor.resistance', label: 'Resistance', type: 'number', step: 1, min: 0, max: 100, group: 'basic', devices: ['bike', 'elliptical', 'rower'], defaultValue: 20 },
-        { key: 'cadence', labelKey: 'workoutEditor.cadence', label: 'Cadence', type: 'number', unitSuffix: 'rpm', min: 0, max: 240, group: 'basic', devices: ['bike', 'elliptical', 'rower'], defaultValue: 80 },
-        { key: 'power', labelKey: 'workoutEditor.power', label: 'Power', type: 'number', unitSuffix: 'W', min: 0, max: 2000, group: 'basic', devices: ['bike', 'rower'], defaultValue: 150 },
+        { key: 'cadence', labelKey: 'workoutEditor.cadence', label: 'Cadence', type: 'number', unitSuffix: 'rpm', min: 0, max: 300, group: 'basic', devices: ['bike', 'elliptical', 'rower', 'treadmill'], defaultValue: 80 },
+        { key: 'power', labelKey: 'workoutEditor.power', label: 'Power', type: 'number', unitSuffix: 'W', min: 0, max: 3000, group: 'basic', devices: ['bike', 'rower', 'treadmill'], defaultValue: 150 },
+        { key: 'lower_cadence', label: 'Cadence Min', type: 'number', unitSuffix: 'rpm', min: 0, max: 300, group: 'advanced', devices: 'all' },
+        { key: 'upper_cadence', label: 'Cadence Max', type: 'number', unitSuffix: 'rpm', min: 0, max: 300, group: 'advanced', devices: 'all' },
         { key: 'powerrampunit', labelKey: 'workoutEditor.powerRampUnit', label: 'Ramp Unit', type: 'select', options: ['W', '% FTP'], group: 'advanced', devices: ['bike', 'rower'], defaultValue: 'W', noToggle: true },
         { key: 'powerfrom', labelKey: 'workoutEditor.powerRampFrom', label: 'Ramp From', type: 'number', min: 0, max: 2000, group: 'advanced', devices: ['bike', 'rower'], defaultValue: 100 },
         { key: 'powerto', labelKey: 'workoutEditor.powerRampTo', label: 'Ramp To', type: 'number', min: 0, max: 2000, group: 'advanced', devices: ['bike', 'rower'], defaultValue: 200 },
@@ -65,22 +74,22 @@
 
     const SERIES_DEFS = {
         treadmill: [
-            { key: 'speed', label: () => t('workoutEditor.speed', 'Speed'), color: '#42a5f5', unit: () => state.miles ? 'mph' : 'km/h', axis: 'speedAxis', axisLabel: () => state.miles ? t('workoutEditor.speedMph', 'Speed (mph)') : t('workoutEditor.speedKmh', 'Speed (km/h)'), axisPosition: 'left' },
-            { key: 'inclination', label: () => t('workoutEditor.incline', 'Incline'), color: '#26c6da', unit: () => '%', axis: 'inclineAxis', axisLabel: () => t('workoutEditor.inclinePercent', 'Incline (%)'), axisPosition: 'right' }
+            { key: 'speed', label: () => t('workoutEditor.speed', 'Speed'), color: '#42a5f5', unit: () => state.miles ? 'mph' : 'km/h', axisLabel: () => state.miles ? t('workoutEditor.speedMph', 'Speed (mph)') : t('workoutEditor.speedKmh', 'Speed (km/h)') },
+            { key: 'inclination', label: () => t('workoutEditor.incline', 'Incline'), color: '#26c6da', unit: () => '%', axisLabel: () => t('workoutEditor.inclinePercent', 'Incline (%)') }
         ],
         bike: [
-            { key: 'resistance', label: () => t('workoutEditor.resistance', 'Resistance'), color: '#ab47bc', unit: () => 'lvl', axis: 'resistanceAxis', axisLabel: () => t('workoutEditor.resistance', 'Resistance'), axisPosition: 'left' },
-            { key: 'cadence', label: () => t('workoutEditor.cadence', 'Cadence'), color: '#29b6f6', unit: () => 'rpm', axis: 'cadenceAxis', axisLabel: () => t('workoutEditor.cadenceRpm', 'Cadence (rpm)'), axisPosition: 'right' },
-            { key: 'power', label: () => t('workoutEditor.power', 'Power'), color: '#ef6c00', unit: () => 'W', axis: 'powerAxis', axisLabel: () => t('workoutEditor.powerW', 'Power (W)'), axisPosition: 'left', stepped: false }
+            { key: 'resistance', label: () => t('workoutEditor.resistance', 'Resistance'), color: '#ab47bc', unit: () => 'lvl', axisLabel: () => t('workoutEditor.resistance', 'Resistance') },
+            { key: 'cadence', label: () => t('workoutEditor.cadence', 'Cadence'), color: '#29b6f6', unit: () => 'rpm', axisLabel: () => t('workoutEditor.cadenceRpm', 'Cadence (rpm)') },
+            { key: 'power', label: () => t('workoutEditor.power', 'Power'), color: '#ef6c00', unit: () => 'W', axisLabel: () => t('workoutEditor.powerW', 'Power (W)'), stepped: false }
         ],
         elliptical: [
-            { key: 'resistance', label: () => t('workoutEditor.resistance', 'Resistance'), color: '#7e57c2', unit: () => 'lvl', axis: 'resistanceAxis', axisLabel: () => t('workoutEditor.resistance', 'Resistance'), axisPosition: 'left' },
-            { key: 'inclination', label: () => t('workoutEditor.ramp', 'Ramp'), color: '#66bb6a', unit: () => '%', axis: 'inclineAxis', axisLabel: () => t('workoutEditor.rampPercent', 'Ramp (%)'), axisPosition: 'right' }
+            { key: 'resistance', label: () => t('workoutEditor.resistance', 'Resistance'), color: '#7e57c2', unit: () => 'lvl', axisLabel: () => t('workoutEditor.resistance', 'Resistance') },
+            { key: 'inclination', label: () => t('workoutEditor.ramp', 'Ramp'), color: '#66bb6a', unit: () => '%', axisLabel: () => t('workoutEditor.rampPercent', 'Ramp (%)') }
         ],
         rower: [
-            { key: 'resistance', label: () => t('workoutEditor.resistance', 'Resistance'), color: '#7e57c2', unit: () => 'lvl', axis: 'resistanceAxis', axisLabel: () => t('workoutEditor.resistance', 'Resistance'), axisPosition: 'left' },
-            { key: 'power', label: () => t('workoutEditor.power', 'Power'), color: '#fb8c00', unit: () => 'W', axis: 'powerAxis', axisLabel: () => t('workoutEditor.powerW', 'Power (W)'), axisPosition: 'left', stepped: false },
-            { key: 'cadence', label: () => t('workoutEditor.strokeRate', 'Stroke Rate'), color: '#26a69a', unit: () => 'spm', axis: 'cadenceAxis', axisLabel: () => t('workoutEditor.strokesPerMinute', 'Strokes/min'), axisPosition: 'right' }
+            { key: 'resistance', label: () => t('workoutEditor.resistance', 'Resistance'), color: '#7e57c2', unit: () => 'lvl', axisLabel: () => t('workoutEditor.resistance', 'Resistance') },
+            { key: 'power', label: () => t('workoutEditor.power', 'Power'), color: '#fb8c00', unit: () => 'W', axisLabel: () => t('workoutEditor.powerW', 'Power (W)'), stepped: false },
+            { key: 'cadence', label: () => t('workoutEditor.strokeRate', 'Stroke Rate'), color: '#26a69a', unit: () => 'spm', axisLabel: () => t('workoutEditor.strokesPerMinute', 'Strokes/min') }
         ],
         jumprope: [],
         stairclimber: []
@@ -91,6 +100,8 @@
         distance: -1,
         speed: -1,
         cadence: -1,
+        lower_cadence: -1,
+        upper_cadence: -1,
         resistance: -1,
         power: -1,
         inclination: -200,
@@ -216,12 +227,15 @@
     document.addEventListener('DOMContentLoaded', () => {
         cacheDom();
         bindEvents();
-        // The interval fields and the chart legend are built in JavaScript, and the translations
+        // The interval fields and the chart labels are built in JavaScript, and the translations
         // usually arrive after the first render: rebuild them once they are here
         document.addEventListener('qz-translations-updated', () => {
             renderIntervals();
             updateChart();
         });
+        // The interval buttons are icons in the modern look and text in the classic one: build
+        // them again when the app switches the look while the editor is open
+        window.addEventListener('qzthemechange', renderIntervals);
         bootstrap();
         if (window.QZ_OFFLINE) {
             announce(t('workoutEditor.offlineLoadSaveStartDisabled', 'Offline mode: load/save/start disabled'), true);
@@ -255,6 +269,8 @@
     }
 
     function bindEvents() {
+        // The chart card is titled with the workout name: follow it while it is typed
+        selectors.name.addEventListener('input', updateChart);
         selectors.device.addEventListener('change', () => {
             if (window.QZ_OFFLINE) {
                 state.device = selectors.device.value;
@@ -293,6 +309,7 @@
         });
         selectors.newWorkout.addEventListener('click', () => {
             state.lastSaved = '';
+            state.sourceFit = false;
             selectors.name.value = '';
             state.intervals = [];
             addInterval();
@@ -351,11 +368,58 @@
 
         // Then fetch environment and programs in background
         Promise.allSettled([fetchEnvironment(), refreshProgramList()]).then(() => {
+            intervalsMiles = state.miles;
             // Re-render after fetching environment (in case device changed)
             renderIntervals();
             updateChart();
             updateStatus();
             updateControls();
+        });
+    }
+
+    // The page shown again without a reload (the modern look keeps it between openings,
+    // main.qml): ask again for what may have changed meanwhile - the connected machine, FTP, the
+    // units, the saved workouts. The intervals stay as typed: speed and distance follow a change of
+    // the units; the machine chosen in the list stays unless the connected one changed
+    window.qzEditorReopened = function () {
+        if (window.QZ_OFFLINE) {
+            return;
+        }
+        const device = state.device;
+        const envDevice = state.envDevice;
+        Promise.allSettled([fetchEnvironment(), refreshProgramList()]).then(() => {
+            if (state.envDevice === envDevice && state.device !== device) {
+                state.device = device;
+                selectors.device.value = device;
+            }
+            if (intervalsMiles !== null && state.miles !== intervalsMiles) {
+                convertIntervalUnits(state.miles ? 1 / 1.60934 : 1.60934);
+                intervalsMiles = state.miles;
+            }
+            renderIntervals();
+            updateChart();
+            updateStatus();
+            updateControls();
+        });
+    };
+
+    // Speed and distance of every interval in the other units (factor: new units per old one);
+    // the "off" values (-1) stay
+    function convertIntervalUnits(factor) {
+        state.intervals.forEach(interval => {
+            FIELD_DEFS.forEach(def => {
+                if (def.unitKey !== 'distance' && def.unitKey !== 'speed') {
+                    return;
+                }
+                const value = interval[def.key];
+                if (value === undefined || value === null || value === ''
+                        || Number(value) === DEFAULT_DISABLED_VALUES[def.key] || isNaN(Number(value))) {
+                    return;
+                }
+                const next = Number(value) * factor;
+                interval[def.key] = def.unitKey === 'speed'
+                    ? Math.round(next * 10) / 10 : Math.round(next * 100) / 100;
+            });
         });
     }
 
@@ -376,6 +440,8 @@
                 window.qzSetTranslations(state.translations);
             }
             const envDevice = normalizeDevice(content.device);
+            // the connected machine, apart from the one chosen in the list (qzEditorReopened)
+            state.envDevice = envDevice;
             if (envDevice) {
                 state.device = envDevice;
             }
@@ -443,6 +509,24 @@
         }
         const fileUrl = fileObj.url;
 
+        if (/\.fit$/i.test(name)) {
+            sendMessage('gettrainingprogram', { url: fileUrl }, 'R_gettrainingprogram')
+                .then(content => {
+                    const rows = Array.isArray(content && content.list) ? content.list : [];
+                    if (!rows.length) {
+                        announce(t('workoutEditor.workoutEmptyCannotRead', 'Workout is empty or cannot be read'), true);
+                        return;
+                    }
+                    applyLoadedRows(rows, name, t('workoutEditor.loadedName', 'Loaded {name}').replace('{name}', name), normalizeDevice(content.device));
+                })
+                .catch(err => {
+                    console.error(err);
+                    announce(t('workoutEditor.unableLoadWorkout', 'Unable to load workout'), true);
+                })
+                .finally(() => setWorking(false));
+            return;
+        }
+
         // Send message to open the training program file (no response expected)
         sendMessage('trainprogram_open_clicked', { url: fileUrl });
 
@@ -467,10 +551,21 @@
 
     function applyLoadedRows(rows, name, message, deviceHint) {
         state.intervals = rows.map((row, idx) => convertRow(row, idx));
+        // convertRow took the units the app gave last
+        if (intervalsMiles !== null) {
+            intervalsMiles = state.miles;
+        }
         state.device = deviceHint || detectDevice(state.intervals) || state.device;
         selectors.device.value = state.device;
         selectors.name.value = name;
         state.lastSaved = name;
+        state.sourceFit = /\.fit$/i.test(name);
+        // HR-only FIT workouts otherwise look empty because HR fields are advanced.
+        if (rows.some(row => row.HRmin > 0 || row.HRmax > 0 || row.zoneHR > 0 ||
+                             row.waitForLap || row.lower_cadence >= 0 || row.upper_cadence >= 0)) {
+            state.showAdvanced = true;
+            selectors.advanced.checked = true;
+        }
         renderIntervals();
         updateChart();
         updateStatus();
@@ -538,6 +633,7 @@
                     if (state.lastSaved === name) {
                         state.lastSaved = '';
                         selectors.name.value = '';
+                        updateChart();
                     }
                     // Refresh the program list
                     return refreshProgramList();
@@ -662,7 +758,7 @@
             out['__enabled_powerrampunit'] = true;
             // powerfrom/powerto already read by the FIELD_DEFS loop above
         }
-        out.__enabled_duration = out.__enabled_distance === true ? false : true;
+        out.__enabled_duration = out.__enabled_distance === true || out.waitForLap === true ? false : true;
         out.__selected = false;
         return out;
     }
@@ -836,10 +932,10 @@
 
             const actions = document.createElement('div');
             actions.className = 'card-actions';
-            actions.appendChild(actionButton('↑', () => moveInterval(index, -1), index === 0));
-            actions.appendChild(actionButton('↓', () => moveInterval(index, 1), index === state.intervals.length - 1));
-            actions.appendChild(actionButton(t('common.copy', 'Copy'), () => duplicateInterval(index)));
-            actions.appendChild(actionButton(t('common.del', 'Del'), () => removeInterval(index), state.intervals.length === 1));
+            actions.appendChild(actionButton('↑', () => moveInterval(index, -1), index === 0, 'keyboard_arrow_up'));
+            actions.appendChild(actionButton('↓', () => moveInterval(index, 1), index === state.intervals.length - 1, 'keyboard_arrow_down'));
+            actions.appendChild(actionButton(t('common.copy', 'Copy'), () => duplicateInterval(index), false, 'content_copy'));
+            actions.appendChild(actionButton(t('common.del', 'Del'), () => removeInterval(index), state.intervals.length === 1, 'delete'));
             header.appendChild(actions);
             card.appendChild(header);
 
@@ -895,8 +991,10 @@
                             // Duration and distance are mutually exclusive.
                             if (field.key === 'distance') {
                                 row['__enabled_duration'] = false;
+                                row.waitForLap = false;
                             } else if (field.key === 'duration') {
                                 row['__enabled_distance'] = false;
+                                row.waitForLap = false;
                             }
                         } else {
                             fieldWrap.classList.add('disabled');
@@ -948,6 +1046,8 @@
                         renderIntervals();
                     });
                     fieldWrap.appendChild(sel);
+                    // the box of a list takes the taps for it (workout-editor.css)
+                    fieldWrap.classList.add('field-has-select');
                 } else {
                     const inputWrapper = document.createElement('div');
                     inputWrapper.className = 'field-with-buttons';
@@ -994,7 +1094,8 @@
                     // Add +/- buttons for duration, number, and pace fields
                     if (field.type === 'duration' || field.type === 'number' || field.type === 'pace') {
                         const decreaseBtn = document.createElement('button');
-                        decreaseBtn.textContent = '-';
+                        // Modern look: a real minus sign, as wide as the plus
+                        decreaseBtn.textContent = isModernLook() ? '\u2212' : '-';
                         decreaseBtn.type = 'button';
                         decreaseBtn.title = t('common.decrease', 'Decrease');
                         decreaseBtn.addEventListener('click', () => handleIncrement(input, field, -1));
@@ -1036,6 +1137,9 @@
         if (field.group === 'advanced' && !state.showAdvanced) {
             return false;
         }
+        if (field.key === 'waitForLap' && !state.sourceFit && !state.intervals.some(row => row.waitForLap === true)) {
+            return false;
+        }
         if (field.devices === 'all') {
             return true;
         }
@@ -1066,10 +1170,38 @@
         return label;
     }
 
-    function actionButton(text, handler, disabled) {
+    // Material Symbols Rounded (the same set as the app's UiIcons.js) for the modern look
+    const MODERN_ICONS = {
+        keyboard_arrow_up: 'M480-528 324-372q-11 11-28 11t-28-11q-11-11-11-28t11-28l184-184q12-12 28-12t28 12l184 184q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-528Z',
+        keyboard_arrow_down: 'M480-361q-8 0-15-2.5t-13-8.5L268-556q-11-11-11-28t11-28q11-11 28-11t28 11l156 156 156-156q11-11 28-11t28 11q11 11 11 28t-11 28L508-372q-6 6-13 8.5t-15 2.5Z',
+        content_copy: 'M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-520q0-17 11.5-28.5T160-720q17 0 28.5 11.5T200-680v520h400q17 0 28.5 11.5T640-120q0 17-11.5 28.5T600-80H200Zm160-240v-480 480Z',
+        delete: 'M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM400-280q17 0 28.5-11.5T440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280Zm160 0q17 0 28.5-11.5T600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280ZM280-720v520-520Z'
+    };
+
+    function isModernLook() {
+        return document.documentElement.classList.contains('modern');
+    }
+
+    // Modern look: an icon button with the text as its tooltip and accessible name;
+    // classic look: the text button, as before
+    function actionButton(text, handler, disabled, iconName) {
         const btn = document.createElement('button');
         btn.className = 'small';
-        btn.textContent = text;
+        if (iconName && MODERN_ICONS[iconName] && isModernLook()) {
+            btn.classList.add('icon-button');
+            btn.title = text;
+            btn.setAttribute('aria-label', text);
+            btn.innerHTML = '<svg viewBox="0 -960 960 960" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="'
+                + MODERN_ICONS[iconName] + '"/></svg>';
+            if (iconName === 'delete') {
+                btn.classList.add('icon-danger');
+            }
+            if (iconName.indexOf('keyboard_arrow_') === 0) {
+                btn.classList.add('icon-move');
+            }
+        } else {
+            btn.textContent = text;
+        }
         if (disabled) {
             btn.disabled = true;
         }
@@ -1087,6 +1219,13 @@
         }
         if (type === 'bool') {
             state.intervals[index][key] = target.checked;
+            if (key === 'waitForLap') {
+                const interval = state.intervals[index];
+                interval.__enabled_duration = !target.checked;
+                interval.__enabled_distance = false;
+                if (!target.checked && !parseDuration(interval.duration)) interval.duration = '00:05:00';
+                renderIntervals();
+            }
         } else if (type === 'duration') {
             const seconds = parseDuration(target.value);
             if (seconds) {
@@ -1406,18 +1545,23 @@
         setWorking(true);
         sendMessage('savetrainingprogram', payload, 'R_savetrainingprogram').then(content => {
             console.log('[saveWorkflow] Save response:', content);
-            if (!content) {
+            if (!content || (payload.sourceFit && !content.list)) {
                 announce(t('workoutEditor.saveFailed', 'Save failed'), true);
                 return;
             }
-            state.lastSaved = payload.name;
+            if (payload.sourceFit) {
+                payload.name = content.name || payload.name;
+                state.sourceFit = false;
+            }
+            state.lastSaved = payload.sourceFit ? payload.name + '.xml' : payload.name;
             selectors.name.value = payload.name;
+            updateChart();
             announce(t('workoutEditor.savedName', 'Saved {name}').replace('{name}', payload.name));
 
             console.log('[saveWorkflow] Refreshing program list...');
             return refreshProgramList().then(() => {
                 console.log('[saveWorkflow] Program list refreshed. programFiles:', Object.keys(state.programFiles));
-                selectors.programSelect.value = payload.name;
+                selectors.programSelect.value = state.lastSaved;
                 if (startAfter) {
                     console.log('[saveWorkflow] startAfter is true, checking for file:', payload.name);
 
@@ -1538,7 +1682,10 @@
             const durationEnabled = interval.__enabled_duration !== false;
             const distanceEnabled = interval.__enabled_distance !== false;
             const row = {};
-            if (durationEnabled) {
+            if (interval.waitForLap === true) {
+                row.duration = '00:00:00';
+                row.waitForLap = true;
+            } else if (durationEnabled) {
                 const durationSec = parseDuration(interval.duration);
                 if (!durationSec) {
                     announce(t('workoutEditor.invalidDuration', 'Invalid duration in intervals'), true);
@@ -1560,7 +1707,7 @@
                 }];
             }
             FIELD_DEFS.forEach(field => {
-                if (field.key === 'name' || field.key === 'duration') {
+                if (field.key === 'name' || field.key === 'duration' || field.key === 'waitForLap') {
                     return;
                 }
 
@@ -1594,7 +1741,7 @@
                 if (!isEnabled) {
                     return;
                 }
-                if (field.key === 'distance' && durationEnabled) {
+                if (field.key === 'distance' && (durationEnabled || interval.waitForLap === true)) {
                     return;
                 }
                 const value = interval[field.key];
@@ -1630,6 +1777,7 @@
         return {
             name: sanitized,
             device: state.device,
+            sourceFit: state.sourceFit,
             list: list
         };
     }
@@ -1639,7 +1787,7 @@
         let baseName = name;
         if (baseName.toLowerCase().endsWith('.xml')) {
             baseName = baseName.slice(0, -4);
-        } else if (baseName.toLowerCase().endsWith('.zwo')) {
+        } else if (baseName.toLowerCase().endsWith('.zwo') || baseName.toLowerCase().endsWith('.fit')) {
             baseName = baseName.slice(0, -4);
         }
         // Keep any letters (Cyrillic, accents, CJK...): only replace characters a file name cannot hold
@@ -1674,15 +1822,23 @@
     function buildChartPayload() {
         let cursor = 0;
         const rows = [];
-        const seriesDefs = SERIES_DEFS[state.device] || [];
+        const seriesDefs = (SERIES_DEFS[state.device] || []).slice();
+        // Show actual HR targets, including after explicitly saving a FIT as XML.
+        if (state.intervals.some(row => (row.__enabled_HRmin !== false && row.HRmin > 0) ||
+                                        (row.__enabled_HRmax !== false && row.HRmax > 0))) {
+            seriesDefs.push(
+                { key: 'HRmin', label: () => t('workoutEditor.hrMin', 'HR Min'), color: '#e57373', unit: () => 'bpm', axisLabel: () => 'bpm' },
+                { key: 'HRmax', label: () => t('workoutEditor.hrMax', 'HR Max'), color: '#c62828', unit: () => 'bpm', axisLabel: () => 'bpm' }
+            );
+        }
+        if (state.device === 'treadmill' && state.intervals.some(row => row.__enabled_power !== false && row.power >= 0))
+            seriesDefs.push({ key: 'power', label: () => t('workoutEditor.power', 'Power'), color: '#ef6c00', unit: () => 'W', axisLabel: () => 'W' });
         const series = seriesDefs.map(def => ({
             key: def.key,
             label: def.label(),
             color: def.color,
             unit: unitLabel(typeof def.unit === 'function' ? def.unit() : def.unit),
-            axis: def.axis,
             axisLabel: typeof def.axisLabel === 'function' ? def.axisLabel() : def.axisLabel,
-            axisPosition: def.axisPosition,
             stepped: def.stepped !== false,
             points: []
         }));
@@ -1701,6 +1857,9 @@
                 duration = parseDuration(interval.duration);
             }
 
+            if (interval.waitForLap === true) {
+                duration = 60; // visual placeholder, never saved as a timed step
+            }
             if (!duration) {
                 return;
             }
@@ -1920,6 +2079,15 @@
 
     function sendMessage(msg, content, replyMsg) {
         if (window.QZ_OFFLINE) {
+            return Promise.resolve(null);
+        }
+        if (!replyMsg) {
+            // Nothing answers these (open a workout, start it): one try. With 3 the queue sent
+            // the message again 15 and 30 s later, waiting for a reply that never comes, so the
+            // action itself repeated - with the editor page kept, Save & Start started the workout
+            // again and closed the editor on its next opening. The queue drops the element 15 s
+            // after its one try; nobody waits for it (enqueue() is not called)
+            main_ws_enqueue(new MainWSQueueElement({ msg, content }, function () { return null; }, 15000, 1));
             return Promise.resolve(null);
         }
         const el = new MainWSQueueElement({ msg, content }, function (response) {

@@ -7,6 +7,8 @@
 - `src/settings-tts.qml`
 - `src/settings-shortcuts.qml`
 - `src/settings-treadmill-inclination-override.qml`
+- `src/custominclinationresistance.qml`
+- `src/gears.qml`
 
 The file is JSON so it can be consumed by QML (`JSON.parse`), native Android, native iOS, documentation generators, and tests without a custom parser.
 

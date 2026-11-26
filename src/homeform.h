@@ -83,6 +83,7 @@ class DataObject : public QObject {
     void setValueFontSize(int value);
     void setValueFontColor(const QString &value);
     void setLabelFontSize(int value);
+    void setWritable(bool writable);
     void setVisible(bool visible);
     void setGridId(int id);
     void setLargeButtonColor(const QString &color);
@@ -148,6 +149,8 @@ class homeform : public QObject {
     Q_PROPERTY(QString pelotonProvider READ pelotonProvider NOTIFY changePelotonProvider WRITE setPelotonProvider)
     Q_PROPERTY(int topBarHeight READ topBarHeight NOTIFY topBarHeightChanged)
     Q_PROPERTY(QString info READ info NOTIFY infoChanged)
+    // info is "<device> found": QML tells it by this, not by the translated text
+    Q_PROPERTY(bool infoDeviceFound READ infoDeviceFound NOTIFY infoChanged)
     Q_PROPERTY(QString signal READ signal NOTIFY signalChanged)
     Q_PROPERTY(QString startText READ startText NOTIFY startTextChanged)
     Q_PROPERTY(QString startIcon READ startIcon NOTIFY startIconChanged)
@@ -225,6 +228,7 @@ class homeform : public QObject {
     Q_PROPERTY(bool echelonBridgeSwitchPromptRequested READ echelonBridgeSwitchPromptRequested NOTIFY echelonBridgeSwitchPromptRequestedChanged WRITE setEchelonBridgeSwitchPromptRequested)
     Q_PROPERTY(bool echelonEnablePromptRequested READ echelonEnablePromptRequested NOTIFY echelonEnablePromptRequestedChanged WRITE setEchelonEnablePromptRequested)
     Q_PROPERTY(bool androidNotificationPromptRequested READ androidNotificationPromptRequested NOTIFY androidNotificationPromptRequestedChanged)
+    Q_PROPERTY(bool modernOfferRequested READ modernOfferRequested NOTIFY modernOfferRequestedChanged)
     // heart rate sensors nearby to offer, the strongest first: {name, address, rssi}
     Q_PROPERTY(QVariantList heartRateSensorSuggestions READ heartRateSensorSuggestions NOTIFY
                    heartRateSensorSuggestionsChanged)
@@ -268,8 +272,26 @@ class homeform : public QObject {
     // Status line of the search for the equipment on the home page, with the last device found;
     // empty once it is connected
     Q_INVOKABLE QString bluetoothSearchStatus();
+    // The search has given up and waits for a tap on the Bluetooth icon; false once connected
+    Q_INVOKABLE bool bluetoothSearchStopped();
+    // Android: Bluetooth is off, the status line says so; false once connected
+    Q_INVOKABLE bool bluetoothSearchOff();
     // Tap on the Bluetooth icon: search right away, or when Android allows it again (with a toast saying when)
     Q_INVOKABLE void bluetoothSearchNow();
+    // Seconds to the next automatic search, the countdown of the status line; 0 while a search runs
+    // or is about to start, -1 with none running or due (stopped, Bluetooth off, a scan that failed)
+    // and once connected
+    Q_INVOKABLE int bluetoothNextSearchSeconds();
+    // Gym mode window opened or closed: see bluetooth::setGymModeWindowOpen()
+    Q_INVOKABLE void setGymModeWindowOpen(bool open) {
+        if (bluetoothManager)
+            bluetoothManager->setGymModeWindowOpen(open);
+    }
+    // An opened list of devices: a search that may run during a workout too
+    Q_INVOKABLE void searchForDeviceList() {
+        if (bluetoothManager)
+            bluetoothManager->searchForDeviceList();
+    }
     // Heart rate sensor chosen in the settings (name) or a tap on the heart rate tile or the Bluetooth icon (no
     // name, the saved one): connect it without a restart. With none chosen and the machine connected, the tap
     // searches for one to offer, also with heart_rate_belt_suggest off, and offers again the sensors hidden with Not
@@ -458,6 +480,12 @@ class homeform : public QObject {
             settings.value(QZSettings::daum_serialport, QZSettings::default_daum_serialport).toString();
         QString computrainerSerialPort =
             settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();
+        QString kettlerUsbSerialPort =
+            settings.value(QZSettings::kettler_usb_serialport, QZSettings::default_kettler_usb_serialport).toString();
+        QString csafeRowerSerialPort = settings.value(QZSettings::csafe_rower, QZSettings::default_csafe_rower).toString();
+        QString csafeEllipticalSerialPort =
+            settings.value(QZSettings::csafe_elliptical_port, QZSettings::default_csafe_elliptical_port).toString();
+        QString proform_rower_ip = settings.value(QZSettings::proform_rower_ip, QZSettings::default_proform_rower_ip).toString();
 
         QString nordictrack_2950_ip =
             settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
@@ -473,15 +501,37 @@ class homeform : public QObject {
             settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
         bool antbike =
             settings.value(QZSettings::antbike, QZSettings::default_antbike).toBool();
+        // bluetooth.cpp connects these with no Bluetooth name stored: the Peloton OCR bike in its constructor,
+        // the Trixter X-Dream bike by its serial port (not connected on iOS), a DirCon
+        // device by the name picked in filter_device (connectDirconDevice())
+        bool peloton_bike_ocr =
+            settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool();
+        bool trixter_xdream_bike = settings.value(QZSettings::trixter_xdream_bike_enabled,
+                                                  QZSettings::default_trixter_xdream_bike_enabled)
+                                       .toBool();
+        bool dircon = settings.value(QZSettings::filter_device, QZSettings::default_filter_device)
+                          .toString()
+                          .contains(QStringLiteral("(DirCon)"), Qt::CaseInsensitive);
 
         return settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name).toString().isEmpty() && 
                 nordictrack_2950_ip.isEmpty() && tdf_10_ip.isEmpty() && !fake_bike && !fakedevice_elliptical &&
                 !fakedevice_rower && !waterrower_usb && !fakedevice_treadmill && !antbike && !android_antbike && proform_elliptical_ip.isEmpty() &&
                 proformtdf4ip.isEmpty() && proformtdf1ip.isEmpty() && proformtreadmillip.isEmpty() &&
-                freebeatSerialPort.isEmpty() && daumSerialPort.isEmpty() && computrainerSerialPort.isEmpty();
+                freebeatSerialPort.isEmpty() && daumSerialPort.isEmpty() && computrainerSerialPort.isEmpty() &&
+                kettlerUsbSerialPort.isEmpty() && csafeRowerSerialPort.isEmpty() && csafeEllipticalSerialPort.isEmpty() &&
+                proform_rower_ip.isEmpty() && !peloton_bike_ocr && !trixter_xdream_bike && !dircon;
     }
 
     Q_INVOKABLE bool firstRun() { return neverConnected(); }
+
+    // Static for main.cpp, which calls it before the QML is loaded, so the window opens in the look written here
+    static void startModernForNewInstall();
+    // The home page asks once, at its start: raises modernOfferRequested while the question is pending and the look
+    // is classic (the home page starts once, at the start of QZ, before any workout). fromMenu: the entry of the classic side menu, which asks every time
+    Q_INVOKABLE void requestModernOffer(bool fromMenu = false);
+    // The answer to "Try the new interface?", yes or no: the question is not asked again. The look itself
+    // is switched by the QML (window.ui.setOption), as by the switch in the settings
+    Q_INVOKABLE void answerModernOffer();
 
     // The debug log is on in this run only because of the first-setup log (log_debug off): set by main.cpp at
     // start from startFirstSetupLog(), the log itself is set up once per run
@@ -489,6 +539,14 @@ class homeform : public QObject {
     static bool startFirstSetupLog();
     Q_INVOKABLE bool firstSetupLogActive() const { return firstSetupLog; }
 
+    // With Auto Resistance off the Resistance and Target R. tiles and the resistance presets send nothing to a
+    // bike or a rower. Home.qml asks the rider until Apply, then not again until Auto Resistance is toggled; the
+    // keyboard, the web page and external remotes call Plus/Minus/LargeButton directly and are not affected.
+    // Returns 0: send the press as usual, 1: applied here, 2: ask the rider first.
+    Q_INVOKABLE int resistanceTilePressed(const QString &kind, const QString &name);
+    // The rider chose "Apply": apply this press and the next ones until Auto Resistance is toggled, it stays off
+    // (commands from apps are still ignored). kind is "plus", "minus" or "large".
+    Q_INVOKABLE void applyResistanceTileWithAutoResistanceOff(const QString &kind, const QString &name);
 
     Q_INVOKABLE bool autoInclinationEnabled() {
         QSettings settings;
@@ -545,7 +603,9 @@ class homeform : public QObject {
     int topBarHeight() { return m_topBarHeight; }
     bool stopRequested() { return m_stopRequested; }
     bool startRequested() { return m_startRequested; }
-    QString info() { return m_info; }
+    // "<device> found" is made when it is read, not stored: it follows a change of the app language
+    QString info() { return m_infoFoundDevice.isEmpty() ? m_info : tr("%1 found").arg(m_infoFoundDevice); }
+    bool infoDeviceFound() { return !m_infoFoundDevice.isEmpty(); }
     QString signal();
     QString startText();
     QString startIcon();
@@ -621,6 +681,8 @@ class homeform : public QObject {
     bool autoResistance() { return m_autoresistance; }
     void setAutoResistance(bool value) {
         m_autoresistance = value;
+        // the next resistance tile press with Auto Resistance off asks again
+        m_resistanceTilesWithoutAutoResistance = false;
         emit autoResistanceChanged(value);
         if (bluetoothManager->device()) {
             bluetoothManager->device()->setAutoResistance(value);
@@ -713,6 +775,7 @@ class homeform : public QObject {
         m_echelonEnablePromptRequested = value;
         emit echelonEnablePromptRequestedChanged(value);
     }
+    bool modernOfferRequested() const { return m_modernOfferRequested; }
     bool androidNotificationPromptRequested() const { return m_androidNotificationPromptRequested; }
     void setAndroidNotificationPromptRequested(bool value) {
         if (m_androidNotificationPromptRequested == value) {
@@ -788,6 +851,8 @@ public:
     static QString getAndroidDataAppDir();
 #endif
     Q_INVOKABLE static QString getWritableAppDir();
+    Q_INVOKABLE static QUrl localFileUrl(const QString &path);
+    static void hideDeletionMarker(const QString &markerPath);
     static QString safeFileName(const QString &name, const QString &fallback);
     Q_INVOKABLE static QString getProfileDir();
     Q_INVOKABLE static void clearFiles();
@@ -873,6 +938,9 @@ public:
     }
 
     Q_INVOKABLE void sortTiles();
+    Q_INVOKABLE bool floatingMetricsSupported();
+    Q_INVOKABLE void toggleFloatingMetrics();
+    void updateFloatingMetrics();
     // Applies the app language at once, without a restart: "auto", "en" or a translation code
     Q_INVOKABLE void setAppLanguage(const QString &language);
     static void loadAppTranslation(const QString &language);
@@ -1146,6 +1214,8 @@ public:
 
     int m_topBarHeight = 120;
     QString m_info = QStringLiteral("Connecting...");
+    // set: info() is "<device> found" for this device, m_info is not used
+    QString m_infoFoundDevice;
     bool m_labelHelp = true;
     // last device found by the Bluetooth search, shown by bluetoothSearchStatus() until the equipment is connected
     QString lastFoundDevice;
@@ -1199,6 +1269,7 @@ public:
     bool m_echelonEnablePromptRequested = false;
     bool m_androidNotificationPromptRequested = false;
     bool m_androidNotificationPromptPending = false;
+    bool m_modernOfferRequested = false;
     QVariantList m_heartRateSensorSuggestions;
     bool m_heartRateSensorOfferOnTap = false;
     QSet<QString> heartRateSensorsDismissed; // addresses
@@ -1280,6 +1351,9 @@ public:
     void removeOldWorkoutImages();
 
     bool m_autoresistance = true;
+    // the rider answered "Apply" once: resistance tiles work with Auto Resistance off until it is toggled
+    // (setAutoResistance)
+    bool m_resistanceTilesWithoutAutoResistance = false;
     bool m_stopRequested = false;
     bool m_startRequested = false;
     bool m_overridePower = false;
@@ -1535,6 +1609,7 @@ public:
     void echelonBridgeSwitchPromptRequestedChanged(bool value);
     void echelonEnablePromptRequestedChanged(bool value);
     void androidNotificationPromptRequestedChanged(bool value);
+    void modernOfferRequestedChanged(bool value);
     void heartRateSensorSuggestionsChanged();
     // The bar's answer saved in QSettings from here: a QML page open meanwhile (settings, wizard) holds its own
     // Settings copy of these keys, which does not read QSettings again, so it takes the new value from these

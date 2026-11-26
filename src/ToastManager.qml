@@ -1,5 +1,4 @@
 import QtQuick 2.0
-import AndroidStatusBar 1.0
 import QtQuick.Window 2.12
 
 /**
@@ -34,8 +33,7 @@ ListView {
     spacing: 5
     anchors.fill: parent
     // Above the bottom system bar in any orientation (as the page stack in main.qml)
-    anchors.bottomMargin: (Qt.platform.os === "android" && AndroidStatusBar.apiLevel >= 31) ?
-                          AndroidStatusBar.navigationBarHeight + 10 : 10
+    anchors.bottomMargin: window.getBottomPadding() + 10
     verticalLayoutDirection: ListView.BottomToTop
 
     interactive: false

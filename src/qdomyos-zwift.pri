@@ -119,6 +119,11 @@ SOURCES += \
     $$PWD/devices/echelonstairclimber/echelonstairclimber.cpp \
     $$PWD/devices/sunnyfitstepper/sunnyfitstepper.cpp \
     $$PWD/devices/technogymbike/technogymbike.cpp \
+    $$PWD/devices/trixterxdreambike/activationmonitor.cpp \
+    $$PWD/devices/trixterxdreambike/trixterxdreambike.cpp \
+    $$PWD/devices/trixterxdreambike/trixterxdreamclient.cpp \
+    $$PWD/devices/trixterxdreambike/trixterxdreamserial.cpp \
+    $$PWD/devices/trixterxdreambike/trixterxdreamsettings.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
     $$PWD/fitdatabaseprocessor.cpp \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.cpp \
@@ -366,6 +371,8 @@ virtualdevices/virtualrower.cpp \
 devices/wahookickrsnapbike/wahookickrsnapbike.cpp \
 devices/wahookickruntreadmill/wahookickruntreadmill.cpp \
 devices/yesoulbike/yesoulbike.cpp \
+devices/trixterxdreambike/qserialdatasource.cpp \
+devices/trixterxdreambike/serialdatasource.cpp \
 trainprogram.cpp \
 devices/trxappgateusbtreadmill/trxappgateusbtreadmill.cpp \
 virtualdevices/virtualbike.cpp \
@@ -426,6 +433,11 @@ HEADERS += \
     $$PWD/devices/thinkridercontroller/thinkridercontroller.h \
     $$PWD/devices/stairclimber.h \
     $$PWD/devices/technogymbike/technogymbike.h \
+    $$PWD/devices/trixterxdreambike/activationmonitor.h \
+    $$PWD/devices/trixterxdreambike/trixterxdreambike.h \
+    $$PWD/devices/trixterxdreambike/trixterxdreamclient.h \
+    $$PWD/devices/trixterxdreambike/trixterxdreamserial.h \
+    $$PWD/devices/trixterxdreambike/trixterxdreamsettings.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.h \
     $$PWD/ergtable.h \
@@ -463,6 +475,7 @@ HEADERS += \
     $$PWD/mqtt/qmqtttopicname.h \
     $$PWD/mqtt/qmqtttype.h \
     $$PWD/treadmillErgTable.h \
+    $$PWD/rouvygearing.h \
     $$PWD/wheelcircumference.h \
     $$PWD/workoutloaderworker.h \
     $$PWD/workoutmodel.h \
@@ -503,6 +516,8 @@ devices/wahookickrheadwind/wahookickrheadwind.h \
 devices/ypooelliptical/ypooelliptical.h \
 devices/ziprotreadmill/ziprotreadmill.h \
 devices/computrainerbike/Computrainer.h \
+devices/trixterxdreambike/qserialdatasource.h \
+devices/trixterxdreambike/serialdatasource.h \
 devices/kettlerusbbike/KettlerUSB.h \
 devices/daumbike/DaumUSB.h \
 devices/freebeatbike/FreebeatUSB.h \
@@ -910,6 +925,7 @@ devices/toorxtreadmill/toorxtreadmill.h \
 devices/iconsolebike/iconsolebike.h \
 gpx.h \
 devices/treadmill.h \
+devices/treadmillcalories.h \
 mainwindow.h \
 trainprogram.h \
 devices/truetreadmill/truetreadmill.h \
@@ -1129,13 +1145,14 @@ ios {
 
 ios {
     # AVFoundation is used by the background keep alive (silent audio session)
-    LIBS += -framework AVFoundation
+    LIBS += -framework AVFoundation -framework AVKit -framework CoreMedia -framework CoreVideo
 
     OBJECTIVE_SOURCES += ios/lockscreen.mm \
     ios/ios_eliteariafan.mm \
     ios/ios_app_delegate.mm \
     ios/ios_background_keepalive.mm \
     ios/ios_liveactivity.mm \
+    ios/ios_floating_metrics.mm \
 	 fit-sdk/FitDecode.mm \
 	 fit-sdk/FitDeveloperField.mm \
 	 fit-sdk/FitEncode.mm \
@@ -1149,6 +1166,7 @@ ios {
 
     OBJECTIVE_HEADERS += ios/M3iNS.h \
     ios/ios_liveactivity.h \
+    ios/ios_floating_metrics.h \
     ios/ios_background_keepalive.h
 
     QMAKE_INFO_PLIST = ios/Info.plist

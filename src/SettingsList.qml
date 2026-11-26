@@ -110,7 +110,7 @@ ColumnLayout {
                 nameFilters: ["*.qzs"]
                 // Always the settings folder: an empty one makes FolderListModel watch the
                 // working directory instead
-                folder: "file://" + rootItem.getWritableAppDir() + 'settings'
+                folder: rootItem.localFileUrl(rootItem.getWritableAppDir() + 'settings')
                 showDotAndDotDot: false
                 showDirs: false
                 sortReversed: true
@@ -229,7 +229,7 @@ ColumnLayout {
                 FolderListModel {
                     id: folderModel
                     nameFilters: ["*.qzs"]
-                    folder: "file://" + rootItem.getWritableAppDir() + 'settings'
+                    folder: rootItem.localFileUrl(rootItem.getWritableAppDir() + 'settings')
                     showDotAndDotDot: false
                     showDirs: true
                     sortReversed: true

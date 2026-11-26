@@ -701,6 +701,9 @@ void trainprogram::scheduler() {
         }
     }
 
+    if (!fitWorkoutMatchesDevice())
+        return;
+
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
          !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
@@ -710,7 +713,7 @@ void trainprogram::scheduler() {
            settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0 && zwift_auth_token &&
            zwift_auth_token->access_token.length() > 0) {
             if(!zwift_world) {
-                zwift_world = new World(1, zwift_auth_token->getAccessToken());
+                zwift_world = new World(1, zwift_auth_token);
                 qDebug() << "creating zwift api world";
             }
             else {
@@ -726,8 +729,11 @@ void trainprogram::scheduler() {
                     QJsonDocument document = QJsonDocument::fromJson(id.toLocal8Bit(), &parseError);
                     QJsonObject ride = document.object();
                     qDebug() << "zwift api player" << ride;
-                    zwift_player_id = ride[QStringLiteral("id")].toInt();
-                    emit zwiftLoginState(true);
+                    const int playerId = ride[QStringLiteral("id")].toInt();
+                    if (playerId > 0) {
+                        zwift_player_id = playerId;
+                        emit zwiftLoginState(true);
+                    }
                 } else {                    
                     static int zwift_counter = 5;
                     int timeout = settings.value(QZSettings::zwift_api_poll, QZSettings::default_zwift_api_poll).toInt();
@@ -736,6 +742,7 @@ void trainprogram::scheduler() {
                     if(zwift_counter++ >= (timeout - 1)) {
                         zwift_counter = 0;
                         QByteArray bb = zwift_world->playerStatus(zwift_player_id);
+                        if (!bb.isEmpty()) { // Skip decoding while authentication is being renewed.
                         qDebug() << " ZWIFT API PROTOBUF << " + bb.toHex(' ');
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -820,6 +827,7 @@ void trainprogram::scheduler() {
                         }
                         old_distance = distance;
                         old_alt = alt;
+                        }
                     }
                 }
             }
@@ -1514,8 +1522,14 @@ void trainprogram::decreaseElapsedTime(int32_t i) {
     ticks -= i;
 }
 
+bool trainprogram::fitWorkoutMatchesDevice() const {
+    return !isFitWorkout || !bluetoothManager || !bluetoothManager->device() ||
+           workoutimport::isFitDeviceCompatible(loadedDeviceType, bluetoothManager->device()->deviceType());
+}
+
 void trainprogram::applyCurrentStepSettings() {
-    if (!bluetoothManager || !bluetoothManager->device() || currentStep >= (uint16_t)rows.length())
+    if (!bluetoothManager || !bluetoothManager->device() || currentStep >= (uint16_t)rows.length() ||
+        !fitWorkoutMatchesDevice())
         return;
 
     QSettings settings;
@@ -1999,9 +2013,21 @@ trainprogram *trainprogram::load(const QString &filename, bluetooth *b, QString 
     if (workoutimport::isSupportedFile(filename, Extension)) {
         QString description = "";
         QString tags = "";
-        trainprogram *program =
-            new trainprogram(workoutimport::load(filename, Extension, &description), b, &description, &tags);
-        if (b && b->device()) {
+        BLUETOOTH_TYPE fitDeviceType = UNKNOWN;
+        auto rows = workoutimport::load(filename, Extension, &description, &fitDeviceType);
+        const bool isFit = filename.endsWith(QStringLiteral(".fit"), Qt::CaseInsensitive) ||
+                           Extension.compare(QStringLiteral("FIT"), Qt::CaseInsensitive) == 0;
+        if (isFit && b && b->device() &&
+            !workoutimport::isFitDeviceCompatible(fitDeviceType, b->device()->deviceType())) {
+            qWarning() << "FIT workout sport does not match connected device:" << fitDeviceType
+                       << b->device()->deviceType();
+            rows.clear();
+        }
+        trainprogram *program = new trainprogram(rows, b, &description, &tags);
+        program->isFitWorkout = isFit;
+        if (isFit) {
+            program->loadedDeviceType = fitDeviceType;
+        } else if (b && b->device()) {
             program->loadedDeviceType = b->device()->deviceType();
         }
         return program;
@@ -2395,7 +2421,7 @@ int trainprogram::currentRowElapsedSeconds() const {
 }
 
 trainrow trainprogram::currentRow() {
-    if (started && !rows.isEmpty()) {
+    if (started && !rows.isEmpty() && fitWorkoutMatchesDevice()) {
 
         return rows.at(currentStep);
     }
@@ -2403,7 +2429,7 @@ trainrow trainprogram::currentRow() {
 }
 
 trainrow trainprogram::getRowFromCurrent(uint32_t offset) {
-    if (started && !rows.isEmpty() && (currentStep + offset) < (uint32_t)rows.length()) {
+    if (started && !rows.isEmpty() && (currentStep + offset) < (uint32_t)rows.length() && fitWorkoutMatchesDevice()) {
         return rows.at(currentStep + offset);
     }
     return trainrow();

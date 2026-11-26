@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ja_JP">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>閉じる</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -167,6 +174,22 @@
         <translation>ストップ</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>自動負荷はオフです</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ は現在負荷を変更していません。「適用」：負荷レベル、目標負荷、プリセットのタイルで選んだレベルは、自動負荷がオフの間反映されます。アプリ（Zwift など）からのコマンドは引き続き無視されます。</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>適用</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>自動負荷をオンにする</translation>
+    </message>
+    <message>
         <source>Cancel</source>
         <translation>キャンセル</translation>
     </message>
@@ -289,6 +312,14 @@ Would you like to do that now?</source>
 今すぐ再起動しますか？</translation>
     </message>
     <message>
+        <source>Try the new interface?</source>
+        <translation>新しいインターフェースを試しますか？</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ のメイン画面、サイドメニュー、設定、ウィザードが新しいデザインになりました。設定 &gt; UI・画面表示設定 からいつでも元に戻せます。</translation>
+    </message>
+    <message>
         <source>Adjustable. Current value: </source>
         <translation>調整可能。現在の値： </translation>
     </message>
@@ -382,6 +413,14 @@ Would you like to enable the required services?</source>
     <message>
         <source>Not connecting?</source>
         <translation>接続できませんか？</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>機器が見つかりません</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>バイク、トレッドミル、またはローイングマシンの電源を入れ、上部のBluetoothアイコンをタップして再検索してください。</translation>
     </message>
 </context>
 <context>
@@ -1145,6 +1184,10 @@ QZの設定を更新しますか?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>YPOO M5の初期化に失敗しました。再接続が必要です</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach Sに接続しました！</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1363,6 +1406,21 @@ QZの設定を更新しますか?</translation>
     <message>
         <source>Open email</source>
         <translation>メールを開く</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>購入処理中...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>購入が完了しました</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>購入に失敗しました</translation>
     </message>
 </context>
 <context>
@@ -2147,6 +2205,11 @@ QZの設定を更新しますか?</translation>
         <translation>傾斜度 (%)</translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>1つのグラフに:</translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation>平均出力</translation>
@@ -2348,6 +2411,18 @@ QZの設定を更新しますか?</translation>
     <message>
         <source>1 Mile</source>
         <translation>1マイル</translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation>全画面表示</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>全画面表示を終了</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>左右にスワイプしてグラフを切り替え</translation>
     </message>
     <message>
         <source>Peloton Workout in progress!</source>
@@ -3365,6 +3440,10 @@ This may take a few moments on first startup.</source>
 <context>
     <name>homeform</name>
     <message>
+        <source>No enabled metrics</source>
+        <translation>有効な指標はありません</translation>
+    </message>
+    <message>
         <source>Speed (%1/h)</source>
         <translation>速度 (%1/h)</translation>
     </message>
@@ -4011,6 +4090,10 @@ This may take a few moments on first startup.</source>
         <translation>機器を検索しています...</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>%1 に接続中...</translation>
+    </message>
+    <message>
         <source>Search stopped, tap the Bluetooth icon</source>
         <translation>検索を停止しました。Bluetoothアイコンをタップしてください</translation>
     </message>
@@ -4299,9 +4382,17 @@ This may take a few moments on first startup.</source>
         <source>Unable to open an email application</source>
         <translation>メールアプリを開けませんでした</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetoothがオフです</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>フローティング指標（ピクチャ・イン・ピクチャ）</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -4637,6 +4728,10 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>Settings</source>
         <translation>設定</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>新しいインターフェースを試す</translation>
     </message>
     <message>
         <source>Workouts History</source>
@@ -6263,6 +6358,30 @@ QZ がこの値を変更することを許可しますか？
         <translation>アプリ言語:</translation>
     </message>
     <message>
+        <source>Setting reset</source>
+        <translation>設定をリセットしました</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>リセットした設定: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>すべてリセット</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>変更した設定をリセットしますか？</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>既定値に戻る設定: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>リセット</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>デバイスの言語設定に従う場合は「自動（システム）」を選択するか、QZ用の特定の言語を選択してください。</translation>
     </message>
@@ -6459,6 +6578,18 @@ QZ がこの値を変更することを許可しますか？
         <translation>km/h</translation>
     </message>
     <message>
+        <source>Reset section?</source>
+        <translation>セクションをリセットしますか？</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>「%2」の%1個の設定が既定値に戻ります。</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>セクションをリセット</translation>
+    </message>
+    <message>
         <source>Minimum speed for Peloton walking sessions. Set to 0 to disable. Applied to all speed targets in walking workouts.</source>
         <translation>Pelotonウォーキングセッションの最低速度です。0に設定すると無効になります。ウォーキングワークアウトのすべての目標速度に適用されます。</translation>
     </message>
@@ -6651,8 +6782,8 @@ QZ がこの値を変更することを許可しますか？
         <translation>Garmin Bluetoothセンサー</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>MacからGarminデバイスに指標データを送信したい場合は、これを有効にします。それ以外の場合は無効のままにしてください。</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Garminなどのスポーツウォッチが、QZをBluetoothセンサーとして使えるようになります。トレッドミルではフットポッド、バイクではパワーメーターになります(Androidでは「バイクパワーセンサーとして接続」もオンにしてください)。ウォッチはQZを実行しているスマートフォンまたはタブレットとBluetoothでペアリングされている必要があります。QZが見つからない場合は一度ペアリングしてから、ウォッチでセンサーを追加し、ペアリングの要求を承認してください。同じスマートフォンでGarmin Connectがウォッチと連携している場合は、ウォッチが接続している間にGarmin Connectを2〜3回続けて強制停止してください。Garmin Connectのない別のスマートフォンやタブレットを使う方が簡単です。QZがウォッチ用のセンサーとして動作している間、Bluetooth接続のZwiftはQZをフットポッドまたはパワーメーターとしてのみ認識し、操作できるマシンとしては認識しません。</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -7220,6 +7351,75 @@ Please enter it below:</source>
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>ワークアウト履歴でのこのグラフの順番です。順番は「UI・画面表示設定」の上へ・下へボタンで変更します。</translation>
+    </message>
+    <message>
+        <source>Modern interface</source>
+        <translation>モダンインターフェース</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>メイン画面、サイドメニュー、設定、ウィザードの新しいデザインです。オフにすると従来のデザインに戻ります。</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>外観</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>端末の設定に合わせる</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>ダーク</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>ライト</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>テーマ</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>グラファイト</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>ブラック / ホワイト</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>ミッドナイトブルー</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>アクセントカラー</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>バイオレット</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>ブルー</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>ティール</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>グリーン</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>オレンジ</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>ピンク</translation>
     </message>
     <message>
         <source>Tile size:</source>
@@ -8772,6 +8972,14 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     <message>
         <source>Use Console Gears</source>
         <translation>コンソールのギアを使用</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>歩行・走行モデルによるトレッドミルの消費カロリー</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>コンソールが消費カロリーを送らないトレッドミル向けです。ベルト速度、傾斜、体重・身長・年齢・性別から計算し、身長から決まる歩行から走行への切り替え速度より遅いときは歩行モデル、速いときは走行モデルを使います。オフにするとパワーに基づく値を使います。コンソールが送る消費カロリー、外部パワーセンサー（Stryd など）、オンのときの「心拍数ベースで消費カロリーを計算」が引き続き優先されます。</translation>
     </message>
 </context>
 <context>

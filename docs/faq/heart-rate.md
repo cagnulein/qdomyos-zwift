@@ -69,3 +69,9 @@ QZ can expose a **separate virtual heart-rate sensor** in addition to its virtua
 4. Verify the heart-rate value updates in Zwift during the activity.
 
 In a confirmed treadmill setup, QZ already displayed the chest-strap heart rate and passed it to the treadmill console, but Zwift showed none. Selecting QZ's **virtual HR sensor** in Zwift made heart rate visible in **all three** places. This is a pairing issue, not evidence of a three-device heart-rate limit.
+
+## My Polar H10 was working in QZ on iPad, but heart rate suddenly disappeared. What can I try?
+
+First check that the chest strap is awake and not connected exclusively to another app. If QZ still cannot find the Polar H10, reset the iPad's Bluetooth connection and pair the strap again, then confirm the **Heart** tile updates in QZ before starting ROUVY or another training app.
+
+A rider confirmed that resetting Bluetooth on the iPad and reconnecting the Polar H10 restored heart rate in QZ. This does not establish a fix for unrelated virtual trainer, gearing, or ROUVY connection problems.

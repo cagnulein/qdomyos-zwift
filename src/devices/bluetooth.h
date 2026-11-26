@@ -155,6 +155,9 @@
 #include "devices/iconsolebike/iconsolebike.h"
 #include "devices/treadmill.h"
 #include "devices/truetreadmill/truetreadmill.h"
+#ifndef Q_OS_IOS
+#include "devices/trixterxdreambike/trixterxdreambike.h"
+#endif
 #include "devices/trxappgateusbbike/trxappgateusbbike.h"
 #include "devices/trxappgateusbelliptical/trxappgateusbelliptical.h"
 #include "devices/trxappgateusbrower/trxappgateusbrower.h"
@@ -206,6 +209,22 @@ class bluetooth : public QObject, public SignalHandler {
     bool isSearching() const;
     qint64 nextSearchMs() const { return nextRescanMs; }
     bool searchStopped() const { return rescanStopped; }
+    // Android: Bluetooth is off; the search starts by itself as soon as it is switched on (a search
+    // started by a tap before the poll noticed it is on means it is on already)
+    bool bluetoothOff() const { return bluetoothOffPoll.isActive() && !isSearching(); }
+    // Gym mode: the trainer picked in the window, empty until then
+    QString gymModeDevice() const { return gymModeSessionDevice; }
+    // Gym mode: the window waits for the trainer to be picked; while it is open the pause between two
+    // automatic searches stays short and the search does not give up after 10 minutes. Closed: the
+    // pauses and the 10 minutes count from now (the window restarted the search every 10 s before),
+    // otherwise a window open for 10 minutes would leave a search that gives up at once
+    void setGymModeWindowOpen(bool open) {
+        gymModeWindowOpen = open;
+        if (!open) {
+            rescanCount = 0;
+            rescanStartedMs = 0;
+        }
+    }
     /**
      * @brief searchNow Starts a search right away and resets the pause between the automatic ones.
      * Android 7.0 and later ignore the 6th scan start in 30 s: then the search is scheduled for when it is allowed.
@@ -213,6 +232,12 @@ class bluetooth : public QObject, public SignalHandler {
      * already running), otherwise the seconds until the scheduled search.
      */
     int searchNow();
+    /**
+     * @brief searchForDeviceList Searches for the devices of an opened list of devices. With a device connected the
+     * search only fills the list and connects nothing, and it is skipped near the Android limit; without one it is
+     * searchNow(). Does nothing if a search is running or discovery is off.
+     */
+    void searchForDeviceList();
 
     // True when the advertised services include one of a fitness machine (FTMS, Cycling Power, Cycling Speed and
     // Cadence, the Concept2 PM5 or Echelon service), as QZ's own virtual devices and most machines advertise next
@@ -395,6 +420,9 @@ class bluetooth : public QObject, public SignalHandler {
     elitesquarecontroller* eliteSquareController = nullptr;
     QString filterDevice = QLatin1String("");
     QString gymModeSessionDevice = QLatin1String("");
+#ifndef Q_OS_IOS
+    trixterxdreambike * trixterXDreambike = nullptr;
+#endif
 
     bool testResistance = false;
     bool noWriteResistance = false;
@@ -459,6 +487,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool hrmDiscoveryOnTap = false;
     int hrmDiscoveryOffered = 0;
 
+
     QTimer discoveryTimeout;
     bool discoveryFinishedHandled = false;
     int rescanCount = 0;
@@ -468,10 +497,13 @@ class bluetooth : public QObject, public SignalHandler {
     QTimer rescanTimer;
     qint64 nextRescanMs = 0;
     bool rescanStopped = false;
+    bool gymModeWindowOpen = false;
     // Android 7.0 and later ignore the scan starts after the 5th one in this window
     static constexpr qint64 scanStartWindowMs = 30000;
     QList<qint64> scanStartsMs;
     void pruneScanStarts(qint64 now);
+    // The search of searchForDeviceList() with a device connected: what it finds is not connected
+    bool deviceListScan = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = nullptr;

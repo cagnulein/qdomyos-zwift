@@ -426,6 +426,41 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
     }
     enableManualResistancePowerAdjustment(requestResistance);
 
+    if (ZIPRO_RAVE) {
+        // Always use FTMS simulation (0x11) on Zipro Rave, even for manual
+        // resistance and ERG's power-to-resistance output. Keep resistance_lvl_mode
+        // for QZ's virtual ERG handling and continuous cadence recalculation.
+        if (requestResistance < 1)
+            requestResistance = 1;
+        if (max_resistance > 0 && requestResistance > max_resistance)
+            requestResistance = max_resistance;
+
+        // Empirical Zipro Rave map: FTMS simulation grade 0..15% -> resistance
+        // 1,3,5,7,9,11,13,15,18,20,22,24,26,28,30,32.
+        // Invert this monotonic map, interpolating between measured levels.
+        // This mapping is specific to Rave; do not use the global bike gain/
+        // offset or the auto-learned inclination table for it.
+        static const uint8_t resistanceAtGrade[] = {
+            1, 3, 5, 7, 9, 11, 13, 15, 18, 20, 22, 24, 26, 28, 30, 32
+        };
+        const double target = qBound(1.0, static_cast<double>(requestResistance), 32.0);
+        double grade = 15.0;
+        if (target <= resistanceAtGrade[0]) {
+            grade = 0.0;
+        } else {
+            for (int g = 1; g <= 15; ++g) {
+                if (target <= resistanceAtGrade[g]) {
+                    const double lower = resistanceAtGrade[g - 1];
+                    const double upper = resistanceAtGrade[g];
+                    grade = (g - 1) + (target - lower) / (upper - lower);
+                    break;
+                }
+            }
+        }
+        qDebug() << "Zipro Rave resistance to FTMS 0x11 grade:" << requestResistance << grade;
+        forceInclination(grade);
+        return;
+    }
 
     if (MOK_FITNESS) {
         // The MOK Fitness S10 Ultra NAKs the FTMS control point (0x2AD9) for resistance changes.
@@ -2088,16 +2123,27 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
     
     bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
     bool isPowerCommand = (newValue.length() > 0 && (uint8_t)newValue.at(0) == FTMS_SET_TARGET_POWER);
-    
+    const bool raveSimulationCommand = ZIPRO_RAVE && newValue.length() >= 7 &&
+        (uint8_t)newValue.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS;
+    const bool raveResistanceCommand = ZIPRO_RAVE && newValue.length() >= 3 &&
+        (uint8_t)newValue.at(0) == FTMS_SET_TARGET_RESISTANCE_LEVEL;
+
     // FTMS routing filter logic:
     // - Block simulation commands (0x11) when resistance_lvl_mode=true
     // - Allow power commands (0x05) only when no external power sensor (delta power system handles external sensors)
     bool allowPowerRouting = (!power_sensor && ergModeSupported && isPowerCommand);
     
-    if (!autoResistance() || (resistance_lvl_mode && !allowPowerRouting) || ergModeNotSupported) {
-        // For bikes that don't support ERG natively but accept resistance levels (e.g. SpeedRaceX),
-        // intercept power commands and route through changePower() which converts power→resistance
-        if (isPowerCommand && !ergModeSupported && resistance_lvl_mode && autoResistance() && newValue.length() > 2) {
+    // Rave accepts simulation parameters: bypass the resistance-level filter
+    // only for 0x11 and still honor the auto-resistance toggle.
+    if (!autoResistance() ||
+        (!raveSimulationCommand && ((resistance_lvl_mode && !allowPowerRouting) || ergModeNotSupported))) {
+        if (raveResistanceCommand && autoResistance()) {
+            // Convert incoming Zwift FTMS 0x04 tenths to QZ levels; physical
+            // output from forceResistance() will be 0x11, never 0x04.
+            const uint16_t rawResistance = static_cast<uint8_t>(newValue.at(1)) |
+                (static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(2))) << 8);
+            changeResistance(qRound(rawResistance / 10.0));
+        } else if (isPowerCommand && !ergModeSupported && resistance_lvl_mode && autoResistance() && newValue.length() > 2) {
             uint16_t power = (((uint8_t)newValue.at(1)) + (newValue.at(2) << 8));
             qDebug() << "routing power command through changePower() for resistance_lvl_mode bike, power:" << power;
             changePower(power);

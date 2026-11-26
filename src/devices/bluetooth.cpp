@@ -294,6 +294,15 @@ void bluetooth::onHomeformReady() {
 }
 
 void bluetooth::finished() {
+    // discoveryTimeout may end up here in the middle of a scan
+    bool deviceListScanEnded = false;
+    if (!discoveryAgent || !discoveryAgent->isActive()) {
+        deviceListScanEnded = deviceListScan;
+        deviceListScan = false;
+    }
+    // the search of an opened list with a device connected only fills the list: the fake device below
+    // would take the devices it found through the connection chain
+    const bool onlyFillTheList = deviceListScanEnded && device();
     // DIRCON can be discovered before or after the BLE scan completes.
     if (!device() && tryConnectSelectedDirconDevice())
         return;
@@ -315,13 +324,15 @@ void bluetooth::finished() {
             const qint64 now = QDateTime::currentMSecsSinceEpoch();
             if (!rescanStartedMs)
                 rescanStartedMs = now;
-            if (now - rescanStartedMs > 10 * 60 * 1000) {
+            // the Gym mode window is open: the user waits there for the trainer, the search goes on
+            // with pauses of at most 10 s (the window restarted it every 10 s on its own before)
+            if (!gymModeWindowOpen && now - rescanStartedMs > 10 * 60 * 1000) {
                 debug(QStringLiteral("BTLE scanning stopped, no device found in 10 minutes"));
                 nextRescanMs = 0;
                 rescanStopped = true;
                 return;
             }
-            const int delayMs = qMin(3000 << qMin(rescanCount, 5), 60000);
+            const int delayMs = qMin(3000 << qMin(rescanCount, 5), gymModeWindowOpen ? 10000 : 60000);
             rescanCount++;
             nextRescanMs = now + delayMs;
             rescanTimer.start(delayMs);
@@ -352,7 +363,7 @@ void bluetooth::finished() {
         settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
     bool waterrower_usb = settings.value(QZSettings::waterrower_usb, QZSettings::default_waterrower_usb).toBool();
     // wifi devices on windows
-    if (!nordictrack_2950_ip.isEmpty() || !tdf_10_ip.isEmpty() || fake_bike || fakedevice_elliptical || fakedevice_rower || fakedevice_treadmill || !proform_elliptical_ip.isEmpty() || !proform_rower_ip.isEmpty() || antbike || android_antbike || waterrower_usb) {
+    if (!onlyFillTheList && (!nordictrack_2950_ip.isEmpty() || !tdf_10_ip.isEmpty() || fake_bike || fakedevice_elliptical || fakedevice_rower || fakedevice_treadmill || !proform_elliptical_ip.isEmpty() || !proform_rower_ip.isEmpty() || antbike || android_antbike || waterrower_usb)) {
         // faking a bluetooth device for non-BLE devices
         qDebug() << "faking a bluetooth device for non-BLE device";
         deviceDiscovered(QBluetoothDeviceInfo());
@@ -469,6 +480,28 @@ int bluetooth::searchNow() {
     debug(QStringLiteral("BTLE scanning on request"));
     startDiscovery();
     return 0;
+}
+
+void bluetooth::searchForDeviceList() {
+    if (!useDiscovery || !discoveryAgent || discoveryAgent->isActive())
+        return;
+
+    if (!device()) {
+        searchNow();
+        return;
+    }
+
+    // Android 7.0 and later ignore the 6th scan start in 30 s, and the list already shows the last search.
+    // 4 leaves room for an automatic search (a trainer lost meanwhile), as in searchNow()
+    pruneScanStarts(QDateTime::currentMSecsSinceEpoch());
+    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion::AndroidNougat && scanStartsMs.size() >= 4) {
+        debug(QStringLiteral("BTLE scanning for the device list skipped by the Android limit"));
+        return;
+    }
+
+    debug(QStringLiteral("BTLE scanning for the device list"));
+    deviceListScan = true;
+    startDiscovery();
 }
 
 #ifdef Q_OS_ANDROID
@@ -608,6 +641,7 @@ void bluetooth::stopDiscovery() {
 
 void bluetooth::canceled() {
     debug(QStringLiteral("BTLE scanning stops"));
+    deviceListScan = false;
 
     emit searchingStop();
 }
@@ -1024,6 +1058,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool iconsole_elliptical = settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();
     bool iconsole_rower = settings.value(QZSettings::iconsole_rower, QZSettings::default_iconsole_rower).toBool();
     bool trx_route_key = settings.value(QZSettings::trx_route_key, QZSettings::default_trx_route_key).toBool();
+#ifndef Q_OS_IOS
+    bool trixter_xdream_bike = settings.value(QZSettings::trixter_xdream_bike_enabled, QZSettings::default_trixter_xdream_bike_enabled).toBool();
+#endif
 
     if (!heartRateBeltFound) {
 
@@ -1072,6 +1109,20 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
         eliteSterzoSmartFound = eliteSterzoSmartAvaiable();
     }
+
+
+#ifndef Q_OS_IOS
+    if(trixter_xdream_bike && !this->trixterXDreambike &&
+            (this->trixterXDreambike = trixterxdreambike::tryCreate(noWriteResistance, noHeartService, false))) {
+        emit deviceConnected(this->trixterXDreambike->bluetoothDevice);
+        connect(this->trixterXDreambike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+        if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+            emit searchingStop();
+        }
+        this->signalBluetoothDeviceConnected(this->trixterXDreambike);
+        return;
+    }
+#endif
 
 #ifdef Q_OS_IOS
     // Schwinn bikes on iOS allows to be connected to several instances, so in this way
@@ -1148,6 +1199,11 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     if (onlyDiscover)
         return;
 
+    // Below a device found is connected, and the chain checks only its own type: with no device
+    // filter a second trainer nearby would be connected in the middle of a workout
+    if (deviceListScan && this->device())
+        return;
+
     if (gymModeEnabled() && gymModeSessionDevice.isEmpty())
         return;
 
@@ -1173,6 +1229,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
                 filter = (b.name().compare(effectiveFilterDevice, Qt::CaseInsensitive) == 0);
             }
+            // only until it is connected: the search goes on afterwards for the accessories
+            if (!gymModeSessionDevice.isEmpty() && filter && !this->device())
+                debug(QStringLiteral("gym mode: \"%1\" matches the selected device").arg(b.name()));
             const QString deviceName = b.name();
             const QString upperDeviceName = deviceName.toUpper();
             // Some Hammer Speed Race S bikes advertise a four-digit prefix, e.g. "4864 RACER S".
@@ -2071,7 +2130,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(wahooKickRunTreadmill);
-            } else if ((b.name().startsWith(QStringLiteral("YPTM-U0"), Qt::CaseInsensitive) ||
+            } else if ((b.name().startsWith(QStringLiteral("YPTM-U"), Qt::CaseInsensitive) ||
                         b.name().startsWith(QStringLiteral("YP-M1552-"), Qt::CaseInsensitive)) &&
                        !ypooTreadmill && !horizonTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
@@ -2352,6 +2411,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith("HS-5000L") ||
                         (b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) && toorx_ftms ) ||
                         (b.name().toUpper().startsWith("DI") && b.name().length() == 2) || // Elite smart trainer #1682
+                        (b.name().toUpper().startsWith("AS6-")) ||                         // ART.IS Cross AS6 (ChangYow SM5081E BLE)
                         (b.name().toUpper().startsWith("DHZ-")) ||                         // JK fitness 577
                         (b.name().toUpper().startsWith("MKSM")) ||                         // MKSM3600036
                         (b.name().toUpper().startsWith("YS_C1_")) ||                       // Yesoul C1H
@@ -3035,7 +3095,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         ((b.name().toUpper().startsWith(QStringLiteral("HT")) && b.name().length() == 10) &&
                          ftms_bike.contains(QZSettings::default_ftms_bike)) ||
                         (b.name().toUpper().contains(QStringLiteral("CARE")) &&
-                         b.name().length() == 11) ||
+                         b.name().length() == 11 &&
+                         !b.name().toUpper().startsWith(QStringLiteral("CARE11216+"))) ||
                         sportsplusbike::isCareSportsPlusBike13Name(b.name())) // CARE9040177, CARE113770737
                        && !sportsPlusBike && filter) {
                 this->setLastBluetoothDevice(b);
@@ -3053,7 +3114,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 sportsPlusBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(sportsPlusBike);
             } else if (((b.name().toUpper().contains(QStringLiteral("CARE")) && b.name().length() >= 12 &&
-                         !sportsplusbike::isCareSportsPlusBike13Name(b.name())) ||  // CARE968300122, CARE10692135
+                         !sportsplusbike::isCareSportsPlusBike13Name(b.name()) &&
+                         !b.name().toUpper().startsWith(QStringLiteral("CARE11216+"))) ||  // CARE968300122, CARE10692135
                        (b.name().toUpper().startsWith(QStringLiteral("VMAX"))))
                        && !sportsPlusRower && filter) {
                 this->setLastBluetoothDevice(b);
@@ -3371,6 +3433,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         upperDeviceName.startsWith(QStringLiteral("FITHIWAY")) ||
                         upperDeviceName.startsWith(QStringLiteral("FIT HI WAY")) ||
                         upperDeviceName.startsWith(QStringLiteral("BODYSCULPTURE")) ||
+                        upperDeviceName.startsWith(QStringLiteral("CARE11216+")) ||
                         upperDeviceName.startsWith(QStringLiteral("BIKZU_")) ||
                         upperDeviceName.startsWith(QStringLiteral("PASYOU-")) ||
                         upperDeviceName.startsWith(QStringLiteral("VIRTUFIT")) ||
@@ -4414,6 +4477,7 @@ void bluetooth::heartRate(uint8_t heart) { Q_UNUSED(heart) }
 void bluetooth::selectGymModeDevice(const QString &deviceName) {
     QString normalizedDeviceName = deviceName.trimmed();
     normalizedDeviceName.remove(QRegularExpression(QStringLiteral(" \\(\\d+%\\)$")));
+    debug(QStringLiteral("gym mode: device selected \"%1\", searching %2").arg(normalizedDeviceName).arg(isSearching()));
 
     if (normalizedDeviceName.isEmpty() ||
         !normalizedDeviceName.compare(QStringLiteral("Disabled"), Qt::CaseInsensitive) ||
@@ -4756,9 +4820,15 @@ void bluetooth::restart() {
     if (onlyDiscover) {
 
         onlyDiscover = false;
+        // Refresh during the search of an open list: its devices go on as on master (a MOXY6 or CORE
+        // sensor switched on after the equipment is connected only this way)
+        deviceListScan = false;
         this->startDiscovery();
         return;
     }
+
+    // the trainer is gone: the search still running may connect the next one
+    deviceListScan = false;
 
     if (settings.value(QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection).toBool()) {
         exit(EXIT_SUCCESS);
@@ -5455,6 +5525,12 @@ void bluetooth::restart() {
         delete eliteSterzoSmart;
         eliteSterzoSmart = nullptr;
     }
+#ifndef Q_OS_IOS
+    if (trixterXDreambike) {
+        delete trixterXDreambike;
+        trixterXDreambike = nullptr;
+    }
+#endif
     if (wahooDirconBike) {
         delete wahooDirconBike;
         wahooDirconBike = nullptr;
@@ -5735,6 +5811,10 @@ bluetoothdevice *bluetooth::device() {
 #endif
     } else if (freebeatBoomBike) {
         return freebeatBoomBike;
+#ifndef Q_OS_IOS
+    } else if (trixterXDreambike){
+        return trixterXDreambike;
+#endif
     }
     return nullptr;
 }

@@ -92,6 +92,7 @@ class kettlercoachrower : public rower {
     quint16 currentWatts = 0;
     QElapsedTimer powerClock;
     kettlerclassicprotocol::CoachSStrokePowerSmoother strokePower;
+    kettlerclassicprotocol::CoachSCadenceSmoother cadenceSmoother;
     kettlerclassicprotocol::CoachSSessionCounters sessionCounters;
     kettlerclassicprotocol::CoachSPowerBasedPace powerBasedPace;
     bool lastPowerBasedMode = false;

@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="nb_NO">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Lukk</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -163,6 +170,22 @@
         <translation>Vil du stoppe den pågående treningsøkten?</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>Automatisk motstand er av</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ endrer ikke motstanden nå. «Bruk»: nivåer fra flisene Motstand, Målmotst. og forhåndsvalg gjelder så lenge automatisk motstand er av. Kommandoer fra apper (for eksempel Zwift) ignoreres fortsatt.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Bruk</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Slå på automatisk motstand</translation>
+    </message>
+    <message>
         <source>Permissions Required</source>
         <translation>Tillatelser kreves</translation>
     </message>
@@ -179,6 +202,14 @@
 Would you like to do that now?</source>
         <translation>Du må starte appen på nytt for å bruke endringene.
 Vil du gjøre det nå?</translation>
+    </message>
+    <message>
+        <source>Try the new interface?</source>
+        <translation>Vil du prøve det nye grensesnittet?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ har fått et nytt utseende på hovedskjermen, sidemenyen, innstillingene og veiviseren. Du kan når som helst bytte tilbake under Innstillinger &gt; Generelle alternativer for brukergrensesnitt.</translation>
     </message>
     <message>
         <source>Adjustable. Current value: </source>
@@ -366,6 +397,14 @@ Vil du slå på de nødvendige tjenestene?</translation>
     <message>
         <source>Not connecting?</source>
         <translation>Får du ikke koblet til?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Finner ikke treningsapparatet</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Slå på sykkelen, tredemøllen eller romaskinen, og trykk deretter på Bluetooth-ikonet øverst for å søke på nytt.</translation>
     </message>
 </context>
 <context>
@@ -1129,6 +1168,10 @@ Vil du oppdatere QZ-innstillingene?</translation>
         <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
         <translation>Fant ikke %1 (pulssensor). Kontroller at den er på og sender pulsdata.</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S tilkoblet!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1347,6 +1390,21 @@ Vil du oppdatere QZ-innstillingene?</translation>
     <message>
         <source>Open email</source>
         <translation>Åpne e-post</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Kjøper …</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Kjøpet er fullført</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Kan ikke fullføre kjøpet</translation>
     </message>
 </context>
 <context>
@@ -2079,6 +2137,11 @@ Vil du oppdatere QZ-innstillingene?</translation>
         <translation>Stigning (%)</translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>I ett diagram:</translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation>Snitteffekt</translation>
@@ -2352,6 +2415,18 @@ Vil du oppdatere QZ-innstillingene?</translation>
     <message>
         <source>1 Mile</source>
         <translation>1 engelsk mil</translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation>Fullskjerm</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Avslutt fullskjerm</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Sveip til venstre eller høyre for å bytte diagram</translation>
     </message>
     <message>
         <source>AVG</source>
@@ -3349,6 +3424,10 @@ Dette kan ta litt tid ved første oppstart.</translation>
 <context>
     <name>homeform</name>
     <message>
+        <source>No enabled metrics</source>
+        <translation>Ingen målinger er aktivert</translation>
+    </message>
+    <message>
         <source>Speed (%1/h)</source>
         <translation>Fart (%1/h)</translation>
     </message>
@@ -3919,6 +3998,10 @@ Dette kan ta litt tid ved første oppstart.</translation>
         <translation>Søker etter enheten …</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Kobler til %1 …</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>Funnet: %1</translation>
     </message>
@@ -4271,9 +4354,17 @@ Dette kan ta litt tid ved første oppstart.</translation>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ kjører</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth er av</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Flytende målinger (bilde i bilde)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -4507,6 +4598,10 @@ Tillat tilgang til QZ-mappen i neste vindu.</translation>
     <message>
         <source>Settings</source>
         <translation>Innstillinger</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>Prøv det nye grensesnittet</translation>
     </message>
     <message>
         <source>Workouts History</source>
@@ -5180,6 +5275,42 @@ Skal QZ få endre denne verdien?
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>Diagrammets plass i rekkefølgen i treningshistorikken. Rekkefølgen endres med opp- og ned-knappene i Generelle alternativer for brukergrensesnitt.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Innstillingen er tilbakestilt</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Tilbakestilte innstillinger: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Tilbakestill alle</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Tilbakestille endrede innstillinger?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Innstillinger som går tilbake til standardverdiene: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Tilbakestill</translation>
+    </message>
+    <message>
+        <source>Reset section?</source>
+        <translation>Tilbakestille delen?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Innstillinger i «%2» som går tilbake til standardverdiene: %1</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Tilbakestill delen</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -6379,8 +6510,8 @@ Skal QZ få endre denne verdien?
         <translation>Garmin Bluetooth-sensor</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Slå på dette hvis du vil sende måleverdier til Garmin-enheten fra Mac. Ellers lar du det være av.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Lar Garmin- eller en annen sportsklokke bruke QZ som Bluetooth-sensor: en fotpod med en tredemølle, en effektmåler med en sykkel (på Android må du også slå på «Effektsensor for sykkel»). Klokken må være paret via Bluetooth med telefonen eller nettbrettet som kjører QZ: finner den ikke QZ, par dem én gang, legg deretter til sensoren på klokken og godta paringsforespørselen. Hvis Garmin Connect på samme telefon er koblet til klokken, tving det til å stoppe to eller tre ganger på rad mens klokken kobler til; en egen telefon eller et nettbrett uten Garmin Connect er enklere. Mens QZ fungerer som sensor for klokken, ser Zwift via Bluetooth den bare som en fotpod eller effektmåler, ikke som en maskin den kan styre.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -8530,6 +8661,75 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>Eksperimentelt: korrigerer gradvis farten QZ setter på tredemøllen, ut fra data fra Runn/Stryd, når driveren gir egne fartsmålinger fra maskinen. Krever «Bruk fart fra effektsensoren». Standard: av.</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Moderne grensesnitt</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Nytt utseende på hovedskjermen, sidemenyen, innstillingene og veiviseren. Slå av for å få tilbake det klassiske utseendet.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Utseende</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Som på telefonen</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Mørkt</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Lyst</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Tema</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafitt</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Svart / hvitt</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Midnattsblå</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Aksentfarge</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Fiolett</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Blå</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Blågrønn</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Grønn</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Oransje</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Rosa</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Flisstørrelse:</translation>
     </message>
@@ -8684,6 +8884,14 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Use Console Gears</source>
         <translation>Bruk girene på konsollen</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Tredemøllekalorier fra gå-/løpemodell</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Tredemøller der konsollen ikke sender kalorier. Kaloriene beregnes ut fra båndets hastighet, stigning og din vekt, høyde, alder og kjønn: en gåmodell under din overgangshastighet fra gange til løp (bestemt av høyden din) og en løpemodell over den. Slå av for å bruke den effektbaserte verdien i stedet. Kalorier fra en konsoll, en ekstern effektsensor (Stryd osv.) og Beregn kalorier ut fra puls (når den er på) har fortsatt forrang.</translation>
     </message>
 </context>
 <context>

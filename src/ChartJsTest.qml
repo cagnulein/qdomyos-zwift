@@ -23,6 +23,20 @@ ColumnLayout {
     // its surface), the page was laid out for a wrong width and opened zoomed in
     property bool pageShown: !window.ui.modern
     readonly property real offScreen: pageShown ? 0 : Screen.width + Screen.height
+    // A chart spread over the page (chartfullscreen.js): the page tells it in its title. The app
+    // header folds away then (main.qml, headerToolbar.folded) and the page takes its room too
+    property bool chartFullscreen: false
+
+    // The back key (main.qml navigateBack; the toolbar with its arrow is folded away) closes the
+    // spread chart first instead of the page. Cleared at once: a second back before the new title
+    // comes leaves the page as usual
+    function handleBack() {
+        if (!chartFullscreen)
+            return false
+        chartFullscreen = false
+        webView.runJavaScript("window.qzChartFullscreen && window.qzChartFullscreen.exit()")
+        return true
+    }
 
     // The theme the page has, as JSON: that of the fragment of the first load, then of each script sent
     property string sentTheme: ""
@@ -46,6 +60,9 @@ ColumnLayout {
         anchors.leftMargin: -column1.offScreen
         anchors.rightMargin: column1.offScreen
         visible: true
+        // Not on iOS: its web view (Qt 5.15.2) sends titleChanged only when a load ends. There the
+        // header stays and the toolbar arrow leaves the page; the chart folds by its own button
+        onTitleChanged: column1.chartFullscreen = title.indexOf("#fullscreen") >= 0
         onLoadingChanged: {
             if (loadRequest.errorString) {
                 console.error(loadRequest.errorString);
@@ -101,7 +118,7 @@ ColumnLayout {
         visible: !window.ui.modern
         height: 50
         width: parent.width
-        text: "Close"
+        text: qsTr("Close")
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         // nothing listens to popupclose(): back the same way as the toolbar arrow
         onClicked: {

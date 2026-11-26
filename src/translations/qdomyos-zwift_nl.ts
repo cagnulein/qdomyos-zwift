@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="nl_NL">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Sluiten</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -163,6 +170,22 @@
         <translation>Wil je de huidige training echt stoppen?</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>Automatische weerstand staat uit</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ verandert de weerstand nu niet. ‘Toepassen’: niveaus van de tegels Weerstand, Doelweerst. en de voorinstellingen gelden zolang automatische weerstand uit blijft. Opdrachten van apps (bijvoorbeeld Zwift) worden nog steeds genegeerd.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Toepassen</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Automatische weerstand aanzetten</translation>
+    </message>
+    <message>
         <source>Permissions Required</source>
         <translation>Machtigingen vereist</translation>
     </message>
@@ -195,6 +218,14 @@ Wil je ze inschakelen?</translation>
 Would you like to do that now?</source>
         <translation>Om de wijzigingen toe te passen, moet je de app opnieuw starten.
 Wil je dat nu doen?</translation>
+    </message>
+    <message>
+        <source>Try the new interface?</source>
+        <translation>De nieuwe interface proberen?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ heeft een nieuw uiterlijk voor het hoofdscherm, het zijmenu, de instellingen en de wizard. Je kunt altijd terugschakelen via Instellingen &gt; Algemene interface-opties.</translation>
     </message>
     <message>
         <source>Adjustable. Current value: </source>
@@ -382,6 +413,14 @@ Wil je de vereiste voorzieningen inschakelen?</translation>
     <message>
         <source>Not connecting?</source>
         <translation>Geen verbinding?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Apparaat niet gevonden</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Zet je fiets, loopband of roeitrainer aan en tik bovenaan op het Bluetooth-pictogram om opnieuw te zoeken.</translation>
     </message>
 </context>
 <context>
@@ -1145,6 +1184,10 @@ Wil je de QZ-instellingen bijwerken?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>Initialisatie van YPOO M5 mislukt; opnieuw verbinden vereist</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S verbonden!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1363,6 +1406,21 @@ Wil je de QZ-instellingen bijwerken?</translation>
     <message>
         <source>Open email</source>
         <translation>E-mail openen</translation>
+    </message>
+</context>
+<context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Aankoop bezig...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Aankoop geslaagd</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Aankoop mislukt</translation>
     </message>
 </context>
 <context>
@@ -2095,6 +2153,11 @@ Wil je de QZ-instellingen bijwerken?</translation>
         <translation>Hellingsgraad (%)</translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>In één grafiek:</translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation>Gem. vermogen</translation>
@@ -2368,6 +2431,18 @@ Wil je de QZ-instellingen bijwerken?</translation>
     <message>
         <source>1 Mile</source>
         <translation>1 mijl</translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation>Volledig scherm</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Volledig scherm sluiten</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Veeg naar links of rechts om van grafiek te wisselen</translation>
     </message>
     <message>
         <source>AVG</source>
@@ -3365,6 +3440,10 @@ Bij de eerste start kan dit even duren.</translation>
 <context>
     <name>homeform</name>
     <message>
+        <source>No enabled metrics</source>
+        <translation>Geen meetwaarden ingeschakeld</translation>
+    </message>
+    <message>
         <source>Speed (%1/h)</source>
         <translation>Snelheid (%1/h)</translation>
     </message>
@@ -3935,6 +4014,10 @@ Bij de eerste start kan dit even duren.</translation>
         <translation>Apparaat zoeken…</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Verbinden met %1…</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>%1 gevonden</translation>
     </message>
@@ -4287,9 +4370,17 @@ Bij de eerste start kan dit even duren.</translation>
         <source>Unable to open an email application</source>
         <translation>Kan geen e-mailapp openen</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth staat uit</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Zwevende meetwaarden (beeld-in-beeld)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -4523,6 +4614,10 @@ Geef in het volgende venster toegang tot de QZ-map.</translation>
     <message>
         <source>Settings</source>
         <translation>Instellingen</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>Probeer de nieuwe interface</translation>
     </message>
     <message>
         <source>Workouts History</source>
@@ -5204,6 +5299,42 @@ Mag QZ deze waarde wijzigen?
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>Plaats van deze grafiek in de trainingsgeschiedenis. Wijzig de volgorde met de knoppen omhoog en omlaag in Algemene interface-opties.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Instelling gereset</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Instellingen gereset: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Alles resetten</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Gewijzigde instellingen resetten?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Instellingen die worden teruggezet naar hun standaardwaarden: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Resetten</translation>
+    </message>
+    <message>
+        <source>Reset section?</source>
+        <translation>Sectie resetten?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Instellingen in ‘%2’ die worden teruggezet naar hun standaardwaarden: %1</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Sectie resetten</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -6419,8 +6550,8 @@ Mag QZ deze waarde wijzigen?
         <translation>Garmin-Bluetooth-sensor</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Schakel dit in als je gegevens van je Mac naar je Garmin-apparaat wilt sturen. Laat het anders uitgeschakeld.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Hiermee kan je Garmin of een ander sporthorloge QZ als Bluetooth-sensor gebruiken: een footpod met een loopband, een vermogensmeter met een fiets (zet op Android ook ‘Fietsvermogenssensor’ aan). Het horloge moet via Bluetooth gekoppeld zijn met de telefoon of tablet waarop QZ draait: vindt het QZ niet, koppel ze dan één keer, voeg daarna de sensor toe op het horloge en accepteer het koppelverzoek. Is Garmin Connect op dezelfde telefoon met het horloge verbonden, forceer dan twee of drie keer achter elkaar het stoppen ervan terwijl het horloge verbinding maakt; een aparte telefoon of tablet zonder Garmin Connect is makkelijker. Zolang QZ als sensor voor het horloge werkt, ziet Zwift via Bluetooth het alleen als footpod of vermogensmeter, niet als apparaat dat het kan besturen.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -8578,6 +8709,75 @@ Standaard: A = -0.96, B = 1.33</translation>
         <translation>Experimenteel: corrigeert de door QZ ingestelde loopbandsnelheid geleidelijk op basis van Runn/Stryd, als het stuurprogramma eigen snelheidsmetingen van het apparaat levert. Vereist ‘Snelheid van de vermogenssensor gebruiken’. Standaard: uit.</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Moderne interface</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Nieuw uiterlijk van het hoofdscherm, het zijmenu, de instellingen en de wizard. Schakel dit uit om het klassieke uiterlijk terug te krijgen.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Weergave</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Zoals op de telefoon</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Donker</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Licht</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Thema</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafiet</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Zwart / wit</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Middernachtblauw</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Accentkleur</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Violet</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Blauw</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Blauwgroen</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Groen</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Oranje</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Roze</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Tegelgrootte:</translation>
     </message>
@@ -8708,6 +8908,14 @@ Standaard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Use Console Gears</source>
         <translation>Versnellingen van de console gebruiken</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Loopbandcalorieën uit wandel-/hardloopmodel</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Voor loopbanden waarvan de console geen calorieën doorgeeft. De calorieën komen uit bandsnelheid, helling en je gewicht, lengte, leeftijd en geslacht: een wandelmodel onder je overgangssnelheid van wandelen naar hardlopen (bepaald door je lengte) en een hardloopmodel daarboven. Zet uit om in plaats daarvan de op vermogen gebaseerde waarde te gebruiken. Calorieën van een console, een externe vermogenssensor (Stryd enz.) en Calorieën berekenen uit hartslag (als die aan staat) gaan nog steeds voor.</translation>
     </message>
 </context>
 <context>
