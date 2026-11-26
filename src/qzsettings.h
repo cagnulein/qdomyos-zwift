@@ -3553,6 +3553,9 @@ class QZSettings {
     static const QString ui_modern_offer_pending;
     static constexpr bool default_ui_modern_offer_pending = false;
 
+    static const QString finnlo_varon_legacy;
+    static constexpr bool default_finnlo_varon_legacy = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

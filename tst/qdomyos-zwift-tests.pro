@@ -67,6 +67,7 @@ SOURCES += \
         Devices/TestNordictrackEllipticalS700Parser.cpp \
         Devices/TestXcxBikeParser.cpp \
         Devices/TestFtmsBikeParser.cpp \
+        Devices/TestFinnloVaronProtocol.cpp \
         Devices/TestRowerTargetResistance.cpp \
         Devices/TestBkoolStandaloneResistance.cpp \
         Devices/TestPafersRowerRouting.cpp \
