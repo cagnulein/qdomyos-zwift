@@ -37,6 +37,21 @@ function t(key, fallback) {
     return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
 }
 
+// The tooltip under a finger or the mouse: the time of the point (the x axis of the line charts
+// counts seconds, and so do the values of the zone bars) instead of the raw number
+function tooltipTime(seconds) {
+    let s = Math.round(seconds), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60);
+    return (h > 0 ? h + ":" + m.toString().padStart(2, "0") : m) + ":" + (s % 60).toString().padStart(2, "0");
+}
+
+function tooltipTimeTitle(items) {
+    return items.length ? tooltipTime(items[0].parsed.x) : "";
+}
+
+function tooltipTimeLabel(item) {
+    return tooltipTime(item.parsed.y);
+}
+
 function zoneLabel(number) {
     return t('chart.zoneNumber', 'zone {number}').replace('{number}', number);
 }
@@ -287,9 +302,10 @@ function process_arr(arr) {
                     display:true,
                     text:t('metric.watt', 'Watt')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false
@@ -361,6 +377,11 @@ function process_arr(arr) {
                             },
                         }
                       }
+            },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',
@@ -460,9 +481,10 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.heartRate', 'Heart Rate')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false
@@ -516,6 +538,11 @@ function process_arr(arr) {
                             },
                     }
                 },
+            },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',
@@ -609,14 +636,20 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.resistanceVsTarget', 'Resistance vs Target Resistance')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false,
                     position: 'bottom',
                 },
+            },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',
@@ -705,14 +738,20 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.pelotonResistanceVsTarget', 'Peloton Resistance vs Target Peloton Resistance')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false,
                     position: 'bottom',
                 },
+            },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',
@@ -801,14 +840,20 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.cadenceVsTarget', 'Cadence vs Target Cadence')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false,
                     position: 'bottom',
                 },
+            },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',
@@ -881,14 +926,20 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.powerDistribution', 'Power Distribution')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        label: tooltipTimeLabel,
+                    },
                 },
                 legend: {
                     display: false,
                     position: 'right',
                 },
+            },
+            // Chart.js 3: the bar of the zone under the finger anywhere in its column, not only on the bar
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',
@@ -956,14 +1007,20 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.speedAndInclination', 'Speed and Inclination')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false,
                     position: 'bottom',
                 },
+            },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',

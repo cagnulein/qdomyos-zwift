@@ -340,6 +340,10 @@
         current = null;
         var chart = chartOf(card);
         restoreOptions(chart && chart.config.options);
+        // no tooltip of the finger that swiped the card away: an update replays the last event
+        // of the chart, a mouseout drops it and the tooltip (Chart.js 3)
+        if (chart && chart.canvas)
+            chart.canvas.dispatchEvent(new MouseEvent('mouseout'));
         redraw(chart);
         updateButton(card);
     }
