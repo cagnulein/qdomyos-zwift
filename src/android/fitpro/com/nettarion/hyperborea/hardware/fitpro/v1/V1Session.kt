@@ -71,7 +71,8 @@ class V1Session(
     private var lastSentGrade = 0f
     private var lastSentSpeed = 0f
     private var lastKeyCode = -1 // for KEY_OBJECT press-edge detection
-    private val resistance = ResistanceConverter(deviceInfo.maxResistance)
+    @Volatile private var resistance = ResistanceConverter(deviceInfo.maxResistance)
+    private var lastBikeErgReadback: Float? = null
     private val gripHeartRate = GripHeartRateFilter()
 
     /** Device capabilities read from MCU during handshake. */
@@ -338,11 +339,14 @@ class V1Session(
 
     internal fun commandToFields(command: DeviceCommand): Map<V1DataField, Float> = when (command) {
         is DeviceCommand.SetResistance -> {
-            mapOf(V1DataField.RESISTANCE to resistance.levelToRaw(command.level).toFloat())
+            val raw = resistance.levelToRaw(command.level).toFloat()
+            bikeManualErgExitFields(detectedDeviceType == DeviceType.BIKE, supportedBitFields) +
+                mapOf(V1DataField.RESISTANCE to raw)
         }
         is DeviceCommand.SetIncline -> {
             lastSentGrade = roundToStep(command.percent, deviceInfo.inclineStep)
-            mapOf(V1DataField.GRADE to lastSentGrade)
+            bikeManualErgExitFields(detectedDeviceType == DeviceType.BIKE, supportedBitFields) +
+                mapOf(V1DataField.GRADE to lastSentGrade)
         }
         is DeviceCommand.SetTargetSpeed -> {
             lastSentSpeed = command.kph
@@ -351,7 +355,8 @@ class V1Session(
         is DeviceCommand.AdjustIncline -> {
             lastSentGrade += if (command.increase) deviceInfo.inclineStep else -deviceInfo.inclineStep
             lastSentGrade = lastSentGrade.coerceIn(deviceInfo.minIncline, deviceInfo.maxIncline)
-            mapOf(V1DataField.GRADE to lastSentGrade)
+            bikeManualErgExitFields(detectedDeviceType == DeviceType.BIKE, supportedBitFields) +
+                mapOf(V1DataField.GRADE to lastSentGrade)
         }
         is DeviceCommand.AdjustSpeed -> {
             lastSentSpeed += if (command.increase) deviceInfo.speedStep else -deviceInfo.speedStep
@@ -359,10 +364,14 @@ class V1Session(
             mapOf(V1DataField.KPH to lastSentSpeed)
         }
         is DeviceCommand.SetTargetPower -> {
-            mapOf(
-                V1DataField.WATT_GOAL to command.watts.toFloat(),
-                V1DataField.IS_CONSTANT_WATTS_MODE to 1f,
-            )
+            if (detectedDeviceType == DeviceType.BIKE && command.watts <= 0) {
+                mapOf(V1DataField.IS_CONSTANT_WATTS_MODE to 0f)
+            } else {
+                mapOf(
+                    V1DataField.WATT_GOAL to command.watts.toFloat(),
+                    V1DataField.IS_CONSTANT_WATTS_MODE to 1f,
+                )
+            }
         }
         is DeviceCommand.PauseWorkout -> {
             mapOf(V1DataField.WORKOUT_MODE to WorkoutMode.PAUSE.raw)
@@ -539,6 +548,13 @@ class V1Session(
             equipmentDeviceId = equipmentDeviceId,
         )
         logger.i(TAG, "Capabilities: $capabilities")
+        // Use the MCU limit rather than the initial catalog guess when the startup shape is valid.
+        if (detectedDeviceType == DeviceType.BIKE && !response.isTruncated) {
+            capabilities?.maxResistance?.takeIf { it in 1..10_000 }?.let {
+                resistance = ResistanceConverter(it)
+                logger.i(TAG, "V1 bike resistance scaling: MCU maxResistance=$it")
+            }
+        }
         // TOTAL_TIME / MOTOR_TOTAL_DISTANCE units are device-dependent: bikes report seconds and
         // metres, but belt machines (e.g. the NordicTrack 2950) report milliseconds and millimetres
         // — which, read as raw s/m, would show a ~13-year runtime and an 833,757 km odometer. Scale
@@ -761,6 +777,10 @@ class V1Session(
             pendingWriteFields = emptyMap()
         }
         logSafetyWrites(writeFields)
+        val resistanceWrite = if (detectedDeviceType == DeviceType.BIKE) writeFields[V1DataField.RESISTANCE] else null
+        if (resistanceWrite != null) {
+            logger.i(TAG, "V1 bike resistance write: raw=$resistanceWrite, modeWrite=${writeFields[V1DataField.IS_CONSTANT_WATTS_MODE]}, previousModeReadback=$lastBikeErgReadback")
+        }
 
         // ReadWriteData targets DEVICE_MAIN (0x02) — FITNESS_BIKE (0x07) returns DEV_NOT_SUPPORTED.
         // pollFields is periodicReadFields ∩ supportedBitFields so the response payload size matches
@@ -796,6 +816,9 @@ class V1Session(
             return
         }
         if (decoded is V1Message.Incoming.DataResponse) {
+            if (resistanceWrite != null) {
+                logger.i(TAG, "V1 bike resistance response: status=${decoded.status}, raw=${decoded.fields[V1DataField.RESISTANCE]}, mode=${decoded.fields[V1DataField.IS_CONSTANT_WATTS_MODE]}, truncated=${decoded.isTruncated}")
+            }
             if (decoded.status == V1Message.STATUS_SECURITY_BLOCK) {
                 logger.w(TAG, "Security block — re-verifying")
                 if (writeFields.isNotEmpty()) {
@@ -831,6 +854,14 @@ class V1Session(
             }
             lastTruncatedSeen = decoded.isTruncated
 
+            if (detectedDeviceType == DeviceType.BIKE) {
+                // Positional decode is not authoritative when the response shape is wrong.
+                val mode = if (decoded.isTruncated) null else decoded.fields[V1DataField.IS_CONSTANT_WATTS_MODE]
+                if (mode != lastBikeErgReadback) {
+                    logger.i(TAG, "V1 bike constant-watts readback: $mode (null means unavailable)")
+                    lastBikeErgReadback = mode
+                }
+            }
             applyDataResponse(decoded.fields)
             handleKeyObject(decoded.keyObject)
             estimatePowerIfNeeded()
