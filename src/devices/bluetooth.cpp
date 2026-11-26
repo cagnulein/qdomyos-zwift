@@ -3428,7 +3428,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(trxappgateusb, &trxappgateusbtreadmill::debug, this, &bluetooth::debug);
                 trxappgateusb->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(trxappgateusb);
-            } else if ((isTrxAppGateUsbBikeTC && !ftmsBike &&
+            } else if (((isTrxAppGateUsbBikeTC && !ftmsBike &&
                          b.name().compare(ftms_bike, Qt::CaseInsensitive) != 0) ||
                         (upperDeviceName.startsWith(QStringLiteral("TUN ")) ||
                         upperDeviceName.startsWith(QStringLiteral("FITHIWAY")) ||
