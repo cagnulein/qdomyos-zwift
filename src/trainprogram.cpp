@@ -701,6 +701,9 @@ void trainprogram::scheduler() {
         }
     }
 
+    if (!fitWorkoutMatchesDevice())
+        return;
+
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
          !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
@@ -1519,8 +1522,14 @@ void trainprogram::decreaseElapsedTime(int32_t i) {
     ticks -= i;
 }
 
+bool trainprogram::fitWorkoutMatchesDevice() const {
+    return !isFitWorkout || !bluetoothManager || !bluetoothManager->device() ||
+           workoutimport::isFitDeviceCompatible(loadedDeviceType, bluetoothManager->device()->deviceType());
+}
+
 void trainprogram::applyCurrentStepSettings() {
-    if (!bluetoothManager || !bluetoothManager->device() || currentStep >= (uint16_t)rows.length())
+    if (!bluetoothManager || !bluetoothManager->device() || currentStep >= (uint16_t)rows.length() ||
+        !fitWorkoutMatchesDevice())
         return;
 
     QSettings settings;
@@ -2004,9 +2013,21 @@ trainprogram *trainprogram::load(const QString &filename, bluetooth *b, QString 
     if (workoutimport::isSupportedFile(filename, Extension)) {
         QString description = "";
         QString tags = "";
-        trainprogram *program =
-            new trainprogram(workoutimport::load(filename, Extension, &description), b, &description, &tags);
-        if (b && b->device()) {
+        BLUETOOTH_TYPE fitDeviceType = UNKNOWN;
+        auto rows = workoutimport::load(filename, Extension, &description, &fitDeviceType);
+        const bool isFit = filename.endsWith(QStringLiteral(".fit"), Qt::CaseInsensitive) ||
+                           Extension.compare(QStringLiteral("FIT"), Qt::CaseInsensitive) == 0;
+        if (isFit && b && b->device() &&
+            !workoutimport::isFitDeviceCompatible(fitDeviceType, b->device()->deviceType())) {
+            qWarning() << "FIT workout sport does not match connected device:" << fitDeviceType
+                       << b->device()->deviceType();
+            rows.clear();
+        }
+        trainprogram *program = new trainprogram(rows, b, &description, &tags);
+        program->isFitWorkout = isFit;
+        if (isFit) {
+            program->loadedDeviceType = fitDeviceType;
+        } else if (b && b->device()) {
             program->loadedDeviceType = b->device()->deviceType();
         }
         return program;
@@ -2400,7 +2421,7 @@ int trainprogram::currentRowElapsedSeconds() const {
 }
 
 trainrow trainprogram::currentRow() {
-    if (started && !rows.isEmpty()) {
+    if (started && !rows.isEmpty() && fitWorkoutMatchesDevice()) {
 
         return rows.at(currentStep);
     }
@@ -2408,7 +2429,7 @@ trainrow trainprogram::currentRow() {
 }
 
 trainrow trainprogram::getRowFromCurrent(uint32_t offset) {
-    if (started && !rows.isEmpty() && (currentStep + offset) < (uint32_t)rows.length()) {
+    if (started && !rows.isEmpty() && (currentStep + offset) < (uint32_t)rows.length() && fitWorkoutMatchesDevice()) {
         return rows.at(currentStep + offset);
     }
     return trainrow();

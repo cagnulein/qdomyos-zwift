@@ -197,6 +197,14 @@ The RENPHO physical knob can also be used first to tune and test the virtual gea
 
 If using a Bluetooth media/volume remote instead, QZ handles volume-up and volume-down key events as gear controls when the corresponding option is enabled. On Android, the system volume overlay may still briefly appear when those keys are pressed; that does not prevent QZ from using the key presses as gear changes.
 
+## Can I keep my ProForm TDF bike's physical gears under manual control while ROUVY changes its incline?
+
+On a supported ProForm TDF bike with independently adjustable physical incline and electronic resistance, try disabling **Zwift Force Resistance** in QZ's **Experimental Settings**. Despite the setting name, this can affect the ROUVY bridge as well.
+
+A rider using a ProForm TDF (PFEX01218C.0) explicitly confirmed that after turning this option off, the bike continued physically tilting to follow ROUVY terrain while the rider could select the bike's own electronic resistance levels without them being immediately overridden. Verify both functions separately on your own model.
+
+If QZ's **Resistance** tile matches the bike's own gear number, you are using the bike's physical resistance levels, not necessarily QZ's virtual gear table. **Gears Gain** adjusts QZ's virtual gear steps; it does not increase the maximum resistance of the bike's own 26-level system. If the highest physical gear is too easy, compare the bike's standalone resistance at the same incline and cadence before changing QZ gearing settings.
+
 ## How do I follow Peloton resistance targets when my bike uses a different resistance scale?
 
 Do not try to make the bike's native resistance scale match Peloton numerically. QZ calculates a separate **Peloton Resistance** value for supported bikes so you can follow the resistance target shown by a Peloton workout while the physical bike continues to use its own native levels.
@@ -278,6 +286,10 @@ In a confirmed support case, Kinomap had retained old connections and was interf
 6. Keep **QZ in the foreground** while riding and start **Bike Indoor** on the Garmin watch. After the workout, re-enable the watch's phone connection to sync the watch-recorded activity to **Garmin Connect** and onward to Strava if configured.
 
 This is a **Bluetooth Cycling Power** connection, **not ANT+**: an iPhone cannot broadcast ANT+. QZ's Garmin Bluetooth Sensor mode advertises its cycling power service to the watch and may appear as **PWR - QZ** instead of the ordinary **HR - QZ** virtual heart-rate device. Success depends on Garmin model, firmware and pairing behavior, so the confirmed Forerunner 265 result is not a guarantee for every watch.
+
+**Garmin Forerunner 965: pair the watch with the device running QZ first.** In [issue #5932](https://github.com/cagnulein/qdomyos-zwift/issues/5932#issuecomment-7140587837), a contributor found that the watch could not discover QZ's Cycling Power sensor even though QZ advertised service `0x1818` correctly and nRF Connect could see it. On a separate Android phone running QZ, pairing the watch with that phone over Bluetooth first made **PWR - QZ** discoverable. The watch then requested an additional Bluetooth pairing confirmation when adding the power sensor; accepting it allowed live power to reach the watch. When using QZ on an iPad, follow the same sequence: pair the Garmin with the iPad over Bluetooth first, then search **Sensors & Accessories > Add New > Power** and accept any pairing prompt on the iPad. This is a troubleshooting sequence for devices that do not discover QZ, not a prerequisite for every Garmin model.
+
+**Garmin Connect and phone-link caution:** On the phone already linked to Garmin Connect, the contributor observed Garmin Connect reclaiming the Bluetooth connection and interfering with QZ sensor pairing. A separate phone or tablet running QZ without Garmin Connect can avoid this contention. Disabling the watch's phone link can also unlink it from Garmin Connect and require setting it up again; do not assume this step is reversible without reconfiguration.
 
 **If the watch detects QZ but will not pair**, try the temporary phone-disconnect step above first. A previous Garmin Epix Pro Gen 2 report found QZ but could not complete pairing; the watch-specific workaround was not confirmed for that model. If live sensor pairing still does not work, QZ can instead record the workout and upload the completed **FIT activity** to **Garmin Connect** using its Garmin Connect / Garmin Upload integration. That alternative transfers workout metrics *after* the ride, without recording them natively on the watch.
 

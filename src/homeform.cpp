@@ -24,6 +24,7 @@
 #include "templateinfosenderbuilder.h"
 #include "workoutmodel.h"
 #include "zwiftworkout.h"
+#include "workoutimport.h"
 #include "authutils.h"
 
 #include <QAbstractOAuth2>
@@ -9918,6 +9919,8 @@ bool homeform::startTrainingProgramFromFile(const QString &filePath) {
         return false;
     }
     trainprogram_open_clicked(QUrl::fromLocalFile(localPath));
+    if (trainProgram && trainProgram->isFitWorkout)
+        return !trainProgram->loadedRows.isEmpty() && trainProgram->fitWorkoutMatchesDevice();
     return true;
 }
 
@@ -10429,6 +10432,25 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
             }
 
             trainProgram = trainprogram::load(file.fileName(), bluetoothManager, file.fileName().right(3).toUpper());
+            if (trainProgram->isFitWorkout) {
+                const bool matchesDevice = trainProgram->fitWorkoutMatchesDevice();
+                // A known incompatible sport is only exposed after a successful decode, so keep
+                // that valid FIT too: the editor can read it without controlling the current device.
+                if (!trainProgram->loadedRows.isEmpty() || !matchesDevice) {
+                    const QString savedFit = workoutimport::keepFitInTrainingFolder(
+                        file.fileName(), getWritableAppDir() + QStringLiteral("training/"));
+                    if (savedFit.isEmpty()) {
+                        setToastRequested(tr("The workout was opened but could not be saved."));
+                    } else {
+                        emit folderFilesRestored();
+                    }
+                }
+                if (!matchesDevice) {
+                    setToastRequested(tr("This workout sport does not match the connected device."));
+                } else if (trainProgram->loadedRows.isEmpty()) {
+                    setToastRequested(tr("The workout file could not be opened."));
+                }
+            }
 
             QString movieName = file.fileName().left(file.fileName().length() - 3) + "mp4";
             if (QFile::exists(movieName)) {
@@ -10464,6 +10486,11 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
 
 void homeform::trainprogram_autostart_requested() {
     qDebug() << QStringLiteral("trainprogram_autostart_requested");
+    // Do not autostart a rejected FIT or one for a different sport.
+    // Preserve the existing behavior for all other workout formats.
+    if (trainProgram && trainProgram->isFitWorkout &&
+        (trainProgram->loadedRows.isEmpty() || !trainProgram->fitWorkoutMatchesDevice()))
+        return;
 
     bluetoothdevice *dev = nullptr;
     if (bluetoothManager) {
