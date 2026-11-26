@@ -1259,7 +1259,8 @@ public:
     bool watchAwake = false;
     QDateTime watchLastWake;
     QDateTime watchActiveAt; // last time the equipment moved or Start was pressed
-    void setWatchAwake(bool awake);
+    void setWatchAwake(bool awake, bool start = false);
+    bool watchAutoSleep() const;
     void watchHeartTick();
     qint64 currentUpdateJitter = 0;
 

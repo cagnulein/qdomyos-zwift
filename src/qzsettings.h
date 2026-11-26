@@ -3552,6 +3552,10 @@ class QZSettings {
     // The question "Try the new interface?" on the home page is still to be asked: cleared by the answer
     static const QString ui_modern_offer_pending;
     static constexpr bool default_ui_modern_offer_pending = false;
+    // QZ on a Wear OS watch measures heart rate only during a workout (homeform::watchHeartTick);
+    // off keeps it awake whenever QZ runs on the phone
+    static const QString wear_hr_auto_sleep;
+    static constexpr bool default_wear_hr_auto_sleep = true;
 
     // Smooth Chart Lines: the Charts page (chartjs/dochart.js, also the charts of the workout email) draws
     // the power, cadence and speed lines as a moving average. The index in the list of settings.qml:
