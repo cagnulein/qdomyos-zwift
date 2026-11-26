@@ -90,6 +90,8 @@ class ftmsbike : public bike {
     static resistance_t normalizedResistanceForDevice(const QString &deviceName, double rawResistance);
     static resistance_t rawResistanceForDevice(const QString &deviceName, resistance_t displayedResistance);
     static bool uses16BitResistanceForDevice(const QString &deviceName);
+    static bool shouldSendMatrixResistance(const QString &deviceName, resistance_t requestedResistance,
+                                           resistance_t lastAcknowledgedResistance, resistance_t pendingResistance);
     static bool isMatchingFtmsControlResponse(const QBluetoothUuid &characteristicUuid,
                                               const QByteArray &response, uint8_t requestedOpcode);
 
@@ -173,6 +175,8 @@ class ftmsbike : public bike {
     bool matrixControlRequestPending = false;
     QDateTime matrixNextControlAttempt;
     resistance_t matrixLastResistanceCommand = -1;
+    resistance_t matrixLastAcknowledgedResistance = -1;
+    resistance_t matrixPendingResistance = -1;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
