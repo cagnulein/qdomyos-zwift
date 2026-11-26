@@ -3,6 +3,8 @@ GOOGLETEST_DIR = $$PWD/googletest
 include(../defaults.pri)
 include(gtest_dependency.pri)
 
+SOURCES += ToolTests/androidmulticasttests.cpp
+
 TEMPLATE = app
 
 RESOURCES += Devices/ypoom5distance.qrc

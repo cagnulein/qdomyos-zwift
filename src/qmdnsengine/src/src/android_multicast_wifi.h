@@ -74,23 +74,23 @@ struct RestoreOption {
         if (!ok) socket.setProperty("androidMdnsMulticastBlocked", true);
         socket.setProperty("androidMdnsMulticastActive", false);
         if (!ok) qWarning() << "Android mDNS RESTORE_IF_FAILED" << error
-                        << "IPv4 multicast blocked until Server recreation; unicast/IPv6/RX unchanged";
+                        << "IPv4 socket will be recreated on the next maintenance tick";
         return ok;
     }
     ~RestoreOption() { restore(); }
 };
-inline void sendWifi(QUdpSocket &socket, const QByteArray &packet,
+inline bool sendWifi(QUdpSocket &socket, const QByteArray &packet,
                      const QHostAddress &group, quint16 port) {
     // TX interface choice is independent of IP_ADD_MEMBERSHIP used for RX.
     // Only the already-open qmdnsengine socket is changed; no global route/bindProcessToNetwork.
-    if (!canSend(socket)) return;
+    if (!canSend(socket)) return false;
     const QHostAddress address = wifiAddress();
-    if (!valid(address)) return;
+    if (!valid(address)) return false;
     const qintptr descriptor = socket.socketDescriptor();
     if (socket.state() != QAbstractSocket::BoundState || descriptor < 0 ||
         descriptor > std::numeric_limits<int>::max()) {
         qWarning() << "Android mDNS SOCKET_INVALID; send skipped";
-        return;
+        return false;
     }
     const int fd = int(descriptor);
     in_addr previous = {};
@@ -99,30 +99,31 @@ inline void sendWifi(QUdpSocket &socket, const QByteArray &packet,
     if (saved != 0 || length != sizeof(previous)) {
         const int error = saved != 0 ? errno : EINVAL;
         qWarning() << "Android mDNS GET_IF_FAILED" << error << strerror(error) << "send skipped";
-        return;
+        return false;
     }
     RestoreOption restore(socket, fd, previous);
     in_addr chosen = {};
     chosen.s_addr = htonl(address.toIPv4Address());
     restore.armed = true; // Restore the prior setting even when the attempted change fails.
+    socket.setProperty("androidMdnsMulticastActive", true);
     if (::setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, &chosen, sizeof(chosen)) != 0) {
         const int error = errno;
         qWarning() << "Android mDNS SET_IF_FAILED" << address << error << strerror(error)
                    << "no default-route fallback";
-        return;
+        return false;
     }
-    socket.setProperty("androidMdnsMulticastActive", true);
     in_addr observed = {};
     socklen_t observedSize = sizeof(observed);
     const int readback = ::getsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, &observed, &observedSize);
     if (readback != 0 || observedSize != sizeof(observed) || observed.s_addr != chosen.s_addr) {
         const int error = readback != 0 ? errno : EIO;
         qWarning() << "Android mDNS SET_IF_VERIFY_FAILED" << error << "send skipped";
-        return; // RAII restores even on this error path.
+        return false; // RAII restores even on this error path.
     }
-    if (socket.writeDatagram(packet, group, port) != packet.size())
+    const bool sent = socket.writeDatagram(packet, group, port) == packet.size();
+    if (!sent)
         qWarning() << "Android mDNS IPv4 send failed" << socket.errorString();
-    restore.restore();
+    return restore.restore() && sent;
 }
 }
 #endif

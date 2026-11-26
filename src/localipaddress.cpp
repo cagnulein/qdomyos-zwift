@@ -9,6 +9,9 @@
 #include <QAndroidJniObject>
 #include <QtAndroid>
 #include <QtEndian>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <unistd.h>
 #endif
 
 #ifdef Q_OS_ANDROID
@@ -336,5 +339,47 @@ QList<QHostAddress> localipaddress::allIPv4() {
 #ifdef Q_OS_ANDROID
 QList<QHostAddress> localipaddress::wifiIPv4() {
     return cachedJavaIPv4().wifi;
+}
+#endif
+
+#ifdef Q_OS_ANDROID
+QHostAddress localipaddress::wifiIPv4ForPeer(const QHostAddress &peer) {
+    QHostAddress selected;
+    for (const QHostAddress &candidate : wifiIPv4()) {
+        if (candidate.protocol() != QAbstractSocket::IPv4Protocol ||
+            candidate.isNull() || candidate.isLoopback() ||
+            candidate.isLinkLocal() || candidate.isMulticast() ||
+            candidate.toIPv4Address() == 0 ||
+            candidate.toIPv4Address() == 0xffffffff)
+            continue;
+        if (!selected.isNull() && selected != candidate)
+            return QHostAddress();
+        selected = candidate;
+    }
+    if (selected.isNull() || peer.isNull())
+        return selected;
+    if (peer.protocol() != QAbstractSocket::IPv4Protocol)
+        return QHostAddress();
+
+    // A connected UDP socket selects the unicast route without sending data.
+    // Accept the Wi-Fi address only if that route would use it for this peer.
+    const int descriptor = ::socket(AF_INET, SOCK_DGRAM, 0);
+    if (descriptor < 0)
+        return QHostAddress();
+    sockaddr_in destination = {};
+    destination.sin_family = AF_INET;
+    destination.sin_port = htons(5353);
+    destination.sin_addr.s_addr = htonl(peer.toIPv4Address());
+    sockaddr_in source = {};
+    socklen_t length = sizeof(source);
+    const bool routed = ::connect(descriptor, reinterpret_cast<sockaddr *>(&destination),
+                                  sizeof(destination)) == 0 &&
+                        ::getsockname(descriptor, reinterpret_cast<sockaddr *>(&source),
+                                      &length) == 0;
+    ::close(descriptor);
+    if (routed && length == sizeof(source) &&
+        QHostAddress(ntohl(source.sin_addr.s_addr)) == selected)
+        return selected;
+    return QHostAddress();
 }
 #endif

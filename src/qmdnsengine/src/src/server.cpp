@@ -104,12 +104,16 @@ void ServerPrivate::writeToAllInterfaces(QUdpSocket &socket, const QByteArray &p
 
     const bool wantIPv4 = group.protocol() == QAbstractSocket::IPv4Protocol;
 #ifdef Q_OS_ANDROID
-    if (wantIPv4 && !AndroidMulticast::canSend(socket)) return;
+    if (wantIPv4 && !AndroidMulticast::canSend(socket)) {
+        if (socket.property("androidMdnsMulticastBlocked").toBool())
+            timer.start(1000);
+        return;
+    }
 #endif
     const QNetworkInterface previous = socket.multicastInterface();
     bool sent = false;
 #ifdef Q_OS_ANDROID
-    const QList<QHostAddress> wifiAddresses = wantIPv4 ? localipaddress::wifiIPv4() : QList<QHostAddress>();
+    const QHostAddress wifiAddress = wantIPv4 ? AndroidMulticast::wifiAddress() : QHostAddress();
     bool sentOnWifi = false;
 #endif
 
@@ -149,7 +153,7 @@ void ServerPrivate::writeToAllInterfaces(QUdpSocket &socket, const QByteArray &p
 #ifdef Q_OS_ANDROID
             if (wantIPv4) {
                 for (const QNetworkAddressEntry &entry : entries) {
-                    if (wifiAddresses.contains(entry.ip())) {
+                    if (entry.ip() == wifiAddress) {
                         sentOnWifi = true;
                         break;
                     }
@@ -164,19 +168,19 @@ void ServerPrivate::writeToAllInterfaces(QUdpSocket &socket, const QByteArray &p
     // If no interface looked usable, fall back to the old behaviour rather
     // than silently sending nothing.
 #ifdef Q_OS_ANDROID
-    // A successful Qt send on cellular does not deliver the packet to Wi-Fi.
-    if (wantIPv4 && !wifiAddresses.isEmpty() && !sentOnWifi) {
-        AndroidMulticast::sendWifi(socket, packet, group, port);
-        return;
+    // A Qt write can succeed even when Android routes through cellular.
+    if (wantIPv4 && !wifiAddress.isNull() && !sentOnWifi) {
+        if (AndroidMulticast::sendWifi(socket, packet, group, port))
+            return;
+        if (socket.property("androidMdnsMulticastBlocked").toBool()) {
+            timer.start(1000);
+            return;
+        }
     }
 #endif
     if (!sent) {
-#ifdef Q_OS_ANDROID
-        if (wantIPv4) {
-            AndroidMulticast::sendWifi(socket, packet, group, port);
-            return;
-        }
-#endif
+        // Retain the original default-route path for Ethernet and older Android
+        // devices when Java cannot identify a unique Wi-Fi interface.
         socket.writeDatagram(packet, group, port);
     }
 }
@@ -190,9 +194,15 @@ void ServerPrivate::onTimeout()
     // groups
 
 #ifdef Q_OS_ANDROID
-    // A new socket needs a fresh membership; retry a failed join on the next timer tick.
-    if (ipv4Socket.state() != QAbstractSocket::BoundState)
-        ipv4FallbackJoined = false;
+    const QHostAddress currentWifi = AndroidMulticast::wifiAddress();
+    // A changed Wi-Fi address invalidates the old membership and its socket.
+    if (joinedWifiAddress != currentWifi ||
+        ipv4Socket.property("androidMdnsMulticastBlocked").toBool()) {
+        qWarning() << "Android mDNS refreshing IPv4 socket for network or option change";
+        ipv4Socket.close();
+        ipv4Socket.setProperty("androidMdnsMulticastBlocked", false);
+        joinedWifiAddress = currentWifi;
+    }
 #endif
     bool ipv4Bound = bindSocket(ipv4Socket, QHostAddress::AnyIPv4);
     bool ipv6Bound = bindSocket(ipv6Socket, QHostAddress::AnyIPv6);
@@ -200,24 +210,30 @@ void ServerPrivate::onTimeout()
     if (ipv4Bound || ipv6Bound) {
         const auto interfaces = QNetworkInterface::allInterfaces();
 #ifdef Q_OS_ANDROID
-        bool usableQtIPv4 = false;
+        bool joinedQtWifi = false;
+        const QHostAddress wifi = currentWifi;
 #endif
         for (const QNetworkInterface &networkInterface : interfaces) {
             if (networkInterface.flags() & QNetworkInterface::CanMulticast) {
                 if (ipv4Bound) {
 #ifdef Q_OS_ANDROID
                     const auto flags = networkInterface.flags();
-                    if (flags.testFlag(QNetworkInterface::IsUp) &&
-                        flags.testFlag(QNetworkInterface::IsRunning)) {
+                    const bool active = flags.testFlag(QNetworkInterface::IsUp) &&
+                                        flags.testFlag(QNetworkInterface::IsRunning);
+                    bool matchesWifi = false;
+                    if (active && !wifi.isNull()) {
                         for (const QNetworkAddressEntry &entry : networkInterface.addressEntries()) {
-                            if (entry.ip().protocol() == QAbstractSocket::IPv4Protocol) {
-                                usableQtIPv4 = true;
+                            if (entry.ip() == wifi) {
+                                matchesWifi = true;
                                 break;
                             }
                         }
                     }
 #endif
-                    ipv4Socket.joinMulticastGroup(MdnsIpv4Address, networkInterface);
+                    const bool joined = ipv4Socket.joinMulticastGroup(MdnsIpv4Address, networkInterface);
+#ifdef Q_OS_ANDROID
+                    joinedQtWifi |= matchesWifi && joined;
+#endif
                 }
                 if (ipv6Bound) {
                     ipv6Socket.joinMulticastGroup(MdnsIpv6Address, networkInterface);
@@ -225,9 +241,25 @@ void ServerPrivate::onTimeout()
             }
         }
 #ifdef Q_OS_ANDROID
-        if (ipv4Bound && !usableQtIPv4 && !ipv4FallbackJoined) {
-            const bool joined = ipv4Socket.joinMulticastGroup(MdnsIpv4Address);
-            ipv4FallbackJoined = joined;
+        if (ipv4Bound && !joinedQtWifi && !wifi.isNull()) {
+            // Qt 5.15.0 may omit wlan from its interface list on Android 16.
+            // Join on the existing IPv4 socket using Java's Wi-Fi address.
+            ip_mreq membership = {};
+            membership.imr_multiaddr.s_addr = htonl(MdnsIpv4Address.toIPv4Address());
+            membership.imr_interface.s_addr = htonl(wifi.toIPv4Address());
+            const qintptr descriptor = ipv4Socket.socketDescriptor();
+            if (descriptor >= 0 && descriptor <= std::numeric_limits<int>::max()) {
+                const int result = ::setsockopt(int(descriptor), IPPROTO_IP, IP_ADD_MEMBERSHIP,
+                                                &membership, sizeof(membership));
+                if (result != 0 && errno != EADDRINUSE)
+                    qWarning() << "Android mDNS Wi-Fi join failed" << wifi << errno;
+            }
+        }
+        // Preserve the original default-route join for Ethernet and older
+        // Android consoles. Retry failed joins on every maintenance tick.
+        if (ipv4Bound && !joinedQtWifi) {
+            if (!ipv4Socket.joinMulticastGroup(MdnsIpv4Address))
+                qWarning() << "Android mDNS default-route join failed" << ipv4Socket.errorString();
         }
 #endif
     }

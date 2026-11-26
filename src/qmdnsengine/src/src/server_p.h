@@ -28,6 +28,9 @@
 #include <QObject>
 #include <QTimer>
 #include <QUdpSocket>
+#ifdef Q_OS_ANDROID
+#include <QHostAddress>
+#endif
 
 class QHostAddress;
 
@@ -64,7 +67,7 @@ private:
 
     Server *const q;
 #ifdef Q_OS_ANDROID
-    bool ipv4FallbackJoined = false;
+    QHostAddress joinedWifiAddress;
 #endif
 };
 

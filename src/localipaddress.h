@@ -14,6 +14,8 @@ public:
 #ifdef Q_OS_ANDROID
     // Explicit Wi-Fi subset of the existing Android NetworkInterface enumeration.
     static QList<QHostAddress> wifiIPv4();
+    // Return a unique Wi-Fi address only if the peer routes through it.
+    static QHostAddress wifiIPv4ForPeer(const QHostAddress &peer);
 #endif
 };
 

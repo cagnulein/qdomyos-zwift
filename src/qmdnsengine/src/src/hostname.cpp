@@ -173,19 +173,15 @@ bool HostnamePrivate::generateRecord(const QHostAddress &srcAddress, quint16 typ
 
     const auto interfaces = QNetworkInterface::allInterfaces();
 #ifdef Q_OS_ANDROID
-    bool qtHasIPv4 = false;
+    const QHostAddress uniqueWifi = localipaddress::wifiIPv4ForPeer(srcAddress);
 #endif
+#ifndef Q_OS_ANDROID
     for (const QNetworkInterface &networkInterface : interfaces) {
         const auto entries = networkInterface.addressEntries();
         for (const QNetworkAddressEntry &entry : entries) {
-#ifdef Q_OS_ANDROID
-            if (entry.ip().protocol() == QAbstractSocket::IPv4Protocol &&
-                !entry.ip().isNull() && !entry.ip().isLoopback() && !entry.ip().isLinkLocal())
-                qtHasIPv4 = true;
-#endif
             if (srcAddress.isInSubnet(entry.ip(), entry.prefixLength())) {
                 for (const QNetworkAddressEntry &newEntry : entries) {
-                    QHostAddress address = newEntry.ip();
+                    const QHostAddress address = newEntry.ip();
                     if ((address.protocol() == QAbstractSocket::IPv4Protocol && type == A) ||
                         (address.protocol() == QAbstractSocket::IPv6Protocol && type == AAAA)) {
                         record.setName(hostname);
@@ -197,27 +193,33 @@ bool HostnamePrivate::generateRecord(const QHostAddress &srcAddress, quint16 typ
             }
         }
     }
-#ifdef Q_OS_ANDROID
-    if (type == A) {
-        // Qt may see cellular IPv4 but miss the Wi-Fi interface entirely.
-        const auto wifi = localipaddress::wifiIPv4();
-        QHostAddress selected;
-        const auto usable = androidIPv4Addresses();
-        for (const QHostAddress &address : wifi) {
-            if (!usable.contains(address)) continue;
-            if (!selected.isNull() && selected != address) return false;
-            selected = address;
-        }
-        if (selected.isNull() && !qtHasIPv4) {
-            const auto addresses = androidIPv4Addresses();
-            if (!addresses.isEmpty()) selected = addresses.first();
-        }
-        if (!selected.isNull()) {
+#else
+    for (const QNetworkInterface &networkInterface : interfaces) {
+        const auto flags = networkInterface.flags();
+        if (type == A &&
+            (!flags.testFlag(QNetworkInterface::IsUp) ||
+             !flags.testFlag(QNetworkInterface::IsRunning) ||
+             (networkInterface.type() != QNetworkInterface::Wifi &&
+              networkInterface.type() != QNetworkInterface::Ethernet)))
+            continue;
+        for (const QNetworkAddressEntry &entry : networkInterface.addressEntries()) {
+            const QHostAddress address = entry.ip();
+            if (!srcAddress.isInSubnet(address, entry.prefixLength()) ||
+                ((type == A) != (address.protocol() == QAbstractSocket::IPv4Protocol)))
+                continue;
             record.setName(hostname);
-            record.setType(A);
-            record.setAddress(selected);
+            record.setType(type);
+            record.setAddress(address);
             return true;
         }
+    }
+#endif
+#ifdef Q_OS_ANDROID
+    if (type == A && !uniqueWifi.isNull()) {
+        record.setName(hostname);
+        record.setType(A);
+        record.setAddress(uniqueWifi);
+        return true;
     }
 #endif
     return false;
