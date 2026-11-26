@@ -2,6 +2,13 @@
 
 #include "devices/ftmsbike/ftmsbike.h"
 #include "devices/daumbike/daumbike.h"
+#include "Tools/testsettings.h"
+
+TEST(FtmsBikeParserTest, EncodesStandardFtmsResistanceLevelWithTenthsAndLittleEndian) {
+    EXPECT_EQ(QByteArray::fromHex("04 0a 00"), ftmsbike::encodeStandardResistanceLevel(1));
+    EXPECT_EQ(QByteArray::fromHex("04 8c 00"), ftmsbike::encodeStandardResistanceLevel(14));
+    EXPECT_EQ(QByteArray::fromHex("04 9a 01"), ftmsbike::encodeStandardResistanceLevel(41));
+}
 
 TEST(FtmsBikeParserTest, DecodesFsIb50Resistance) {
     resistance_t resistance = -1;
@@ -89,3 +96,62 @@ TEST(DaumBikeControlTest, AllowsDaumResistanceWithoutVirtualFtmsOwnership) {
     EXPECT_TRUE(daumbike::shouldWriteResistanceToDaum(true, false, -1));
 }
 
+
+TEST(TcFtmsOverlayTest, RejectsRepeatedUnderThousandWattSpikesAtStableCadenceAndResistance) {
+    TcFtmsOverlay filter;
+    EXPECT_TRUE(filter.acceptPower(32, 75, 7, 30));
+    for (int i = 0; i < 8; ++i)
+        EXPECT_FALSE(filter.acceptPower(302, 75, 7, 30));
+    EXPECT_FALSE(filter.acceptPower(558, 75, 7, 30));
+    EXPECT_FALSE(filter.acceptPower(6910, 75, 7, 30));
+    EXPECT_TRUE(filter.acceptPower(33, 76, 7, 30));
+}
+
+TEST(TcFtmsOverlayTest, RejectsTransientSpikeWhileResistanceTransitionsInLowPowerWorkout) {
+    TcFtmsOverlay filter;
+    EXPECT_TRUE(filter.acceptPower(33, 75, 1, 30));
+    EXPECT_FALSE(filter.acceptPower(302, 75, 12, 30));
+    EXPECT_TRUE(filter.acceptPower(32, 75, 12, 30));
+}
+
+TEST(TcFtmsOverlayTest, AllowsRealPowerIncreasesAfterLargeResistanceOrCadenceChanges) {
+    TcFtmsOverlay filter;
+    EXPECT_TRUE(filter.acceptPower(32, 80, 7, 200));
+    EXPECT_TRUE(filter.acceptPower(180, 80, 36, 200));
+    EXPECT_TRUE(filter.acceptPower(200, 96, 36, 200));
+
+    TcFtmsOverlay sprint;
+    EXPECT_TRUE(sprint.acceptPower(35, 70, 12, 150));
+    EXPECT_TRUE(sprint.acceptPower(200, 95, 12, 150));
+}
+
+TEST(TcFtmsOverlayTest, RetainsPreviousPositiveBaselineAcrossZeroPowerPause) {
+    TcFtmsOverlay filter;
+    EXPECT_TRUE(filter.acceptPower(32, 75, 7, 30));
+    EXPECT_TRUE(filter.acceptPower(0, 0, 7, 30));
+    EXPECT_FALSE(filter.acceptPower(302, 75, 7, 30));
+    EXPECT_TRUE(filter.acceptPower(31, 75, 7, 30));
+}
+
+TEST(TcFtmsOverlayTest, DoesNotUseWorkoutTargetAsHardCap) {
+    TcFtmsOverlay filter;
+    EXPECT_TRUE(filter.acceptPower(35, 80, 12, 30));
+    EXPECT_TRUE(filter.acceptPower(120, 85, 12, 30));
+}
+
+TEST(ErgTableCollectionTest, DisabledCollectionPreservesEmptyTableAndCanResume) {
+    TestSettings settings("Roberto Viola", "QDomyos-Zwift Testing");
+    settings.activate();
+    settings.qsettings.remove("ergDataPoints");
+
+    ergTable table;
+    table.setCollectingEnabled(false);
+    for (int i = 0; i < 12; ++i)
+        table.collectData(75, 90, 18, true);
+    EXPECT_EQ(0, table.estimateWattage(75, 18));
+
+    table.setCollectingEnabled(true);
+    for (int i = 0; i < 12; ++i)
+        table.collectData(75, 90, 18, true);
+    EXPECT_EQ(90, table.estimateWattage(75, 18));
+}
