@@ -61,27 +61,52 @@ public class WearableController {
                 .addOnFailureListener(e -> QLog.w("WearableController", "getCapability failed: " + e));
         }
 
-        static void setCapableNodes(java.util.Set<com.google.android.gms.wearable.Node> nodes) {
-            capableNodes.clear();
+        // The watch should be awake (last setWatchAwake), and the watches that got this workout's
+        // /qz/hr/start. A watch that shows up later (discovery still running when the workout
+        // started, or reconnected during it) gets the start if it missed it, otherwise a keep-alive.
+        static boolean lastAwake = false;
+        static final java.util.Set<String> startedNodes = new java.util.HashSet<>();
+
+        static synchronized void setCapableNodes(java.util.Set<com.google.android.gms.wearable.Node> nodes) {
+            java.util.Set<String> ids = new java.util.HashSet<>();
             for (com.google.android.gms.wearable.Node node : nodes)
-                capableNodes.add(node.getId());
+                ids.add(node.getId());
+            capableNodes.retainAll(ids);
+            for (String id : ids) {
+                if (capableNodes.add(id) && lastAwake && appContext != null)
+                    send(appContext, id, !startedNodes.contains(id));
+            }
             QLog.v("WearableController", WATCH_CAPABILITY + ": " + capableNodes.size() + " watch(es)");
         }
 
-        // Wakes the QZ watch app's heart-rate service (awake=true) or puts it to sleep. Sent only
-        // to watches whose QZ app understands it; older watch apps and phones without a watch get
-        // nothing.
-        public static void setWatchAwake(Context context, final boolean awake) {
+        static android.content.Context appContext = null;
+
+        // start=true: /qz/hr/start, else the keep-alive /qz/hr/wake
+        static void send(Context ctx, String nodeId, boolean start) {
+            final String path = !lastAwake ? "/qz/hr/sleep" : (start ? "/qz/hr/start" : "/qz/hr/wake");
+            if (lastAwake)
+                startedNodes.add(nodeId);
+            com.google.android.gms.wearable.Wearable.getMessageClient(ctx)
+                .sendMessage(nodeId, path, new byte[0])
+                .addOnFailureListener(e -> QLog.w("WearableController", path + " failed: " + e));
+        }
+
+        // Wakes the QZ watch app's heart-rate service (awake=true) or puts it to sleep. start=true
+        // when a workout starts: the watch then ignores a STOP pressed on it during the previous
+        // one, while keep-alives respect it. Sent only to watches whose QZ app understands it;
+        // older watch apps and phones without a watch get nothing.
+        public static synchronized void setWatchAwake(Context context, final boolean awake, final boolean start) {
             final Context ctx = context.getApplicationContext();
+            appContext = ctx;
             watchCapability(ctx);
+            lastAwake = awake;
+            if (!awake || start)
+                startedNodes.clear();
             if (capableNodes.isEmpty())
                 return;
-            final String path = awake ? "/qz/hr/wake" : "/qz/hr/sleep";
-            for (String nodeId : capableNodes) {
-                com.google.android.gms.wearable.Wearable.getMessageClient(ctx)
-                    .sendMessage(nodeId, path, new byte[0])
-                    .addOnFailureListener(e -> QLog.w("WearableController", path + " failed: " + e));
-            }
-            QLog.v("WearableController", path + " sent to " + capableNodes.size() + " watch(es)");
+            for (String nodeId : capableNodes)
+                send(ctx, nodeId, start || !startedNodes.contains(nodeId));
+            QLog.v("WearableController", (awake ? (start ? "start" : "wake") : "sleep") + " sent to "
+                + capableNodes.size() + " watch(es)");
         }
 }

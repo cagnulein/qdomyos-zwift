@@ -5555,7 +5555,8 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/WearableController", "start",
                                                   "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
         wearHeartUsed = true;
-        setWatchAwake(false); // the watch sleeps until a workout starts
+        if (watchAutoSleep())
+            setWatchAwake(false); // the watch sleeps until a workout starts
     }
 #endif
 
@@ -6769,7 +6770,7 @@ void homeform::Start_inner(bool send_event_to_device) {
         }
 
         watchActiveAt = QDateTime::currentDateTime();
-        setWatchAwake(true);
+        setWatchAwake(true, true);
 
         if (stopped) {
             trainProgram->restart();
@@ -6913,7 +6914,7 @@ void homeform::Stop() {
     qDebug() << QStringLiteral("Stop pressed - paused") << paused << QStringLiteral("stopped") << stopped;
 
     watchActiveAt = QDateTime();
-    if (watchAwake)
+    if (watchAwake && watchAutoSleep())
         setWatchAwake(false);
 
     const auto device = bluetoothManager ? bluetoothManager->device() : nullptr;
@@ -7146,20 +7147,30 @@ void homeform::handleRestoreDefaultWheelDiameter() {
 // moving) until Stop, or 5 minutes after it stopped moving. Wakes repeat every minute because
 // the watch falls asleep by itself 3 minutes after the last one (so a dead phone can't leave
 // it running). A watch app that doesn't know these messages ignores them.
-void homeform::setWatchAwake(bool awake) {
+// start: a new workout (Start pressed, or movement after the watch slept), so the watch takes it
+// even if STOP was pressed on the watch during the previous one; keep-alives don't override that
+void homeform::setWatchAwake(bool awake, bool start) {
 #ifdef Q_OS_ANDROID
     if (!wearHeartUsed)
         return;
+    start = awake && (start || !watchAwake);
     watchAwake = awake;
     if (awake)
         watchLastWake = QDateTime::currentDateTime();
-    qDebug() << "watch heart rate" << (awake ? "wake" : "sleep");
+    qDebug() << "watch heart rate" << (awake ? (start ? "start" : "wake") : "sleep");
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/WearableController", "setWatchAwake",
-                                              "(Landroid/content/Context;Z)V",
-                                              QtAndroid::androidContext().object(), (jboolean)awake);
+                                              "(Landroid/content/Context;ZZ)V",
+                                              QtAndroid::androidContext().object(), (jboolean)awake,
+                                              (jboolean)start);
 #else
     Q_UNUSED(awake);
+    Q_UNUSED(start);
 #endif
+}
+
+// Off: the watch stays awake whenever QZ runs on the phone (workouts without speed or cadence)
+bool homeform::watchAutoSleep() const {
+    return QSettings().value(QZSettings::wear_hr_auto_sleep, QZSettings::default_wear_hr_auto_sleep).toBool();
 }
 
 void homeform::watchHeartTick() {
@@ -7171,7 +7182,7 @@ void homeform::watchHeartTick() {
     // while paused) does not wake the watch again
     if (dev && !stopped && !paused && (dev->currentSpeed().value() > 0 || dev->currentCadence().value() > 0))
         watchActiveAt = now;
-    const bool wanted = watchActiveAt.isValid() && watchActiveAt.secsTo(now) < 5 * 60;
+    const bool wanted = !watchAutoSleep() || (watchActiveAt.isValid() && watchActiveAt.secsTo(now) < 5 * 60);
     if (wanted && (!watchAwake || !watchLastWake.isValid() || watchLastWake.secsTo(now) >= 60))
         setWatchAwake(true);
     else if (!wanted && watchAwake)
