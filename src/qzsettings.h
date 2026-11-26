@@ -3553,6 +3553,11 @@ class QZSettings {
     static const QString ui_modern_offer_pending;
     static constexpr bool default_ui_modern_offer_pending = false;
 
+    // The Charts page (chartjs/dochart.js) draws the power, cadence and speed lines as a 5-second moving
+    // average. Only the lines: the averages, maximums and zones stay on the raw values
+    static const QString chart_smooth_lines;
+    static constexpr bool default_chart_smooth_lines = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

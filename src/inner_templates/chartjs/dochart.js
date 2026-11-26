@@ -32,6 +32,7 @@ var ftpZones = [];
 var maxHeartRate = 190;
 var heartZones = [];
 var miles = 1;
+var smoothLines = false; // the chart_smooth_lines setting
 
 // live update during a workout: the new points of the session are asked for once a second and
 // the charts are updated in place, only while a workout is running (see setLiveActive)
@@ -246,6 +247,26 @@ function ensureHeartZones() {
     }
 }
 
+// The chart_smooth_lines setting: the power, cadence and speed lines as a centered moving average
+// over 5 points (one point a second), without the second-by-second jitter. Only the lines: averages,
+// maximums and zones are counted on the raw values. A point without a value stays as it is
+function smoothRow(row, digits) {
+    let half = 2, k = Math.pow(10, digits || 0);
+    return row.map(function (p, i) {
+        if (typeof p.y !== 'number' || p.y !== p.y) // p.y !== p.y: NaN
+            return p;
+        let sum = 0, count = 0;
+        for (let j = Math.max(0, i - half); j <= Math.min(row.length - 1, i + half); j++) {
+            let y = row[j].y;
+            if (typeof y === 'number' && y === y) {
+                sum += y;
+                count++;
+            }
+        }
+        return { x: p.x, y: Math.round(sum / count * k) / k };
+    });
+}
+
 function process_arr(arr) {
     let watts = [];
     let reqpower = [];
@@ -420,7 +441,7 @@ function process_arr(arr) {
                 backgroundColor: window.chartColors.red,
                 borderColor: window.chartColors.red,
                 cubicInterpolationMode: 'monotone',
-                data: watts,
+                data: smoothLines ? smoothRow(watts) : watts,
                 fill: false,
                 pointRadius: 0,
                 borderWidth: 2,
@@ -1098,8 +1119,8 @@ function process_arr(arr) {
                     backgroundColor: window.chartColors.blue,
                     borderColor: window.chartColors.blue,
                     label: t('workoutEditor.cadence', 'Cadence'),
-                    //cubicInterpolationMode: 'monotone',
-                    data: cadence,
+                    cubicInterpolationMode: smoothLines ? 'monotone' : 'default',
+                    data: smoothLines ? smoothRow(cadence) : cadence,
                     fill: false,
                     pointRadius: 0,
                     borderWidth: 2,
@@ -1307,8 +1328,8 @@ function process_arr(arr) {
                     backgroundColor: window.chartColors.blue,
                     borderColor: window.chartColors.blue,
                     label: miles === 1 ? t('workoutEditor.speedKmh', 'Speed (km/h)') : t('workoutEditor.speedMph', 'Speed (mph)'),
-                    //cubicInterpolationMode: 'monotone',
-                    data: speed,
+                    cubicInterpolationMode: smoothLines ? 'monotone' : 'default',
+                    data: smoothLines ? smoothRow(speed, 1) : speed,
                     fill: false,
                     pointRadius: 0,
                     borderWidth: 2,
@@ -1423,7 +1444,7 @@ function process_arr(arr) {
 }
 
 function dochart_init() {
-    keys_arr = ['ftp', 'miles_unit', 'age', 'heart_rate_zone1', 'heart_rate_zone2', 'heart_rate_zone3', 'heart_rate_zone4', 'heart_max_override_enable', 'heart_max_override_value']
+    keys_arr = ['ftp', 'miles_unit', 'age', 'heart_rate_zone1', 'heart_rate_zone2', 'heart_rate_zone3', 'heart_rate_zone4', 'heart_max_override_enable', 'heart_max_override_value', 'chart_smooth_lines']
 
     function scheduleLiveRefresh() {
         clearTimeout(liveTimer);
@@ -1575,6 +1596,8 @@ function dochart_init() {
                     } else if (key === 'miles_unit') {
                         if(msg.content[key] === true || msg.content[key] === 'true')
                             miles = 0.621371;
+                    } else if (key === 'chart_smooth_lines') {
+                        smoothLines = isTrueSetting(msg.content[key]);
                     }
                 }
                 if(heart_max_override_enable) {
