@@ -9,6 +9,9 @@
 #include <QAndroidJniObject>
 #include <QtAndroid>
 #include <QtEndian>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <unistd.h>
 #endif
 
 #ifdef Q_OS_ANDROID
@@ -243,48 +246,72 @@ bool javaFailed(QAndroidJniEnvironment &env) {
 // that target API 30+ (QTBUG-86394, fixed in Qt 5.15.2 by building QNetworkInterface without netlink on
 // Android), so QNetworkInterface::allAddresses() is empty there. java.net.NetworkInterface needs no
 // permission and still lists the interfaces that have an IP address (Android 11 hides their MAC address).
-QList<QHostAddress> javaIPv4() {
+struct AndroidAddresses {
     QList<QHostAddress> wifi;
     QList<QHostAddress> other;
+};
+
+AndroidAddresses scanJavaIPv4() {
+    AndroidAddresses result;
     QAndroidJniEnvironment env;
     QAndroidJniObject interfaces = QAndroidJniObject::callStaticObjectMethod(
         "java/net/NetworkInterface", "getNetworkInterfaces", "()Ljava/util/Enumeration;");
     if (javaFailed(env) || !interfaces.isValid()) {
-        return wifi;
+        return result;
     }
-    while (interfaces.callMethod<jboolean>("hasMoreElements")) {
+    for (;;) {
+        const bool hasInterface = interfaces.callMethod<jboolean>("hasMoreElements");
+        if (javaFailed(env)) return AndroidAddresses();
+        if (!hasInterface) break;
         QAndroidJniObject networkInterface = interfaces.callObjectMethod("nextElement", "()Ljava/lang/Object;");
         if (javaFailed(env) || !networkInterface.isValid()) {
-            break;
+            return AndroidAddresses();
         }
         const bool up = networkInterface.callMethod<jboolean>("isUp");
         if (javaFailed(env) || !up) {
             continue;
         }
         const QString name = networkInterface.callObjectMethod("getName", "()Ljava/lang/String;").toString();
+        if (javaFailed(env)) return AndroidAddresses();
         QAndroidJniObject addresses =
             networkInterface.callObjectMethod("getInetAddresses", "()Ljava/util/Enumeration;");
         if (javaFailed(env) || !addresses.isValid()) {
             continue;
         }
-        while (addresses.callMethod<jboolean>("hasMoreElements")) {
+        for (;;) {
+            const bool hasAddress = addresses.callMethod<jboolean>("hasMoreElements");
+            if (javaFailed(env)) return AndroidAddresses();
+            if (!hasAddress) break;
             QAndroidJniObject inetAddress = addresses.callObjectMethod("nextElement", "()Ljava/lang/Object;");
             if (javaFailed(env) || !inetAddress.isValid()) {
-                break;
+                return AndroidAddresses();
             }
             const QString host = inetAddress.callObjectMethod("getHostAddress", "()Ljava/lang/String;").toString();
             const QHostAddress address(host);
-            if (javaFailed(env) || address.protocol() != QAbstractSocket::IPv4Protocol || address.isLoopback()) {
+            if (javaFailed(env)) return AndroidAddresses();
+            if (address.protocol() != QAbstractSocket::IPv4Protocol || address.isLoopback()) {
                 continue;
             }
             if (name.startsWith(QStringLiteral("wlan"))) {
-                wifi.append(address);
+                result.wifi.append(address);
             } else {
-                other.append(address);
+                result.other.append(address);
             }
         }
     }
-    return wifi + other;
+    return result;
+}
+
+AndroidAddresses cachedJavaIPv4() {
+    static QMutex mutex;
+    static QElapsedTimer refreshTimer;
+    static AndroidAddresses addresses;
+    QMutexLocker locker(&mutex);
+    if (!refreshTimer.isValid() || refreshTimer.elapsed() >= 1000) {
+        addresses = scanJavaIPv4();
+        refreshTimer.restart();
+    }
+    return addresses;
 }
 
 } // namespace
@@ -292,7 +319,8 @@ QList<QHostAddress> javaIPv4() {
 
 QList<QHostAddress> localipaddress::allIPv4() {
 #ifdef Q_OS_ANDROID
-    const QList<QHostAddress> fromJava = javaIPv4();
+    const AndroidAddresses found = cachedJavaIPv4();
+    const QList<QHostAddress> fromJava = found.wifi + found.other;
     qDebug() << "allIPv4 from Java" << fromJava;
     if (!fromJava.isEmpty()) {
         return fromJava;
@@ -307,3 +335,51 @@ QList<QHostAddress> localipaddress::allIPv4() {
     }
     return addresses;
 }
+
+#ifdef Q_OS_ANDROID
+QList<QHostAddress> localipaddress::wifiIPv4() {
+    return cachedJavaIPv4().wifi;
+}
+#endif
+
+#ifdef Q_OS_ANDROID
+QHostAddress localipaddress::wifiIPv4ForPeer(const QHostAddress &peer) {
+    QHostAddress selected;
+    for (const QHostAddress &candidate : wifiIPv4()) {
+        if (candidate.protocol() != QAbstractSocket::IPv4Protocol ||
+            candidate.isNull() || candidate.isLoopback() ||
+            candidate.isLinkLocal() || candidate.isMulticast() ||
+            candidate.toIPv4Address() == 0 ||
+            candidate.toIPv4Address() == 0xffffffff)
+            continue;
+        if (!selected.isNull() && selected != candidate)
+            return QHostAddress();
+        selected = candidate;
+    }
+    if (selected.isNull() || peer.isNull())
+        return selected;
+    if (peer.protocol() != QAbstractSocket::IPv4Protocol)
+        return QHostAddress();
+
+    // A connected UDP socket selects the unicast route without sending data.
+    // Accept the Wi-Fi address only if that route would use it for this peer.
+    const int descriptor = ::socket(AF_INET, SOCK_DGRAM, 0);
+    if (descriptor < 0)
+        return QHostAddress();
+    sockaddr_in destination = {};
+    destination.sin_family = AF_INET;
+    destination.sin_port = htons(5353);
+    destination.sin_addr.s_addr = htonl(peer.toIPv4Address());
+    sockaddr_in source = {};
+    socklen_t length = sizeof(source);
+    const bool routed = ::connect(descriptor, reinterpret_cast<sockaddr *>(&destination),
+                                  sizeof(destination)) == 0 &&
+                        ::getsockname(descriptor, reinterpret_cast<sockaddr *>(&source),
+                                      &length) == 0;
+    ::close(descriptor);
+    if (routed && length == sizeof(source) &&
+        QHostAddress(ntohl(source.sin_addr.s_addr)) == selected)
+        return selected;
+    return QHostAddress();
+}
+#endif

@@ -39,6 +39,41 @@
 
 using namespace QMdnsEngine;
 
+#ifdef Q_OS_ANDROID
+namespace {
+QHostAddress advertisedAddress(const QHostAddress &peer) {
+    QHostAddress ethernet;
+    bool ethernetAmbiguous = false;
+    for (const QNetworkInterface &interface : QNetworkInterface::allInterfaces()) {
+        const auto flags = interface.flags();
+        if (!flags.testFlag(QNetworkInterface::IsUp) ||
+            !flags.testFlag(QNetworkInterface::IsRunning) ||
+            (interface.type() != QNetworkInterface::Wifi &&
+             interface.type() != QNetworkInterface::Ethernet))
+            continue;
+        for (const QNetworkAddressEntry &entry : interface.addressEntries()) {
+            const QHostAddress address = entry.ip();
+            if (address.protocol() != QAbstractSocket::IPv4Protocol ||
+                address.isLoopback() || address.isLinkLocal())
+                continue;
+            if (!peer.isNull() && peer.isInSubnet(address, entry.prefixLength()))
+                return address;
+            if (interface.type() == QNetworkInterface::Ethernet) {
+                if (!ethernet.isNull() && ethernet != address)
+                    ethernetAmbiguous = true;
+                else
+                    ethernet = address;
+            }
+        }
+    }
+    const QHostAddress wifi = localipaddress::wifiIPv4ForPeer(peer);
+    if (!wifi.isNull())
+        return wifi;
+    return peer.isNull() && !ethernetAmbiguous ? ethernet : QHostAddress();
+}
+}
+#endif
+
 ProviderPrivate::ProviderPrivate(QObject *parent, AbstractServer *server, Hostname *hostname)
     : QObject(parent), server(server), hostname(hostname), prober(nullptr), initialized(false), confirmed(false),
       saidGoodbye(false), announcesRemaining(0), announceDelayMs(0) {
@@ -88,7 +123,13 @@ void ProviderPrivate::announce() {
     message.setResponse(true);
     message.addRecord(ptrRecord);
     message.addRecord(srvRecord);
+#ifdef Q_OS_ANDROID
+    ARecord.setAddress(advertisedAddress(QHostAddress()));
+    if (!ARecord.address().isNull())
+        message.addRecord(ARecord);
+#else
     message.addRecord(ARecord);
+#endif
     message.addRecord(txtRecord);
     server->sendMessageToAll(message);
 }
@@ -159,7 +200,11 @@ void ProviderPrivate::publish() {
     // set directly when we receive a message
     //ARecord.setAddress(QHostAddress("172.31.100.161"));
 
+#ifdef Q_OS_ANDROID
+    QHostAddress r = advertisedAddress(QHostAddress());
+#else
     QHostAddress r = localipaddress::getIP(QHostAddress());
+#endif
     qDebug() << "ProviderPrivate::publish" << r;
     if(!r.isNull())
         ARecord.setAddress(r);
@@ -199,7 +244,11 @@ void ProviderPrivate::onMessageReceived(const Message &message) {
     bool sendSrv = false;
     bool sendTxt = false;
 
+#ifdef Q_OS_ANDROID
+    ARecord.setAddress(advertisedAddress(message.address()));
+#else
     ARecord.setAddress(localipaddress::getIP(message.address()));
+#endif
 
     // Determine which records to send based on the queries
     const auto queries = message.queries();
@@ -246,7 +295,12 @@ void ProviderPrivate::onMessageReceived(const Message &message) {
             reply.addRecord(srvRecord);
 
             // zwift need it
+#ifdef Q_OS_ANDROID
+            if (!ARecord.address().isNull())
+                reply.addRecord(ARecord);
+#else
             reply.addRecord(ARecord);
+#endif
         }
         if (sendTxt) {
             reply.addRecord(txtRecord);
