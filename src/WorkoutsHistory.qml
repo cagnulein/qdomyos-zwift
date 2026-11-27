@@ -630,6 +630,7 @@ Page {
                     // Show confirmation dialog
                     confirmDialog.workoutId = model.id
                     confirmDialog.workoutTitle = model.title
+                    confirmDialog.swipeItem = swipeDelegate
                     confirmDialog.open()
                 }
 
@@ -1472,12 +1473,17 @@ Page {
             text: qsTr("Are you sure you want to delete '%1'?").arg(confirmDialog.workoutTitle)
         }
 
-        onAccepted: {
-            workoutModel.deleteWorkout(confirmDialog.workoutId)
-            swipeDelegate.swipe.close()
-        }
-        onRejected: {
-            swipeDelegate.swipe.close()
+        // the swiped row: the id swipeDelegate lives in the delegate and is not seen from here (the close
+        // gave a ReferenceError, and the row stayed open after Cancel)
+        property var swipeItem: null
+
+        onAccepted: workoutModel.deleteWorkout(confirmDialog.workoutId)
+        // any way out (OK, Cancel, the back key, a tap outside) closes the swiped row again, as in the
+        // modern dialog below
+        onClosed: {
+            if (swipeItem)
+                swipeItem.swipe.close()
+            swipeItem = null
         }
     }
 
