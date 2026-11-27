@@ -65,7 +65,7 @@ kettlercoachrower::~kettlercoachrower() {
 }
 
 bool kettlercoachrower::connected() {
-    return initDone && socket && socket->state() == QBluetoothSocket::ConnectedState;
+    return initDone && socket && socket->state() == QBluetoothSocket::SocketState::ConnectedState;
 }
 
 uint16_t kettlercoachrower::watts() {
@@ -220,7 +220,7 @@ void kettlercoachrower::enqueueResistanceRequest(resistance_t requested) {
 }
 
 void kettlercoachrower::sendNextRequest() {
-    if (!socket || socket->state() != QBluetoothSocket::ConnectedState ||
+    if (!socket || socket->state() != QBluetoothSocket::SocketState::ConnectedState ||
         requestInFlight || requestQueue.isEmpty()) return;
     activeRequest = requestQueue.dequeue();
     requestInFlight = true;
@@ -497,7 +497,7 @@ void kettlercoachrower::recordReportedResistance(quint8 level, const char *sourc
 }
 
 void kettlercoachrower::update() {
-    if (!socket || socket->state() != QBluetoothSocket::ConnectedState || !initDone) return;
+    if (!socket || socket->state() != QBluetoothSocket::SocketState::ConnectedState || !initDone) return;
 
     // Coasting raw watt samples do not keep power, speed or cadence alive.
     if (powerClock.isValid())
@@ -554,7 +554,7 @@ void kettlercoachrower::disconnectAfterError(const QString &reason) {
 }
 
 void kettlercoachrower::onSocketErrorOccurred(QBluetoothSocket::SocketError error) {
-    disconnectAfterError(QStringLiteral("socket error ") + QString::number(error));
+    disconnectAfterError(QStringLiteral("socket error ") + QString::number(static_cast<int>(error)));
 }
 
 void kettlercoachrower::socketDisconnected() {

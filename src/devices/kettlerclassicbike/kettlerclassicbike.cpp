@@ -183,7 +183,7 @@ void kettlerclassicbike::enqueueWorkoutState(bool paused) {
 }
 
 void kettlerclassicbike::sendNextRequest() {
-    if (!socket || socket->state() != QBluetoothSocket::ConnectedState || requestInFlight || requestQueue.isEmpty()) {
+    if (!socket || socket->state() != QBluetoothSocket::SocketState::ConnectedState || requestInFlight || requestQueue.isEmpty()) {
         return;
     }
 
@@ -335,7 +335,7 @@ void kettlerclassicbike::updateMetricsFromCadence() {
 }
 
 void kettlerclassicbike::update() {
-    if (!socket || socket->state() != QBluetoothSocket::ConnectedState) {
+    if (!socket || socket->state() != QBluetoothSocket::SocketState::ConnectedState) {
         return;
     }
 
@@ -370,7 +370,7 @@ void kettlerclassicbike::update() {
 }
 
 bool kettlerclassicbike::connected() {
-    return socket && socket->state() == QBluetoothSocket::ConnectedState && initDone;
+    return socket && socket->state() == QBluetoothSocket::SocketState::ConnectedState && initDone;
 }
 
 resistance_t kettlerclassicbike::maxResistance() {
@@ -383,14 +383,14 @@ uint16_t kettlerclassicbike::watts() {
 
 void kettlerclassicbike::setPaused(bool p) {
     bike::setPaused(p);
-    if (socket && socket->state() == QBluetoothSocket::ConnectedState && initDone) {
+    if (socket && socket->state() == QBluetoothSocket::SocketState::ConnectedState && initDone) {
         enqueueWorkoutState(p);
         sendNextRequest();
     }
 }
 
 void kettlerclassicbike::onSocketErrorOccurred(QBluetoothSocket::SocketError error) {
-    emit debug(QStringLiteral("Kettler Classic RFCOMM error: ") + QString::number(error));
+    emit debug(QStringLiteral("Kettler Classic RFCOMM error: ") + QString::number(static_cast<int>(error)));
     if (setupQueued) {
         abortSetup(QStringLiteral("socket error"));
     } else {
