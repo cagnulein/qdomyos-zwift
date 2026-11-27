@@ -7,9 +7,9 @@
 // the user asked with a tap or turned the background search on.
 
 namespace {
-const QBluetoothUuid heartRate(QBluetoothUuid::HeartRate);
+const QBluetoothUuid heartRate(QBluetoothUuid::ServiceClassUuid::HeartRate);
 const QBluetoothUuid ftms(quint16(0x1826));
-const QBluetoothUuid runningSpeedAndCadence(QBluetoothUuid::RunningSpeedAndCadence);
+const QBluetoothUuid runningSpeedAndCadence(QBluetoothUuid::ServiceClassUuid::RunningSpeedAndCadence);
 } // namespace
 
 TEST(HeartRateSensorOffer, HeartRateOnlyIsASensor) {
@@ -25,9 +25,9 @@ TEST(HeartRateSensorOffer, FitnessMachineServicesAreNotSensors) {
     // QZ's virtual bike, treadmill and rower with FTMS
     EXPECT_TRUE(bluetooth::advertisesFitnessMachine({ftms, heartRate}));
     // the virtual bike in power or cadence mode, and the Tacx mode
-    EXPECT_TRUE(bluetooth::advertisesFitnessMachine({QBluetoothUuid(QBluetoothUuid::CyclingPower), heartRate}));
+    EXPECT_TRUE(bluetooth::advertisesFitnessMachine({QBluetoothUuid(QBluetoothUuid::ServiceClassUuid::CyclingPower), heartRate}));
     EXPECT_TRUE(
-        bluetooth::advertisesFitnessMachine({QBluetoothUuid(QBluetoothUuid::CyclingSpeedAndCadence), heartRate}));
+        bluetooth::advertisesFitnessMachine({QBluetoothUuid(QBluetoothUuid::ServiceClassUuid::CyclingSpeedAndCadence), heartRate}));
     // the virtual rower in PM5 mode
     EXPECT_TRUE(bluetooth::advertisesFitnessMachine(
         {QBluetoothUuid(QStringLiteral("CE060000-43E5-11E4-916C-0800200C9A66")), heartRate}));
