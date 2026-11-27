@@ -816,7 +816,14 @@ ApplicationWindow {
 
         if(window.settings_restart_to_apply === true) {
             window.settings_restart_to_apply = false;
-            popupRestartApp.visible = true;
+            // Not when the settings are back as they were at the opening of the settings page (a
+            // setting switched on and off again). That page may be under the current one (Tiles
+            // Options...): those pages change the same settings
+            var settingsPage = stackView.find(function(item) {
+                return typeof item.settingsChangedSinceOpen === "function"
+            })
+            if (settingsPage === null || settingsPage.settingsChangedSinceOpen())
+                popupRestartApp.visible = true;
         }
 
         stackView.pop()
