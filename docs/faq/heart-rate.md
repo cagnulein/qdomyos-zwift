@@ -1,5 +1,11 @@
 # Heart rate
 
+## My heart rate from a Garmin HRM-Pro drops to zero during a workout. What setting should I check?
+
+Open **QZ Settings > Heart Rate Options > Heart Rate Belt Name** and select the detected **HRM-Pro** as the heart-rate source. Then repeat the workout and check whether the heart-rate tile stays live.
+
+In a confirmed support case, selecting the HRM-Pro in this setting stopped recurring zero-value heart-rate dropouts that had appeared around treadmill speed changes. This records the successful setting change; it does not establish that the speed commands caused the dropouts.
+
 ## My bike or treadmill connects to QZ as a heart-rate monitor, and QZ stops receiving its data. What should I try?
 
 Some bikes and treadmills automatically connect to any nearby Bluetooth heart-rate service. If QZ is also advertising its separate virtual heart-rate service, the machine may connect to QZ as if it were a heart-rate monitor, which can interfere with its normal data connection to QZ.
