@@ -100,6 +100,7 @@ class fitshowtreadmill : public treadmill {
     void removeFromBuffer();
     QBluetoothUuid serviceId;
     int retrySend = 0;
+    bool pauseFallbackAllowed = false;
     bool noHeartService = false;
     bool anyrun = false;
     bool truetimer = false;
