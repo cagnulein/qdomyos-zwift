@@ -5113,17 +5113,17 @@ void bluetooth::restart() {
         delete inspireBike;
         inspireBike = nullptr;
     }
+    if (kettlerC12Bike) {
+
+        delete kettlerC12Bike;
+        kettlerC12Bike = nullptr;
+    }
 #ifndef Q_OS_IOS
     if (computrainerBike) {
 
         delete computrainerBike;
         computrainerBike = nullptr;
     }
-    if (kettlerC12Bike) {
-
-        delete kettlerC12Bike;
-        kettlerC12Bike = nullptr;
-    }	
     if (kettlerUsbBike) {
 
         delete kettlerUsbBike;
@@ -5549,11 +5549,11 @@ bluetoothdevice *bluetooth::device() {
         return pelotonBike;
     } else if (skandikaWiriBike) {
         return skandikaWiriBike;
+    } else if (kettlerC12Bike) {
+        return kettlerC12Bike;
 #ifndef Q_OS_IOS
     } else if (computrainerBike) {
         return computrainerBike;
-    } else if (kettlerC12Bike) {
-        return kettlerC12Bike;		
     } else if (kettlerUsbBike) {
         return kettlerUsbBike;
     } else if (daumBike) {
