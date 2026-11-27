@@ -65,6 +65,8 @@ public class WearableController {
             com.google.android.gms.wearable.CapabilityClient client =
                 com.google.android.gms.wearable.Wearable.getCapabilityClient(ctx);
             if (!capabilityWatched && !listenerPending) {
+                // Nodes may have changed while the listener was unavailable; refresh the snapshot.
+                capabilityKnown = false;
                 listenerPending = true;
                 client.addListener(capabilityListener, WATCH_CAPABILITY)
                     .addOnSuccessListener(ignored -> {
