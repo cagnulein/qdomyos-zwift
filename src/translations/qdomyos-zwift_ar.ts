@@ -5314,6 +5314,14 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Estimate FTMS rower power from heart rate</source>
+        <translation>تقدير قدرة جهاز التجديف FTMS من معدل ضربات القلب</translation>
+    </message>
+    <message>
+        <source>Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.</source>
+        <translation>اختياري: يستبدل القدرة بالواط التي يبلغ عنها جهاز التجديف FTMS بتقدير يستند إلى نقطتي معايرة معدل ضربات القلب أدناه. هذه ليست قدرة مقاسة. يلزم توفر معدل ضربات قلب صالح وحركة تجديف؛ وإلا تكون القدرة المقدرة صفراً. لا يتم استبدال قدرة أجهزة PM5 الأصلية أو مستشعرات القدرة الخارجية المحددة. معطل افتراضياً.</translation>
+    </message>
+    <message>
         <source>Session 1 Watt:</source>
         <translation type="unfinished"></translation>
     </message>

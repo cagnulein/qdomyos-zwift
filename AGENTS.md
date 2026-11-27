@@ -8,6 +8,7 @@ QDomyos-Zwift is a Qt-based application that bridges fitness equipment (treadmil
 3. Dont touch unrelated code and if a file isnt part of the current task, leave it.
 4. Flag uncertainty explicitly or if you're not confident, say so before proceeding as confidence without certainty causes more damage than admitting a gap.
 5. Avoid regular expressions, they are hard for a human to read. Use plain string operations (split, startswith, find, a short loop) instead.
+6. Whenever adding or changing a user-visible translatable string (including labels, messages, tooltips, toasts and help text), provide finished translations in every supported Qt TS locale listed in `src/qdomyos-zwift.pri`, in the same PR. Preserve translation contexts and placeholders, and verify coverage before marking the change complete.
 
 ## Architecture Overview
 

@@ -5561,6 +5561,14 @@ Povolit QZ tuto hodnotu měnit?
         <translation>Možnosti výkonu z tepu</translation>
     </message>
     <message>
+        <source>Estimate FTMS rower power from heart rate</source>
+        <translation>Odhadovat výkon veslařského trenažéru FTMS podle tepové frekvence</translation>
+    </message>
+    <message>
+        <source>Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.</source>
+        <translation>Volitelné: nahradí výkon ve wattech hlášený veslařským trenažérem FTMS odhadem ze dvou níže uvedených kalibračních bodů tepové frekvence. Nejde o měřený výkon. Vyžaduje platnou tepovou frekvenci a pohyb při veslování; jinak je odhadovaný výkon nulový. Výkon nativních zařízení PM5 a vybraných externích snímačů výkonu se nepřepisuje. Ve výchozím nastavení vypnuto.</translation>
+    </message>
+    <message>
         <source>Session 1 Watt:</source>
         <translation>Měření 1 – výkon:</translation>
     </message>

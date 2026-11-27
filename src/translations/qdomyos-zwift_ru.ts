@@ -5497,6 +5497,14 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Параметры мощности по пульсу</translation>
     </message>
     <message>
+        <source>Estimate FTMS rower power from heart rate</source>
+        <translation>Оценивать мощность гребного тренажёра FTMS по пульсу</translation>
+    </message>
+    <message>
+        <source>Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.</source>
+        <translation>Необязательно: заменяет мощность в ваттах, передаваемую гребным тренажёром FTMS, оценкой по двум указанным ниже точкам калибровки пульса. Это не измеренная мощность. Требуются действительные данные пульса и движение при гребле; иначе оценочная мощность равна нулю. Мощность штатных устройств PM5 и выбранных внешних датчиков мощности не заменяется. По умолчанию отключено.</translation>
+    </message>
+    <message>
         <source>Session 1 Watt:</source>
         <translation>Замер 1, мощность:</translation>
     </message>

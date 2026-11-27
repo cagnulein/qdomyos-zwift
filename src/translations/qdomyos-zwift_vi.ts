@@ -5314,6 +5314,14 @@ Nếu chọn Không, QZ sẽ bật Without Wheel Diameter Protocol (Cài đặt 
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Estimate FTMS rower power from heart rate</source>
+        <translation>Ước tính công suất máy chèo thuyền FTMS từ nhịp tim</translation>
+    </message>
+    <message>
+        <source>Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.</source>
+        <translation>Tùy chọn: thay thế số watt do máy chèo thuyền FTMS báo cáo bằng giá trị ước tính dựa trên hai điểm hiệu chuẩn nhịp tim bên dưới. Đây không phải công suất đo được. Cần có nhịp tim hợp lệ và chuyển động chèo; nếu không, công suất ước tính bằng 0. Không ghi đè công suất của PM5 gốc và các cảm biến công suất bên ngoài đã chọn. Mặc định tắt.</translation>
+    </message>
+    <message>
         <source>Session 1 Watt:</source>
         <translation type="unfinished"></translation>
     </message>
