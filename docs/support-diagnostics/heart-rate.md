@@ -145,3 +145,39 @@
 - **ANT+ broadcasting is not Bluetooth advertising.** A Garmin watch can show HR locally while remaining absent from QZ's Bluetooth belt list. A confirmed vívoactive 4 case used the companion path rather than direct Bluetooth HR broadcasting.
 - The watch app, QZ's selected input path, and machine-provided HR can conflict independently. One confirmed test began showing HR when the companion was opened, but a concurrent QZ beta update means the precise cause was not isolated.
 - See the [heart-rate FAQ](../faq/heart-rate.md) for setup guidance; this entry is about selecting the evidence needed to identify the correct input path.
+
+## The HR sensor is discovered, but there is no active fitness machine
+
+### Provide first
+
+- Ask whether the intended activity is on a supported indoor machine or an outdoor/standalone session with only a heart-rate strap or watch. Identify the equipment, if any.
+- Report whether QZ shows a workout dashboard and whether any machine metrics update, or whether QZ only lists the HR sensor in its settings.
+- Identify the HR source and selected **Heart Rate Belt Name**. If available, compare whether the same sensor supplies live HR in QZ when an indoor machine is connected.
+
+### If still unclear
+
+- For a session without a physical trainer, report whether **Fake Bike** is enabled. If support requests a comparison, close other fitness apps, enable that mode, restart QZ and check whether the dashboard starts and the Heart tile updates; restore the original setting before returning to the physical trainer. Do not interpret simulated bike metrics as actual outdoor measurements.
+- If a dashboard is active but HR is still missing, follow the selected-strap discovery checks above before collecting a debug log.
+
+### Why it matters
+
+- A discovered HR accessory is not itself proof that QZ has created a workout device. In a reviewed case the same strap worked with an indoor bike but not when used alone outdoors. Clarifying the intended activity would have avoided repeated sensor discovery tests.
+- QZ has a simulated bike mode for use without a physical machine. The outdoor comparison was suggested but not confirmed; it distinguishes missing session initialization from an HR data problem.
+
+## Heart rate intermittently drops to zero during an otherwise working workout
+
+### Provide first
+
+- Report the intended HR source and the actual **Heart Rate Belt Name** and **Disable HRM from the machinery** settings, including whether the machine also displays HR.
+- Identify where the zeros appear (QZ, machine console, or receiving app), their approximate frequency and duration, and whether speed, cadence or power keep updating.
+- State whether the drops coincide with a particular action, such as treadmill speed changes, or occur during steady exercise too.
+
+### If still unclear
+
+- With the same equipment and workout conditions, compare a short session with the intended external belt explicitly selected against the previous configuration. Record whether the zeros recur; change only the source selection.
+- If the issue persists, provide a short debug log or workout chart with approximate dropout and control-action timestamps.
+
+### Why it matters
+
+- In a confirmed intermittent-dropout case, explicitly selecting the external belt stopped the zeros. That observation does not establish that speed commands caused the dropouts.
+- Continuous non-HR telemetry helps separate an HR-source issue from a loss of the primary machine connection. See the [heart-rate FAQ](../faq/heart-rate.md) for the confirmed setting guidance.
