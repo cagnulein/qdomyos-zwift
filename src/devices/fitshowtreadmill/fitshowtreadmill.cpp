@@ -164,6 +164,12 @@ void fitshowtreadmill::cancelPendingStartTarget(const QString &reason) {
     m_startSpeedGate.cancel();
 }
 
+void fitshowtreadmill::stop(bool pause) {
+    // Clear a previous pending Pause when a real Stop supersedes it.
+    requestPause = pause ? 1 : -1;
+    treadmill::stop(pause);
+}
+
 void fitshowtreadmill::update() {
     if (!m_control || m_control->state() == QLowEnergyController::UnconnectedState) {
         cancelPendingStartTarget(QStringLiteral("disconnected"));
@@ -270,20 +276,25 @@ void fitshowtreadmill::update() {
             emit tapeStarted();
         }
         if (requestStop != -1) {
-            if (paused) {
-                lastStop = QDateTime::currentMSecsSinceEpoch();
-                // Merach uses its PAUSED status value as the pause command.
-                uint8_t pauseTape[] = {FITSHOW_SYS_CONTROL,
-                                       (uint8_t)(merach_t12_connected ? FITSHOW_STATUS_PAUSED : FITSHOW_CONTROL_PAUSE)};
-                emit debug(QStringLiteral("pausing..."));
-                scheduleWrite(pauseTape, sizeof(pauseTape), QStringLiteral("pause tape"));
-            } else {
-                uint8_t stopTape[] = {FITSHOW_SYS_CONTROL, FITSHOW_CONTROL_STOP};
-                emit debug(QStringLiteral("stopping..."));
-                lastStop = QDateTime::currentMSecsSinceEpoch();
-                scheduleWrite(stopTape, sizeof(stopTape), QStringLiteral("stop tape"));
-            }
+            // The workout's paused state is not the requested action:
+            // Stop pressed after Pause must still send the physical Stop command.
+            const bool pauseRequested = requestPause != -1;
+            requestPause = -1;
             requestStop = -1;
+
+            // Blacklord FS controller 20-7a00 ignores 0x53/0x06; the official
+            // app uses 0x53/0x03, acknowledged before STOP then NORMAL status.
+            const bool stopOnlyController =
+                bluetoothDevice.name().startsWith(QStringLiteral("FS-"), Qt::CaseInsensitive) &&
+                DEVICE_ID_NAME == QStringLiteral("20-7a00");
+            const uint8_t command = fitshowStopCommand(pauseRequested, merach_t12_connected, stopOnlyController);
+            const bool sendStop = command == FITSHOW_CONTROL_STOP;
+            if (pauseRequested && sendStop)
+                emit debug(QStringLiteral("FitShow controller: using Stop for Pause"));
+            lastStop = QDateTime::currentMSecsSinceEpoch();
+            const uint8_t tape[] = {FITSHOW_SYS_CONTROL, command};
+            emit debug(sendStop ? QStringLiteral("stopping...") : QStringLiteral("pausing..."));
+            scheduleWrite(tape, sizeof(tape), sendStop ? QStringLiteral("stop tape") : QStringLiteral("pause tape"));
         }
 
         if (retrySend >= 6) { // 3 retries
