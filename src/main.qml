@@ -2471,6 +2471,8 @@ ApplicationWindow {
                 ItemDelegate {
                     id: launch_ifit
                     text: qsTr("Launch iFit App")
+                    Accessible.name: text
+                    Accessible.onPressAction: clicked()
                     width: parent.width
                     visible: OS_VERSION === "Android" ? true : false
                     onClicked: {
