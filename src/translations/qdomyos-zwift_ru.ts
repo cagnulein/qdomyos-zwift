@@ -174,6 +174,22 @@
         <translation>Стоп</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>Автосопротивление выключено</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>Сейчас QZ не меняет сопротивление тренажёра. «Применить» – уровни с плиток «Сопротивление», «Цель сопр.» и пресетов будут действовать, пока автосопротивление выключено. Команды приложений (например, Zwift) по-прежнему игнорируются.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Применить</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Включить автосопротивление</translation>
+    </message>
+    <message>
         <source>Cancel</source>
         <translation>Отмена</translation>
     </message>
@@ -294,6 +310,14 @@ GPS использоваться не будет.
 Would you like to do that now?</source>
         <translation>Чтобы применить изменения, нужно перезапустить приложение.
 Перезапустить сейчас?</translation>
+    </message>
+    <message>
+        <source>Try the new interface?</source>
+        <translation>Попробовать новый интерфейс?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>У QZ новый вид главного экрана, бокового меню, настроек и мастера. Вернуть прежний можно в любой момент: Настройки &gt; Общие параметры интерфейса.</translation>
     </message>
     <message>
         <source>Adjustable. Current value: </source>
@@ -2387,6 +2411,18 @@ Do you want to update QZ settings?</source>
     <message>
         <source>1 Mile</source>
         <translation>1 миля</translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation>На весь экран</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Свернуть</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Листайте влево или вправо, чтобы переключать графики</translation>
     </message>
     <message>
         <source>Peloton Workout in progress!</source>
@@ -4682,6 +4718,10 @@ In the next window, allow access to the QZ folder.</source>
         <translation>Настройки</translation>
     </message>
     <message>
+        <source>Try the new interface</source>
+        <translation>Попробовать новый интерфейс</translation>
+    </message>
+    <message>
         <source>Workouts History</source>
         <translation>История тренировок</translation>
     </message>
@@ -6682,8 +6722,8 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Bluetooth-датчик Garmin</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Включите, если хотите передавать показатели с Mac на устройство Garmin. Иначе оставьте выключенным.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Часы Garmin и другие спортивные часы смогут брать данные у QZ как у датчика Bluetooth: шагомер на дорожке, датчик мощности на велосипеде (на Android включите ещё «Датчик мощности велосипеда»). Часам нужно сопряжение с телефоном или планшетом, где работает QZ: если часы не находят QZ, один раз выполните сопряжение, затем добавьте датчик на часах и примите запрос на сопряжение. Если на этом телефоне Garmin Connect связан с часами, принудительно остановите его 2–3 раза подряд, пока часы подключаются; проще отдельный телефон или планшет без Garmin Connect. Пока QZ работает датчиком для часов, Zwift по Bluetooth видит его только как шагомер или датчик мощности, а не как тренажёр, которым он управляет.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -7251,6 +7291,75 @@ Please enter it below:</source>
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>Номер этого графика в истории тренировок. Порядок меняется кнопками вверх и вниз в разделе «Общие параметры интерфейса».</translation>
+    </message>
+    <message>
+        <source>Modern interface</source>
+        <translation>Новый интерфейс</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Новый вид главного экрана, бокового меню, настроек и мастера. Выключите, чтобы вернуть классический вид.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Оформление</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Как в системе</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Тёмное</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Светлое</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Тема</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Графит</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Чёрная / белая</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Тёмно-синяя</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Акцентный цвет</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Фиолетовый</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Синий</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Бирюзовый</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Зелёный</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Оранжевый</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Розовый</translation>
     </message>
     <message>
         <source>Tile size:</source>
@@ -8803,6 +8912,14 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Use Console Gears</source>
         <translation>Использовать передачи консоли</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Калории беговой дорожки по модели ходьбы/бега</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Для беговых дорожек, консоль которых не передаёт калории. Калории рассчитываются по скорости полотна, наклону, а также по вашему весу, росту, возрасту и полу: ниже вашей скорости перехода от ходьбы к бегу (зависит от роста) — по модели ходьбы, выше — по модели бега. Выключите, чтобы использовать значение на основе мощности. Калории консоли, внешний датчик мощности (Stryd и т. п.) и «Расчёт калорий по пульсу» (если включён) по-прежнему имеют приоритет.</translation>
     </message>
 </context>
 <context>

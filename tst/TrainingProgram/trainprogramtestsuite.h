@@ -18,6 +18,7 @@ public:
     void test_ziproShredHighInclineXmlValuesArePreserved();
     void test_seekWithinTimeOnlyWorkout();
     void test_seekRejectsBlockingAndDistanceRows();
+    void test_liveSeekRequiresSupportedRunningTargetWorkout();
 };
 
 TEST_F(TrainProgramTestSuite, LapButtonBarrierBlocksSkippedZeroDurationRow) {
@@ -70,6 +71,10 @@ TEST_F(TrainProgramTestSuite, SeekWithinTimeOnlyWorkout) {
 
 TEST_F(TrainProgramTestSuite, SeekRejectsBlockingAndDistanceRows) {
     this->test_seekRejectsBlockingAndDistanceRows();
+}
+
+TEST_F(TrainProgramTestSuite, LiveSeekRequiresSupportedRunningTargetWorkout) {
+    this->test_liveSeekRequiresSupportedRunningTargetWorkout();
 }
 
 #endif // TRAINPROGRAMTESTSUITE_H

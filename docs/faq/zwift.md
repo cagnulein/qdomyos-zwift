@@ -65,6 +65,8 @@ The alignment logic is active when both the custom gear table and the Zwift gear
 
 If QZ stops at a smaller number of gears while Zwift continues higher, check the selected custom gear profile as well as **Align Gear**. In a confirmed support case, gear alignment made QZ and Zwift shift together, and selecting the 24-step Reality Bender profile resolved the remaining mismatch in available gear range.
 
+If climbing feels unexpectedly hard even in Zwift's lowest gear, enable the **Gears** tile in QZ and compare both gear numbers before changing resistance gains. In a confirmed Wahoo KICKR case, Zwift showed gear 1 while QZ was actually using gear 14; matching the 24-gear configuration and synchronizing the gears restored normal shifting. If Zwift starts a ride in gear 8 but QZ starts in gear 1, set **Default Gear** in QZ's **Bike Options** to match the starting gear (8 in this setup). Check the two displays again at the beginning of the next ride.
+
 ## Zwift auto-incline works for one rider account but not another. Can QZ support multiple Zwift accounts?
 
 Yes. QZ's Zwift API auto-incline uses the Zwift credentials configured in QZ, so the credentials must match the Zwift rider whose session QZ should follow.

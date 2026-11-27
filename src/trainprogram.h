@@ -7,6 +7,7 @@
 #include <QSet>
 #include <QTime>
 #include <QTimer>
+#include <QUuid>
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -119,6 +120,8 @@ class trainprogram : public QObject {
     void decreaseElapsedTime(int32_t i);
     // Seek only within a purely time-based workout; never skip distance/lap/HR steps.
     bool seekToElapsedSeconds(int seconds);
+    bool canSeekElapsedSeconds() const;
+    QString seekSessionId() const { return m_seekSessionId; }
     void goToPreviousRow();
     void applyCurrentStepSettings();
     int currentRowIndex() const { return currentStep; }
@@ -167,6 +170,8 @@ class trainprogram : public QObject {
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded
     BLUETOOTH_TYPE loadedDeviceType = UNKNOWN;
+    bool isFitWorkout = false;
+    bool fitWorkoutMatchesDevice() const;
     QString description = "";
     QString tags = "";
     bool enabled = true;
@@ -206,6 +211,7 @@ private slots:
     void intervalTransitionApplied();
 
   private:
+    const QString m_seekSessionId = QUuid::createUuid().toString(QUuid::WithoutBraces);
     void end();
     bool advanceBlockingStep(const QString &toastMessage);
     bool currentHeartRateEndConditionSatisfied() const;

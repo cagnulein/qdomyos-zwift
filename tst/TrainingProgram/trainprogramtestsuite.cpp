@@ -154,3 +154,26 @@ void TrainProgramTestSuite::test_seekRejectsBlockingAndDistanceRows() {
     EXPECT_FALSE(byDistance.seekToElapsedSeconds(65));
     EXPECT_EQ(byDistance.currentRowIndex(), 0);
 }
+
+void TrainProgramTestSuite::test_liveSeekRequiresSupportedRunningTargetWorkout() {
+    trainrow target = timedRow(60);
+    target.speed = 3;
+    trainprogram timed({target, target}, nullptr);
+    EXPECT_FALSE(timed.canSeekElapsedSeconds());
+    timed.restart();
+    EXPECT_TRUE(timed.canSeekElapsedSeconds());
+    EXPECT_TRUE(timed.seekToElapsedSeconds(30));
+    EXPECT_FALSE(timed.seekToElapsedSeconds(120));
+
+    trainprogram noTarget({timedRow(60)}, nullptr);
+    noTarget.restart();
+    EXPECT_FALSE(noTarget.canSeekElapsedSeconds());
+    trainrow distance = target;
+    distance.distance = 1;
+    trainprogram distanceProgram({target, distance}, nullptr);
+    distanceProgram.restart();
+    EXPECT_FALSE(distanceProgram.canSeekElapsedSeconds());
+    trainprogram blocked({target, lapButtonRow()}, nullptr);
+    blocked.restart();
+    EXPECT_FALSE(blocked.canSeekElapsedSeconds());
+}

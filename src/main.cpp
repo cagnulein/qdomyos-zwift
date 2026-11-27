@@ -1659,6 +1659,10 @@ int main(int argc, char *argv[]) {
         qDebug() << "applicationState at start" << guiApp->applicationState();
     }
 
+    // Before the QML is loaded, so a new install opens in the modern look at once; after the message handler, so
+    // the decision is in the debug log
+    homeform::startModernForNewInstall();
+
     // myMessageOutput() drops every message when the log is off (same condition as there), so don't
     // build the messages nobody reads: the dump of all the settings and the Qt Bluetooth debug output,
     // which Qt formats for every packet once its category is enabled

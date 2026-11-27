@@ -2,6 +2,7 @@
 #include <QDebug>
 #include "bike.h"
 #include <limits>
+#include "rouvygearing.h"
 
 CharacteristicWriteProcessor0003::CharacteristicWriteProcessor0003(double bikeResistanceGain,
                                                                  int8_t bikeResistanceOffset,
@@ -39,26 +40,118 @@ double CharacteristicWriteProcessor0003::currentGear() {
         return ((bike*)Bike)->gears();
 }
 
-qint32 CharacteristicWriteProcessor0003::decodeSInt(const QByteArray& bytes) {
-    if (static_cast<quint8>(bytes.at(0)) != 0x22) {
-        qFatal("Invalid field header");
+bool CharacteristicWriteProcessor0003::decodeSInt(const QByteArray &bytes, qint32 &decoded) {
+    // Rouvy/Zwift may send field 1 before the signed slope in protobuf field 2.
+    auto invalid = [&bytes](const char *why) -> bool {
+        qWarning() << "Zwift Play: invalid slope protobuf:" << why << bytes.toHex(' ');
+        return false;
+    };
+    auto readVarint = [&bytes](int &offset, int limit, quint64 &value) -> bool {
+        value = 0;
+        for (int i = 0; i < 10 && offset < limit; ++i) {
+            const quint8 octet = static_cast<quint8>(bytes.at(offset++));
+            if (i == 9 && (octet & 0xFE) != 0)
+                return false;
+            value |= static_cast<quint64>(octet & 0x7F) << (i * 7);
+            if (!(octet & 0x80))
+                return true;
+        }
+        return false;
+    };
+
+    int pos = 0;
+    quint64 tag = 0;
+    if (!readVarint(pos, bytes.size(), tag) || tag != 0x22)
+        return invalid("outer field (expected 0x22)");
+    quint64 length = 0;
+    if (!readVarint(pos, bytes.size(), length) || length > static_cast<quint64>(bytes.size() - pos))
+        return invalid("outer length");
+    const int end = pos + static_cast<int>(length);
+
+    while (pos < end) {
+        if (!readVarint(pos, end, tag) || (tag >> 3) == 0)
+            return invalid("inner field tag");
+        const quint64 fieldNumber = tag >> 3;
+        const quint64 wireType = tag & 7;
+        if (wireType == 0) {
+            quint64 raw = 0;
+            if (!readVarint(pos, end, raw))
+                return invalid("inner varint");
+            if (fieldNumber == 2) {
+                if (raw > std::numeric_limits<quint32>::max())
+                    return invalid("signed slope out of range");
+                const quint32 zigzag = static_cast<quint32>(raw);
+                decoded = static_cast<qint32>((zigzag >> 1) ^ (0U - (zigzag & 1U)));
+                return true;
+            }
+        } else if (wireType == 1) {
+            if (end - pos < 8)
+                return invalid("truncated fixed64");
+            pos += 8;
+        } else if (wireType == 2) {
+            quint64 fieldLength = 0;
+            if (!readVarint(pos, end, fieldLength) || fieldLength > static_cast<quint64>(end - pos))
+                return invalid("truncated length-delimited field");
+            pos += static_cast<int>(fieldLength);
+        } else if (wireType == 5) {
+            if (end - pos < 4)
+                return invalid("truncated fixed32");
+            pos += 4;
+        } else {
+            return invalid("unsupported protobuf wire type");
+        }
     }
+    return invalid("missing signed slope in field 2");
+}
 
-    int length = static_cast<quint8>(bytes.at(1));
+QByteArray CharacteristicWriteProcessor0003::gearStatusResponse() const {
+    QSettings settings;
+    if (!settings.value(QZSettings::rouvy_compatibility, QZSettings::default_rouvy_compatibility).toBool())
+        return QByteArray::fromHex("3c0888041206 0a0440c0bb01");
+    QByteArray response = QByteArray::fromHex("3c08880412");
+    response.append(char(lastGearRatio.size() + 3));
+    response.append(char(0x0a));
+    response.append(char(lastGearRatio.size() + 1));
+    response.append(char(0x40));
+    response.append(lastGearRatio);
+    return response;
+}
 
-    if (static_cast<quint8>(bytes.at(2)) != 0x10) {
-        qFatal("Invalid inner header");
-    }
+QByteArray CharacteristicWriteProcessor0003::gearAckResponse(const QByteArray &ratioBytes) const {
+    QSettings settings;
+    if (settings.value(QZSettings::rouvy_compatibility, QZSettings::default_rouvy_compatibility).toBool())
+        return QByteArray::fromHex("3c08880412050a0340") + ratioBytes;
 
-    VarintResult varint = decodeVarint(bytes, 3);
-
-    qint32 decoded = (varint.value >> 1) ^ -(varint.value & 1);
-
-    return decoded;
+    // Preserve the pre-Rouvy Zwift ACK byte for byte.
+    QByteArray response = QByteArray::fromHex("3c088804120503408c60");
+    response[8] = ratioBytes.at(0);
+    response[9] = ratioBytes.at(1);
+    return response;
 }
 
 void CharacteristicWriteProcessor0003::handleZwiftGear(const QByteArray &array) {
+    if (array.size() < 2)
+        return;
+
     uint8_t g = 0;
+    QSettings settings;
+    if (settings.value(QZSettings::rouvy_compatibility, QZSettings::default_rouvy_compatibility).toBool()) {
+        int length = 0;
+        for (; length < array.size() && length < 3; ++length) {
+            if ((static_cast<quint8>(array.at(length)) & 0x80) == 0) {
+                ++length;
+                break;
+            }
+        }
+        if (length < 2 || length > 3 || (static_cast<quint8>(array.at(length - 1)) & 0x80))
+            return;
+        lastGearRatio = array.left(length);
+
+        const int profile = settings.value(QZSettings::rouvy_virtual_gearing_profile,
+                                           QZSettings::default_rouvy_virtual_gearing_profile).toInt();
+        const qint64 ratio = decodeVarint(lastGearRatio, 0).value;
+        g = RouvyGearing::gearForRatio(profile, ratio);
+    } else {
     if (array.size() >= 2) {
         if ((uint8_t)array[0] == (uint8_t)0xCC && (uint8_t)array[1] == (uint8_t)0x3A) g = 1;
         else if ((uint8_t)array[0] == (uint8_t)0xFC && (uint8_t)array[1] == (uint8_t)0x43) g = 2;
@@ -90,7 +183,9 @@ void CharacteristicWriteProcessor0003::handleZwiftGear(const QByteArray &array) 
         else { return; }
     }
 
-    QSettings settings;
+    }
+    if (!g || !Bike)
+        return;
     if(settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool()) {
         int actGear = ((bike*)Bike)->gears();
         if (g < actGear) {
@@ -225,7 +320,7 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
     }
     else if (receivedData.startsWith(expectedHexArray3)) {
         qDebug() << "Zwift Play Processor: Status request";
-        reply = QByteArray::fromHex("3c0888041206 0a0440c0bb01");
+        reply = gearStatusResponse();
         notifier0004->addAnswer(reply);
     }
     else if (receivedData.startsWith(expectedHexArray4) || receivedData.startsWith(expectedHexArray4b)) {
@@ -242,7 +337,10 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
     }
     else if (receivedData.startsWith(expectedHexArray5)) {
         qDebug() << "Zwift Play Processor: Slope change request";
-        double slopefloat = decodeSInt(receivedData.mid(1));
+        qint32 slopeValue = 0;
+        if (!decodeSInt(receivedData.mid(1), slopeValue))
+            return CP_OK; // Ignore invalid slopes without a DIRCON protocol error.
+        double slopefloat = slopeValue;
         QByteArray slope(2, 0);
         slope[0] = quint8(qint16(slopefloat) & 0xFF);
         slope[1] = quint8((qint16(slopefloat) >> 8) & 0x00FF);
@@ -258,6 +356,7 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
     else if (receivedData.startsWith(expectedHexArray6)) {
         qDebug() << "Zwift Play Ask 6";
 
+        if (receivedData.size() < 7) return -1;
         reply = QByteArray::fromHex("3c0888041206 0a0440c0bb01");
         reply[9] = receivedData[4];
         reply[10] = receivedData[5];
@@ -274,9 +373,8 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
         reply = QByteArray::fromHex("03080010001827e7 2000 28 00 3093ed01");
         notifier0002->addAnswer(reply);
 
-        reply = QByteArray::fromHex("3c088804120503408c60");
-        reply[8] = receivedData[4];
-        reply[9] = receivedData[5];
+        if (receivedData.size() < 6) return -1;
+        reply = gearAckResponse(receivedData.mid(4, 2));
         handleZwiftGear(receivedData.mid(4));
         notifier0004->addAnswer(reply);
     }

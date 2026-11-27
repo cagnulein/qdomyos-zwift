@@ -1,0 +1,103 @@
+/* Full screen charts (chartfullscreen.js, on the charts page and in the workout history): the
+   button in the top-left corner of a card, in its title row; the spread card covers the page, the page under it does not scroll */
+.qz-fs-card {
+    position: relative;
+}
+.qz-fs-button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+    border: 0;
+    border-radius: 18px;
+    background: transparent;
+    color: rgb(120,120,120);
+    color: var(--qz-muted, rgb(120,120,120));
+    line-height: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+/* a touch target of 48 px around the 36 px button, to the right and down (it sits in the corner) */
+.qz-fs-button::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 48px;
+    height: 48px;
+}
+.qz-fs-button:active {
+    background-color: rgba(128,128,128,0.25);
+}
+html.qz-fs,
+html.qz-fs body {
+    overflow: hidden;
+}
+.qz-fs-card.qz-fs-on,
+html.modern div.qz-fs-card.qz-fs-on {   /* over the rounded cards of the modern look */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 90;
+    margin: 0 !important;   /* the 8 px above the cards of the modern look left the page seen above it */
+    border-radius: 0 !important;
+}
+.qz-fs-on .qz-fs-button {
+    width: 48px;
+    height: 48px;
+    padding: 10px;
+    border-radius: 24px;
+}
+.qz-fs-on .qz-fs-button svg {
+    width: 28px;
+    height: 28px;
+}
+#qz_fs_counter {
+    display: none;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    z-index: 91;
+    color: rgb(120,120,120);
+    color: var(--qz-text, rgb(120,120,120));   /* as the chart title next to it */
+    font: 600 20px Roboto, "Segoe UI", sans-serif;
+}
+html.qz-fs #qz_fs_counter {
+    display: block;
+}
+/* The swipe hint as the app's own toast (Toast.qml): a bar across the bottom 10 px from
+   the edges, the inverse of the theme, 0.9 opaque, fading in and out in 0.3 s. The QML
+   toast itself would lie under the web view */
+#qz_fs_toast {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    z-index: 92;
+    padding: 5px;
+    border-radius: 10px;
+    background-color: #222222;
+    color: white;
+    font: 14px Roboto, "Segoe UI", sans-serif;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    -webkit-transition: opacity 0.3s;
+    transition: opacity 0.3s;
+}
+html.modern #qz_fs_toast {
+    border-radius: 14px;
+    background-color: #E4E6EB;
+    color: #1A1C20;
+}
+html.modern.light #qz_fs_toast {
+    background-color: #2B2F36;
+    color: #F1F2F4;
+}
+#qz_fs_toast.on {
+    opacity: 0.9;
+}

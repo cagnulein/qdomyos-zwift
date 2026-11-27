@@ -170,6 +170,22 @@
         <translation>Mevcut antrenman durdurulsun mu?</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>Otomatik direnç kapalı</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ şu anda direnci değiştirmiyor. “Uygula”: Direnç, Hedef dir. ve ön ayar kutucuklarındaki seviyeler otomatik direnç kapalı kaldığı sürece geçerli olur. Uygulamalardan gelen komutlar (örneğin Zwift) yine yok sayılır.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Uygula</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Otomatik direnci aç</translation>
+    </message>
+    <message>
         <source>Permissions Required</source>
         <translation>İzin gerekli</translation>
     </message>
@@ -202,6 +218,14 @@ Bunlar açılsın mı?</translation>
 Would you like to do that now?</source>
         <translation>Değişiklikleri uygulamak için uygulamanın yeniden başlatılması gerekiyor.
 Şimdi yeniden başlatılsın mı?</translation>
+    </message>
+    <message>
+        <source>Try the new interface?</source>
+        <translation>Yeni arayüzü denemek ister misiniz?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ&apos;nin ana ekranı, yan menüsü, ayarları ve sihirbazı yeni bir görünüme kavuştu. İstediğiniz zaman Ayarlar &gt; Genel arayüz seçenekleri bölümünden eskisine dönebilirsiniz.</translation>
     </message>
     <message>
         <source>Adjustable. Current value: </source>
@@ -2409,6 +2433,18 @@ QZ ayarları güncellensin mi?</translation>
         <translation>1 mil</translation>
     </message>
     <message>
+        <source>Full screen</source>
+        <translation>Tam ekran</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Tam ekrandan çık</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Grafikler arasında geçiş için sola veya sağa kaydırın</translation>
+    </message>
+    <message>
         <source>AVG</source>
         <translation>ORT.</translation>
     </message>
@@ -4580,6 +4616,10 @@ Sonraki pencerede QZ klasörüne erişime izin verin.</translation>
         <translation>Ayarlar</translation>
     </message>
     <message>
+        <source>Try the new interface</source>
+        <translation>Yeni arayüzü deneyin</translation>
+    </message>
+    <message>
         <source>Workouts History</source>
         <translation>Antrenman geçmişi</translation>
     </message>
@@ -6510,8 +6550,8 @@ QZ&apos;nin bu değeri değiştirmesine izin verilsin mi?
         <translation>Garmin Bluetooth sensörü</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Mac&apos;inizden Garmin cihazınıza veri göndermek istiyorsanız bunu açın. Aksi hâlde kapalı bırakın.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Garmin veya başka bir spor saatinizin QZ&apos;yi Bluetooth sensörü olarak kullanmasını sağlar: koşu bandıyla adım sensörü, bisikletle güç ölçer (Android&apos;de ayrıca &quot;Bisiklet güç sensörü&quot;nü açın). Saatin, QZ&apos;nin çalıştığı telefon veya tabletle Bluetooth üzerinden eşlenmiş olması gerekir: saat QZ&apos;yi bulamazsa bir kez eşleyin, ardından saatte sensörü ekleyin ve eşleme isteğini kabul edin. Aynı telefonda Garmin Connect saate bağlıysa, saat bağlanırken onu art arda iki üç kez zorla durdurun; Garmin Connect olmayan ayrı bir telefon veya tablet daha kolaydır. QZ saat için sensör olarak çalışırken Bluetooth üzerinden bağlı Zwift onu yalnızca adım sensörü veya güç ölçer olarak görür, kontrol edebileceği bir cihaz olarak görmez.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -8669,6 +8709,75 @@ Varsayılan: A = -0.96, B = 1.33</translation>
         <translation>Deneysel: QZ&apos;deki koşu bandı sürücüsü cihazın kendi hız ölçümlerini veriyorsa, QZ&apos;nin kontrol ettiği koşu bandı hızı Runn/Stryd verilerine göre kademeli olarak düzeltilir. &quot;Hızı güç sensöründen al&quot; ayarı gerekir. Varsayılan: kapalı.</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Modern arayüz</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Ana ekranın, yan menünün, ayarların ve sihirbazın yeni görünümü. Klasik görünüme dönmek için kapatın.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Görünüm</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Telefondaki gibi</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Koyu</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Açık</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Tema</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafit</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Siyah / beyaz</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Gece mavisi</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Vurgu rengi</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Mor</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Mavi</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Turkuaz</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Yeşil</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Turuncu</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Pembe</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Kutucuk boyutu:</translation>
     </message>
@@ -8799,6 +8908,14 @@ Varsayılan: A = -0.96, B = 1.33</translation>
     <message>
         <source>Use Console Gears</source>
         <translation>Konsol viteslerini kullan</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Yürüme/koşu modeliyle koşu bandı kalorisi</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Konsolu kalori göndermeyen koşu bantları için. Kalori; bant hızı, eğim ve kilonuz, boyunuz, yaşınız ve cinsiyetinizden hesaplanır: boyunuza göre belirlenen yürümeden koşuya geçiş hızınızın altında yürüme modeli, üstünde koşu modeli kullanılır. Bunun yerine güce dayalı değeri kullanmak için kapatın. Konsolun gönderdiği kalori, harici bir güç sensörü (Stryd vb.) ve açıksa Kaloriyi nabıza göre hesapla yine önceliklidir.</translation>
     </message>
 </context>
 <context>

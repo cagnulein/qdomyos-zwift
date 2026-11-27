@@ -167,6 +167,8 @@ You can change QZ virtual gears using several controls, depending on your setup:
 - a Bluetooth media/volume remote when **volume buttons change gears** is enabled;
 - on a supported RENPHO bike, the physical resistance knob when the RENPHO knob-to-gears option is enabled.
 
+To use a **CYCPLUS BC2** as the gear controller, enable **CYCPLUS BC2** under **QZ Settings > Accessories** so QZ connects to the controller. In a confirmed setup, enabling this option made the BC2 shifts work while QZ continued to bridge the bike to ROUVY.
+
 The current virtual gear is managed by QZ. ROUVY does not currently provide a field where QZ can inject its gear number, so you should not expect the QZ gear to appear natively in the ROUVY ride screen. Keep the QZ **Gear** tile visible if you want to see the current gear while riding.
 
 ### Confirmed RENPHO R-Q002 + ROUVY + CYCPLUS BC2 setup
@@ -194,6 +196,14 @@ The RENPHO physical knob can also be used first to tune and test the virtual gea
 *Screenshots courtesy of Colby Brannon, shared with permission.*
 
 If using a Bluetooth media/volume remote instead, QZ handles volume-up and volume-down key events as gear controls when the corresponding option is enabled. On Android, the system volume overlay may still briefly appear when those keys are pressed; that does not prevent QZ from using the key presses as gear changes.
+
+## Can I keep my ProForm TDF bike's physical gears under manual control while ROUVY changes its incline?
+
+On a supported ProForm TDF bike with independently adjustable physical incline and electronic resistance, try disabling **Zwift Force Resistance** in QZ's **Experimental Settings**. Despite the setting name, this can affect the ROUVY bridge as well.
+
+A rider using a ProForm TDF (PFEX01218C.0) explicitly confirmed that after turning this option off, the bike continued physically tilting to follow ROUVY terrain while the rider could select the bike's own electronic resistance levels without them being immediately overridden. Verify both functions separately on your own model.
+
+If QZ's **Resistance** tile matches the bike's own gear number, you are using the bike's physical resistance levels, not necessarily QZ's virtual gear table. **Gears Gain** adjusts QZ's virtual gear steps; it does not increase the maximum resistance of the bike's own 26-level system. If the highest physical gear is too easy, compare the bike's standalone resistance at the same incline and cadence before changing QZ gearing settings.
 
 ## How do I follow Peloton resistance targets when my bike uses a different resistance scale?
 
@@ -277,6 +287,10 @@ In a confirmed support case, Kinomap had retained old connections and was interf
 
 This is a **Bluetooth Cycling Power** connection, **not ANT+**: an iPhone cannot broadcast ANT+. QZ's Garmin Bluetooth Sensor mode advertises its cycling power service to the watch and may appear as **PWR - QZ** instead of the ordinary **HR - QZ** virtual heart-rate device. Success depends on Garmin model, firmware and pairing behavior, so the confirmed Forerunner 265 result is not a guarantee for every watch.
 
+**Garmin Forerunner 965: pair the watch with the device running QZ first.** In [issue #5932](https://github.com/cagnulein/qdomyos-zwift/issues/5932#issuecomment-7140587837), a contributor found that the watch could not discover QZ's Cycling Power sensor even though QZ advertised service `0x1818` correctly and nRF Connect could see it. On a separate Android phone running QZ, pairing the watch with that phone over Bluetooth first made **PWR - QZ** discoverable. The watch then requested an additional Bluetooth pairing confirmation when adding the power sensor; accepting it allowed live power to reach the watch. When using QZ on an iPad, follow the same sequence: pair the Garmin with the iPad over Bluetooth first, then search **Sensors & Accessories > Add New > Power** and accept any pairing prompt on the iPad. This is a troubleshooting sequence for devices that do not discover QZ, not a prerequisite for every Garmin model.
+
+**Garmin Connect and phone-link caution:** On the phone already linked to Garmin Connect, the contributor observed Garmin Connect reclaiming the Bluetooth connection and interfering with QZ sensor pairing. A separate phone or tablet running QZ without Garmin Connect can avoid this contention. Disabling the watch's phone link can also unlink it from Garmin Connect and require setting it up again; do not assume this step is reversible without reconfiguration.
+
 **If the watch detects QZ but will not pair**, try the temporary phone-disconnect step above first. A previous Garmin Epix Pro Gen 2 report found QZ but could not complete pairing; the watch-specific workaround was not confirmed for that model. If live sensor pairing still does not work, QZ can instead record the workout and upload the completed **FIT activity** to **Garmin Connect** using its Garmin Connect / Garmin Upload integration. That alternative transfers workout metrics *after* the ride, without recording them natively on the watch.
 
 ## Can QZ and ROUVY run on the same Android tablet and connect through QZ's virtual Bluetooth trainer?
@@ -330,4 +344,6 @@ A Garmin fēnix 8 user confirmed that disabling the watch's Bluetooth phone conn
 
 Yes. If QZ is running on an **iPhone** and ROUVY on a computer detects its virtual **ELITE AVANTI** Wi-Fi/DirCon trainer but fails to connect, temporarily turn **Cellular Data** off on the iPhone. Leave **Wi-Fi and Bluetooth on**, ensure the computer and phone are on the same local network, and keep QZ open in the foreground. Fully close and reopen ROUVY, then retry pairing the QZ-advertised Wi-Fi trainer. Also disable any active VPN during this test. You can restore cellular data afterward.
 
-In a confirmed BKOOL Smart Bike v1 / iPhone / Windows ROUVY setup, switching off iPhone cellular data restored the Wi-Fi trainer connection after other troubleshooting had failed. This only confirms the **connection**: the rider separately reported abnormal cadence and power values that still needed investigation. If the connection still fails, check the local network, firewall, and QZ DirCon settings rather than assuming cellular data is always the cause.
+In a confirmed BKOOL Smart Bike v1 / iPhone / Windows 11 ROUVY setup, switching off iPhone cellular data restored the Wi-Fi trainer connection after other troubleshooting had failed. This only confirms the **connection**: the rider separately reported abnormal cadence and power values that still needed investigation.
+
+In another confirmed Windows 11 setup, enabling **Wahoo DIRCON** in QZ's **Experimental Settings** and temporarily disabling the Windows firewall made ROUVY discover and connect to QZ's **ELITE AVANTI** virtual trainer. A 17 km route and a 10-minute ERG session both worked. Re-enable the firewall after testing and allow QZ/ROUVY on the private network if needed; do not leave the firewall disabled as the permanent setup. If the connection still fails, check the local network, firewall rules, and QZ DIRCON settings rather than assuming cellular data is always the cause.

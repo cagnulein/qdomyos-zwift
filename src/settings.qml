@@ -3,6 +3,7 @@ import QtQuick 2.7
 import QtQuick 2.12 as Handlers
 import QtQml 2.15
 import QtQuick.Layouts 1.3
+import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 import Qt.labs.settings 1.0
@@ -189,6 +190,27 @@ import AndroidStatusBar 1.0
             return qsTranslate(pageContextOf(where.file), where.chain[where.card]) + ": " + title
         }
 
+        // The look of the modern interface (see the declarations of the ui_ keys in the Settings
+        // below): kept by main.qml, which applies it at once
+        readonly property var uiOptionKeys: ["ui_modern", "ui_theme", "ui_accent", "ui_theme_mode"]
+        function isUiOption(key) {
+            return uiOptionKeys.indexOf(key) >= 0
+        }
+        // Into main.qml, which applies it at once, and into this page's copy as well: a change
+        // of any setting makes this page's Settings write all its properties (Qt.labs.settings
+        // 5.15), and a stale copy would bring the old look back after a restart. Into the store
+        // at once too: both copies write a change only a moment later, and a page made again
+        // in between (the language, a reset in "Changed": stackView.replace) would read the old
+        // look there and write it back with its next change
+        function setUiOption(key, value) {
+            // "As on the phone" takes the night mode of the phone as it is now
+            if (key === "ui_theme_mode")
+                window.ui.refreshSystemTheme()
+            window.ui.setOption(key, value)
+            settings[key] = value
+            settings.setValue(key, value)
+        }
+
         // Modern look, "Changed": the changed settings listed in the block of one section, and
         // their reset. The listed ones only, as Reset all: with a text in the field the block
         // shows the ones matching it, and a setting not shown is not reset
@@ -260,7 +282,8 @@ import AndroidStatusBar 1.0
 
         function currentSearch(viaPush) {
             return { query: settingsSearchTextField.text, changedOnly: changedOnly,
-                     results: filteredSettings, scroll: contentItem.contentY, viaPush: viaPush }
+                     results: filteredSettings, scroll: contentItem.contentY, viaPush: viaPush,
+                     modern: window.ui.modern }
         }
 
         // A page among the results ("Wahoo Options"): back from it lands on the results
@@ -404,8 +427,10 @@ import AndroidStatusBar 1.0
             settingsSearchActive = back.query.trim().length > 0 || back.changedOnly
             settingsSearchPending = false
             filteredSettings = back.results
-            // "Changed" may differ now (the setting just opened was edited): that list is rebuilt
-            if (changedOnly)
+            // "Changed" may differ now (the setting just opened was edited): that list is rebuilt;
+            // so are the results when the look was switched meanwhile (the classic look leaves
+            // out the rows of the modern one)
+            if (changedOnly || back.modern !== window.ui.modern)
                 updateFilteredSettings()
             // After the list is laid out again
             contentItem.contentY = 0
@@ -720,6 +745,10 @@ import AndroidStatusBar 1.0
         function profileSettingsSnapshot() {
             var values = []
             for (var key in settings) {
+                // The look applies at once: a change of it alone does not bring up the reminder
+                // to save the profile
+                if (isUiOption(key))
+                    continue
                 var value = settings[key]
                 if (typeof value === "boolean" || typeof value === "number" || typeof value === "string")
                     values.push(key + "=" + String(value))
@@ -732,6 +761,13 @@ import AndroidStatusBar 1.0
             return settings.profile_name.length > 0 &&
                    settings.profile_name !== "default" &&
                    initialProfileSettingsSnapshot.length > 0 &&
+                   initialProfileSettingsSnapshot !== profileSettingsSnapshot()
+        }
+
+        // main.qml, back from the settings: a setting switched and switched back still raised the
+        // restart question, though the settings are as they were. Without a snapshot - changed
+        function settingsChangedSinceOpen() {
+            return initialProfileSettingsSnapshot.length === 0 ||
                    initialProfileSettingsSnapshot !== profileSettingsSnapshot()
         }
 
@@ -1013,6 +1049,11 @@ import AndroidStatusBar 1.0
             var tokens = query.length > 0 ? query.split(/\s+/) : []
             var results = []
             for (var i = 0; i < searchableSettings.length; i++) {
+                // Appearance, Theme and Accent color are rows of the modern look only: the classic
+                // page has no row to show for them
+                if (!window.ui.modern && searchableSettings[i].key !== "ui_modern" &&
+                        isUiOption(searchableSettings[i].key))
+                    continue
                 if (changedOnly && !isChanged(searchableSettings[i]))
                     continue
                 if (!changedOnly && searchHiddenSettings[searchableSettings[i].key])
@@ -1124,7 +1165,7 @@ import AndroidStatusBar 1.0
         // is not a property of this page's Settings (settingValue reads the property first). The
         // store may give a boolean back as the string "true"
         function storedValue(key, type, fallback) {
-            var value = settings.value(key, fallback)
+            var value = isUiOption(key) ? window.ui.option(key) : settings.value(key, fallback)
             if (type === "boolean")
                 return value === true || value === "true"
             return value
@@ -1169,6 +1210,12 @@ import AndroidStatusBar 1.0
                 value = parseInt(value)
             else if (type === "number")
                 value = parseFloat(value)
+            // The look of the modern interface is kept by main.qml; setUiOption writes the store
+            // at once as well, which the page made again after the reset reads
+            if (isUiOption(key)) {
+                setUiOption(key, value)
+                return
+            }
             // The account of one server is no good on the other
             if (key === "garmin_domain" && value !== settings.garmin_domain)
                 rootItem.garmin_connect_logout()
@@ -1279,6 +1326,8 @@ import AndroidStatusBar 1.0
         // change there only a moment later, a card read again at once got the old value and kept
         // it. The store only for a key that is not a property here
         function settingValue(entry) {
+            if (isUiOption(entry.key))
+                return window.ui.option(entry.key)
             var copy = settings[entry.key]
             var value = copy === undefined ? storedValue(entry.key, entry.type, entry.defaultValue) : copy
             if ((entry.type === "integer" || entry.type === "number") && value !== null && value !== "")
@@ -2927,6 +2976,9 @@ import AndroidStatusBar 1.0
             property bool heart_rate_belt_suggest: false
 
             property bool proform_treadmill_sport_6_0: false
+            // The look of the modern interface: main.qml keeps the same keys and applies them at
+            // once. Declared here for the settings catalog; the page and the search read them
+            // through window.ui and write both copies (setUiOption)
             property bool ui_modern: false
             property string ui_theme: "graphite"
             property string ui_accent: "violet"
@@ -2936,6 +2988,20 @@ import AndroidStatusBar 1.0
             property bool resistance_compatibility: false
             // Keep newly added properties at the end to preserve settings order on iOS.
             property bool strava_synthetic_gps_track: false
+            property int rouvy_virtual_gearing_profile: 0
+
+            property bool trixter_xdream_bike_enabled: false
+            property bool trixter_xdream_bike_heartrate_enabled: true
+            property bool trixter_xdream_bike_steering_enabled: true
+            property int trixter_xdream_bike_steering_l : -45
+            property int trixter_xdream_bike_steering_cl : -2
+            property int trixter_xdream_bike_steering_cr : 2
+            property int trixter_xdream_bike_steering_r : 45
+            property int trixter_xdream_bike_steering_max : 45
+            property int trixter_xdream_bike_connection_timeout_ms : 500
+            property bool treadmill_calories_model: false
+            property bool ui_modern_new_install_checked: false
+            property bool ui_modern_offer_pending: false
 
         }
 
@@ -4400,6 +4466,36 @@ import AndroidStatusBar 1.0
                         color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
                     }
 
+                    IndicatorOnlySwitch {
+                        id: switchTreadmillCaloriesModelDelegate
+                        text: qsTr("Treadmill Calories from Walking/Running Model")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.treadmill_calories_model
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.treadmill_calories_model = checked
+                        Accessible.onPressAction: { toggle(); settings.treadmill_calories_model = checked }
+                    }
+
+                    Label {
+                        text: qsTr("Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.")
+                        font.bold: !window.ui.modern
+                        font.italic: !window.ui.modern
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
+                    }
+
                     Label {
                         id: labelHeartRateBelt
                         text: qsTr("Heart Belt Name:")
@@ -5039,6 +5135,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: rollingreistanceTextField
+                            decimals: 4
                             savedText: settings.rolling_resistance
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -6763,6 +6860,195 @@ import AndroidStatusBar 1.0
                         }
                     }
                     AccordionElement {
+                        id: trixterXDreambikeAccordion
+                        title: qsTr("Trixter X-Dream Bike Options (Windows/Linux only)")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent:
+                            ColumnLayout {
+                            SwitchDelegate {
+                                id: trixterXDream
+                                text: qsTr("Trixter X-Dream Bike Enabled")
+                                hoverEnabled: true
+                                ToolTip.visible: hovered
+                                ToolTip.text: qsTr("Use this to enable or disable detection of the Trixter X-Dream Bike. Not supported in iOS.")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.trixter_xdream_bike_enabled
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.trixter_xdream_bike_enabled = checked
+                                Accessible.onPressAction: clicked()
+                            }
+                            RowLayout {
+                                id: trixterXDreambikeConnection
+                                spacing: 10
+                                Label {
+                                    id: labelTrixterXDreambikeConnectionTimeout
+                                    text: qsTr("Initial connection timeout (ms)")
+                                    Layout.fillWidth: true
+                                }
+                                SpinBox {
+                                    id: trixterXDreambikeConnectionTimeout
+                                    value: settings.trixter_xdream_bike_connection_timeout_ms
+                                    hoverEnabled: true
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: qsTr("The number of milliseconds the app will wait for data from the bike when searching a port.")
+                                    Accessible.name: qsTr("The number of milliseconds the app will wait for data from the bike when searching a port : ")+value
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    stepSize: 100
+                                    from: 100
+                                    to: 10000
+                                    onValueChanged: settings.trixter_xdream_bike_connection_timeout_ms = value
+                                }
+                            }
+                            SwitchDelegate {
+                                id: trixterXDreamHeartRate
+                                text: qsTr("Heart Rate Signal Enabled")
+                                hoverEnabled: true
+                                ToolTip.visible: hovered
+                                ToolTip.text: qsTr("Use this to enable or disable the heart rate signal.")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.trixter_xdream_bike_heartrate_enabled
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.trixter_xdream_bike_heartrate_enabled = checked
+                                Accessible.onPressAction: clicked()
+                            }
+                            SwitchDelegate {
+                                id: trixterXDreamSteering
+                                text: qsTr("Steering Enabled")
+                                hoverEnabled: true
+                                ToolTip.visible: hovered
+                                ToolTip.text: qsTr("Use this to enable or disable steering.")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.trixter_xdream_bike_steering_enabled
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.trixter_xdream_bike_steering_enabled = checked
+                                Accessible.onPressAction: clicked()
+                            }
+                            ColumnLayout {
+                                id: trixterXDreamCalibration
+                                spacing: 10
+                                Label {
+                                    id: labelTrixterXDreambikeSteeringBoundariesAngular
+                                    text: qsTr("Steering Calibration (Use values from Steering Tile with default calibration)")
+                                    Layout.fillWidth: true
+                                }
+                                RowLayout {
+                                    Label {
+                                        text: qsTr("Unadjusted steering angle that is 100% left.")
+                                        Layout.fillWidth: true
+                                    }
+                                    SpinBox {
+                                        id: trixterXDreambikeSteeringAngleLeftSpinBox
+                                        value: settings.trixter_xdream_bike_steering_l
+                                        hoverEnabled: true
+                                        ToolTip.visible: hovered
+                                        ToolTip.text: qsTr("Unadjusted steering angle that is 100% left.")
+                                        Accessible.name: qsTr("Unadjusted steering angle that is 100% left : ") + value
+                                        Layout.fillHeight: false
+                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        inputMethodHints: Qt.ImhDigitsOnly
+
+                                        from: -settings.trixter_xdream_bike_steering_max
+                                        to: trixterXDreambikeSteeringAngleCenterLeftSpinBox.value
+                                        onValueChanged: settings.trixter_xdream_bike_steering_l = value
+                                    }
+                                }
+                                RowLayout {
+                                    Label {
+                                        text: qsTr("Leftmost unadjusted steering angle to be mapped to 0 degrees.")
+                                        Layout.fillWidth: true
+                                    }
+                                    SpinBox {
+                                        id: trixterXDreambikeSteeringAngleCenterLeftSpinBox
+                                        value: settings.trixter_xdream_bike_steering_cl
+                                        hoverEnabled: true
+                                        ToolTip.visible: hovered
+                                        ToolTip.text: qsTr("Leftmost unadjusted steering angle to be mapped to 0 degrees.")
+                                        Accessible.name: qsTr("Leftmost unadjusted steering angle to be mapped to 0 degrees : ") + value
+                                        Layout.fillHeight: false
+                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        inputMethodHints: Qt.ImhDigitsOnly
+
+                                        from: trixterXDreambikeSteeringAngleLeftSpinBox.value
+                                        to: trixterXDreambikeSteeringAngleCenterRightSpinBox.value
+                                        onValueChanged: settings.trixter_xdream_bike_steering_cl = value
+                                    }
+                                }
+                                RowLayout {
+                                    Label {
+                                        text: qsTr("Rightmost unadjusted steering angle to be mapped to 0 degrees.")
+                                        Layout.fillWidth: true
+                                    }
+                                    SpinBox {
+                                        id: trixterXDreambikeSteeringAngleCenterRightSpinBox
+                                        value: settings.trixter_xdream_bike_steering_cr
+                                        hoverEnabled: true
+                                        ToolTip.visible: hovered
+                                        ToolTip.text: qsTr("Rightmost unadjusted steering angle to be mapped to 0 degrees.")
+                                        Accessible.name: qsTr("Rightmost unadjusted steering angle to be mapped to 0 degrees : ") + value
+                                        Layout.fillHeight: false
+                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        inputMethodHints: Qt.ImhDigitsOnly
+                                        from: trixterXDreambikeSteeringAngleCenterLeftSpinBox.value
+                                        to: trixterXDreambikeSteeringAngleRightSpinBox.value
+                                        onValueChanged: settings.trixter_xdream_bike_steering_cr = value
+                                    }}
+                                RowLayout {
+                                    Label {
+                                        text: qsTr("Unadjusted steering angle that is 100% right.")
+                                        Layout.fillWidth: true
+                                    }
+                                    SpinBox {
+                                        id: trixterXDreambikeSteeringAngleRightSpinBox
+                                        value: settings.trixter_xdream_bike_steering_r
+                                        hoverEnabled: true
+                                        ToolTip.visible: hovered
+                                        ToolTip.text: qsTr("Unadjusted steering angle that is 100% right.")
+                                        Accessible.name: qsTr("Unadjusted steering angle that is 100% right : ") + value
+                                        Layout.fillHeight: false
+                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        inputMethodHints: Qt.ImhDigitsOnly
+                                        from: trixterXDreambikeSteeringAngleCenterRightSpinBox.value
+                                        to: 45
+                                        onValueChanged: settings.trixter_xdream_bike_steering_r = value
+                                    }}
+                                Button {
+                                    id: resetTrixterXDreambikeSteeringAnglesReset
+                                    text: "RESET"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: {
+                                        settings.trixter_xdream_bike_steering_l = -settings.trixter_xdream_bike_steering_max
+                                        settings.trixter_xdream_bike_steering_cl = -2
+                                        settings.trixter_xdream_bike_steering_cr = 2
+                                        settings.trixter_xdream_bike_steering_r = settings.trixter_xdream_bike_steering_max
+                                        trixterXDreamCalibration.update()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    AccordionElement {
                         id: yesoulBikeAccordion
                         title: qsTr("Yesoul Bike Options")
                         indicatRectColor: Material.color(Material.Grey)
@@ -8193,6 +8479,164 @@ import AndroidStatusBar 1.0
                 //anchors.topMargin: 10
                 accordionContent: ColumnLayout {
                     spacing: 0
+
+                    // Look of the app: modern or classic, theme and accent colour
+                    IndicatorOnlySwitch {
+                        text: qsTr("Modern interface")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: window.ui.modern
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        // in Qt 5.15 the role of a SwitchDelegate has no action: a double tap of the
+                        // screen reader did nothing
+                        Accessible.onPressAction: { toggle(); clicked(); }
+                        onClicked: settingsPane.setUiOption("ui_modern", checked)
+                    }
+                    Label {
+                        text: qsTr("New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.")
+                        font.bold: !window.ui.modern
+                        font.italic: !window.ui.modern
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                        color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
+                    }
+
+                    UiSettingsRow {
+                        visible: window.ui.modern
+                        spacing: 10
+                        Layout.topMargin: 8
+                        Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
+                            text: qsTr("Appearance")
+                            wrapMode: Text.WordWrap
+                            Layout.fillWidth: true
+                        }
+                        UiComboBox {
+                            id: uiThemeModeCombo
+                            readonly property var options: [
+                                { value: "auto", label: qsTr("As on the phone") },
+                                { value: "dark", label: qsTr("Dark") },
+                                //: Colour theme: the light one (not "easy" as in the effort scale)
+                                { value: "light", label: qsTr("Light") }
+                            ]
+                            model: options
+                            textRole: "label"
+                            Layout.preferredWidth: 190
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            currentIndex: {
+                                for (var i = 0; i < options.length; i++)
+                                    if (options[i].value === window.ui.themeMode)
+                                        return i
+                                return 0
+                            }
+                            // index -1: Enter in the open list with no item highlighted
+                            onActivated: if (index >= 0) settingsPane.setUiOption("ui_theme_mode", options[index].value)
+                            // The row's label, which the screen reader does not join to the box itself
+                            Accessible.name: qsTr("Appearance") + ": " + displayText
+                        }
+                    }
+
+                    UiSettingsRow {
+                        visible: window.ui.modern
+                        spacing: 10
+                        Layout.topMargin: 8
+                        Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
+                            text: qsTr("Theme")
+                            wrapMode: Text.WordWrap
+                            Layout.fillWidth: true
+                        }
+                        UiComboBox {
+                            id: uiThemeCombo
+                            readonly property var options: [
+                                { value: "graphite", label: qsTr("Graphite") },
+                                { value: "oled", label: qsTr("Black / white") },
+                                { value: "midnight", label: qsTr("Midnight blue") }
+                            ]
+                            model: options
+                            textRole: "label"
+                            Layout.preferredWidth: 190
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            currentIndex: {
+                                for (var i = 0; i < options.length; i++)
+                                    if (options[i].value === window.ui.themeName)
+                                        return i
+                                return 0
+                            }
+                            // index -1: Enter in the open list with no item highlighted
+                            onActivated: if (index >= 0) settingsPane.setUiOption("ui_theme", options[index].value)
+                            // The row's label, which the screen reader does not join to the box itself
+                            Accessible.name: qsTr("Theme") + ": " + displayText
+                        }
+                    }
+
+                    // The swatches go under the label when its longest word has no room beside
+                    // them (130 %: "Акцентний" ran under the swatches)
+                    UiSettingsRow {
+                        id: accentRow
+                        visible: window.ui.modern
+                        spacing: 10
+                        Layout.topMargin: 8
+                        Layout.bottomMargin: 12
+                        // Wraps instead of running under the swatches: inside the frames of the
+                        // section the row is narrower than the six swatches and a long name
+                        Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
+                            text: qsTr("Accent color")
+                            wrapMode: Text.WordWrap
+                            Layout.fillWidth: true
+                            Layout.minimumWidth: 60
+                            // Stacked: room inside the card, as the Theme card above has (~20 dp from the
+                            // frame to the glyphs). The frame keeps 8 dp around the row itself
+                            // (UiSettingFrames framePadV); the row margins only move the next card
+                            topPadding: accentRow.stackedRow ? 9 : 0
+                        }
+                        Row {
+                            spacing: 6
+                            // Stacked: ~18 dp from the swatches to the frame, as under the text of the Theme card
+                            bottomPadding: accentRow.stackedRow ? 13 : 0
+                            Layout.alignment: (accentRow.stackedRow ? Qt.AlignLeft : Qt.AlignRight) | Qt.AlignVCenter
+                            Repeater {
+                                model: ["violet", "blue", "teal", "green", "orange", "pink"]
+                                // UiFrame: a Rectangle.border ring breaks up on Android
+                                delegate: UiFrame {
+                                    width: 28
+                                    height: 28
+                                    radius: 14
+                                    fill: window.ui.a[modelData]
+                                    strokeWidth: window.ui.accentName === modelData ? 3 : 0
+                                    stroke: window.ui.textMain
+                                    Accessible.role: Accessible.RadioButton
+                                    // The same names as in settings-catalog.json (ui_accent): the search shows them
+                                    Accessible.name: ({ violet: qsTr("Violet"), blue: qsTr("Blue"),
+                                                        teal: qsTr("Teal"), green: qsTr("Green"), orange: qsTr("Orange"),
+                                                        pink: qsTr("Pink") })[modelData] || modelData
+                                    Accessible.checked: window.ui.accentName === modelData
+                                    // Qt 5.15: a double tap of the screen reader does not reach the MouseArea
+                                    Accessible.onPressAction: settingsPane.setUiOption("ui_accent", modelData)
+                                    // 48 high, as the style guide asks; across, up to the middle of the
+                                    // gap (34): wider would overlap the next swatch, and the six spaced
+                                    // 48 apart would not fit beside the label
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        anchors.leftMargin: -3
+                                        anchors.rightMargin: -3
+                                        anchors.topMargin: -10
+                                        anchors.bottomMargin: -10
+                                        onClicked: settingsPane.setUiOption("ui_accent", modelData)
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     RowLayout {
                         spacing: 10
@@ -10337,6 +10781,25 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                         color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
                     }
+                    Label {
+                        text: qsTr("Virtual Gearing Profile")
+                        Layout.fillWidth: true
+                    }
+                    ComboBox {
+                        Accessible.name: qsTr("Virtual Gearing Profile") + ": " + displayText
+                        Layout.fillWidth: true
+                        model: [qsTr("Mixed Terrain (1×24)"), qsTr("Flat"),
+                                qsTr("All-Arounder"), qsTr("Climbing")]
+                        currentIndex: settings.rouvy_virtual_gearing_profile
+                        onActivated: settings.rouvy_virtual_gearing_profile = currentIndex
+                    }
+                    Label {
+                        text: qsTr("Select the same sequential gearing profile as in Rouvy.")
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                 }
             }
 
@@ -10364,7 +10827,7 @@ import AndroidStatusBar 1.0
                     }
 
                     Label {
-                        text: qsTr("If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.")
+                        text: qsTr("Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.")
                         font.bold: !window.ui.modern
                         font.italic: !window.ui.modern
                         font.pixelSize: window.fontHint
@@ -10647,7 +11110,11 @@ import AndroidStatusBar 1.0
                         // StackView page, Qt 5.15.0 (Android) crashes on exit while the popup is open -
                         // it repositions against the overlay already destroyed (QTBUG-84579, fixed in 5.15.1)
                         parent: Overlay.overlay
-                        anchors.centerIn: parent
+                        // The keyboard up: centred in the part of the window above it (below)
+                        anchors.centerIn: keyboardUp ? undefined : parent
+                        x: Math.round((parent.width - width) / 2)
+                        // the top of the card not above that part (the card can be taller - below)
+                        y: Math.round(insetTop + Math.max(0, (visibleBottom - insetTop - height) / 2))
                         readonly property bool modern: window.ui.modern
                         // Modern: the card of UiMessageDialog, 24 from the screen edges, the corner of 28
                         width: modern ? Math.min(parent.width - 48, 440) : Math.min(parent.width * 0.9, 400)
@@ -10662,11 +11129,54 @@ import AndroidStatusBar 1.0
                         // popup takes the height of its content, and with a large font the buttons went
                         // below the window - the positioner shrinks the popup to the
                         // window and the content runs out of it (qquickpopuppositioner.cpp v5.15.0:221-237).
-                        // The text scrolls instead; the field and the buttons stay on the card
+                        // The text scrolls instead; the field and the buttons stay on the card. With the
+                        // keyboard up the room is the part above it, and the card can be taller (below)
                         readonly property real insetTop: visible ? window.getTopPadding() : 0
                         readonly property real insetBottom: visible ? window.getBottomPadding() : 0
-                        readonly property real room: parent.height - 2 * Math.max(insetTop, insetBottom) - (modern ? 48 : 24)
-                        height: Math.min(implicitHeight, room)
+
+                        // The keyboard comes up with the focus in the code field and covered Cancel and
+                        // Submit: the popup is centred in the part of the window above it instead.
+                        // Android: the window is not resized for a field no taller than Qt's estimate of
+                        // the part above the keyboard (3/5 of the screen in portrait before the first
+                        // keyboard): Qt sets SOFT_INPUT_ADJUST_PAN, not RESIZE (QtActivityDelegate.java
+                        // v5.15.0:270-288), and the keyboard covers its lower part. keyboardRectangle.y is
+                        // the top of the keyboard in the window (:809-817), but in physical pixels
+                        // (QTBUG-50756, the same in Qt 6): divided by the pixel ratio. Its height is not
+                        // taken - it may be wrong with the navigation bar (QTBUG-81036).
+                        // iOS: keyboardRectangle is in window coordinates (qiosinputcontext.mm
+                        // v5.15.2:429-432). Qt's scroll of the window to the cursor (:496-529) does not
+                        // happen in this build: with qt-patches/ios/5.15.2/qios-uiscene.patch the scene's
+                        // window does not exist yet when Qt adds the keyboard's gesture to it (:336-339),
+                        // so there is no view to scroll (:463-464, 486-488). Qt 6.8 adds the gesture to the
+                        // focus window instead (qtbase f480b59914): if the patch takes that, Qt scrolls
+                        // again when the cursor (with 20 pt around it) is under the keyboard (:509-528), and
+                        // the popup has to take the scroll into account. While the keyboard comes in,
+                        // its rectangle is the one it starts from (:400, animating - :421) and the popup
+                        // waits in the centre. Only a keyboard docked at the bottom (its bottom at or below
+                        // the window's: a maximized window, the classic look, ends above the home
+                        // indicator), and not in an iPad window of Split View, Slide Over or Stage Manager
+                        // (not tested there). The card is never shorter than its
+                        // smallest content (the text at the minimum height its Flickable already has -
+                        // 3 x 16 px, scaled with the text size - the field and the buttons); when the part
+                        // above the keyboard is shorter than that (landscape), the card starts at its top
+                        // and its lower part stays under the keyboard
+                        readonly property rect keyboard: Qt.inputMethod.keyboardRectangle
+                        readonly property bool ios: Qt.platform.os === "ios"
+                        readonly property bool android: Qt.platform.os === "android"
+                        readonly property real keyboardTop: android ? keyboard.y / Screen.devicePixelRatio : keyboard.y
+                        readonly property bool keyboardUp: visible && Qt.inputMethod.visible && keyboard.y > 0
+                                                           && keyboardTop < parent.height
+                                                           && (ios ? !Qt.inputMethod.animating && !window.iosMultiWindowMode
+                                                                     && keyboard.y + keyboard.height >= parent.height - 1
+                                                                   : android)
+                        readonly property real visibleBottom: keyboardUp ? keyboardTop : parent.height
+                        readonly property real room: keyboardUp
+                                                     ? visibleBottom - insetTop - (modern ? 48 : 24)
+                                                     : parent.height - 2 * Math.max(insetTop, insetBottom) - (modern ? 48 : 24)
+                        readonly property real smallestCard: topPadding + bottomPadding
+                                                             + Math.min(mfaTextColumn.implicitHeight, window.fontPx(16) * 3)
+                                                             + fieldGap.height + mfaFieldBlock.height + buttonsGap.height + mfaButtons.height
+                        height: Math.min(implicitHeight, keyboardUp ? Math.max(room, smallestCard) : room)
 
                         visible: rootItem.garminMfaRequested
 

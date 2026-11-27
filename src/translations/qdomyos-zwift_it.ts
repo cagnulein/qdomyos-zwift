@@ -174,6 +174,22 @@
         <translation>Stop</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>La resistenza automatica è disattivata</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ ora non modifica la resistenza. «Applica»: i livelli dei riquadri Resistenza, Obiettivo R. e delle preimpostazioni valgono finché la resistenza automatica resta disattivata. I comandi delle app (ad esempio Zwift) continuano a essere ignorati.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Applica</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Attiva resistenza automatica</translation>
+    </message>
+    <message>
         <source>Cancel</source>
         <translation>Annulla</translation>
     </message>
@@ -294,6 +310,14 @@ Vuoi attivarli?</translation>
 Would you like to do that now?</source>
         <translation>Per applicare le modifiche, è necessario riavviare l&apos;app.
 Desideri farlo ora?</translation>
+    </message>
+    <message>
+        <source>Try the new interface?</source>
+        <translation>Provare la nuova interfaccia?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ ha un nuovo aspetto per la schermata principale, il menu laterale, le impostazioni e la procedura guidata. Puoi tornare indietro in qualsiasi momento in Impostazioni &gt; Opzioni Interfaccia Utente.</translation>
     </message>
     <message>
         <source>Adjustable. Current value: </source>
@@ -2387,6 +2411,18 @@ Vuoi aggiornare le impostazioni di QZ?</translation>
     <message>
         <source>1 Mile</source>
         <translation>1 miglio</translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation>Schermo intero</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Esci da schermo intero</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Scorri a sinistra o a destra per cambiare grafico</translation>
     </message>
     <message>
         <source>Peloton Workout in progress!</source>
@@ -4686,6 +4722,10 @@ Nella finestra successiva, consenti l&apos;accesso alla cartella QZ.</translatio
         <translation>Impostazioni</translation>
     </message>
     <message>
+        <source>Try the new interface</source>
+        <translation>Prova la nuova interfaccia</translation>
+    </message>
+    <message>
         <source>Workouts History</source>
         <translation>Cronologia allenamenti</translation>
     </message>
@@ -5790,8 +5830,8 @@ Consentire a QZ di modificare questo valore?
         <translation>Garmin Bluetooth Sensore</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Se vuoi inviare le metriche al tuo dispositivo Garmin dal tuo Mac, abilita questa opzione. Altrimenti, lascialo disabilitato.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Permette al tuo Garmin o a un altro orologio sportivo di usare QZ come sensore Bluetooth: un foot pod con un tapis roulant, un misuratore di potenza con una bici (su Android attiva anche «Sensore di potenza della bici»). L&apos;orologio deve essere associato via Bluetooth al telefono o tablet su cui gira QZ: se non trova QZ, associali una volta, poi aggiungi il sensore sull&apos;orologio e accetta la richiesta di associazione. Se Garmin Connect sullo stesso telefono è collegato all&apos;orologio, forzane l&apos;arresto due o tre volte di seguito mentre l&apos;orologio si connette; è più semplice un telefono o tablet separato senza Garmin Connect. Finché QZ funziona come sensore per l&apos;orologio, Zwift via Bluetooth lo vede solo come foot pod o misuratore di potenza, non come un dispositivo che può controllare.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -7365,6 +7405,75 @@ NOTE IMPORTANTI:
         <translation type="vanished">Apri</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Interfaccia moderna</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Nuovo aspetto della schermata principale, del menu laterale, delle impostazioni e della procedura guidata. Disattivala per tornare all&apos;aspetto classico.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Aspetto</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Come nel telefono</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Scuro</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Chiaro</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Tema</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafite</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Nero / bianco</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Blu notte</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Colore di accento</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Viola</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Blu</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Verde acqua</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Verde</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Arancione</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Rosa</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Dimensione riquadri:</translation>
     </message>
@@ -8815,6 +8924,14 @@ Predefinito: A = -0.96, B = 1.33</translation>
     <message>
         <source>Use Console Gears</source>
         <translation>Usa le marce della console</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Calorie tapis roulant da modello camminata/corsa</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Per i tapis roulant la cui console non invia le calorie. Le calorie si calcolano da velocità del nastro, pendenza e dal tuo peso, altezza, età e sesso: un modello di camminata sotto la tua velocità di passaggio dalla camminata alla corsa (data dalla tua altezza) e un modello di corsa sopra. Disattiva per usare invece il valore basato sulla potenza. Le calorie di una console, un sensore di potenza esterno (Stryd ecc.) e Calcola calorie dalla frequenza cardiaca (se attivo) hanno ancora la precedenza.</translation>
     </message>
 </context>
 <context>

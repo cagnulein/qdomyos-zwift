@@ -1,5 +1,6 @@
 <!doctype html>
-<html>
+<!-- qz-loading: until the workout arrives (dochart.js), see #history-loading -->
+<html class="qz-loading">
 
 <head>
     <title>Line Chart</title>
@@ -14,6 +15,8 @@
     <script src="../chartjs/chartjs-adapter-moment.js"></script>
     <script src="../chartjs/chartjs-plugin-annotation.min.js"></script>
     <script src="../chartjs/qzcharttheme.js"></script>
+    <link rel="stylesheet" href="../chartjs/chartfullscreen.css">
+    <script src="../chartjs/chartfullscreen.js"></script>
     <script src="../chartjs/globals.js"></script>
     <script src="main_ws_manager.js"></script>
     <script src="../i18n/i18n.js"></script>
@@ -31,6 +34,56 @@
     #history-charts > section {
         width: 100%;
         min-width: 0;
+    }
+    /* Until the workout arrives the summary, its line and the charts keep their place hidden and
+       a ring spins in the middle: the real numbers show at once, without zeros before them.
+       Hidden, not display: none - the charts are drawn meanwhile and need their size. The ring is
+       the Material BusyIndicator of the app (48 px, a 4 px line, an arc of 10 to 300 degrees that
+       grows and shrinks as it turns): in the modern look the indicator of PreviewChart.qml before
+       the page goes on here. The turn is on the div, not on the svg: in the Android WebView (traced
+       on Android 11) the turn of an HTML box runs on the compositor and that of an SVG element does
+       not, so the ring keeps turning while the page is busy drawing the charts; the arc, which only
+       the page itself can change, starts long (-0.5 s) to stay a ring meanwhile */
+    html.qz-loading hr,
+    html.qz-loading table[background],
+    html.qz-loading #history-charts {
+        visibility: hidden;
+    }
+    #history-loading {
+        display: none;
+    }
+    html.qz-loading #history-loading {
+        display: block;
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        width: 48px;
+        height: 48px;
+        margin: -24px 0 0 -24px;
+        color: white;
+        animation: history-loading-turn 4.2s linear infinite;
+    }
+    #history-loading svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+    #history-loading circle {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 4;
+        stroke-linecap: square;
+        /* 2 * pi * 22 = 138: 10 degrees = 4, 300 degrees = 115 */
+        stroke-dasharray: 4 200;
+        animation: history-loading-arc 1.4s ease-in-out -0.5s infinite;
+    }
+    @keyframes history-loading-turn {
+        to { transform: rotate(360deg); }
+    }
+    @keyframes history-loading-arc {
+        0% { stroke-dasharray: 4 200; stroke-dashoffset: 0; }
+        50% { stroke-dasharray: 115 200; stroke-dashoffset: 0; }
+        100% { stroke-dasharray: 4 200; stroke-dashoffset: -134; }
     }
     </style>
     <!-- Modern look: shared sizes, then the chart pages -->
@@ -162,31 +215,7 @@
     </section>
     </div>
 
-<style>#loading {
-width: 100%;
-height: 100%;
-top: 0;
-left: 0;
-position: fixed;
-display: block;
-opacity: 0.7;
-background-color: #fff;
-z-index: 99;
-text-align: center;
-}
-
-#loading-image {
-position: fixed;
-top: 20%;
-left: 50%;
-/* bring your own prefixes */
-transform: translate(-50%, -50%);
-z-index: 100;
-}
-</style>
-<div id="loading">
-     <img src="ajax-loader.gif" id="loading-image" title="working..." />
-</div>
+<div id="history-loading" role="progressbar" aria-label="Loading"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="22"/></svg></div>
 
 <script>
 // Read the persistent order from Settings > Workout History Charts.
