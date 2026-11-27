@@ -587,9 +587,6 @@ class bluetoothdevice : public QObject {
 
     QLowEnergyController *m_control = nullptr;
 
-    // Reconnect asynchronously instead of calling connectToDevice() inside stateChanged().
-    void connectBackLater();
-
     /**
      * @brief connectBackLater Reconnects m_control 1 s later, if it is still unconnected then.
      * Called from the UnconnectedState handler instead of m_control->connectToDevice(): with the phone's
@@ -898,7 +895,6 @@ class bluetoothdevice : public QObject {
      */
     VIRTUAL_DEVICE_MODE virtualDeviceMode = VIRTUAL_DEVICE_MODE::NONE;
     virtualdevice *virtualDevice = nullptr;
-    bool connectBackPending = false;
 
     // a connectBackLater() retry is already scheduled
     bool connectBackPending = false;
