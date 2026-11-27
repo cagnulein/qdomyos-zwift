@@ -278,8 +278,11 @@ class ChartSmoothingTest(unittest.TestCase):
         self.assertEqual(windows(AUTO, seconds, False), [cases[s] for s in seconds])
         self.assertEqual(windows(AUTO, seconds, True), [3] * len(seconds))
         for value, window in FIXED.items():
-            self.assertEqual(windows(value, seconds, False), [window] * len(seconds))
-            self.assertEqual(windows(value, seconds, True), [window] * len(seconds))
+            for sent in (value, str(value)):  # a number, or a string read back from the ini file
+                with self.subTest(value=sent):
+                    self.assertEqual(windows(sent, seconds, False), [window] * len(seconds))
+                    self.assertEqual(windows(sent, seconds, True), [window] * len(seconds))
+        self.assertEqual(windows(str(AUTO), seconds, False), [cases[s] for s in seconds])
         for value in (None, OFF, 99):
             self.assertEqual(windows(value, seconds, False), [0] * len(seconds))
 
@@ -290,6 +293,37 @@ class ChartSmoothingTest(unittest.TestCase):
         for key in SMOOTHED:
             with self.subTest(line=key):
                 self.assertEqual(lines(live)[key]["data"], lines(fixed)[key]["data"])
+
+
+    def test_stop_redraws_only_for_auto(self):
+        """The page open while the workout runs, then Stop, the session no longer growing. Off
+        and a fixed window: no drawing after the first one, as on master, so the screenshots
+        are not taken again. Auto: one drawing more, with the window by the length and without
+        the animation (no screenshots: they are taken by the page the app opens after Stop)."""
+        for name, points in SESSIONS.items():
+            for value in (None, OFF) + tuple(FIXED) + (AUTO,):
+                with self.subTest(session=name, value=value):
+                    out = run_open_then_stop(points, value)
+                    self.assertEqual(out["stopAt"], 1, "drawn again while the workout runs")
+                    self.assertTrue(all(c["animation"] for c in out["renders"][0]["charts"]))
+                    if value != AUTO:
+                        self.assertEqual(len(out["renders"]), 1, "drawn again after Stop")
+                        continue
+                    self.assertEqual(len(out["renders"]), 2)
+                    self.assertFalse(any(c["animation"] for c in out["renders"][1]["charts"]))
+                    if name == "treadmill_40min":  # 3 s while running, 5 s after Stop
+                        for render, fixed in ((0, 2), (1, 3)):
+                            got = lines(out["renders"][render])
+                            want = lines(run_page(points, fixed)[0])
+                            for key in SMOOTHED:
+                                self.assertEqual(got[key]["data"], want[key]["data"], (render, key))
+
+
+def run_open_then_stop(points, smooth):
+    request = request_for(smooth, DOCHART, points)
+    request["running"] = True
+    request["stopLater"] = True
+    return harness(request)
 
 
 def update(master_source):
