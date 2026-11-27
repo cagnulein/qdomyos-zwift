@@ -1018,7 +1018,12 @@ RESOURCES += \
 # Do not combine with CONFIG += qtquickcompiler: both would define the same compiled units.
 SETTINGS_QMLCACHE_QRC = $$PWD/settings-qmlcache.qrc
 SETTINGS_QMLCACHE_FILES = $$PWD/settings.qml $$PWD/settings-tiles.qml
-qtPrepareTool(SETTINGS_QMLCACHEGEN, qmlcachegen)
+greaterThan(QT_MAJOR_VERSION, 5) {
+    SETTINGS_QMLCACHEGEN = $$[QT_HOST_LIBEXECS]/qmlcachegen
+    win32: SETTINGS_QMLCACHEGEN = $$[QT_HOST_LIBEXECS]/qmlcachegen.exe
+} else {
+    qtPrepareTool(SETTINGS_QMLCACHEGEN, qmlcachegen)
+}
 
 settings_qmlcache.input = SETTINGS_QMLCACHE_FILES
 settings_qmlcache.output = qmlcache_${QMAKE_FILE_BASE}_qml$${first(QMAKE_EXT_CPP)}
