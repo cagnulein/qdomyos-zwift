@@ -1070,6 +1070,9 @@ class QZSettings {
     static const QString power_hr_hr2;
     static constexpr float default_power_hr_hr2 = 170;
 
+    static const QString rower_power_from_hr;
+    static constexpr bool default_rower_power_from_hr = false;
+
     static const QString power_sensor_name;
     static const QString default_power_sensor_name;
 

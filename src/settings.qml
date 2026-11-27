@@ -3002,6 +3002,7 @@ import AndroidStatusBar 1.0
             property bool treadmill_calories_model: false
             property bool ui_modern_new_install_checked: false
             property bool ui_modern_offer_pending: false
+            property bool rower_power_from_hr: false
 
         }
 
@@ -4853,6 +4854,22 @@ import AndroidStatusBar 1.0
                                 color: Material.backgroundColor
                                 accordionContent: ColumnLayout {
                                     spacing: 0
+                                    IndicatorOnlySwitch {
+                                        text: qsTr("Estimate FTMS rower power from heart rate")
+                                        checked: settings.rower_power_from_hr
+                                        Layout.fillWidth: true
+                                        onClicked: settings.rower_power_from_hr = checked
+                                    }
+                                    Label {
+                                        text: qsTr("Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.")
+                                        font.bold: !window.ui.modern
+                                        font.italic: !window.ui.modern
+                                        font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
+                                        wrapMode: Text.WordWrap
+                                        Layout.fillWidth: true
+                                        color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
+                                    }
                                     RowLayout {
                                         spacing: 10
                                         Label {

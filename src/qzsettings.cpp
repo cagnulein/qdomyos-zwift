@@ -387,6 +387,7 @@ const QString QZSettings::power_hr_pwr1 = QStringLiteral("power_hr_pwr1");
 const QString QZSettings::power_hr_hr1 = QStringLiteral("power_hr_hr1");
 const QString QZSettings::power_hr_pwr2 = QStringLiteral("power_hr_pwr2");
 const QString QZSettings::power_hr_hr2 = QStringLiteral("power_hr_hr2");
+const QString QZSettings::rower_power_from_hr = QStringLiteral("rower_power_from_hr");
 const QString QZSettings::power_sensor_name = QStringLiteral("power_sensor_name");
 const QString QZSettings::default_power_sensor_name = QStringLiteral("Disabled");
 const QString QZSettings::power_sensor_as_bike = QStringLiteral("power_sensor_as_bike");
@@ -1386,7 +1387,7 @@ const QString QZSettings::treadmill_calories_model = QStringLiteral("treadmill_c
 const QString QZSettings::ui_modern_new_install_checked = QStringLiteral("ui_modern_new_install_checked");
 const QString QZSettings::ui_modern_offer_pending = QStringLiteral("ui_modern_offer_pending");
 
-const uint32_t allSettingsCount = 1078;
+const uint32_t allSettingsCount = 1079;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1683,6 +1684,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1},
     {QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2},
     {QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2},
+    {QZSettings::rower_power_from_hr, QZSettings::default_rower_power_from_hr},
     {QZSettings::power_sensor_name, QZSettings::default_power_sensor_name},
     {QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike},
     {QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill},

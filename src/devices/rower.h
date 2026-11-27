@@ -39,6 +39,8 @@ class rower : public bluetoothdevice {
     void setGears(double d);
     double gears();
     static double calculateWattsFromPace(double paceSeconds);
+    static uint16_t calculateWattsFromHeartRate(double heartRate, double cadence, double speed,
+                                               double hr1, double watts1, double hr2, double watts2);
 
   public slots:
     void changeResistance(resistance_t res) override;

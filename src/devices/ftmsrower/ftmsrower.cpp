@@ -353,6 +353,12 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     lastPacket = newValue;
 
+    // A separate opt-in keeps the native FTMS and PM5 power paths unchanged by default.
+    const bool estimatePowerFromHeartRate = !PM5 &&
+        settings.value(QZSettings::rower_power_from_hr, QZSettings::default_rower_power_from_hr).toBool() &&
+        settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+            .toString().startsWith(QStringLiteral("Disabled"));
+
     union flags {
         struct {
 
@@ -450,7 +456,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     double instantPace = 0;
     const bool mrkR26 = bluetoothDevice.name().trimmed().toUpper().startsWith(QStringLiteral("MRK-R26-"));
 
-    if (mrkR26 && !Flags.moreData) {
+    if (!estimatePowerFromHeartRate && mrkR26 && !Flags.moreData) {
         const int manualResistance = qBound(1, qRound(Resistance.value()), 18);
         const double resistanceMultiplier = 1.0 + (0.05 * (manualResistance - 9));
         const double baseWatt = qMax(0.0, (9.0 * Cadence.value()) - 85.0);
@@ -491,7 +497,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         double watt =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
-        if (!mrkR26) {
+        if (!estimatePowerFromHeartRate && !mrkR26) {
             if (WDK_PACE_POWER && instantPace > 0 && instantPace != 65535 && Cadence.value() > 0) {
                 m_watt = rower::calculateWattsFromPace(instantPace);
             } else if (!filterWattNull || watt != 0) {
@@ -499,7 +505,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
                     m_watt = watt;
             }
         }
-    } else if(!mrkR26 && !PM5 && Flags.instantPace) {
+    } else if(!estimatePowerFromHeartRate && !mrkR26 && !PM5 && Flags.instantPace) {
         qDebug() << "rower doesn't send wattage, let's calculate it...";
         if(instantPace > 0 && instantPace != 65535) {
             double estimatedWatt = rower::calculateWattsFromPace(instantPace);
@@ -508,7 +514,8 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
             m_watt = 0;
     }
 
-    emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
+    if (!estimatePowerFromHeartRate)
+        emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
 
     if (Flags.avgPower) {
 
@@ -552,16 +559,20 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         }
     }
 
-    if (useCalculatedKCal && watts())
-        KCal +=
-            ((((0.048 * ((double)watts()) + 1.19) *
-               settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-              200.0) /
-             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                            now)))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                              // kg * 3.5) / 200 ) / 60
+    const auto updateCalories = [&]() {
+        if (useCalculatedKCal && watts())
+            KCal +=
+                ((((0.048 * ((double)watts()) + 1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                  200.0) /
+                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                  // kg * 3.5) / 200 ) / 60
 
-    emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+        emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+    };
+    if (!estimatePowerFromHeartRate)
+        updateCalories();
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
@@ -579,6 +590,17 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         } else if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
            update_hr_from_external();
         }
+    }
+
+    if (estimatePowerFromHeartRate) {
+        m_watt = rower::calculateWattsFromHeartRate(
+            Heart.value(), Cadence.value(), Speed.value(),
+            settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble(),
+            settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble(),
+            settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble(),
+            settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble());
+        emit debug(QStringLiteral("Current Watt from HR: ") + QString::number(m_watt.value()));
+        updateCalories();
     }
 
     if (Flags.metabolic) {

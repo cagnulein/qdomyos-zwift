@@ -161,3 +161,24 @@ TEST(RowerWorkoutCounters, KeepsVirtualStrokeCountWhenRawHardwareCounterResets) 
     hardware = 1;
     EXPECT_EQ(QByteArray::fromHex("07 02"), strokes.field(hardware, 0));
 }
+
+
+TEST(RowerHeartRatePower, InterpolatesCalibrationAndHandlesReversedPoints) {
+    EXPECT_EQ(110u, rower::calculateWattsFromHeartRate(109, 24, 10, 109, 110, 155, 230));
+    EXPECT_EQ(230u, rower::calculateWattsFromHeartRate(155, 24, 10, 109, 110, 155, 230));
+    EXPECT_EQ(170u, rower::calculateWattsFromHeartRate(132, 24, 10, 109, 110, 155, 230));
+    EXPECT_EQ(170u, rower::calculateWattsFromHeartRate(132, 24, 10, 155, 230, 109, 110));
+}
+
+TEST(RowerHeartRatePower, MissingHeartRateOrMotionProducesZero) {
+    EXPECT_EQ(0u, rower::calculateWattsFromHeartRate(0, 24, 10, 109, 110, 155, 230));
+    EXPECT_EQ(0u, rower::calculateWattsFromHeartRate(132, 0, 10, 109, 110, 155, 230));
+    EXPECT_EQ(0u, rower::calculateWattsFromHeartRate(132, 24, 0, 109, 110, 155, 230));
+}
+
+TEST(RowerHeartRatePower, RejectsInvalidCalibrationAndClampsExtrapolation) {
+    EXPECT_EQ(0u, rower::calculateWattsFromHeartRate(132, 24, 10, 109, 110, 109, 230));
+    EXPECT_EQ(0u, rower::calculateWattsFromHeartRate(132, 24, 10, 109, -110, 155, 230));
+    EXPECT_EQ(0u, rower::calculateWattsFromHeartRate(40, 24, 10, 109, 110, 155, 230));
+    EXPECT_EQ(2000u, rower::calculateWattsFromHeartRate(200, 24, 10, 109, 110, 110, 230));
+}
