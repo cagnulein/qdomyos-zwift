@@ -334,7 +334,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                               QString::number(x1) + " " + QString::number(y2) + " 200";
                 qDebug() << " >> " + lastCommand;
 #ifdef Q_OS_ANDROID
-                QJniObject command = QJniObject::fromString(lastCommand).object<jstring>();
+                QJniObject command = QJniObject::fromString(lastCommand);
                 QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
                                                           "(Ljava/lang/String;)V", command.object<jstring>());
 #elif defined(Q_OS_WIN)
@@ -385,7 +385,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                             QString::number(x1) + " " + QString::number(y2) + " 200";
                 qDebug() << " >> " + lastCommand;
 #ifdef Q_OS_ANDROID
-                QJniObject command = QJniObject::fromString(lastCommand).object<jstring>();
+                QJniObject command = QJniObject::fromString(lastCommand);
                 QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
                                                         "(Ljava/lang/String;)V", command.object<jstring>());
 #elif defined(Q_OS_WIN)
@@ -556,8 +556,8 @@ void nordictrackifitadbtreadmill::update() {
             lastCommand = "input tap 610 350";
             qDebug() << " >> " + lastCommand;
 #ifdef Q_OS_ANDROID
-            QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
-            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
+            QJniObject command = QJniObject::fromString(lastCommand);
+            QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
                                                       "(Ljava/lang/String;)V", command.object<jstring>());
 #elif defined(Q_OS_WIN)
             if (logcatAdbThread)
@@ -585,8 +585,8 @@ void nordictrackifitadbtreadmill::update() {
             lastCommand = "input tap 420 350 && sleep 1 && input tap 420 350";
             qDebug() << " >> " + lastCommand;
 #ifdef Q_OS_ANDROID
-            QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
-            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
+            QJniObject command = QJniObject::fromString(lastCommand);
+            QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
                                                       "(Ljava/lang/String;)V", command.object<jstring>());
 #elif defined(Q_OS_WIN)
             if (logcatAdbThread)
@@ -615,8 +615,8 @@ void nordictrackifitadbtreadmill::update() {
             lastCommand = "input tap 512 350 && sleep 1 && input tap 512 350";
             qDebug() << " >> " + lastCommand;
 #ifdef Q_OS_ANDROID
-            QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
-            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
+            QJniObject command = QJniObject::fromString(lastCommand);
+            QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
                                                       "(Ljava/lang/String;)V", command.object<jstring>());
 #elif defined(Q_OS_WIN)
             if (logcatAdbThread)

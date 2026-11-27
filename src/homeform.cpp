@@ -58,7 +58,9 @@
 #include <QStandardPaths>
 #include <QSysInfo>
 #ifdef Q_OS_ANDROID
-#include <QtAndroid>
+#include <QCoreApplication>
+#include <QJniEnvironment>
+#include <QJniObject>
 #endif
 #include <QThread>
 #include <QTime>
@@ -225,7 +227,7 @@ QString uploadActivityLabelFromFitFile(const QString &fitFilePath) {
 
 #ifdef Q_OS_ANDROID
 bool clearAndroidJniException(const char *context) {
-    QAndroidJniEnvironment env;
+    QJniEnvironment env;
     if (!env->ExceptionCheck()) {
         return false;
     }
@@ -1361,7 +1363,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/MediaButtonReceiver",
                                                   "registerReceiver",
                                                   "(Landroid/content/Context;)V",
-                                                  QtAndroid::androidContext().object());
+                                                  QNativeInterface::QAndroidApplication::context().object());
     }
 #endif
 
@@ -2399,14 +2401,14 @@ bool homeform::composeSupportEmail(const QString &description, const QString &re
                           bodyUtf8.constData(), attachmentUtf8.constData());
     return true;
 #elif defined(Q_OS_ANDROID)
-    const QAndroidJniObject to = QAndroidJniObject::fromString(recipient);
-    const QAndroidJniObject title = QAndroidJniObject::fromString(subject);
-    const QAndroidJniObject text = QAndroidJniObject::fromString(body);
-    const QAndroidJniObject file = QAndroidJniObject::fromString(attachmentPath);
-    const bool opened = QAndroidJniObject::callStaticMethod<jboolean>(
+    const QJniObject to = QJniObject::fromString(recipient);
+    const QJniObject title = QJniObject::fromString(subject);
+    const QJniObject text = QJniObject::fromString(body);
+    const QJniObject file = QJniObject::fromString(attachmentPath);
+    const bool opened = QJniObject::callStaticMethod<jboolean>(
         "org/cagnulen/qdomyoszwift/SupportEmail", "compose",
         "(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z",
-        QtAndroid::androidActivity().object<jobject>(), to.object<jstring>(),
+        QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "activity", "()Landroid/app/Activity;").object<jobject>(), to.object<jstring>(),
         title.object<jstring>(), text.object<jstring>(), file.object<jstring>());
     if (!opened)
         setToastRequested(tr("Unable to open an email application"));
@@ -9872,20 +9874,20 @@ QString homeform::copyAndroidContentsURI(QUrl file, QString subfolder) {
     QFile::remove(dest);
 
     if (file.toString().startsWith(QStringLiteral("content"))) {
-        QAndroidJniObject jUriString = QAndroidJniObject::fromString(file.toString());
-        QAndroidJniObject jUri = QAndroidJniObject::callStaticObjectMethod(
+        QJniObject jUriString = QJniObject::fromString(file.toString());
+        QJniObject jUri = QJniObject::callStaticObjectMethod(
             "android/net/Uri", "parse", "(Ljava/lang/String;)Landroid/net/Uri;", jUriString.object<jstring>());
         if (clearAndroidJniException("Uri.parse for copy") || !jUri.isValid()) {
             qWarning() << "Unable to parse content URI for copy" << file;
             return QString();
         }
 
-        QAndroidJniObject jDest = QAndroidJniObject::fromString(dest);
-        jboolean copied = QAndroidJniObject::callStaticMethod<jboolean>(
+        QJniObject jDest = QJniObject::fromString(dest);
+        jboolean copied = QJniObject::callStaticMethod<jboolean>(
             "org/cagnulen/qdomyoszwift/ContentHelper",
             "copyContentToFile",
             "(Landroid/content/Context;Landroid/net/Uri;Ljava/lang/String;)Z",
-            QtAndroid::androidContext().object(),
+            QNativeInterface::QAndroidApplication::context().object(),
             jUri.object(),
             jDest.object<jstring>());
         if (clearAndroidJniException("ContentHelper.copyContentToFile")) {
@@ -9982,9 +9984,9 @@ void homeform::openAndroidDocumentPicker(const QString &kind) {
         return;
     }
 
-    QAndroidJniObject javaMimeType = QAndroidJniObject::fromString(mimeType);
-    QAndroidJniObject javaDestinationDir = QAndroidJniObject::fromString(destinationDir);
-    QtAndroid::androidActivity().callMethod<void>("openDocumentPicker", "(Ljava/lang/String;ILjava/lang/String;)V",
+    QJniObject javaMimeType = QJniObject::fromString(mimeType);
+    QJniObject javaDestinationDir = QJniObject::fromString(destinationDir);
+    QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "activity", "()Landroid/app/Activity;").callMethod<void>("openDocumentPicker", "(Ljava/lang/String;ILjava/lang/String;)V",
                                                   javaMimeType.object<jstring>(), requestCode,
                                                   javaDestinationDir.object<jstring>());
     if (clearAndroidJniException("CustomQtActivity.openDocumentPicker")) {
@@ -10179,8 +10181,8 @@ bool homeform::qzFolderHasLockedFiles() {
 
 bool homeform::startFolderRestore(bool allowPicker) {
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject javaDestinationDir = QAndroidJniObject::fromString(getWritableAppDir());
-    const jboolean started = QtAndroid::androidActivity().callMethod<jboolean>(
+    QJniObject javaDestinationDir = QJniObject::fromString(getWritableAppDir());
+    const jboolean started = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "activity", "()Landroid/app/Activity;").callMethod<jboolean>(
         "openRestoreFolderPicker", "(ILjava/lang/String;Z)Z", AndroidDocumentPickerRestoreFolderRequestCode,
         javaDestinationDir.object<jstring>(), static_cast<jboolean>(allowPicker));
     if (clearAndroidJniException("CustomQtActivity.openRestoreFolderPicker")) {
@@ -10195,7 +10197,7 @@ bool homeform::startFolderRestore(bool allowPicker) {
 
 void homeform::updateQzFolderGrantSaved() {
 #ifdef Q_OS_ANDROID
-    const jboolean saved = QtAndroid::androidActivity().callMethod<jboolean>("hasQzFolderGrant", "()Z");
+    const jboolean saved = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "activity", "()Landroid/app/Activity;").callMethod<jboolean>("hasQzFolderGrant", "()Z");
     if (clearAndroidJniException("CustomQtActivity.hasQzFolderGrant")) {
         return;
     }
@@ -10205,7 +10207,7 @@ void homeform::updateQzFolderGrantSaved() {
     const bool documentsFolder =
         settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool() ||
         QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14);
-    const bool restorable = documentsFolder && QtAndroid::androidSdkVersion() >= 30;
+    const bool restorable = documentsFolder && QNativeInterface::QAndroidApplication::sdkVersion() >= 30;
     if (m_qzFolderGrantSaved != static_cast<bool>(saved) || m_qzFolderRestorable != restorable) {
         m_qzFolderGrantSaved = saved;
         m_qzFolderRestorable = restorable;
@@ -10230,8 +10232,8 @@ int homeform::restoredFileCount(const QString &paths) {
 // takes its real name; this needs no folder grant, so it runs on every visit of a list.
 void homeform::recoverFolderRestoreCopies() {
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject javaDirectory = QAndroidJniObject::fromString(getWritableAppDir());
-    const QAndroidJniObject recovered = QtAndroid::androidActivity().callObjectMethod(
+    QJniObject javaDirectory = QJniObject::fromString(getWritableAppDir());
+    const QJniObject recovered = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "activity", "()Landroid/app/Activity;").callObjectMethod(
         "recoverFolderRestoreCopies", "(Ljava/lang/String;)Ljava/lang/String;", javaDirectory.object<jstring>());
     if (clearAndroidJniException("CustomQtActivity.recoverFolderRestoreCopies") || !recovered.isValid()) {
         return;
@@ -10300,9 +10302,9 @@ bool homeform::startFitFolderImport(bool allowPicker) {
     const QFileInfo database(m_historyDatabasePath);
     const QString keepDatabase =
         database.absolutePath() + QStringLiteral("/") == getWritableAppDir() ? database.fileName() : QString();
-    QAndroidJniObject javaDestinationDir = QAndroidJniObject::fromString(getWritableAppDir() + QStringLiteral("fit/"));
-    QAndroidJniObject javaKeepDatabase = QAndroidJniObject::fromString(keepDatabase);
-    const jboolean started = QtAndroid::androidActivity().callMethod<jboolean>(
+    QJniObject javaDestinationDir = QJniObject::fromString(getWritableAppDir() + QStringLiteral("fit/"));
+    QJniObject javaKeepDatabase = QJniObject::fromString(keepDatabase);
+    const jboolean started = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "activity", "()Landroid/app/Activity;").callMethod<jboolean>(
         "openFitFolderPicker", "(ILjava/lang/String;ZLjava/lang/String;Z)Z", AndroidDocumentPickerFitFolderRequestCode,
         javaDestinationDir.object<jstring>(), static_cast<jboolean>(removeOldDatabase),
         javaKeepDatabase.object<jstring>(), static_cast<jboolean>(allowPicker));
@@ -10830,7 +10832,7 @@ static void healthConnectWriteWorkout(const QList<SessionLine> &session, bluetoo
         return;
     }
 
-    QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod(
+    QJniObject activity = QJniObject::callStaticObjectMethod(
         "org/qtproject/qt5/android/QtNative", "activity", "()Landroid/app/Activity;");
     if (!activity.isValid()) {
         qDebug() << "Health Connect upload skipped: Android activity is not available";
@@ -10838,12 +10840,12 @@ static void healthConnectWriteWorkout(const QList<SessionLine> &session, bluetoo
     }
 
     const QString title = workoutName.isEmpty() ? QStringLiteral("QZ workout") : workoutName;
-    QAndroidJniObject jTitle = QAndroidJniObject::fromString(title);
-    QAndroidJniObject jDeviceName = QAndroidJniObject::fromString(dev->bluetoothDevice.name());
-    QAndroidJniObject jSamplesJson =
-        QAndroidJniObject::fromString(QString::fromUtf8(QJsonDocument(samples).toJson(QJsonDocument::Compact)));
+    QJniObject jTitle = QJniObject::fromString(title);
+    QJniObject jDeviceName = QJniObject::fromString(dev->bluetoothDevice.name());
+    QJniObject jSamplesJson =
+        QJniObject::fromString(QString::fromUtf8(QJsonDocument(samples).toJson(QJsonDocument::Compact)));
 
-    QAndroidJniObject::callStaticMethod<void>(
+    QJniObject::callStaticMethod<void>(
         "org/cagnulen/qdomyoszwift/HealthConnectHelper", "writeWorkoutJson",
         "(Landroid/content/Context;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;)V",
         activity.object<jobject>(), jTitle.object<jstring>(), static_cast<jint>(dev->deviceType()),
@@ -11921,12 +11923,12 @@ void homeform::android_notification_apply(bool enabled) {
         // same call bluetooth.cpp makes at startup: QZ is in the foreground now, so the service can
         // start right away and the running workout doesn't need a restart
         //: Android notification: title shown while QZ works in the background.
-        QAndroidJniObject javaNotification = QAndroidJniObject::fromString(tr("QZ is running"));
-        QAndroidJniObject::callStaticMethod<void>(
+        QJniObject javaNotification = QJniObject::fromString(tr("QZ is running"));
+        QJniObject::callStaticMethod<void>(
             "org/cagnulen/qdomyoszwift/NotificationClient", "notify", "(Landroid/content/Context;Ljava/lang/String;)V",
-            QtAndroid::androidContext().object(), javaNotification.object<jstring>());
+            QNativeInterface::QAndroidApplication::context().object(), javaNotification.object<jstring>());
     } else {
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/NotificationClient", "hide", "()V");
+        QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/NotificationClient", "hide", "()V");
     }
 #else
     Q_UNUSED(enabled);
@@ -11982,15 +11984,15 @@ void homeform::shareWorkoutFile(const QString &filePath) {
 #if defined(Q_OS_ANDROID)
     // FitShare checks the file and says a failure with a toast of Android: the workout page is a
     // WebView, which covers the toast of QML there
-    QAndroidJniObject jPath = QAndroidJniObject::fromString(filePath);
-    QAndroidJniObject jTitle = QAndroidJniObject::fromString(tr("Share FIT file"));
-    QAndroidJniObject jFailed = QAndroidJniObject::fromString(failed);
-    QAndroidJniObject::callStaticMethod<void>(
+    QJniObject jPath = QJniObject::fromString(filePath);
+    QJniObject jTitle = QJniObject::fromString(tr("Share FIT file"));
+    QJniObject jFailed = QJniObject::fromString(failed);
+    QJniObject::callStaticMethod<void>(
         "org/cagnulen/qdomyoszwift/FitShare", "share",
         "(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
-        QtAndroid::androidContext().object(), jPath.object<jstring>(), jTitle.object<jstring>(),
+        QNativeInterface::QAndroidApplication::context().object(), jPath.object<jstring>(), jTitle.object<jstring>(),
         jFailed.object<jstring>());
-    QAndroidJniEnvironment env;
+    QJniEnvironment env;
     if (env->ExceptionCheck()) {
         env->ExceptionDescribe();
         env->ExceptionClear();
@@ -12103,8 +12105,8 @@ void homeform::intervalsicu_logout() {
 
 void homeform::clearWebViewCache() {
 #ifdef Q_OS_ANDROID
-    QtAndroid::runOnAndroidThread([] {
-        QAndroidJniObject cookieManager = QAndroidJniObject::callStaticObjectMethod(
+    QNativeInterface::QAndroidApplication::runOnAndroidMainThread([] {
+        QJniObject cookieManager = QJniObject::callStaticObjectMethod(
             "android/webkit/CookieManager",
             "getInstance",
             "()Landroid/webkit/CookieManager;");
@@ -12113,7 +12115,7 @@ void homeform::clearWebViewCache() {
                                           static_cast<jobject>(nullptr));
             cookieManager.callMethod<void>("flush", "()V");
         }
-        QAndroidJniEnvironment env;
+        QJniEnvironment env;
         if (env->ExceptionCheck()) {
             env->ExceptionClear();
         }

@@ -231,7 +231,7 @@ namespace {
 
 // A Java call that threw (NetworkInterface.getNetworkInterfaces() and isUp() throw SocketException):
 // clear it, or the next JNI call aborts the app
-bool javaFailed(QAndroidJniEnvironment &env) {
+bool javaFailed(QJniEnvironment &env) {
     if (!env->ExceptionCheck()) {
         return false;
     }
@@ -247,14 +247,14 @@ bool javaFailed(QAndroidJniEnvironment &env) {
 QList<QHostAddress> javaIPv4() {
     QList<QHostAddress> wifi;
     QList<QHostAddress> other;
-    QAndroidJniEnvironment env;
-    QAndroidJniObject interfaces = QAndroidJniObject::callStaticObjectMethod(
+    QJniEnvironment env;
+    QJniObject interfaces = QJniObject::callStaticObjectMethod(
         "java/net/NetworkInterface", "getNetworkInterfaces", "()Ljava/util/Enumeration;");
     if (javaFailed(env) || !interfaces.isValid()) {
         return wifi;
     }
     while (interfaces.callMethod<jboolean>("hasMoreElements")) {
-        QAndroidJniObject networkInterface = interfaces.callObjectMethod("nextElement", "()Ljava/lang/Object;");
+        QJniObject networkInterface = interfaces.callObjectMethod("nextElement", "()Ljava/lang/Object;");
         if (javaFailed(env) || !networkInterface.isValid()) {
             break;
         }
@@ -263,13 +263,13 @@ QList<QHostAddress> javaIPv4() {
             continue;
         }
         const QString name = networkInterface.callObjectMethod("getName", "()Ljava/lang/String;").toString();
-        QAndroidJniObject addresses =
+        QJniObject addresses =
             networkInterface.callObjectMethod("getInetAddresses", "()Ljava/util/Enumeration;");
         if (javaFailed(env) || !addresses.isValid()) {
             continue;
         }
         while (addresses.callMethod<jboolean>("hasMoreElements")) {
-            QAndroidJniObject inetAddress = addresses.callObjectMethod("nextElement", "()Ljava/lang/Object;");
+            QJniObject inetAddress = addresses.callObjectMethod("nextElement", "()Ljava/lang/Object;");
             if (javaFailed(env) || !inetAddress.isValid()) {
                 break;
             }

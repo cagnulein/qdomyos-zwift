@@ -1,3 +1,4 @@
+#endif
 /*
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -6,12 +7,16 @@
  */
 
 #include "DaumUSB.h"
+#ifdef Q_OS_ANDROID
+#include <QCoreApplication>
+#ifdef Q_OS_ANDROID
+#include <QJniObject>
+#endif
 
 #include <QDebug>
 
 #ifdef Q_OS_ANDROID
-#include <QAndroidJniEnvironment>
-#include <QtAndroid>
+#include <QJniEnvironment>
 #endif
 
 #include <errno.h>
@@ -374,11 +379,11 @@ void DaumUSB::run() {
 
 int DaumUSB::openPort() {
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject path = QAndroidJniObject::fromString(deviceFilename);
-    QAndroidJniObject::callStaticMethod<void>(
+    QJniObject path = QJniObject::fromString(deviceFilename);
+    QJniObject::callStaticMethod<void>(
         "org/cagnulen/qdomyoszwift/Usbserial", "open",
         "(Landroid/content/Context;ILjava/lang/String;)V",
-        QtAndroid::androidContext().object(), baudrate, path.object<jstring>());
+        QNativeInterface::QAndroidApplication::context().object(), baudrate, path.object<jstring>());
     return 0;
 #elif defined(WIN32)
     COMMTIMEOUTS timeouts;
@@ -493,10 +498,10 @@ int DaumUSB::closePort() {
 int DaumUSB::rawWrite(const char *bytes, int size) {
     qDebug() << "Daum TX:" << QByteArray(bytes, size).toHex(' ');
 #ifdef Q_OS_ANDROID
-    QAndroidJniEnvironment env;
+    QJniEnvironment env;
     jbyteArray data = env->NewByteArray(size);
     env->SetByteArrayRegion(data, 0, size, reinterpret_cast<const jbyte *>(bytes));
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "write", "([B)V", data);
+    QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "write", "([B)V", data);
     env->DeleteLocalRef(data);
     return size;
 #elif defined(WIN32)
@@ -515,13 +520,13 @@ int DaumUSB::rawWrite(const char *bytes, int size) {
 QByteArray DaumUSB::rawReadBytes() {
     QByteArray result;
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject data = QAndroidJniObject::callStaticObjectMethod(
+    QJniObject data = QJniObject::callStaticObjectMethod(
         "org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
-    jint len = QAndroidJniObject::callStaticMethod<jint>(
+    jint len = QJniObject::callStaticMethod<jint>(
         "org/cagnulen/qdomyoszwift/Usbserial", "readLen", "()I");
     if (len > 0 && data.isValid()) {
         result.resize(len);
-        QAndroidJniEnvironment env;
+        QJniEnvironment env;
         env->GetByteArrayRegion(data.object<jbyteArray>(), 0, len,
                                 reinterpret_cast<jbyte *>(result.data()));
     }

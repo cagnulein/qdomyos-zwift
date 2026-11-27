@@ -27,7 +27,7 @@
 #endif
 
 #ifdef Q_OS_ANDROID
-#include <QAndroidJniObject>
+#include <QJniObject>
 #endif
 
 #include <stdint.h>

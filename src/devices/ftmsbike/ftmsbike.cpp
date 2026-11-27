@@ -1,4 +1,10 @@
+#endif
 #include "ftmsbike.h"
+#ifdef Q_OS_ANDROID
+#include <QJniEnvironment>
+#ifdef Q_OS_ANDROID
+#include <QJniObject>
+#endif
 #include "devices/cscbike/cscbike.h"
 #include "horizon5r_defaults.h"
 #include "speedracex_defaults.h"
@@ -813,7 +819,7 @@ void ftmsbike::sendZwiftPlayInclination(double inclination) {
     QByteArray message;
 #endif
 #elif defined(Q_OS_ANDROID)
-    QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
+    QJniObject result = QJniObject::callStaticObjectMethod(
         "org/cagnulen/qdomyoszwift/ZwiftHubBike",
         "inclinationCommand",
         "(D)[B",
@@ -825,7 +831,7 @@ void ftmsbike::sendZwiftPlayInclination(double inclination) {
     }
 
     jbyteArray array = result.object<jbyteArray>();
-    QAndroidJniEnvironment env;
+    QJniEnvironment env;
     jbyte* bytes = env->GetByteArrayElements(array, nullptr);
     jsize length = env->GetArrayLength(array);
 
@@ -1123,7 +1129,7 @@ void ftmsbike::update() {
             QByteArray proto;
 #endif
 #elif defined Q_OS_ANDROID
-            QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
+            QJniObject result = QJniObject::callStaticObjectMethod(
                 "org/cagnulen/qdomyoszwift/ZwiftHubBike",
                 "setGearCommand",
                 "(I)[B",
@@ -1135,7 +1141,7 @@ void ftmsbike::update() {
             }
 
             jbyteArray array = result.object<jbyteArray>();
-            QAndroidJniEnvironment env;
+            QJniEnvironment env;
             jbyte* bytes = env->GetByteArrayElements(array, nullptr);
             jsize length = env->GetArrayLength(array);
 

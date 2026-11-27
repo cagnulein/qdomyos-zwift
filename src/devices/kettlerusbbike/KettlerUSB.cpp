@@ -1,3 +1,12 @@
+#endif
+#ifdef Q_OS_ANDROID
+#include <QCoreApplication>
+#ifdef Q_OS_ANDROID
+#include <QJniEnvironment>
+#ifdef Q_OS_ANDROID
+#include <QJniObject>
+#endif
+#endif
 /*
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -19,7 +28,6 @@
 #include <QRegularExpression>
 
 #ifdef Q_OS_ANDROID
-#include <QtAndroid>
 #endif
 
 /* ----------------------------------------------------------------------
@@ -451,7 +459,7 @@ QString KettlerUSB::readResponse() {
 int KettlerUSB::closePort() {
 #ifdef Q_OS_ANDROID
     rxBuffer.clear();
-    return QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/Usbserial", "close", "()Z") ? 0 : -1;
+    return QJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/Usbserial", "close", "()Z") ? 0 : -1;
 #elif defined(WIN32)
     if (devicePort == INVALID_HANDLE_VALUE)
         return 0;
@@ -474,9 +482,9 @@ int KettlerUSB::openPort() {
 #ifdef Q_OS_ANDROID
     // Call Java Usbserial with configured baud rate for Kettler
     rxBuffer.clear();
-    const jboolean opened = QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/Usbserial", "openKettler",
+    const jboolean opened = QJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/Usbserial", "openKettler",
                                                                            "(Landroid/content/Context;I)Z",
-                                                                           QtAndroid::androidContext().object(),
+                                                                           QNativeInterface::QAndroidApplication::context().object(),
                                                                            baudrate);
     if (!opened)
         return -1;
@@ -604,12 +612,12 @@ int KettlerUSB::rawWrite(const char *bytes, int size) {
     int rc = 0;
 
 #ifdef Q_OS_ANDROID
-    QAndroidJniEnvironment env;
+    QJniEnvironment env;
     jbyteArray d = env->NewByteArray(size);
     if (!d)
         return -1;
     env->SetByteArrayRegion(d, 0, size, reinterpret_cast<const jbyte *>(bytes));
-    rc = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Usbserial", "writeKettler", "([B)I", d);
+    rc = QJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Usbserial", "writeKettler", "([B)I", d);
     env->DeleteLocalRef(d);
 #elif defined(WIN32)
     DWORD cBytes = 0;
@@ -632,12 +640,12 @@ QString KettlerUSB::rawRead() {
     QString result;
 
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject dd =
-        QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
-    jint len = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Usbserial", "readLen", "()I");
+    QJniObject dd =
+        QJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
+    jint len = QJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Usbserial", "readLen", "()I");
 
     if (len > 0) {
-        QAndroidJniEnvironment env;
+        QJniEnvironment env;
         jbyteArray d = dd.object<jbyteArray>();
         jbyte *b = env->GetByteArrayElements(d, 0);
 
@@ -679,7 +687,7 @@ void KettlerUSB::flushSerialBuffer() {
 #ifdef Q_OS_ANDROID
     // Clear Android buffer
     // Read and discard any pending data
-    QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
+    QJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
 #elif defined(WIN32)
     PurgeComm(devicePort, PURGE_RXCLEAR | PURGE_TXCLEAR);
 #else

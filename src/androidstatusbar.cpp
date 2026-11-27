@@ -77,14 +77,14 @@ int AndroidStatusBar::apiLevel() const
 double AndroidStatusBar::systemFontScale() const
 {
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject context = QtAndroid::androidContext();
+    QJniObject context = QNativeInterface::QAndroidApplication::context();
     if (!context.isValid())
         return 1.0;
-    QAndroidJniObject resources = context.callObjectMethod("getResources", "()Landroid/content/res/Resources;");
-    QAndroidJniObject configuration = resources.isValid()
+    QJniObject resources = context.callObjectMethod("getResources", "()Landroid/content/res/Resources;");
+    QJniObject configuration = resources.isValid()
         ? resources.callObjectMethod("getConfiguration", "()Landroid/content/res/Configuration;")
-        : QAndroidJniObject();
-    QAndroidJniEnvironment env;
+        : QJniObject();
+    QJniEnvironment env;
     if (env->ExceptionCheck()) {
         env->ExceptionClear();
         return 1.0;
@@ -114,14 +114,14 @@ bool AndroidStatusBar::systemDarkMode() const
     // light, while the look these users know is the dark classic one.
     if (apiLevel() < 29)
         return true;
-    QAndroidJniObject context = QtAndroid::androidContext();
+    QJniObject context = QNativeInterface::QAndroidApplication::context();
     if (!context.isValid())
         return true;
-    QAndroidJniObject resources = context.callObjectMethod("getResources", "()Landroid/content/res/Resources;");
-    QAndroidJniObject configuration = resources.isValid()
+    QJniObject resources = context.callObjectMethod("getResources", "()Landroid/content/res/Resources;");
+    QJniObject configuration = resources.isValid()
         ? resources.callObjectMethod("getConfiguration", "()Landroid/content/res/Configuration;")
-        : QAndroidJniObject();
-    QAndroidJniEnvironment env;
+        : QJniObject();
+    QJniEnvironment env;
     if (env->ExceptionCheck()) {
         env->ExceptionClear();
         return true;
@@ -144,10 +144,10 @@ void AndroidStatusBar::setSystemBarsColor(const QColor &color, bool dark, bool m
     Q_UNUSED(modern)
     lockscreen::setSystemBarsColor(color.redF(), color.greenF(), color.blueF(), dark);
 #elif defined(Q_OS_ANDROID)
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity", "setSystemBars",
+    QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity", "setSystemBars",
                                               "(IZZ)V", static_cast<jint>(color.rgba()),
                                               static_cast<jboolean>(modern), static_cast<jboolean>(dark));
-    QAndroidJniEnvironment env;
+    QJniEnvironment env;
     if (env->ExceptionCheck()) {
         env->ExceptionDescribe();
         env->ExceptionClear();

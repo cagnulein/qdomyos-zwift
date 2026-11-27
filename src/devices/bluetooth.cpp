@@ -250,7 +250,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
                 bluetoothOffPoll.stop();
                 return;
             }
-            QAndroidJniObject adapter = QAndroidJniObject::callStaticObjectMethod(
+            QJniObject adapter = QJniObject::callStaticObjectMethod(
                 "android/bluetooth/BluetoothAdapter", "getDefaultAdapter", "()Landroid/bluetooth/BluetoothAdapter;");
             if (adapter.isValid() && adapter.callMethod<jint>("getState") == 12) // BluetoothAdapter.STATE_ON
                 bluetoothSwitchedOn();
