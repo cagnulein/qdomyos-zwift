@@ -1257,6 +1257,7 @@ public:
     // Watch heart-rate wake/sleep (Android, QZ watch app)
     bool wearHeartUsed = false;
     bool watchAwake = false;
+    bool watchWorkoutStarted = false; // independent of the HR sleep state
     QDateTime watchLastWake;
     QDateTime watchActiveAt; // last time the equipment moved or Start was pressed
     void setWatchAwake(bool awake, bool start = false);
