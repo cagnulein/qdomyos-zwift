@@ -66,6 +66,7 @@ SOURCES += \
         Devices/TestRenphoBikeKnobGears.cpp \
         Devices/TestNordictrackEllipticalS700Parser.cpp \
         Devices/TestXcxBikeParser.cpp \
+        Devices/TestFitProWorkoutState.cpp \
         Devices/TestFtmsBikeParser.cpp \
         Devices/TestRowerTargetResistance.cpp \
         Devices/TestBkoolStandaloneResistance.cpp \

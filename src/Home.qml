@@ -564,6 +564,16 @@ HomeForm {
         console.log("home.qml completed");
     }
 
+    Connections {
+        target: rootItem
+        function onCloseCompleteScreenRequested() {
+            console.log("Closing complete screen as requested");
+            if (stackView.depth > 1) {
+                stackView.pop();
+            }
+        }
+    }
+
     // The scrolled area: the page, cut off at its edges. It is as wide as the page, so the shadows
     // of the outer columns stay. It reaches up under the toolbar, which hangs over the page
     // (main.qml), so the tiles can take its place once it has slid away. Not while the tiles are

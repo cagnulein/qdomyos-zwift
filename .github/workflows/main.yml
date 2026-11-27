@@ -2729,9 +2729,9 @@ jobs:
           path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-nordictrack-${{ matrix.variant.name }}.apk
 
   fitpro-build:
-    # The type of runner that the job will run on
+    # Build the FitPro test artifacts for this integration PR as well as nightly releases.
     runs-on: ubuntu-22.04
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.pull_request.number == 4712)
 
     strategy:
       matrix:

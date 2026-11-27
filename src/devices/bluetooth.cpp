@@ -8,6 +8,7 @@
 #include <QFile>
 #include <memory>
 #include <QMetaEnum>
+#include <QTimer>
 #include <QPointer>
 
 #include <QtXml>
@@ -70,6 +71,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 
     this->useDiscovery = startDiscovery;
 
+    const bool nordictrack = true; // to replace
     // one timer, so a search started from the home page does not leave a second chain of automatic ones
     rescanTimer.setSingleShot(true);
     connect(&rescanTimer, &QTimer::timeout, this, [this]() {
@@ -124,29 +126,39 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         }
         // this signal is not associated to anything in this moment, since the homeform is not loaded yet
         this->signalBluetoothDeviceConnected(pelotonBike);
-    }/* else if (fake_bike) {
-        fakeBike = new fakebike(noWriteResistance, noHeartService, false);
-        emit deviceConnected(QBluetoothDeviceInfo());
-        connect(fakeBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
-        connect(fakeBike, &fakebike::debug, this, &bluetooth::debug);
-        if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
-            emit searchingStop();
-        }
-        // this signal is not associated to anything in this moment, since the homeform is not loaded yet
-        this->signalBluetoothDeviceConnected(fakeBike);
-        return;
-    } else if (fake_treadmill) {
-        fakeTreadmill = new faketreadmill(noWriteResistance, noHeartService, false);
-        emit deviceConnected(QBluetoothDeviceInfo());
-        connect(fakeTreadmill, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
-        connect(fakeTreadmill, &faketreadmill::debug, this, &bluetooth::debug);
-        if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
-            emit searchingStop();
-        }
-        // this signal is not associated to anything in this moment, since the homeform is not loaded yet
-        this->signalBluetoothDeviceConnected(fakeBike);
-        return;
-    }*/
+    } else if(nordictrack) {
+        QTimer::singleShot(5000, this, [this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain]() {
+            QSettings settings;
+            QString nordictrack_2950_ip =
+                settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();            
+            QString tdf_10_ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
+            if (!nordictrackifitadbTreadmill && !nordictrack_2950_ip.isEmpty()) {
+                qDebug() << "starting nordictrackifitadbTreadmill";
+                nordictrackifitadbTreadmill = new nordictrackifitadbtreadmill(noWriteResistance, noHeartService);
+                emit deviceConnected(QBluetoothDeviceInfo());
+                connect(nordictrackifitadbTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(nordictrackifitadbTreadmill, &nordictrackifitadbtreadmill::debug, this, &bluetooth::debug);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                // this signal is not associated to anything in this moment, since the homeform is not loaded yet
+                this->signalBluetoothDeviceConnected(nordictrackifitadbTreadmill);
+            } else if (!nordictrackifitadbBike && !tdf_10_ip.isEmpty()) {
+                qDebug() << "starting nordictrackifitadbBike";
+                nordictrackifitadbBike = new nordictrackifitadbbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(QBluetoothDeviceInfo());
+                connect(nordictrackifitadbBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(nordictrackifitadbBike, &nordictrackifitadbbike::debug, this, &bluetooth::debug);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                // this signal is not associated to anything in this moment, since the homeform is not loaded yet
+                this->signalBluetoothDeviceConnected(nordictrackifitadbBike);
+            }  
+        });
+    }
 
 #ifdef TEST
     schwinnIC4Bike = (schwinnic4bike *)new bike();
@@ -689,6 +701,15 @@ void bluetooth::connectDirconDevice(const DirconDeviceInfo &deviceInfo) {
         connect(wahooDirconTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
                 &bluetooth::connectedAndDiscovered);
         connect(wahooDirconTreadmill, &wahoodircontreadmill::debug, this, &bluetooth::debug);
+        // A socket error may be followed by a disconnect. Handle both on the
+        // event loop so restart never deletes the driver inside a socket slot.
+        // Discard a queued duplicate once the driver has been destroyed.
+        QPointer<wahoodircontreadmill> disconnectedTreadmill = wahooDirconTreadmill;
+        connect(disconnectedTreadmill.data(), &wahoodircontreadmill::disconnected, this,
+                [this, disconnectedTreadmill]() {
+                    if (disconnectedTreadmill && wahooDirconTreadmill == disconnectedTreadmill.data())
+                        restart();
+                }, Qt::QueuedConnection);
         if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
             emit searchingStop();
         }
@@ -1161,6 +1182,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     foreach (quint16 id, ids) {
         qDebug() << id << device.manufacturerData(id).toHex(' ');
 
+#ifndef NO_NORDICTRACK
 #ifdef Q_OS_ANDROID
         // yesoul bike on android 13 doesn't send anymore the name
         if (device.name().count() == 0 && id == yesoulbike::manufacturerDataId &&
@@ -1173,6 +1195,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             updateDiscoveredDevice(devices, manufacturerDevice);
             manufacturerDeviceFound = true;
         }
+#endif
 #endif
     }
 
@@ -4299,9 +4322,8 @@ void bluetooth::connectedAndDiscovered() {
         }
     }
 #ifdef Q_OS_ANDROID
-    bool android_antbike =
-        settings.value(QZSettings::android_antbike, QZSettings::default_android_antbike).toBool();
-    if (settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool() || android_antbike ||
+    const bool nordictrack = true; // to replace
+    if (settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool() ||
         settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
         QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative",
                                                                                "activity", "()Landroid/app/Activity;");
@@ -4318,7 +4340,8 @@ void bluetooth::connectedAndDiscovered() {
             settings.value(QZSettings::ant_heart_device_number, QZSettings::default_ant_heart_device_number).toInt());
     }
 
-    if (settings.value(QZSettings::android_notification_v2, QZSettings::default_android_notification_v2).toBool()) {
+    if (settings.value(QZSettings::android_notification, QZSettings::default_android_notification).toBool() ||
+        settings.value(QZSettings::android_notification_v2, QZSettings::default_android_notification_v2).toBool() || nordictrack) {
         // the context of homeform: the same text as android_notification_apply, translated once
         //: Android notification: title shown while QZ works in the background.
         QAndroidJniObject javaNotification =
@@ -4329,7 +4352,7 @@ void bluetooth::connectedAndDiscovered() {
     }
 #endif
 
-#ifdef Q_OS_ANDROID
+#ifdef Q_OS_ANDROID    
     if (settings.value(QZSettings::peloton_workout_ocr, QZSettings::default_peloton_workout_ocr).toBool() ||
         settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() ||
         settings.value(QZSettings::zwift_ocr, QZSettings::default_zwift_ocr).toBool()) {

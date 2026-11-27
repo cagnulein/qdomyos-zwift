@@ -1,0 +1,20 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.console.calibration";
+option java_outer_classname = "ThrottleCalibrationServiceProto";
+option java_multiple_files = true;
+import "util/Util.proto";
+import "console/calibration/ThrottleCalibration.proto";
+
+service ThrottleCalibrationService {
+  rpc IsThrottleCalibrationAvailable(Empty) returns (AvailabilityResponse) {}
+
+  rpc CalibrateThrottles(Empty) returns (Empty) {}
+  rpc ConfirmThrottleState(Empty) returns (Empty) {}
+  rpc AbortCalibrateThrottles(Empty) returns (Empty) {}
+
+  rpc ThrottleCalibrationStateChanged(Empty) returns (stream ThrottleCalibrationStateResult) {}
+
+  rpc GetThrottleCalibrationValues(Empty) returns (ThrottleCalibrationValues) {}
+  rpc ThrottleCalibrationValuesChanged(Empty) returns (stream ThrottleCalibrationValues) {}
+}

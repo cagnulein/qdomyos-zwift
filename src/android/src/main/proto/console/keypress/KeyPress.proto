@@ -1,0 +1,21 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.console.keypress";
+option java_outer_classname = "KeyPressProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+import "console/keypress/KeyCode.proto";
+import "util/IFitError.proto";
+
+message KeyPress {
+  KeyCode code = 1;
+  int32 timePressed = 2;
+  int32 durationHeld = 3;
+}
+
+message KeyPressResult {
+  oneof errorOrKeyPress {
+    IFitError error = 1;
+    KeyPress keyPress = 2;
+  }
+}

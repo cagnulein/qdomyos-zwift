@@ -47,6 +47,8 @@ public:
     // Override from treadmill
     void changeSpeed(double speed) override;
     void changeInclination(double grade, double percentage) override;
+    void start() override;
+    void stop(bool pause) override;
     double minStepSpeed() override { return 0.5; }
     double minStepInclination() override { return 0.5; }
 

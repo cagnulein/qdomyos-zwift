@@ -1,0 +1,18 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "featuregates/GatedFeature.proto";
+import "featuregates/FeatureGateResult.proto";
+import "featuregates/FeatureGateRule.proto";
+option java_package = "com.ifit.glassos.featuregates";
+option java_outer_classname = "FeatureGateServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message GatedFeatureMessage {
+  GatedFeature gatedFeature = 1;
+}
+
+service FeatureGateService {
+  rpc CheckFeatureGateStatus(GatedFeatureMessage) returns (FeatureGateResult) {}
+  rpc GetFeatureGateRule(GatedFeatureMessage) returns (FeatureGateRule) {}
+}

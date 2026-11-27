@@ -3,6 +3,7 @@
 #include "devices/lifefitnesstreadmill/lifefitnessworkout.h"
 #include "devices/echelonconnectsport/echelonconnectsport.h"
 #include "devices/fakebike/fakebike.h"
+#include "devices/dircon/wahoodircontreadmill.h"
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #include "ios/ios_liveactivity.h"
@@ -233,6 +234,19 @@ bool clearAndroidJniException(const char *context) {
     env->ExceptionClear();
     qWarning() << "Android JNI exception cleared during" << context;
     return true;
+}
+
+int androidSdkInt() {
+    if (clearAndroidJniException("androidSdkInt-before")) {
+        return 0;
+    }
+
+    const jint sdk = QAndroidJniObject::getStaticField<jint>("android/os/Build$VERSION", "SDK_INT");
+    if (clearAndroidJniException("androidSdkInt-after")) {
+        return 0;
+    }
+
+    return sdk;
 }
 
 QString fallbackFileNameFromUri(const QString &uriString) {
@@ -518,12 +532,15 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     }
     QSettings settings;
 #ifdef Q_OS_ANDROID
-    m_locationServices = QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/LocationHelper", "start",
-                                              "(Landroid/content/Context;)Z", QtAndroid::androidContext().object());
-    if(m_locationServices) {
-        QSettings settings;
-        // so if someone pressed the skip message but now he forgot to enable GPS it will prompt out
-        settings.setValue(QZSettings::skipLocationServicesDialog, QZSettings::default_skipLocationServicesDialog);
+    const bool nordictrack = true; // to replace
+    if(!nordictrack) {
+        m_locationServices = QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/LocationHelper", "start",
+                                                "(Landroid/content/Context;)Z", QtAndroid::androidContext().object());
+        if(m_locationServices) {
+            QSettings settings;
+            // so if someone pressed the skip message but now he forgot to enable GPS it will prompt out
+            settings.setValue(QZSettings::skipLocationServicesDialog, QZSettings::default_skipLocationServicesDialog);
+        }
     }
 #endif
 
@@ -1138,7 +1155,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     
     // Android 14 restrics access to /Android/data folder
     bool android_documents_folder = settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool();
-    if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
+    if (android_documents_folder || androidSdkInt() >= 34) {
         QDirIterator itAndroid(getAndroidDataAppDir(), QDirIterator::Subdirectories);
         QDir().mkdir(getWritableAppDir());
         QDir().mkdir(getProfileDir());
@@ -1215,8 +1232,6 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                 setToastRequested(message);
             });
     fitProcessor->processDirectory(getWritableAppDir() + "fit");
-
-    m_speech.setLocale(QLocale::English);
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     QBluetoothDeviceInfo b;
@@ -1853,12 +1868,27 @@ void homeform::pelotonWorkoutChanged(const QString &name, const QString &instruc
 
 }
 
+QTextToSpeech *homeform::ensureSpeech() {
+#if defined(Q_OS_ANDROID)
+    if (androidSdkInt() <= 23) {
+        return nullptr;
+    }
+#endif
+
+    if (!m_speech) {
+        m_speech = new QTextToSpeech(this);
+        m_speech->setLocale(QLocale::English);
+    }
+
+    return m_speech;
+}
+
 QString homeform::getWritableAppDir() {
     QString path = QLatin1String("");
 #if defined(Q_OS_ANDROID)
     QSettings settings;
     bool android_documents_folder = settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool();
-    if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
+    if (android_documents_folder || androidSdkInt() >= 34) {
         path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/QZ/";
         QDir().mkdir(path);
         // Create .nomedia file to prevent gallery indexing
@@ -2498,8 +2528,7 @@ void homeform::trainProgramSignals() {
                    &homeform::StartFromDevice);
         disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWPause, this,
                    &homeform::PauseFromDevice);
-        disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStop, this,
-                   &homeform::StopFromDevice);
+        disconnect(hardwareStopConnection);
         disconnect(((bike *)bluetoothManager->device()), &bike::bikeStarted, trainProgram,
                    &trainprogram::onTapeStarted);
         disconnect(trainProgram, &trainprogram::changeGeoPosition, bluetoothManager->device(),
@@ -2539,8 +2568,8 @@ void homeform::trainProgramSignals() {
                     &homeform::StartFromDevice);
             connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWPause, this,
                     &homeform::PauseFromDevice);
-            connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStop, this,
-                    &homeform::StopFromDevice);
+            hardwareStopConnection = connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStop,
+                                              this, [this]() { StopFromDevice(true); });
             connect(trainProgram, &trainprogram::changePower, ((treadmill *)bluetoothManager->device()), &treadmill::changePower);
         } else if (bluetoothManager->device()->deviceType() == BIKE) {
             connect(trainProgram, &trainprogram::changeCadence, ((bike *)bluetoothManager->device()),
@@ -2641,7 +2670,9 @@ void homeform::onToastRequested(QString message) {
 
     // Use TTS if enabled
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
-        m_speech.say(message);
+        if (QTextToSpeech *speech = ensureSpeech()) {
+            speech->say(message);
+        }
     }
 }
 
@@ -6735,8 +6766,11 @@ void homeform::Start_inner(bool send_event_to_device) {
 
     clearTargetPowerOverride();
 
-    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
-        m_speech.say("Start pressed");
+    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
+        if (QTextToSpeech *speech = ensureSpeech()) {
+            speech->say("Start pressed");
+        }
+    }
 
     if (!paused && !stopped) {
         paused = true;
@@ -6833,40 +6867,42 @@ void homeform::Start_inner(bool send_event_to_device) {
 }
 
 void homeform::StartFromDevice() {
-    qDebug() << QStringLiteral("Physical start button pressed on device");
-    Start_inner(false);  // false = don't send command back to device (it already started)
+    if (!paused && !stopped) {
+        qDebug() << QStringLiteral("Hardware-originated start ignored: QZ is already running");
+        return;
+    }
+    qDebug() << QStringLiteral("Synchronizing QZ start/resume from hardware; suppressing outbound device command");
+    Start_inner(false);
 }
 
 void homeform::PauseFromDevice() {
-    qDebug() << QStringLiteral("Physical pause button pressed on device");
-    Start_inner(false);  // false = don't send command back to device
+    if (paused || stopped) {
+        qDebug() << QStringLiteral("Hardware-originated pause ignored: QZ is already paused or stopped");
+        return;
+    }
+    qDebug() << QStringLiteral("Synchronizing QZ pause from hardware; suppressing outbound device command");
+    Start_inner(false);
 }
 
-void homeform::StopFromDevice() {
-    qDebug() << QStringLiteral("Physical stop button pressed on device - stopping app");
-
+void homeform::StopFromDevice(bool showCompletionScreen) {
+    qDebug() << QStringLiteral("Synchronizing QZ stop from hardware; suppressing outbound device command");
     // An idle/repeated status notification must not open an empty workout summary.
     // Keep the same no-workout guards used by Stop(), before entering the QML UI flow.
     auto *device = bluetoothManager ? bluetoothManager->device() : nullptr;
     if (stopped || !device)
         return;
 
-    if (device->deviceType() == TREADMILL && device->currentSpeed().value() == 0.0 &&
+    const bool pausedFitPro = paused && dynamic_cast<nordictrackifitadbtreadmill *>(device);
+    if (!pausedFitPro && device->deviceType() == TREADMILL && device->currentSpeed().value() == 0.0 &&
         QTime(0, 0, 0, 0).secsTo(device->elapsedTime()) == 0)
         return;
 
-    // Home.qml::inner_stop() invokes the normal Stop() slot, then displays the
-    // workout summary (or the optional RPE/feel dialog). Calling Stop() alone
-    // saves the session but misses that UI flow. Physical Stop is definitive,
-    // so there is no need for an additional confirmation dialog.
-    QObject *home = engine && !engine->rootObjects().isEmpty()
-                        ? engine->rootObjects().constFirst()->findChild<QObject *>(QStringLiteral("home"))
-                        : nullptr;
-    if (home && QMetaObject::invokeMethod(home, "inner_stop", Qt::DirectConnection))
-        return;
-
-    qWarning() << QStringLiteral("Physical stop: Home.qml unavailable, saving workout without summary");
-    Stop();
+    Stop_inner(false);
+    if (showCompletionScreen) {
+        // Preserve the existing QML completion-screen flow. When its queued Stop() runs, QZ is already
+        // stopped, so Stop_inner(true) returns before it can echo a command to the device.
+        StopRequested();
+    }
 }
 
 void homeform::StartRequested() {
@@ -6888,7 +6924,9 @@ void homeform::StopFromTrainProgram(bool paused) {
     Stop();
 }
 
-void homeform::Stop() {
+void homeform::Stop() { Stop_inner(true); }
+
+void homeform::Stop_inner(bool send_event_to_device) {
     QSettings settings;
 
     m_startRequested = false;
@@ -6897,7 +6935,7 @@ void homeform::Stop() {
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    if(h && !h->appleWatchAppInstalled())
+    if (send_event_to_device && h && !h->appleWatchAppInstalled())
         h->stopWorkout();
     // End iOS Live Activity when workout stops
     ios_liveactivity::endLiveActivity();
@@ -6919,8 +6957,11 @@ void homeform::Stop() {
 
     if (treadmillDevice) {
         QTime zero(0, 0, 0, 0);
+        const bool pausedFitPro = !send_event_to_device && paused &&
+                                  dynamic_cast<nordictrackifitadbtreadmill *>(treadmillDevice);
+        const bool pausedDirconWorkout = paused && dynamic_cast<wahoodircontreadmill *>(treadmillDevice);
         if (treadmillDevice->currentSpeed().value() == 0.0 &&
-            zero.secsTo(treadmillDevice->elapsedTime()) == 0) {
+            zero.secsTo(treadmillDevice->elapsedTime()) == 0 && !pausedFitPro && !pausedDirconWorkout) {
             treadmillDevice->stopWhenIdle();
             qDebug() << QStringLiteral("Stop pressed - nothing to do. Elapsed time is 0 and current speed is 0");
             return;
@@ -6934,10 +6975,13 @@ void homeform::Stop() {
         this->innerTemplateManager->reinit();
 #endif
 
-    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
-        m_speech.say("Stop pressed");
+    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
+        if (QTextToSpeech *speech = ensureSpeech()) {
+            speech->say("Stop pressed");
+        }
+    }
 
-    if (bluetoothManager->device()) {
+    if (bluetoothManager->device() && send_event_to_device) {
         bluetoothManager->device()->stop(false);
     }
 
@@ -9409,7 +9453,8 @@ void homeform::update() {
                 bool description =
                     settings.value(QZSettings::tts_description_enabled, QZSettings::default_tts_description_enabled)
                         .toBool();
-                if (m_speech.state() == QTextToSpeech::Ready) {
+                QTextToSpeech *speech = ensureSpeech();
+                if (speech && speech->state() == QTextToSpeech::Ready) {
                     if (++tts_summary_count >=
                         settings.value(QZSettings::tts_summary_sec, QZSettings::default_tts_summary_sec).toInt()) {
                         tts_summary_count = 0;
@@ -9623,7 +9668,7 @@ void homeform::update() {
                                      QString::number(bluetoothManager->device()->wattKg().max(), 'f', 1));
 
                         qDebug() << "tts" << s;
-                        m_speech.say(s);
+                        speech->say(s);
                     } else if (bluetoothManager->device()->deviceType() == TREADMILL &&
                                bluetoothManager->device()->currentSpeed().value() != tts_speed_played &&
                                settings.value(QZSettings::tts_act_speed, QZSettings::default_tts_act_speed).toBool()) {
@@ -9638,7 +9683,7 @@ void homeform::update() {
                                                            'f', 1)) +
                                  (description ? tr(" miles per hour") : ""));
                         qDebug() << "tts" << s;
-                        m_speech.say(s);
+                        speech->say(s);
                     }
                 }
             }
@@ -9812,7 +9857,7 @@ QString homeform::getFileNameFromContentUri(const QString &uriString) {
 
 QString homeform::copyAndroidContentsURI(QUrl file, QString subfolder) {
 #ifdef Q_OS_ANDROID        
-    qDebug() << "Android Version:" << QOperatingSystemVersion::current();
+    qDebug() << "Android SDK_INT:" << androidSdkInt();
     const QString sourcePath = QQmlFile::urlToLocalFileOrQrc(file);
     const QString destinationDir = getWritableAppDir() + subfolder + "/";
     QDir().mkpath(destinationDir);
@@ -10416,6 +10461,38 @@ bool homeform::deleteTrainingProgramFile(const QString &fileUrl) {
     return true;
 }
 
+int homeform::previewWorkoutCurrentSeconds() const {
+    if (!trainProgram || !trainProgram->isStarted() || m_previewWorkoutFile.isEmpty() ||
+        m_previewWorkoutFile != m_activeWorkoutFile)
+        return -1;
+    return trainProgram->elapsedSeconds();
+}
+
+bool homeform::previewWorkoutSeekSupported() const {
+    if (!previewTrainProgram || previewTrainProgram->loadedRows.isEmpty())
+        return false;
+    for (const auto &row : previewTrainProgram->loadedRows) {
+        if (row.distance != -1 || row.waitForLap || row.HRabove > 0 || row.HRbelow > 0 ||
+            QTime(0, 0, 0).secsTo(row.duration) <= 0)
+            return false;
+    }
+    return true;
+}
+
+void homeform::setPreviewWorkoutSelectedSeconds(int seconds) {
+    const int value = seconds < 0 || !previewWorkoutSeekSupported() ? -1
+                        : qBound(0, seconds, qMax(0, preview_workout_points() - 1));
+    if (m_previewWorkoutSelectedSeconds != value) {
+        m_previewWorkoutSelectedSeconds = value;
+        emit previewWorkoutSelectedSecondsChanged(value);
+    }
+}
+
+void homeform::setNextWorkoutStartSecond(int seconds) {
+    m_nextWorkoutStartSecond = previewWorkoutSeekSupported() && seconds > 0 &&
+                              seconds < preview_workout_points() ? seconds : -1;
+}
+
 void homeform::trainprogram_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("trainprogram_open_clicked") << fileName;
 
@@ -10432,6 +10509,7 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
             }
 
             trainProgram = trainprogram::load(file.fileName(), bluetoothManager, file.fileName().right(3).toUpper());
+            m_activeWorkoutFile = file.fileName();
             if (trainProgram->isFitWorkout) {
                 const bool matchesDevice = trainProgram->fitWorkoutMatchesDevice();
                 // A known incompatible sport is only exposed after a successful decode, so keep
@@ -10486,26 +10564,35 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
 
 void homeform::trainprogram_autostart_requested() {
     qDebug() << QStringLiteral("trainprogram_autostart_requested");
+    const int seekSeconds = m_nextWorkoutStartSecond;
+    m_nextWorkoutStartSecond = -1;
+    auto seekAfterStart = [this, seekSeconds]() {
+        if (seekSeconds > 0 && (!trainProgram || !trainProgram->seekToElapsedSeconds(seekSeconds)))
+            setToastRequested(tr("This workout cannot resume at the selected time"));
+    };
     // Do not autostart a rejected FIT or one for a different sport.
     // Preserve the existing behavior for all other workout formats.
     if (trainProgram && trainProgram->isFitWorkout &&
         (trainProgram->loadedRows.isEmpty() || !trainProgram->fitWorkoutMatchesDevice()))
         return;
 
-    bluetoothdevice *dev = nullptr;
-    if (bluetoothManager) {
-        dev = bluetoothManager->device();
-    }
-
+    bluetoothdevice *dev = bluetoothManager ? bluetoothManager->device() : nullptr;
     if (dev && !dev->isPaused()) {
-        // Pause and resume QZ to start the program, without sending STOP/START
-        // commands to the physical device (Domyos ellipticals lose console telemetry).
+        // Preserve existing pause/resume semantics for running equipment, without
+        // sending an unsolicited physical STOP/START during a program change.
         QMetaObject::invokeMethod(this, [this]() { Start_inner(false); }, Qt::QueuedConnection);
         QThread::msleep(200);
-        QMetaObject::invokeMethod(this, [this]() { Start_inner(false); }, Qt::QueuedConnection);
+        QMetaObject::invokeMethod(this, [this, seekAfterStart]() {
+            Start_inner(false);
+            seekAfterStart();
+        }, Qt::QueuedConnection);
     } else {
-        // Device is paused/stopped, call Start() once
-        QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
+        // Apply start and seek together in one event-loop turn. A timer tick must
+        // never apply the first interval's target before the seek is installed.
+        QMetaObject::invokeMethod(this, [this, seekAfterStart]() {
+            Start_inner(true);
+            seekAfterStart();
+        }, Qt::QueuedConnection);
     }
 }
 
@@ -10629,7 +10716,10 @@ void homeform::trainprogram_preview(const QUrl &fileName) {
                 previewTrainProgram = 0;
             }
             previewTrainProgram = trainprogram::load(file.fileName(), bluetoothManager, fileNameLocal.right(3).toUpper());
+            m_previewWorkoutFile = file.fileName();
+            setPreviewWorkoutSelectedSeconds(-1);
             emit previewWorkoutPointsChanged(preview_workout_points());
+            emit previewWorkoutSeekSupportedChanged();
             emit previewWorkoutDescriptionChanged(previewWorkoutDescription());
             emit previewWorkoutTagsChanged(previewWorkoutTags());
         }

@@ -562,6 +562,19 @@ ColumnLayout {
                                 stackView.pop()
                             }
                         }
+
+                        UiButton {
+                            text: qsTr("Resume from here")
+                            visible: rootItem.previewWorkoutSeekSupported &&
+                                     rootItem.previewWorkoutSelectedSeconds > 0
+                            onClicked: {
+                                // Capture the selection while the preview is still loaded.
+                                rootItem.setNextWorkoutStartSecond(rootItem.previewWorkoutSelectedSeconds)
+                                trainprogram_open_clicked(pendingWorkoutUrl)
+                                trainprogram_autostart_requested()
+                                stackView.pop()
+                            }
+                        }
                     }
                 }
 

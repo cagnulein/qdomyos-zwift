@@ -237,6 +237,8 @@ class homeform : public QObject {
 
     // workout preview
     Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
+    Q_PROPERTY(int previewWorkoutSelectedSeconds READ previewWorkoutSelectedSeconds NOTIFY previewWorkoutSelectedSecondsChanged)
+    Q_PROPERTY(bool previewWorkoutSeekSupported READ previewWorkoutSeekSupported NOTIFY previewWorkoutSeekSupportedChanged)
     Q_PROPERTY(QList<double> preview_workout_watt READ preview_workout_watt)
     Q_PROPERTY(QList<double> preview_workout_speed READ preview_workout_speed)
     Q_PROPERTY(QList<double> preview_workout_inclination READ preview_workout_inclination)
@@ -594,6 +596,13 @@ class homeform : public QObject {
     Q_INVOKABLE void enableLocationServices() {
 #ifdef Q_OS_ANDROID
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/LocationHelper", "requestPermissions",
+                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+#endif
+    }
+
+    Q_INVOKABLE void launchIFitApp() {
+#ifdef Q_OS_ANDROID
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/AppLauncher", "launchIFitApp",
                                                   "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
 #endif
     }
@@ -1207,6 +1216,10 @@ public:
     QQmlApplicationEngine *engine;
     trainprogram *trainProgram = nullptr;
     trainprogram *previewTrainProgram = nullptr;
+    int m_previewWorkoutSelectedSeconds = -1;
+    int m_nextWorkoutStartSecond = -1;
+    QString m_previewWorkoutFile;
+    QString m_activeWorkoutFile;
     QString backupFitFileName =
         QStringLiteral("QZ-backup-") +
         QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
@@ -1369,6 +1382,7 @@ public:
     QTimer *backupTimer;
     QTimer *automaticShiftingTimer;
     QTimer *clipboardWorkoutTimer = nullptr;
+    QMetaObject::Connection hardwareStopConnection;
 
     // HR PID controller state - tracks when training program changes speed to prevent race conditions
     QDateTime lastTrainingProgramSpeedChange = QDateTime::fromMSecsSinceEpoch(0);
@@ -1415,8 +1429,10 @@ public:
     bool getDevice();
     bool getLap();
     void Start_inner(bool send_event_to_device);
+    void Stop_inner(bool send_event_to_device);
+    QTextToSpeech *ensureSpeech();
 
-    QTextToSpeech m_speech;
+    QTextToSpeech *m_speech = nullptr;
     int tts_summary_count = 0;
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
@@ -1461,15 +1477,26 @@ public:
     void Plus(const QString &);
     void trainprogram_open_clicked(const QUrl &fileName);
     void trainprogram_autostart_requested();
+    int previewWorkoutSelectedSeconds() const { return m_previewWorkoutSelectedSeconds; }
+    bool previewWorkoutSeekSupported() const;
+    int previewWorkoutCurrentSeconds() const;
+    void setPreviewWorkoutSelectedSeconds(int seconds);
+    void setNextWorkoutStartSecond(int seconds);
     void handleOAuthCallbackUrl(const QString &callbackUrl);
     void handleAndroidDocumentPicked(int requestCode, const QString &uriString);
 
-  private slots:
     void Start();
     void Stop();
+    void StopRequested();
+    // Device-originated controls are public slots because device implementations invoke them
+    // directly while suppressing command echo back to the physical console.
+    void StartFromDevice();
+    void PauseFromDevice();
+    void StopFromDevice(bool showCompletionScreen);
+
+  private slots:
     void StopFromTrainProgram(bool paused);
     void StartRequested();
-    void StopRequested();
     void Lap();
     void LargeButton(const QString &);
     void volumeDown();
@@ -1546,10 +1573,6 @@ public:
     void garmin_upload_file_prepare();
     void garmin_download_todays_workout();
     void handleRestoreDefaultWheelDiameter();
-    void StartFromDevice();  // Called when physical start button pressed on hardware
-    void PauseFromDevice();  // Called when physical pause button pressed on hardware
-    void StopFromDevice();   // Called when physical stop button pressed on hardware
-
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
     void licenseReply(QNetworkReply *reply);
     void licenseTimeout();
@@ -1640,9 +1663,12 @@ public:
     void instructorNameChanged(QString name);
     void startRequestedChanged(bool value);
     void stopRequestedChanged(bool value);
+    void closeCompleteScreenRequested();
     void trainingProgramIntervalSoundRequested();
 
     void previewWorkoutPointsChanged(int value);
+    void previewWorkoutSelectedSecondsChanged(int value);
+    void previewWorkoutSeekSupportedChanged();
     void previewWorkoutDescriptionChanged(QString value);
     void previewWorkoutTagsChanged(QString value);
 

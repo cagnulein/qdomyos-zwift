@@ -72,6 +72,21 @@ class nordictrackifitadbelliptical : public elliptical {
   private:
     const resistance_t max_resistance = 17; // max inclination for s22i
     void forceResistance(double resistance);
+
+    // FitPro USB-HID integration (direct console link, replaces gRPC/iFit)
+    void initializeFitProService();
+    void startFitProMetricsUpdates();
+    void stopFitProMetricsUpdates();
+    double getFitProSpeed();
+    double getFitProIncline();
+    double getFitProDistance();
+    double getFitProWatts();
+    double getFitProCadence();
+    double getFitProResistance();
+    double getFitProHeartRate();
+    void setFitProResistance(double resistance);
+    void setFitProIncline(double incline);
+    bool fitproInitialized = false;
     uint16_t watts() override;
     double getDouble(QString v);
     uint16_t wattsFromResistance(double inclination, double cadence);

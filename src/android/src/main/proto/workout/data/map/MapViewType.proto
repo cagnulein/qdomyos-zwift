@@ -1,0 +1,13 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.workout.data.map";
+option java_outer_classname = "MapViewTypeProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum MapViewType {
+  MAP_VIEW_TYPE_ROADMAP = 0;
+  MAP_VIEW_TYPE_SATELLITE = 1;
+  MAP_VIEW_TYPE_STREET = 2;
+  MAP_VIEW_TYPE_CYCLE = 3;
+}

@@ -1,0 +1,20 @@
+name: Live chart seek
+on:
+  pull_request:
+    paths:
+      - 'src/inner_templates/chartjs/liveworkoutseek.js'
+      - 'src/inner_templates/chartjs/chartlive.htm'
+      - 'src/inner_templates/chartjs/treadmillchartlive.htm'
+      - 'tst/ToolTests/liveworkoutseek.test.js'
+      - '.github/workflows/live-chart-seek.yml'
+  workflow_dispatch:
+jobs:
+  javascript:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: node --check src/inner_templates/chartjs/liveworkoutseek.js
+      - run: node tst/ToolTests/liveworkoutseek.test.js

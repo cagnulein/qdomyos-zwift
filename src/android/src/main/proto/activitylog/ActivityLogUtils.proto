@@ -1,0 +1,49 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.activitylog";
+option java_outer_classname = "ActivityLogUtilsProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum ActivityLogContext {
+  ACT_LOG_CONTEXT_ON_DEMAND = 0;
+  ACT_LOG_CONTEXT_SCHEDULED_LIVE = 1;
+  ACT_LOG_CONTEXT_SCHEDULED_PRE = 2;
+}
+
+enum ActivityLogOrigin {
+  ACT_LOG_ORIGIN_BIKE = 0;
+  ACT_LOG_ORIGIN_DAILY = 1;
+  ACT_LOG_ORIGIN_ELLIPTICAL = 2;
+  ACT_LOG_ORIGIN_FUSION = 3;
+  ACT_LOG_ORIGIN_GARMIN = 4;
+  ACT_LOG_ORIGIN_GOOGLEFIT = 5;
+  ACT_LOG_ORIGIN_HEALTHKIT = 6;
+  ACT_LOG_ORIGIN_IFITAPP = 7;
+  ACT_LOG_ORIGIN_ROWER = 8;
+  ACT_LOG_ORIGIN_SLEEPSENSOR = 9;
+  ACT_LOG_ORIGIN_STATIONARYBIKE = 10;
+  ACT_LOG_ORIGIN_STRAVA = 11;
+  ACT_LOG_ORIGIN_STRIDER = 12;
+  ACT_LOG_ORIGIN_THIRDPARTY = 13;
+  ACT_LOG_ORIGIN_TREADMILL = 14;
+  ACT_LOG_ORIGIN_WEARABLE = 15;
+  ACT_LOG_ORIGIN_WEBSITE = 16;
+  ACT_LOG_ORIGIN_VALINOR = 17;
+}
+
+enum ActivityLogType {
+  ACT_LOG_TYPE_CARDIO = 0;
+  ACT_LOG_TYPE_CYCLE = 1;
+  ACT_LOG_TYPE_RUN = 2;
+  ACT_LOG_TYPE_PULLEY = 3;
+  ACT_LOG_TYPE_FUSION = 4;
+  ACT_LOG_TYPE_ROW = 5;
+  ACT_LOG_TYPE_DAILY_VIDEO = 6;
+  ACT_LOG_TYPE_STRENGTH = 7;
+}
+
+message ActivityOffsetValue {
+  float offset = 1;
+  float value = 2;
+}

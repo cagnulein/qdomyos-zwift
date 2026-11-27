@@ -1,0 +1,49 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+import "workout/WorkoutResult.proto";
+import "workout/data/Control.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "StrokesPerMinuteServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message StrokesPerMinuteMetric {
+  string workoutID = 1;
+  int32 timeSeconds = 2;
+  double lastSpm = 3;
+  double maxSpm = 4;
+  double averageSpm = 5;
+  double minSpm = 6;
+  double targetSpm = 7;
+}
+
+message StrokesPerMinuteMetricList {
+  repeated StrokesPerMinuteMetric metrics = 1;
+}
+
+message StrokesPerMinuteRequest {
+  double spm = 1;
+}
+
+service StrokesPerMinuteService {
+  // check whether StrokesPerMinute is Readable
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+  rpc CanWriteVirtual(Empty) returns (AvailabilityResponse) {}
+
+  // get the current StrokesPerMinute relative to the current workout
+  rpc GetStrokesPerMinute(Empty) returns (StrokesPerMinuteMetric) {}
+
+  // subscribe to StrokesPerMinute updates relative to the current workout
+  rpc StrokesPerMinuteSubscription(Empty) returns (stream StrokesPerMinuteMetric) {}
+
+  // get the current workout controls
+  rpc GetAllTargets(Empty) returns (ControlList) {}
+  // subscribe to workout control updates
+  rpc AllTargetsSubscription(Empty) returns (stream ControlList) {}
+
+  // gets a list of all of the StrokesPerMinute changes for the given workout ID
+  rpc GetStrokesPerMinuteHistory(WorkoutID) returns (StrokesPerMinuteMetricList) {}
+
+  rpc SetVirtualStrokesPerMinute(StrokesPerMinuteRequest) returns (WorkoutResult) {}
+}

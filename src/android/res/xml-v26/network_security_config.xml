@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 8.0+ (API 26+): use only the platform trust store.
+  Older Android 7.x consoles get the separate default res/xml configuration
+  which includes ISRG roots for the Peloton asset domains.
+  Preserve existing local-network HTTP support on all Android versions.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    <domain-config cleartextTrafficPermitted="false">
+        <domain>assets.onepeloton.com</domain>
+        <domain>images.onepeloton.com</domain>
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </domain-config>
+</network-security-config>
