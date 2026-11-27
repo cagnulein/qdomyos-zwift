@@ -9098,6 +9098,8 @@ import AndroidStatusBar 1.0
                             model: [qsTr("Off"), qsTr("Auto"), qsTr("%1 s").arg(3), qsTr("%1 s").arg(5),
                                 qsTr("%1 s").arg(10), qsTr("%1 s").arg(15), qsTr("%1 s").arg(30)]
                             savedIndex: settings.chart_smooth_lines
+                            // the label already ends with ":" and is translated
+                            Accessible.name: labelChartSmoothLines.text + " " + displayText
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         }
