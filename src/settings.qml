@@ -3002,6 +3002,9 @@ import AndroidStatusBar 1.0
             property bool treadmill_calories_model: false
             property bool ui_modern_new_install_checked: false
             property bool ui_modern_offer_pending: false
+            property bool log_debug_first_setup: false
+            property string log_debug_first_setup_since: ""
+            property bool wahoo_wheel_question_answered: false
 
         }
 
@@ -12337,6 +12340,7 @@ import AndroidStatusBar 1.0
                         }
                         ValueComboBox {
                             id: treadmillPidHRControlTextField
+                            Accessible.name: labelTreadmillPidHRControl.text + " " + displayText
                             model: [ "Speed", "Inclination" ]
                             labels: ({ "Speed": qsTr("Speed"), "Inclination": qsTr("Inclination") })
                             savedText: settings.treadmill_pid_heart_control
@@ -14415,6 +14419,7 @@ import AndroidStatusBar 1.0
                                 Label { Layout.columnSpan: parent.stackedRow ? parent.columns : 1; text: qsTr("Life Fitness username/email:"); wrapMode: window.labelWrap; Layout.fillWidth: true }
                                 SettingsTextField {
                                     id: lifeFitnessUsernameTextField
+                                    Accessible.name: qsTr("Life Fitness username/email:") + " " + text
                                     savedText: settings.life_fitness_username
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: { settings.life_fitness_username = text; window.settings_restart_to_apply = true; }
@@ -14430,6 +14435,7 @@ import AndroidStatusBar 1.0
                                 Label { Layout.columnSpan: parent.stackedRow ? parent.columns : 1; text: qsTr("Life Fitness password:"); wrapMode: window.labelWrap; Layout.fillWidth: true }
                                 SettingsTextField {
                                     id: lifeFitnessPasswordTextField
+                                    Accessible.name: qsTr("Life Fitness password:")
                                     savedText: settings.life_fitness_password
                                     echoMode: TextInput.Password
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -16442,6 +16448,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: wattMaxTextField
+                            Accessible.name: labelwattMax.text + " " + text
                             savedText: settings.watt_max
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false

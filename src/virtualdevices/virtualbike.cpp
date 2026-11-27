@@ -12,8 +12,7 @@
 #ifdef Q_OS_ANDROID
 #include "androidactivityresultreceiver.h"
 #include "keepawakehelper.h"
-#include <QAndroidJniObject>
-#include <QtAndroid>
+#include <QJniObject>
 #endif
 
 using namespace std::chrono_literals;
@@ -739,21 +738,21 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
 #ifdef Q_OS_ANDROID
         if (virtual_device_tacx) {
-            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+            QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
                                                       "startAdvertisingTacxNeo2T",
                                                       "(Landroid/content/Context;)V",
-                                                      QtAndroid::androidContext().object());
+                                                      QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;").object());
         } else if (echelon) {
-            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+            QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
                                                       "startAdvertisingEchelon",
                                                       "(Landroid/content/Context;Ljava/lang/String;)V",
-                                                      QtAndroid::androidContext().object(),
-                                                      QAndroidJniObject::fromString(echelonAdvertisingName).object<jstring>());
+                                                      QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;").object(),
+                                                      QJniObject::fromString(echelonAdvertisingName).object<jstring>());
         } else if (garminPowerMeter()) {
-            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+            QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
                                                       "startAdvertisingCyclingPower",
                                                       "(Landroid/content/Context;)V",
-                                                      QtAndroid::androidContext().object());
+                                                      QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;").object());
         } else {
             leController->startAdvertising(pars, advertisingData, advertisingData);
         }
@@ -786,9 +785,9 @@ virtualbike::~virtualbike() {
     bikeTimer.stop();
 
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "stopAdvertising",
+    QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "stopAdvertising",
                                               "(Landroid/content/Context;)V",
-                                              QtAndroid::androidContext().object());
+                                              QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;").object());
 #endif
 
     if (leController) {
@@ -1905,21 +1904,21 @@ void virtualbike::reconnect() {
     pars.setInterval(100, 100);
 #ifdef Q_OS_ANDROID
     if (virtual_device_tacx) {
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+        QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
                                                   "startAdvertisingTacxNeo2T",
                                                   "(Landroid/content/Context;)V",
-                                                  QtAndroid::androidContext().object());
+                                                  QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;").object());
     } else if (echelon) {
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+        QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
                                                   "startAdvertisingEchelon",
                                                   "(Landroid/content/Context;Ljava/lang/String;)V",
-                                                  QtAndroid::androidContext().object(),
-                                                  QAndroidJniObject::fromString(echelonAdvertisingName).object<jstring>());
+                                                  QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;").object(),
+                                                  QJniObject::fromString(echelonAdvertisingName).object<jstring>());
     } else if (garminPowerMeter()) {
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+        QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
                                                   "startAdvertisingCyclingPower",
                                                   "(Landroid/content/Context;)V",
-                                                  QtAndroid::androidContext().object());
+                                                  QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;").object());
     } else {
         leController->startAdvertising(pars, advertisingData, advertisingData);
     }

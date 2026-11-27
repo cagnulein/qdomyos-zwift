@@ -90,7 +90,7 @@ enum PM5ErgMachineType {
 #ifdef Q_OS_ANDROID
 #include "androidactivityresultreceiver.h"
 #include "keepawakehelper.h"
-#include <QAndroidJniObject>
+#include <QJniObject>
 #endif
 
 using namespace std::chrono_literals;
@@ -414,16 +414,16 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
 
 #ifdef Q_OS_ANDROID
         if (echelon) {
-            QAndroidJniObject::callStaticMethod<void>(
+            QJniObject::callStaticMethod<void>(
                 "org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingEchelon",
-                "(Landroid/content/Context;Ljava/lang/String;)V", QtAndroid::androidContext().object(),
-                QAndroidJniObject::fromString(echelonAdvertisingName).object<jstring>());
+                "(Landroid/content/Context;Ljava/lang/String;)V", QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;").object(),
+                QJniObject::fromString(echelonAdvertisingName).object<jstring>());
         } else if (pm5Mode) {
-            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRowerPM5",
-                                                      "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+            QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRowerPM5",
+                                                      "(Landroid/content/Context;)V", QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;").object());
         } else {
-            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRower",
-                                                      "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+            QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRower",
+                                                      "(Landroid/content/Context;)V", QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;").object());
         }
 #else
         leController->startAdvertising(pars, advertisingData, advertisingData);
@@ -753,16 +753,16 @@ void virtualrower::reconnect() {
     if (echelon) {
         const QString echelonAdvertisingName =
             !Rower->bluetoothDevice.name().isEmpty() ? Rower->bluetoothDevice.name() : QStringLiteral("ROW-S-015244");
-        QAndroidJniObject::callStaticMethod<void>(
+        QJniObject::callStaticMethod<void>(
             "org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingEchelon",
-            "(Landroid/content/Context;Ljava/lang/String;)V", QtAndroid::androidContext().object(),
-            QAndroidJniObject::fromString(echelonAdvertisingName).object<jstring>());
+            "(Landroid/content/Context;Ljava/lang/String;)V", QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;").object(),
+            QJniObject::fromString(echelonAdvertisingName).object<jstring>());
     } else if (pm5Mode) {
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRowerPM5",
-                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+        QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRowerPM5",
+                                                  "(Landroid/content/Context;)V", QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;").object());
     } else {
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRower",
-                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+        QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRower",
+                                                  "(Landroid/content/Context;)V", QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;").object());
     }
 #else
     leController->startAdvertising(pars, advertisingData, advertisingData);

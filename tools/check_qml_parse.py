@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check that every QML file compiles, with the Qt 5 QML compiler.
+"""Check that every QML file compiles, with the Qt 6 QML compiler.
 
   python3 tools/check_qml_parse.py [root] [--github]
 
@@ -12,24 +12,20 @@ without resolving its imports, so it finds syntax errors and duplicate propertie
 missing on the runner cannot fail it. It does not replace the emulator tests: types, ids and
 runtime errors are not checked here.
 
-qmlcachegen comes from the qtdeclarative5-dev-tools package.
+qmlcachegen comes from the qt6-declarative-dev-tools package.
 """
-import shutil
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
 
-DEFAULT_COMPILER = "/usr/lib/qt5/bin/qmlcachegen"
+DEFAULT_COMPILER = "/usr/lib/qt6/libexec/qmlcachegen"
 ERROR_PREFIX = "Error compiling qml file: "
 ERROR_SEPARATOR = ": error: "
 
 
 def find_compiler():
     """Path of qmlcachegen, or None"""
-    found = shutil.which("qmlcachegen")
-    if found:
-        return found
     return DEFAULT_COMPILER if Path(DEFAULT_COMPILER).exists() else None
 
 
@@ -90,7 +86,7 @@ def main(argv=None):
 
     compiler = find_compiler()
     if not compiler:
-        print("qmlcachegen not found: install qtdeclarative5-dev-tools")
+        print("qmlcachegen not found: install qt6-declarative-dev-tools")
         return 2
     files = qml_files(root)
     if not files:

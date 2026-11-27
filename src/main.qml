@@ -1532,6 +1532,7 @@ ApplicationWindow {
                 clip: true
 
                 TextArea {
+                    Accessible.name: text
                     width: androidNotificationPopup.width - 56
                     readOnly: true
                     wrapMode: TextEdit.Wrap
