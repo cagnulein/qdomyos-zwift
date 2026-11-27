@@ -75,7 +75,7 @@ public class QtBluetoothLE {
     private final BluetoothAdapter mBluetoothAdapter;
     private boolean mLeScanRunning = false;
 
-    private BluetoothGatt mBluetoothGatt = null;
+    private volatile BluetoothGatt mBluetoothGatt = null;
     private HandlerThread mHandlerThread = null;
     private Handler mHandler = null;
     private Constructor mCharacteristicConstructor = null;
@@ -103,11 +103,24 @@ public class QtBluetoothLE {
     private BluetoothLeScanner mBluetoothLeScanner = null;
 
     private class TimeoutRunnable implements Runnable {
-        public TimeoutRunnable(int handle) { pendingJobHandle = handle; }
+        public TimeoutRunnable(int handle, ReadWriteJob job) { pendingJobHandle = handle; jobForTimeout = job; }
         @Override
         public void run() {
-            boolean timeoutStillValid = handleForTimeout.compareAndSet(pendingJobHandle, HANDLE_FOR_RESET);
+            boolean timeoutStillValid;
+            boolean c12ReadTimedOut = false;
+            synchronized (readWriteQueue) {
+                timeoutStillValid = pendingJob == jobForTimeout &&
+                        handleForTimeout.compareAndSet(pendingJobHandle, HANDLE_FOR_RESET);
+                if (timeoutStillValid) {
+                    c12ReadTimedOut = isC12Challenge(jobForTimeout);
+                    if (c12ReadTimedOut)
+                        c12ChallengeTimedOut = true;
+                    pendingJob = null;
+                }
+            }
             if (timeoutStillValid) {
+                if (c12ReadTimedOut)
+                    leServiceError(qtObject, (pendingJobHandle & 0xffff) + 1, 5);
                 Log.w(TAG, "****** Timeout for request on handle " + (pendingJobHandle & 0xffff));
                 Log.w(TAG, "****** Looks like the peripheral does NOT act in " +
                            "accordance to Bluetooth 4.x spec.");
@@ -123,6 +136,7 @@ public class QtBluetoothLE {
 
         // contains handle (0xffff) and top 2 byte contain the job type (0xffff0000)
         private int pendingJobHandle = -1;
+        private final ReadWriteJob jobForTimeout;
     };
 
 
@@ -287,25 +301,34 @@ public class QtBluetoothLE {
                                          android.bluetooth.BluetoothGattCharacteristic characteristic,
                                          int status)
         {
+            if (gatt != mBluetoothGatt)
+                return;
             int foundHandle = -1;
-            synchronized (this) {
+            final GattEntry entry;
+            final GattEntry serviceEntry;
+            synchronized (QtBluetoothLE.this) {
                 foundHandle = handleForCharacteristic(characteristic);
                 if (foundHandle == -1 || foundHandle >= entries.size() ) {
                     Log.w(TAG, "Cannot find characteristic read request for read notification - handle: " +
                                foundHandle + " size: " + entries.size());
-
-                    //unlock the queue for next item
-                    synchronized (readWriteQueue) {
-                        pendingJob = null;
-                    }
-
-                    performNextIO();
                     return;
                 }
+                entry = entries.get(foundHandle);
+                serviceEntry = !entry.valueKnown && entry.associatedServiceHandle >= 0 &&
+                        entry.associatedServiceHandle < entries.size()
+                        ? entries.get(entry.associatedServiceHandle) : null;
             }
 
-            boolean requestTimedOut = !handleForTimeout.compareAndSet(
-                                        modifiedReadWriteHandle(foundHandle, IoJobType.Read), HANDLE_FOR_RESET);
+            final ReadWriteJob completedJob;
+            boolean requestTimedOut;
+            synchronized (readWriteQueue) {
+                completedJob = pendingJob;
+                requestTimedOut = gatt != mBluetoothGatt || completedJob == null ||
+                        completedJob.jobType != IoJobType.Read || completedJob.entry != entry ||
+                        completedJob.entry.characteristic != characteristic ||
+                        !handleForTimeout.compareAndSet(
+                            modifiedReadWriteHandle(foundHandle, IoJobType.Read), HANDLE_FOR_RESET);
+            }
             if (requestTimedOut) {
                 Log.w(TAG, "Late char read reply after timeout was hit for handle " + foundHandle);
                 // Timeout has hit before this response -> ignore the response
@@ -313,7 +336,10 @@ public class QtBluetoothLE {
                 return;
             }
 
-            GattEntry entry = entries.get(foundHandle);
+            synchronized (readWriteQueue) {
+                if (gatt != mBluetoothGatt || pendingJob != completedJob)
+                    return;
+            }
             final boolean isServiceDiscoveryRun = !entry.valueKnown;
             entry.valueKnown = true;
 
@@ -342,23 +368,26 @@ public class QtBluetoothLE {
             if (isServiceDiscoveryRun) {
 
                 // last entry of pending service discovery run -> send discovery finished state update
-                GattEntry serviceEntry = entries.get(entry.associatedServiceHandle);
-                if (serviceEntry.endHandle == foundHandle)
-                    finishCurrentServiceDiscovery(entry.associatedServiceHandle);
+                if (serviceEntry != null && serviceEntry.endHandle == foundHandle)
+                    finishCurrentServiceDiscovery(entry.associatedServiceHandle, serviceEntry);
             }
 
             //unlock the queue for next item
             synchronized (readWriteQueue) {
+                if (gatt != mBluetoothGatt || pendingJob != completedJob)
+                    return;
                 pendingJob = null;
             }
 
-            performNextIO();
+            performNextIO(gatt);
         }
 
         public void onCharacteristicWrite(android.bluetooth.BluetoothGatt gatt,
                                           android.bluetooth.BluetoothGattCharacteristic characteristic,
                                           int status)
         {
+            if (gatt != mBluetoothGatt)
+                return;
             if (status != BluetoothGatt.GATT_SUCCESS)
                 Log.w(TAG, "onCharacteristicWrite: error " + status);
 
@@ -368,15 +397,16 @@ public class QtBluetoothLE {
                 return;
             }
 
-            boolean requestTimedOut = !handleForTimeout.compareAndSet(
-                                            modifiedReadWriteHandle(handle, IoJobType.Write), HANDLE_FOR_RESET);
-            if (requestTimedOut) {
-                Log.w(TAG, "Late char write reply after timeout was hit for handle " + handle);
-                // Timeout has hit before this response -> ignore the response
-                // no need to unlock pendingJob -> the timeout has done that already
-                return;
+            byte[] value;
+            synchronized (readWriteQueue) {
+                if (pendingJob == null || pendingJob.jobType != IoJobType.Write ||
+                    pendingJob.entry.characteristic != characteristic ||
+                    !handleForTimeout.compareAndSet(
+                        modifiedReadWriteHandle(handle, IoJobType.Write), HANDLE_FOR_RESET))
+                    return;
+                value = pendingJob.newValue;
+                pendingJob = null;
             }
-
             int errorCode;
             //This must be in sync with QLowEnergyService::ServiceError
             switch (status) {
@@ -386,11 +416,6 @@ public class QtBluetoothLE {
                     errorCode = 2; break; // CharacteristicWriteError
             }
 
-            byte[] value;
-            synchronized (readWriteQueue) {
-                value = pendingJob.newValue;
-                pendingJob = null;
-            }
             leCharacteristicWritten(qtObject, handle+1, value, errorCode);
             performNextIO();
         }
@@ -411,6 +436,8 @@ public class QtBluetoothLE {
                                      android.bluetooth.BluetoothGattDescriptor descriptor,
                                      int status)
         {
+            if (gatt != mBluetoothGatt)
+                return;
             int foundHandle = -1;
             synchronized (this) {
                 foundHandle = handleForDescriptor(descriptor);
@@ -418,11 +445,6 @@ public class QtBluetoothLE {
                     Log.w(TAG, "Cannot find descriptor read request for read notification - handle: " +
                                foundHandle + " size: " + entries.size());
 
-                    //unlock the queue for next item
-                    synchronized (readWriteQueue) {
-                        pendingJob = null;
-                    }
-                    performNextIO();
                     return;
                 }
             }
@@ -502,13 +524,23 @@ public class QtBluetoothLE {
                                       android.bluetooth.BluetoothGattDescriptor descriptor,
                                       int status)
         {
+            if (gatt != mBluetoothGatt)
+                return;
             if (status != BluetoothGatt.GATT_SUCCESS)
                 Log.w(TAG, "onDescriptorWrite: error " + status);
 
             int handle = handleForDescriptor(descriptor);
 
-            boolean requestTimedOut = !handleForTimeout.compareAndSet(
-                                        modifiedReadWriteHandle(handle, IoJobType.Write), HANDLE_FOR_RESET);
+            final ReadWriteJob completedJob;
+            boolean requestTimedOut;
+            synchronized (readWriteQueue) {
+                completedJob = pendingJob;
+                requestTimedOut = gatt != mBluetoothGatt || completedJob == null ||
+                        completedJob.jobType != IoJobType.Write ||
+                        completedJob.entry.descriptor != descriptor ||
+                        !handleForTimeout.compareAndSet(
+                            modifiedReadWriteHandle(handle, IoJobType.Write), HANDLE_FOR_RESET);
+            }
             if (requestTimedOut) {
                 Log.w(TAG, "Late descriptor write reply after timeout was hit for handle " +
                            handle);
@@ -527,11 +559,13 @@ public class QtBluetoothLE {
             }
 
             synchronized (readWriteQueue) {
+                if (gatt != mBluetoothGatt || pendingJob != completedJob)
+                    return;
                 pendingJob = null;
             }
 
             leDescriptorWritten(qtObject, handle+1, descriptor.getValue(), errorCode);
-            performNextIO();
+            performNextIO(gatt);
         }
         //TODO Requires Android API 21 which is not available on CI yet.
 //        public void onReliableWriteCompleted(android.bluetooth.BluetoothGatt gatt,
@@ -547,6 +581,8 @@ public class QtBluetoothLE {
         // requires Android API v21
         public void onMtuChanged(android.bluetooth.BluetoothGatt gatt, int mtu, int status)
         {
+            if (gatt != mBluetoothGatt)
+                return;
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 Log.w(TAG, "MTU changed to " + mtu);
                 mSupportedMtu = mtu;
@@ -574,6 +610,7 @@ public class QtBluetoothLE {
 
 
     public boolean connect() {
+
         BluetoothDevice mRemoteGattDevice;
 
         try {
@@ -726,6 +763,12 @@ public class QtBluetoothLE {
 
     private final LinkedList<ReadWriteJob> readWriteQueue = new LinkedList<ReadWriteJob>();
     private ReadWriteJob pendingJob;
+    // A late response cannot be distinguished from a retry on the same GATT
+    // characteristic. Refuse retries after timeout until a new connection.
+    private boolean c12ChallengeTimedOut;
+    // Android supplies no transaction identity in read callbacks. A duplicate
+    // response must never be mistaken for another read of the same challenge.
+    private boolean c12ChallengeStarted;
 
     /*
         Internal helper function
@@ -880,10 +923,12 @@ public class QtBluetoothLE {
 
         // kill all timeout handlers
         timeoutHandler.removeCallbacksAndMessages(null);
-        handleForTimeout.set(HANDLE_FOR_RESET);
-
         synchronized (readWriteQueue) {
+            handleForTimeout.set(HANDLE_FOR_RESET);
             readWriteQueue.clear();
+            pendingJob = null;
+            c12ChallengeTimedOut = false;
+            c12ChallengeStarted = false;
         }
     }
 
@@ -978,10 +1023,20 @@ public class QtBluetoothLE {
     //TODO function not yet used
     private void finishCurrentServiceDiscovery(int handleDiscoveredService)
     {
+        finishCurrentServiceDiscovery(handleDiscoveredService, null);
+    }
+
+    private void finishCurrentServiceDiscovery(int handleDiscoveredService, GattEntry expected)
+    {
         Log.w(TAG, "Finished current discovery for service handle " + handleDiscoveredService);
-        GattEntry discoveredService = entries.get(handleDiscoveredService);
-        discoveredService.valueKnown = true;
+        final GattEntry discoveredService;
         synchronized (this) {
+            if (handleDiscoveredService < 0 || handleDiscoveredService >= entries.size())
+                return;
+            discoveredService = entries.get(handleDiscoveredService);
+            if (expected != null && discoveredService != expected)
+                return;
+            discoveredService.valueKnown = true;
             try {
                 servicesToBeDiscovered.removeFirst();
             } catch (NoSuchElementException ex) {
@@ -1245,11 +1300,6 @@ public class QtBluetoothLE {
     // and the regular responses will be blocked off.
     private void interruptCurrentIO(int handle)
     {
-        //unlock the queue for next item
-        synchronized (readWriteQueue) {
-            pendingJob = null;
-        }
-
         performNextIOThreaded();
 
         if (handle == HANDLE_FOR_MTU_EXCHANGE)
@@ -1300,6 +1350,11 @@ public class QtBluetoothLE {
     */
     private void performNextIO()
     {
+        performNextIO(null);
+    }
+
+    private void performNextIO(BluetoothGatt expectedGatt)
+    {
         if (mBluetoothGatt == null)
             return;
 
@@ -1308,7 +1363,8 @@ public class QtBluetoothLE {
         int handle = HANDLE_FOR_RESET;
 
         synchronized (readWriteQueue) {
-            if (readWriteQueue.isEmpty() || pendingJob != null)
+            if ((expectedGatt != null && expectedGatt != mBluetoothGatt) ||
+                    readWriteQueue.isEmpty() || pendingJob != null)
                 return;
 
             nextJob = readWriteQueue.remove();
@@ -1354,7 +1410,7 @@ public class QtBluetoothLE {
             } else {
                 pendingJob = nextJob;
                 timeoutHandler.postDelayed(new TimeoutRunnable(
-                        modifiedReadWriteHandle(handle, nextJob.jobType)), RUNNABLE_TIMEOUT);
+                        modifiedReadWriteHandle(handle, nextJob.jobType), nextJob), RUNNABLE_TIMEOUT);
             }
 
             if (nextJob.jobType != IoJobType.Mtu) {
@@ -1520,42 +1576,38 @@ public class QtBluetoothLE {
         return false;
     }
 
-    // Runs inside the Mutex on readWriteQueue.
-    // Returns true if nextJob should be skipped.
+    private boolean isC12Challenge(ReadWriteJob job)
+    {
+        if (job == null || job.jobType != IoJobType.Read || job.entry == null ||
+                job.entry.type != GattEntryType.Characteristic || job.entry.characteristic == null)
+            return false;
+        BluetoothGattCharacteristic c = job.entry.characteristic;
+        // Qt discovery reads have valueKnown=false. Only explicit reads of the
+        // challenge on either service selected by the C12 driver are enabled.
+        // This UUID pair may also occur on other models; their explicit read of
+        // the same characteristic would now be enabled too.
+        if (!job.entry.valueKnown || c.getService() == null)
+            return false;
+        String service = c.getService().getUuid().toString();
+        return (service.equalsIgnoreCase("638af000-7bde-3e25-ffc5-9de9b2a0197a") ||
+                service.equalsIgnoreCase("8ce5cc01-0a4d-11e9-ab14-d663bd873d93")) &&
+                c.getUuid().toString().equalsIgnoreCase("638a1104-7bde-3e25-ffc5-9de9b2a0197a");
+    }
+
+    // Runs inside the Mutex on readWriteQueue. Other reads remain disabled.
     private boolean executeReadJob(ReadWriteJob nextJob)
     {
-	return true; //rviola
-/*
-        boolean result;
-        switch (nextJob.entry.type) {
-            case Characteristic:
-                try {
-                    result = mBluetoothGatt.readCharacteristic(nextJob.entry.characteristic);
-                } catch (java.lang.SecurityException se) {
-                    // QTBUG-59917 -> HID services cause problems since Android 5.1
-                    se.printStackTrace();
-                    result = false;
-                }
-                if (!result)
-                    return true; // skip
-                break;
-            case Descriptor:
-                try {
-                    result = mBluetoothGatt.readDescriptor(nextJob.entry.descriptor);
-                } catch (java.lang.SecurityException se) {
-                    // QTBUG-59917 -> HID services cause problems since Android 5.1
-                    se.printStackTrace();
-                    result = false;
-                }
-                if (!result)
-                    return true; // skip
-                break;
-            case Service:
+        if (!isC12Challenge(nextJob) || c12ChallengeTimedOut || c12ChallengeStarted)
+            return true;
+        try {
+            if (!mBluetoothGatt.readCharacteristic(nextJob.entry.characteristic))
                 return true;
-            case CharacteristicValue:
-                return true; //skip
+            c12ChallengeStarted = true;
+            return false;
+        } catch (SecurityException se) {
+            Log.w(TAG, "C12 challenge read denied", se);
+            return true;
         }
-        return false;*/
     }
 
     /*

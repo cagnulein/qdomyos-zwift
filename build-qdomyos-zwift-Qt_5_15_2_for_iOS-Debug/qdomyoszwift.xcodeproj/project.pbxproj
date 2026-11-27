@@ -571,6 +571,7 @@
 		87CC3BA325A0885F001EC5A8 /* domyoselliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87CC3B9F25A0885D001EC5A8 /* domyoselliptical.cpp */; };
 		87CC3BA425A0885F001EC5A8 /* elliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87CC3BA025A0885D001EC5A8 /* elliptical.cpp */; };
 		87CCCC942FD2C32200CA53BD /* qrc_translations.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87CCCC932FD2C32200CA53BD /* qrc_translations.cpp */; };
+		D56550000000000000000002 /* qrc_kettlerc12_resources.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = D56550000000000000000001 /* qrc_kettlerc12_resources.cpp */; };
 		D47800000000000000000002 /* qmlcache_settings_qml.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = D47800000000000000000001 /* qmlcache_settings_qml.cpp */; };
 		D47800000000000000000004 /* qmlcache_settings-tiles_qml.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = D47800000000000000000003 /* qmlcache_settings-tiles_qml.cpp */; };
 		D47800000000000000000006 /* settings_qmlcache_loader.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = D47800000000000000000005 /* settings_qmlcache_loader.cpp */; };
@@ -1743,6 +1744,7 @@
 		87CC3BA125A0885E001EC5A8 /* elliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = elliptical.h; path = ../src/devices/elliptical.h; sourceTree = "<group>"; };
 		87CC3BA225A0885E001EC5A8 /* domyoselliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = domyoselliptical.h; path = ../src/devices/domyoselliptical/domyoselliptical.h; sourceTree = "<group>"; };
 		87CCCC932FD2C32200CA53BD /* qrc_translations.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = qrc_translations.cpp; sourceTree = "<group>"; };
+		D56550000000000000000001 /* qrc_kettlerc12_resources.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = qrc_kettlerc12_resources.cpp; sourceTree = "<group>"; };
 		D47800000000000000000001 /* qmlcache_settings_qml.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = qmlcache_settings_qml.cpp; sourceTree = "<group>"; };
 		D47800000000000000000003 /* qmlcache_settings-tiles_qml.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "qmlcache_settings-tiles_qml.cpp"; sourceTree = "<group>"; };
 		D47800000000000000000005 /* settings_qmlcache_loader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = settings_qmlcache_loader.cpp; sourceTree = "<group>"; };
@@ -2505,6 +2507,7 @@
 				8798FFD42F868DEE003E969D /* moc_mywhooshlink.cpp */,
 				870F72D52FDEC0FD00181280 /* webtranslation.cpp */,
 				87CCCC932FD2C32200CA53BD /* qrc_translations.cpp */,
+				D56550000000000000000001 /* qrc_kettlerc12_resources.cpp */,
 				D47800000000000000000001 /* qmlcache_settings_qml.cpp */,
 				D47800000000000000000003 /* qmlcache_settings-tiles_qml.cpp */,
 				D47800000000000000000005 /* settings_qmlcache_loader.cpp */,
@@ -4440,6 +4443,7 @@
 				87C5F0BA26285E5F0067A1B5 /* mimefile.cpp in Compile Sources */,
 				879E5AA8289C057E00FEA38A /* proformwifitreadmill.cpp in Compile Sources */,
 				87CCCC942FD2C32200CA53BD /* qrc_translations.cpp in Compile Sources */,
+				D56550000000000000000002 /* qrc_kettlerc12_resources.cpp in Compile Sources */,
 				D47800000000000000000002 /* qmlcache_settings_qml.cpp in Compile Sources */,
 				D47800000000000000000004 /* qmlcache_settings-tiles_qml.cpp in Compile Sources */,
 				D47800000000000000000006 /* settings_qmlcache_loader.cpp in Compile Sources */,

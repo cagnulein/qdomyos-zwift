@@ -1,4 +1,7 @@
 /Users/cagnulein/Qt/5.15.2/ios/bin/rcc qml.qrc -o ../build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qrc_qml.cpp
+# C12 authentication resource is a separate compiled source in the committed Xcode project.
+python3 ../tools/validate_kettler_c12_security.py devices/kettlerc12bike/SecureData.txt || exit 1
+/Users/cagnulein/Qt/5.15.2/ios/bin/rcc -name kettlerc12_resources kettlerc12_resources.qrc -o ../build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qrc_kettlerc12_resources.cpp || exit 1
 # the settings pages compiled at build time, as qdomyos-zwift.pri makes them: one line per page of
 # settings-qmlcache.qrc, then the loader. The Xcode project compiles these three files and the app
 # shows the version of the page they were made from, so they are made again together with qrc_qml.cpp
