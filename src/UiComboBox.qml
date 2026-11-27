@@ -6,7 +6,6 @@ import QtQuick.Templates 2.15 as T
 import QtQuick.Controls.Material 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls.Material.impl 2.15
-import QtGraphicalEffects 1.12
 
 // ComboBox of the settings pages and the wizard: the Qt 5.15 Material ComboBox, copied as
 // is (qtquickcontrols2 5.15, src/imports/controls/material/ComboBox.qml), so nothing changes
@@ -194,23 +193,10 @@ T.ComboBox {
                 radius: parent.radius
             }
 
-            // Qt 5.15 clips the ripple wave by its bounding rectangle - clipRadius rounds only the
-            // pressed tint (qquickmaterialripple.cpp, clipNode->setRadius commented out,
-            // QTBUG-51894; fixed in Qt 6.5): an item held by a finger showed the wave with square
-            // corners. Modern: the wave is cut by the rounded block with a layer, only on the two
-            // items pressed last (old exercise bike consoles: at most two small layers). A released
-            // wave still grows and fades for 333 ms, so the layer stays after the press until the
-            // list closes (popup onClosed comes after the exit transition): a pick, a press taken
-            // over by a drag of the list, and that one while another item is pressed right after it
+            // Qt 6.5 clips the ripple to clipRadius.
             Item {
                 width: parent.width
                 height: parent.height
-                layer.enabled: control.modern
-                               && (menuItem.down || control.pressedItemIndex === index
-                                   || control.previousPressedItemIndex === index)
-                layer.effect: OpacityMask {
-                    maskSource: rippleMask
-                }
 
                 Ripple {
                     width: parent.width

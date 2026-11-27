@@ -1,7 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
-import QtGraphicalEffects 1.12
+import QtQuick.Effects
 
 // Only appears on the Home page if a device is missing or no activity metrics
 // have arrived. Never blocks or changes the training state.
@@ -82,13 +82,12 @@ Item {
             color: Qt.tint(window.ui.surface, window.ui.alpha(window.ui.accent,
                                                              modernHelpButton.down ? 0.28 : 0.16))
             layer.enabled: modernHelpButton.visible
-            layer.effect: DropShadow {
-                transparentBorder: true
-                horizontalOffset: 0
-                verticalOffset: 2
-                radius: 8
-                samples: 17
-                color: Qt.rgba(0, 0, 0, window.ui.dark ? 0.5 : 0.25)
+            layer.effect: MultiEffect {
+                shadowEnabled: true
+                shadowHorizontalOffset: 0
+                shadowVerticalOffset: 2
+                shadowBlur: 0.5
+                shadowColor: Qt.rgba(0, 0, 0, window.ui.dark ? 0.5 : 0.25)
             }
         }
         contentItem: Item {

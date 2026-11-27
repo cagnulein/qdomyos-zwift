@@ -2,7 +2,6 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
 import QtQuick.Dialogs 1.0
-import QtGraphicalEffects 1.12
 import Qt.labs.settings 1.0
 import QtMultimedia 5.15
 import QtQuick.Window 2.12
