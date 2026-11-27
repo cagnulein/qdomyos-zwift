@@ -705,7 +705,7 @@ void bluetooth::connectDirconDevice(const DirconDeviceInfo &deviceInfo) {
         // event loop so restart never deletes the driver inside a socket slot.
         // Discard a queued duplicate once the driver has been destroyed.
         QPointer<wahoodircontreadmill> disconnectedTreadmill = wahooDirconTreadmill;
-        connect(disconnectedTreadmill.data(), &bluetoothdevice::disconnected, this,
+        connect(disconnectedTreadmill.data(), &wahoodircontreadmill::disconnected, this,
                 [this, disconnectedTreadmill]() {
                     if (disconnectedTreadmill && wahooDirconTreadmill == disconnectedTreadmill.data())
                         restart();
