@@ -2,6 +2,11 @@ import CoreBluetooth
 
 let rowerUuid = CBUUID(string: "0x2AD1");
 
+// EXR reads this additional service after discovering QZ's standard FTMS rower.
+// Keep these 128-bit UUIDs out of the legacy advertising payload.
+let EXR_QZ_SERVICE_UUID = CBUUID(string: "0000515A-0000-1000-8000-00805F9B34FB")
+let EXR_QZ_IDENTITY_UUID = CBUUID(string: "0000515B-0000-1000-8000-00805F9B34FB")
+
 // PM5 Concept2 UUIDs
 let PM5_DISCOVERY_SERVICE_UUID = CBUUID(string: "CE060000-43E5-11E4-916C-0800200C9A66")
 let PM5_DEVICE_INFO_SERVICE_UUID = CBUUID(string: "CE060010-43E5-11E4-916C-0800200C9A66")
@@ -93,6 +98,7 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   public var heartRate:UInt8! = 0
 
   private var FitnessMachineService: CBMutableService!
+  private var EXRIdentityService: CBMutableService!
   private var FitnessMachineFeatureCharacteristic: CBMutableCharacteristic!
   private var supported_resistance_level_rangeCharacteristic: CBMutableCharacteristic!
   private var FitnessMachineControlPointCharacteristic: CBMutableCharacteristic!
@@ -292,6 +298,15 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
                                                   CSCMeasurementCharacteristic,
                                                   SCControlPointCharacteristic]
           self.peripheralManager.add(CSCService)
+
+          // Static read-only manufacturer identity for EXR; FTMS remains unchanged.
+          self.EXRIdentityService = CBMutableService(type: EXR_QZ_SERVICE_UUID, primary: true)
+          let identity = CBMutableCharacteristic(type: EXR_QZ_IDENTITY_UUID,
+                                                properties: [.read],
+                                                value: "QZ Fitness".data(using: .utf8),
+                                                permissions: [.readable])
+          EXRIdentityService.characteristics = [identity]
+          self.peripheralManager.add(EXRIdentityService)
   }
 
   func setupPM5Services() {

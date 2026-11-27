@@ -59,6 +59,7 @@ class virtualrower : public virtualdevice {
     QLowEnergyService *serviceHR = nullptr;
     QLowEnergyService *serviceBattery = nullptr;
     QLowEnergyService *serviceFIT = nullptr;
+    QLowEnergyService *serviceEXR = nullptr;
     QLowEnergyService *servicePM5Rowing = nullptr;
     QLowEnergyService *servicePM5DeviceInfo = nullptr;
     QLowEnergyService *servicePM5GAP = nullptr;
@@ -70,6 +71,7 @@ class virtualrower : public virtualdevice {
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceDataHR;
     QLowEnergyServiceData serviceDataFIT;
+    QLowEnergyServiceData serviceDataEXR;
     QLowEnergyServiceData serviceDataPM5Rowing;
     QLowEnergyServiceData serviceDataPM5DeviceInfo;
     QLowEnergyServiceData serviceDataPM5GAP;
