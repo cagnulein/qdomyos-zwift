@@ -3,6 +3,7 @@
 #include "devices/lifefitnesstreadmill/lifefitnessworkout.h"
 #include "devices/echelonconnectsport/echelonconnectsport.h"
 #include "devices/fakebike/fakebike.h"
+#include "devices/dircon/wahoodircontreadmill.h"
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #include "ios/ios_liveactivity.h"
@@ -6919,8 +6920,9 @@ void homeform::Stop() {
 
     if (treadmillDevice) {
         QTime zero(0, 0, 0, 0);
+        const bool pausedDirconWorkout = paused && dynamic_cast<wahoodircontreadmill *>(treadmillDevice);
         if (treadmillDevice->currentSpeed().value() == 0.0 &&
-            zero.secsTo(treadmillDevice->elapsedTime()) == 0) {
+            zero.secsTo(treadmillDevice->elapsedTime()) == 0 && !pausedDirconWorkout) {
             treadmillDevice->stopWhenIdle();
             qDebug() << QStringLiteral("Stop pressed - nothing to do. Elapsed time is 0 and current speed is 0");
             return;
@@ -10416,6 +10418,38 @@ bool homeform::deleteTrainingProgramFile(const QString &fileUrl) {
     return true;
 }
 
+int homeform::previewWorkoutCurrentSeconds() const {
+    if (!trainProgram || !trainProgram->isStarted() || m_previewWorkoutFile.isEmpty() ||
+        m_previewWorkoutFile != m_activeWorkoutFile)
+        return -1;
+    return trainProgram->elapsedSeconds();
+}
+
+bool homeform::previewWorkoutSeekSupported() const {
+    if (!previewTrainProgram || previewTrainProgram->loadedRows.isEmpty())
+        return false;
+    for (const auto &row : previewTrainProgram->loadedRows) {
+        if (row.distance != -1 || row.waitForLap || row.HRabove > 0 || row.HRbelow > 0 ||
+            QTime(0, 0, 0).secsTo(row.duration) <= 0)
+            return false;
+    }
+    return true;
+}
+
+void homeform::setPreviewWorkoutSelectedSeconds(int seconds) {
+    const int value = seconds < 0 || !previewWorkoutSeekSupported() ? -1
+                        : qBound(0, seconds, qMax(0, preview_workout_points() - 1));
+    if (m_previewWorkoutSelectedSeconds != value) {
+        m_previewWorkoutSelectedSeconds = value;
+        emit previewWorkoutSelectedSecondsChanged(value);
+    }
+}
+
+void homeform::setNextWorkoutStartSecond(int seconds) {
+    m_nextWorkoutStartSecond = previewWorkoutSeekSupported() && seconds > 0 &&
+                              seconds < preview_workout_points() ? seconds : -1;
+}
+
 void homeform::trainprogram_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("trainprogram_open_clicked") << fileName;
 
@@ -10432,6 +10466,7 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
             }
 
             trainProgram = trainprogram::load(file.fileName(), bluetoothManager, file.fileName().right(3).toUpper());
+            m_activeWorkoutFile = file.fileName();
             if (trainProgram->isFitWorkout) {
                 const bool matchesDevice = trainProgram->fitWorkoutMatchesDevice();
                 // A known incompatible sport is only exposed after a successful decode, so keep
@@ -10486,26 +10521,35 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
 
 void homeform::trainprogram_autostart_requested() {
     qDebug() << QStringLiteral("trainprogram_autostart_requested");
+    const int seekSeconds = m_nextWorkoutStartSecond;
+    m_nextWorkoutStartSecond = -1;
+    auto seekAfterStart = [this, seekSeconds]() {
+        if (seekSeconds > 0 && (!trainProgram || !trainProgram->seekToElapsedSeconds(seekSeconds)))
+            setToastRequested(tr("This workout cannot resume at the selected time"));
+    };
     // Do not autostart a rejected FIT or one for a different sport.
     // Preserve the existing behavior for all other workout formats.
     if (trainProgram && trainProgram->isFitWorkout &&
         (trainProgram->loadedRows.isEmpty() || !trainProgram->fitWorkoutMatchesDevice()))
         return;
 
-    bluetoothdevice *dev = nullptr;
-    if (bluetoothManager) {
-        dev = bluetoothManager->device();
-    }
-
+    bluetoothdevice *dev = bluetoothManager ? bluetoothManager->device() : nullptr;
     if (dev && !dev->isPaused()) {
-        // Pause and resume QZ to start the program, without sending STOP/START
-        // commands to the physical device (Domyos ellipticals lose console telemetry).
+        // Preserve existing pause/resume semantics for running equipment, without
+        // sending an unsolicited physical STOP/START during a program change.
         QMetaObject::invokeMethod(this, [this]() { Start_inner(false); }, Qt::QueuedConnection);
         QThread::msleep(200);
-        QMetaObject::invokeMethod(this, [this]() { Start_inner(false); }, Qt::QueuedConnection);
+        QMetaObject::invokeMethod(this, [this, seekAfterStart]() {
+            Start_inner(false);
+            seekAfterStart();
+        }, Qt::QueuedConnection);
     } else {
-        // Device is paused/stopped, call Start() once
-        QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
+        // Apply start and seek together in one event-loop turn. A timer tick must
+        // never apply the first interval's target before the seek is installed.
+        QMetaObject::invokeMethod(this, [this, seekAfterStart]() {
+            Start_inner(true);
+            seekAfterStart();
+        }, Qt::QueuedConnection);
     }
 }
 
@@ -10629,7 +10673,10 @@ void homeform::trainprogram_preview(const QUrl &fileName) {
                 previewTrainProgram = 0;
             }
             previewTrainProgram = trainprogram::load(file.fileName(), bluetoothManager, fileNameLocal.right(3).toUpper());
+            m_previewWorkoutFile = file.fileName();
+            setPreviewWorkoutSelectedSeconds(-1);
             emit previewWorkoutPointsChanged(preview_workout_points());
+            emit previewWorkoutSeekSupportedChanged();
             emit previewWorkoutDescriptionChanged(previewWorkoutDescription());
             emit previewWorkoutTagsChanged(previewWorkoutTags());
         }

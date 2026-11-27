@@ -832,6 +832,8 @@ void TemplateInfoSenderBuilder::onGetWorkoutPreview(TemplateInfoSender *tempSend
         QList<double> cadenceData = hf->preview_workout_cadence();
 
         outObj[QStringLiteral("points")] = points;
+        outObj[QStringLiteral("seekSupported")] = hf->previewWorkoutSeekSupported();
+        outObj[QStringLiteral("currentSeconds")] = hf->previewWorkoutCurrentSeconds();
         outObj[QStringLiteral("description")] = hf->previewWorkoutDescription();
         outObj[QStringLiteral("tags")] = hf->previewWorkoutTags();
 
@@ -1655,6 +1657,13 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                 } else if (msg == QStringLiteral("trainprogram_preview")) {
                     onTrainingProgramPreview(jsonObject[QStringLiteral("content")], sender);
                     return;
+                } else if (msg == QStringLiteral("setworkoutpreviewseek")) {
+                    if (homeform::singleton()) {
+                        const int seconds = jsonObject[QStringLiteral("content")].toObject()
+                                                .value(QStringLiteral("seconds")).toInt(-1);
+                        homeform::singleton()->setPreviewWorkoutSelectedSeconds(seconds);
+                    }
+                    return;
                 } else if (msg == QStringLiteral("getworkoutpreview")) {
                     onGetWorkoutPreview(sender);
                     return;
@@ -1667,6 +1676,27 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                 } else if (msg == QStringLiteral("gettrainingprogram")) {
                     onGetTrainingProgram(jsonObject[QStringLiteral("content")], sender);
                     return;                    
+                } else if (msg == QStringLiteral("getliveseekstate") || msg == QStringLiteral("setliveseek")) {
+                    auto *home = homeform::singleton();
+                    auto *program = home ? home->trainingProgram() : nullptr;
+                    const QString id = program ? program->seekSessionId() : QString();
+                    bool allowed = program && program->canSeekElapsedSeconds();
+                    bool applied = false;
+                    if (msg == QStringLiteral("setliveseek")) {
+                        const QJsonObject request = jsonObject.value(QStringLiteral("content")).toObject();
+                        const int seconds = request.value(QStringLiteral("seconds")).toInt(-1);
+                        allowed = allowed && request.value(QStringLiteral("workoutId")).toString() == id;
+                        applied = allowed && program->seekToElapsedSeconds(seconds);
+                    }
+                    QJsonObject content;
+                    content[QStringLiteral("supported")] = allowed;
+                    content[QStringLiteral("workoutId")] = id;
+                    content[QStringLiteral("applied")] = applied;
+                    QJsonObject response;
+                    response[QStringLiteral("msg")] = QStringLiteral("R_") + msg;
+                    response[QStringLiteral("content")] = content;
+                    sender->send(QJsonDocument(response).toJson());
+                    return;
                 } else if (msg == QStringLiteral("workouteditor_env")) {
                     onWorkoutEditorEnv(sender);
                     return;
