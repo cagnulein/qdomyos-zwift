@@ -74,6 +74,15 @@ class ProviderPrivate : public QObject {
     Record txtRecord;
     Record ARecord;
 
+    // Keep the multicast record stable while answering on different interfaces.
+    static Record addressRecordForReply(const Record &published, const QHostAddress &replyAddress) {
+        Record reply(published);
+        if (!replyAddress.isNull()) {
+            reply.setAddress(replyAddress);
+        }
+        return reply;
+    }
+
     // The name update() last asked for, before any "-2" the prober appended.
     // Re-probing has to start from this, not from whatever was confirmed last.
     QByteArray desiredFqName;

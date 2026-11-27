@@ -199,7 +199,9 @@ void ProviderPrivate::onMessageReceived(const Message &message) {
     bool sendSrv = false;
     bool sendTxt = false;
 
-    ARecord.setAddress(localipaddress::getIP(message.address()));
+    // The cached A record is for multicast announcements. Per-interface
+    // responses must not overwrite it (e.g. a cellular IPv4 query must not
+    // cause the next Wi-Fi announcement to advertise the cellular address).
 
     // Determine which records to send based on the queries
     const auto queries = message.queries();
@@ -245,8 +247,9 @@ void ProviderPrivate::onMessageReceived(const Message &message) {
         if (sendSrv) {
             reply.addRecord(srvRecord);
 
-            // zwift need it
-            reply.addRecord(ARecord);
+            // Respond with the IPv4 matching this requester, while preserving
+            // the published A record for subsequent multicast announcements.
+            reply.addRecord(addressRecordForReply(ARecord, localipaddress::getIP(message.address())));
         }
         if (sendTxt) {
             reply.addRecord(txtRecord);

@@ -8,6 +8,8 @@
 
 #include "Tools/testsettings.h"
 #include "devices/dircon/dirconmanager.h"
+#include "qmdnsengine/src/src/provider_p.h"
+#include <qmdnsengine/mdns.h>
 #include "devices/dircon/wahoodirconbike.h"
 #include "devices/dircon/wahoodircontreadmill.h"
 #include "devices/fakebike/fakebike.h"
@@ -242,4 +244,28 @@ void DirconLoopbackTestSuite::test_two_fakebike_dircon_servers_accept_two_wahood
         << "Second DirCon bike client did not receive telemetry";
 
     testSettings.deactivate();
+}
+
+TEST(DirconMdns, RequestInterfaceAddressDoesNotChangeMulticastARecord) {
+    // An iPhone can have both Wi-Fi and cellular IPv4 interfaces active.
+    QMdnsEngine::Record announced;
+    announced.setType(QMdnsEngine::A);
+    announced.setName("ELITE-AVANTI-01234-W.local.");
+    announced.setAddress(QHostAddress(QStringLiteral("192.168.1.36")));
+
+    const QHostAddress wifi(QStringLiteral("192.168.1.36"));
+    const QHostAddress cellular(QStringLiteral("10.104.108.93"));
+    const auto cellularReply = QMdnsEngine::ProviderPrivate::addressRecordForReply(announced, cellular);
+    EXPECT_EQ(cellularReply.address(), cellular);
+    EXPECT_EQ(announced.address(), wifi) << "Cellular queries must not poison Wi-Fi multicast announcements";
+    EXPECT_EQ(cellularReply.name(), announced.name());
+    EXPECT_EQ(cellularReply.type(), announced.type());
+
+    const auto wifiReply = QMdnsEngine::ProviderPrivate::addressRecordForReply(announced, wifi);
+    EXPECT_EQ(wifiReply.address(), wifi);
+    EXPECT_EQ(announced.address(), wifi);
+
+    const auto fallbackReply = QMdnsEngine::ProviderPrivate::addressRecordForReply(announced, QHostAddress());
+    EXPECT_EQ(fallbackReply.address(), wifi);
+    EXPECT_EQ(announced.address(), wifi);
 }
