@@ -54,6 +54,15 @@ TEST(KettlerCscTest, ConvertsMetresPerSecondToKilometresPerHour)
                     kettler::readLe16(current.constData() + 5),
                     kettler::readLe16(previous.constData() + 5)),
                 0.636, 0.01);
+    // Steady riding from the same log: console approximately 27 km/h.
+    const auto steadyPrevious = QByteArray::fromHex("03bc000000b66982003d5b");
+    const auto steadyCurrent = QByteArray::fromHex("03c5000000797384001562");
+    EXPECT_NEAR(kettler::wheelSpeedKmh(
+                    kettler::readLe32(steadyCurrent.constData() + 1),
+                    kettler::readLe32(steadyPrevious.constData() + 1),
+                    kettler::readLe16(steadyCurrent.constData() + 5),
+                    kettler::readLe16(steadyPrevious.constData() + 5)),
+                27.880336, 0.0001);
     EXPECT_NEAR(kettler::wheelSpeedKmh(1, 0xffffffffu, 512, 65024), 15.12, 0.0001);
     EXPECT_DOUBLE_EQ(kettler::wheelSpeedKmh(10, 10, 1024, 0), 0.0);
     EXPECT_DOUBLE_EQ(kettler::wheelSpeedKmh(10, 9, 1024, 1024), 0.0);
