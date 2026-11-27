@@ -38,5 +38,5 @@ jobs:
           QT_QUICK_CONTROLS_STYLE: Material
           QT_QUICK_BACKEND: software
         run: |
-          runner="$Qt6_DIR/bin/qmltestrunner"
+          runner="$QT_ROOT_DIR/bin/qmltestrunner"
           "$runner" -input tst/qml

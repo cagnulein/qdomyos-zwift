@@ -7,7 +7,7 @@ import QtCharts 2.15
 import Qt.labs.calendar 1.0
 import Qt.labs.settings 1.0
 import Qt.labs.platform 1.1 as P
-import QtQuick.Dialogs 1.0 as Dialogs
+import QtQuick.Dialogs as Dialogs
 
 Page {
     id: workoutHistoryPage
@@ -1377,12 +1377,12 @@ Page {
         active: false
         sourceComponent: Component {
             Dialogs.FileDialog {
+                id: fitFileDialog
                 title: qsTr("Please choose a file")
-                folder: shortcuts.home
                 nameFilters: [qsTr("FIT files (*.fit *.FIT)"), qsTr("All files (*)")]
                 visible: true
                 onAccepted: {
-                    rootItem.importFitFile(fileUrl)
+                    rootItem.importFitFile(fitFileDialog.selectedFile)
                     fitFileDialogLoader.active = false
                 }
                 onRejected: fitFileDialogLoader.active = false

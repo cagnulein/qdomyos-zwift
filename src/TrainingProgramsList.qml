@@ -3,7 +3,7 @@ import Qt.labs.folderlistmodel 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
-import QtQuick.Dialogs 1.0
+import QtQuick.Dialogs
 import Qt.labs.platform 1.1 as P
 import QtCharts 2.2
 import Qt.labs.settings 1.0
@@ -78,16 +78,16 @@ ColumnLayout {
         active: false
         sourceComponent: Component {
             FileDialog {
+                id: trainingFileDialog
                 title: qsTr("Please choose a file")
-                folder: shortcuts.home
                 nameFilters: [qsTr("Training programs") + " (*.xml *.zwo *.mrc *.erg *.json *.xsr *.fit *.FIT)", qsTr("All files (*)")]
                 visible: true
                 onAccepted: {
-                    console.log("You chose: " + fileUrl)
+                    console.log("You chose: " + trainingFileDialog.selectedFile)
                     if(OS_VERSION === "Android") {
-                        trainprogram_open_other_folder(fileUrl)
+                        trainprogram_open_other_folder(trainingFileDialog.selectedFile)
                     } else {
-                        trainprogram_open_clicked(fileUrl)
+                        trainprogram_open_clicked(trainingFileDialog.selectedFile)
                     }
                     close()
                     // Destroy and recreate the dialog for next use
