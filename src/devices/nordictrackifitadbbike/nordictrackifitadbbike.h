@@ -15,6 +15,8 @@
 #include <QtCore/qtimer.h>
 
 #include <QDateTime>
+#include <QElapsedTimer>
+#include "crankeventaccumulator.h"
 #include <QObject>
 #include <QString>
 #include <QThread>
@@ -107,6 +109,8 @@ class nordictrackifitadbbike : public bike {
     void processPendingGearChange();
 
     QTimer *refresh;
+    QElapsedTimer crankClock;
+    CrankEventAccumulator crankEvents;
 
     uint8_t sec1Update = 0;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();

@@ -185,6 +185,7 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
     refresh->start(debounceMs);
 
+    crankClock.start();
     socket = new QUdpSocket(this);
     bool result = socket->bind(QHostAddress::AnyIPv4, 8002);
     qDebug() << result;
@@ -523,10 +524,9 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
-        if (Cadence.value() > 0) {
-            CrankRevs++;
-            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
-        }
+        // The local FitPro/gRPC poll is authoritative when initialized.
+        if (!grpcInitialized)
+            CrankRevs += crankEvents.update(crankClock.elapsed(), Cadence.value(), LastCrankEventTime);
 
         lastRefreshCharacteristicChanged = now;
 
@@ -840,10 +840,7 @@ void nordictrackifitadbbike::update() {
         }
         Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
-        if (Cadence.value() > 0) {
-            CrankRevs++;
-            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
-        }
+        CrankRevs += crankEvents.update(crankClock.elapsed(), Cadence.value(), LastCrankEventTime);
 
         lastRefreshCharacteristicChanged = now;
     }
