@@ -645,6 +645,11 @@ Page {
                 leftPadding: workoutHistoryPage.modern ? Math.max(16, window.contentSideMargin) : window.contentSideMargin
                 rightPadding: workoutHistoryPage.modern ? Math.max(16, window.contentSideMargin) : window.contentSideMargin
 
+                // The background covers swipe.right when the row is closed (Qt does not hide it). Qt 5.15.0
+                // does not resize the background while the row is swiped open either: after a rotation
+                // with the delete dialog up, the strip showed at the side of the closed row (QTBUG-85770)
+                background.width: swipeDelegate.width
+
                 // Card-like container. It is the contentItem: a swipe moves only the contentItem and
                 // the background, so a plain child stayed in place and covered swipe.right with the
                 // Delete label. Placed by the paddings above, not by horizontal anchors, which keep it
