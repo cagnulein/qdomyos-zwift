@@ -26,7 +26,6 @@ QStringList qserialdatasource::get_availablePorts() {
                  << "," << "manufacturer:" << port.manufacturer()
                  << "," << "product identifier:" << port.productIdentifier()
                  << "," << "system location:" << port.systemLocation()
-                 << "," << "isBusy:" << port.isBusy()
                  << "," << "isNull:" << port.isNull()
                  << "," << "serialNumber:" << port.serialNumber();
     }
