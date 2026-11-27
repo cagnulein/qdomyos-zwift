@@ -174,6 +174,22 @@
         <translation>Detener</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>La resistencia automática está desactivada</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ no está cambiando la resistencia ahora. «Aplicar»: los niveles de los mosaicos Resistencia, Objetivo R. y de los preajustes se aplican mientras la resistencia automática siga desactivada. Los comandos de las apps (por ejemplo, Zwift) se siguen ignorando.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Aplicar</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Activar resistencia automática</translation>
+    </message>
+    <message>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
@@ -294,6 +310,14 @@ El GPS no se utilizará.
 Would you like to do that now?</source>
         <translation>Para aplicar los cambios, debes reiniciar la aplicación.
 ¿Deseas hacerlo ahora?</translation>
+    </message>
+    <message>
+        <source>Try the new interface?</source>
+        <translation>¿Probar la nueva interfaz?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ tiene un nuevo aspecto para la pantalla principal, el menú lateral, los ajustes y el asistente. Puedes volver al anterior cuando quieras en Ajustes &gt; Opciones generales de la interfaz.</translation>
     </message>
     <message>
         <source>Adjustable. Current value: </source>
@@ -2387,6 +2411,18 @@ Do you want to update QZ settings?</source>
     <message>
         <source>1 Mile</source>
         <translation>1 milla</translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation>Pantalla completa</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Salir de pantalla completa</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Desliza a la izquierda o a la derecha para cambiar de gráfico</translation>
     </message>
     <message>
         <source>Peloton Workout in progress!</source>
@@ -4688,6 +4724,10 @@ En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
     <message>
         <source>Settings</source>
         <translation>Ajustes</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>Probar la nueva interfaz</translation>
     </message>
     <message>
         <source>Workouts History</source>
@@ -8896,6 +8936,14 @@ Predeterminado: A = -0.96, B = 1.33</translation>
     <message>
         <source>Use Console Gears</source>
         <translation>Usar marchas de la consola</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Calorías de la cinta con modelo de caminar/correr</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Para cintas cuya consola no informa de las calorías. Las calorías se calculan a partir de la velocidad de la cinta, la inclinación y tu peso, altura, edad y sexo: un modelo de caminar por debajo de tu velocidad de transición de caminar a correr (según tu altura) y un modelo de correr por encima. Desactívalo para usar en su lugar el valor basado en la potencia. Las calorías de la consola, un sensor de potencia externo (Stryd, etc.) y Calcular calorías por frecuencia cardíaca (si está activado) siguen teniendo prioridad.</translation>
     </message>
 </context>
 <context>

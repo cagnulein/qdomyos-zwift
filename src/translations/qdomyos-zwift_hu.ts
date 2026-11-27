@@ -170,6 +170,22 @@
         <translation>Biztosan leállítja az aktuális edzést?</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>Az automatikus ellenállás ki van kapcsolva</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>A QZ most nem változtatja az ellenállást. „Alkalmazás”: az Ellenállás, a Célell. és az előbeállítás-csempék szintjei érvényesek, amíg az automatikus ellenállás ki van kapcsolva. Az alkalmazások (pl. Zwift) parancsait továbbra is figyelmen kívül hagyja.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Alkalmazás</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Automatikus ellenállás bekapcsolása</translation>
+    </message>
+    <message>
         <source>Permissions Required</source>
         <translation>Engedélyek szükségesek</translation>
     </message>
@@ -186,6 +202,14 @@
 Would you like to do that now?</source>
         <translation>A módosítások alkalmazásához újra kell indítania az alkalmazást.
 Szeretné most újraindítani?</translation>
+    </message>
+    <message>
+        <source>Try the new interface?</source>
+        <translation>Kipróbálja az új felületet?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>A QZ főképernyője, oldalsó menüje, beállításai és varázslója új megjelenést kapott. Bármikor visszaválthat a Beállítások &gt; A felület általános beállításai menüpontban.</translation>
     </message>
     <message>
         <source>Adjustable. Current value: </source>
@@ -2393,6 +2417,18 @@ Szeretné frissíteni a QZ beállításait?</translation>
         <translation>1 mérföld</translation>
     </message>
     <message>
+        <source>Full screen</source>
+        <translation>Teljes képernyő</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Kilépés a teljes képernyőből</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>A diagramok közötti váltáshoz pöccintsen balra vagy jobbra</translation>
+    </message>
+    <message>
         <source>AVG</source>
         <translation>ÁTL</translation>
     </message>
@@ -4562,6 +4598,10 @@ A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translati
     <message>
         <source>Settings</source>
         <translation>Beállítások</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>Az új felület kipróbálása</translation>
     </message>
     <message>
         <source>Workouts History</source>
@@ -8844,6 +8884,14 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     <message>
         <source>Use Console Gears</source>
         <translation>Konzol fokozatainak használata</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Futópad-kalória séta/futás modellből</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Olyan futópadokhoz, amelyek konzolja nem küld kalóriát. A kalória a szalag sebességéből, az emelkedésből, valamint a testsúlyodból, magasságodból, életkorodból és nemedből számolódik: a séta–futás váltási sebességed (a magasságod alapján) alatt sétamodellel, felette futómodellel. Kapcsold ki, ha inkább a teljesítmény alapú értéket használnád. A konzol kalóriája, egy külső teljesítménymérő (Stryd stb.) és a Kalória számítása pulzusból (ha be van kapcsolva) továbbra is elsőbbséget élvez.</translation>
     </message>
 </context>
 <context>

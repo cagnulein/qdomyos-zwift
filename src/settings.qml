@@ -764,6 +764,13 @@ import AndroidStatusBar 1.0
                    initialProfileSettingsSnapshot !== profileSettingsSnapshot()
         }
 
+        // main.qml, back from the settings: a setting switched and switched back still raised the
+        // restart question, though the settings are as they were. Without a snapshot - changed
+        function settingsChangedSinceOpen() {
+            return initialProfileSettingsSnapshot.length === 0 ||
+                   initialProfileSettingsSnapshot !== profileSettingsSnapshot()
+        }
+
         Component.onCompleted: {
             initialProfileSettingsSnapshot = profileSettingsSnapshot()
             window.settings_restart_to_apply = false
@@ -2981,7 +2988,6 @@ import AndroidStatusBar 1.0
             property bool resistance_compatibility: false
             // Keep newly added properties at the end to preserve settings order on iOS.
             property bool strava_synthetic_gps_track: false
-
             property int rouvy_virtual_gearing_profile: 0
 
             property bool trixter_xdream_bike_enabled: false
@@ -2993,6 +2999,9 @@ import AndroidStatusBar 1.0
             property int trixter_xdream_bike_steering_r : 45
             property int trixter_xdream_bike_steering_max : 45
             property int trixter_xdream_bike_connection_timeout_ms : 500
+            property bool treadmill_calories_model: false
+            property bool ui_modern_new_install_checked: false
+            property bool ui_modern_offer_pending: false
 
         }
 
@@ -4457,6 +4466,36 @@ import AndroidStatusBar 1.0
                         color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
                     }
 
+                    IndicatorOnlySwitch {
+                        id: switchTreadmillCaloriesModelDelegate
+                        text: qsTr("Treadmill Calories from Walking/Running Model")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.treadmill_calories_model
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.treadmill_calories_model = checked
+                        Accessible.onPressAction: { toggle(); settings.treadmill_calories_model = checked }
+                    }
+
+                    Label {
+                        text: qsTr("Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.")
+                        font.bold: !window.ui.modern
+                        font.italic: !window.ui.modern
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
+                    }
+
                     Label {
                         id: labelHeartRateBelt
                         text: qsTr("Heart Belt Name:")
@@ -5096,6 +5135,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: rollingreistanceTextField
+                            decimals: 4
                             savedText: settings.rolling_resistance
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false

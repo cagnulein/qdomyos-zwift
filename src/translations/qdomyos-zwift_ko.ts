@@ -170,6 +170,22 @@
         <translation>현재 운동을 중지하시겠습니까?</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>자동 저항이 꺼져 있습니다</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>지금은 QZ가 저항을 바꾸지 않습니다. '적용': 저항, 목표 저항, 프리셋 타일의 레벨이 자동 저항이 꺼져 있는 동안 적용됩니다. 앱(예: Zwift)의 명령은 계속 무시됩니다.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>적용</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>자동 저항 켜기</translation>
+    </message>
+    <message>
         <source>Permissions Required</source>
         <translation>권한 필요</translation>
     </message>
@@ -202,6 +218,14 @@ GPS는 사용하지 않습니다.
 Would you like to do that now?</source>
         <translation>변경 사항을 적용하려면 앱을 다시 시작해야 합니다.
 지금 다시 시작하시겠습니까?</translation>
+    </message>
+    <message>
+        <source>Try the new interface?</source>
+        <translation>새 인터페이스를 사용해 보시겠습니까?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ의 메인 화면, 사이드 메뉴, 설정, 마법사가 새로운 모습으로 바뀌었습니다. 설정 &gt; 일반 UI 옵션에서 언제든지 되돌릴 수 있습니다.</translation>
     </message>
     <message>
         <source>Adjustable. Current value: </source>
@@ -2409,6 +2433,18 @@ QZ 설정을 업데이트하시겠습니까?</translation>
         <translation>1마일</translation>
     </message>
     <message>
+        <source>Full screen</source>
+        <translation>전체 화면</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>전체 화면 종료</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>왼쪽이나 오른쪽으로 스와이프하여 그래프를 전환하세요</translation>
+    </message>
+    <message>
         <source>AVG</source>
         <translation>평균</translation>
     </message>
@@ -4578,6 +4614,10 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>Settings</source>
         <translation>설정</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>새 인터페이스 사용해 보기</translation>
     </message>
     <message>
         <source>Workouts History</source>
@@ -8868,6 +8908,14 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
     <message>
         <source>Use Console Gears</source>
         <translation>콘솔 기어 사용</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>걷기/달리기 모델로 트레드밀 칼로리 계산</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>콘솔이 칼로리를 보내지 않는 트레드밀용입니다. 벨트 속도, 경사, 체중, 키, 나이, 성별로 칼로리를 계산하며, 키로 정해지는 걷기에서 달리기로 바뀌는 속도보다 느리면 걷기 모델, 빠르면 달리기 모델을 사용합니다. 끄면 대신 파워 기반 값을 사용합니다. 콘솔이 보내는 칼로리, 외부 파워 센서(Stryd 등), 켜져 있을 때의 심박수로 칼로리 계산이 계속 우선합니다.</translation>
     </message>
 </context>
 <context>

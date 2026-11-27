@@ -516,7 +516,8 @@ void ftmsbike::zwiftPlayInit() {
 }
 
 void ftmsbike::forcePower(int16_t requestPower) {
-    if((resistance_lvl_mode || TITAN_7000) && !MAGNUS && !SS2K) {
+    const bool bodytoneSlope = usesSlopePowerForDevice(bluetoothDevice.name()) && m_slopeControlEnabled;
+    if((resistance_lvl_mode || TITAN_7000) && !MAGNUS && !SS2K && !bodytoneSlope) {
         const resistance_t targetResistance = resistanceFromPowerRequest(requestPower);
         forceResistance(targetResistance);
     } else {
@@ -525,7 +526,8 @@ void ftmsbike::forcePower(int16_t requestPower) {
         write[1] = ((uint16_t)requestPower) & 0xFF;
         write[2] = ((uint16_t)requestPower) >> 8;
 
-        writeCharacteristic(write, sizeof(write), QStringLiteral("forcePower ") + QString::number(requestPower));
+        writeCharacteristic(write, sizeof(write), QStringLiteral("forcePower ") + QString::number(requestPower),
+                            false, bodytoneSlope);
 
         powerForced = true;
     }
@@ -563,11 +565,44 @@ uint16_t ftmsbike::wattsFromResistance(double resistance) {
 
 
 void ftmsbike::changePower(int32_t power) {
+    if (usesSlopePowerForDevice(bluetoothDevice.name()) && !m_slopePowerChangeInProgress)
+        stopBodytoneSlopePower();
     if (SMARTBIKE_3DIGIT) {
         RequestedPower = power;
         return;
     }
     bike::changePower(power);
+}
+
+bool ftmsbike::usesSlopePowerForDevice(const QString &deviceName) {
+    // Bodytone Active 500 only: AB500SMS-0018 accepted target power in both directions
+    // in a Zwift HCI trace, while simulation grade changes left resistance stuck high.
+    return deviceName.startsWith(QStringLiteral("AB500SMS-"), Qt::CaseInsensitive) ||
+           deviceName.compare(QStringLiteral("AB500SMS"), Qt::CaseInsensitive) == 0;
+}
+
+void ftmsbike::stopBodytoneSlopePower() {
+    if (!m_slopeControlEnabled)
+        return;
+    m_slopeControlEnabled = false;
+    m_lastSlopeTargetPower = -1;
+    m_slopePowerTimer.invalidate();
+    requestPower = -1;
+    requestResistance = -1;
+    requestInclination = -100;
+    lastRawRequestedInclinationValue = -100;
+    lastPacketFromFTMS.clear();
+}
+
+void ftmsbike::changeInclination(double grade, double percentage) {
+    bike::changeInclination(grade, percentage);
+    if (usesSlopePowerForDevice(bluetoothDevice.name()) && m_slopeControlEnabled) {
+        // The virtual bike already applies the configured grade gain/offset.
+        // The shared bike model adds virtual gears exactly once.
+        m_currentSlopePercent = grade;
+        requestInclination = -100;
+        updateSlopeTargetPower(true);
+    }
 }
 
 resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
@@ -855,6 +890,24 @@ void ftmsbike::update() {
         auto virtualBike = this->VirtualBike();        
         bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
+        const bool bodytone = usesSlopePowerForDevice(bluetoothDevice.name());
+        if (bodytone && m_slopeControlEnabled &&
+            (!autoResistance() || (virtualBike && !virtualBike->ftmsDeviceConnected()))) {
+            stopBodytoneSlopePower();
+        }
+        const bool bodytoneSlope = bodytone && m_slopeControlEnabled;
+        if (bodytoneSlope) {
+            // Do not let slope-derived resistance requests (or gear-only writes)
+            // compete with the native target-power controller.
+            requestResistance = -1;
+            requestInclination = -100;
+            if (gattFTMSService && gattWriteCharControlPointId.isValid() &&
+                gattFTMSService->state() == QLowEnergyService::ServiceDiscovered &&
+                !isWriting && writeQueue.isEmpty()) {
+                updateSlopeTargetPower();
+            }
+        }
+
         const bool gearChanged = lastGearValue != gears();
         const bool physicalGearFeatureEnabled = physicalResistanceGearsEnabled(
             bluetoothDevice.name(), settings.value(QZSettings::gears_from_bike,
@@ -930,11 +983,12 @@ void ftmsbike::update() {
                 desiredPhysicalResistance = -1;
                 lastPhysicalGearAutomaticBaseValid = false;
             }
+
         // A new Matrix XR connection must not turn the initial gear change
         // (-1 -> 0) into an unsolicited resistance command before 2AD9 is ready.
-        if (requestResistance != -1 ||
+        if (!bodytoneSlope && (requestResistance != -1 ||
             (gearChanged && replayGearChange && (!FS_IB50 || !fsIb50PhysicalGearChangePending) &&
-             !uses16BitResistanceForDevice(bluetoothDevice.name()))) {
+             !uses16BitResistanceForDevice(bluetoothDevice.name())))) {
             bool deferResistanceRequest = false;
             if (requestResistance > 100) {
                 requestResistance = 100;
@@ -1014,10 +1068,10 @@ void ftmsbike::update() {
         }
         
         } // BI9200 Zwift-only relative controller
-        
+
         // gpx scenario for example
         bool inclinationSent = false;
-        if(!virtualBike || !virtualBike->ftmsDeviceConnected()) {
+        if(!bodytoneSlope && (!virtualBike || !virtualBike->ftmsDeviceConnected())) {
             if ((requestInclination != -100 || (lastGearValue != gears() && requestInclination != -100))) {
                 emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
                 forceInclination(requestInclination + gearsModifier()); // since this bike doesn't have the concept of resistance,
@@ -1112,7 +1166,15 @@ void ftmsbike::update() {
         bool power_sensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                                 .toString()
                                 .startsWith(QStringLiteral("Disabled"));
-        if (requestPower != -1 && (!virtualBike || !virtualBike->ftmsDeviceConnected() || (zwiftPlayService != nullptr && gears_zwift_ratio) || (ergModeSupported && power_sensor))) {
+        if (bodytoneSlope) {
+            if (requestPower != -1 && gattFTMSService && gattWriteCharControlPointId.isValid() &&
+                gattFTMSService->state() == QLowEnergyService::ServiceDiscovered &&
+                !isWriting && writeQueue.isEmpty()) {
+                init();
+                forcePower(requestPower);
+                requestPower = -1;
+            }
+        } else if (requestPower != -1 && (!virtualBike || !virtualBike->ftmsDeviceConnected() || (zwiftPlayService != nullptr && gears_zwift_ratio) || (ergModeSupported && power_sensor))) {
             qDebug() << QStringLiteral("writing power") << requestPower;
             init();
             forcePower(requestPower);
@@ -2466,6 +2528,26 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 }
 
 void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    if (usesSlopePowerForDevice(bluetoothDevice.name()) && !newValue.isEmpty()) {
+        const quint8 opcode = byteAt(newValue, 0);
+        if (opcode == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
+            // Never forward SIM to this bike. The virtual device's changeInclination
+            // signal supplies the adjusted grade to the shared slope-power model.
+            if (newValue.size() >= 7 && autoResistance()) {
+                if (!m_slopeControlEnabled) {
+                    requestPower = -1;
+                    lastPacketFromFTMS.clear();
+                }
+                m_slopeControlEnabled = true;
+            }
+            return;
+        }
+        if (opcode == FTMS_SET_TARGET_POWER || opcode == FTMS_SET_TARGET_RESISTANCE_LEVEL ||
+            opcode == FTMS_SET_TARGET_INCLINATION || opcode == FTMS_RESET ||
+            opcode == FTMS_STOP_PAUSE || opcode == FTMS_REQUEST_CONTROL) {
+            stopBodytoneSlopePower();
+        }
+    }
 
     QSettings settings;
     bool power_sensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
@@ -3080,6 +3162,8 @@ void ftmsbike::controllerStateChanged(QLowEnergyController::ControllerState stat
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
         gearInclinationSent = false;
+        if (usesSlopePowerForDevice(bluetoothDevice.name()))
+            stopBodytoneSlopePower();
         connectBackLater();
     }
 }

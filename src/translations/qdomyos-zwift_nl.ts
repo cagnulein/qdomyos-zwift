@@ -170,6 +170,22 @@
         <translation>Wil je de huidige training echt stoppen?</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>Automatische weerstand staat uit</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ verandert de weerstand nu niet. ‘Toepassen’: niveaus van de tegels Weerstand, Doelweerst. en de voorinstellingen gelden zolang automatische weerstand uit blijft. Opdrachten van apps (bijvoorbeeld Zwift) worden nog steeds genegeerd.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Toepassen</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Automatische weerstand aanzetten</translation>
+    </message>
+    <message>
         <source>Permissions Required</source>
         <translation>Machtigingen vereist</translation>
     </message>
@@ -202,6 +218,14 @@ Wil je ze inschakelen?</translation>
 Would you like to do that now?</source>
         <translation>Om de wijzigingen toe te passen, moet je de app opnieuw starten.
 Wil je dat nu doen?</translation>
+    </message>
+    <message>
+        <source>Try the new interface?</source>
+        <translation>De nieuwe interface proberen?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ heeft een nieuw uiterlijk voor het hoofdscherm, het zijmenu, de instellingen en de wizard. Je kunt altijd terugschakelen via Instellingen &gt; Algemene interface-opties.</translation>
     </message>
     <message>
         <source>Adjustable. Current value: </source>
@@ -2409,6 +2433,18 @@ Wil je de QZ-instellingen bijwerken?</translation>
         <translation>1 mijl</translation>
     </message>
     <message>
+        <source>Full screen</source>
+        <translation>Volledig scherm</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Volledig scherm sluiten</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Veeg naar links of rechts om van grafiek te wisselen</translation>
+    </message>
+    <message>
         <source>AVG</source>
         <translation>GEM.</translation>
     </message>
@@ -4578,6 +4614,10 @@ Geef in het volgende venster toegang tot de QZ-map.</translation>
     <message>
         <source>Settings</source>
         <translation>Instellingen</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>Probeer de nieuwe interface</translation>
     </message>
     <message>
         <source>Workouts History</source>
@@ -8868,6 +8908,14 @@ Standaard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Use Console Gears</source>
         <translation>Versnellingen van de console gebruiken</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Loopbandcalorieën uit wandel-/hardloopmodel</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Voor loopbanden waarvan de console geen calorieën doorgeeft. De calorieën komen uit bandsnelheid, helling en je gewicht, lengte, leeftijd en geslacht: een wandelmodel onder je overgangssnelheid van wandelen naar hardlopen (bepaald door je lengte) en een hardloopmodel daarboven. Zet uit om in plaats daarvan de op vermogen gebaseerde waarde te gebruiken. Calorieën van een console, een externe vermogenssensor (Stryd enz.) en Calorieën berekenen uit hartslag (als die aan staat) gaan nog steeds voor.</translation>
     </message>
 </context>
 <context>

@@ -498,6 +498,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
         }
         Inclination = incline;
 
+        caloriesFromConsole = true; // the console reports the calories (treadmill calorie model)
         KCal = kcal;
         // Distance = distance;
 

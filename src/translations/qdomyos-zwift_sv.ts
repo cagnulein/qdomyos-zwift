@@ -170,6 +170,22 @@
         <translation>Vill du stoppa det pågående träningspasset?</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>Automatiskt motstånd är av</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ ändrar inte motståndet just nu. ”Använd”: nivåer från rutorna Motstånd, Målmotst. och förinställningar gäller så länge automatiskt motstånd är av. Kommandon från appar (till exempel Zwift) ignoreras fortfarande.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Använd</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Slå på automatiskt motstånd</translation>
+    </message>
+    <message>
         <source>Permissions Required</source>
         <translation>Behörigheter krävs</translation>
     </message>
@@ -186,6 +202,14 @@
 Would you like to do that now?</source>
         <translation>Du måste starta om appen för att ändringarna ska börja gälla.
 Vill du göra det nu?</translation>
+    </message>
+    <message>
+        <source>Try the new interface?</source>
+        <translation>Vill du prova det nya gränssnittet?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ har fått ett nytt utseende på huvudskärmen, sidomenyn, inställningarna och guiden. Du kan när som helst byta tillbaka under Inställningar &gt; Allmänna gränssnittsalternativ.</translation>
     </message>
     <message>
         <source>Adjustable. Current value: </source>
@@ -2393,6 +2417,18 @@ Vill du uppdatera QZ-inställningarna?</translation>
         <translation>1 engelsk mil</translation>
     </message>
     <message>
+        <source>Full screen</source>
+        <translation>Helskärm</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Avsluta helskärm</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Svep åt vänster eller höger för att byta diagram</translation>
+    </message>
+    <message>
         <source>AVG</source>
         <translation>MEDEL</translation>
     </message>
@@ -4562,6 +4598,10 @@ Tillåt åtkomst till QZ-mappen i nästa fönster.</translation>
     <message>
         <source>Settings</source>
         <translation>Inställningar</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>Prova det nya gränssnittet</translation>
     </message>
     <message>
         <source>Workouts History</source>
@@ -8844,6 +8884,14 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Use Console Gears</source>
         <translation>Använd konsolens växlar</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Löpbandskalorier från gång-/löpmodell</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>För löpband vars konsol inte skickar kalorier. Kalorierna beräknas från bandets hastighet, lutning och din vikt, längd, ålder och kön: en gångmodell under din övergångshastighet från gång till löpning (bestäms av din längd) och en löpmodell över den. Stäng av för att använda det effektbaserade värdet i stället. Kalorier från en konsol, en extern effektsensor (Stryd m.fl.) och Beräkna kalorier från puls (när den är på) har fortfarande företräde.</translation>
     </message>
 </context>
 <context>

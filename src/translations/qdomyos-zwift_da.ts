@@ -170,6 +170,22 @@
         <translation>Vil du stoppe den aktuelle træning?</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>Automatisk modstand er slået fra</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ ændrer ikke modstanden nu. »Anvend«: niveauer fra felterne Modstand, Mål mod. og forudindstillinger gælder, så længe automatisk modstand er slået fra. Kommandoer fra apps (f.eks. Zwift) ignoreres stadig.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Anvend</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Slå automatisk modstand til</translation>
+    </message>
+    <message>
         <source>Permissions Required</source>
         <translation>Tilladelser påkrævet</translation>
     </message>
@@ -186,6 +202,14 @@
 Would you like to do that now?</source>
         <translation>Du skal genstarte appen for at anvende ændringerne.
 Vil du gøre det nu?</translation>
+    </message>
+    <message>
+        <source>Try the new interface?</source>
+        <translation>Vil du prøve den nye brugerflade?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ har fået et nyt udseende på hovedskærmen, sidemenuen, indstillingerne og guiden. Du kan altid skifte tilbage under Indstillinger &gt; Generelle indstillinger for brugerflade.</translation>
     </message>
     <message>
         <source>Adjustable. Current value: </source>
@@ -2393,6 +2417,18 @@ Vil du opdatere QZ-indstillingerne?</translation>
         <translation>1 mile</translation>
     </message>
     <message>
+        <source>Full screen</source>
+        <translation>Fuld skærm</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Afslut fuld skærm</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Stryg til venstre eller højre for at skifte graf</translation>
+    </message>
+    <message>
         <source>AVG</source>
         <translation>GNS.</translation>
     </message>
@@ -4562,6 +4598,10 @@ Tillad adgang til QZ-mappen i det næste vindue.</translation>
     <message>
         <source>Settings</source>
         <translation>Indstillinger</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>Prøv den nye brugerflade</translation>
     </message>
     <message>
         <source>Workouts History</source>
@@ -8844,6 +8884,14 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Use Console Gears</source>
         <translation>Brug gear fra konsollen</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Løbebåndskalorier fra gang-/løbemodel</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Løbebånd, hvis konsol ikke sender kalorier. Kalorierne beregnes ud fra båndets hastighed, hældning og din vægt, højde, alder og køn: en gangmodel under din skiftehastighed fra gang til løb (bestemt af din højde) og en løbemodel over den. Slå fra for at bruge den effektbaserede værdi i stedet. Kalorier fra en konsol, en ekstern effektsensor (Stryd osv.) og Beregn kalorier ud fra puls (når den er slået til) har stadig forrang.</translation>
     </message>
 </context>
 <context>

@@ -174,6 +174,22 @@
         <translation>Стоп</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>Автосопротивление выключено</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>Сейчас QZ не меняет сопротивление тренажёра. «Применить» – уровни с плиток «Сопротивление», «Цель сопр.» и пресетов будут действовать, пока автосопротивление выключено. Команды приложений (например, Zwift) по-прежнему игнорируются.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Применить</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Включить автосопротивление</translation>
+    </message>
+    <message>
         <source>Cancel</source>
         <translation>Отмена</translation>
     </message>
@@ -294,6 +310,14 @@ GPS использоваться не будет.
 Would you like to do that now?</source>
         <translation>Чтобы применить изменения, нужно перезапустить приложение.
 Перезапустить сейчас?</translation>
+    </message>
+    <message>
+        <source>Try the new interface?</source>
+        <translation>Попробовать новый интерфейс?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>У QZ новый вид главного экрана, бокового меню, настроек и мастера. Вернуть прежний можно в любой момент: Настройки &gt; Общие параметры интерфейса.</translation>
     </message>
     <message>
         <source>Adjustable. Current value: </source>
@@ -2387,6 +2411,18 @@ Do you want to update QZ settings?</source>
     <message>
         <source>1 Mile</source>
         <translation>1 миля</translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation>На весь экран</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Свернуть</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Листайте влево или вправо, чтобы переключать графики</translation>
     </message>
     <message>
         <source>Peloton Workout in progress!</source>
@@ -4680,6 +4716,10 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>Settings</source>
         <translation>Настройки</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>Попробовать новый интерфейс</translation>
     </message>
     <message>
         <source>Workouts History</source>
@@ -8872,6 +8912,14 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Use Console Gears</source>
         <translation>Использовать передачи консоли</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Калории беговой дорожки по модели ходьбы/бега</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Для беговых дорожек, консоль которых не передаёт калории. Калории рассчитываются по скорости полотна, наклону, а также по вашему весу, росту, возрасту и полу: ниже вашей скорости перехода от ходьбы к бегу (зависит от роста) — по модели ходьбы, выше — по модели бега. Выключите, чтобы использовать значение на основе мощности. Калории консоли, внешний датчик мощности (Stryd и т. п.) и «Расчёт калорий по пульсу» (если включён) по-прежнему имеют приоритет.</translation>
     </message>
 </context>
 <context>

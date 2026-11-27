@@ -174,6 +174,22 @@
         <translation>Arrêter</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>La résistance auto est désactivée</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ ne modifie pas la résistance pour l’instant. « Appliquer » : les niveaux des tuiles Résistance, Cible R. et des préréglages s’appliquent tant que la résistance auto reste désactivée. Les commandes des applis (par exemple Zwift) restent ignorées.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Appliquer</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Activer la résistance auto</translation>
+    </message>
+    <message>
         <source>Cancel</source>
         <translation>Annuler</translation>
     </message>
@@ -294,6 +310,14 @@ Voulez-vous les activer ?</translation>
 Would you like to do that now?</source>
         <translation>Pour appliquer les modifications, vous devez redémarrer l&apos;application.
 Voulez-vous le faire maintenant ?</translation>
+    </message>
+    <message>
+        <source>Try the new interface?</source>
+        <translation>Essayer la nouvelle interface ?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ a un nouvel aspect pour l&apos;écran principal, le menu latéral, les paramètres et l&apos;assistant. Vous pouvez revenir à l&apos;ancien à tout moment dans Paramètres &gt; Options générales de l&apos;interface.</translation>
     </message>
     <message>
         <source>Adjustable. Current value: </source>
@@ -2387,6 +2411,18 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
     <message>
         <source>1 Mile</source>
         <translation>1 mile</translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation>Plein écran</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Quitter le plein écran</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Balayez vers la gauche ou la droite pour changer de graphique</translation>
     </message>
     <message>
         <source>Peloton Workout in progress!</source>
@@ -4688,6 +4724,10 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
     <message>
         <source>Settings</source>
         <translation>Paramètres</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>Essayer la nouvelle interface</translation>
     </message>
     <message>
         <source>Workouts History</source>
@@ -8908,6 +8948,14 @@ Par défaut : A = -0.96, B = 1.33</translation>
     <message>
         <source>Use Console Gears</source>
         <translation>Utiliser les vitesses de la console</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Calories du tapis par modèle marche/course</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Pour les tapis dont la console n&apos;envoie pas de calories. Les calories sont calculées à partir de la vitesse du tapis, de l&apos;inclinaison et de votre poids, taille, âge et sexe : un modèle de marche sous votre vitesse de passage de la marche à la course (fixée par votre taille) et un modèle de course au-dessus. Désactivez pour utiliser à la place la valeur basée sur la puissance. Les calories d&apos;une console, un capteur de puissance externe (Stryd, etc.) et Calculer les calories à partir de la fréquence cardiaque (si activé) restent prioritaires.</translation>
     </message>
 </context>
 <context>

@@ -32,8 +32,10 @@ SOURCES += \
         ToolTests/qfittestsuite.cpp \
         ToolTests/metrictestsuite.cpp \
         ToolTests/treadmillrunnclosedlooptests.cpp \
+        ToolTests/treadmillcaloriestests.cpp \
         ToolTests/ksespinclinationtests.cpp \
         ToolTests/fitshowstartspeedgatetests.cpp \
+        ToolTests/targetzonetiletests.cpp \
         ToolTests/testsettingstestsuite.cpp \
         ToolTests/testsettingssecuritytestsuite.cpp \
         ToolTests/testtrainingloadtestsuite.cpp \
@@ -52,6 +54,7 @@ SOURCES += \
         Devices/TestYpooTreadmill.cpp \
         Devices/TestYpooM5Distance.cpp \
         Devices/TestFtmsTreadmillControl.cpp \
+        Devices/TestParagonXTelemetry.cpp \
         Devices/TestTrxAppGateUsBellipticalParser.cpp \
         Devices/TestTrxAppGateUsTreadmillParser.cpp \
         Devices/TestTrxAppGateUsRowerParser.cpp \

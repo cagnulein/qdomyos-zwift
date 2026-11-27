@@ -1381,8 +1381,12 @@ const QString QZSettings::wahoo_wheel_question_answered = QStringLiteral("wahoo_
 const QString QZSettings::resistance_compatibility = QStringLiteral("resistance_compatibility");
 
 const QString QZSettings::strava_synthetic_gps_track = QStringLiteral("strava_synthetic_gps_track");
+const QString QZSettings::treadmill_calories_model = QStringLiteral("treadmill_calories_model");
 
-const uint32_t allSettingsCount = 1059;
+const QString QZSettings::ui_modern_new_install_checked = QStringLiteral("ui_modern_new_install_checked");
+const QString QZSettings::ui_modern_offer_pending = QStringLiteral("ui_modern_offer_pending");
+
+const uint32_t allSettingsCount = 1078;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2192,6 +2196,16 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::nordictrack_treadmill_1750_adb, QZSettings::default_nordictrack_treadmill_1750_adb},
     {QZSettings::proform_trainer_9_0, QZSettings::default_proform_trainer_9_0},
 
+    {QZSettings::trixter_xdream_bike_enabled, QZSettings::default_trixter_xdream_bike_enabled},
+    {QZSettings::trixter_xdream_bike_heartrate_enabled, QZSettings::default_trixter_xdream_bike_heartrate_enabled},
+    {QZSettings::trixter_xdream_bike_steering_enabled, QZSettings::default_trixter_xdream_bike_steering_enabled},
+    {QZSettings::trixter_xdream_bike_steering_l, QZSettings::default_trixter_xdream_bike_steering_l},
+    {QZSettings::trixter_xdream_bike_steering_cl, QZSettings::default_trixter_xdream_bike_steering_cl},
+    {QZSettings::trixter_xdream_bike_steering_cr, QZSettings::default_trixter_xdream_bike_steering_cr},
+    {QZSettings::trixter_xdream_bike_steering_r, QZSettings::default_trixter_xdream_bike_steering_r},
+    {QZSettings::trixter_xdream_bike_steering_max, QZSettings::default_trixter_xdream_bike_steering_max},
+    {QZSettings::trixter_xdream_bike_connection_timeout_ms, QZSettings::default_trixter_xdream_bike_connection_timeout_ms},
+
     {QZSettings::tile_preset_powerzone_1_enabled, QZSettings::default_tile_preset_powerzone_1_enabled},
     {QZSettings::tile_preset_powerzone_1_order, QZSettings::default_tile_preset_powerzone_1_order},
     {QZSettings::tile_preset_powerzone_1_value, QZSettings::default_tile_preset_powerzone_1_value},
@@ -2468,6 +2482,16 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::resistance_compatibility, QZSettings::default_resistance_compatibility},
     {QZSettings::rouvy_virtual_gearing_profile, QZSettings::default_rouvy_virtual_gearing_profile},
     {QZSettings::strava_synthetic_gps_track, QZSettings::default_strava_synthetic_gps_track},
+    {QZSettings::treadmill_calories_model, QZSettings::default_treadmill_calories_model},
+    {QZSettings::ui_modern_new_install_checked, QZSettings::default_ui_modern_new_install_checked},
+    {QZSettings::ui_modern_offer_pending, QZSettings::default_ui_modern_offer_pending},
+    {QZSettings::tile_avg_pace_enabled, QZSettings::default_tile_avg_pace_enabled},
+    {QZSettings::tile_avg_pace_order, QZSettings::default_tile_avg_pace_order},
+    {QZSettings::proform_treadmill_995i, QZSettings::default_proform_treadmill_995i},
+    {QZSettings::nordictrack_series_7, QZSettings::default_nordictrack_series_7},
+    {QZSettings::nordictrack_se7i, QZSettings::default_nordictrack_se7i},
+    {QZSettings::wahoo_without_wheel_diameter, QZSettings::default_wahoo_without_wheel_diameter},
+    {QZSettings::nordictrack_vr21, QZSettings::default_nordictrack_vr21},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

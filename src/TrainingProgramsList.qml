@@ -80,7 +80,7 @@ ColumnLayout {
             FileDialog {
                 title: qsTr("Please choose a file")
                 folder: shortcuts.home
-                nameFilters: [qsTr("Training programs (*.xml *.zwo *.mrc *.erg *.json *.xsr)"), qsTr("All files (*)")]
+                nameFilters: [qsTr("Training programs") + " (*.xml *.zwo *.mrc *.erg *.json *.xsr *.fit *.FIT)", qsTr("All files (*)")]
                 visible: true
                 onAccepted: {
                     console.log("You chose: " + fileUrl)
@@ -132,7 +132,7 @@ ColumnLayout {
                            filter+= "[%1%2]".arg(text[i].toUpperCase()).arg(text[i].toLowerCase())
                         filter+="*"
                         print(filter)
-                        folderModel.nameFilters = [filter + ".zwo", filter + ".xml", filter + ".mrc", filter + ".erg", filter + ".json", filter + ".xsr"]
+                        folderModel.nameFilters = [filter + ".zwo", filter + ".xml", filter + ".mrc", filter + ".erg", filter + ".json", filter + ".xsr", filter + ".fit", filter + ".FIT"]
                     }
                     id: filterField
                     // the field kept its 120 of Material and showed less of the hint as the text grew.
@@ -173,7 +173,7 @@ ColumnLayout {
                 id: list
                 FolderListModel {
                     id: folderModel
-                    nameFilters: ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr"]
+                    nameFilters: ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr", "*.fit", "*.FIT"]
                     folder: rootItem.localFileUrl(rootItem.getWritableAppDir() + 'training')
                           showDotAndDotDot: false
                     showDirs: true

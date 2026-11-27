@@ -42,3 +42,22 @@
 - A QZ log ending in a normal shutdown sequence does not establish whether the user closed the app or Android terminated it.
 - Short logs that stop before the reported failure cannot identify a later crash.
 - A platform bug report may capture a system-side process exit that QZ's own logger cannot record.
+
+## iOS floating metrics (Picture in Picture) freezes or QZ exits when switching apps
+
+### Provide first
+
+- iPhone/iPad model, iOS/iPadOS version, exact QZ build, training app and whether both apps run on the same device. Report whether QZ's background option is enabled.
+- Distinguish stale floating-window values from stale values in QZ itself, loss of training-app control/telemetry, and an actual QZ process exit. State which happens first.
+- Record the exact steps and approximate time: starting the floating window, switching to the training app, changing a gear, returning to QZ, locking the screen, or other relevant action.
+
+### If still unclear
+
+- Compare two short otherwise identical tests: switch between QZ and the receiving app with the floating window closed, then repeat with it open. Check whether QZ metrics, floating metrics and receiving-app telemetry each continue updating. Do not change the background setting or pairing configuration during this comparison.
+- If QZ exits, check iOS/iPadOS **Settings > Privacy & Security > Analytics & Improvements > Analytics Data** for a QZ/qdomyos-zwift crash report or a JetsamEvent around the reported time. Provide the relevant `.ips` report, the installed build number and the QZ debug log if available. Share these privately with support rather than posting unredacted system diagnostics publicly.
+
+### Why it matters
+
+- A visible but stale Picture in Picture window, a disconnected trainer, and a terminated app are distinct failure stages.
+- A reviewed case supplied iOS crash reports after repeated app switching and allowed support to locate the failing processing queue. The reports did not prove that Picture in Picture or background Bluetooth was the cause.
+- The exact build permits matching crash addresses to the corresponding debug symbols; the comparison with the floating window closed helps isolate whether its presence is required to reproduce the issue.

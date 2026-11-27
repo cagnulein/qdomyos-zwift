@@ -174,6 +174,22 @@
         <translation>停止</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>自动阻力已关闭</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ 当前不会改变阻力。“应用”：阻力、目标阻力和预设磁贴的档位在自动阻力关闭期间生效。来自应用（例如 Zwift）的指令仍会被忽略。</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>应用</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>开启自动阻力</translation>
+    </message>
+    <message>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
@@ -294,6 +310,14 @@ Would you like to enable them?</source>
 Would you like to do that now?</source>
         <translation>应用更改需要重启。
 现在是否重启？</translation>
+    </message>
+    <message>
+        <source>Try the new interface?</source>
+        <translation>要试用新界面吗？</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ 的主屏幕、侧边菜单、设置和向导采用了全新外观。您可以随时在 设置 &gt; 通用 UI 选项 中切换回来。</translation>
     </message>
     <message>
         <source>Adjustable. Current value: </source>
@@ -2387,6 +2411,18 @@ Do you want to update QZ settings?</source>
     <message>
         <source>1 Mile</source>
         <translation>1 英里</translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation>全屏</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>退出全屏</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>左右滑动切换图表</translation>
     </message>
     <message>
         <source>Peloton Workout in progress!</source>
@@ -4696,6 +4732,10 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>Settings</source>
         <translation>设置</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>试用新界面</translation>
     </message>
     <message>
         <source>Workouts History</source>
@@ -8928,6 +8968,14 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Use Console Gears</source>
         <translation>使用控制台档位</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>跑步机卡路里：步行/跑步模型</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>适用于控制台不报告卡路里的跑步机。卡路里根据跑带速度、坡度以及您的体重、身高、年龄和性别计算：低于由身高决定的步行转跑步速度时使用步行模型，高于时使用跑步模型。关闭后改用基于功率的数值。控制台报告的卡路里、外部功率传感器（Stryd 等）以及开启时的“根据心率计算卡路里”仍然优先。</translation>
     </message>
 </context>
 <context>

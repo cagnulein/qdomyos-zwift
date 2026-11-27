@@ -925,6 +925,7 @@ devices/toorxtreadmill/toorxtreadmill.h \
 devices/iconsolebike/iconsolebike.h \
 gpx.h \
 devices/treadmill.h \
+devices/treadmillcalories.h \
 mainwindow.h \
 trainprogram.h \
 devices/truetreadmill/truetreadmill.h \

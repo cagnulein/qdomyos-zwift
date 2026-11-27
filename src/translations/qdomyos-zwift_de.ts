@@ -174,6 +174,22 @@
         <translation>Stopp</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>Auto-Widerstand ist aus</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ ändert den Widerstand gerade nicht. „Anwenden“: Stufen aus den Kacheln Widerstand, Ziel R. und den Voreinstellungen gelten, solange der Auto-Widerstand ausgeschaltet bleibt. Befehle von Apps (z. B. Zwift) werden weiterhin ignoriert.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Anwenden</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Auto-Widerstand einschalten</translation>
+    </message>
+    <message>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>
@@ -294,6 +310,14 @@ Möchten Sie sie aktivieren?</translation>
 Would you like to do that now?</source>
         <translation>Um die Änderungen anzuwenden, müssen Sie die App neu starten.
 Möchten Sie das jetzt tun?</translation>
+    </message>
+    <message>
+        <source>Try the new interface?</source>
+        <translation>Neue Oberfläche ausprobieren?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ hat ein neues Aussehen für den Hauptbildschirm, das Seitenmenü, die Einstellungen und den Assistenten. Zurückwechseln können Sie jederzeit unter Einstellungen &gt; Allgemeine UI-Optionen.</translation>
     </message>
     <message>
         <source>Adjustable. Current value: </source>
@@ -2387,6 +2411,18 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
     <message>
         <source>1 Mile</source>
         <translation>1 Meile</translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation>Vollbild</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Vollbild beenden</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Zum Wechseln der Diagramme nach links oder rechts wischen</translation>
     </message>
     <message>
         <source>Peloton Workout in progress!</source>
@@ -4688,6 +4724,10 @@ Erlauben Sie im nächsten Fenster den Zugriff auf den QZ-Ordner.</translation>
     <message>
         <source>Settings</source>
         <translation>Einstellungen</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>Neue Oberfläche ausprobieren</translation>
     </message>
     <message>
         <source>Workouts History</source>
@@ -8888,6 +8928,14 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Use Console Gears</source>
         <translation>Gänge der Konsole verwenden</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Laufband-Kalorien aus Geh-/Laufmodell</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Für Laufbänder, deren Konsole keine Kalorien meldet. Die Kalorien werden aus Bandgeschwindigkeit, Steigung sowie deinem Gewicht, deiner Größe, deinem Alter und Geschlecht berechnet: unterhalb deiner Geh-Lauf-Übergangsgeschwindigkeit (bestimmt durch deine Größe) mit einem Gehmodell, darüber mit einem Laufmodell. Ausschalten, um stattdessen den leistungsbasierten Wert zu verwenden. Kalorien einer Konsole, ein externer Leistungssensor (Stryd usw.) und Berechne Kalorien aus der Herzfrequenz (wenn aktiv) haben weiterhin Vorrang.</translation>
     </message>
 </context>
 <context>

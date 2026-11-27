@@ -30,6 +30,8 @@ This setting is especially relevant when the treadmill advertises a usable FTMS 
 
 Note that some treadmill consoles disable their physical controls while an app has an active Bluetooth control connection. That behavior can be firmware-specific and is separate from QZ's protocol selection.
 
+**Horizon Paragon X: Zwift incline does not move the treadmill.** If QZ is already connected and the treadmill supports physical incline control, check that **Simulate Inclination with Speed** is disabled. A Paragon X rider explicitly confirmed that physical incline started following Zwift's hills after disabling this option. Test at a low speed with the emergency stop accessible. This fixed incline control only; the rider's separate stop and stale-speed reporting issues were still under investigation.
+
 ## My Horizon 7.4AT is set to km/h, but QZ shows a value about 1.609 times higher. How can I keep Peloton automatic speed control working?
 
 On some Horizon 7.4AT setups, the proprietary Horizon protocol can report a speed value that QZ interprets as miles per hour even though the treadmill itself is configured for km/h. A typical symptom is that the treadmill shows **0.8** while QZ shows about **1.3 km/h**.

@@ -816,7 +816,14 @@ ApplicationWindow {
 
         if(window.settings_restart_to_apply === true) {
             window.settings_restart_to_apply = false;
-            popupRestartApp.visible = true;
+            // Not when the settings are back as they were at the opening of the settings page (a
+            // setting switched on and off again). That page may be under the current one (Tiles
+            // Options...): those pages change the same settings
+            var settingsPage = stackView.find(function(item) {
+                return typeof item.settingsChangedSinceOpen === "function"
+            })
+            if (settingsPage === null || settingsPage.settingsChangedSinceOpen())
+                popupRestartApp.visible = true;
         }
 
         stackView.pop()
@@ -1655,10 +1662,15 @@ ApplicationWindow {
         // is how much of it has gone up under the status bar. The page never changes size, so the
         // tiles do not move under the finger
         property real barShift: 0
+        // A chart spread over the page shown (ChartJsTest, PreviewChart: chartFullscreen): the toolbar
+        // is gone and the page takes its room as well. Bound to the current page, so a page left with
+        // a spread chart (or a title of it coming late) does not fold the toolbar of the next one
+        readonly property bool folded: !!(stackView.currentItem && stackView.currentItem.chartFullscreen === true)
         // Moving the tiles keeps it shown: the lock button is on the toolbar. So does any other page
         // (the tile grid can still be gliding or snapping under it when one is opened); back on the
         // home page it is where the scroll left it, not over the Start/Stop row
-        readonly property real barHidden: window.lockTiles || stackView.depth > 1 ? 0 : Math.max(0, Math.min(barShift, contentHeight))
+        readonly property real barHidden: folded ? contentHeight
+                                          : window.lockTiles || stackView.depth > 1 ? 0 : Math.max(0, Math.min(barShift, contentHeight))
         // Set, not derived from the style, which counts the height of the background (48) as well
         implicitHeight: getTopPadding()
         // The content keeps its height and slides up with the bar
@@ -1670,11 +1682,12 @@ ApplicationWindow {
         topInset: -barHidden
         bottomInset: barHidden - contentHeight
         // The buttons fade out as the bar goes and are hidden once it is gone, from TalkBack as
-        // well; the background goes then too. Android, modern look: it stays – the status bar is
+        // well; the background goes then too. Folded for a chart it stays under the status bar,
+        // in the colour of the bar. Android, modern look: it stays as well – the status bar is
         // transparent there (applySystemBars), and the tiles would slide under its icons
         contentItem.opacity: 1 - barHidden / contentHeight
         contentItem.visible: barHidden < contentHeight
-        background.visible: barHidden < contentHeight
+        background.visible: folded || barHidden < contentHeight
                             || (window.ui.modern && Qt.platform.os === "android")
 
         // The bar takes the touches on it, as a toolbar the height of its content did: drawn
@@ -2361,6 +2374,40 @@ ApplicationWindow {
                     onClicked: drawerAction("settings")
                 }
 
+                // The question of the home page again (Home.qml), for those who said no. The only text
+                // entry with an icon, so it is noticed: 24 and 12 to the label, as UiDrawerItem
+                ItemDelegate {
+                    id: modernOfferItem
+                    text: qsTr("Try the new interface")
+                    width: parent.width
+                    contentItem: Row {
+                        spacing: 12
+                        UiIcon {
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 24
+                            height: 24
+                            name: "palette"
+                            color: modernOfferLabel.color
+                        }
+                        Label {
+                            id: modernOfferLabel
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: parent.width - 36
+                            text: modernOfferItem.text
+                            font: modernOfferItem.font
+                            elide: Text.ElideRight
+                            // The entry carries the name for the screen reader
+                            Accessible.ignored: true
+                        }
+                    }
+                    onClicked: {
+                        drawer.close()
+                        rootItem.requestModernOffer(true)
+                    }
+                    // Qt 5.15: the double tap of the screen reader does not send clicked()
+                    Accessible.onPressAction: clicked()
+                }
+
             ItemDelegate {
                 text: qsTr("Workouts History")
                 width: parent.width
@@ -2783,8 +2830,9 @@ ApplicationWindow {
                 }
             }
             anchors.fill: parent
-            // Below the toolbar, which hangs over the pages (headerToolbar)
-            anchors.topMargin: headerToolbar.contentHeight
+            // Below the toolbar, which hangs over the pages (headerToolbar); a spread chart takes
+            // its room too
+            anchors.topMargin: headerToolbar.folded ? 0 : headerToolbar.contentHeight
             // Clear of the bottom system bar in any orientation: held sideways with gesture
             // navigation the bar stays at the bottom (with buttons it moves to the side, and the
             // bottom inset is 0 then)
