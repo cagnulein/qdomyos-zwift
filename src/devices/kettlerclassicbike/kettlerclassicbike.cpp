@@ -80,7 +80,7 @@ void kettlerclassicbike::createSocket() {
     connect(socket, &QBluetoothSocket::readyRead, this, &kettlerclassicbike::readSocket);
     connect(socket, &QBluetoothSocket::connected, this, QOverload<>::of(&kettlerclassicbike::rfCommConnected));
     connect(socket, &QBluetoothSocket::disconnected, this, &kettlerclassicbike::socketDisconnected);
-    connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this,
+    connect(socket, &QBluetoothSocket::errorOccurred, this,
             &kettlerclassicbike::onSocketErrorOccurred);
 #ifdef Q_OS_ANDROID
     socket->setPreferredSecurityFlags(QBluetooth::NoSecurity);

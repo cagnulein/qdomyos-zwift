@@ -135,7 +135,7 @@ void kettlercoachrower::createSocket() {
     connect(socket, &QBluetoothSocket::readyRead, this, &kettlercoachrower::readSocket);
     connect(socket, &QBluetoothSocket::connected, this, &kettlercoachrower::rfCommConnected);
     connect(socket, &QBluetoothSocket::disconnected, this, &kettlercoachrower::socketDisconnected);
-    connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error),
+    connect(socket, &QBluetoothSocket::errorOccurred,
             this, &kettlercoachrower::onSocketErrorOccurred);
 #ifdef Q_OS_ANDROID
     // Kinomap's successful Coach S HCI capture shows encrypted RFCOMM.

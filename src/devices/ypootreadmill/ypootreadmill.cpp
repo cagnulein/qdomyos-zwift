@@ -358,8 +358,7 @@ void ypootreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     m_control = QLowEnergyController::createCentral(device, this);
     connect(m_control, &QLowEnergyController::discoveryFinished, this, &ypootreadmill::serviceScanDone);
     connect(m_control, &QLowEnergyController::stateChanged, this, &ypootreadmill::controllerStateChanged);
-    connect(m_control, static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(
-                           &QLowEnergyController::error), this, [this](QLowEnergyController::Error) {
+    connect(m_control, &QLowEnergyController::errorOccurred, this, [this](QLowEnergyController::Error) {
         emit debug(QStringLiteral("YPOO M5: ") + m_control->errorString());
         emit disconnected();
     });
@@ -392,8 +391,7 @@ void ypootreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     }
     connect(gattFTMSService, &QLowEnergyService::characteristicChanged, this, &ypootreadmill::characteristicChanged);
     connect(gattFTMSService, &QLowEnergyService::descriptorWritten, this, &ypootreadmill::descriptorWritten);
-    connect(gattFTMSService, static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(
-                                 &QLowEnergyService::error), this, [this](QLowEnergyService::ServiceError) {
+    connect(gattFTMSService, &QLowEnergyService::errorOccurred, this, [this](QLowEnergyService::ServiceError) {
         emit debug(QStringLiteral("YPOO M5: FTMS service error"));
     });
     // Subscribe to Control Point indications before treadmill telemetry, as verified on hardware.
