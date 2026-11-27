@@ -33,7 +33,7 @@ jobs:
           version: '6.5.1'
           host: linux
           target: desktop
-          modules: 'qtnetworkauth qtcharts qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qtwebview qtspeech qthttpserver'
+          modules: 'qtnetworkauth qtcharts qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qtwebview qtspeech qthttpserver qtserialport'
           install-deps: true
       - name: Build QZ
         run: |
