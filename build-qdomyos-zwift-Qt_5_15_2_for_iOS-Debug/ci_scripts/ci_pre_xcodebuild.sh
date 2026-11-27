@@ -259,6 +259,18 @@ find . -maxdepth 1 -type f \( -name "moc_*.cpp" -o -name "moc_*.cpp.json" -o -na
 
 echo "Generated files copied to build directory"
 
+# The restored Xcode project, not qmake's generated project, links Qt resources.
+# Regenerate the C12 resource explicitly after cache restoration and fail on missing data.
+python3 "$PROJECT_ROOT/tools/validate_kettler_c12_security.py" \
+    "$PROJECT_ROOT/src/devices/kettlerc12bike/SecureData.txt"
+C12_BUILD_DIR="$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug"
+C12_RCC="$(qmake -query QT_HOST_BINS)/rcc"
+"$C12_RCC" -name kettlerc12_resources "$PROJECT_ROOT/src/kettlerc12_resources.qrc" \
+    -o "$C12_BUILD_DIR/qrc_kettlerc12_resources.cpp"
+test -s "$C12_BUILD_DIR/qrc_kettlerc12_resources.cpp"
+python3 "$PROJECT_ROOT/tools/check_kettler_c12_ios_resource.py" \
+    "$C12_BUILD_DIR/qdomyoszwift.xcodeproj/project.pbxproj"
+
 # The settings pages compiled at build time (qmlcachegen, qdomyos-zwift.pri); the Xcode project
 # compiles these three files
 echo "Verifying the compiled settings pages exist:"
