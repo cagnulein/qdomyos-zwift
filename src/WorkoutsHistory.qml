@@ -630,6 +630,7 @@ Page {
                     // Show confirmation dialog
                     confirmDialog.workoutId = model.id
                     confirmDialog.workoutTitle = model.title
+                    confirmDialog.swipeItem = swipeDelegate
                     confirmDialog.open()
                 }
 
@@ -637,14 +638,27 @@ Page {
                 readonly property Item cardItem: rowCard
                 readonly property string workoutDate: date
 
-                // Card-like container
-                Rectangle {
+                // The margins of the card. Modern look: the page margin of the header, so the column
+                // has one edge
+                topPadding: workoutHistoryPage.modern ? 4 : 8
+                bottomPadding: workoutHistoryPage.modern ? 4 : 8
+                leftPadding: workoutHistoryPage.modern ? Math.max(16, window.contentSideMargin) : window.contentSideMargin
+                rightPadding: workoutHistoryPage.modern ? Math.max(16, window.contentSideMargin) : window.contentSideMargin
+
+                // The background covers swipe.right when the row is closed (Qt does not hide it). Qt 5.15.0
+                // does not resize the background while the row is swiped open either: after a rotation
+                // with the delete dialog up, the strip showed at the side of the closed row (QTBUG-85770)
+                background.width: swipeDelegate.width
+
+                // Card-like container. It is the contentItem: a swipe moves only the contentItem and
+                // the background, so a plain child stayed in place and covered swipe.right with the
+                // Delete label. Placed by the paddings above, not by horizontal anchors, which keep it
+                // from moving (QTBUG-55040).
+                contentItem: Rectangle {
                     id: rowCard
-                    anchors.fill: parent
-                    anchors.margins: workoutHistoryPage.modern ? 4 : 8
-                    // Modern look: the page margin of the header, so the column has one edge
-                    anchors.leftMargin: workoutHistoryPage.modern ? Math.max(16, window.contentSideMargin) : window.contentSideMargin
-                    anchors.rightMargin: workoutHistoryPage.modern ? Math.max(16, window.contentSideMargin) : window.contentSideMargin
+                    // Qt 5.15.0 does not resize the contentItem horizontally while the row is swiped
+                    // open (the delete dialog is up): keep the width on a rotation (QTBUG-85770, 5.15.3)
+                    width: swipeDelegate.availableWidth
                     radius: workoutHistoryPage.modern ? 16 : 10
                     // Modern look: the workout of the open long press card is tinted with the accent
                     color: !workoutHistoryPage.modern ? "white"
@@ -1464,12 +1478,17 @@ Page {
             text: qsTr("Are you sure you want to delete '%1'?").arg(confirmDialog.workoutTitle)
         }
 
-        onAccepted: {
-            workoutModel.deleteWorkout(confirmDialog.workoutId)
-            swipeDelegate.swipe.close()
-        }
-        onRejected: {
-            swipeDelegate.swipe.close()
+        // the swiped row: the id swipeDelegate lives in the delegate and is not seen from here (the close
+        // gave a ReferenceError, and the row stayed open after Cancel)
+        property var swipeItem: null
+
+        onAccepted: workoutModel.deleteWorkout(confirmDialog.workoutId)
+        // any way out (OK, Cancel, the back key, a tap outside) closes the swiped row again, as in the
+        // modern dialog below
+        onClosed: {
+            if (swipeItem)
+                swipeItem.swipe.close()
+            swipeItem = null
         }
     }
 
