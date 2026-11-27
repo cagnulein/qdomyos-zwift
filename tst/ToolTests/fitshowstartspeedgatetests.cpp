@@ -66,25 +66,30 @@ TEST(FitShowStartSpeedGate, OrdinaryRunningSpeedChangesAreUnchanged) {
 }
 
 TEST(FitShowStopCommand, ExplicitStopAlwaysUsesPhysicalStop) {
-    for (bool merach : {false, true}) {
-        for (bool stopOnly : {false, true}) {
-            EXPECT_EQ(0x03, fitshowStopCommand(false, merach, stopOnly));
-        }
-    }
+    EXPECT_EQ(0x03, fitshowStopCommand(false, false));
+    EXPECT_EQ(0x03, fitshowStopCommand(false, true));
 }
 
 TEST(FitShowStopCommand, OrdinaryPauseAndMerachPauseAreUnchanged) {
-    EXPECT_EQ(0x06, fitshowStopCommand(true, false, false));
-    EXPECT_EQ(0x0a, fitshowStopCommand(true, true, false));
+    EXPECT_EQ(0x06, fitshowStopCommand(true, false));
+    EXPECT_EQ(0x0a, fitshowStopCommand(true, true));
 }
 
-TEST(FitShowStopCommand, BlacklordPauseUsesCapturedPhysicalStop) {
-    EXPECT_EQ(0x03, fitshowStopCommand(true, false, true));
-    const uint8_t command = fitshowStopCommand(true, false, true);
-    EXPECT_EQ(0x50, 0x53 ^ command); // 02 53 03 50 03
+TEST(FitShowStopCommand, TimedOutStandardPauseFallsBackToPhysicalStop) {
+    EXPECT_TRUE(fitshowShouldFallbackToStop(FITSHOW_CONTROL_PAUSE, true));
+    EXPECT_EQ(0x50, 0x53 ^ FITSHOW_CONTROL_STOP); // 02 53 03 50 03
+}
+
+TEST(FitShowStopCommand, SupersededPauseDoesNotFallBack) {
+    EXPECT_FALSE(fitshowShouldFallbackToStop(FITSHOW_CONTROL_PAUSE, false));
+}
+
+TEST(FitShowStopCommand, MerachAndStopDoNotFallBack) {
+    EXPECT_FALSE(fitshowShouldFallbackToStop(FITSHOW_STATUS_PAUSED, true));
+    EXPECT_FALSE(fitshowShouldFallbackToStop(FITSHOW_CONTROL_STOP, true));
 }
 
 TEST(FitShowStopCommand, StopAfterPauseDoesNotReusePauseCommand) {
-    EXPECT_EQ(0x06, fitshowStopCommand(true, false, false));
-    EXPECT_EQ(0x03, fitshowStopCommand(false, false, false));
+    EXPECT_EQ(0x06, fitshowStopCommand(true, false));
+    EXPECT_EQ(0x03, fitshowStopCommand(false, false));
 }
