@@ -1,4 +1,3 @@
-#endif
 /*
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -9,7 +8,6 @@
 #include "DaumUSB.h"
 #ifdef Q_OS_ANDROID
 #include <QCoreApplication>
-#ifdef Q_OS_ANDROID
 #include <QJniObject>
 #endif
 

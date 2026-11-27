@@ -35,6 +35,7 @@ jobs:
           target: desktop
           modules: 'qtnetworkauth qtcharts qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qtwebview qtspeech qthttpserver qtserialport'
           install-deps: true
+          cache: true
       - name: Build QZ
         run: |
           qmake qdomyos-zwift.pro

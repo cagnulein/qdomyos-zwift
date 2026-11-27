@@ -1,8 +1,6 @@
-#endif
 #include "ftmsbike.h"
 #ifdef Q_OS_ANDROID
 #include <QJniEnvironment>
-#ifdef Q_OS_ANDROID
 #include <QJniObject>
 #endif
 #include "devices/cscbike/cscbike.h"

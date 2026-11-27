@@ -1,12 +1,3 @@
-#endif
-#ifdef Q_OS_ANDROID
-#include <QCoreApplication>
-#ifdef Q_OS_ANDROID
-#include <QJniEnvironment>
-#ifdef Q_OS_ANDROID
-#include <QJniObject>
-#endif
-#endif
 /*
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -24,6 +15,11 @@
  */
 
 #include "KettlerUSB.h"
+#ifdef Q_OS_ANDROID
+#include <QCoreApplication>
+#include <QJniEnvironment>
+#include <QJniObject>
+#endif
 
 #include <QRegularExpression>
 

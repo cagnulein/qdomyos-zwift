@@ -1,8 +1,6 @@
-#endif
 #include "waterrowerusb.h"
 #ifdef Q_OS_ANDROID
 #include <QCoreApplication>
-#ifdef Q_OS_ANDROID
 #include <QJniObject>
 #endif
 #include <QBluetoothLocalDevice>
