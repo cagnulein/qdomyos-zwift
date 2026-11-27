@@ -315,3 +315,22 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 - Comparing QZ's live values with the receiving app's pairing roles separates stale or unexpected physical-machine telemetry from an independently selected sensor or receiving-app motion behavior.
 - A stop/start comparison is more informative than an average-speed screenshot, especially when QZ and the receiving app run on the same Android device.
 
+## Another app controls the machine correctly, but QZ cannot reproduce the same behavior
+
+### Provide first
+
+- Identify the exact equipment model, advertised Bluetooth name, firmware if known, QZ build and the reference app that works. Distinguish working telemetry from actual physical control.
+- Report the operation that works in the reference app but fails in QZ (increase and decrease resistance, incline, or a target-power interval). For cycling, specify whether it was a normal free ride, virtual shifting or a structured ERG workout; do not infer the wire protocol from the mode name.
+- With only one app connected at a time, report a short comparable test in each app, including expected and actual physical response in both directions and whether metrics remain live.
+
+### If still unclear
+
+- Send a QZ debug log of the failed operation with the approximate times of the actions.
+- Only when support needs protocol-level evidence, provide a short Bluetooth capture of the **working** app, starting before pairing and covering the same actions in both directions. On Android, see the Bluetooth HCI snoop log instructions in the [supported devices guide](../20_supported_devices_and_applications.md). If only iOS is available, report that before attempting a capture so support can request an appropriate Bluetooth diagnostic. Share captures privately and limit the recording to the necessary test.
+- Label the app, version, ride mode, action order and approximate timestamps of the capture. Use comfortable resistance or safe small adjustments; stop if the equipment behaves unexpectedly.
+
+### Why it matters
+
+- A successful connection or an acknowledged command does not establish that physical control works. A reference capture can distinguish an unsupported command format from incorrect scaling or a different control path.
+- In a reviewed comparison, a reference app used target-power commands even during a normal free ride and the machine responded in both directions, while the other control path could not reliably decrease resistance. Asking the actual ride mode was necessary to interpret the trace.
+- A working-app capture also helped investigate a proprietary device without Android access. Neither example implies that all machines use the same commands or that a new driver is already validated.
