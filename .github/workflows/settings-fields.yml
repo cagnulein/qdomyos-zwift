@@ -25,11 +25,12 @@ jobs:
         run: python3 tools/check_settings_fields.py
 
       - name: Install Qt Quick Test
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y --no-install-recommends qtdeclarative5-dev-tools qml-module-qttest \
-            qml-module-qtquick2 qml-module-qtquick-controls2 qml-module-qtquick-templates2 \
-            qml-module-qtquick-window2 qml-module-qtquick-layouts qml-module-qtgraphicaleffects
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.5.1'
+          host: linux
+          target: desktop
+          install-deps: true
 
       - name: Test the field components
         env:
@@ -37,5 +38,5 @@ jobs:
           QT_QUICK_CONTROLS_STYLE: Material
           QT_QUICK_BACKEND: software
         run: |
-          runner=$(command -v qmltestrunner || echo /usr/lib/qt5/bin/qmltestrunner)
+          runner="$Qt6_DIR/bin/qmltestrunner"
           "$runner" -input tst/qml
