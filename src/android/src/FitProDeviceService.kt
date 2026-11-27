@@ -190,6 +190,7 @@ object FitProDeviceService {
     @JvmStatic fun getCurrentIncline(): Double = (latest.incline ?: 0f).toDouble()
     @JvmStatic fun getCurrentWatts(): Double = (latest.power ?: 0).toDouble()
     @JvmStatic fun getCurrentCadence(): Double = (latest.cadence ?: 0).toDouble()
+    @JvmStatic fun usesS22iGearResistance(): Boolean = (session as? V1Session)?.usesS22iGearResistance() == true
     @JvmStatic fun getCurrentRpm(): Double = (latest.cadence ?: 0).toDouble()
     @JvmStatic fun getCurrentStrokeRate(): Double = (latest.strokeRate ?: 0).toDouble()
     // Rescale the FitPro level onto the machine's real resistance range when the user has configured

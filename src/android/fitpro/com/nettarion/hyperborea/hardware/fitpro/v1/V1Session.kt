@@ -521,7 +521,7 @@ class V1Session(
     }
 
     // Only the controller in Scott's capture: do not infer gear control for every FitPro bike.
-    private fun usesS22iGearResistance(): Boolean =
+    fun usesS22iGearResistance(): Boolean =
         detectedDeviceType == DeviceType.BIKE && partNumber == 426458 && model == 2120 &&
             capabilities?.equipmentDeviceId == V1Message.DEVICE_SPIN_BIKE &&
             V1DataField.GEAR.fieldIndex in supportedBitFields
