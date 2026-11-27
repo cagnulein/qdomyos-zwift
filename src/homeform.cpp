@@ -380,18 +380,19 @@ class MailSenderThread : public QThread {
         for (uint8_t attempt = 0; attempt < 4 && !r; ++attempt) {
             qDebug() << "trying to send email #" << attempt;
             SmtpClient smtp(STRINGIFY(SMTP_SERVER), 587, SmtpClient::TlsConnection);
-            smtp.setConnectionTimeout(30000);
-            smtp.setResponseTimeout(30000);
-            smtp.setSendMessageTimeout(120000);
-            if (!smtp.connectToHost()) {
+            smtp.connectToHost();
+            if (!smtp.waitForReadyConnected(30000)) {
                 continue;
             }
-            if (!smtp.login(QStringLiteral(STRINGIFY(SMTP_USERNAME)), QStringLiteral(STRINGIFY(SMTP_PASSWORD)))) {
+
+            smtp.login(QStringLiteral(STRINGIFY(SMTP_USERNAME)), QStringLiteral(STRINGIFY(SMTP_PASSWORD)));
+            if (!smtp.waitForAuthenticated(30000)) {
                 smtp.quit();
                 continue;
             }
 
-            r = smtp.sendMail(*message);
+            smtp.sendMail(*message);
+            r = smtp.waitForMailSent(120000);
             smtp.quit();
 
             // The server may have accepted the message even if its final reply
@@ -12304,8 +12305,10 @@ void homeform::sendMail() {
     MimeMessage *message = new MimeMessage;
 
     const QString userEmail = settings.value(QZSettings::user_email, QLatin1String("")).toString();
-    message->setSender(new EmailAddress(QStringLiteral("no-reply@qzapp.it"), QStringLiteral("QZ")));
-    message->addRecipient(new EmailAddress(userEmail, userEmail));
+    const EmailAddress sender(QStringLiteral("no-reply@qzapp.it"), QStringLiteral("QZ"));
+    const EmailAddress recipient(userEmail, userEmail);
+    message->setSender(sender);
+    message->addRecipient(recipient);
     if (!Session.isEmpty()) {
         QString title = Session.constFirst().time.toString();
         if (!stravaPelotonActivityName.isEmpty()) {
