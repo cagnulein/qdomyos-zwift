@@ -610,12 +610,28 @@ void stagesbike::serviceScanDone(void) {
     m_control->requestConnectionUpdate(c);
 #endif
 
+    // Kettler TOUR 600 exposes CSC/Cycling Power as well as proprietary services.
+    // Its BLE link can drop while subscribing to the proprietary characteristics.
+    // Only discover the two standard measurement services for this model.
+    const bool kettlerTour600 =
+        bluetoothDevice.name().trimmed().compare(QStringLiteral("TOUR 600"), Qt::CaseInsensitive) == 0;
+    const QBluetoothUuid cscServiceId(static_cast<quint16>(0x1816));
+    const QBluetoothUuid cyclingPowerServiceId(static_cast<quint16>(0x1818));
+
     auto services_list = m_control->services();
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
-        gattCommunicationChannelService.append(m_control->createServiceObject(s));
-        connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
-                &stagesbike::stateChanged);
-        gattCommunicationChannelService.constLast()->discoverDetails();
+        if (kettlerTour600 && s != cscServiceId && s != cyclingPowerServiceId) {
+            qDebug() << "Kettler TOUR 600: skipping BLE service" << s;
+            continue;
+        }
+        QLowEnergyService *service = m_control->createServiceObject(s);
+        if (!service) {
+            qDebug() << "Unable to create BLE service object" << s;
+            continue;
+        }
+        gattCommunicationChannelService.append(service);
+        connect(service, &QLowEnergyService::stateChanged, this, &stagesbike::stateChanged);
+        service->discoverDetails();
     }
 }
 
