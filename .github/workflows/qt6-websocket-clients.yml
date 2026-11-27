@@ -1,0 +1,17 @@
+name: Qt 6 WebSocket clients
+
+on:
+  pull_request:
+    paths:
+      - 'src/inner_templates/**/main_ws_manager.js'
+      - 'tests/test_qt6_websocket_clients.js'
+      - '.github/workflows/qt6-websocket-clients.yml'
+  workflow_dispatch:
+
+jobs:
+  test-clients:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test WebSocket ports and reconnection
+        run: node tests/test_qt6_websocket_clients.js
