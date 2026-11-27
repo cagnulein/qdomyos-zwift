@@ -71,7 +71,11 @@ class V1Session(
     private var lastSentGrade = 0f
     private var lastSentSpeed = 0f
     private var lastKeyCode = -1 // for KEY_OBJECT press-edge detection
-    private val resistance = ResistanceConverter(deviceInfo.maxResistance)
+    @Volatile private var resistance = ResistanceConverter(deviceInfo.maxResistance)
+    private var lastBikeErgReadback: Float? = null
+    @Volatile private var lastGearPayload: List<Byte>? = null
+    private var actualResistanceLevel: Int? = null
+    private var lastGearReadback: Int? = null
     private val gripHeartRate = GripHeartRateFilter()
 
     /** Device capabilities read from MCU during handshake. */
@@ -114,6 +118,7 @@ class V1Session(
      * NordicTrack 2950 Argon-firmware -10595 kcal / 139 km screenshot).
      */
     private var pollFields: Set<V1DataField> = V1DataField.periodicReadFields
+    private var pollReadBatches: List<Set<V1DataField>> = listOf(pollFields)
 
     /** Tracks whether the previous poll's response was flagged truncated, so we log only on the edge. */
     private var lastTruncatedSeen: Boolean = false
@@ -123,6 +128,9 @@ class V1Session(
 
         try {
             _sessionState.value = SessionState.Connecting
+            lastGearPayload = null
+            actualResistanceLevel = null
+            lastGearReadback = null
             transport.open()
 
             _sessionState.value = SessionState.Handshaking
@@ -338,11 +346,24 @@ class V1Session(
 
     internal fun commandToFields(command: DeviceCommand): Map<V1DataField, Float> = when (command) {
         is DeviceCommand.SetResistance -> {
-            mapOf(V1DataField.RESISTANCE to resistance.levelToRaw(command.level).toFloat())
+            if (usesS22iGearResistance()) {
+                if (lastGearPayload == null) {
+                    logger.w(TAG, "S22i gear command ignored: waiting for a validated GEAR readback")
+                    emptyMap()
+                } else {
+                    val gear = command.level.coerceIn(1, s22iMaxGear())
+                    bikeManualErgExitFields(true, supportedBitFields) + mapOf(V1DataField.GEAR to gear.toFloat())
+                }
+            } else {
+                val raw = resistance.levelToRaw(command.level).toFloat()
+                bikeManualErgExitFields(detectedDeviceType == DeviceType.BIKE, supportedBitFields) +
+                    mapOf(V1DataField.RESISTANCE to raw)
+            }
         }
         is DeviceCommand.SetIncline -> {
             lastSentGrade = roundToStep(command.percent, deviceInfo.inclineStep)
-            mapOf(V1DataField.GRADE to lastSentGrade)
+            bikeManualErgExitFields(detectedDeviceType == DeviceType.BIKE, supportedBitFields) +
+                mapOf(V1DataField.GRADE to lastSentGrade)
         }
         is DeviceCommand.SetTargetSpeed -> {
             lastSentSpeed = command.kph
@@ -351,7 +372,8 @@ class V1Session(
         is DeviceCommand.AdjustIncline -> {
             lastSentGrade += if (command.increase) deviceInfo.inclineStep else -deviceInfo.inclineStep
             lastSentGrade = lastSentGrade.coerceIn(deviceInfo.minIncline, deviceInfo.maxIncline)
-            mapOf(V1DataField.GRADE to lastSentGrade)
+            bikeManualErgExitFields(detectedDeviceType == DeviceType.BIKE, supportedBitFields) +
+                mapOf(V1DataField.GRADE to lastSentGrade)
         }
         is DeviceCommand.AdjustSpeed -> {
             lastSentSpeed += if (command.increase) deviceInfo.speedStep else -deviceInfo.speedStep
@@ -359,10 +381,14 @@ class V1Session(
             mapOf(V1DataField.KPH to lastSentSpeed)
         }
         is DeviceCommand.SetTargetPower -> {
-            mapOf(
-                V1DataField.WATT_GOAL to command.watts.toFloat(),
-                V1DataField.IS_CONSTANT_WATTS_MODE to 1f,
-            )
+            if (detectedDeviceType == DeviceType.BIKE && command.watts <= 0) {
+                mapOf(V1DataField.IS_CONSTANT_WATTS_MODE to 0f)
+            } else {
+                mapOf(
+                    V1DataField.WATT_GOAL to command.watts.toFloat(),
+                    V1DataField.IS_CONSTANT_WATTS_MODE to 1f,
+                )
+            }
         }
         is DeviceCommand.PauseWorkout -> {
             mapOf(V1DataField.WORKOUT_MODE to WorkoutMode.PAUSE.raw)
@@ -414,6 +440,11 @@ class V1Session(
         )
         pollFields = computePollFields(supportedBitFields)
         detectedDeviceType = DeviceDatabase.deviceTypeFromEquipmentId(equipmentDeviceId)
+        pollReadBatches = if (detectedDeviceType == DeviceType.BIKE) {
+            bikeUsbReadBatches(pollFields).also { batches ->
+                logger.i(TAG, "V1 bike USB read batches: ${batches.map { 5 + it.sumOf { field -> field.sizeBytes } }} bytes")
+            }
+        } else listOf(pollFields)
         logger.d(TAG, "Detected device type: $detectedDeviceType")
 
         delay(COMMAND_DELAY_MS)
@@ -484,7 +515,19 @@ class V1Session(
 
         // 5. Read startup fields (device limits + equipment stats)
         readStartupFields(equipmentDeviceId)
+        if (usesS22iGearResistance()) {
+            logger.i(TAG, "S22i gear resistance profile: part=$partNumber model=$model, levels=1..${s22iMaxGear()}; motor resistance remains separate")
+        }
     }
+
+    // Only the controller in Scott's capture: do not infer gear control for every FitPro bike.
+    fun usesS22iGearResistance(): Boolean =
+        detectedDeviceType == DeviceType.BIKE && partNumber == 426458 && model == 2120 &&
+            capabilities?.equipmentDeviceId == V1Message.DEVICE_SPIN_BIKE &&
+            V1DataField.GEAR.fieldIndex in supportedBitFields
+
+    private fun s22iMaxGear(): Int =
+        capabilities?.maxResistance?.takeIf { it in 1..255 } ?: deviceInfo.maxResistance.coerceIn(1, 255)
 
     /**
      * Asks the controller which request command opcodes it accepts. Returns the declared set, or
@@ -539,6 +582,13 @@ class V1Session(
             equipmentDeviceId = equipmentDeviceId,
         )
         logger.i(TAG, "Capabilities: $capabilities")
+        // Use the MCU limit rather than the initial catalog guess when the startup shape is valid.
+        if (detectedDeviceType == DeviceType.BIKE && !response.isTruncated) {
+            capabilities?.maxResistance?.takeIf { it in 1..10_000 }?.let {
+                resistance = ResistanceConverter(it)
+                logger.i(TAG, "V1 bike resistance scaling: MCU maxResistance=$it")
+            }
+        }
         // TOTAL_TIME / MOTOR_TOTAL_DISTANCE units are device-dependent: bikes report seconds and
         // metres, but belt machines (e.g. the NordicTrack 2950) report milliseconds and millimetres
         // — which, read as raw s/m, would show a ~13-year runtime and an 833,757 km odometer. Scale
@@ -760,14 +810,30 @@ class V1Session(
             writeFields = pendingWriteFields
             pendingWriteFields = emptyMap()
         }
+        for ((index, readFields) in pollReadBatches.withIndex()) {
+            // Send queued commands once, with the small control readback batch.
+            if (!pollReadWriteLocked(if (index == 0) writeFields else emptyMap(), readFields)) return
+        }
+    }
+
+    private suspend fun pollReadWriteLocked(
+        writeFields: Map<V1DataField, Float>,
+        readFields: Set<V1DataField>,
+    ): Boolean {
         logSafetyWrites(writeFields)
+        val resistanceWrite = if (detectedDeviceType == DeviceType.BIKE) writeFields[V1DataField.RESISTANCE] else null
+        val gearWrite = if (usesS22iGearResistance()) writeFields[V1DataField.GEAR] else null
+        if (resistanceWrite != null || gearWrite != null) {
+            logger.i(TAG, "V1 bike resistance write: raw=$resistanceWrite, gearTarget=$gearWrite, modeWrite=${writeFields[V1DataField.IS_CONSTANT_WATTS_MODE]}, previousModeReadback=$lastBikeErgReadback")
+        }
 
         // ReadWriteData targets DEVICE_MAIN (0x02) — FITNESS_BIKE (0x07) returns DEV_NOT_SUPPORTED.
         // pollFields is periodicReadFields ∩ supportedBitFields so the response payload size matches
         // the decoder's positional read; see V1Codec.decodeDataResponseForFields.
         writeMessage(V1Message.Outgoing.ReadWriteData(
             writeFields = writeFields,
-            readFields = pollFields,
+            readFields = readFields,
+            gearPayload = if (gearWrite != null) lastGearPayload else null,
         ))
 
         delay(READ_DELAY_MS)
@@ -780,11 +846,14 @@ class V1Session(
                     pendingWriteFields = writeFields + pendingWriteFields
                 }
             }
-            return
+            return false
         }
 
         val decoded = try {
-            readResponse(firstPacket, pollFields)
+            if (detectedDeviceType == DeviceType.BIKE) {
+                V1Codec.decodeUsbDataResponse(firstPacket, readFields)
+                    ?: throw IllegalStateException("Invalid USB data reply: bytes=${firstPacket.size}, declared=${firstPacket.getOrNull(1)?.toInt()?.and(0xFF)}, expected=${5 + readFields.sumOf { it.sizeBytes }}")
+            } else readResponse(firstPacket, readFields)
         } catch (e: Exception) {
             logger.w(TAG, "Malformed response (${firstPacket.size} bytes): ${e.message}")
             // Re-queue write fields so commands aren't lost
@@ -793,9 +862,12 @@ class V1Session(
                     pendingWriteFields = writeFields + pendingWriteFields
                 }
             }
-            return
+            return false
         }
         if (decoded is V1Message.Incoming.DataResponse) {
+            if (resistanceWrite != null || gearWrite != null) {
+                logger.i(TAG, "V1 bike resistance response: status=${decoded.status}, raw=${decoded.fields[V1DataField.RESISTANCE]}, gear=${decoded.fields[V1DataField.GEAR]}, mode=${decoded.fields[V1DataField.IS_CONSTANT_WATTS_MODE]}, truncated=${decoded.isTruncated}")
+            }
             if (decoded.status == V1Message.STATUS_SECURITY_BLOCK) {
                 logger.w(TAG, "Security block — re-verifying")
                 if (writeFields.isNotEmpty()) {
@@ -804,15 +876,15 @@ class V1Session(
                     }
                 }
                 verifySecurity()
-                return
+                return false
             }
             if (decoded.status != V1Message.STATUS_DONE) {
-                return
+                return false
             }
 
             if (decoded.fields.isEmpty()) {
                 logger.w(TAG, "DataResponse OK but empty fields (payload size mismatch)")
-                return
+                return false
             }
 
             // Edge-triggered: log once when the response shape stops matching the request shape,
@@ -821,8 +893,8 @@ class V1Session(
             if (decoded.isTruncated && !lastTruncatedSeen) {
                 logger.w(
                     TAG,
-                    "DataResponse payload size doesn't match the requested ${pollFields.size}-field shape " +
-                        "(requested=[${pollFields.sortedBy { it.fieldIndex }.joinToString { it.name }}], " +
+                    "DataResponse payload size doesn't match the requested ${readFields.size}-field shape " +
+                        "(requested=[${readFields.sortedBy { it.fieldIndex }.joinToString { it.name }}], " +
                         "decoded ${decoded.fields.size}=[${decoded.fields.keys.joinToString { it.name }}], " +
                         "supportedBitFields=${supportedBitFields.sorted()}) — later field offsets may be unreliable.",
                 )
@@ -831,6 +903,18 @@ class V1Session(
             }
             lastTruncatedSeen = decoded.isTruncated
 
+            if (detectedDeviceType == DeviceType.BIKE && V1DataField.IS_CONSTANT_WATTS_MODE in readFields) {
+                // Positional decode is not authoritative when the response shape is wrong.
+                val mode = if (decoded.isTruncated) null else decoded.fields[V1DataField.IS_CONSTANT_WATTS_MODE]
+                if (mode != lastBikeErgReadback) {
+                    logger.i(TAG, "V1 bike constant-watts readback: $mode (null means unavailable)")
+                    lastBikeErgReadback = mode
+                }
+            }
+            if (usesS22iGearResistance() && !decoded.isTruncated &&
+                decoded.fields[V1DataField.GEAR]?.toInt() in 1..s22iMaxGear()) {
+                decoded.gearPayload?.let { lastGearPayload = it }
+            }
             applyDataResponse(decoded.fields)
             handleKeyObject(decoded.keyObject)
             estimatePowerIfNeeded()
@@ -846,6 +930,7 @@ class V1Session(
                 }
             }
         }
+        return decoded is V1Message.Incoming.DataResponse
     }
 
     private fun applyDataResponse(fields: Map<V1DataField, Float>) {
@@ -865,7 +950,21 @@ class V1Session(
                 // surface it as a target — no meaningless blue speed arrow on a bike.
                 V1DataField.ACTUAL_KPH -> if (!detectedDeviceType.isBeltBased) accumulator.updateSpeed(value)
                 V1DataField.KPH -> if (detectedDeviceType.isBeltBased) accumulator.updateSpeed(value)
-                V1DataField.RESISTANCE -> accumulator.updateResistance(resistance.rawToLevel(value.toInt()))
+                V1DataField.RESISTANCE -> {
+                    val level = resistance.rawToLevel(value.toInt())
+                    if (usesS22iGearResistance()) actualResistanceLevel = level
+                    else accumulator.updateResistance(level)
+                }
+                V1DataField.GEAR -> if (usesS22iGearResistance()) {
+                    val gear = value.toInt()
+                    if (gear in 1..s22iMaxGear()) {
+                        accumulator.updateResistance(gear)
+                        if (gear != lastGearReadback) {
+                            logger.d(TAG, "S22i gear readback: gear=$gear, actualResistanceLevel=$actualResistanceLevel")
+                            lastGearReadback = gear
+                        }
+                    }
+                }
                 V1DataField.ACTUAL_INCLINE -> accumulator.updateIncline(value)
                 V1DataField.GRADE -> accumulator.updateTargetIncline(value)
                 // Grip HR is a noisy analog contact reading — gate + smooth it, and clear (null) on
@@ -916,7 +1015,6 @@ class V1Session(
                 V1DataField.IDLE_MODE_LOCKOUT,
                 V1DataField.REQUIRE_START_REQUESTED,
                 V1DataField.VOLUME,
-                V1DataField.GEAR,
                 V1DataField.PAUSE_TIMEOUT,
                 V1DataField.WARMUP_TIMEOUT,
                 V1DataField.COOLDOWN_TIMEOUT,
@@ -972,7 +1070,7 @@ class V1Session(
         val snapshot = accumulator.snapshot()
         if (snapshot.power != null && snapshot.power != 0) return // MCU provides power
         val speed = snapshot.speed ?: return
-        val resistance = snapshot.resistance ?: return
+        val resistance = (if (usesS22iGearResistance()) actualResistanceLevel else snapshot.resistance) ?: return
         val maxRes = deviceInfo.maxResistance
         if (maxRes <= 0) return
 

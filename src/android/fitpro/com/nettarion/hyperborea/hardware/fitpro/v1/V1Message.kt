@@ -32,6 +32,8 @@ sealed interface V1Message {
             val deviceId: Int = DEVICE_MAIN,
             val writeFields: Map<V1DataField, Float> = emptyMap(),
             val readFields: Set<V1DataField> = emptySet(),
+            /** Optional last MCU GEAR composite; change only its current-gear byte when writing. */
+            val gearPayload: List<Byte>? = null,
         ) : Outgoing
         data class Calibrate(val deviceId: Int = DEVICE_GRADE) : Outgoing
     }
@@ -82,6 +84,7 @@ sealed interface V1Message {
              * later fields as suspect.
              */
             val isTruncated: Boolean = false,
+            val gearPayload: List<Byte>? = null,
         ) : Incoming
         data class GenericResponse(val commandId: Int, val status: Int, val payload: ByteArray) : Incoming {
             override fun equals(other: Any?) = other is GenericResponse &&
@@ -155,7 +158,8 @@ enum class V1DataField(val fieldIndex: Int, val sizeBytes: Int, val converter: V
     CURRENT_TIME(20, 4, V1Converter.INT),
     CURRENT_CALORIES(21, 4, V1Converter.CALORIES),
     GOAL_TIME(22, 4, V1Converter.INT),
-    GEAR(26, 1, V1Converter.BYTE),
+    // Stock V1 GEAR is an eight-byte composite; current gear is byte four.
+    GEAR(26, 8, V1Converter.GEAR),
     MAX_GRADE(27, 2, V1Converter.GRADE),
     MIN_GRADE(28, 2, V1Converter.GRADE),
     MAX_KPH(30, 2, V1Converter.SPEED),
@@ -232,5 +236,6 @@ enum class V1Converter {
     PULSE,
     CALORIES,
     VERTICAL,
+    GEAR,
     KEY_OBJECT,
 }

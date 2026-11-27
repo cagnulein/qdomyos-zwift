@@ -1,4 +1,5 @@
 #include "nordictrackifitadbbike.h"
+#include "s22icontrol.h"
 #include "virtualdevices/virtualbike.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
@@ -184,6 +185,7 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
     refresh->start(debounceMs);
 
+    crankClock.start();
     socket = new QUdpSocket(this);
     bool result = socket->bind(QHostAddress::AnyIPv4, 8002);
     qDebug() << result;
@@ -522,10 +524,9 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
-        if (Cadence.value() > 0) {
-            CrankRevs++;
-            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
-        }
+        // The local FitPro/gRPC poll is authoritative when initialized.
+        if (!grpcInitialized)
+            CrankRevs += crankEvents.update(crankClock.elapsed(), Cadence.value(), LastCrankEventTime);
 
         lastRefreshCharacteristicChanged = now;
 
@@ -707,6 +708,8 @@ void nordictrackifitadbbike::update() {
 #ifdef Q_OS_ANDROID
     // Use gRPC to fetch current metrics
     if (grpcInitialized) {
+        const bool s22iGearResistance = QAndroidJniObject::callStaticMethod<jboolean>(
+            "org/cagnulen/qdomyoszwift/FitProDeviceService", "usesS22iGearResistance", "()Z");
         double currentSpeed = getGrpcSpeed();
         double currentIncline = getGrpcIncline();
         double currentWatts = getGrpcWatts();
@@ -776,13 +779,14 @@ void nordictrackifitadbbike::update() {
                 double currentInc = qRound(currentInclination().value() / 0.5) * 0.5;
                 if (inc != currentInc) {
                     emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
-                    setGrpcIncline(lastRawRequestedInclinationValue + (nordictrackadbbike_gear_resistance_mode ? 0 : gears()));
+                    setGrpcIncline(S22iControl::inclineTarget(lastRawRequestedInclinationValue, gears(), nordictrackadbbike_gear_resistance_mode, s22iGearResistance));
                     lastGrpcInclinationChanged = now;
                 }
             }
             requestInclination = -100;
-            requestResistance = -1;
-        } else if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100 && !nordictrackadbbike_resistance) {
+            if (S22iControl::discardResistanceAfterIncline(s22iGearResistance))
+                requestResistance = -1;
+        } else if(S22iControl::applyGearToIncline(s22iGearResistance) && (virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100 && !nordictrackadbbike_resistance) {
             // in order to send the new gear value ASAP (similar to tacxneo2)
             setGrpcIncline(lastRawRequestedInclinationValue + (nordictrackadbbike_gear_resistance_mode ? 0 : gears()));
             requestResistance = -1;
@@ -792,7 +796,11 @@ void nordictrackifitadbbike::update() {
             setGrpcResistance(requestResistance);
             requestResistance = -1;
         } else if (lastGearValue != gears()) {
-            if (nordictrackadbbike_gear_resistance_mode) {
+            if (s22iGearResistance) {
+                // The controller's displayed gear is an absolute resistance level; virtual
+                // gear changes are relative and must not change the physical incline.
+                setGrpcResistance(S22iControl::resistanceAfterGearChange(Resistance.value(), gears(), lastGearValue));
+            } else if (nordictrackadbbike_gear_resistance_mode) {
                 // In gear resistance mode: use debounced gear changes to avoid overloading gRPC
                 pendingGearValue = gears();
                 gearChangesPending = true;
@@ -832,10 +840,7 @@ void nordictrackifitadbbike::update() {
         }
         Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
-        if (Cadence.value() > 0) {
-            CrankRevs++;
-            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
-        }
+        CrankRevs += crankEvents.update(crankClock.elapsed(), Cadence.value(), LastCrankEventTime);
 
         lastRefreshCharacteristicChanged = now;
     }
