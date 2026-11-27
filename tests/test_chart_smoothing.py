@@ -12,8 +12,9 @@ gives to Chart.js (the points of every line) and the texts of the summary.
 - The smoothed lines are the centered moving average of the window, Auto picks its window.
 
 Run: python3 -m unittest tests/test_chart_smoothing.py
-New fingerprint (only from master's dochart.js, after a change there that is meant to change the
-charts): python3 tests/test_chart_smoothing.py --update <path of master's dochart.js>
+New fingerprint, after a change of dochart.js that is meant to change the charts (in the same
+commit, so the diff of the fixture shows it): python3 tests/test_chart_smoothing.py --update
+src/inner_templates/chartjs/dochart.js – it draws with the setting not saved, i.e. Off
 """
 
 import bisect
@@ -28,6 +29,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DOCHART = ROOT / "src/inner_templates/chartjs/dochart.js"
 HARNESS = ROOT / "tests/chart_smoothing_harness.js"
+UPDATE_HINT = ("Off no longer draws what tests/fixtures/chart_smoothing_master.json holds. If the "
+               "change of the charts is meant, write the new fingerprint in the same commit: python3 "
+               "tests/test_chart_smoothing.py --update src/inner_templates/chartjs/dochart.js")
 FINGERPRINT = ROOT / "tests/fixtures/chart_smoothing_master.json"
 
 # the index of chart_smooth_lines (settings.qml): Off, Auto, 3, 5, 10, 15, 30 s
@@ -230,10 +234,10 @@ class ChartSmoothingTest(unittest.TestCase):
     def test_off_is_master(self):
         """Off, not saved yet, or an unknown value: the charts and texts of master."""
         for name, points in SESSIONS.items():
-            self.assertEqual(fingerprint(self.off[name]), self.expected[name], name + ", not saved")
+            self.assertEqual(fingerprint(self.off[name]), self.expected[name], name + ", not saved. " + UPDATE_HINT)
             for value in (OFF, "0", 99, "x"):
                 with self.subTest(session=name, value=value):
-                    self.assertEqual(fingerprint(run_page(points, value)), self.expected[name])
+                    self.assertEqual(fingerprint(run_page(points, value)), self.expected[name], UPDATE_HINT)
 
     def test_on_changes_only_power_cadence_speed(self):
         for name, points in SESSIONS.items():
