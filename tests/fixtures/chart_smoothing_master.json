@@ -1,0 +1,272 @@
+{
+ "bike_2h": [
+  {
+   "charts": [
+    {
+     "canvas": "canvas",
+     "type": "line",
+     "lines": [
+      {
+       "label": "Watts",
+       "cubicInterpolationMode": "monotone",
+       "points": 3151,
+       "sha256": "e7e42c569ae7c9a0fd3fc9640e561c354e00e4a20a4628594431f9fe23bc2d56"
+      },
+      {
+       "label": "Req. Watts",
+       "cubicInterpolationMode": null,
+       "points": 3151,
+       "sha256": "97a5ff2c25f2e36cef57688b06a3ea4ffe909cbb6bb33c50724855a8c52ef265"
+      }
+     ]
+    },
+    {
+     "canvas": "canvasHeart",
+     "type": "line",
+     "lines": [
+      {
+       "label": "Heart",
+       "cubicInterpolationMode": null,
+       "points": 2400,
+       "sha256": "70e6da21d8e1971ea364190d112105cde05b2410b915b0e3326b847eb0fd7af8"
+      }
+     ]
+    },
+    {
+     "canvas": "canvasResistance",
+     "type": "line",
+     "lines": [
+      {
+       "label": "Resistance",
+       "cubicInterpolationMode": null,
+       "points": 1210,
+       "sha256": "87c196949f43975864ed4166f9c910b3be47ab61eb46f29224161dc43167cfef"
+      },
+      {
+       "label": "Target R.",
+       "cubicInterpolationMode": null,
+       "points": 1210,
+       "sha256": "44e1d3e069afe15c0a6879a2823fd31973ec25385a35bda9cac81d05b29a2009"
+      }
+     ]
+    },
+    {
+     "canvas": "canvasPelotonResistance",
+     "type": "line",
+     "lines": [
+      {
+       "label": "Resistance",
+       "cubicInterpolationMode": null,
+       "points": 1210,
+       "sha256": "e3b0ea7328215a94747dc0676e0ae03d03eac61a497f34caa3ee674d9e163e72"
+      },
+      {
+       "label": "Target R.",
+       "cubicInterpolationMode": null,
+       "points": 1210,
+       "sha256": "99c594d78247c77a9e6f7934ce9516bb6f1e77aa6335919d1329ba2089947723"
+      }
+     ]
+    },
+    {
+     "canvas": "canvasCadence",
+     "type": "line",
+     "lines": [
+      {
+       "label": "Cadence",
+       "cubicInterpolationMode": null,
+       "points": 3083,
+       "sha256": "35a248809adaf862332461c3262135ec9327cece63760354a648d50b8734aff1"
+      },
+      {
+       "label": "Target C.",
+       "cubicInterpolationMode": null,
+       "points": 3083,
+       "sha256": "47d7e9ef4aa5a8f6e30f2f27cedab6d129c6ca41ccc95ed04676c0b8d4471947"
+      }
+     ]
+    },
+    {
+     "canvas": "canvasPowerDistribution",
+     "type": "bar",
+     "lines": [
+      {
+       "label": null,
+       "cubicInterpolationMode": null,
+       "points": 7,
+       "sha256": "614083c93b56d13f1e607b945e906f88a3fc947aebde0035947844ea3c6fe77b"
+      }
+     ]
+    },
+    {
+     "canvas": "canvasSpeedInclination",
+     "type": "line",
+     "lines": [
+      {
+       "label": "Speed (km/h)",
+       "cubicInterpolationMode": null,
+       "points": 3177,
+       "sha256": "9d64a8d6ab49f1c76f80e83761803960582572e353629feafd0fde35ce0baeef"
+      },
+      {
+       "label": "Inclination",
+       "cubicInterpolationMode": null,
+       "points": 3177,
+       "sha256": "76154c58b617995087a3d897581784fb3ee3351c3dd5b94ad943c7b3a2abf5d3"
+      }
+     ]
+    }
+   ],
+   "texts": {
+    ".workoutName": "Test ride",
+    ".workoutStartDate": "2026-11-27",
+    ".instructorName": "",
+    ".watts_avg": "Watt AVG: 155",
+    ".watts_max": "Watt MAX: 412",
+    ".heart_avg": "Heart Rate AVG: 130",
+    ".heart_max": "Heart Rate MAX: 151",
+    ".summary_watts_avg": "155 W",
+    ".summary_jouls": "123 kJ",
+    ".summary_calories": "456 kcal",
+    ".summary_distance": "12.3 km",
+    ".summary_cadence_avg": "86 rpm",
+    ".summary_resistance_avg": "32 lvl"
+   }
+  }
+ ],
+ "treadmill_40min": [
+  {
+   "charts": [
+    {
+     "canvas": "canvas",
+     "type": "line",
+     "lines": [
+      {
+       "label": "Watts",
+       "cubicInterpolationMode": "monotone",
+       "points": 2400,
+       "sha256": "b814f7a777f930455f5426e43e4e8c15e75ed1510cb04c6ee5a5c0b66db1220b"
+      },
+      {
+       "label": "Req. Watts",
+       "cubicInterpolationMode": null,
+       "points": 2400,
+       "sha256": "e218b52f0d773df08885373a930ffdd26e59e405c0ca2a5529495f5a22804706"
+      }
+     ]
+    },
+    {
+     "canvas": "canvasHeart",
+     "type": "line",
+     "lines": [
+      {
+       "label": "Heart",
+       "cubicInterpolationMode": null,
+       "points": 2400,
+       "sha256": "01706a4efbe9f54d955fda9a8b78527dff8690272ff9975e258628bd20bc8e46"
+      }
+     ]
+    },
+    {
+     "canvas": "canvasResistance",
+     "type": "line",
+     "lines": [
+      {
+       "label": "Resistance",
+       "cubicInterpolationMode": null,
+       "points": 2400,
+       "sha256": "21830a4413dff329801bb2478f98d5149f6a8137febf09df413bf9c8e416c2cc"
+      },
+      {
+       "label": "Target R.",
+       "cubicInterpolationMode": null,
+       "points": 2400,
+       "sha256": "617cd8127f2d8c4bd018e8120ba47434395996fc99afdb001edd2274c6e1e410"
+      }
+     ]
+    },
+    {
+     "canvas": "canvasPelotonResistance",
+     "type": "line",
+     "lines": [
+      {
+       "label": "Resistance",
+       "cubicInterpolationMode": null,
+       "points": 2400,
+       "sha256": "f19bddcd802342b6f465f6b5dc8a43c40d60f806fb40f62419cca5595ed1348b"
+      },
+      {
+       "label": "Target R.",
+       "cubicInterpolationMode": null,
+       "points": 2400,
+       "sha256": "846da37774e59cdabc93f4ab41339c681cb8405b5db7c228b905e0fcd17130b9"
+      }
+     ]
+    },
+    {
+     "canvas": "canvasCadence",
+     "type": "line",
+     "lines": [
+      {
+       "label": "Cadence",
+       "cubicInterpolationMode": null,
+       "points": 2400,
+       "sha256": "5fa6b38416e0026d9adc6c48239d7250f3ac334d6950a2f3054fb88dea3d0eae"
+      },
+      {
+       "label": "Target C.",
+       "cubicInterpolationMode": null,
+       "points": 2400,
+       "sha256": "56d903dc9be97470a3a2e59afb603271fe62dd14b2d8ced374d73acd395b7d3e"
+      }
+     ]
+    },
+    {
+     "canvas": "canvasPowerDistribution",
+     "type": "bar",
+     "lines": [
+      {
+       "label": null,
+       "cubicInterpolationMode": null,
+       "points": 7,
+       "sha256": "eea1904402c848a80eeac878d55f24f3c77fd214c85e69e920f91e8a90a7a8eb"
+      }
+     ]
+    },
+    {
+     "canvas": "canvasSpeedInclination",
+     "type": "line",
+     "lines": [
+      {
+       "label": "Speed (km/h)",
+       "cubicInterpolationMode": null,
+       "points": 2400,
+       "sha256": "7a52bdd6bab510b9d7ca6f6a2723f78aa086d4067e9606fd144a4c3c856c8e86"
+      },
+      {
+       "label": "Inclination",
+       "cubicInterpolationMode": null,
+       "points": 2400,
+       "sha256": "30d1fb7afa69c3f52a1d04d45dddce6f511da54b7ed23429ab20870054bc03ae"
+      }
+     ]
+    }
+   ],
+   "texts": {
+    ".workoutName": "Test ride",
+    ".workoutStartDate": "2026-11-27",
+    ".instructorName": "",
+    ".watts_avg": "Watt AVG: 155",
+    ".watts_max": "Watt MAX: 412",
+    ".heart_avg": "Heart Rate AVG: 130",
+    ".heart_max": "Heart Rate MAX: 151",
+    ".summary_watts_avg": "155 W",
+    ".summary_jouls": "123 kJ",
+    ".summary_calories": "456 kcal",
+    ".summary_distance": "12.3 km",
+    ".summary_cadence_avg": "86 rpm",
+    ".summary_resistance_avg": "32 lvl"
+   }
+  }
+ ]
+}

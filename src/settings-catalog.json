@@ -16821,15 +16821,34 @@
     {
       "key": "chart_smooth_lines",
       "name": "Smooth Chart Lines",
-      "description": "On the Charts page, draw the power, cadence and speed lines as a 5-second moving average instead of the raw second-by-second values. Averages, maximums and zones still use the raw values. Default is off.",
+      "description": "On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.",
       "parent": "General UI Options",
-      "type": "boolean",
-      "qmlType": "bool",
-      "control": "switch",
+      "type": "integer",
+      "qmlType": "int",
+      "control": "select",
       "visible": true,
-      "defaultValue": false,
-      "defaultExpression": "false",
-      "options": null,
+      "defaultValue": 0,
+      "defaultExpression": "0",
+      "options": {
+        "values": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "labels": [
+          "Off",
+          "Auto",
+          "3 s",
+          "5 s",
+          "10 s",
+          "15 s",
+          "30 s"
+        ]
+      },
       "restartRequired": false
     }
   ],

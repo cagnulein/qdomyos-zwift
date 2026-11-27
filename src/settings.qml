@@ -3002,7 +3002,7 @@ import AndroidStatusBar 1.0
             property bool treadmill_calories_model: false
             property bool ui_modern_new_install_checked: false
             property bool ui_modern_offer_pending: false
-            property bool chart_smooth_lines: false
+            property int chart_smooth_lines: 0
 
         }
 
@@ -9082,24 +9082,36 @@ import AndroidStatusBar 1.0
                         color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
                     }
 
-                    IndicatorOnlySwitch {
-                        id: switchChartSmoothLinesDelegate
-                        text: qsTr("Smooth Chart Lines")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.chart_smooth_lines
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.chart_smooth_lines = checked
-                        Accessible.onPressAction: { toggle(); settings.chart_smooth_lines = checked }
+                    UiSettingsRow {
+                        spacing: 10
+                        Label {
+                            Layout.columnSpan: parent.stackedRow ? parent.columns : 1
+                            id: labelChartSmoothLines
+                            text: qsTr("Smooth Chart Lines:")
+                            wrapMode: window.labelWrap
+                            Layout.fillWidth: true
+                        }
+                        UiComboBox {
+                            id: chartSmoothLinesComboBox
+                            // the order is the index saved in chart_smooth_lines, read by
+                            // SMOOTH_WINDOWS in inner_templates/chartjs/dochart.js
+                            model: [qsTr("Off"), qsTr("Auto"), qsTr("%1 s").arg(3), qsTr("%1 s").arg(5),
+                                qsTr("%1 s").arg(10), qsTr("%1 s").arg(15), qsTr("%1 s").arg(30)]
+                            savedIndex: settings.chart_smooth_lines
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        }
+                        UiButton {
+                            id: okChartSmoothLinesButton
+                            text: qsTr("OK")
+                            enabled: chartSmoothLinesComboBox.dirty
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.chart_smooth_lines = chartSmoothLinesComboBox.currentIndex; toast.show(qsTr("Setting saved!")); }
+                        }
                     }
 
                     Label {
-                        text: qsTr("On the Charts page, draw the power, cadence and speed lines as a 5-second moving average instead of the raw second-by-second values. Averages, maximums and zones still use the raw values. Default is off.")
+                        text: qsTr("On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.")
                         font.bold: !window.ui.modern
                         font.italic: !window.ui.modern
                         font.pixelSize: window.fontHint
