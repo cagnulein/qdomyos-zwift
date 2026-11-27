@@ -387,7 +387,7 @@ int DaumUSB::openPort() {
     COMMTIMEOUTS timeouts;
     QString portSpec = deviceFilename;
     if (deviceFilename.startsWith(QStringLiteral("COM"), Qt::CaseInsensitive)) {
-        int portnum = deviceFilename.midRef(3).toString().toInt();
+        int portnum = deviceFilename.mid(3).toInt();
         if (portnum >= 10)
             portSpec = "\\\\.\\" + deviceFilename;
     }

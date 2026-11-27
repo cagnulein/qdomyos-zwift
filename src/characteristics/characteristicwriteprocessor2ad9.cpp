@@ -157,5 +157,5 @@ void CharacteristicWriteProcessor2AD9::changeResistanceLevel(resistance_t level)
         }
     }
     qDebug() << QStringLiteral("new requested resistance ") + QString::number(uresistance) +
-                    QStringLiteral(" enabled ") + force_resistance;
+                    QStringLiteral(" enabled ") + QString::number(force_resistance);
 }
