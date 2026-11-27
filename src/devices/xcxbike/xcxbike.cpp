@@ -143,7 +143,7 @@ void xcxbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
 
 void xcxbike::serviceStateChanged(QLowEnergyService::ServiceState state) {
     qDebug() << QStringLiteral("XCX FFF0 service state") << state;
-    if (state != QLowEnergyService::ServiceDiscovered)
+    if (state != QLowEnergyService::RemoteServiceDiscovered)
         return;
 
     fff5WriteCharacteristic = fff0Service->characteristic(fff5Uuid);

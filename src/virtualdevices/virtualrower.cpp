@@ -302,13 +302,13 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             QLowEnergyCharacteristicData echelonNotify1;
             echelonNotify1.setUuid(QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66")));
             echelonNotify1.setProperties(QLowEnergyCharacteristic::Notify);
-            echelonNotify1.addDescriptor(QLowEnergyDescriptorData(QBluetoothUuid::ClientCharacteristicConfiguration,
+            echelonNotify1.addDescriptor(QLowEnergyDescriptorData(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                                   QByteArray::fromHex("0100")));
 
             QLowEnergyCharacteristicData echelonNotify2;
             echelonNotify2.setUuid(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
             echelonNotify2.setProperties(QLowEnergyCharacteristic::Notify);
-            echelonNotify2.addDescriptor(QLowEnergyDescriptorData(QBluetoothUuid::ClientCharacteristicConfiguration,
+            echelonNotify2.addDescriptor(QLowEnergyDescriptorData(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                                   QByteArray::fromHex("0100")));
 
             serviceDataEchelon.addCharacteristic(echelonWrite);
@@ -339,7 +339,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             disFirmware.setValue(QByteArray("1.0.0"));
 
             serviceDataEchelonDIS.setType(QLowEnergyServiceData::ServiceTypePrimary);
-            serviceDataEchelonDIS.setUuid(QBluetoothUuid::DeviceInformation);
+            serviceDataEchelonDIS.setUuid(QBluetoothUuid::ServiceClassUuid::DeviceInformation);
             serviceDataEchelonDIS.addCharacteristic(disManufacturer);
             serviceDataEchelonDIS.addCharacteristic(disModel);
             serviceDataEchelonDIS.addCharacteristic(disHardware);
@@ -350,7 +350,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             QLowEnergyCharacteristicData dfuButtonless;
             dfuButtonless.setUuid(QBluetoothUuid(QStringLiteral("8ec90003-f315-4f60-9fb8-838830daea50")));
             dfuButtonless.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Indicate);
-            dfuButtonless.addDescriptor(QLowEnergyDescriptorData(QBluetoothUuid::ClientCharacteristicConfiguration,
+            dfuButtonless.addDescriptor(QLowEnergyDescriptorData(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                                  QByteArray::fromHex("0000")));
 
             serviceDataEchelonDFU.setType(QLowEnergyServiceData::ServiceTypePrimary);

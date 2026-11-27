@@ -366,7 +366,7 @@ void ftmsbike::processWriteQueue() {
     }
 
     WriteRequest request = writeQueue.dequeue();
-    if (!request.service || request.service->state() != QLowEnergyService::ServiceDiscovered) {
+    if (!request.service || request.service->state() != QLowEnergyService::RemoteServiceDiscovered) {
         qDebug() << QStringLiteral("writeCharacteristic error because the connection is closed");
         writeQueue.clear();
         return;
@@ -911,7 +911,7 @@ void ftmsbike::update() {
             requestResistance = -1;
             requestInclination = -100;
             if (gattFTMSService && gattWriteCharControlPointId.isValid() &&
-                gattFTMSService->state() == QLowEnergyService::ServiceDiscovered &&
+                gattFTMSService->state() == QLowEnergyService::RemoteServiceDiscovered &&
                 !isWriting && writeQueue.isEmpty()) {
                 updateSlopeTargetPower();
             }
@@ -1177,7 +1177,7 @@ void ftmsbike::update() {
                                 .startsWith(QStringLiteral("Disabled"));
         if (bodytoneSlope) {
             if (requestPower != -1 && gattFTMSService && gattWriteCharControlPointId.isValid() &&
-                gattFTMSService->state() == QLowEnergyService::ServiceDiscovered &&
+                gattFTMSService->state() == QLowEnergyService::RemoteServiceDiscovered &&
                 !isWriting && writeQueue.isEmpty()) {
                 init();
                 forcePower(requestPower);
@@ -2718,7 +2718,7 @@ void ftmsbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const Q
     if (uses16BitResistanceForDevice(bluetoothDevice.name()) &&
         gattWriteCharControlPointId.isValid() &&
         descriptor.handle() == gattWriteCharControlPointId
-                                   .descriptor(QBluetoothUuid::ClientCharacteristicConfiguration)
+                                   .descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration)
                                    .handle() &&
         newValue == QByteArray::fromHex("0200")) {
         matrixControlPointIndicationsReady = true;

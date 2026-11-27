@@ -525,7 +525,7 @@ void deerruntreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
 
         QLowEnergyService* service = qobject_cast<QLowEnergyService*>(sender());
         if (service == unlock_service && pitpat) {

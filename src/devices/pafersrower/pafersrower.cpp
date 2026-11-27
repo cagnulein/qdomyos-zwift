@@ -306,7 +306,7 @@ void pafersrower::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     qDebug() << QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state));
 
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
         // qDebug() << gattCommunicationChannelService->characteristics();
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
@@ -372,7 +372,7 @@ void pafersrower::stateChanged(QLowEnergyService::ServiceState state) {
         descriptor.append((char)0x01);
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(
-            gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            gattNotify1Characteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
     }
 }
 

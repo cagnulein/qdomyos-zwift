@@ -96,7 +96,7 @@ QByteArray freebeatboombike::resistanceCommand(int resistance) {
 
 void freebeatboombike::writeCharacteristic(const QByteArray &data, const QString &info) {
     if (!gattCommunicationChannelService || !gattWriteCharacteristic.isValid() ||
-        gattCommunicationChannelService->state() != QLowEnergyService::ServiceDiscovered ||
+        gattCommunicationChannelService->state() != QLowEnergyService::RemoteServiceDiscovered ||
         !m_control || m_control->state() == QLowEnergyController::UnconnectedState) {
         emit debug(QStringLiteral("Freebeat Boom Bike write skipped: connection is not ready"));
         return;
@@ -271,7 +271,7 @@ void freebeatboombike::serviceScanDone() {
 }
 
 void freebeatboombike::stateChanged(QLowEnergyService::ServiceState state) {
-    if (state != QLowEnergyService::ServiceDiscovered) {
+    if (state != QLowEnergyService::RemoteServiceDiscovered) {
         return;
     }
 

@@ -269,7 +269,7 @@ void sunnyfitstepper::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     qDebug() << QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state));
 
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
         gattNotify4Characteristic = gattCommunicationChannelService->characteristic(_gattNotify4CharacteristicId);

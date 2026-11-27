@@ -930,8 +930,8 @@ bool bluetooth::advertisesFitnessMachine(const QList<QBluetoothUuid> &services) 
     // not Running Speed and Cadence: a heart rate strap that also measures running pace may advertise it
     const QList<QBluetoothUuid> machineServices = {
         QBluetoothUuid(quint16(0x1826)), // Fitness Machine (FTMS)
-        QBluetoothUuid(QBluetoothUuid::CyclingPower),
-        QBluetoothUuid(QBluetoothUuid::CyclingSpeedAndCadence),
+        QBluetoothUuid(QBluetoothUuid::ServiceClassUuid::CyclingPower),
+        QBluetoothUuid(QBluetoothUuid::ServiceClassUuid::CyclingSpeedAndCadence),
         QBluetoothUuid(QStringLiteral("CE060000-43E5-11E4-916C-0800200C9A66")), // Concept2 PM5
         QBluetoothUuid(QStringLiteral("0bf669f0-45f2-11e7-9598-0800200c9a66")), // Echelon
     };
@@ -4837,7 +4837,7 @@ void bluetooth::startHeartRateSensorScan(const QString &heartRateBeltName, bool 
                     }
                     return;
                 }
-                if (!deviceHasService(b, QBluetoothUuid(QBluetoothUuid::HeartRate)))
+                if (!deviceHasService(b, QBluetoothUuid(QBluetoothUuid::ServiceClassUuid::HeartRate)))
                     return;
                 const QString address = deviceAddress(b);
                 // fitness machines may have a heart rate service too

@@ -452,7 +452,7 @@ void lifefitnesstreadmill::btinit() {
             if (!service || !characteristic.isValid())
                 return;
             const QLowEnergyDescriptor cccd =
-                characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
+                characteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration);
             if (cccd.isValid())
                 service->writeDescriptor(cccd, descriptor);
         };

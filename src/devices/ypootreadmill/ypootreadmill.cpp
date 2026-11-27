@@ -380,7 +380,7 @@ void ypootreadmill::serviceScanDone() {
 }
 
 void ypootreadmill::stateChanged(QLowEnergyService::ServiceState state) {
-    if (state != QLowEnergyService::ServiceDiscovered)
+    if (state != QLowEnergyService::RemoteServiceDiscovered)
         return;
     gattWriteCharControlPointId = gattFTMSService->characteristic(QBluetoothUuid(quint16(0x2AD9)));
     gattWriteCharUnlock = gattFTMSService->characteristic(
@@ -400,7 +400,7 @@ void ypootreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     notificationSubscribed = 2;
     for (const auto uuid : {quint16(0x2AD9), quint16(0x2ACD)}) {
         const auto characteristic = gattFTMSService->characteristic(QBluetoothUuid(uuid));
-        const auto descriptor = characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
+        const auto descriptor = characteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration);
         if (!descriptor.isValid()) {
             emit debug(QStringLiteral("YPOO M5: required subscription unavailable"));
             return;

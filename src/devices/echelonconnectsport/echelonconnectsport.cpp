@@ -544,7 +544,7 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
     firstStateChanged = 1;
     // ********************************************************************************************************
 
-    if (!useNativeIOS && state == QLowEnergyService::ServiceDiscovered) {
+    if (!useNativeIOS && state == QLowEnergyService::RemoteServiceDiscovered) {
         QByteArray descriptor;
         descriptor.append((char)0x01);
         descriptor.append((char)0x00);
