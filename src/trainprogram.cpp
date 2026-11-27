@@ -701,6 +701,9 @@ void trainprogram::scheduler() {
         }
     }
 
+    if (!fitWorkoutMatchesDevice())
+        return;
+
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
          !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
@@ -1519,8 +1522,80 @@ void trainprogram::decreaseElapsedTime(int32_t i) {
     ticks -= i;
 }
 
+bool trainprogram::canSeekElapsedSeconds() const {
+    QMutexLocker locker(&schedulerMutex);
+    if (!started || rows.isEmpty() || !fitWorkoutMatchesDevice())
+        return false;
+    bool hasTarget = false;
+    for (const auto &row : rows) {
+        if (row.distance != -1 || isBlockingTransitionRow(row) ||
+            QTime(0, 0, 0).secsTo(row.duration) <= 0)
+            return false;
+        hasTarget = hasTarget || row.speed >= 0 || row.inclination >= -50 ||
+                    row.power >= 0 || row.cadence >= 0 || row.resistance >= 0;
+    }
+    return hasTarget;
+}
+
+bool trainprogram::seekToElapsedSeconds(int seconds) {
+    QMutexLocker locker(&schedulerMutex);
+    if (!started || rows.isEmpty() || seconds < 0)
+        return false;
+
+    // A time offset is not meaningful for distance-based, open-ended or
+    // condition-controlled steps. Leave those workouts unchanged.
+    qint64 total = 0;
+    int targetStep = -1;
+    int secondsInStep = 0;
+    for (int i = 0; i < rows.size(); ++i) {
+        const trainrow &row = rows.at(i);
+        if (row.distance != -1 || isBlockingTransitionRow(row))
+            return false;
+        const int length = QTime(0, 0, 0).secsTo(row.duration);
+        if (length <= 0)
+            return false;
+        if (targetStep < 0 && seconds < total + length) {
+            targetStep = i;
+            secondsInStep = seconds - static_cast<int>(total);
+        }
+        total += length;
+    }
+    if (targetStep < 0 || seconds >= total)
+        return false;
+
+    const QDateTime now = QDateTime::currentDateTime();
+    ticks = seconds;
+    offset = seconds;
+    currentStep = static_cast<uint16_t>(targetStep);
+    currentStepDistance = 0;
+    lastOdometer = bluetoothManager && bluetoothManager->device()
+                       ? bluetoothManager->device()->odometer() : 0;
+    currentTimerJitter = 0;
+    lastSchedulerCall = now;
+    shownTextEvents.clear();
+    for (int i = 0; i < rows.size(); ++i) {
+        rows[i].started = QDateTime();
+        rows[i].ended = QDateTime();
+    }
+    rows[currentStep].started = now.addSecs(-secondsInStep);
+    for (const auto &event : rows.at(currentStep).textEvents) {
+        if (static_cast<int>(event.timeoffset) < secondsInStep)
+            shownTextEvents.insert(QStringLiteral("%1:%2").arg(currentStep).arg(event.timeoffset));
+    }
+    qDebug() << "trainprogram seeking to second" << seconds << "row" << currentStep;
+    applyCurrentStepSettings();
+    emit changeTimestamp(QTime(0, 0, 0).addSecs(seconds), QTime(0, 0, 0).addSecs(seconds));
+    return true;
+}
+
+bool trainprogram::fitWorkoutMatchesDevice() const {
+    return !isFitWorkout || !bluetoothManager || !bluetoothManager->device() ||
+           workoutimport::isFitDeviceCompatible(loadedDeviceType, bluetoothManager->device()->deviceType());
+}
+
 void trainprogram::applyCurrentStepSettings() {
-    if (!bluetoothManager || !bluetoothManager->device() || currentStep >= (uint16_t)rows.length())
+    if (!bluetoothManager || !bluetoothManager->device() || currentStep >= (uint16_t)rows.length() ||
+        !fitWorkoutMatchesDevice())
         return;
 
     QSettings settings;
@@ -2004,9 +2079,21 @@ trainprogram *trainprogram::load(const QString &filename, bluetooth *b, QString 
     if (workoutimport::isSupportedFile(filename, Extension)) {
         QString description = "";
         QString tags = "";
-        trainprogram *program =
-            new trainprogram(workoutimport::load(filename, Extension, &description), b, &description, &tags);
-        if (b && b->device()) {
+        BLUETOOTH_TYPE fitDeviceType = UNKNOWN;
+        auto rows = workoutimport::load(filename, Extension, &description, &fitDeviceType);
+        const bool isFit = filename.endsWith(QStringLiteral(".fit"), Qt::CaseInsensitive) ||
+                           Extension.compare(QStringLiteral("FIT"), Qt::CaseInsensitive) == 0;
+        if (isFit && b && b->device() &&
+            !workoutimport::isFitDeviceCompatible(fitDeviceType, b->device()->deviceType())) {
+            qWarning() << "FIT workout sport does not match connected device:" << fitDeviceType
+                       << b->device()->deviceType();
+            rows.clear();
+        }
+        trainprogram *program = new trainprogram(rows, b, &description, &tags);
+        program->isFitWorkout = isFit;
+        if (isFit) {
+            program->loadedDeviceType = fitDeviceType;
+        } else if (b && b->device()) {
             program->loadedDeviceType = b->device()->deviceType();
         }
         return program;
@@ -2400,7 +2487,7 @@ int trainprogram::currentRowElapsedSeconds() const {
 }
 
 trainrow trainprogram::currentRow() {
-    if (started && !rows.isEmpty()) {
+    if (started && !rows.isEmpty() && fitWorkoutMatchesDevice()) {
 
         return rows.at(currentStep);
     }
@@ -2408,7 +2495,7 @@ trainrow trainprogram::currentRow() {
 }
 
 trainrow trainprogram::getRowFromCurrent(uint32_t offset) {
-    if (started && !rows.isEmpty() && (currentStep + offset) < (uint32_t)rows.length()) {
+    if (started && !rows.isEmpty() && (currentStep + offset) < (uint32_t)rows.length() && fitWorkoutMatchesDevice()) {
         return rows.at(currentStep + offset);
     }
     return trainrow();

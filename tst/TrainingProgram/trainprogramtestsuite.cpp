@@ -123,3 +123,57 @@ void TrainProgramTestSuite::test_ziproShredHighInclineXmlValuesArePreserved() {
         EXPECT_EQ(loaded.at(i).zoneHR, 0);
     }
 }
+
+
+void TrainProgramTestSuite::test_seekWithinTimeOnlyWorkout() {
+    trainprogram program({timedRow(60), timedRow(120), timedRow(30)}, nullptr);
+    program.restart();
+    EXPECT_TRUE(program.seekToElapsedSeconds(75));
+    EXPECT_EQ(program.currentRowIndex(), 1);
+    EXPECT_EQ(program.offsetElapsedTime(), 75);
+
+    EXPECT_TRUE(program.seekToElapsedSeconds(60));
+    EXPECT_EQ(program.currentRowIndex(), 1);
+    EXPECT_EQ(program.offsetElapsedTime(), 60);
+
+    EXPECT_FALSE(program.seekToElapsedSeconds(210));
+    EXPECT_EQ(program.currentRowIndex(), 1);
+    EXPECT_EQ(program.offsetElapsedTime(), 60);
+}
+
+void TrainProgramTestSuite::test_seekRejectsBlockingAndDistanceRows() {
+    trainprogram blocked({timedRow(60), lapButtonRow(), timedRow(30)}, nullptr);
+    blocked.restart();
+    EXPECT_FALSE(blocked.seekToElapsedSeconds(65));
+    EXPECT_EQ(blocked.currentRowIndex(), 0);
+
+    trainrow distance = timedRow(60);
+    distance.distance = 0.3;
+    trainprogram byDistance({timedRow(60), distance}, nullptr);
+    byDistance.restart();
+    EXPECT_FALSE(byDistance.seekToElapsedSeconds(65));
+    EXPECT_EQ(byDistance.currentRowIndex(), 0);
+}
+
+void TrainProgramTestSuite::test_liveSeekRequiresSupportedRunningTargetWorkout() {
+    trainrow target = timedRow(60);
+    target.speed = 3;
+    trainprogram timed({target, target}, nullptr);
+    EXPECT_FALSE(timed.canSeekElapsedSeconds());
+    timed.restart();
+    EXPECT_TRUE(timed.canSeekElapsedSeconds());
+    EXPECT_TRUE(timed.seekToElapsedSeconds(30));
+    EXPECT_FALSE(timed.seekToElapsedSeconds(120));
+
+    trainprogram noTarget({timedRow(60)}, nullptr);
+    noTarget.restart();
+    EXPECT_FALSE(noTarget.canSeekElapsedSeconds());
+    trainrow distance = target;
+    distance.distance = 1;
+    trainprogram distanceProgram({target, distance}, nullptr);
+    distanceProgram.restart();
+    EXPECT_FALSE(distanceProgram.canSeekElapsedSeconds());
+    trainprogram blocked({target, lapButtonRow()}, nullptr);
+    blocked.restart();
+    EXPECT_FALSE(blocked.canSeekElapsedSeconds());
+}

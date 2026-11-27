@@ -56,3 +56,8 @@ html.modern .heart_avg, html.modern .heart_max {
 html.modern #loading {
     background-color: var(--qz-bg) !important;
 }
+/* The ring of the workout from the history until its data arrives: the accent, as the
+   BusyIndicator of the app */
+html.modern #history-loading {
+    color: var(--qz-accent);
+}

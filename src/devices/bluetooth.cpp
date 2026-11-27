@@ -701,6 +701,15 @@ void bluetooth::connectDirconDevice(const DirconDeviceInfo &deviceInfo) {
         connect(wahooDirconTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
                 &bluetooth::connectedAndDiscovered);
         connect(wahooDirconTreadmill, &wahoodircontreadmill::debug, this, &bluetooth::debug);
+        // A socket error may be followed by a disconnect. Handle both on the
+        // event loop so restart never deletes the driver inside a socket slot.
+        // Discard a queued duplicate once the driver has been destroyed.
+        QPointer<wahoodircontreadmill> disconnectedTreadmill = wahooDirconTreadmill;
+        connect(disconnectedTreadmill.data(), &bluetoothdevice::disconnected, this,
+                [this, disconnectedTreadmill]() {
+                    if (disconnectedTreadmill && wahooDirconTreadmill == disconnectedTreadmill.data())
+                        restart();
+                }, Qt::QueuedConnection);
         if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
             emit searchingStop();
         }

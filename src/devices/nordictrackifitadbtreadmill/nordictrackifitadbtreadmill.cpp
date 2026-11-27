@@ -341,6 +341,10 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
                                     }
                                     emit debug(QStringLiteral("FitPro DirCon: Stop from remote"));
                                     stop(false);
+                                    // The V1 hardware stop intentionally leaves the MCU in PAUSE.
+                                    // Finish QZ's local session through the existing hardware-stop
+                                    // path, which does not echo a second command to the MCU.
+                                    emit buttonHWStop();
                                 }
                             }
                         });

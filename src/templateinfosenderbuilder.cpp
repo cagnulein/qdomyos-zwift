@@ -26,6 +26,7 @@
 #include "tcpclientinfosender.h"
 #include "trainprogram.h"
 #include "zwiftworkout.h"
+#include "workoutimport.h"
 #include "qzsettings.h"
 #include <chrono>
 
@@ -533,7 +534,8 @@ void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue &msgCont
     // The Workout Editor needs to see workouts saved in source/type subfolders
     // such as ride/Garmin and run/Garmin, not only files in training/.
     QDirIterator it(fullPath,
-                    QStringList() << QStringLiteral("*.xml") << QStringLiteral("*.zwo"),
+                    QStringList() << QStringLiteral("*.xml") << QStringLiteral("*.zwo")
+                                  << QStringLiteral("*.fit") << QStringLiteral("*.FIT"),
                     QDir::Files | QDir::NoDotAndDotDot,
                     QDirIterator::Subdirectories);
     QList<QFileInfo> files;
@@ -574,8 +576,26 @@ void TemplateInfoSenderBuilder::onGetTrainingProgram(const QJsonValue &msgConten
     QJsonArray outArr;
     QJsonObject outObj;
     QString fileXml;
-    if (homeform::singleton() && homeform::singleton()->trainingProgram()) {
-        QList<trainrow> lst = homeform::singleton()->trainingProgram()->loadedRows;
+    QList<trainrow> lst;
+    BLUETOOTH_TYPE programDevice = UNKNOWN;
+    const QString requestedUrl = msgContent.toObject().value(QStringLiteral("url")).toString();
+    if (!requestedUrl.isEmpty()) {
+        // Read a FIT for editing without replacing the active workout or requiring a matching device.
+        // Accept only files inside the training directory, including its subfolders.
+        const QString root = QDir(homeform::getWritableAppDir() + QStringLiteral("training")).canonicalPath();
+        const QFileInfo info(QQmlFile::urlToLocalFileOrQrc(QUrl(requestedUrl)));
+        const QString path = info.canonicalFilePath();
+        if (!root.isEmpty() && !path.isEmpty() && info.isFile() &&
+            path.startsWith(root + QStringLiteral("/")) &&
+            info.suffix().compare(QStringLiteral("FIT"), Qt::CaseInsensitive) == 0) {
+            lst = workoutimport::load(path, QStringLiteral("FIT"), nullptr, &programDevice);
+            fileXml = QDir(root).relativeFilePath(path);
+        }
+    } else if (homeform::singleton() && homeform::singleton()->trainingProgram()) {
+        lst = homeform::singleton()->trainingProgram()->loadedRows;
+        programDevice = homeform::singleton()->trainingProgram()->loadedDeviceType;
+    }
+    if (!lst.isEmpty()) {
         int idx = 0;
         while (idx < lst.size()) {
             const trainrow &curRow = lst[idx];
@@ -629,8 +649,7 @@ void TemplateInfoSenderBuilder::onGetTrainingProgram(const QJsonValue &msgConten
                 idx++;
             }
         }
-        outObj[QStringLiteral("device")] =
-            trainprogram::deviceTypeToXmlKey(homeform::singleton()->trainingProgram()->loadedDeviceType);
+        outObj[QStringLiteral("device")] = trainprogram::deviceTypeToXmlKey(programDevice);
     }
     outObj[QStringLiteral("list")] = outArr;
     outObj[QStringLiteral("name")] = fileXml;
@@ -658,7 +677,11 @@ void TemplateInfoSenderBuilder::onTrainingProgramPreview(const QJsonValue &msgCo
     QJsonObject main;
     QJsonObject outObj;
 
-    if (zwiftworkout::isZwiftWorkoutFile(filePath, extension)) {
+    if (extension == QStringLiteral("FIT")) {
+        BLUETOOTH_TYPE fitDevice = UNKNOWN;
+        rows = workoutimport::load(filePath, extension, &description, &fitDevice);
+        outObj[QStringLiteral("device")] = trainprogram::deviceTypeToXmlKey(fitDevice);
+    } else if (zwiftworkout::isZwiftWorkoutFile(filePath, extension)) {
         rows = zwiftworkout::load(filePath, &description, &tags);
     } else {
         const BLUETOOTH_TYPE fallback = device ? device->deviceType() : BIKE;
@@ -809,6 +832,8 @@ void TemplateInfoSenderBuilder::onGetWorkoutPreview(TemplateInfoSender *tempSend
         QList<double> cadenceData = hf->preview_workout_cadence();
 
         outObj[QStringLiteral("points")] = points;
+        outObj[QStringLiteral("seekSupported")] = hf->previewWorkoutSeekSupported();
+        outObj[QStringLiteral("currentSeconds")] = hf->previewWorkoutCurrentSeconds();
         outObj[QStringLiteral("description")] = hf->previewWorkoutDescription();
         outObj[QStringLiteral("tags")] = hf->previewWorkoutTags();
 
@@ -1201,11 +1226,20 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
             if (row.contains(QStringLiteral("cadence"))) {
                 tR.cadence = row[QStringLiteral("cadence")].toInt();
             }
+            if (row.contains(QStringLiteral("lower_cadence"))) {
+                tR.lower_cadence = row[QStringLiteral("lower_cadence")].toInt();
+            }
+            if (row.contains(QStringLiteral("upper_cadence"))) {
+                tR.upper_cadence = row[QStringLiteral("upper_cadence")].toInt();
+            }
             if (row.contains(QStringLiteral("mets"))) {
                 tR.mets = row[QStringLiteral("mets")].toInt();
             }
             if (row.contains(QStringLiteral("forcespeed"))) {
                 tR.forcespeed = row.value(QStringLiteral("forcespeed")).toVariant().toBool();
+            }
+            if (row.contains(QStringLiteral("waitForLap"))) {
+                tR.waitForLap = row.value(QStringLiteral("waitForLap")).toBool();
             }
             if (row.contains(QStringLiteral("loopTimeHR"))) {
                 tR.loopTimeHR = row[QStringLiteral("loopTimeHR")].toInt();
@@ -1263,6 +1297,9 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
     if (!dir.exists()) {
         dir.mkpath(QStringLiteral("."));
     }
+    // Explicit Save on a FIT creates an editable XML copy; never replace an unrelated XML.
+    if (content.value(QStringLiteral("sourceFit")).toBool())
+        fileName = uniqueTrainingProgramName(trainingDir, fileName);
     outObj[QStringLiteral("name")] = fileName;
     if (trainprogram::saveXML(trainingDir + fileName + QStringLiteral(".xml"), trainRows, programDevice)) {
         outObj[QStringLiteral("list")] = trainRows.size();
@@ -1620,6 +1657,13 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                 } else if (msg == QStringLiteral("trainprogram_preview")) {
                     onTrainingProgramPreview(jsonObject[QStringLiteral("content")], sender);
                     return;
+                } else if (msg == QStringLiteral("setworkoutpreviewseek")) {
+                    if (homeform::singleton()) {
+                        const int seconds = jsonObject[QStringLiteral("content")].toObject()
+                                                .value(QStringLiteral("seconds")).toInt(-1);
+                        homeform::singleton()->setPreviewWorkoutSelectedSeconds(seconds);
+                    }
+                    return;
                 } else if (msg == QStringLiteral("getworkoutpreview")) {
                     onGetWorkoutPreview(sender);
                     return;
@@ -1632,6 +1676,27 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                 } else if (msg == QStringLiteral("gettrainingprogram")) {
                     onGetTrainingProgram(jsonObject[QStringLiteral("content")], sender);
                     return;                    
+                } else if (msg == QStringLiteral("getliveseekstate") || msg == QStringLiteral("setliveseek")) {
+                    auto *home = homeform::singleton();
+                    auto *program = home ? home->trainingProgram() : nullptr;
+                    const QString id = program ? program->seekSessionId() : QString();
+                    bool allowed = program && program->canSeekElapsedSeconds();
+                    bool applied = false;
+                    if (msg == QStringLiteral("setliveseek")) {
+                        const QJsonObject request = jsonObject.value(QStringLiteral("content")).toObject();
+                        const int seconds = request.value(QStringLiteral("seconds")).toInt(-1);
+                        allowed = allowed && request.value(QStringLiteral("workoutId")).toString() == id;
+                        applied = allowed && program->seekToElapsedSeconds(seconds);
+                    }
+                    QJsonObject content;
+                    content[QStringLiteral("supported")] = allowed;
+                    content[QStringLiteral("workoutId")] = id;
+                    content[QStringLiteral("applied")] = applied;
+                    QJsonObject response;
+                    response[QStringLiteral("msg")] = QStringLiteral("R_") + msg;
+                    response[QStringLiteral("content")] = content;
+                    sender->send(QJsonDocument(response).toJson());
+                    return;
                 } else if (msg == QStringLiteral("workouteditor_env")) {
                     onWorkoutEditorEnv(sender);
                     return;
