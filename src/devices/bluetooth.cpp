@@ -4712,8 +4712,7 @@ void bluetooth::reconnectHeartRateBelt(const QString &name, const QString &addre
                     .arg(heartRateBeltName));
     };
     connect(hrmDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, notFound);
-    connect(hrmDiscoveryAgent,
-            QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this,
+    connect(hrmDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::errorOccurred, this,
             notFound);
     hrmDiscoveryAgent->setLowEnergyDiscoveryTimeout(30000);
     startHeartRateBeltScan(hrmDiscoveryAgent);
@@ -4866,8 +4865,7 @@ void bluetooth::startHeartRateSensorScan(const QString &heartRateBeltName, bool 
         }
     };
     connect(hrmDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, finished);
-    connect(hrmDiscoveryAgent,
-            QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this,
+    connect(hrmDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::errorOccurred, this,
             finished);
     hrmDiscoveryAgent->setLowEnergyDiscoveryTimeout(10000);
     startHeartRateBeltScan(hrmDiscoveryAgent);
