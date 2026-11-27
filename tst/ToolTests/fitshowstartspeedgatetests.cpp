@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "devices/fitshowtreadmill/fitshowstartspeedgate.h"
+#include "devices/fitshowtreadmill/fitshowstopcommand.h"
 
 // The FitShow firmware may ACK speed commands while in its start countdown,
 // without applying those commands to the motor. Keep the queued workout target
@@ -62,4 +63,28 @@ TEST(FitShowStartSpeedGate, OrdinaryRunningSpeedChangesAreUnchanged) {
     FitShowStartSpeedGate gate;
     // Existing users controlling an already running treadmill are unaffected.
     EXPECT_TRUE(gate.canSendTarget(false, false));
+}
+
+TEST(FitShowStopCommand, ExplicitStopAlwaysUsesPhysicalStop) {
+    for (bool merach : {false, true}) {
+        for (bool stopOnly : {false, true}) {
+            EXPECT_EQ(0x03, fitshowStopCommand(false, merach, stopOnly));
+        }
+    }
+}
+
+TEST(FitShowStopCommand, OrdinaryPauseAndMerachPauseAreUnchanged) {
+    EXPECT_EQ(0x06, fitshowStopCommand(true, false, false));
+    EXPECT_EQ(0x0a, fitshowStopCommand(true, true, false));
+}
+
+TEST(FitShowStopCommand, BlacklordPauseUsesCapturedPhysicalStop) {
+    EXPECT_EQ(0x03, fitshowStopCommand(true, false, true));
+    const uint8_t command = fitshowStopCommand(true, false, true);
+    EXPECT_EQ(0x50, 0x53 ^ command); // 02 53 03 50 03
+}
+
+TEST(FitShowStopCommand, StopAfterPauseDoesNotReusePauseCommand) {
+    EXPECT_EQ(0x06, fitshowStopCommand(true, false, false));
+    EXPECT_EQ(0x03, fitshowStopCommand(false, false, false));
 }
