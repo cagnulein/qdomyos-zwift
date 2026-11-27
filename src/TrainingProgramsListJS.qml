@@ -82,7 +82,7 @@ ColumnLayout {
         isSearching = true
 
         // Call C++ FileSearcher for fast recursive search
-        var results = fileSearcher.searchRecursively(folderUrl, filter, ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr"])
+        var results = fileSearcher.searchRecursively(folderUrl, filter, ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr", "*.fit", "*.FIT"])
 
         // Populate search results model
         for (var i = 0; i < results.length; i++) {
@@ -98,7 +98,7 @@ ColumnLayout {
                 id: fileDialog
                 title: qsTr("Please choose a file")
                 folder: shortcuts.home
-                nameFilters: [qsTr("Training programs (*.xml *.zwo *.mrc *.erg *.json *.xsr)"), qsTr("All files (*)")]
+                nameFilters: [qsTr("Training programs") + " (*.xml *.zwo *.mrc *.erg *.json *.xsr *.fit *.FIT)", qsTr("All files (*)")]
                 visible: true
                 onAccepted: {
                     var chosenFile = fileDialog.fileUrl || fileDialog.file || (fileDialog.fileUrls && fileDialog.fileUrls.length > 0 ? fileDialog.fileUrls[0] : "")
@@ -298,7 +298,7 @@ ColumnLayout {
 
                         FolderListModel {
                             id: folderModel
-                            nameFilters: ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr"]
+                            nameFilters: ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr", "*.fit", "*.FIT"]
                             folder: rootItem.localFileUrl(rootItem.getWritableAppDir() + 'training')
                             showDotAndDotDot: false
                             showDirs: true
@@ -557,6 +557,19 @@ ColumnLayout {
                             highlighted: true
                             Material.background: Material.Green
                             onClicked: {
+                                trainprogram_open_clicked(pendingWorkoutUrl)
+                                trainprogram_autostart_requested()
+                                stackView.pop()
+                            }
+                        }
+
+                        UiButton {
+                            text: qsTr("Resume from here")
+                            visible: rootItem.previewWorkoutSeekSupported &&
+                                     rootItem.previewWorkoutSelectedSeconds > 0
+                            onClicked: {
+                                // Capture the selection while the preview is still loaded.
+                                rootItem.setNextWorkoutStartSecond(rootItem.previewWorkoutSelectedSeconds)
                                 trainprogram_open_clicked(pendingWorkoutUrl)
                                 trainprogram_autostart_requested()
                                 stackView.pop()

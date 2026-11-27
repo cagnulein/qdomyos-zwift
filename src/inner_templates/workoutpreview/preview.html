@@ -86,6 +86,113 @@
         // cadence and no power showed only the speed, unset (-1).
         let charts = null;
 
+        // The selected workout time is a visual marker, not a motor command.
+        // Only an explicit press of "Resume from here" starts a selected interval.
+        let totalPreviewSeconds = 0;
+        let selectedPreviewSecond = 0;
+        let currentPreviewSecond = -1;
+        let seekEnabled = false;
+        let draggingCanvas = null;
+
+        function timeLabel(seconds) {
+            const s = Math.max(0, Math.round(seconds));
+            const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+            return (h ? h + ':' + String(m).padStart(2, '0') : String(m)) +
+                ':' + String(sec).padStart(2, '0');
+        }
+
+        Chart.register({
+            id: 'qz-workout-preview-playhead',
+            afterDraw: function (chart) {
+                const host = document.getElementById('chart-container');
+                if (!host.contains(chart.canvas) || totalPreviewSeconds <= 0 || !chart.scales.x)
+                    return;
+                const scale = chart.scales.x;
+                const area = chart.chartArea;
+                const x = Math.max(area.left, Math.min(area.right, scale.getPixelForValue(selectedPreviewSecond)));
+                const ctx = chart.ctx;
+                ctx.save();
+                // Actual workout progress is independent of the user's selected seek time.
+                if (currentPreviewSecond >= 0) {
+                    const liveX = Math.max(area.left, Math.min(area.right,
+                        scale.getPixelForValue(currentPreviewSecond)));
+                    ctx.strokeStyle = '#16a34a';
+                    ctx.lineWidth = 3;
+                    ctx.setLineDash([]);
+                    ctx.beginPath();
+                    ctx.moveTo(liveX, area.top);
+                    ctx.lineTo(liveX, area.bottom);
+                    ctx.stroke();
+                }
+                if (!seekEnabled) {
+                    ctx.restore();
+                    return;
+                }
+                ctx.strokeStyle = '#e11d48';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 3]);
+                ctx.beginPath();
+                ctx.moveTo(x, area.top);
+                ctx.lineTo(x, area.bottom);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                const label = timeLabel(selectedPreviewSecond) + ' / ' + timeLabel(totalPreviewSeconds);
+                ctx.font = '12px sans-serif';
+                const width = ctx.measureText(label).width + 12;
+                const left = Math.min(Math.max(area.left, x - width / 2), Math.max(area.left, area.right - width));
+                ctx.fillStyle = '#e11d48';
+                ctx.fillRect(left, area.top + 3, width, 20);
+                ctx.fillStyle = 'white';
+                ctx.fillText(label, left + 6, area.top + 17);
+                ctx.restore();
+            }
+        });
+
+        function selectPreviewSecond(seconds, sync) {
+            if (!seekEnabled || !Number.isFinite(seconds))
+                return;
+            const next = Math.max(0, Math.min(totalPreviewSeconds - 1, Math.round(seconds)));
+            selectedPreviewSecond = next;
+            document.querySelectorAll('#chart-container canvas').forEach(function (canvas) {
+                const chart = Chart.getChart(canvas);
+                if (chart)
+                    chart.draw();
+            });
+            if (sync && ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ msg: 'setworkoutpreviewseek', content: { seconds: next } }));
+            }
+        }
+
+        function secondFromPointer(event, canvas) {
+            const chart = Chart.getChart(canvas);
+            if (!chart || !chart.scales.x)
+                return null;
+            const rect = canvas.getBoundingClientRect();
+            return chart.scales.x.getValueForPixel(event.clientX - rect.left);
+        }
+
+        const previewHost = document.getElementById('chart-container');
+        previewHost.addEventListener('pointerdown', function (event) {
+            if (!seekEnabled || event.target.tagName !== 'CANVAS')
+                return;
+            draggingCanvas = event.target;
+            selectPreviewSecond(secondFromPointer(event, draggingCanvas), false);
+            if (draggingCanvas.setPointerCapture)
+                draggingCanvas.setPointerCapture(event.pointerId);
+        });
+        previewHost.addEventListener('pointermove', function (event) {
+            if (draggingCanvas)
+                selectPreviewSecond(secondFromPointer(event, draggingCanvas), false);
+        });
+        previewHost.addEventListener('pointerup', function (event) {
+            if (!draggingCanvas)
+                return;
+            selectPreviewSecond(secondFromPointer(event, draggingCanvas), true);
+            draggingCanvas = null;
+        });
+        previewHost.addEventListener('pointercancel', function () { draggingCanvas = null; });
+
+
         // The speed comes in km/h: shown in miles when the app uses them (an unset -1 stays
         // below zero, a gap)
         function speedPoints(list) {
@@ -251,6 +358,17 @@
 
         // Update chart from WebSocket data
         function updateWorkoutFromData(data) {
+            // Live progress changes once per second, independently of the chart data.
+            const current = typeof data.currentSeconds === 'number' && data.currentSeconds >= 0
+                ? data.currentSeconds : -1;
+            if (currentPreviewSecond !== current) {
+                currentPreviewSecond = current;
+                document.querySelectorAll('#chart-container canvas').forEach(function (canvas) {
+                    const chart = Chart.getChart(canvas);
+                    if (chart)
+                        chart.draw();
+                });
+            }
             // Create a hash of the data to detect changes
             const dataHash = JSON.stringify({
                 points: data.points,
@@ -261,7 +379,8 @@
                 cadence: data.cadence,
                 segments: data.segments,
                 hasOpenEndedSteps: data.hasOpenEndedSteps,
-                deviceType: data.deviceType
+                deviceType: data.deviceType,
+                seekSupported: data.seekSupported
             });
 
             // Only update if data has changed
@@ -272,6 +391,14 @@
             lastDataHash = dataHash;
 
             const { points, watts, speed, inclination, resistance, cadence, segments, hasOpenEndedSteps, deviceType, miles_unit } = data;
+
+            // Changing the preview resets any previous selection; unsupported workouts
+            // still show the position marker but cannot seek past distance/HR barriers.
+            const nextTotal = Math.max(0, Number(points) || 0);
+            seekEnabled = Boolean(data.seekSupported);
+            if (nextTotal !== totalPreviewSeconds || !seekEnabled)
+                selectedPreviewSecond = 0;
+            totalPreviewSeconds = nextTotal;
 
             // Update miles setting if provided
             if (miles_unit !== undefined) {

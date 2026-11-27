@@ -37,6 +37,21 @@ function t(key, fallback) {
     return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
 }
 
+// The tooltip under a finger or the mouse: the time of the point (the x axis of the line charts
+// counts seconds, and so do the values of the zone bars) instead of the raw number
+function tooltipTime(seconds) {
+    let s = Math.round(seconds), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60);
+    return (h > 0 ? h + ":" + m.toString().padStart(2, "0") : m) + ":" + (s % 60).toString().padStart(2, "0");
+}
+
+function tooltipTimeTitle(items) {
+    return items.length ? tooltipTime(items[0].parsed.x) : "";
+}
+
+function tooltipTimeLabel(item) {
+    return tooltipTime(item.parsed.y);
+}
+
 function zoneLabel(number) {
     return t('chart.zoneNumber', 'zone {number}').replace('{number}', number);
 }
@@ -158,6 +173,17 @@ function process_arr(arr) {
         inclination.push(inclinationel);
     }
 
+    // With the animation off Chart.js 3.4.1 updates only the points up to the first one at the x
+    // axis max (the time of the last point): when the session ends with points of one second, the
+    // ones after the first kept their old place on a resize (full screen, a turn of the phone).
+    // The lines keep the first point of that second
+    let lines = [watts, reqpower, reqcadence, heart, cadence, resistance, reqresistance,
+                 pelotonresistance, pelotonreqresistance, speed, inclination];
+    while (watts.length > 1 && watts[watts.length - 2].x === maxEl) {
+        for (let line of lines)
+            line.pop();
+    }
+
     $('.workoutName').text(workoutName);
     $('.workoutStartDate').text(workoutStartDate);
     $('.instructorName').text((instructorName));
@@ -262,11 +288,10 @@ function process_arr(arr) {
             ]
         },
         options: {
-            animation: {
-              onComplete: function() {
-                  // Preview mode - no chart saving
-              }
-            },
+            // A finished workout has no live updates to animate, and Chart.js resolves the animation
+            // of every point of every line (thousands on a long workout) before it draws: no
+            // animation on any chart of the preview, so the page shows the charts at once
+            animation: false,
             responsive: true,
             aspectRatio: 1.5,
             grid: {
@@ -277,9 +302,10 @@ function process_arr(arr) {
                     display:true,
                     text:t('metric.watt', 'Watt')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false
@@ -351,6 +377,11 @@ function process_arr(arr) {
                             },
                         }
                       }
+            },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',
@@ -439,11 +470,7 @@ function process_arr(arr) {
             }]
         },
         options: {
-            animation: {
-              onComplete: function() {
-                  // Preview mode - no chart saving
-              }
-            },
+            animation: false,
             responsive: true,
             aspectRatio: 1.5,
             grid: {
@@ -454,9 +481,10 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.heartRate', 'Heart Rate')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false
@@ -510,6 +538,11 @@ function process_arr(arr) {
                             },
                     }
                 },
+            },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',
@@ -592,11 +625,7 @@ function process_arr(arr) {
             ]
         },
         options: {
-            animation: {
-              onComplete: function() {
-                  // Preview mode - no chart saving
-              }
-            },
+            animation: false,
             responsive: true,
             aspectRatio: 1.5,
             grid: {
@@ -607,14 +636,20 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.resistanceVsTarget', 'Resistance vs Target Resistance')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false,
                     position: 'bottom',
                 },
+            },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',
@@ -692,11 +727,7 @@ function process_arr(arr) {
             ]
         },
         options: {
-            animation: {
-              onComplete: function() {
-                  // Preview mode - no chart saving
-              }
-            },
+            animation: false,
             responsive: true,
             aspectRatio: 1.5,
             grid: {
@@ -707,14 +738,20 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.pelotonResistanceVsTarget', 'Peloton Resistance vs Target Peloton Resistance')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false,
                     position: 'bottom',
                 },
+            },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',
@@ -792,11 +829,7 @@ function process_arr(arr) {
             ]
         },
         options: {
-            animation: {
-              onComplete: function() {
-                  // Preview mode - no chart saving
-              }
-            },
+            animation: false,
             responsive: true,
             aspectRatio: 1.5,
             grid: {
@@ -807,14 +840,20 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.cadenceVsTarget', 'Cadence vs Target Cadence')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false,
                     position: 'bottom',
                 },
+            },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',
@@ -879,11 +918,7 @@ function process_arr(arr) {
             ]
         },
         options: {
-            animation: {
-              onComplete: function() {
-                  // Preview mode - no chart saving
-              }
-            },
+            animation: false,
             responsive: true,
             aspectRatio: 1.5,
             plugins: {
@@ -891,14 +926,20 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.powerDistribution', 'Power Distribution')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        label: tooltipTimeLabel,
+                    },
                 },
                 legend: {
                     display: false,
                     position: 'right',
                 },
+            },
+            // Chart.js 3: the bar of the zone under the finger anywhere in its column, not only on the bar
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',
@@ -955,11 +996,7 @@ function process_arr(arr) {
             ]
         },
         options: {
-            animation: {
-              onComplete: function() {
-                  // Preview mode - no chart saving
-              }
-            },
+            animation: false,
             responsive: true,
             aspectRatio: 1.5,
             grid: {
@@ -970,14 +1007,20 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.speedAndInclination', 'Speed and Inclination')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false,
                     position: 'bottom',
                 },
+            },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',
@@ -1104,6 +1147,10 @@ function dochart_init() {
     }, 15000, 3);
     el.enqueue().then(process_arr).catch(function(err) {
         console.error('Error is ' + err);
+    }).then(function() {
+        // The summary and the charts show now, with their numbers (chart.htm, qz-loading).
+        // After a request that failed or timed out, or a failed drawing, too
+        document.documentElement.classList.remove('qz-loading');
     });
 }
 
@@ -1146,8 +1193,4 @@ $(window).on('load', function () {
            {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':19,'elapsed_h':0, 'heart':120, 'resistance': 10, 'req_resistance': 23, 'cadence': 80, 'req_cadence': 97, 'speed': 10, 'inclination': 1, 'workoutName': '45min Power Zone Ride', 'workoutStartDate': '20/12/2021', 'instructorName': "Roberto Viola", 'watts_avg': 200, 'watts_max' : 250, 'heart_avg': 120, 'heart_max' : 150},
             ]
     process_arr(arr);
-});
-
-$(document).ready(function () {
-    $('#loading').hide();
 });

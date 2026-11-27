@@ -54,6 +54,7 @@ SOURCES += \
         Devices/TestYpooTreadmill.cpp \
         Devices/TestYpooM5Distance.cpp \
         Devices/TestFtmsTreadmillControl.cpp \
+        Devices/TestParagonXTelemetry.cpp \
         Devices/TestTrxAppGateUsBellipticalParser.cpp \
         Devices/TestTrxAppGateUsTreadmillParser.cpp \
         Devices/TestTrxAppGateUsRowerParser.cpp \
