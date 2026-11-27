@@ -6062,12 +6062,20 @@ Darf QZ diesen Wert ändern?
         <translation>Wählen Sie aus, welche Diagramme in der Fußzeile angezeigt werden sollen: Herzfrequenz- und Leistungsdiagramme, nur Herzfrequenzdiagramm oder nur Leistungsdiagramm.</translation>
     </message>
     <message>
-        <source>Smooth Chart Lines</source>
-        <translation>Diagrammlinien glätten</translation>
+        <source>Smooth Chart Lines:</source>
+        <translation>Diagrammlinien glätten:</translation>
     </message>
     <message>
-        <source>On the Charts page, draw the power, cadence and speed lines as a 5-second moving average instead of the raw second-by-second values. Averages, maximums and zones still use the raw values. Default is off.</source>
-        <translation>Auf der Seite „Diagramme“ werden die Linien für Leistung, Trittfrequenz und Geschwindigkeit als gleitender 5-Sekunden-Durchschnitt statt mit den sekündlichen Rohwerten gezeichnet. Durchschnitte, Maxima und Zonen werden weiterhin aus den Rohwerten berechnet. Standardmäßig aus.</translation>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
+    <message>
+        <source>%1 s</source>
+        <translation>%1 s</translation>
+    </message>
+    <message>
+        <source>On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
+        <translation>Auf der Seite „Diagramme“ und in den Diagrammen der Trainings-E-Mail werden die Linien für Leistung, Trittfrequenz und Geschwindigkeit als gleitender Durchschnitt über das gewählte Fenster gezeichnet statt mit den sekündlichen Rohwerten. Auto: 3 Sekunden während des Trainings; nach Stopp 3 Sekunden plus 2 für jede volle halbe Stunde des Trainings, höchstens 15. Durchschnitte, Maxima, Zonen, die Leistungsverteilung und die FIT-Datei verwenden weiterhin die Rohwerte. Standard ist Aus.</translation>
     </message>
     <message>
         <source>UI Themes</source>

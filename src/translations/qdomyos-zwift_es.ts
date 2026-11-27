@@ -6126,12 +6126,20 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Elige qué gráficos mostrar en el pie de página: gráficos de frecuencia cardíaca y potencia, solo gráfico de frecuencia cardíaca, o solo gráfico de potencia.</translation>
     </message>
     <message>
-        <source>Smooth Chart Lines</source>
-        <translation>Suavizar líneas de los gráficos</translation>
+        <source>Smooth Chart Lines:</source>
+        <translation>Suavizar líneas de los gráficos:</translation>
     </message>
     <message>
-        <source>On the Charts page, draw the power, cadence and speed lines as a 5-second moving average instead of the raw second-by-second values. Averages, maximums and zones still use the raw values. Default is off.</source>
-        <translation>En la página Gráficos, las líneas de potencia, cadencia y velocidad se dibujan como una media móvil de 5 segundos en lugar de los valores segundo a segundo. Las medias, los máximos y las zonas se siguen calculando con los valores originales. Desactivado de forma predeterminada.</translation>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
+    <message>
+        <source>%1 s</source>
+        <translation>%1 s</translation>
+    </message>
+    <message>
+        <source>On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
+        <translation>En la página Gráficos y en los gráficos del correo del entrenamiento, dibuja las líneas de potencia, cadencia y velocidad como una media móvil sobre la ventana elegida en lugar de los valores brutos segundo a segundo. Auto: 3 segundos durante el entrenamiento; tras Detener, 3 segundos más 2 por cada 30 minutos completos del entrenamiento, hasta 15. Las medias, los máximos, las zonas, la distribución de potencia y el archivo FIT siguen usando los valores brutos. Por defecto: Apagado.</translation>
     </message>
     <message>
         <source>UI Themes</source>
