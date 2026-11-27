@@ -1147,6 +1147,10 @@ function dochart_init() {
     }, 15000, 3);
     el.enqueue().then(process_arr).catch(function(err) {
         console.error('Error is ' + err);
+    }).then(function() {
+        // The summary and the charts show now, with their numbers (chart.htm, qz-loading).
+        // After a request that failed or timed out, or a failed drawing, too
+        document.documentElement.classList.remove('qz-loading');
     });
 }
 
@@ -1189,8 +1193,4 @@ $(window).on('load', function () {
            {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':19,'elapsed_h':0, 'heart':120, 'resistance': 10, 'req_resistance': 23, 'cadence': 80, 'req_cadence': 97, 'speed': 10, 'inclination': 1, 'workoutName': '45min Power Zone Ride', 'workoutStartDate': '20/12/2021', 'instructorName': "Roberto Viola", 'watts_avg': 200, 'watts_max' : 250, 'heart_avg': 120, 'heart_max' : 150},
             ]
     process_arr(arr);
-});
-
-$(document).ready(function () {
-    $('#loading').hide();
 });

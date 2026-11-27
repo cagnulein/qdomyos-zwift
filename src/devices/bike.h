@@ -14,6 +14,10 @@ class bike : public bluetoothdevice {
     bike();
     static double powerZoneValueToFtpPercentage(double zoneValue);
     static int powerZoneValueToWatts(double zoneValue, double ftp);
+    // Shared ERG adjustment. FTMS uses the requested power as the reference (legacy behavior);
+    // trainers with a separate watt meter can use their measured power as the reference.
+    static int32_t powerTargetWithExternalSensorDelta(int32_t target, double referencePower,
+                                                       double externalPower, double maxDifference);
     static bool targetPowerOverridesExternalApp(qint64 lastAppFrame, qint64 now, bool appErgMode,
                                                 bool autoResistance);
 

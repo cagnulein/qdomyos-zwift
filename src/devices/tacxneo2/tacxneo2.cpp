@@ -64,35 +64,52 @@ void tacxneo2::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
     loop.exec();
 }
 
+int32_t tacxneo2::calibratedErgTrainerPower(int32_t target, double wattGain, double wattOffset,
+                                                  double bikePowerOffset, bool thinkX,
+                                                  bool externalPowerSensor, double trainerWatts,
+                                                  double externalWatts) {
+    // The Tacx protocol encodes the target in unsigned quarter-watts.
+    // Keep the original gain/offset conversion for all devices on this driver.
+    if (target <= 0)
+        return 0;
+
+    const double validGain = (wattGain > 0.0 && wattGain <= 2.0) ? wattGain : 1.0;
+    const double calibrated = ((target - wattOffset) / validGain) + bikePowerOffset;
+    int32_t trainerTarget = qRound(qBound(0.0, calibrated, 16383.0));
+
+    // ThinkRider's proprietary Tacx-style protocol can report its own power separately
+    // from an external power meter. Match their 5-second averages to maintain a stable
+    // correction when the requested power is resent. Never change native Tacx bikes.
+    if (thinkX && externalPowerSensor) {
+        trainerTarget = qBound(0, bike::powerTargetWithExternalSensorDelta(
+            trainerTarget, trainerWatts, externalWatts, 30.0), 16383);
+    }
+    return trainerTarget;
+}
+
 void tacxneo2::changePower(int32_t power) {
-    // Preserve the target requested by the training app for the QZ UI.
+    // Keep the QZ tile on the original target, not the physical trainer correction.
     RequestedPower = power;
 
-    // m_watt already applies gain and offset in metric::setValue(). Invert that
-    // correction only for the physical ERG command, not for incoming telemetry.
-    // A zero target must still release ERG, regardless of configured offsets.
-    int32_t trainerPower = 0;
-    if (power > 0) {
-        QSettings settings;
-        const double configuredGain =
-            settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
-        // metric::applySettings() ignores gains above 2 for bikes.
-        // Ignore invalid/non-positive gains here to avoid division by zero.
-        const double wattGain = (configuredGain > 0.0 && configuredGain <= 2.0) ? configuredGain : 1.0;
-        const double wattOffset =
-            settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
-        const double bikePowerOffset =
-            settings.value(QZSettings::bike_power_offset, QZSettings::default_bike_power_offset).toDouble();
+    QSettings settings;
+    const double wattGain =
+        settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+    const double wattOffset =
+        settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+    const double bikePowerOffset =
+        settings.value(QZSettings::bike_power_offset, QZSettings::default_bike_power_offset).toDouble();
+    const bool externalPowerSensor =
+        !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+             .toString().startsWith(QStringLiteral("Disabled"));
 
-        // The telemetry formula is raw * gain + offset, so the inverse is
-        // (requested - offset) / gain. The bike offset is a physical-target adjustment.
-        const double adjustedPower = ((power - wattOffset) / wattGain) + bikePowerOffset;
-        // The Tacx protocol encodes the target in an unsigned 16-bit quarter-watt field.
-        trainerPower = qRound(qBound(0.0, adjustedPower, 16383.0));
-        if (trainerPower != power) {
-            emit debug(QStringLiteral("ERG target calibrated: ") + QString::number(power) +
-                       QStringLiteral(" W -> ") + QString::number(trainerPower) + QStringLiteral(" W"));
-        }
+    // m_rawWatt: trainer only; m_watt: QZ-selected sensor (Assioma, etc.).
+    // Missing or invalid readings do not enable correction.
+    const int32_t trainerPower = calibratedErgTrainerPower(
+        power, wattGain, wattOffset, bikePowerOffset, THINK_X, externalPowerSensor,
+        m_rawWatt.average5s(), m_watt.average5s());
+    if (trainerPower != power) {
+        emit debug(QStringLiteral("ERG target calibrated: ") + QString::number(power) +
+                   QStringLiteral(" W -> ") + QString::number(trainerPower) + QStringLiteral(" W"));
     }
 
     uint8_t p[] = {0xa4, 0x09, 0x4e, 0x05, 0x31, 0xff, 0xff, 0xff, 0xff, 0xff, 0x14, 0x02, 0x00};

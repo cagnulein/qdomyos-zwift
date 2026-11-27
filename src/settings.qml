@@ -764,6 +764,13 @@ import AndroidStatusBar 1.0
                    initialProfileSettingsSnapshot !== profileSettingsSnapshot()
         }
 
+        // main.qml, back from the settings: a setting switched and switched back still raised the
+        // restart question, though the settings are as they were. Without a snapshot - changed
+        function settingsChangedSinceOpen() {
+            return initialProfileSettingsSnapshot.length === 0 ||
+                   initialProfileSettingsSnapshot !== profileSettingsSnapshot()
+        }
+
         Component.onCompleted: {
             initialProfileSettingsSnapshot = profileSettingsSnapshot()
             window.settings_restart_to_apply = false
