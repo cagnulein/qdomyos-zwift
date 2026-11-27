@@ -126,7 +126,7 @@ void freebeatboombike::innerWriteResistance() {
         return;
     }
 
-    requestResistance = qBound<resistance_t>(1, requestResistance, maxResistance);
+    requestResistance = qBound<resistance_t>(static_cast<resistance_t>(1), static_cast<resistance_t>(requestResistance), maxResistance);
     if (requestResistance != currentResistance().value()) {
         forceResistance(requestResistance);
     }
