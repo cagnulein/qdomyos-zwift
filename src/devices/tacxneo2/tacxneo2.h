@@ -37,6 +37,11 @@ class tacxneo2 : public bike {
   public:
     tacxneo2(bool noWriteResistance, bool noHeartService);
     void changePower(int32_t power) override;
+    // Pure computation also used by the regression tests (no Bluetooth hardware required).
+    static int32_t calibratedErgTrainerPower(int32_t target, double wattGain, double wattOffset,
+                                             double bikePowerOffset, bool thinkX,
+                                             bool externalPowerSensor, double trainerWatts,
+                                             double externalWatts);
     bool connected() override;
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     bool inclinationAvailableBySoftware() override { return true; }
@@ -81,6 +86,7 @@ class tacxneo2 : public bike {
     uint16_t CrankRevsRead = 0;
 
     double lastGearValue = -1;
+    bool lastCommandErgMode = false;
     bool resistance_received = false;
 
     bool THINK_X = false;

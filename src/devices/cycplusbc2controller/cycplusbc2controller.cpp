@@ -202,7 +202,7 @@ void cycplusbc2controller::controllerStateChanged(QLowEnergyController::Controll
         lastShiftDownState = 0x00;
 
         if (m_control) {
-            m_control->connectToDevice();
+            connectBackLater();
         }
     }
 }

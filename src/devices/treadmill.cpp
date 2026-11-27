@@ -1,4 +1,6 @@
 #include "treadmill.h"
+#include <algorithm>
+#include <cmath>
 #ifdef Q_OS_ANDROID
 #include <QJniObject>
 #endif
@@ -25,6 +27,20 @@ static double gradeAdjustedEquivalentSpeed(double speedKmh, double gradePercent)
 
 treadmill::treadmill() {}
 
+// The virtual FTMS interface advertises broad capabilities so training apps can
+// request targets even when the attached treadmill's limits are unknown. The
+// existing QZ speed/incline settings and the physical driver remain responsible
+// for applying supported targets. Model-specific drivers can override these ranges.
+bluetoothdevice::VirtualTreadmillControl treadmill::virtualTreadmillControl() const {
+    VirtualTreadmillControl control;
+    control.enabled = true;
+    // 0–50.00 km/h, in 0.10 km/h increments (FTMS speed units: 0.01 km/h).
+    control.speedRange = QByteArray::fromHex("000088130a00");
+    // -50.0% to +50.0%, in 0.1% increments (FTMS incline units: 0.1%).
+    control.inclineRange = QByteArray::fromHex("0cfef4010100");
+    return control;
+}
+
 void treadmill::changeSpeed(double speed) {
     // Reset target watts only if called from external source
     if (!callingFromFollowPower) {
@@ -36,6 +52,13 @@ void treadmill::changeSpeed(double speed) {
     double treadmill_speed_max = settings.value(QZSettings::treadmill_speed_max, QZSettings::default_treadmill_speed_max).toDouble();
     double treadmill_speed_min = settings.value(QZSettings::treadmill_speed_min, QZSettings::default_treadmill_speed_min).toDouble();
     bool stryd_speed_instead_treadmill = settings.value(QZSettings::stryd_speed_instead_treadmill, QZSettings::default_stryd_speed_instead_treadmill).toBool();
+    const bool closedLoopEnabled =
+        settings.value(QZSettings::treadmill_runn_closed_loop, QZSettings::default_treadmill_runn_closed_loop).toBool() &&
+        stryd_speed_instead_treadmill &&
+        !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+             .toString().startsWith(QStringLiteral("Disabled")) &&
+        !settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
+
     m_lastRawSpeedRequested = speed;
     speed /= settings.value(QZSettings::speed_gain, QZSettings::default_speed_gain).toDouble();
     speed -= settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();
@@ -50,7 +73,7 @@ void treadmill::changeSpeed(double speed) {
         qDebug() << "speed override due to treadmill_speed_min" << speed;
     }
 
-    if(stryd_speed_instead_treadmill && Speed.value() > 0) {
+    if(stryd_speed_instead_treadmill && !closedLoopEnabled && Speed.value() > 0) {
         double delta = (Speed.value() - rawSpeed.value());
         double correctionThreshold =
             settings.value(QZSettings::power_sensor_speed_correction_threshold,
@@ -71,6 +94,15 @@ void treadmill::changeSpeed(double speed) {
     RequestedSpeed = (speed * m_difficult) + m_difficult_offset;
     if (autoResistanceEnable)
         requestSpeed = (speed * m_difficult) + m_difficult_offset;
+    if (closedLoopEnabled && autoResistanceEnable && requestSpeed >= 5.0 &&
+        m_lastRawSpeedRequested >= 5.0) {
+        m_runnController.start(RequestedSpeed.value(), requestSpeed, QDateTime::currentMSecsSinceEpoch());
+        qDebug() << "Runn closed-loop: requested" << m_lastRawSpeedRequested
+                 << "motor target" << m_runnController.target()
+                 << "initial motor command" << requestSpeed;
+    } else {
+        m_runnController.reset();
+    }
 }
 void treadmill::changeInclination(double grade, double inclination) {    
     QSettings settings;
@@ -119,6 +151,57 @@ void treadmill::changeSpeedAndInclination(double speed, double inclination) {
     changeInclination(inclination, inclination);
 }
 
+void treadmill::stop(bool pause) {
+    m_runnController.reset();
+    bluetoothdevice::stop(pause);
+}
+
+void treadmill::updateRunnClosedLoop() {
+    if (!m_runnController.active()) return;
+    QSettings settings;
+    const bool configured =
+        settings.value(QZSettings::treadmill_runn_closed_loop, QZSettings::default_treadmill_runn_closed_loop).toBool() &&
+        settings.value(QZSettings::stryd_speed_instead_treadmill, QZSettings::default_stryd_speed_instead_treadmill).toBool() &&
+        !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+             .toString().startsWith(QStringLiteral("Disabled")) &&
+        !settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
+    if (!configured || paused || !autoResistanceEnable || requestStop != -1 || requestPause != -1) {
+        qDebug() << "Runn closed-loop: cancelled by settings, pause, stop, or manual control mode";
+        m_runnController.reset();
+        return;
+    }
+    const std::int64_t now = QDateTime::currentMSecsSinceEpoch();
+    const std::int64_t age = now - rawSpeed.lastChanged().toMSecsSinceEpoch();
+    // Only devices updating rawSpeed through parseSpeed() expose independent
+    // machine feedback. Without that, never issue a blind motor correction.
+    if (age < 0 || age > 3000) return;
+
+    const std::int64_t lastRunn = Speed.lastChanged().toMSecsSinceEpoch();
+    if (lastRunn > 0 && lastRunn <= now && now - lastRunn <= 2500)
+        m_runnController.sample(Speed.valueRaw(), lastRunn);
+
+    // Existing speed requests always have priority over feedback correction.
+    if (requestSpeed != -1) return;
+    const double threshold =
+        settings.value(QZSettings::power_sensor_speed_correction_threshold,
+                       QZSettings::default_power_sensor_speed_correction_threshold).toDouble() / 100.0;
+    const double minSpeed =
+        std::max(0.0, settings.value(QZSettings::treadmill_speed_min, QZSettings::default_treadmill_speed_min).toDouble());
+    const double maxSpeed =
+        settings.value(QZSettings::treadmill_speed_max, QZSettings::default_treadmill_speed_max).toDouble();
+    const bool machineRunning = rawSpeed.value() >= 0.5;
+    const auto decision = m_runnController.update(now, machineRunning, rawSpeed.value(), age,
+                                                   minSpeed, maxSpeed, threshold);
+    if (decision.cancelled) {
+        qDebug() << "Runn closed-loop: cancelled" << decision.reason;
+    } else if (decision.changed) {
+        requestSpeed = decision.command;
+        qDebug() << "Runn closed-loop: target" << m_runnController.target()
+                 << "Runn filtered" << decision.filtered << "machine" << rawSpeed.value()
+                 << "motor command" << requestSpeed;
+    }
+}
+
 void treadmill::onTrainingProgramTransition() {
     targetWatts = -1;
     m_followPowerLastSpeedWhenTargetSet = -1;
@@ -143,6 +226,8 @@ void treadmill::update_metrics(bool watt_calc, const double watts, const bool fr
     simulateInclinationWithSpeed();
     if(!from_accessory)
         followPowerBySpeed();
+    if (!from_accessory)
+        updateRunnClosedLoop();
 
     if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
@@ -151,9 +236,12 @@ void treadmill::update_metrics(bool watt_calc, const double watts, const bool fr
         watt_calc = false;
 
     if (!_firstUpdate && !paused) {
-        if (currentSpeed().value() > 0.0 || settings.value(QZSettings::continuous_moving, true).toBool()) {
+        const bool clockRunning =
+            currentSpeed().value() > 0.0 || settings.value(QZSettings::continuous_moving, true).toBool();
+        if (clockRunning) {
             elapsed += deltaTime;
         }
+        accumulateCalories(deltaTime, clockRunning);
         if (currentSpeed().value() > 0.0) {
 
             moving += deltaTime;
@@ -161,7 +249,8 @@ void treadmill::update_metrics(bool watt_calc, const double watts, const bool fr
                 m_watt = watts;
             }
             m_jouls += (m_watt.value() * deltaTime);
-            WeightLoss = metric::calculateWeightLoss(KCal.value());
+            // from the calories shown, so it agrees with them
+            WeightLoss = metric::calculateWeightLoss(m_calories.shown(KCal.value()));
             WattKg = m_watt.value() / settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
             if (Cadence.value() > 0 && instantaneousStrideLengthCMAvailableFromDevice == false) {
@@ -209,6 +298,95 @@ uint16_t treadmill::wattsCalc(double weight, double speed, double inclination) {
     return watts;
 }
 
+// Treadmill energy model.
+//
+// Walking: "Minimum Mechanics" equation, Ludlow & Weyand, J Appl Physiol 123:1288 (2017), in the
+// form printed in Weyand et al., J Appl Physiol 131:1272 (2021) Table 1 (V'O2 in mL O2/kg/min,
+// s in m/s, g in % grade, no load, treadmill terrain factor 1.0):
+//   g >= 0: 3.05 + 0.32 g + 3.28 + (1 + 0.19 g) 2.66 s^2
+//   g <  0: 3.05 + 0.73 (3.28 + 2.66 s^2)
+// In the 2021 field study it predicted measured walking energy within +4% (ACSM +13%,
+// Pandolf +17%, Looney +20%). 3.05 is the resting rate of the study subjects; here the
+// person's own resting rate (Mifflin-St Jeor, the formula QZ already uses for active
+// calories) replaces it, as Ludlow & Weyand 2016 did with population resting rates.
+// Fitted on 0.4-1.6 m/s; faster walking up to the gait switch is an extrapolation.
+//
+// Running: ACSM net running cost, 0.2 S + 0.9 S G (S m/min, G fractional grade, downhill
+// treated as level as in ACSM), plus the same resting rate.
+//
+// Gait switch: walk-run transition at Froude number v^2/(g L) = 0.5 (Kram et al., J Exp Biol
+// 200:821, 1997) with leg length L = 0.5 x height. For a 1.72 m adult that gives 2.05 m/s,
+// matching the 2.06 m/s preferred transition speed measured by Hreljac (MSSE 25:1158, 1993).
+//
+// Oxygen to energy: 20.1 J per mL O2 (Weyand 2021; measured field RER 0.83 gave 20.2).
+double treadmill::walkRunTransitionKmh(double heightCm) { return TreadmillCalories::walkRunTransitionKmh(heightCm); }
+
+double treadmill::kcalPerMinute(double speedKmh, double inclinePct, double weightKg, double heightCm,
+                                double restingKcalPerDay, bool *running) {
+    return TreadmillCalories::kcalPerMinute(speedKmh, inclinePct, weightKg, heightCm, restingKcalPerDay, running);
+}
+
+bool treadmill::caloriesModelEnabled() {
+    // a console that reports its own calories keeps them; with a power measurement (an external
+    // power sensor, or a Stryd used as the treadmill) the measured watts already reflect the
+    // effort, so the power-based value stays (as in #4734)
+    if (caloriesFromConsole || externalPowerMeasured())
+        return false;
+    QSettings settings;
+    return settings.value(QZSettings::treadmill_calories_model, QZSettings::default_treadmill_calories_model)
+        .toBool();
+}
+
+// Called from update_metrics() while the session is not paused: the total grows with the update
+// loop, however often the calories are read.
+void treadmill::accumulateCalories(double deltaTime, bool clockRunning) {
+    QSettings settings;
+    TreadmillCalories::Tick t;
+    t.dtSec = deltaTime;
+    t.clockRunning = clockRunning;
+    t.useModel = caloriesModelEnabled();
+    t.legacyKcal = KCal.value();
+    if (t.useModel) {
+        t.speedKmh = currentSpeed().value();
+        t.inclinePct = currentInclination().value();
+        t.weightKg = settings.value(QZSettings::weight, QZSettings::default_weight).toDouble();
+        t.heightCm = settings.value(QZSettings::height, QZSettings::default_height).toDouble();
+        t.restingKcalPerDay = metric::calculateBMR();
+    }
+    const double add = m_calories.tick(t);
+    modelKCal += add;
+    if (t.useModel)
+        qDebug() << QStringLiteral("treadmill calories model:") << "speed" << t.speedKmh << "incline"
+                 << t.inclinePct << (m_calories.lastRunning() ? "run" : "walk") << "kcal/min"
+                 << m_calories.lastKcalPerMinute() << "dt" << deltaTime << "clock" << clockRunning << "total"
+                 << modelKCal.value();
+}
+
+metric treadmill::calories() {
+    // the power-based value, exactly as before, until the model has been used in this session
+    if (!m_calories.modelUsed())
+        return bluetoothdevice::calories();
+    QSettings settings;
+    if (settings.value(QZSettings::calories_from_hr, QZSettings::default_calories_from_hr).toBool() &&
+        Heart.value() > 0)
+        return bluetoothdevice::calories();
+    if (settings.value(QZSettings::calories_active_only, QZSettings::default_calories_active_only).toBool()) {
+        activeKCal.setValue(metric::calculateActiveKCal(modelKCal.value(), elapsed.value()));
+        return activeKCal;
+    }
+    return modelKCal;
+}
+
+metric treadmill::totalCalories() {
+    if (!m_calories.modelUsed())
+        return bluetoothdevice::totalCalories();
+    QSettings settings;
+    if (settings.value(QZSettings::calories_from_hr, QZSettings::default_calories_from_hr).toBool() &&
+        Heart.value() > 0)
+        return bluetoothdevice::totalCalories();
+    return modelKCal;
+}
+
 uint16_t treadmill::watts(double weight) {
     if(!powerReceivedFromPowerSensor) {
         uint16_t watts = wattsCalc(weight, currentSpeed().value(), currentInclination().value());
@@ -225,8 +403,12 @@ void treadmill::clearStats() {
     rawSpeed.clear(false);
     rawInclination.clear(false);
     KCal.clear(true);
+    modelKCal.clear(true);
+    m_calories.reset(KCal.value());
     Distance.clear(true);
     Distance1s.clear(true);
+    // Keep the raw accumulated steps but start the next QZ session from zero.
+    StepCount.clear(true);
     Heart.clear(false);
     m_jouls.clear(true);
     elevationAcc = 0;
@@ -244,6 +426,7 @@ void treadmill::clearStats() {
 
 void treadmill::setPaused(bool p) {
 
+    if (p) m_runnController.reset();
     paused = p;
     moving.setPaused(p);
     elapsed.setPaused(p);
@@ -251,6 +434,7 @@ void treadmill::setPaused(bool p) {
     rawSpeed.setPaused(p);
     rawInclination.setPaused(p);
     KCal.setPaused(p);
+    modelKCal.setPaused(p);
     Distance.setPaused(p);
     Distance1s.setPaused(p);
     Heart.setPaused(p);
@@ -273,6 +457,7 @@ void treadmill::setLap() {
     rawSpeed.setLap(false);
     rawInclination.setLap(false);
     KCal.setLap(true);
+    modelKCal.setLap(true);
     Distance.setLap(true);
     Distance1s.setLap(true);
     Heart.setLap(false);
@@ -303,6 +488,7 @@ void treadmill::cadenceSensor(uint8_t cadence) {
     if (Cadence.value() > 0 || cadence > 0) {
         evaluateStepCount();
     }
+    lastCadenceSensorMs = QDateTime::currentMSecsSinceEpoch();
     Cadence.setValue(cadence);
 }
 void treadmill::powerSensor(uint16_t power) {
@@ -348,8 +534,8 @@ void treadmill::verticalOscillationSensor(double verticalOscillation) {
     VerticalOscillationMM.setValue(verticalOscillation);
 }
 
-double treadmill::treadmillInclinationOverrideReverse(double Inclination) {
-    for (int i = 0; i <= 15 * 2; i++) {
+double treadmill::treadmillInclinationOverrideReverse(double Inclination, double maxInclination) {
+    for (int i = 0; i <= maxInclination * 2; i++) {
         if (treadmillInclinationOverride(((double)(i)) / 2.0) <= Inclination &&
             treadmillInclinationOverride(((double)(i + 1)) / 2.0) > Inclination) {
             qDebug() << QStringLiteral("treadmillInclinationOverrideReverse")
@@ -365,7 +551,7 @@ double treadmill::treadmillInclinationOverrideReverse(double Inclination) {
     else if (Inclination < treadmillInclinationOverride(0))
         return treadmillInclinationOverride(0);
     else
-        return treadmillInclinationOverride(15);
+        return treadmillInclinationOverride(maxInclination);
 }
 
 bool treadmill::areInclinationSettingsDefault() {
@@ -719,7 +905,8 @@ double treadmill::calculateCadenceFromSpeed(double speed) {
     const double cadence_gain =
         settings.value(QZSettings::cadence_gain, QZSettings::default_cadence_gain).toDouble();
     const double cadence_offset =
-        settings.value(QZSettings::cadence_offset, QZSettings::default_cadence_offset).toDouble();
+        settings.value(QZSettings::cadence_offset,
+                       QZSettings::default_cadence_offset).toDouble();
     calculatedCadence = (calculatedCadence * cadence_gain) + cadence_offset;
 
     qDebug() << "Calculated Cadence from Speed:" << calculatedCadence
@@ -841,7 +1028,10 @@ void treadmill::parseInclination(double inclination) {
     QSettings settings;
     bool stryd_inclination_instead_treadmill = settings.value(QZSettings::stryd_inclination_instead_treadmill, QZSettings::default_stryd_inclination_instead_treadmill).toBool();
     if(!stryd_inclination_instead_treadmill) {
-        Inclination = inclination;
+        // Support case 2026-10-01, Domyos Run500:
+        // 0% is a valid inclination and must contribute to the average while moving.
+        Inclination.setValue(inclination, true,
+                             inclination == 0.0 && currentSpeed().value() > 0.0);
     } else {
         qDebug() << "Inclination from the treadmill is discarded since we are using the one from the power sensor " << inclination;
     }

@@ -37,6 +37,11 @@ This folder contains translation files for 30 languages.
 | Hebrew | qdomyos-zwift_he.ts | he |
 | Catalan | qdomyos-zwift_ca.ts | ca |
 
+Every language in this table has a file here, translated or not. The App Language list in the settings
+offers one once at least 50% of its strings are translated: a translation shows up there by itself, with
+no change to the code. A regional language with an empty file shows its base language, if it has one
+(`pt_BR` -> `pt`).
+
 ## How to Contribute Translations
 
 ### 1. Choose Your Language
@@ -79,7 +84,9 @@ Add your translation:
   <translation>&lt;b&gt;Geschwindigkeit&lt;/b&gt;</translation>
   ```
 
-- **Don't translate units:** km/h, bpm, etc. stay the same
+- **Units:** keep km/h, bpm, etc. as they are, unless your language writes them differently
+  (for example `U/min` in German, `ppm` in Spanish, `км/ч` in Russian). Then use your
+  language's symbols consistently in the whole file.
   ```xml
   <source>Heart rate (bpm)</source>
   <translation>Herzfrequenz (bpm)</translation>

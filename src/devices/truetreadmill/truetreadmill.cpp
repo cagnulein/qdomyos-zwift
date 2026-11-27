@@ -386,7 +386,7 @@ void truetreadmill::controllerStateChanged(QLowEnergyController::ControllerState
         qDebug() << QStringLiteral("trying to connect back again...");
 
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 

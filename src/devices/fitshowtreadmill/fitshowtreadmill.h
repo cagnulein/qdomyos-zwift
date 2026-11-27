@@ -26,6 +26,7 @@
 #include <QDateTime>
 #include <QObject>
 
+#include "fitshowstartspeedgate.h"
 #include "treadmill.h"
 #include "virtualdevices/virtualtreadmill.h"
 
@@ -90,6 +91,7 @@ class fitshowtreadmill : public treadmill {
   private:
     bool checkIncomingPacket(const uint8_t *data, uint8_t data_len) const;
     void forceSpeedOrIncline(double requestSpeed, double requestIncline);
+    void cancelPendingStartTarget(const QString &reason);
     void btinit(bool startTape);
     void writeCharacteristic(const uint8_t *data, uint8_t data_len, const QString &info = QString());
     bool writePayload(const uint8_t *data, uint8_t data_len, const QString &info = QString());
@@ -107,6 +109,9 @@ class fitshowtreadmill : public treadmill {
     uint8_t firstInit = 0;
     double DistanceCalculated = 0;
     QByteArray lastPacket;
+    // Time (ms) of the last non-zero cadence from the RSC characteristic. It arrives in its own packet, so the cadence
+    // estimated from speed in the FitShow packet must not overwrite it while it is recent.
+    qint64 lastRscCadenceMs = 0;
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
     int MAX_INCLINE = 30;
@@ -126,6 +131,7 @@ class fitshowtreadmill : public treadmill {
     bool IS_STATUS_ERRO = false;
     bool IS_STATUS_SAFETY = false;
     bool IS_RUNNING = false;
+    FitShowStartSpeedGate m_startSpeedGate;
     int ERRNO = -1;
     int SYS_CONTROL_CMD = 0;
     int CURRENT_STATUS = 0;
@@ -154,6 +160,9 @@ class fitshowtreadmill : public treadmill {
     bool noblepro_connected = false;
     bool fs_connected = false;
     bool tunturi_t80_connected = false;
+    bool merach_t12_connected = false;
+    QLowEnergyService *gattMerachUnlockService = nullptr;
+    QLowEnergyCharacteristic gattMerachUnlockCharacteristic;
 
     metric rawInclination;
 

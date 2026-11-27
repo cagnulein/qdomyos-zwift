@@ -4,6 +4,10 @@
 #include <QJsonObject>
 #include <QNetworkReply>
 #include <QtWebSockets/QWebSocket>
+#include <qmdnsengine/hostname.h>
+#include <qmdnsengine/provider.h>
+#include <qmdnsengine/server.h>
+#include <qmdnsengine/service.h>
 
 WebServerInfoSender::WebServerInfoSender(const QString &id, QObject *parent) : TemplateInfoSender(id, parent) {
     fetcher = new QNetworkAccessManager(this);
@@ -14,6 +18,43 @@ WebServerInfoSender::WebServerInfoSender(const QString &id, QObject *parent) : T
 
 WebServerInfoSender::~WebServerInfoSender() {
     innerStop();
+}
+
+void WebServerInfoSender::stop() {
+    TemplateInfoSender::stop();
+    innerStop();
+}
+
+void WebServerInfoSender::startMdnsAdvertising() {
+    // Only advertise the built-in QZ WebSocket endpoint, and never an unbound port.
+    if (!isRunning() || mdnsProvider || !templateId.endsWith(QStringLiteral("_QZWS"))) {
+        return;
+    }
+
+    mdnsServer = new QMdnsEngine::Server(this);
+    mdnsHostname = new QMdnsEngine::Hostname(mdnsServer, QByteArrayLiteral("qz-websocket"),
+                                             QMdnsEngine::HostnameAddressFamily::IPv4Only, this);
+    mdnsProvider = new QMdnsEngine::Provider(mdnsServer, mdnsHostname, this);
+
+    QMdnsEngine::Service service;
+    service.setType("_qzws._tcp.local.");
+    service.setName("QZ Fitness WebSocket");
+    service.setPort(webSocketServer->serverPort());
+    service.addAttribute(QByteArrayLiteral("path"), QByteArrayLiteral("/"));
+    service.addAttribute(QByteArrayLiteral("protocol"), QByteArrayLiteral("ws"));
+    service.addAttribute(QByteArrayLiteral("version"), QByteArrayLiteral("1"));
+    mdnsProvider->update(service);
+    qDebug() << "QZ WebSocket mDNS service published on port" << webSocketServer->serverPort();
+}
+
+void WebServerInfoSender::stopMdnsAdvertising() {
+    // Deleting the provider first sends goodbye records while the mDNS server is alive.
+    delete mdnsProvider;
+    mdnsProvider = nullptr;
+    delete mdnsHostname;
+    mdnsHostname = nullptr;
+    delete mdnsServer;
+    mdnsServer = nullptr;
 }
 
 void WebServerInfoSender::ignoreSSLErrors(QNetworkReply *repl, const QList<QSslError> &) {
@@ -108,6 +149,7 @@ bool WebServerInfoSender::send(const QString &data) {
 void WebServerInfoSender::innerStop() {
     // Stop watchdog timer
     watchdogTimer.stop();
+    stopMdnsAdvertising();
 
     // Close WebSocket server
     if (webSocketServer) {
@@ -189,6 +231,7 @@ bool WebServerInfoSender::init() {
             // Start the WebSocket server on the next port
             if (listenWebSocket()) {
                 qDebug() << QStringLiteral("WebSocket Server listening on port") << wsPort;
+                startMdnsAdvertising();
                 return true;
             }
         }
@@ -338,6 +381,8 @@ void WebServerInfoSender::onNewWebSocketConnection() {
         connect(pSocket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(processBinaryMessage(QByteArray)));
         sendToClients << QPointer<QWebSocket>(pSocket);
     }
+
+    connect(pSocket, &QWebSocket::disconnected, this, &WebServerInfoSender::socketDisconnected);
 
     // Store the WebSocket connection
     clients << QPointer<QWebSocket>(pSocket);

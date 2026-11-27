@@ -59,7 +59,7 @@ void coresensor::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')';
 
     if(homeform::singleton())
-        homeform::singleton()->setToastRequested(device.name() + QStringLiteral(" connected!"));
+        homeform::singleton()->setToastRequested(QObject::tr("%1 connected!").arg(device.name()));
 
     {
         bluetoothDevice = device;
@@ -357,7 +357,7 @@ void coresensor::controllerStateChanged(QLowEnergyController::ControllerState st
 
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 

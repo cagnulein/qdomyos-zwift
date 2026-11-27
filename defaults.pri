@@ -19,6 +19,10 @@ QT+= charts
                 }
 
 unix:android: QT += gui-private
+windows: QT += serialport
+isEmpty(QMAKE_IOS_DEPLOYMENT_TARGET) {
+    unix:!android: QT += serialport
+}
 
 android: include(android_openssl/openssl.pri)
 

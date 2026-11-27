@@ -29,6 +29,7 @@
 #include <QString>
 
 #include "treadmill.h"
+#include "paragonxtelemetry.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -53,6 +54,11 @@ class horizontreadmill : public treadmill {
     void waitForAPacket();
     void startDiscover();
     void btinit();
+    void setDirectDistance(double treadmillDistance, bool increment);
+    // Shared production path exercised by the Bluetooth replay integration tests.
+    friend class ParagonXNotificationTestAccess;
+    ParagonXTelemetry::NotificationResult processParagonNotification(const QByteArray &newValue);
+    void applyParagonTelemetry(const ParagonXTelemetry::Metrics &metrics);
 
     QTimer *refresh;
 
@@ -71,8 +77,15 @@ class horizontreadmill : public treadmill {
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QByteArray lastPacketComplete;
+    ParagonXTelemetry::NotificationAssembler paragonPacketAssembler;
+    ParagonXTelemetry::SessionState paragonSessionState;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     bool firstDistanceCalculated = false;
+    double lastDirectDistance = -1;
+    // Time (ms) of the last non-zero cadence from the treadmill (FTMS or RSC). RSC and FTMS arrive in separate packets,
+    // so the cadence estimated from speed must not overwrite it while it is recent.
+    qint64 lastDeviceCadenceMs = 0;
+    QDateTime lastDirectDistanceChanged;
     uint8_t firstStateChanged = 0;
     double lastSpeed = 0.0;
     double lastInclination = 0;
@@ -81,6 +94,7 @@ class horizontreadmill : public treadmill {
     double lastHorizonForceSpeed = 0;
     double minInclination = 0.0;
     double maxInclination = 15.0;
+    bool zipro_shred_treadmill = false;
 
     bool initDone = false;
     bool initRequest = false;
@@ -96,10 +110,15 @@ class horizontreadmill : public treadmill {
     bool mobvoi_tmp_treadmill = false;
     bool kettler_treadmill = false;
     bool wellfit_treadmill = false;
+    bool ks_esp_treadmill = false;
     bool sole_tt8_treadmill = false;
     bool sole_s77_treadmill = false;
     bool anplus_treadmill = false;
     bool run_bt_treadmill = false;
+    // RUN BT- does not report the very first console Start via FTMS 0x2ADA.
+    // Permit exactly one speed-based recording start, after seeing the belt at rest.
+    bool runBtInitialStartPending = true;
+    bool runBtSeenZeroSpeed = false;
     bool tunturi_t60_treadmill = false;
     bool trx3500_treadmill = false;
     bool sole_f85_treadmill = false;
@@ -115,6 +134,7 @@ class horizontreadmill : public treadmill {
     bool DOMYOS = false;
     bool domyos_treadmill_ts100 = false;
     bool SW_TREADMILL = false;
+    bool SW3925EAI_TREADMILL = false;
     bool BOWFLEX_T9 = false;
     bool YPOO_MINI_PRO = false;
     bool MX_TM = false;
@@ -128,7 +148,9 @@ class horizontreadmill : public treadmill {
     bool TM4800 = false;
     bool TM4500 = false;
     bool TM6500 = false;
+    bool TM55_TREADMILL = false;
     bool FS_TREADMILL = false;
+    bool SF_TREADMILL = false;
     bool WT_TREADMILL = false;
     bool THERUN_T15 = false;
     bool MERACH_TREADMILL = false;
