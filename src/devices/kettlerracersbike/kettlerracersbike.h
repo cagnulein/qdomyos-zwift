@@ -88,6 +88,10 @@ class kettlerracersbike : public bike {
     QDateTime lastRefreshCharacteristicChangedPower = QDateTime::currentDateTime();
     QDateTime lastActualPowerUpdate;
     QElapsedTimer sCommandPollTimer;
+    QElapsedTimer powerSpeedTimer;
+    bool wheelSampleValid = false;
+    uint32_t lastWheelRevolutions = 0;
+    uint16_t lastWheelEventTime = 0;
     QByteArray sCommandBuffer;
     QDateTime lastGoodCadence = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;

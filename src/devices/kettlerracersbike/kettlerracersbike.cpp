@@ -1,5 +1,6 @@
 #include "kettlerracersbike.h"
 #include "kettlerhandshake.h"
+#include "kettlercsctelemetry.h"
 #include "virtualdevices/virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -482,6 +483,10 @@ void kettlerracersbike::controllerStateChanged(QLowEnergyController::ControllerS
         notificationsSubscribed = false;
         kettlerServiceReady = false;
         connectedAndDiscoveredEmitted = false;
+        wheelSampleValid = false;
+        oldCrankRevs = 0;
+        oldLastCrankEventTime = 0;
+        powerSpeedTimer.invalidate();
         m_control->connectToDevice();
     }
 }
@@ -1052,39 +1057,38 @@ void kettlerracersbike::characteristicChanged(const QLowEnergyCharacteristic &ch
 }
 
 void kettlerracersbike::cscPacketReceived(const QByteArray &packet) {
-    // Standard CSC packet parsing
-    if (packet.length() < 11)
+    if (packet.isEmpty())
         return;
 
-    uint8_t flags = packet.at(0);
+    const uint8_t flags = static_cast<uint8_t>(packet.at(0));
+    const bool wheelPresent = flags & 0x01;
+    const bool crankPresent = flags & 0x02;
+    const int crankOffset = wheelPresent ? 7 : 1;
+    if (packet.size() < 1 + (wheelPresent ? 6 : 0) + (crankPresent ? 4 : 0))
+        return;
 
-    if (flags & 0x01) { // Wheel revolution data present
-        uint32_t wheelRevolutions = (packet.at(4) << 24) | (packet.at(3) << 16) | (packet.at(2) << 8) | packet.at(1);
-        uint16_t wheelEventTime = (packet.at(6) << 8) | packet.at(5);
+    QSettings settings;
+    const bool speedPowerBased =
+        settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool();
 
-        // Calculate speed from wheel data if available
-        static uint32_t lastWheelRevolutions = 0;
-        static uint16_t lastWheelEventTime = 0;
+    if (wheelPresent) {
+        const uint32_t wheelRevolutions = kettler::readLe32(packet.constData() + 1);
+        const uint16_t wheelEventTime = kettler::readLe16(packet.constData() + 5);
 
-        if (lastWheelRevolutions > 0) {
-            uint32_t wheelRevDelta = wheelRevolutions - lastWheelRevolutions;
-            uint16_t wheelTimeDelta = wheelEventTime - lastWheelEventTime;
-
-            if (wheelTimeDelta > 0) {
-                // Speed calculation (assuming wheel circumference of 2.1m)
-                double speed = (wheelRevDelta * 2.1 * 1024.0) / (wheelTimeDelta * 3.6);
-                Speed = speed;
-                qDebug() << QStringLiteral("Current Speed: ") << Speed.value();
-            }
+        if (wheelSampleValid && wheelEventTime != lastWheelEventTime && !speedPowerBased) {
+            Speed = kettler::wheelSpeedKmh(wheelRevolutions, lastWheelRevolutions,
+                                           wheelEventTime, lastWheelEventTime);
+            qDebug() << QStringLiteral("Current Speed: ") << Speed.value();
         }
 
         lastWheelRevolutions = wheelRevolutions;
         lastWheelEventTime = wheelEventTime;
+        wheelSampleValid = true;
     }
 
-    if (flags & 0x02) { // Crank revolution data present
-        uint16_t crankRevolutions = (packet.at(8) << 8) | packet.at(7);
-        uint16_t crankEventTime = (packet.at(10) << 8) | packet.at(9);
+    if (crankPresent) {
+        const uint16_t crankRevolutions = kettler::readLe16(packet.constData() + crankOffset);
+        const uint16_t crankEventTime = kettler::readLe16(packet.constData() + crankOffset + 2);
 
         // Calculate cadence from CSC data
         if (oldCrankRevs > 0) {
@@ -1220,6 +1224,18 @@ void kettlerracersbike::update() {
                m_control->state() == QLowEnergyController::DiscoveredState && gattKettlerService &&
                gattKettlerService->state() == QLowEnergyService::ServiceDiscovered &&
                gattWriteCharKettlerId.isValid() && initDone) {
+        QSettings settings;
+        if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+            if (powerSpeedTimer.isValid()) {
+                const double elapsedSeconds = qMin(1.0, powerSpeedTimer.restart() / 1000.0);
+                Speed = metric::calculateSpeedFromPower(watts(), Inclination.value(), Speed.value(),
+                                                        elapsedSeconds, this->speedLimit());
+            } else {
+                powerSpeedTimer.start();
+            }
+        } else {
+            powerSpeedTimer.invalidate();
+        }
         update_metrics(true, watts());
 
         auto virtualBike = this->VirtualBike();
