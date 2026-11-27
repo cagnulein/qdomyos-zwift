@@ -25,7 +25,7 @@ jobs:
       - name: Install build dependencies
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y --no-install-recommends build-essential libgl1-mesa-dev \
+          sudo apt-get install -y --no-install-recommends build-essential ccache libgl1-mesa-dev \
             libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
       - name: Install Qt 6
         uses: jurplel/install-qt-action@v4
@@ -36,11 +36,26 @@ jobs:
           modules: 'qtnetworkauth qtcharts qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qtwebview qtspeech qthttpserver qtserialport'
           install-deps: true
           cache: true
+      - name: Restore compiler cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/ccache
+          key: qt6-linux-ccache-${{ github.sha }}
+          restore-keys: qt6-linux-ccache-
       - name: Build QZ
         run: |
+          export PATH="/usr/lib/ccache:$PATH"
+          export CCACHE_BASEDIR="$GITHUB_WORKSPACE"
+          ccache --max-size=600M
           qmake qdomyos-zwift.pro
           make -j2
       - name: Run tests
         env:
           QT_QPA_PLATFORM: offscreen
         run: ./tst/qdomyos-zwift-tests
+      - name: Save compiler cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.cache/ccache
+          key: qt6-linux-ccache-${{ github.sha }}

@@ -248,7 +248,7 @@ QByteArray ftmsbike::ftmsResistanceTargetPacket(resistance_t targetLevel, resist
                                                 resistance_t maximumLevel) {
     if (minimumLevel > maximumLevel || minimumLevel < 0)
         return QByteArray();
-    const int target = qBound<int>(minimumLevel, targetLevel, maximumLevel) * 10;
+    const int target = qBound<int>(static_cast<int>(minimumLevel), static_cast<int>(targetLevel), static_cast<int>(maximumLevel)) * 10;
     // FTMS 0x04 target resistance has a signed 16-bit payload, in tenths.
     QByteArray packet;
     packet.append(static_cast<char>(FTMS_SET_TARGET_RESISTANCE_LEVEL));
@@ -466,7 +466,7 @@ resistance_t ftmsbike::normalizedResistanceForDevice(const QString &deviceName, 
         return 0;
     }
 
-    return qBound<resistance_t>(0, qRound((rawResistance - 50.0) / 10.0), 15);
+    return static_cast<resistance_t>(qBound<int>(0, qRound((rawResistance - 50.0) / 10.0), 15));
 }
 
 resistance_t ftmsbike::rawResistanceForDevice(const QString &deviceName, resistance_t displayedResistance) {
@@ -474,7 +474,7 @@ resistance_t ftmsbike::rawResistanceForDevice(const QString &deviceName, resista
         return displayedResistance;
     }
 
-    return qBound<resistance_t>(50, displayedResistance * 10 + 50, 200);
+    return static_cast<resistance_t>(qBound<int>(50, displayedResistance * 10 + 50, 200));
 }
 
 void ftmsbike::zwiftPlayInit() {
@@ -641,7 +641,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         physicalResistanceGearsEnabled(bluetoothDevice.name(),
             physicalGearSettings.value(QZSettings::gears_from_bike,
                                        QZSettings::default_gears_from_bike).toBool())) {
-        const resistance_t targetLevel = qBound<resistance_t>(1, requestResistance, 32);
+        const resistance_t targetLevel = static_cast<resistance_t>(qBound<int>(1, static_cast<int>(requestResistance), 32));
         if (!shouldWriteResistanceTarget(targetLevel, lastPhysicalGearTarget, lastPhysicalGearResistance)) {
             // A physical shift already at the desired target needs no replay.
             // Update the desired level so Zwift's next identical slope won't undo it.
@@ -2715,9 +2715,8 @@ void ftmsbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const Q
 
     if (uses16BitResistanceForDevice(bluetoothDevice.name()) &&
         gattWriteCharControlPointId.isValid() &&
-        descriptor.handle() == gattWriteCharControlPointId
-                                   .descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration)
-                                   .handle() &&
+        descriptor == gattWriteCharControlPointId
+                          .descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration) &&
         newValue == QByteArray::fromHex("0200")) {
         matrixControlPointIndicationsReady = true;
         qDebug() << "Matrix R30 XR FTMS 2AD9 indications enabled";
