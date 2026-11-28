@@ -107,7 +107,7 @@ jobs:
           qmake -r qdomyos-zwift.pro CONFIG-=debug_and_release CONFIG+=debug
           nmake
           if errorlevel 1 exit /b %errorlevel%
-          tst\debug\qdomyos-zwift-tests.exe
+          tst\qdomyos-zwift-tests.exe
 
   ios-simulator:
     runs-on: macos-14
