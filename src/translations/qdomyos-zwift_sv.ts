@@ -7497,6 +7497,18 @@ VIKTIGT:
         <translation>Alternativ för kadenssensor</translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>Fast lutning på löpband</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>Fast lutning (%)</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>Använd den faktiska fasta lutningen på ditt manuella löpband. Starta om QZ efter att du har ändrat inställningen.</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation>Ändra inte de här inställningarna om cykeln fungerar som den ska!</translation>
     </message>

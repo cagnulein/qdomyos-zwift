@@ -3011,6 +3011,8 @@ import AndroidStatusBar 1.0
             property bool ui_modern_new_install_checked: false
             property bool ui_modern_offer_pending: false
             property int chart_smooth_lines: 0
+            property bool cadence_sensor_fixed_inclination_enabled: false
+            property real cadence_sensor_fixed_inclination: 0.0
 
         }
 
@@ -17527,6 +17529,80 @@ import AndroidStatusBar 1.0
 
                             Label {
                                 text: qsTr("If your equipment doesn’t have Bluetooth, these settings allow you to use a cadence sensor so it will work with QZ as a bike or treadmill. Default is off.")
+                                font.bold: !window.ui.modern
+                                font.italic: !window.ui.modern
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
+                            }
+
+                            IndicatorOnlySwitch {
+                                id: cadenceFixedInclinationSwitch
+                                text: qsTr("Fixed Treadmill Inclination")
+                                Accessible.onPressAction: { toggle(); clicked(); }
+                                visible: settings.cadence_sensor_as_treadmill
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.cadence_sensor_fixed_inclination_enabled
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: {
+                                    settings.cadence_sensor_fixed_inclination_enabled = checked;
+                                    window.settings_restart_to_apply = true;
+                                }
+                            }
+
+                            RowLayout {
+                                visible: settings.cadence_sensor_as_treadmill && settings.cadence_sensor_fixed_inclination_enabled
+                                spacing: 10
+                                Layout.fillWidth: true
+                                Label {
+                                    id: labelCadenceFixedInclination
+                                    text: qsTr("Fixed Inclination (%)")
+                                    wrapMode: window.labelWrap
+                                    Layout.fillWidth: true
+                                }
+                                SettingsNumberField {
+                                    id: cadenceFixedInclinationField
+                                    Accessible.name: labelCadenceFixedInclination.text + ": " + text
+                                    savedText: settings.cadence_sensor_fixed_inclination
+                                    decimals: 2
+                                    minimum: 0
+                                    maximum: 100
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: {
+                                        if (valid) {
+                                            settings.cadence_sensor_fixed_inclination = value;
+                                            window.settings_restart_to_apply = true;
+                                        }
+                                    }
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                UiButton {
+                                    text: qsTr("OK")
+                                    enabled: cadenceFixedInclinationField.valid && cadenceFixedInclinationField.dirty
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: {
+                                        settings.cadence_sensor_fixed_inclination = cadenceFixedInclinationField.value;
+                                        window.settings_restart_to_apply = true;
+                                        toast.show(qsTr("Setting saved!"));
+                                    }
+                                }
+                            }
+
+                            Label {
+                                visible: settings.cadence_sensor_as_treadmill
+                                text: qsTr("Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.")
                                 font.bold: !window.ui.modern
                                 font.italic: !window.ui.modern
                                 font.pixelSize: window.fontHint

@@ -9,6 +9,7 @@
 #include <QSettings>
 #include <QThread>
 #include <math.h>
+#include <cmath>
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
@@ -34,6 +35,7 @@ strydrunpowersensor::strydrunpowersensor(bool noWriteResistance, bool noHeartSer
     this->noHeartService = noHeartService;
     this->noVirtualDevice = noVirtualDevice;
     initDone = false;
+    applyFixedInclination();
     connect(refresh, &QTimer::timeout, this, &strydrunpowersensor::update);
     refresh->start(200ms);
 }
@@ -65,6 +67,40 @@ if(!disable_log)
 loop.exec();
 }*/
 
+// A cadence sensor on a manual treadmill cannot measure its physical grade.
+// Only apply this opt-in to the primary cadence-as-treadmill device.
+bool strydrunpowersensor::applyFixedInclination() {
+    QSettings settings;
+    if (noVirtualDevice ||
+        !settings.value(QZSettings::cadence_sensor_as_treadmill, QZSettings::default_cadence_sensor_as_treadmill).toBool() ||
+        !settings.value(QZSettings::cadence_sensor_fixed_inclination_enabled, QZSettings::default_cadence_sensor_fixed_inclination_enabled).toBool())
+        return false;
+
+    bool ok = false;
+    const double grade = settings.value(QZSettings::cadence_sensor_fixed_inclination, QZSettings::default_cadence_sensor_fixed_inclination).toDouble(&ok);
+    if (!ok || !std::isfinite(grade) || grade < 0.0 || grade > 100.0)
+        return false;
+
+    // Set measured grade directly: no command rounding or calibration mapping.
+    if (Inclination.value() != grade) {
+        Inclination = grade;
+        emit inclinationChanged(grade, grade);
+    }
+    requestInclination = -100;
+    return true;
+}
+
+void strydrunpowersensor::changeInclination(double grade, double percentage) {
+    if (!applyFixedInclination())
+        treadmill::changeInclination(grade, percentage);
+}
+
+void strydrunpowersensor::clearStats() {
+    treadmill::clearStats();
+    lastFixedInclinationUpdate = QDateTime();
+    applyFixedInclination();
+}
+
 void strydrunpowersensor::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
@@ -87,6 +123,23 @@ void strydrunpowersensor::update() {
         bool power_as_treadmill =
             settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill)
                 .toBool();
+        const bool fixedInclination = applyFixedInclination();
+        if (fixedInclination && !externalPowerMeasured()) {
+            const double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toDouble();
+            m_watt = wattsCalc(weight, Speed.value(), Inclination.value());
+
+            // CSC has no calorie field. Keep the existing legacy power-based estimate
+            // available when the treadmill calorie model or HR calories is not selected.
+            const QDateTime now = QDateTime::currentDateTime();
+            const double seconds = lastFixedInclinationUpdate.isValid()
+                ? lastFixedInclinationUpdate.msecsTo(now) / 1000.0 : 0.0;
+            lastFixedInclinationUpdate = now;
+            if (!paused && Speed.value() > 0.0 && seconds > 0.0 && seconds <= 2.0) {
+                KCal += ((0.048 * m_watt.value() + 1.19) * weight * 3.5 / 200.0) * seconds / 60.0;
+            }
+        } else {
+            lastFixedInclinationUpdate = QDateTime();
+        }
         update_metrics(false, watts(), !(power_as_treadmill || cadence_as_treadmill));
 
         if (lastGoodCadence.secsTo(QDateTime::currentDateTime()) > 5 && !charNotified) {
@@ -150,6 +203,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     bool treadmill_from_sensor = power_as_treadmill || cadence_as_treadmill;
+    const bool fixedInclination = applyFixedInclination();
 
     charNotified = true;
 
@@ -295,11 +349,13 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
                 ((double)(((int16_t)((int8_t)newValue.at(index + 1)) << 8) | (int16_t)((uint8_t)newValue.at(index)))) /
                 10.0;
             // steps of 0.5 only to send to the Inclination override function
-            if(!areInclinationSettingsDefault()) {
-                inc = qRound(inc * 2.0) / 2.0;
-                Inclination = treadmillInclinationOverride(inc);
-            } else {
-                Inclination = inc;
+            if (!fixedInclination) {
+                if (!areInclinationSettingsDefault()) {
+                    inc = qRound(inc * 2.0) / 2.0;
+                    Inclination = treadmillInclinationOverride(inc);
+                } else {
+                    Inclination = inc;
+                }
             }
             index += 4; // the ramo value is useless
             emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
@@ -503,6 +559,10 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
                          ((double)lastRefreshCadenceChanged.msecsTo(now)));
             emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+            if (fixedInclination && !externalPowerMeasured()) {
+                m_watt = wattsCalc(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat(),
+                                   Speed.value(), Inclination.value());
+            }
         }
         lastRefreshCadenceChanged = now;
 

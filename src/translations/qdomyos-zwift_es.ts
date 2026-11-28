@@ -8042,6 +8042,18 @@ NOTAS IMPORTANTES:
         <translation>Opciones del sensor de cadencia</translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>Inclinación fija de la cinta de correr</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>Inclinación fija (%)</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>Usa la inclinación fija real de tu cinta de correr manual. Reinicia QZ después de cambiar este ajuste.</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation>¡No toques estas configuraciones si tu bicicleta funciona correctamente!</translation>
     </message>

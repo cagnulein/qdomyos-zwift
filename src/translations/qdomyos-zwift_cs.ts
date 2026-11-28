@@ -7545,6 +7545,18 @@ DŮLEŽITÉ:
         <translation>Možnosti snímače kadence</translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>Pevný sklon běžeckého pásu</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>Pevný sklon (%)</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>Použijte skutečný pevný sklon ručního běžeckého pásu. Po změně tohoto nastavení restartujte QZ.</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation>Pokud vaše kolo funguje správně, tato nastavení neměňte!</translation>
     </message>

@@ -7545,6 +7545,18 @@ BELANGRIJK:
         <translation>Opties voor cadanssensor</translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>Vaste helling van de loopband</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>Vaste helling (%)</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>Gebruik de werkelijke vaste helling van je handmatige loopband. Start QZ opnieuw op nadat je deze instelling hebt gewijzigd.</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation>Wijzig deze instellingen niet als je fiets goed werkt!</translation>
     </message>

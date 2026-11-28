@@ -7,6 +7,7 @@
 #include "devices/elliptical.h"
 #include "devices/ypootreadmill/ypoom5control.h"
 #include "devices/treadmill.h"
+#include "devices/strydrunpowersensor/strydrunpowersensor.h"
 
 namespace {
 class ControlPointTestTreadmill : public treadmill {
@@ -128,4 +129,54 @@ TEST_F(FtmsTreadmillControlTest, NewWorkoutStartsStepCountAtZero) {
     EXPECT_DOUBLE_EQ(treadmill.currentStepCount().value(), 0.0);
     treadmill.addStepsForTest(8.0);
     EXPECT_DOUBLE_EQ(treadmill.currentStepCount().value(), 8.0);
+}
+
+namespace {
+class FixedCadenceTreadmillInclinationTest : public ::testing::Test {
+  protected:
+    TestSettings settings{QStringLiteral("QZTests"), QStringLiteral("FixedCadenceTreadmillInclination")};
+    void SetUp() override {
+        settings.qsettings.clear();
+        settings.activate();
+        settings.qsettings.setValue(QZSettings::cadence_sensor_as_treadmill, true);
+        settings.qsettings.setValue(QZSettings::cadence_sensor_fixed_inclination_enabled, true);
+        settings.qsettings.setValue(QZSettings::cadence_sensor_fixed_inclination, 12.28);
+    }
+};
+} // namespace
+
+TEST_F(FixedCadenceTreadmillInclinationTest, PreservesExactGradeAtStartupAndAfterReset) {
+    strydrunpowersensor sensor(false, false, false);
+    EXPECT_DOUBLE_EQ(sensor.currentInclination().value(), 12.28);
+    sensor.changeInclination(3.0, 3.0);
+    EXPECT_DOUBLE_EQ(sensor.currentInclination().value(), 12.28);
+    EXPECT_DOUBLE_EQ(sensor.requestedInclination(), -100.0);
+    sensor.clearStats();
+    EXPECT_DOUBLE_EQ(sensor.currentInclination().value(), 12.28);
+    strydrunpowersensor restarted(false, false, false);
+    EXPECT_DOUBLE_EQ(restarted.currentInclination().value(), 12.28);
+}
+
+TEST_F(FixedCadenceTreadmillInclinationTest, LeavesOtherModesAndDisabledSettingUnchanged) {
+    {
+        strydrunpowersensor accessory(false, false, true);
+        EXPECT_DOUBLE_EQ(accessory.currentInclination().value(), 0.0);
+    }
+    settings.qsettings.setValue(QZSettings::cadence_sensor_fixed_inclination_enabled, false);
+    {
+        strydrunpowersensor disabled(false, false, false);
+        EXPECT_DOUBLE_EQ(disabled.currentInclination().value(), 0.0);
+    }
+    settings.qsettings.setValue(QZSettings::cadence_sensor_fixed_inclination_enabled, true);
+    settings.qsettings.setValue(QZSettings::cadence_sensor_as_treadmill, false);
+    strydrunpowersensor otherMode(false, false, false);
+    EXPECT_DOUBLE_EQ(otherMode.currentInclination().value(), 0.0);
+}
+
+TEST_F(FixedCadenceTreadmillInclinationTest, RejectsInvalidStoredGrade) {
+    for (double grade : {-1.0, 101.0}) {
+        settings.qsettings.setValue(QZSettings::cadence_sensor_fixed_inclination, grade);
+        strydrunpowersensor sensor(false, false, false);
+        EXPECT_DOUBLE_EQ(sensor.currentInclination().value(), 0.0);
+    }
 }

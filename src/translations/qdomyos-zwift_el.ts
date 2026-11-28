@@ -7249,6 +7249,18 @@ IMPORTANT NOTES:
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>Σταθερή κλίση διαδρόμου</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>Σταθερή κλίση (%)</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>Χρησιμοποιήστε την πραγματική σταθερή κλίση του χειροκίνητου διαδρόμου σας. Επανεκκινήστε το QZ μετά την αλλαγή αυτής της ρύθμισης.</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation type="unfinished"></translation>
     </message>

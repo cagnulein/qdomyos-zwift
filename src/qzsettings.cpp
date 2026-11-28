@@ -377,6 +377,8 @@ const QString QZSettings::cadence_sensor_name = QStringLiteral("cadence_sensor_n
 const QString QZSettings::default_cadence_sensor_name = QStringLiteral("Disabled");
 const QString QZSettings::cadence_sensor_as_bike = QStringLiteral("cadence_sensor_as_bike");
 const QString QZSettings::cadence_sensor_as_treadmill = QStringLiteral("cadence_sensor_as_treadmill");
+const QString QZSettings::cadence_sensor_fixed_inclination_enabled = QStringLiteral("cadence_sensor_fixed_inclination_enabled");
+const QString QZSettings::cadence_sensor_fixed_inclination = QStringLiteral("cadence_sensor_fixed_inclination");
 const QString QZSettings::cadence_sensor_speed_ratio = QStringLiteral("cadence_sensor_speed_ratio");
 const QString QZSettings::cscbike_custom_resistance_power_table = QStringLiteral("cscbike_custom_resistance_power_table");
 const QString QZSettings::cscbike_custom_resistance_level_1 = QStringLiteral("cscbike_custom_resistance_level_1");
@@ -1388,7 +1390,7 @@ const QString QZSettings::ui_modern_offer_pending = QStringLiteral("ui_modern_of
 
 const QString QZSettings::chart_smooth_lines = QStringLiteral("chart_smooth_lines");
 
-const uint32_t allSettingsCount = 1079;
+const uint32_t allSettingsCount = 1081;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1675,6 +1677,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name},
     {QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike},
     {QZSettings::cadence_sensor_as_treadmill, QZSettings::default_cadence_sensor_as_treadmill},
+    {QZSettings::cadence_sensor_fixed_inclination_enabled, QZSettings::default_cadence_sensor_fixed_inclination_enabled},
+    {QZSettings::cadence_sensor_fixed_inclination, QZSettings::default_cadence_sensor_fixed_inclination},
     {QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio},
     {QZSettings::cscbike_custom_resistance_power_table, QZSettings::default_cscbike_custom_resistance_power_table},
     {QZSettings::cscbike_custom_resistance_level_1, QZSettings::default_cscbike_custom_resistance_level_1},

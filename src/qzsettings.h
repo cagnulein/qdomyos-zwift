@@ -1040,6 +1040,12 @@ class QZSettings {
     static const QString cadence_sensor_as_treadmill;
     static constexpr bool default_cadence_sensor_as_treadmill = false;
 
+    static const QString cadence_sensor_fixed_inclination_enabled;
+    static constexpr bool default_cadence_sensor_fixed_inclination_enabled = false;
+    static const QString cadence_sensor_fixed_inclination;
+    static constexpr double default_cadence_sensor_fixed_inclination = 0.0;
+
+
     static const QString cadence_sensor_speed_ratio;
     static constexpr float default_cadence_sensor_speed_ratio = 0.33;
 

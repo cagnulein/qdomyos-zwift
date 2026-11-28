@@ -8030,6 +8030,18 @@ OBSERVAÇÕES IMPORTANTES:
         <translation>Opções do Sensor de Cadência</translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>Inclinação fixa da passadeira</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>Inclinação fixa (%)</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>Utilize a inclinação fixa real da sua passadeira manual. Reinicie o QZ após alterar esta definição.</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation>Não altere estas configurações se a sua bicicleta estiver funcionando corretamente!</translation>
     </message>

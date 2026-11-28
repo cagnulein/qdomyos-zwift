@@ -8054,6 +8054,18 @@ NOTES IMPORTANTES :
         <translation>Options de capteur de cadence</translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>Inclinaison fixe du tapis de course</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>Inclinaison fixe (%)</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>Utilisez l’inclinaison fixe réelle de votre tapis de course manuel. Redémarrez QZ après avoir modifié ce réglage.</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation>Ne touchez pas à ces paramètres si votre vélo fonctionne correctement !</translation>
     </message>

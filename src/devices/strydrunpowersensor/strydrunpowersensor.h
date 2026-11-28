@@ -38,6 +38,8 @@ class strydrunpowersensor : public treadmill {
   public:
     strydrunpowersensor(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
     bool connected() override;
+    void changeInclination(double grade, double percentage) override;
+    void clearStats() override;
 
   protected:
     // used as a treadmill, the Stryd measures the watts itself: keep the power-based calories
@@ -47,6 +49,7 @@ class strydrunpowersensor : public treadmill {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
+    bool applyFixedInclination();
     uint16_t watts();
 
     QTimer *refresh;
@@ -59,6 +62,7 @@ class strydrunpowersensor : public treadmill {
     QDateTime lastRefreshCadenceChanged = QDateTime::currentDateTime();
     QDateTime lastRefreshPowerChanged = QDateTime::currentDateTime();
     QDateTime lastGoodCadence = QDateTime::currentDateTime();
+    QDateTime lastFixedInclinationUpdate;
     uint8_t firstStateChanged = 0;
     bool charNotified = false;
     bool readMethod = false;
