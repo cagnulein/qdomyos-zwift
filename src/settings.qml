@@ -9139,7 +9139,8 @@ import AndroidStatusBar 1.0
                         UiComboBox {
                             id: chartSmoothLinesComboBox
                             // the order is the index saved in chart_smooth_lines, read by
-                            // SMOOTH_WINDOWS in inner_templates/chartjs/dochart.js
+                            // SMOOTH_WINDOWS in inner_templates/chartjs/dochart.js and
+                            // LIVE_SMOOTH_WINDOWS in inner_templates/chartjs/livesmooth.js
                             model: [qsTr("Off"), qsTr("Auto"), qsTr("%1 s").arg(3), qsTr("%1 s").arg(5),
                                 qsTr("%1 s").arg(10), qsTr("%1 s").arg(15), qsTr("%1 s").arg(30)]
                             savedIndex: settings.chart_smooth_lines

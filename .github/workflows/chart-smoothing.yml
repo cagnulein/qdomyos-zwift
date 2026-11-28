@@ -7,6 +7,11 @@ on:
       - 'tests/test_chart_smoothing.py'
       - 'tests/chart_smoothing_harness.js'
       - 'tests/fixtures/chart_smoothing_master.json'
+      - 'src/inner_templates/chartjs/livesmooth.js'
+      - 'src/inner_templates/chartjs/dochartlive.js'
+      - 'src/inner_templates/chartjs/dotreadmillchartlive.js'
+      - 'tests/test_live_chart_smoothing.py'
+      - 'tests/live_chart_smoothing_harness.js'
       - '.github/workflows/chart-smoothing.yml'
   workflow_dispatch:
 
@@ -27,3 +32,8 @@ jobs:
       # exactly as before; on, only the power, cadence and speed lines change
       - name: Test the smoothing of the chart lines
         run: python3 -m unittest -v tests/test_chart_smoothing.py
+
+      # the live charts of a workout: off draws the raw points as before; on, the power and the
+      # speed line are the trailing moving average
+      - name: Test the smoothing of the live charts
+        run: python3 -m unittest -v tests/test_live_chart_smoothing.py
