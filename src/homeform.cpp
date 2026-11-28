@@ -25,6 +25,7 @@
 #include "templateinfosenderbuilder.h"
 #include "workoutmodel.h"
 #include "zwiftworkout.h"
+#include "workoutimport.h"
 #include "authutils.h"
 
 #include <QAbstractOAuth2>
@@ -488,6 +489,13 @@ void DataObject::setLargeButtonLabel(const QString &label) {
 void DataObject::setLabelFontSize(int value) {
     m_labelFontSize = value;
     emit labelFontSizeChanged(m_labelFontSize);
+}
+void DataObject::setWritable(bool writable) {
+    if (m_writable == writable) {
+        return;
+    }
+    m_writable = writable;
+    emit writableChanged(m_writable);
 }
 void DataObject::setGridId(int id) {
     m_gridId = id;
@@ -2202,6 +2210,57 @@ bool homeform::startFirstSetupLog() {
     return true;
 }
 
+// The modern look for a new install: a QZ that has never connected a device (the first start after the
+// install, or one that never got as far as a device) opens in the modern look; who used QZ before keeps the
+// classic look and is asked once on the home page (requestModernOffer()). default_ui_modern stays false, so
+// the saved settings of everyone else are untouched. Decided once, at the first start of a QZ with this code
+void homeform::startModernForNewInstall() {
+    QSettings settings;
+    if (settings.value(QZSettings::ui_modern_new_install_checked, QZSettings::default_ui_modern_new_install_checked)
+            .toBool()) {
+        return;
+    }
+    settings.setValue(QZSettings::ui_modern_new_install_checked, true);
+    if (settings.value(QZSettings::ui_modern, QZSettings::default_ui_modern).toBool()) {
+        qDebug() << "modern look for a new install: already on";
+        return;
+    }
+    if (neverConnected()) {
+        settings.setValue(QZSettings::ui_modern, true);
+        qDebug() << "modern look for a new install: turned on";
+    } else {
+        settings.setValue(QZSettings::ui_modern_offer_pending, true);
+        qDebug() << "modern look for a new install: used before, the home page will ask";
+    }
+}
+
+void homeform::requestModernOffer(bool fromMenu) {
+    if (!fromMenu) {
+        QSettings settings;
+        if (!settings.value(QZSettings::ui_modern_offer_pending, QZSettings::default_ui_modern_offer_pending)
+                 .toBool()) {
+            return;
+        }
+        // Turned on in the settings meanwhile: nothing to ask
+        if (settings.value(QZSettings::ui_modern, QZSettings::default_ui_modern).toBool()) {
+            settings.setValue(QZSettings::ui_modern_offer_pending, false);
+            return;
+        }
+    }
+    if (!m_modernOfferRequested) {
+        m_modernOfferRequested = true;
+        emit modernOfferRequestedChanged(true);
+    }
+}
+
+void homeform::answerModernOffer() {
+    QSettings().setValue(QZSettings::ui_modern_offer_pending, false);
+    if (m_modernOfferRequested) {
+        m_modernOfferRequested = false;
+        emit modernOfferRequestedChanged(false);
+    }
+}
+
 bool homeform::hasConnectedDevice() const {
     return bluetoothManager && bluetoothManager->device();
 }
@@ -2662,6 +2721,57 @@ void homeform::externalControllerGearDown() {
         automaticShiftingGearUpStartTime = QDateTime::currentDateTime();
         automaticShiftingGearDownStartTime = QDateTime::currentDateTime();
     }
+}
+
+static bool isResistanceTileButton(const QString &name) {
+    return name == QStringLiteral("resistance_plus") || name == QStringLiteral("resistance_minus") ||
+           name == QStringLiteral("target_resistance_plus") || name == QStringLiteral("target_resistance_minus") ||
+           name.startsWith(QStringLiteral("preset_resistance_"));
+}
+
+int homeform::resistanceTilePressed(const QString &kind, const QString &name) {
+    bluetoothdevice *dev = bluetoothManager ? bluetoothManager->device() : nullptr;
+    if (!dev || dev->autoResistance() || !isResistanceTileButton(name)) {
+        return 0;
+    }
+    // only bikes and rowers drop the level with Auto Resistance off (elliptical::changeResistance always applies it)
+    if (dev->deviceType() != BIKE && dev->deviceType() != ROWING) {
+        return 0;
+    }
+    // a CSC sensor has no resistance to set: these tiles only feed its power estimate and already work.
+    // Skandika sends lastRequestedResistance() with Auto Resistance off, so these tiles already work there too.
+    // Renpho releases the control of the bike on every update while Auto Resistance is off, so a level
+    // applied here would never be written: keep it as it is
+    if (dynamic_cast<cscbike *>(dev) || dynamic_cast<skandikawiribike *>(dev) || dynamic_cast<renphobike *>(dev)) {
+        return 0;
+    }
+    if (!m_resistanceTilesWithoutAutoResistance) {
+        qDebug() << QStringLiteral("resistance tile with auto resistance off: asking") << kind << name;
+        return 2;
+    }
+    applyResistanceTileWithAutoResistanceOff(kind, name);
+    return 1;
+}
+
+void homeform::applyResistanceTileWithAutoResistanceOff(const QString &kind, const QString &name) {
+    bluetoothdevice *dev = bluetoothManager ? bluetoothManager->device() : nullptr;
+    if (!dev) {
+        return;
+    }
+    m_resistanceTilesWithoutAutoResistance = true;
+    qDebug() << QStringLiteral("resistance tile with auto resistance off") << kind << name;
+    // changeResistance() drops the level while Auto Resistance is off; lift it for this press only, so apps and
+    // training programs keep being ignored
+    const bool autoResistanceWas = dev->autoResistance();
+    dev->setAutoResistance(true);
+    if (kind == QStringLiteral("plus")) {
+        Plus(name);
+    } else if (kind == QStringLiteral("minus")) {
+        Minus(name);
+    } else {
+        LargeButton(name);
+    }
+    dev->setAutoResistance(autoResistanceWas);
 }
 
 void homeform::speedPlus() {
@@ -6287,6 +6397,8 @@ void homeform::pelotonOffset_Plus() { Plus(QStringLiteral("peloton_offset")); }
 void homeform::pelotonOffset_Minus() { Minus(QStringLiteral("peloton_offset")); }
 
 void homeform::bluetoothDeviceConnected(bluetoothdevice *b) {
+    // Rowing intensity is displayed, not adjusted. Other devices keep their existing controls.
+    target_zone->setWritable(b->deviceType() != ROWING);
     this->innerTemplateManager->start(b);
     this->userTemplateManager->start(b);
 #ifndef Q_OS_IOS
@@ -6957,6 +7069,9 @@ QString homeform::startIcon() {
 }
 
 void homeform::updateGearsValue() {
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+    const QString previousGearValue = this->gears->value();
+#endif
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
     bool gears_custom_table_enabled = settings.value(QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled).toBool();
@@ -6976,6 +7091,12 @@ void homeform::updateGearsValue() {
         this->gears->setValue(QString::number(gear, 'f', 1));
         this->gears->setSecondLine(QStringLiteral(""));
     }
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+    // Publish shifts when they happen instead of waiting for the 1 Hz homeform timer.
+    // Keep other metrics at their usual cadence and avoid unnecessary PiP frames.
+    if (previousGearValue != this->gears->value() && iosFloatingMetrics::running())
+        updateFloatingMetrics();
+#endif
 }
 
 QString homeform::signal() {
@@ -7954,6 +8075,10 @@ void homeform::update() {
                 ((rower *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             this->target_pace->setValue(
                 ((rower *)bluetoothManager->device())->lastRequestedPace().toString(QStringLiteral("m:ss")));
+            // Power-zone watt ranges belong to bikes, not to Peloton rowing effort cues.
+            if (!this->target_zone->secondLine().isEmpty()) {
+                this->target_zone->setSecondLine(QString());
+            }
             if (trainProgram) {
                 this->target_pace->setSecondLine(((rower *)bluetoothManager->device())
                                                      ->speedToPace(trainProgram->currentRow().lower_speed)
@@ -8002,6 +8127,10 @@ void homeform::update() {
                     this->target_zone->setValue(tr("N/A"));
                     break;
                 }
+            } else {
+                // Don't keep showing the previous Peloton cue after its workout ends.
+                this->target_zone->setValue(tr("N/A"));
+                this->target_zone->setValueFontColor(QStringLiteral("white"));
             }
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * 1000.0, 'f', 0));
             resistance = ((rower *)bluetoothManager->device())->currentResistance().value();
@@ -8380,9 +8509,7 @@ void homeform::update() {
         ftp->setSecondLine(ftpMinW + QStringLiteral("-") + ftpMaxW + tr("W ") +
                            QString::number(ftpPerc, 'f', 0) + QStringLiteral("%"));
 
-        if (bluetoothManager->device()->deviceType() == BIKE ||
-            (bluetoothManager->device()->deviceType() == ROWING &&
-             (!trainProgram || trainProgram->currentRow().pace_intensity == -1))) {
+        if (bluetoothManager->device()->deviceType() == BIKE) {
             if (requestedPerc < 56) {
 
                 requestedMinW = QString::number(0, 'f', 0);
@@ -9817,6 +9944,8 @@ bool homeform::startTrainingProgramFromFile(const QString &filePath) {
         return false;
     }
     trainprogram_open_clicked(QUrl::fromLocalFile(localPath));
+    if (trainProgram && trainProgram->isFitWorkout)
+        return !trainProgram->loadedRows.isEmpty() && trainProgram->fitWorkoutMatchesDevice();
     return true;
 }
 
@@ -10328,6 +10457,25 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
             }
 
             trainProgram = trainprogram::load(file.fileName(), bluetoothManager, file.fileName().right(3).toUpper());
+            if (trainProgram->isFitWorkout) {
+                const bool matchesDevice = trainProgram->fitWorkoutMatchesDevice();
+                // A known incompatible sport is only exposed after a successful decode, so keep
+                // that valid FIT too: the editor can read it without controlling the current device.
+                if (!trainProgram->loadedRows.isEmpty() || !matchesDevice) {
+                    const QString savedFit = workoutimport::keepFitInTrainingFolder(
+                        file.fileName(), getWritableAppDir() + QStringLiteral("training/"));
+                    if (savedFit.isEmpty()) {
+                        setToastRequested(tr("The workout was opened but could not be saved."));
+                    } else {
+                        emit folderFilesRestored();
+                    }
+                }
+                if (!matchesDevice) {
+                    setToastRequested(tr("This workout sport does not match the connected device."));
+                } else if (trainProgram->loadedRows.isEmpty()) {
+                    setToastRequested(tr("The workout file could not be opened."));
+                }
+            }
 
             QString movieName = file.fileName().left(file.fileName().length() - 3) + "mp4";
             if (QFile::exists(movieName)) {
@@ -10363,6 +10511,11 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
 
 void homeform::trainprogram_autostart_requested() {
     qDebug() << QStringLiteral("trainprogram_autostart_requested");
+    // Do not autostart a rejected FIT or one for a different sport.
+    // Preserve the existing behavior for all other workout formats.
+    if (trainProgram && trainProgram->isFitWorkout &&
+        (trainProgram->loadedRows.isEmpty() || !trainProgram->fitWorkoutMatchesDevice()))
+        return;
 
     bluetoothdevice *dev = nullptr;
     if (bluetoothManager) {

@@ -124,7 +124,16 @@ function main_ws_connect() {
         socket.close();
     };
     socket.onmessage = function (event) {
-        console.log(event.data);
+        // A message can be megabytes (the session of a long workout on the charts, a GPX file
+        // on the map); the WebView writes the console to logcat, thousands of lines for the
+        // session, and a phone with a log quota per app (OnePlus) then drops the lines of the
+        // app over the quota, so only the beginning and the end of a long message go to the
+        // console (an answer of QZ has its name at the end: "msg" comes after "content")
+        if (event.data.length > 500)
+            console.log(event.data.substring(0, 400) + ' ... ' +
+                        event.data.substring(event.data.length - 100) + ' (' + event.data.length + ' chars)');
+        else
+            console.log(event.data);
         let msg = JSON.parse(event.data);
         main_ws_queue_process(msg);
     };

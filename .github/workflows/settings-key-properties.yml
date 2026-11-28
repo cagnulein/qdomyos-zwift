@@ -1,0 +1,32 @@
+name: Settings key properties
+
+on:
+  pull_request:
+    paths:
+      - 'src/qzsettings.cpp'
+      - 'src/settings.qml'
+      - 'tools/check_settings_key_properties.py'
+      - '.github/workflows/settings-key-properties.yml'
+  workflow_dispatch:
+
+jobs:
+  check-settings-key-properties:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch pull request base
+        if: github.event_name == 'pull_request'
+        run: git fetch origin "${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}"
+
+      - name: Check that new settings keys are settings.qml properties
+        if: github.event_name == 'pull_request'
+        run: python3 tools/check_settings_key_properties.py "origin/${{ github.base_ref }}"
+
+      - name: Check script on manual run
+        if: github.event_name == 'workflow_dispatch'
+        run: python3 tools/check_settings_key_properties.py "HEAD^"

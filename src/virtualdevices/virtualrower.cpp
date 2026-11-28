@@ -440,6 +440,10 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         rowerTimer.start(1s);
 
     //! [Provide Heartbeat]
+    QObject::connect(leController, &QLowEnergyController::connected, this, [this]() {
+        ftmsDistance = FtmsDistance{};
+        ftmsStrokeCount = FtmsStrokeCount{};
+    });
     QObject::connect(leController, &QLowEnergyController::disconnected, this, &virtualrower::reconnect);
     QObject::connect(
         leController,
@@ -766,6 +770,48 @@ void virtualrower::reconnect() {
 
 }
 
+QByteArray virtualrower::FtmsDistance::field(bluetoothdevice &device) {
+    const double rawKm = qMax(0.0, device.odometerFromStartup());
+    if (!initialized) {
+        // Preserve the workout distance when a client first connects.
+        totalKm = qMax(0.0, device.odometer());
+        initialized = true;
+    } else {
+        // A reset of the hardware counter starts a new baseline without subtracting distance.
+        totalKm += qMax(0.0, rawKm - lastRawKm);
+    }
+    lastRawKm = rawKm;
+    const uint32_t distance = static_cast<uint32_t>(totalKm * 1000.0);
+    QByteArray field;
+    field.append(static_cast<char>(distance & 0xFF));
+    field.append(static_cast<char>((distance >> 8) & 0xFF));
+    field.append(static_cast<char>((distance >> 16) & 0xFF));
+    return field;
+}
+
+QByteArray virtualrower::FtmsStrokeCount::field(metric strokes, uint32_t fallback) {
+    const double raw = qMax(0.0, strokes.valueRaw());
+    uint32_t count = fallback;
+    if (initialized || raw > 0.0) {
+        if (!initialized) {
+            // Match the current workout count when the FTMS client connects.
+            total = qMax(0.0, strokes.value());
+            initialized = true;
+        } else {
+            // A local workout reset changes the offset, not the raw counter.
+            // A hardware counter reset must not subtract already sent strokes.
+            total += qMax(0.0, raw - lastRaw);
+        }
+        lastRaw = raw;
+        count = static_cast<uint32_t>(total);
+    }
+
+    QByteArray field;
+    field.append(static_cast<char>(count & 0xFF));
+    field.append(static_cast<char>((count >> 8) & 0xFF));
+    return field;
+}
+
 void virtualrower::rowerProvider() {
 
     QSettings settings;
@@ -788,9 +834,11 @@ void virtualrower::rowerProvider() {
     const uint16_t virtualOutputCadence = pm5Mode ? virtualPm5StrokeRate : virtualFtmsStrokeRate;
 
     // Get stroke count based on device type
+    metric strokes;
     uint32_t strokeCount = 0;
     if (Rower->deviceType() == ROWING) {
-        strokeCount = ((rower *)Rower)->currentStrokesCount().value();
+        strokes = static_cast<rower *>(Rower)->currentStrokesCount();
+        strokeCount = strokes.value();
     }
     // If the device doesn't expose stroke count, estimate from cadence × elapsed time.
     // MyWhoosh drives avatar arm animation from an incrementing stroke count, not stroke rate,
@@ -967,12 +1015,9 @@ void virtualrower::rowerProvider() {
 
             value.append((char)(virtualFtmsStrokeRate & 0xFF)); // Stroke Rate
 
-            value.append((char)((uint16_t)(strokeCount & 0xFF)));        // Stroke Count
-            value.append((char)(((uint16_t)(strokeCount >> 8) & 0xFF))); // Stroke Count
+            value.append(ftmsStrokeCount.field(strokes, strokeCount));
 
-            value.append((char)(((uint16_t)(Rower->odometer() * 1000.0)) & 0xFF));       // Distance
-            value.append((char)(((uint16_t)(Rower->odometer() * 1000.0) >> 8) & 0xFF));  // Distance
-            value.append((char)(((uint16_t)(Rower->odometer() * 1000.0) >> 16) & 0xFF)); // Distance
+            value.append(ftmsDistance.field(*Rower));
 
             value.append((char)((uint16_t)(paceSecs & 0xFF)));      // pace
             value.append((char)(((uint16_t)(paceSecs >> 8) & 0xFF))); // pace

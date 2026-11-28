@@ -164,6 +164,13 @@ void fitshowtreadmill::cancelPendingStartTarget(const QString &reason) {
     m_startSpeedGate.cancel();
 }
 
+void fitshowtreadmill::stop(bool pause) {
+    // Clear a previous pending Pause when a real Stop supersedes it.
+    pauseFallbackAllowed = pause;
+    requestPause = pause ? 1 : -1;
+    treadmill::stop(pause);
+}
+
 void fitshowtreadmill::update() {
     if (!m_control || m_control->state() == QLowEnergyController::UnconnectedState) {
         cancelPendingStartTarget(QStringLiteral("disconnected"));
@@ -243,6 +250,7 @@ void fitshowtreadmill::update() {
             requestInclination = -100;
         }
         if (requestStart != -1) {
+            pauseFallbackAllowed = false;
             emit debug(QStringLiteral("starting..."));
             if (lastSpeed == 0.0) {
                 lastSpeed = 0.5;
@@ -270,29 +278,44 @@ void fitshowtreadmill::update() {
             emit tapeStarted();
         }
         if (requestStop != -1) {
-            if (paused) {
-                lastStop = QDateTime::currentMSecsSinceEpoch();
-                // Merach uses its PAUSED status value as the pause command.
-                uint8_t pauseTape[] = {FITSHOW_SYS_CONTROL,
-                                       (uint8_t)(merach_t12_connected ? FITSHOW_STATUS_PAUSED : FITSHOW_CONTROL_PAUSE)};
-                emit debug(QStringLiteral("pausing..."));
-                scheduleWrite(pauseTape, sizeof(pauseTape), QStringLiteral("pause tape"));
-            } else {
-                uint8_t stopTape[] = {FITSHOW_SYS_CONTROL, FITSHOW_CONTROL_STOP};
-                emit debug(QStringLiteral("stopping..."));
-                lastStop = QDateTime::currentMSecsSinceEpoch();
-                scheduleWrite(stopTape, sizeof(stopTape), QStringLiteral("stop tape"));
-            }
+            // The workout's paused state is not the requested action:
+            // Stop pressed after Pause must still send the physical Stop command.
+            const bool pauseRequested = requestPause != -1;
+            requestPause = -1;
             requestStop = -1;
+
+            pauseFallbackAllowed = pauseRequested;
+            const uint8_t command = fitshowStopCommand(pauseRequested, merach_t12_connected);
+            const bool sendStop = command == FITSHOW_CONTROL_STOP;
+            lastStop = QDateTime::currentMSecsSinceEpoch();
+            const uint8_t tape[] = {FITSHOW_SYS_CONTROL, command};
+            emit debug(sendStop ? QStringLiteral("stopping...") : QStringLiteral("pausing..."));
+            scheduleWrite(tape, sizeof(tape), sendStop ? QStringLiteral("stop tape") : QStringLiteral("pause tape"));
         }
 
-        if (retrySend >= 6) { // 3 retries
+        if (retrySend >= 6 && bufferWrite.size() >= 3 && !debugMsgs.isEmpty()) { // 3 attempts
             emit debug(QStringLiteral("WARNING: answer not received for command "
                                       "%1 / %2 (%3)")
                            .arg(((uint8_t)bufferWrite.at(1)), 2, 16, QChar('0'))
                            .arg(((uint8_t)bufferWrite.at(2)), 2, 16, QChar('0'))
                            .arg(debugMsgs.at(0)));
-            removeFromBuffer();
+            // A controller may advertise Pause support but ignore the command.
+            // Replace only the timed-out Pause at the queue head, keeping FIFO
+            // ordering and the existing retry policy. A later Start/Stop
+            // supersedes this fallback; never turn a Merach Pause into Stop.
+            if (static_cast<uint8_t>(bufferWrite.at(0)) == 2 &&
+                static_cast<uint8_t>(bufferWrite.at(1)) == FITSHOW_SYS_CONTROL &&
+                fitshowShouldFallbackToStop(static_cast<uint8_t>(bufferWrite.at(2)),
+                                            pauseFallbackAllowed && requestStart == -1 && requestStop == -1)) {
+                bufferWrite[2] = static_cast<char>(FITSHOW_CONTROL_STOP);
+                debugMsgs[0] = QStringLiteral("stop tape (pause fallback)");
+                pauseFallbackAllowed = false;
+                retrySend = 0;
+                lastStop = QDateTime::currentMSecsSinceEpoch();
+                emit debug(QStringLiteral("FitShow Pause not acknowledged; falling back to Stop"));
+            } else {
+                removeFromBuffer();
+            }
         }
         if (!bufferWrite.isEmpty()) {
             retrySend++;
@@ -1038,6 +1061,7 @@ void fitshowtreadmill::searchingStop() { searchStopped = true; }
 void fitshowtreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
+        pauseFallbackAllowed = false;
         cancelPendingStartTarget(QStringLiteral("connection lost"));
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;

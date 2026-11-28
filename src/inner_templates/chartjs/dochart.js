@@ -32,9 +32,191 @@ var ftpZones = [];
 var maxHeartRate = 190;
 var heartZones = [];
 var miles = 1;
+// the Smooth Chart Lines setting (chart_smooth_lines): the index in its list in settings.qml –
+// Off, Auto, then the moving average windows in seconds (Auto: -1, see smoothWindow)
+var SMOOTH_WINDOWS = [0, -1, 3, 5, 10, 15, 30];
+var smoothSetting = 0;
+var drawnSmoothWindow = 0; // the window of the lines drawn last
+
+// live update during a workout: the new points of the session are asked for once a second and
+// the charts are updated in place, only while a workout is running (see setLiveActive)
+var LIVE_REFRESH_MS = 1000;
+var liveTimer = null;
+var liveLoading = false;
+var liveActive = false;
+var liveStateKnown = false; // a 'workout' push has come
+var liveFinalPending = false;
+var lastSessionLength = -1;
+var sessionCache = null; // the session so far, grown by the parts the live update asks for
+var liveRefresh = false;
+var pendingLive = {}; // canvas id -> the config of a live refresh skipped while off screen
+var pendingLiveTimer = null;
+
+// the polling goes on: a chart off screen waits for the next refresh or for a scroll to it
+function livePolling() {
+    return liveActive;
+}
+
+function offScreen(canvas) {
+    var rect = canvas.getBoundingClientRect();
+    return rect.bottom < 0 || rect.top > window.innerHeight;
+}
+
+function isPointRow(row) {
+    return Array.isArray(row) && row.length > 0 && typeof row[0] === 'object' && row[0] !== null;
+}
+
+// the lines keep the lowest and the highest point of each slice of the time axis, one slice for
+// every 2 px of the screen: a long workout draws as fast as a short one, and the peaks stay.
+// The lines of a chart keep the same points (the union of their lowest and highest ones), so
+// the tooltip, which takes the point of one index from every line, shows them at one time.
+// Averages, maximums and zones are counted on the whole session before this
+function thinLines(datasets, slices) {
+    let rows = [], length = 0;
+    datasets.forEach(function (d) {
+        if (isPointRow(d.data))
+            length = Math.max(length, d.data.length);
+    });
+    datasets.forEach(function (d) {
+        if (isPointRow(d.data) && d.data.length === length)
+            rows.push(pickingRow(d.data));
+    });
+    if (length <= slices * 2)
+        return;
+    let keep = [], size = length / slices;
+    for (let b = 0; b < slices; b++) {
+        let from = Math.floor(b * size), to = Math.min(length, Math.floor((b + 1) * size));
+        let picked = [];
+        rows.forEach(function (row) {
+            let low = -1, high = -1, gap = -1;
+            for (let i = from; i < to; i++) {
+                let y = row[i].y;
+                if (y === null || y === undefined || y !== y) { // y !== y: NaN
+                    if (gap < 0)
+                        gap = i; // a gap in the slice (a point without a value) stays a break
+                    continue;
+                }
+                if (low < 0 || y < row[low].y)
+                    low = i;
+                if (high < 0 || y > row[high].y)
+                    high = i;
+            }
+            [low, high, gap].forEach(function (i) {
+                if (i >= 0 && picked.indexOf(i) < 0)
+                    picked.push(i);
+            });
+        });
+        if (picked.length === 0)
+            picked.push(from);
+        picked.sort(function (a, c) { return a - c; });
+        keep = keep.concat(picked);
+    }
+    datasets.forEach(function (d) {
+        if (rows.indexOf(pickingRow(d.data)) >= 0)
+            d.data = keep.map(function (i) { return d.data[i]; });
+    });
+}
+
+// the points a line takes part in thinLines with: a smoothed line (smoothRow) by its raw values,
+// so the points kept, and so the other lines of the chart (the targets), are the same as unsmoothed
+function pickingRow(data) {
+    return data && data.rawRow ? data.rawRow : data;
+}
+
+function updateInPlace(old, config) {
+    config.options.animation = false;
+    if (lastTimeRepeats(config)) {
+        var ctx = old.ctx;
+        old.destroy();
+        return qzChartTheme.create(ctx, config);
+    }
+    // keep the dataset objects: the chart's per-dataset state is bound to them
+    for (var i = 0; i < config.data.datasets.length; i++)
+        old.data.datasets[i].data = config.data.datasets[i].data;
+    if (config.data.labels)
+        old.data.labels = config.data.labels;
+    qzChartTheme.restyle(old, config); // the new options in the app theme, like create()
+    old.options = config.options;
+    old.update('none');
+    return old;
+}
+
+// with the animation off Chart.js 3.4.1 updates only the points up to the first one at the x
+// axis max; when the last points share one time (a session that stands still) the points after
+// it keep no values, and drawing the line throws. Such a chart is made anew
+function lastTimeRepeats(config) {
+    return config.data.datasets.some(function (d) {
+        var n = d.data.length;
+        return n > 1 && d.data[n - 1] !== null && typeof d.data[n - 1] === 'object' && d.data[n - 2] !== null
+            && typeof d.data[n - 2] === 'object' && d.data[n - 1].x === d.data[n - 2].x;
+    });
+}
+
+// creates a chart on ctx; on a live refresh the existing chart gets the new data and options
+// in place instead, so an open tooltip stays and nothing flickers; the animation is off there,
+// so its onComplete (saving screenshots) does not run again. While the polling goes on, a chart
+// off screen is not drawn: drawing is most of the cost of a refresh, and only one or two of the
+// charts are on screen
+function makeChart(ctx, config) {
+    // by the longer side of the screen, not by the chart: the page turned to landscape keeps
+    // the same points
+    thinLines(config.data.datasets, Math.max(100, Math.round(Math.max(window.innerWidth, window.innerHeight) / 2)));
+    var old = Chart.getChart(ctx.canvas);
+    delete pendingLive[ctx.canvas.id];
+    if (old && liveRefresh && old.data.datasets.length === config.data.datasets.length) {
+        if (livePolling() && offScreen(ctx.canvas)) {
+            pendingLive[ctx.canvas.id] = config;
+            return old;
+        }
+        return updateInPlace(old, config);
+    }
+    if (old)
+        old.destroy();
+    if (liveRefresh)
+        config.options.animation = false;
+    return qzChartTheme.create(ctx, config);
+}
+
+// draws the skipped charts that came on screen, or all of them when the polling stops
+function drawPendingLive() {
+    for (var id in pendingLive) {
+        var canvas = document.getElementById(id);
+        var old = canvas && Chart.getChart(canvas);
+        if (old && livePolling() && offScreen(canvas))
+            continue;
+        if (old)
+            updateInPlace(old, pendingLive[id]);
+        delete pendingLive[id];
+    }
+}
+
+function schedulePendingLive() {
+    if (pendingLiveTimer === null)
+        pendingLiveTimer = setTimeout(function () {
+            pendingLiveTimer = null;
+            drawPendingLive();
+        }, 100);
+}
+window.addEventListener('scroll', schedulePendingLive);
+window.addEventListener('resize', schedulePendingLive);
 
 function t(key, fallback) {
     return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
+}
+
+// The tooltip under a finger or the mouse: the time of the point (the x axis of the line charts
+// counts seconds, and so do the values of the zone bars) instead of the raw number
+function tooltipTime(seconds) {
+    let s = Math.round(seconds), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60);
+    return (h > 0 ? h + ":" + m.toString().padStart(2, "0") : m) + ":" + (s % 60).toString().padStart(2, "0");
+}
+
+function tooltipTimeTitle(items) {
+    return items.length ? tooltipTime(items[0].parsed.x) : "";
+}
+
+function tooltipTimeLabel(item) {
+    return tooltipTime(item.parsed.y);
 }
 
 function zoneLabel(number) {
@@ -73,6 +255,61 @@ function ensureHeartZones() {
             heartZones[i] = Math.round(maxHeartRate * defaultZoneRatios[i]);
         }
     }
+}
+
+// The window of the moving average of the power, cadence and speed lines in seconds, 0: the raw
+// lines. Auto: 3 s while the workout runs (the page polls it); otherwise (after Stop, and so in the
+// charts of the email) 3 s and 2 s more for every full 30 minutes of the workout, up to 15 s.
+// seconds: the elapsed time of the last point
+function smoothWindow(seconds) {
+    let w = SMOOTH_WINDOWS[smoothSetting] || 0;
+    if (w >= 0)
+        return w;
+    if (livePolling())
+        return 3;
+    return Math.min(15, 3 + 2 * Math.floor((seconds || 0) / 1800));
+}
+
+// the elapsed time of the last point of the session, in seconds
+function sessionSeconds(arr) {
+    let el = arr.length ? arr[arr.length - 1] : null;
+    return el ? el.elapsed_s + el.elapsed_m * 60 + el.elapsed_h * 3600 : 0;
+}
+
+function isValue(y) {
+    return typeof y === 'number' && y === y; // y === y: not NaN
+}
+
+// The power, cadence and speed lines as a centered moving average over a window of `seconds` of
+// the elapsed time (x), without the second-by-second jitter: the points from x - back to x + ahead,
+// back + ahead + 1 = seconds (an even window takes the extra second ahead). Only the lines: the
+// averages, maximums, zones and the power distribution are counted on the raw values before this.
+// A point without a value stays as it is and is not counted. Rounded to `digits` decimals
+function smoothRow(row, seconds, digits) {
+    if (!(seconds > 1))
+        return row;
+    let back = Math.floor((seconds - 1) / 2), ahead = seconds - 1 - back;
+    let k = Math.pow(10, digits || 0), from = 0, to = 0;
+    let smoothed = row.map(function (p, i) {
+        if (!isValue(p.y))
+            return p;
+        while (from < i && row[from].x < p.x - back)
+            from++;
+        if (to < i)
+            to = i;
+        while (to + 1 < row.length && row[to + 1].x <= p.x + ahead)
+            to++;
+        let sum = 0, count = 0;
+        for (let j = from; j <= to; j++) {
+            if (isValue(row[j].y)) {
+                sum += row[j].y;
+                count++;
+            }
+        }
+        return { x: p.x, y: Math.round(sum / count * k) / k };
+    });
+    smoothed.rawRow = row; // thinLines picks the points by the raw values (pickingRow)
+    return smoothed;
 }
 
 function process_arr(arr) {
@@ -198,6 +435,7 @@ function process_arr(arr) {
         inclinationel.y = el.inclination;
         inclination.push(inclinationel);
     }
+    drawnSmoothWindow = smoothWindow(sessionSeconds(arr));
 
     $('.workoutName').text(workoutName);
     $('.workoutStartDate').text(workoutStartDate);
@@ -249,7 +487,7 @@ function process_arr(arr) {
                 backgroundColor: window.chartColors.red,
                 borderColor: window.chartColors.red,
                 cubicInterpolationMode: 'monotone',
-                data: watts,
+                data: smoothRow(watts, drawnSmoothWindow),
                 fill: false,
                 pointRadius: 0,
                 borderWidth: 2,
@@ -345,9 +583,10 @@ function process_arr(arr) {
                     },
                     text:t('metric.watt', 'Watt')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false
@@ -420,6 +659,11 @@ function process_arr(arr) {
                         }
                       }
             },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
             hover: {
                 mode: 'nearest',
                 intersect: true
@@ -473,7 +717,7 @@ function process_arr(arr) {
     };
 
     let ctx = document.getElementById('canvas').getContext('2d');
-    var powerChart = qzChartTheme.create(ctx, config);
+    var powerChart = makeChart(ctx, config);
 
     const minRecordedHeart = heart.reduce(function(minValue, point) {
         return point.y > 0 ? Math.min(minValue, point.y) : minValue;
@@ -550,9 +794,10 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.heartRate', 'Heart Rate')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false
@@ -607,6 +852,11 @@ function process_arr(arr) {
                     }
                 },
             },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
             hover: {
                 mode: 'nearest',
                 intersect: true
@@ -658,7 +908,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasHeart').getContext('2d');
-    var heartChart = qzChartTheme.create(ctx, config);
+    var heartChart = makeChart(ctx, config);
 
     config = {
         type: 'line',
@@ -720,14 +970,20 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.resistanceVsTarget', 'Resistance vs Target Resistance')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false,
                     position: 'bottom',
                 },
+            },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',
@@ -775,7 +1031,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasResistance').getContext('2d');
-    var resistanceChart = qzChartTheme.create(ctx, config);
+    var resistanceChart = makeChart(ctx, config);
 
     config = {
         type: 'line',
@@ -837,14 +1093,20 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.pelotonResistanceVsTarget', 'Peloton Resistance vs Target Peloton Resistance')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false,
                     position: 'bottom',
                 },
+            },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',
@@ -892,7 +1154,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasPelotonResistance').getContext('2d');
-    var pelotonresistanceChart = qzChartTheme.create(ctx, config);
+    var pelotonresistanceChart = makeChart(ctx, config);
 
     config = {
         type: 'line',
@@ -904,7 +1166,7 @@ function process_arr(arr) {
                     borderColor: window.chartColors.blue,
                     label: t('workoutEditor.cadence', 'Cadence'),
                     //cubicInterpolationMode: 'monotone',
-                    data: cadence,
+                    data: smoothRow(cadence, drawnSmoothWindow),
                     fill: false,
                     pointRadius: 0,
                     borderWidth: 2,
@@ -954,14 +1216,20 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.cadenceVsTarget', 'Cadence vs Target Cadence')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false,
                     position: 'bottom',
                 },
+            },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',
@@ -1008,8 +1276,10 @@ function process_arr(arr) {
         }
     };
 
+    if (drawnSmoothWindow > 1)
+        config.data.datasets[0].cubicInterpolationMode = 'monotone'; // the smoothed line, as the power one
     ctx = document.getElementById('canvasCadence').getContext('2d');
-    var cadenceChart = qzChartTheme.create(ctx, config);
+    var cadenceChart = makeChart(ctx, config);
 
     config = {
         type: 'bar',
@@ -1055,14 +1325,20 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.powerDistribution', 'Power Distribution')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        label: tooltipTimeLabel,
+                    },
                 },
                 legend: {
                     display: false,
                     position: 'right',
                 },
+            },
+            // Chart.js 3: the bar of the zone under the finger anywhere in its column, not only on the bar
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',
@@ -1089,7 +1365,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasPowerDistribution').getContext('2d');
-    var powerDistributionChart = qzChartTheme.create(ctx, config);
+    var powerDistributionChart = makeChart(ctx, config);
 
     config = {
         type: 'line',
@@ -1101,7 +1377,7 @@ function process_arr(arr) {
                     borderColor: window.chartColors.blue,
                     label: miles === 1 ? t('workoutEditor.speedKmh', 'Speed (km/h)') : t('workoutEditor.speedMph', 'Speed (mph)'),
                     //cubicInterpolationMode: 'monotone',
-                    data: speed,
+                    data: smoothRow(speed, drawnSmoothWindow, 1),
                     fill: false,
                     pointRadius: 0,
                     borderWidth: 2,
@@ -1151,14 +1427,20 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.speedAndInclination', 'Speed and Inclination')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false,
                     position: 'bottom',
                 },
+            },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',
@@ -1205,24 +1487,116 @@ function process_arr(arr) {
         }
     };
 
+    if (drawnSmoothWindow > 1)
+        config.data.datasets[0].cubicInterpolationMode = 'monotone'; // the smoothed speed line
     ctx = document.getElementById('canvasSpeedInclination').getContext('2d');
-    var speedInclinationChart = qzChartTheme.create(ctx, config);
+    var speedInclinationChart = makeChart(ctx, config);
 }
 
 function dochart_init() {
-    keys_arr = ['ftp', 'miles_unit', 'age', 'heart_rate_zone1', 'heart_rate_zone2', 'heart_rate_zone3', 'heart_rate_zone4', 'heart_max_override_enable', 'heart_max_override_value']
+    keys_arr = ['ftp', 'miles_unit', 'age', 'heart_rate_zone1', 'heart_rate_zone2', 'heart_rate_zone3', 'heart_rate_zone4', 'heart_max_override_enable', 'heart_max_override_value', 'chart_smooth_lines']
 
-    function load_workout_data() {
+    function scheduleLiveRefresh() {
+        clearTimeout(liveTimer);
+        liveTimer = null;
+        // not before the first load: it runs after getsettings and draws with the right zones
+        if (livePolling() && !liveLoading && lastSessionLength >= 0 && !document.hidden)
+            liveTimer = setTimeout(load_workout_data, LIVE_REFRESH_MS);
+        else
+            drawPendingLive();
+    }
+
+    // the polling works only while a workout is running: device connected, not paused and not
+    // stopped (stop pauses the device); state comes with the 'workout' push
+    function setLiveActive(active) {
+        let firstState = !liveStateKnown;
+        liveStateKnown = true;
+        if (active === liveActive)
+            return;
+        liveActive = active;
+        if (!active) {
+            clearTimeout(liveTimer);
+            liveTimer = null;
+            // pick up the last points before going idle; a load in flight may predate the stop
+            if (liveLoading)
+                liveFinalPending = true;
+            else if (lastSessionLength >= 0)
+                load_workout_data();
+        } else {
+            // a start or a resume: the session may be a new one of any length (the app clears
+            // it on start only), so the next load takes it whole instead of appending a part.
+            // Not on the first state the page gets: the page has just loaded the session whole
+            if (!firstState)
+                sessionCache = null;
+            scheduleLiveRefresh();
+        }
+    }
+
+    function watchWorkoutState() {
         let el = new MainWSQueueElement({
-            msg: 'getsessionarray'
+            msg: null
         }, function(msg) {
-            if (msg.msg === 'R_getsessionarray') {
+            if (msg.msg === 'workout') {
                 return msg.content;
             }
             return null;
+        });
+        el.enqueue().then(function(w) {
+            setLiveActive(!!(w && w.deviceId && w.deviceConnected && !w.devicePaused));
+        }).catch(function(err) {
+            // {msg: null} is still sent, so the element times out (5 s) when no push comes;
+            // the state stays as it was and the watch goes on: without this catch it stopped
+        }).then(function() {
+            setTimeout(watchWorkoutState, 500);
+        });
+    }
+    watchWorkoutState();
+
+    // a page kept out of sight (the app may hide it instead of closing) does not poll
+    document.addEventListener('visibilitychange', scheduleLiveRefresh);
+
+    function load_workout_data() {
+        liveLoading = true;
+        let request = {
+            msg: 'getsessionarray'
+        };
+        // after the first load only the new points are asked for; an app that does not know
+        // "from" (or a session started anew) answers with the whole array, without "from"
+        if (sessionCache)
+            request.content = { from: sessionCache.length };
+        let el = new MainWSQueueElement(request, function(msg) {
+            if (msg.msg === 'R_getsessionarray' || msg.msg === 'R_getsessionarraypart') {
+                return msg;
+            }
+            return null;
         }, 15000, 3);
-        el.enqueue().then(process_arr).catch(function(err) {
+        el.enqueue().then(function(msg) {
+            let arr = msg && msg.content;
+            // a part fits only the cache it was asked for; one asked before the cache was
+            // dropped (a new start) is thrown away, the next load takes the whole session
+            if (arr && typeof msg.from === 'number')
+                arr = sessionCache && msg.from === sessionCache.length ? sessionCache.concat(arr) : null;
+            if (!arr && msg && msg.content)
+                liveFinalPending = true; // load again at once, whole
+            if (arr)
+                sessionCache = arr;
+            // redraw only when the session grew: after stop the array stays the same,
+            // so the end-of-workout screenshots are taken just once. Or when the Auto window of
+            // the smoothed lines changed: 3 s while the workout runs, by its length after Stop
+            if (arr && (arr.length !== lastSessionLength || smoothWindow(sessionSeconds(arr)) !== drawnSmoothWindow)) {
+                liveRefresh = lastSessionLength >= 0;
+                lastSessionLength = arr.length;
+                process_arr(arr);
+            }
+        }).catch(function(err) {
             console.error('Error is ' + err);
+        }).then(function() {
+            liveLoading = false;
+            if (liveFinalPending) {
+                liveFinalPending = false;
+                load_workout_data();
+            } else
+                scheduleLiveRefresh();
         });
     }
 
@@ -1273,6 +1647,10 @@ function dochart_init() {
                     } else if (key === 'miles_unit') {
                         if(msg.content[key] === true || msg.content[key] === 'true')
                             miles = 0.621371;
+                    } else if (key === 'chart_smooth_lines') {
+                        // an index of SMOOTH_WINDOWS; not saved yet (null) or unknown: Off
+                        let index = parseInt(msg.content[key], 10);
+                        smoothSetting = index >= 0 && index < SMOOTH_WINDOWS.length ? index : 0;
                     }
                 }
                 if(heart_max_override_enable) {

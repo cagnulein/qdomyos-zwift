@@ -10,7 +10,7 @@ These instructions build the app itself, not the test project.
 
 ```buildoutcfg
 $ sudo apt update && sudo apt upgrade # this is very important on Raspberry Pi: you need the bluetooth firmware updated!
-$ sudo apt install git qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtbase5-private-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-assistant libqt5networkauth5-dev libqt5websockets5-dev qml-module* libqt5texttospeech5-dev libqt5texttospeech5 libqt5location5-plugins qtlocation5-dev qtmultimedia5-dev libqt5multimediawidgets5 libqt5multimedia5-plugins libqt5multimedia5 g++ make qtbase5-dev libqt5sql5 libqt5sql5-mysql libqt5sql5-psql
+$ sudo apt install git qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtbase5-private-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-assistant libqt5networkauth5-dev libqt5websockets5-dev qml-module* libqt5texttospeech5-dev libqt5texttospeech5 libqt5location5-plugins qtlocation5-dev qtmultimedia5-dev libqt5multimediawidgets5 libqt5multimedia5-plugins libqt5multimedia5 g++ make qtbase5-dev libqt5sql5 libqt5sql5-mysql libqt5sql5-psql libqt5serialport5-dev
 $ git clone https://github.com/cagnulein/qdomyos-zwift.git
 $ cd qdomyos-zwift
 $ git submodule update --init src/smtpclient/
@@ -107,7 +107,7 @@ This operation takes a moment to complete.
 #### Option 1. Install qdomyos-zwift from sources 
 
 ```bash
-sudo apt install git libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtbase5-private-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-assistant libqt5networkauth5-dev libqt5websockets5-dev qtmultimedia5-dev libqt5multimediawidgets5 libqt5multimedia5-plugins libqt5multimedia5 qtlocation5-dev qtquickcontrols2-5-dev libqt5texttospeech5-dev libqt5texttospeech5 g++ make qtbase5-dev libqt5sql5 libqt5sql5-mysql libqt5sql5-psql
+sudo apt install git libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtbase5-private-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-assistant libqt5networkauth5-dev libqt5websockets5-dev qtmultimedia5-dev libqt5multimediawidgets5 libqt5multimedia5-plugins libqt5multimedia5 qtlocation5-dev qtquickcontrols2-5-dev libqt5texttospeech5-dev libqt5texttospeech5 g++ make qtbase5-dev libqt5sql5 libqt5sql5-mysql libqt5sql5-psql libqt5serialport5-dev
 git clone https://github.com/cagnulein/qdomyos-zwift.git
 cd qdomyos-zwift
 git submodule update --init src/smtpclient/  
@@ -138,14 +138,23 @@ chmod +x qdomyos-zwift-64bit
 
 Install required libraries and dependencies for headless mode:
 ```
-sudo apt install libqt5charts5 libqt5multimedia5 libqt5bluetooth5 libqt5xml5t64 libqt5positioning5 libqt5networkauth5 libqt5websockets5 libqt5texttospeech5 libqt5sql5t64 
+sudo apt install libqt5charts5 libqt5multimedia5 libqt5bluetooth5 libqt5xml5t64 libqt5positioning5 libqt5networkauth5 libqt5websockets5 libqt5texttospeech5 libqt5sql5t64 libqt5serialport5
 ```
 
 If you are running Raspberry Pi Desktop OS, and you want to run the QZ UI, additonally add the qml libraries.
 ```
-sudo apt install libqt5charts5 libqt5multimedia5 libqt5bluetooth5 libqt5xml5t64 libqt5positioning5 libqt5networkauth5 libqt5websockets5 libqt5texttospeech5 libqt5sql5t64 *qml*
+sudo apt install libqt5charts5 libqt5multimedia5 libqt5bluetooth5 libqt5xml5t64 libqt5positioning5 libqt5networkauth5 libqt5websockets5 libqt5texttospeech5 libqt5sql5t64 libqt5serialport5 *qml*
 ```
 
+
+When updating an existing QZ installation to a binary with Qt SerialPort support, install the runtime library before replacing or launching the binary, even if you do not use a Trixter bike:
+
+```bash
+sudo apt update
+sudo apt install libqt5serialport5
+```
+
+If the read-only overlay filesystem is enabled, disable it and reboot before installing the package (see the overlay filesystem instructions below).
 
 #### Unblock Bluetooth (if using Bluetooth)
 

@@ -27,6 +27,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONArray
+import org.json.JSONObject
 import java.time.Instant
 import java.time.ZoneId
 
@@ -185,6 +186,52 @@ class HealthConnectHelper {
             }
         }
 
+        // Whether a sample shows the workout actually moving, by the rule the FIT export uses to
+        // find the start of a workout (qfit.cpp, firstRealIndex): speed on treadmills and
+        // ellipticals, cadence on bikes and rowers. Null for the other kinds of equipment: there
+        // the whole session is kept
+        private fun movingTest(deviceType: Int): ((JSONObject) -> Boolean)? = when (deviceType) {
+            1, 4 -> { s -> s.optDouble("speed", 0.0) > 0.0 }
+            2, 3 -> { s -> s.optDouble("cadence", 0.0) > 0.0 }
+            else -> null
+        }
+
+        // Whether anything at all still shows the workout going on: speed, cadence or power, or the
+        // distance still growing. Used for the end of the session, so that a sensor that stops
+        // reporting halfway (cadence lost while power and distance still arrive) does not end it
+        private fun anyActivity(sample: JSONObject, previous: JSONObject?): Boolean =
+            sample.optDouble("speed", 0.0) > 0.0 ||
+                sample.optDouble("cadence", 0.0) > 0.0 ||
+                sample.optDouble("watt", 0.0) > 0.0 ||
+                (previous != null && sample.optDouble("distance", 0.0) > previous.optDouble("distance", 0.0))
+
+        // The samples the session covers: from the first sample that moves (movingTest) to the
+        // sample after the last one with any activity (anyActivity), where it stopped. The whole
+        // session when the equipment never shows movement by movingTest, or is of another kind.
+        // QZ records from the moment the equipment connects, so without this the minutes before
+        // Start and after Stop count as exercise; the elapsed time is no guide, as it also runs at
+        // zero speed with continuous_moving. Pauses in the middle stay inside the session
+        @JvmStatic
+        fun activeRange(samples: JSONArray, deviceType: Int): IntRange {
+            val whole = 0 until samples.length()
+            val moving = movingTest(deviceType) ?: return whole
+            var first = -1
+            for (i in 0 until samples.length()) {
+                if (moving(samples.getJSONObject(i))) {
+                    first = i
+                    break
+                }
+            }
+            if (first < 0) return whole
+            var last = first
+            for (i in first + 1 until samples.length()) {
+                if (anyActivity(samples.getJSONObject(i), samples.getJSONObject(i - 1))) {
+                    last = i
+                }
+            }
+            return first..minOf(last + 1, samples.length() - 1)
+        }
+
         // Visible for testing — grantedPermissions defaults to all permissions so existing tests pass unchanged.
         @JvmStatic
         fun buildRecords(
@@ -194,10 +241,15 @@ class HealthConnectHelper {
             deviceName: String?,
             grantedPermissions: Set<String> = writePermissions()
         ): List<Record> {
-            val first = samples.getJSONObject(0)
+            // The totals come from the last sample, as before. The session and the per-sample
+            // records cover the active samples only (activeRange)
+            val active = activeRange(samples, deviceType)
+            val firstActive = active.first
+            val lastActive = active.last
+            val first = samples.getJSONObject(firstActive)
             val last = samples.getJSONObject(samples.length() - 1)
             val start = Instant.ofEpochMilli(first.getLong("time"))
-            var end = Instant.ofEpochMilli(last.getLong("time"))
+            var end = Instant.ofEpochMilli(samples.getJSONObject(lastActive).getLong("time"))
             if (!end.isAfter(start)) {
                 end = start.plusSeconds(1)
             }
@@ -286,7 +338,7 @@ class HealthConnectHelper {
             val stepsCadenceSamples = mutableListOf<StepsCadenceRecord.Sample>()
             val hrvRecords = mutableListOf<HeartRateVariabilityRmssdRecord>()
 
-            for (i in 0 until samples.length()) {
+            for (i in firstActive..lastActive) {
                 val sample = samples.getJSONObject(i)
                 val time = Instant.ofEpochMilli(sample.getLong("time"))
                 val heart = sample.optInt("heart", 0)

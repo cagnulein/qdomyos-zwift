@@ -1,6 +1,7 @@
 #ifndef TREADMILL_H
 #define TREADMILL_H
 #include "devices/bluetoothdevice.h"
+#include "treadmillcalories.h"
 #include <QDateTime>
 #include <QObject>
 #include "treadmillErgTable.h"
@@ -33,6 +34,16 @@ class treadmill : public bluetoothdevice {
     metric currentStepCount() { return StepCount; }
     virtual uint16_t watts(double weight);
     static uint16_t wattsCalc(double weight, double speed, double inclination);
+
+    // Energy model for walking and running on a treadmill (see treadmill.cpp for sources).
+    // Returns kcal/min including resting metabolism; speed km/h, incline %, weight kg,
+    // height cm, restingKcalPerDay from Mifflin-St Jeor. *running tells which gait was used.
+    static double kcalPerMinute(double speedKmh, double inclinePct, double weightKg, double heightCm,
+                                double restingKcalPerDay, bool *running = nullptr);
+    // Speed (km/h) where people switch from walking to running, from leg length (height).
+    static double walkRunTransitionKmh(double heightCm);
+    metric calories() override;
+    metric totalCalories() override;
     BLUETOOTH_TYPE deviceType() override;
     void clearStats() override;
     void setLap() override;
@@ -71,6 +82,21 @@ class treadmill : public bluetoothdevice {
     void instantaneousStrideLengthSensor(double length) override;
     void groundContactSensor(double groundContact) override;
     void verticalOscillationSensor(double verticalOscillation) override;
+
+  protected:
+    // Set by a driver when the console reports the calories: the energy model then leaves them
+    // as they are
+    bool caloriesFromConsole = false;
+
+    // Whether the watts are measured rather than estimated: an external power sensor, or the
+    // device itself (strydrunpowersensor). The calorie model then leaves the power-based value
+    virtual bool externalPowerMeasured() { return powerReceivedFromPowerSensor; }
+
+  private:
+    bool caloriesModelEnabled();
+    void accumulateCalories(double deltaTime, bool clockRunning);
+    TreadmillCalories m_calories;
+    metric modelKCal;
 
   signals:
     void tapeStarted();

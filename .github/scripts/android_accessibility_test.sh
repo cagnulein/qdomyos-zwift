@@ -57,8 +57,9 @@ crashes_before=$(qz_crashes)
 
 if [ "$FAKE_BIKE" = 1 ]; then
   adb shell am force-stop $PKG
-  # skipLocationServicesDialog: as the job's own settings, no "Permissions Required" dialog on the images without Bluetooth
-  printf '[General]\napplewatch_fakedevice=true\nbluetooth_lastdevice_name=Fake\nskipLocationServicesDialog=true\n' > qz.conf
+  # skipLocationServicesDialog: as the job's own settings, no "Permissions Required" dialog on the images without Bluetooth.
+  # ui_modern_new_install_checked: a user whose look was already decided, so no "Try the new interface?" over the app
+  printf '[General]\napplewatch_fakedevice=true\nbluetooth_lastdevice_name=Fake\nskipLocationServicesDialog=true\nui_modern_new_install_checked=true\n' > qz.conf
   adb push qz.conf /data/local/tmp/qz.conf > /dev/null || fail "cannot push qz.conf"
   adb shell "run-as $PKG mkdir -p 'files/.config/Roberto Viola'"
   adb shell "run-as $PKG cp /data/local/tmp/qz.conf 'files/.config/Roberto Viola/qDomyos-Zwift.conf'" \

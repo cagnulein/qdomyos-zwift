@@ -94,6 +94,7 @@ class virtualtreadmill : public virtualdevice {
     bool ftmsServiceEnable();
     bool ftmsTreadmillEnable();
     bool RSCEnable();
+    bool garminFootPod() const;
     bool isEchelonVirtualEnabled() const;
     void writeEchelonCharacteristic(const QLowEnergyCharacteristic &characteristic, const QByteArray &value);
     void echelonWriteStatus();

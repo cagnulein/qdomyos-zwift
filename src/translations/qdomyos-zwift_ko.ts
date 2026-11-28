@@ -170,6 +170,22 @@
         <translation>현재 운동을 중지하시겠습니까?</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>자동 저항이 꺼져 있습니다</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>지금은 QZ가 저항을 바꾸지 않습니다. '적용': 저항, 목표 저항, 프리셋 타일의 레벨이 자동 저항이 꺼져 있는 동안 적용됩니다. 앱(예: Zwift)의 명령은 계속 무시됩니다.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>적용</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>자동 저항 켜기</translation>
+    </message>
+    <message>
         <source>Permissions Required</source>
         <translation>권한 필요</translation>
     </message>
@@ -202,6 +218,14 @@ GPS는 사용하지 않습니다.
 Would you like to do that now?</source>
         <translation>변경 사항을 적용하려면 앱을 다시 시작해야 합니다.
 지금 다시 시작하시겠습니까?</translation>
+    </message>
+    <message>
+        <source>Try the new interface?</source>
+        <translation>새 인터페이스를 사용해 보시겠습니까?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ의 메인 화면, 사이드 메뉴, 설정, 마법사가 새로운 모습으로 바뀌었습니다. 설정 &gt; 일반 UI 옵션에서 언제든지 되돌릴 수 있습니다.</translation>
     </message>
     <message>
         <source>Adjustable. Current value: </source>
@@ -2586,6 +2610,18 @@ QZ 설정을 업데이트하시겠습니까?</translation>
         <translation>1마일</translation>
     </message>
     <message>
+        <source>Full screen</source>
+        <translation>전체 화면</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>전체 화면 종료</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>왼쪽이나 오른쪽으로 스와이프하여 그래프를 전환하세요</translation>
+    </message>
+    <message>
         <source>AVG</source>
         <translation>평균</translation>
     </message>
@@ -4905,6 +4941,10 @@ In the next window, allow access to the QZ folder.</source>
         <translation>설정</translation>
     </message>
     <message>
+        <source>Try the new interface</source>
+        <translation>새 인터페이스 사용해 보기</translation>
+    </message>
+    <message>
         <source>Workouts History</source>
         <translation>운동 기록</translation>
     </message>
@@ -7087,6 +7127,22 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
         <translation>화면 하단에 표시할 그래프를 선택하세요: 심박수와 파워 그래프 모두, 심박수 그래프만, 파워 그래프만.</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines:</source>
+        <translation>그래프 선 부드럽게:</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>자동</translation>
+    </message>
+    <message>
+        <source>%1 s</source>
+        <translation>%1초</translation>
+    </message>
+    <message>
+        <source>On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
+        <translation>그래프 페이지와 운동 이메일의 그래프에서 파워, 케이던스, 속도 선을 초 단위 원시 값 대신 선택한 구간의 이동 평균으로 그립니다. 자동: 운동 중에는 3초, 정지 후에는 3초에 운동 30분마다 2초를 더한 값(최대 15초). 평균, 최대값, 구간, 파워 분포와 FIT 파일은 계속 원시 값을 사용합니다. 기본값은 끔입니다.</translation>
+    </message>
+    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>iOS 실시간 현황 왼쪽 지표:</translation>
     </message>
@@ -7583,8 +7639,8 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
         <translation>Garmin Bluetooth 센서</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Mac에서 Garmin 기기로 측정값을 보내려면 이 설정을 켜세요. 그렇지 않으면 꺼 두세요.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Garmin 또는 다른 스포츠 시계가 QZ를 Bluetooth 센서로 사용할 수 있습니다. 트레드밀에서는 풋팟, 자전거에서는 파워미터가 됩니다(Android에서는 &apos;자전거 파워 센서&apos;도 켜세요). 시계는 QZ가 실행 중인 휴대폰 또는 태블릿과 Bluetooth로 페어링되어 있어야 합니다. 시계가 QZ를 찾지 못하면 한 번 페어링한 다음 시계에서 센서를 추가하고 페어링 요청을 수락하세요. 같은 휴대폰에서 Garmin Connect가 시계와 연결되어 있으면 시계가 연결되는 동안 Garmin Connect를 두세 번 연속으로 강제 중지하세요. Garmin Connect가 없는 별도의 휴대폰이나 태블릿이 더 쉽습니다. QZ가 시계용 센서로 작동하는 동안 Bluetooth로 연결된 Zwift는 QZ를 풋팟이나 파워미터로만 인식하며, 제어할 수 있는 기기로는 인식하지 않습니다.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -10382,6 +10438,75 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
         <translation>실험적 기능: 트레드밀 드라이버가 기기 자체의 속도 측정값을 제공하는 경우, Runn/Stryd 피드백으로 QZ가 제어하는 트레드밀 속도를 점진적으로 보정합니다. [파워 센서의 속도 사용]이 필요합니다. 기본값: 꺼짐.</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>새 인터페이스</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>메인 화면, 사이드 메뉴, 설정, 마법사의 새로운 디자인입니다. 끄면 클래식 디자인으로 돌아갑니다.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>화면 모드</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>휴대폰 설정과 동일</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>다크</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>라이트</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>테마</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>그래파이트</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>검정 / 흰색</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>미드나이트 블루</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>강조 색상</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>보라</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>파랑</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>청록</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>초록</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>주황</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>분홍</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>타일 크기:</translation>
     </message>
@@ -10512,6 +10637,14 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
     <message>
         <source>Use Console Gears</source>
         <translation>콘솔 기어 사용</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>걷기/달리기 모델로 트레드밀 칼로리 계산</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>콘솔이 칼로리를 보내지 않는 트레드밀용입니다. 벨트 속도, 경사, 체중, 키, 나이, 성별로 칼로리를 계산하며, 키로 정해지는 걷기에서 달리기로 바뀌는 속도보다 느리면 걷기 모델, 빠르면 달리기 모델을 사용합니다. 끄면 대신 파워 기반 값을 사용합니다. 콘솔이 보내는 칼로리, 외부 파워 센서(Stryd 등), 켜져 있을 때의 심박수로 칼로리 계산이 계속 우선합니다.</translation>
     </message>
 </context>
 <context>

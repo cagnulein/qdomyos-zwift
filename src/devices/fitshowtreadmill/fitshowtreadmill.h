@@ -27,6 +27,7 @@
 #include <QObject>
 
 #include "fitshowstartspeedgate.h"
+#include "fitshowstopcommand.h"
 #include "treadmill.h"
 #include "virtualdevices/virtualtreadmill.h"
 
@@ -45,8 +46,6 @@
 #define FITSHOW_CONTROL_TARGET_OR_RUN 2
 #define FITSHOW_CONTROL_READY_OR_START 1
 #define FITSHOW_CONTROL_USER 0
-#define FITSHOW_CONTROL_STOP 3
-#define FITSHOW_CONTROL_PAUSE 6
 #define FITSHOW_DATE_NOT_SUPPORT ""
 #define FITSHOW_TREADMILL_SPORT_ID 0
 #define FITSHOW_INFO_MODEL 0
@@ -70,7 +69,6 @@
 #define FITSHOW_STATUS_ERROR 5
 #define FITSHOW_STATUS_SAFETY 6
 #define FITSHOW_STATUS_STUDY 7
-#define FITSHOW_STATUS_PAUSED 10
 #define FITSHOW_DATA_SPORT 0
 #define FITSHOW_DATA_INFO 1
 #define FITSHOW_DATA_SPEED 2
@@ -84,6 +82,7 @@ class fitshowtreadmill : public treadmill {
                      double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     virtual ~fitshowtreadmill();
     bool connected() override;
+    void stop(bool pause) override;
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;
     double minStepInclination() override;
@@ -101,6 +100,7 @@ class fitshowtreadmill : public treadmill {
     void removeFromBuffer();
     QBluetoothUuid serviceId;
     int retrySend = 0;
+    bool pauseFallbackAllowed = false;
     bool noHeartService = false;
     bool anyrun = false;
     bool truetimer = false;

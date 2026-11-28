@@ -170,6 +170,22 @@
         <translation>Biztosan leállítja az aktuális edzést?</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>Az automatikus ellenállás ki van kapcsolva</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>A QZ most nem változtatja az ellenállást. „Alkalmazás”: az Ellenállás, a Célell. és az előbeállítás-csempék szintjei érvényesek, amíg az automatikus ellenállás ki van kapcsolva. Az alkalmazások (pl. Zwift) parancsait továbbra is figyelmen kívül hagyja.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Alkalmazás</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Automatikus ellenállás bekapcsolása</translation>
+    </message>
+    <message>
         <source>Permissions Required</source>
         <translation>Engedélyek szükségesek</translation>
     </message>
@@ -186,6 +202,14 @@
 Would you like to do that now?</source>
         <translation>A módosítások alkalmazásához újra kell indítania az alkalmazást.
 Szeretné most újraindítani?</translation>
+    </message>
+    <message>
+        <source>Try the new interface?</source>
+        <translation>Kipróbálja az új felületet?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>A QZ főképernyője, oldalsó menüje, beállításai és varázslója új megjelenést kapott. Bármikor visszaválthat a Beállítások &gt; A felület általános beállításai menüpontban.</translation>
     </message>
     <message>
         <source>Adjustable. Current value: </source>
@@ -2570,6 +2594,18 @@ Szeretné frissíteni a QZ beállításait?</translation>
         <translation>1 mérföld</translation>
     </message>
     <message>
+        <source>Full screen</source>
+        <translation>Teljes képernyő</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Kilépés a teljes képernyőből</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>A diagramok közötti váltáshoz pöccintsen balra vagy jobbra</translation>
+    </message>
+    <message>
         <source>AVG</source>
         <translation>ÁTL</translation>
     </message>
@@ -4889,6 +4925,10 @@ A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translati
         <translation>Beállítások</translation>
     </message>
     <message>
+        <source>Try the new interface</source>
+        <translation>Az új felület kipróbálása</translation>
+    </message>
+    <message>
         <source>Workouts History</source>
         <translation>Edzéselőzmények</translation>
     </message>
@@ -7047,6 +7087,22 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
         <translation>Válassza ki, mely diagramok jelenjenek meg a láblécben: a pulzus- és a teljesítménydiagram is, csak a pulzusdiagram vagy csak a teljesítménydiagram.</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines:</source>
+        <translation>Diagramvonalak simítása:</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Automatikus</translation>
+    </message>
+    <message>
+        <source>%1 s</source>
+        <translation>%1 mp</translation>
+    </message>
+    <message>
+        <source>On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
+        <translation>A Diagramok oldalon és az edzésről szóló e-mail diagramjain a teljesítmény, a pedálfordulat és a sebesség vonalát a választott ablakra vett mozgóátlagként rajzolja a másodpercenkénti nyers értékek helyett. Automatikus: edzés közben 3 másodperc; Stop után 3 másodperc, plusz 2 az edzés minden teljes 30 percéért, legfeljebb 15. Az átlagok, a maximumok, a zónák, a teljesítményeloszlás és a FIT-fájl továbbra is a nyers értékeket használja. Alapértelmezés: Ki.</translation>
+    </message>
+    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>iOS Élő tevékenység, bal oldali mérőszám:</translation>
     </message>
@@ -7543,8 +7599,8 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
         <translation>Garmin Bluetooth-érzékelő</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Ha Mac gépről szeretne mérőszámokat küldeni a Garmin-eszközére, kapcsolja be. Egyébként hagyja kikapcsolva.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>A Garmin vagy más sportóra Bluetooth-érzékelőként használhatja a QZ-t: futópaddal lépésérzékelőként, kerékpárral teljesítménymérőként (Androidon kapcsolja be a „Kerékpár-teljesítményérzékelő” beállítást is). Az órát Bluetooth-on párosítani kell azzal a telefonnal vagy táblagéppel, amelyen a QZ fut: ha nem találja a QZ-t, párosítsa őket egyszer, majd adja hozzá az érzékelőt az órán, és fogadja el a párosítási kérést. Ha ugyanazon a telefonon a Garmin Connect össze van kapcsolva az órával, kényszerítse leállásra kétszer-háromszor egymás után, amíg az óra csatlakozik; egyszerűbb egy külön telefon vagy táblagép Garmin Connect nélkül. Amíg a QZ érzékelőként működik az órához, a Bluetooth-on csatlakozó Zwift csak lépésérzékelőként vagy teljesítménymérőként látja, nem vezérelhető gépként.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -10334,6 +10390,75 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
         <translation>Kísérleti: fokozatosan korrigálja a QZ által vezérelt futópad sebességét a Runn/Stryd visszajelzése alapján, ha az illesztőprogram független mérést ad a gép sebességéről. Szükséges hozzá a „Sebesség a teljesítményérzékelőtől” beállítás. Alapértelmezett: ki.</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Modern felület</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>A főképernyő, az oldalsó menü, a beállítások és a varázsló új megjelenése. Kapcsolja ki, ha vissza szeretné kapni a klasszikus megjelenést.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Megjelenés</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Mint a telefonon</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Sötét</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Világos</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Téma</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafit</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Fekete / fehér</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Éjkék</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Kiemelőszín</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Ibolya</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Kék</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Kékeszöld</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Zöld</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Narancs</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Rózsaszín</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Csempeméret:</translation>
     </message>
@@ -10488,6 +10613,14 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     <message>
         <source>Use Console Gears</source>
         <translation>Konzol fokozatainak használata</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Futópad-kalória séta/futás modellből</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Olyan futópadokhoz, amelyek konzolja nem küld kalóriát. A kalória a szalag sebességéből, az emelkedésből, valamint a testsúlyodból, magasságodból, életkorodból és nemedből számolódik: a séta–futás váltási sebességed (a magasságod alapján) alatt sétamodellel, felette futómodellel. Kapcsold ki, ha inkább a teljesítmény alapú értéket használnád. A konzol kalóriája, egy külső teljesítménymérő (Stryd stb.) és a Kalória számítása pulzusból (ha be van kapcsolva) továbbra is elsőbbséget élvez.</translation>
     </message>
 </context>
 <context>
