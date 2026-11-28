@@ -129,8 +129,14 @@ def trailing(line, seconds, digits):
         if not isinstance(p["y"], (int, float)):  # no value: a gap, as on the Charts page
             out.append(p)
             continue
+        # only the points after the last one with a later x: a new workout starts x from 0 again
+        start = 0
+        for k in range(i - 1, -1, -1):
+            if line[k]["x"] > p["x"]:
+                start = k + 1
+                break
         last = {}  # the last value of every x so far: a pause repeats the x
-        for q in line[:i + 1]:
+        for q in line[start:i + 1]:
             last[q["x"]] = q["y"]
         values = [y for x, y in last.items() if x > p["x"] - seconds and isinstance(y, (int, float))]
         out.append({"x": p["x"], "y": js_round(sum(values) / len(values), digits)})
@@ -253,6 +259,21 @@ class LiveChartSmoothing(unittest.TestCase):
                     raw = raw_line(page, live)
                     expected = trailing(raw, seconds, page["digits"]) if seconds > 1 else raw
                     self.assertEqual(lines[-1]["points"], expected)
+
+    def test_new_workout_on_the_open_page(self):
+        # Stop and Start again while the chart stays shown: the page is not reloaded and the x of
+        # the new workout starts from 0 again; its average does not take the last workout in
+        for page in (BIKE, TREADMILL):
+            with self.subTest(page=page["script"]):
+                session, live = workout(page, 30, 10, seed=17)
+                busy = 300 if page["field"] == "watts" else 15
+                again = [point(page, s, busy) for s in range(1, 13)]
+                lines = harness(page, "4", session, live + again)  # 10 s
+                drawn = lines[-1]["points"]
+                self.assertEqual(drawn, trailing(raw_line(page, session + live + again), 10,
+                                                 page["digits"]))
+                # the new workout: its own points only, all at the same value
+                self.assertEqual({p["y"] for p in drawn[-len(again):]}, {busy})
 
     def test_pause_does_not_weigh_in(self):
         # paused, the elapsed time stands still and the messages keep coming every second with
