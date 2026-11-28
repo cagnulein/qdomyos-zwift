@@ -164,3 +164,22 @@
 - The first physical Start can produce different notifications from a subsequent Resume, even when the same console button is used. A verified treadmill case showed successful Pause/Resume while the initial Start was absent from the status stream; the button sequence and matching log identified that distinction.
 - QZ's current Run BT treadmill handler interprets FTMS status notifications and has a limited initial-speed fallback. Evidence of the first speed transition and the exact QZ state is needed before treating missing recording as a Bluetooth connection or generic session-reset issue.
 - **Pause on Start** affects the initial QZ recording state; it must be recorded before interpreting whether automatic Start failed. See also [workout session versus step-count reset](workout-recording.md#step-count-continues-after-stop-and-an-apparent-new-workout).
+
+## QZ pauses or ends a session, but the treadmill belt keeps moving
+
+### Provide first
+
+- Exact treadmill model/revision, advertised Bluetooth name, QZ build/platform and selected driver if known.
+- Report whether QZ Start works and whether the **physical** Stop/safety key works. Do not rely on QZ to stop the treadmill.
+- Identify which actions fail separately: QZ Stop, QZ Pause, Resume after Pause, and automatic completion of a short structured workout. For each, distinguish QZ's timer/session state, the treadmill's own display, audible feedback and actual belt motion.
+
+### If still unclear
+
+- Only if the physical stop and safety key are available, perform short controlled tests with **nobody on the belt**, at the lowest available speed, staying beside the physical stop. Stop physically immediately if the belt does not respond as expected; do not continue testing if it is unsafe.
+- Record separate observations for Start → Stop, Start → Pause, Resume → Stop, and the end of a short workout. Note whether session totals (distance, calories, elapsed time) are preserved across Pause/Resume as intended.
+- When support requests protocol evidence, supply a complete QZ debug log and a separate capture of the working manufacturer app covering connection, start, pause/resume and stop, with approximate action times. See [reference-app capture intake](third-party-apps.md#another-app-controls-the-machine-correctly-but-qz-cannot-reproduce-the-same-behavior). Do not test guessed control bytes; send captures privately.
+
+### Why it matters
+
+- QZ session state, device feedback, motor response and accumulated workout data are distinct. A successful command write or periodic status request is not proof of a physical stop.
+- A reviewed FitShow case was diagnosed by comparing complete native-app and QZ traces rather than isolated command bytes; all four scenarios were subsequently confirmed with a test build. Recording the actual belt response and preserved totals was essential to checking the fix.

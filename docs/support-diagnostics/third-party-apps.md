@@ -234,11 +234,11 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 ### Provide first
 
 - Fitness machine model, QZ version and platform, receiving app and version, and which device runs each app.
-- At the moment of disconnection, do QZ's live speed/power/cadence tiles also freeze or fall to zero, or do they continue updating while only the receiving app loses the connection?
+- At the moment of disconnection, do QZ's live speed/power/cadence tiles also freeze or fall to zero, or do they continue updating while only the receiving app loses the connection? If the receiving app later reports less distance or time than QZ, record whether its values stop advancing during the gap.
 - Record the receiving app's **exact error message and time to failure** (for example, an incompatibility warning after about 30 seconds). For treadmill integrations such as Runna, state separately whether **speed** commands and **incline** commands work during the initial connected period.
 - Does the connection recover on its own, after re-pairing in the receiving app, or only after fully restarting QZ?
 - Was QZ in the foreground with the screen awake, or in the background or with the screen locked?
-- On Android, provide the phone model and OS, background/battery restrictions, and whether headphones or a watch were also connected over Bluetooth.
+- Provide the phone/tablet models and OS versions, whether headphones or a watch/HR monitor were connected, and whether screen casting or AirPlay was in use. On Android, also report background/battery restrictions. These are observations, not evidence by themselves of radio interference.
 
 ### If still unclear
 
@@ -246,6 +246,7 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 - Confirm that no manufacturer app or second phone is also connected directly to the physical machine. Record whether the receiving app uses QZ's virtual Bluetooth device or a network connection.
 - Capture one QZ debug log that includes a disconnection, and provide the approximate elapsed time of the failure and whether the QZ metrics stopped. Keep the test configuration unchanged.
 - If QZ continues to receive live metrics, capture the receiving app's pairing/disconnection screen and retry its virtual-device connection separately before changing machine-specific settings.
+- For a session with missing distance or time in the receiving app, also provide QZ's original FIT recording and the receiving app's workout summary from that **same session**, including units and approximate interruption/recovery times. Compare the QZ recording against the external summary and the QZ debug log's virtual link/subscription events before changing sensor settings. Share files privately. A FIT file supplements, but does not replace, the debug log.
 - If the receiving app initially controls speed but later rejects the virtual treadmill, record the QZ build source and version, the FTMS treadmill selection, and whether QZ's **own** speed/incline buttons still control the machine after the warning. Capture one timed debug log spanning the warning.
 
 ### Why it matters
@@ -254,6 +255,7 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 - Foreground state, competing connections, recovery behavior, and a timestamped log distinguish intermittent Bluetooth loss from downstream virtual-device or app lifecycle problems.
 - A QZ-only baseline isolates incoming machine telemetry from the receiving-app connection; testing accessories separately avoids assuming they cause Bluetooth interference.
 - In a reported multi-minute session, resistance and incline worked until intermittent disconnects; checking QZ's own tiles established that the physical machine connection, not just the receiving app's pairing, had dropped.
+- In a separate treadmill-to-training-app case, the virtual Bluetooth subscriptions were interrupted while QZ continued to receive speed/distance and record a complete FIT workout. Comparing the two recordings isolated the loss to the downstream link; it did not establish why that link disconnected.
 
 ## Virtual gears repeatedly shift down while pedaling despite manual gear changes
 
