@@ -140,6 +140,10 @@ Page {
             enabled: wizardPage.modernMobile && Qt.inputMethod.visible
             gesturePolicy: TapHandler.DragThreshold
             onTapped: function(eventPoint, button) {
+                // Let the navigation buttons handle focus themselves before
+                // changing pages; hiding here could move the bar mid-click.
+                if (eventPoint.position.y >= stackViewLocal.height - wizardPage.modernBarHeight)
+                    return
                 var editor = window.activeFocusItem
                 if (editor && typeof editor.inputMethodComposing !== "undefined") {
                     var pos = editor.mapFromItem(stackViewLocal,
