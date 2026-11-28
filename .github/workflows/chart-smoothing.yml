@@ -21,7 +21,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       # Smooth Chart Lines off must draw the Charts page and the charts of the workout email
       # exactly as before; on, only the power, cadence and speed lines change

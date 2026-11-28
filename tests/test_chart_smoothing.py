@@ -12,9 +12,11 @@ gives to Chart.js (the points of every line) and the texts of the summary.
 - The smoothed lines are the centered moving average of the window, Auto picks its window.
 
 Run: python3 -m unittest tests/test_chart_smoothing.py
-New fingerprint, after a change of dochart.js that is meant to change the charts (in the same
-commit, so the diff of the fixture shows it): python3 tests/test_chart_smoothing.py --update
-src/inner_templates/chartjs/dochart.js – it draws with the setting not saved, i.e. Off
+New fingerprint, only after a change of dochart.js that is meant to change the charts with
+the smoothing Off (in the same commit, and say in the PR which chart changes and why: the
+fixture keeps only hashes and point counts). The fingerprint is drawn with the setting not
+saved, i.e. Off:
+python3 tests/test_chart_smoothing.py --update src/inner_templates/chartjs/dochart.js
 """
 
 import bisect
@@ -30,8 +32,9 @@ ROOT = Path(__file__).resolve().parents[1]
 DOCHART = ROOT / "src/inner_templates/chartjs/dochart.js"
 HARNESS = ROOT / "tests/chart_smoothing_harness.js"
 UPDATE_HINT = ("Off no longer draws what tests/fixtures/chart_smoothing_master.json holds. If the "
-               "change of the charts is meant, write the new fingerprint in the same commit: python3 "
-               "tests/test_chart_smoothing.py --update src/inner_templates/chartjs/dochart.js")
+               "change of the charts is meant, write the new fingerprint in the same commit and say in "
+               "the PR which chart changes and why: python3 tests/test_chart_smoothing.py --update "
+               "src/inner_templates/chartjs/dochart.js")
 FINGERPRINT = ROOT / "tests/fixtures/chart_smoothing_master.json"
 
 # the index of chart_smooth_lines (settings.qml): Off, Auto, 3, 5, 10, 15, 30 s
@@ -56,8 +59,9 @@ class Noise:
 
 
 def session(seconds, device_type, pause_at, pause_length, seed):
-    """A workout of one point a second. During the pause the elapsed time stands still and the
-    power, cadence and speed are 0, as the app records it."""
+    """A synthetic workout of one point a second. During the pause the elapsed time stands still
+    and the power, cadence and speed are 0 (a harder case for the smoothing than the app's
+    session, which gets no points while paused)."""
     noise = Noise(seed)
     points = []
     elapsed = 0

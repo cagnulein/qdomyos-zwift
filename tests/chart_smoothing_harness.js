@@ -121,6 +121,8 @@ const context = {
         },
     },
     $: jquery,
+    // no chart is open on a canvas, so every redraw makes the chart anew (makeChart), and its
+    // points are what create() gets; the page updates an open chart in place (updateInPlace)
     Chart: { getChart() { return undefined; } },
     qzChartTheme: theme,
     MainWSQueueElement: MainWSQueueElement,
