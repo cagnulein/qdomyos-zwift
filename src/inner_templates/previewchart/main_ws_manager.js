@@ -104,7 +104,8 @@ function main_ws_queue_process(msg) {
 
 
 function main_ws_connect() {
-    let socket = new WebSocket((location.protocol == 'https:'?'wss://' : 'ws://') + host_url + '/' + get_template_name() + '-ws');
+    let wsPort = Number(location.port || (location.protocol === 'https:' ? 443 : 80)) + 1;
+    let socket = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.hostname + ':' + wsPort + '/' + get_template_name());
     socket.onopen = function (event) {
         console.log('Upgrade HTTP connection OK');
         main_ws = socket;

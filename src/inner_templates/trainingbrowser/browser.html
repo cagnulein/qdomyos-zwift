@@ -380,9 +380,10 @@
 
         // WebSocket setup for Qt communication
         function setupWebSocket() {
-            // Use location.host to automatically get the correct host and port
-            const host = (!location.host || location.host.length == 0) ? 'localhost:6666' : location.host;
-            const wsUrl = `ws://${host}/trainingbrowser-ws`;
+            const host = location.hostname || 'localhost';
+            const httpPort = Number(location.port || (!location.host ? 6666 : (location.protocol === 'https:' ? 443 : 80)));
+            const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${host}:${httpPort + 1}/trainingbrowser-ws`;
 
             console.log('Connecting to WebSocket:', wsUrl);
             ws = new WebSocket(wsUrl);

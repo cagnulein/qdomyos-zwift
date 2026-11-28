@@ -191,8 +191,10 @@
 
         // WebSocket setup
         function setupWebSocket() {
-            const host = (!location.host || location.host.length == 0) ? 'localhost:6666' : location.host;
-            const wsUrl = `ws://${host}/workoutpreview-ws`;
+            const host = location.hostname || 'localhost';
+            const httpPort = Number(location.port || (!location.host ? 6666 : (location.protocol === 'https:' ? 443 : 80)));
+            const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${host}:${httpPort + 1}/workoutpreview-ws`;
 
             console.log('Connecting to WebSocket:', wsUrl);
             ws = new WebSocket(wsUrl);

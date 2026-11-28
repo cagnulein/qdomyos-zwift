@@ -2,7 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 
-for (const template of ['chartjs', 'floating', 'googlemaps', 'maps2d']) {
+for (const template of ['chartjs', 'floating', 'googlemaps', 'maps2d', 'previewchart']) {
     const source = fs.readFileSync(`src/inner_templates/${template}/main_ws_manager.js`, 'utf8');
     for (const [protocol, port, expected] of [
         ['http:', '6666', `ws://qz.local:6667/${template}`],
@@ -32,6 +32,29 @@ for (const template of ['chartjs', 'floating', 'googlemaps', 'maps2d']) {
             context.main_ws_pause(false);
             assert.equal(sockets[2].url, expected);
         }
+    }
+}
+
+for (const [file, path] of [
+    ['workoutpreview/preview.html', 'workoutpreview-ws'],
+    ['trainingbrowser/browser.html', 'trainingbrowser-ws'],
+]) {
+    const source = fs.readFileSync(`src/inner_templates/${file}`, 'utf8');
+    const start = source.indexOf('function setupWebSocket() {');
+    const end = source.indexOf('ws = new WebSocket(wsUrl);', start);
+    assert.ok(start >= 0 && end >= start, `${file} defines its WebSocket setup`);
+    const setup = source.slice(start, end + 'ws = new WebSocket(wsUrl);'.length) + '\n}';
+    for (const [location, expected] of [
+        [{protocol: 'http:', host: 'qz.local:6666', hostname: 'qz.local', port: '6666'}, `ws://qz.local:6667/${path}`],
+        [{protocol: 'https:', host: 'qz.local', hostname: 'qz.local', port: ''}, `wss://qz.local:444/${path}`],
+        [{protocol: 'file:', host: '', hostname: '', port: ''}, `ws://localhost:6667/${path}`],
+    ]) {
+        const sockets = [];
+        class WebSocket { constructor(url) { this.url = url; sockets.push(this); } }
+        const context = {location, WebSocket, console: {log() {}}, ws: null};
+        vm.createContext(context);
+        vm.runInContext(setup + '\nsetupWebSocket();', context);
+        assert.equal(sockets[0].url, expected, `${file} uses the WebSocket port`);
     }
 }
 console.log('Qt 6 WebSocket template client tests passed');
