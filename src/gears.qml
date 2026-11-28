@@ -361,14 +361,11 @@ ScrollView {
                     // a switch a screen reader can turn: Qt 5.15 gives a SwitchDelegate no action of
                     // its own (and puts back its ListItem role), so it is not even a pressable node,
                     // and a tap in the middle of the row misses the indicator of IndicatorOnlySwitch.
-                    // On Android CustomQtActivity presses it as a button; the handler is for the rest
+                    // On Android CustomQtActivity presses it as a button; elsewhere the press action of
+                    // IndicatorOnlySwitch turns it
                     Accessible.name: text
                     Accessible.checkable: true
                     Accessible.checked: checked
-                    Accessible.onPressAction: {
-                        checked = !checked
-                        clicked()
-                    }
                     text: qsTr("Without Wheel Diameter Protocol")
                     spacing: 0
                     bottomPadding: 0

@@ -94,6 +94,9 @@ ScrollView {
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                 onAccepted: if (valid) settings.tts_summary_sec = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                Accessible.role: Accessible.EditableText
+                Accessible.name: qsTr("Announcement interval in seconds") + ": " + text
+                Accessible.description: qsTr("How often workout metrics are read aloud. Default: 120 seconds")
             }
             UiButton {
                 id: okTTSSummarySec
@@ -101,6 +104,8 @@ ScrollView {
                 enabled: ttsSummarySecTextField.valid && ttsSummarySecTextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                 onClicked: { settings.tts_summary_sec = ttsSummarySecTextField.value; toast.show(qsTr("Setting saved!")); }
+                Accessible.role: Accessible.Button
+                Accessible.name: qsTr("Save announcement interval")
             }
         }
         UiSwitchDelegate {

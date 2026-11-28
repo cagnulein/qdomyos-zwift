@@ -12,6 +12,15 @@ UiSwitchDelegate {
     // it wraps its title itself (configureTextItem), not by the one of UiSwitchDelegate
     pageWrap: false
 
+    Accessible.name: root.text
+    Accessible.role: Accessible.CheckBox
+    Accessible.checkable: true
+    Accessible.checked: root.checked
+    Accessible.onPressAction: {
+        root.checked = !root.checked
+        root.clicked()
+    }
+
     // Preserve Material styling while making translated setting titles responsive.
     function configureTextItem(item) {
         if (!item)
@@ -41,6 +50,17 @@ UiSwitchDelegate {
         }
 
         return false
+    }
+
+    // TalkBack normally activates a focused row through Accessible.onPressAction.
+    // Some Android/Qt combinations deliver the double tap as a positional click
+    // instead; in that case the whole focused row must behave as the switch.
+    // Only on Android with touch exploration (TalkBack): with any other accessibility
+    // service a sighted user's tap on the label must not toggle the switch, and iOS
+    // VoiceOver presses the switch through Accessible.onPressAction.
+    function accessibilityActive() {
+        return Qt.platform.os === "android" && typeof rootItem !== "undefined" && rootItem
+                && rootItem.touchExplorationActive()
     }
 
     function configureContentItem() {
@@ -113,7 +133,7 @@ UiSwitchDelegate {
             // the touch position here is not mirrored: count the touch on the side it is drawn
             var onIndicator = root.mirrored ? mouse.x < root.indicator.width
                                             : mouse.x > root.width - root.indicator.width
-            if (onIndicator) {
+            if (onIndicator || root.accessibilityActive()) {
                 root.checked = !root.checked
                 root.clicked()
             }

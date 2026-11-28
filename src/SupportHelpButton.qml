@@ -15,6 +15,9 @@ Item {
     property int idleSeconds: 0
     property bool showHint: false
     property string reason: ""
+    // Out of the screen reader's reach (the side menu is open over it): Accessible.ignored on this item
+    // would not hide the buttons inside
+    property bool screenReaderHidden: false
     // The button is on the screen: the modern home grid keeps room for it under the last row
     readonly property bool shown: activeOnHome && showHint
     // Modern look: the button, the window and its controls in the theme colours; the classic
@@ -64,6 +67,8 @@ Item {
         Accessible.role: Accessible.Button
         Accessible.name: qsTr("Contact QZ support")
         Accessible.description: qsTr("Prepare a support email with diagnostics")
+        Accessible.focusable: !support.screenReaderHidden
+        Accessible.ignored: support.screenReaderHidden
     }
 
     // Modern look: the small floating action button of Material 3 - 40 dp, corners 12, an accent
@@ -103,7 +108,8 @@ Item {
         Accessible.role: Accessible.Button
         Accessible.name: qsTr("Contact QZ support")
         Accessible.description: qsTr("Prepare a support email with diagnostics")
-        Accessible.focusable: true
+        Accessible.focusable: !support.screenReaderHidden
+        Accessible.ignored: support.screenReaderHidden
         Accessible.onPressAction: supportDialog.open()
     }
 
@@ -301,8 +307,6 @@ Item {
                     text: qsTr("Attach debug log if available")
                     checked: window.rootReady && rootItem.firstSetupLogActive()
                     Accessible.name: text
-                    // Qt 5.15: the double tap of the screen reader sends no clicked() to a SwitchDelegate
-                    Accessible.onPressAction: toggle()
                     // The whole row toggles, as the check box of the classic look did with its text;
                     // IndicatorOnlySwitch alone takes only a tap on the switch (settings pages)
                     MouseArea {

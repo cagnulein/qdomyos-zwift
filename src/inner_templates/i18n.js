@@ -29,6 +29,10 @@
         container.querySelectorAll('[data-i18n-title]').forEach((el) => {
             el.setAttribute('title', window.qzTranslate(el.dataset.i18nTitle, el.getAttribute('title') || ''));
         });
+        // The name a screen reader reads, when it differs from the visible text
+        container.querySelectorAll('[data-i18n-aria-label]').forEach((el) => {
+            el.setAttribute('aria-label', window.qzTranslate(el.dataset.i18nAriaLabel, el.getAttribute('aria-label') || ''));
+        });
     };
 
     window.qzRequestTranslations = function () {

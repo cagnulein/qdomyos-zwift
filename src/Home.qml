@@ -750,12 +750,20 @@ HomeForm {
             visible: visibleItem
             Component.onCompleted: console.log("completed " + objectName)
 
-            // VoiceOver accessibility support. The search on the heart rate tile is its own button (heartTap): a press
-            // action here would make every tile clickable for Android, also the ones that do nothing on a tap
-            Accessible.role: largeButton ? Accessible.Button : (writable ? Accessible.Pane : Accessible.StaticText)
-            Accessible.name: name + (largeButton ? "" : (": " + value))
-            Accessible.description: largeButton ? largeButtonLabel : (secondLine !== "" ? secondLine : (writable ? qsTr("Adjustable. Current value: ") + value : qsTr("Current value: ") + value))
-            Accessible.focusable: true
+            // Non-writable static tiles: this item is the single accessible element (leaf).
+            // Writable tiles: parent is a container (children expose value + +/- buttons).
+            // Large button tiles: the RoundButton child handles accessibility.
+            // While the side menu is open the tiles leave the accessibility tree, each by its own
+            // drawer.opened check: Accessible.ignored on the StackView hides only the StackView
+            // (Qt 5 still exposes its children), and disabling the StackView is not an option
+            // since it kept pages pushed from the menu invisible. The search on the heart rate tile
+            // is its own button (heartTap): a press action here would make every tile clickable for
+            // Android, also the ones that do nothing on a tap.
+            Accessible.role: Accessible.StaticText
+            Accessible.name: name + ": " + value
+            Accessible.description: secondLine !== "" ? secondLine : qsTr("Current value: ") + value
+            Accessible.focusable: !largeButton && !writable && id1.enabled && !drawer.opened
+            Accessible.ignored: largeButton || writable || !id1.enabled || drawer.opened
 
 
             SequentialAnimation on rotation {
@@ -796,8 +804,8 @@ HomeForm {
                 onClicked: { rootItem.bluetoothSearchNow(); rootItem.reconnectHeartRateBelt(); }
                 Accessible.role: Accessible.Button
                 Accessible.name: name
-                Accessible.focusable: true
-                Accessible.ignored: !enabled
+                Accessible.focusable: !drawer.opened
+                Accessible.ignored: !enabled || drawer.opened
                 Accessible.onPressAction: { if (enabled) { rootItem.bluetoothSearchNow(); rootItem.reconnectHeartRateBelt(); } }
             }
 
@@ -892,7 +900,13 @@ HomeForm {
                     minimumPointSize: 10
                     font.bold: true
                     visible: !largeButton
-                    Accessible.ignored: true
+                    // Writable tiles: the value is read here, as myValue of the classic tile (the tile
+                    // item itself is ignored for them); the other tiles are read by the tile item
+                    Accessible.role: Accessible.StaticText
+                    Accessible.name: name + ": " + value
+                    Accessible.description: qsTr("Adjustable. Current value: ") + value
+                    Accessible.focusable: writable && id1.enabled && !drawer.opened
+                    Accessible.ignored: !writable || !id1.enabled || drawer.opened
                 }
 
                 Text {
@@ -988,9 +1002,10 @@ HomeForm {
                     contentItem: Item {}
 
                     Accessible.role: Accessible.Button
-                    Accessible.name: qsTr("Decrease ") + name
-                    Accessible.description: qsTr("Decrease the value of ") + name
-                    Accessible.focusable: true
+                    Accessible.name: value.length > 0 ? qsTr("Decrease ") + name + qsTr(", current value ") + value : qsTr("Decrease ") + name
+                    Accessible.description: value.length > 0 ? qsTr("Decrease the value of ") + name + qsTr(". Current value ") + value : qsTr("Decrease the value of ") + name
+                    Accessible.focusable: id1.enabled && !drawer.opened
+                    Accessible.ignored: !id1.enabled || drawer.opened
                     Accessible.onPressAction: { tileButtonPressed("minus", objectName) }
                 }
 
@@ -1031,9 +1046,10 @@ HomeForm {
                     contentItem: Item {}
 
                     Accessible.role: Accessible.Button
-                    Accessible.name: qsTr("Increase ") + name
-                    Accessible.description: qsTr("Increase the value of ") + name
-                    Accessible.focusable: true
+                    Accessible.name: value.length > 0 ? qsTr("Increase ") + name + qsTr(", current value ") + value : qsTr("Increase ") + name
+                    Accessible.description: value.length > 0 ? qsTr("Increase the value of ") + name + qsTr(". Current value ") + value : qsTr("Increase the value of ") + name
+                    Accessible.focusable: id1.enabled && !drawer.opened
+                    Accessible.ignored: !id1.enabled || drawer.opened
                     Accessible.onPressAction: { tileButtonPressed("plus", objectName) }
                 }
 
@@ -1063,7 +1079,8 @@ HomeForm {
                     Accessible.role: Accessible.Button
                     Accessible.name: largeButtonLabel
                     Accessible.description: name + ": " + largeButtonLabel
-                    Accessible.focusable: true
+                    Accessible.focusable: !drawer.opened
+                    Accessible.ignored: drawer.opened
                     Accessible.onPressAction: { tileButtonPressed("large", objectName) }
                 }
             }
@@ -1139,8 +1156,14 @@ HomeForm {
                 font.bold: true
                 visible: !largeButton
 
-                // Ignore for VoiceOver - parent Item handles accessibility
-                Accessible.ignored: true
+                // Writable tiles: VoiceOver reads "Metric: CurrentValue, Adjustable"
+                // so the user hears the value before using +/- buttons.
+                // Non-writable tiles: parent Item is the leaf element instead.
+                Accessible.role: Accessible.StaticText
+                Accessible.name: name + ": " + value
+                Accessible.description: qsTr("Adjustable. Current value: ") + value
+                Accessible.focusable: writable && id1.enabled && !drawer.opened
+                Accessible.ignored: !writable || !id1.enabled || drawer.opened
             }
             Text {
                 objectName: "secondLine"
@@ -1181,7 +1204,8 @@ HomeForm {
                 Accessible.role: Accessible.Button
                 Accessible.name: text
                 Accessible.description: qsTr("Give load control back to the app")
-                Accessible.focusable: true
+                Accessible.focusable: !drawer.opened
+                Accessible.ignored: drawer.opened
                 Accessible.onPressAction: { rootItem.releaseTargetPower() }
             }
             Text {
@@ -1224,9 +1248,10 @@ HomeForm {
 
                 // VoiceOver accessibility
                 Accessible.role: Accessible.Button
-                Accessible.name: qsTr("Decrease ") + name
-                Accessible.description: qsTr("Decrease the value of ") + name
-                Accessible.focusable: true
+                Accessible.name: value.length > 0 ? qsTr("Decrease ") + name + qsTr(", current value ") + value : qsTr("Decrease ") + name
+                Accessible.description: value.length > 0 ? qsTr("Decrease the value of ") + name + qsTr(". Current value ") + value : qsTr("Decrease the value of ") + name
+                Accessible.focusable: id1.enabled && !drawer.opened
+                Accessible.ignored: !id1.enabled || drawer.opened
                 Accessible.onPressAction: { tileButtonPressed("minus", objectName) }
             }
             RoundButton {
@@ -1244,9 +1269,10 @@ HomeForm {
 
                 // VoiceOver accessibility
                 Accessible.role: Accessible.Button
-                Accessible.name: qsTr("Increase ") + name
-                Accessible.description: qsTr("Increase the value of ") + name
-                Accessible.focusable: true
+                Accessible.name: value.length > 0 ? qsTr("Increase ") + name + qsTr(", current value ") + value : qsTr("Increase ") + name
+                Accessible.description: value.length > 0 ? qsTr("Increase the value of ") + name + qsTr(". Current value ") + value : qsTr("Increase the value of ") + name
+                Accessible.focusable: id1.enabled && !drawer.opened
+                Accessible.ignored: !id1.enabled || drawer.opened
                 Accessible.onPressAction: { tileButtonPressed("plus", objectName) }
             }
             RoundButton {
@@ -1266,7 +1292,8 @@ HomeForm {
                 Accessible.role: Accessible.Button
                 Accessible.name: largeButtonLabel
                 Accessible.description: name + ": " + largeButtonLabel
-                Accessible.focusable: true
+                Accessible.focusable: id1.enabled && !drawer.opened
+                Accessible.ignored: !id1.enabled || drawer.opened
                 Accessible.onPressAction: { tileButtonPressed("large", objectName) }
             }
             }

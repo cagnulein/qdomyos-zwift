@@ -1328,6 +1328,11 @@ jobs:
 
             echo "Orientation test completed - 4 screenshots captured"
 
+            # Dump the full UI accessibility tree, useful to write/parse automated UI tests
+            echo "Dumping UI hierarchy..."
+            adb shell uiautomator dump /sdcard/ui.xml
+            adb pull /sdcard/ui.xml ui_dump.xml
+
             # Back button test (single presses navigate back, a double press on the home page exits)
             sh .github/scripts/android_back_button_test.sh
 
@@ -1345,10 +1350,15 @@ jobs:
             # of its own (none:0, it was read bare), an item of its list is picked (the field itself
             # is tapped, as TalkBack does: Qt 5.15 gives a ComboBox no press), and the switch of a
             # tile that is off turns it on, which shows its order field
-            sh .github/scripts/android_accessibility_test.sh ◄=Settings tap:Settings=Tiles_Options Tiles_Options=Speed,_order_index: see:Speed,_order_index:_0 none:0 tap:Speed,_order_index:_0 2=Speed,_order_index:_2 Gears=Gears,_order_index:_26
+            sh .github/scripts/android_accessibility_test.sh Main_menu=Settings tap:Settings=Tiles_Options Tiles_Options=Speed,_order_index: see:Speed,_order_index:_0 none:0 tap:Speed,_order_index:_0 2=Speed,_order_index:_2 Gears=Gears,_order_index:_26
             # Accessibility stress test: the tile settings page opened and closed 40 times while the
             # tree is read without pause, then accessibility turned on and off 20 times
             sh .github/scripts/android_accessibility_stress_test.sh 40 20
+            # TalkBack regression: without touching the screen, focusing Community must not open Chrome.
+            # Settings must activate through ACTION_CLICK (not a fallback finger tap); then the
+            # first and last settings sections must be focusable, scroll into view and open.
+            # --fake-bike starts QZ from home with a reproducible emulator configuration.
+            sh .github/scripts/android_accessibility_test.sh --fake-bike Main_menu=Settings focus:Community focus:Settings Settings=General_Options focus:General_Options General_Options=App_Language: focus:Experimental_Features Experimental_Features=Gym_Mode
 
             # Keep the email integration test LAST: it intentionally opens an
             # Android resolver / fake mail Activity and should not leave QZ's
@@ -1383,6 +1393,7 @@ jobs:
             accessibility_stress_test.txt
             full_logcat.txt
             qdomyos_logcat.txt
+            ui_dump.xml
             support_email_evidence/**
             split_bluetooth_evidence/**
           if-no-files-found: warn                
@@ -1468,7 +1479,7 @@ jobs:
           echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
-          qmake CONFIG+=debug CONFIG+=iphonesimulator \
+          qmake CONFIG+=debug CONFIG+=iphonesimulator "LIBS+=-framework WebKit" \
             && make -j4
 
       - name: Show ccache stats
@@ -3314,3 +3325,73 @@ jobs:
             peloton-bike-android-trial/android-debug-peloton-bike.apk
             raspberry-pi-binary-armv6hf/qdomyos-zwift-armv6hf
             raspberry-pi-binary-aarch64/qdomyos-zwift-aar
+  # Experimental, non-blocking until installation + real-gesture assertions pass
+  # on the PR head. It is NOT evidence that the fix is ready for a blind user.
+  android-real-talkback-experimental:
+    runs-on: ubuntu-latest
+    needs: android-build
+    timeout-minutes: 60
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: actions/download-artifact@v4
+        with:
+          name: fdroid-android-trial
+          path: apk-debug
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Compile Google's open-source TalkBack (pinned revision)
+        run: |
+          git clone https://github.com/google/talkback.git /tmp/qz-google-talkback
+          cd /tmp/qz-google-talkback
+          git checkout 229212fdf5842191d0a93fc95d9ca1423b346866
+          export ANDROID_SDK=${ANDROID_SDK_ROOT:-$ANDROID_HOME}
+          echo "sdk.dir=$ANDROID_SDK" > local.properties
+          gradle --no-daemon --stacktrace assemblePhoneDebug
+          APK=$(find . -path '*/build/outputs/apk/phone/debug/*.apk' -print -quit)
+          test -n "$APK" && test -s "$APK"
+          cp "$APK" "$GITHUB_WORKSPACE/talkback-open-source.apk"
+      - name: Compile accessibility focus and gesture probe
+        run: |
+          SDK=${ANDROID_SDK_ROOT:-$ANDROID_HOME}
+          echo y | $SDK/cmdline-tools/latest/bin/sdkmanager "platforms;android-35" "build-tools;35.0.0"
+          JAR=$SDK/platforms/android-35/android.jar
+          mkdir -p a11y-test-classes
+          javac -source 8 -target 8 -bootclasspath "$JAR" -d a11y-test-classes .github/scripts/AccessibilityTest.java
+          $SDK/build-tools/35.0.0/d8 --min-api 24 --lib "$JAR" --output a11y-test.jar a11y-test-classes/*.class
+      - name: Run Pixel-class emulator with real TalkBack (Android 17)
+        uses: ReactiveCircus/android-emulator-runner@v2
+        timeout-minutes: 25
+        with:
+          api-level: '37.0'
+          target: google_apis
+          arch: x86_64
+          profile: pixel_7_pro
+          disable-animations: true
+          script: |
+            adb install apk-debug/android-debug.apk
+            adb install talkback-open-source.apk
+            sh .github/scripts/android_real_talkback_test.sh
+      - name: Upload TalkBack test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-real-talkback-experimental
+          path: |
+            talkback_real_probe.txt
+            accessibility_dumpsys.txt
+            talkback_logcat.txt
+            talkback-failure.png
+            a11y-test.jar
+            talkback-open-source.apk
+          if-no-files-found: warn
