@@ -89,7 +89,8 @@ jobs:
           & $tool --version
           if ($LASTEXITCODE -ne 0) { throw "qmlcachegen --version failed with $LASTEXITCODE" }
           foreach ($job in $jobs) {
-            & $tool @($job.Arguments)
+            $arguments = $job.Arguments
+            & $tool @arguments
             if ($LASTEXITCODE -ne 0) { throw "qmlcachegen failed for $($job.Output) with $LASTEXITCODE" }
             $output = Join-Path $sourceDir $job.Output
             if (-not (Test-Path -LiteralPath $output -PathType Leaf)) {
