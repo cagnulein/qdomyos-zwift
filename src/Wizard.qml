@@ -14,6 +14,38 @@ Page {
     readonly property int modernMargin: Math.max(16, window.contentSideMargin)
     // Modern look: the height of the bar with Back and Next at the bottom of a step
     readonly property int modernBarHeight: 72
+    readonly property bool modernMobile: window.ui.modern &&
+                                         (Qt.platform.os === "ios" || Qt.platform.os === "android")
+
+    // The software keyboard is reported in window coordinates. Only remove the
+    // part that overlaps this page (Android may already have resized the window).
+    readonly property real keyboardOverlap: {
+        if (!modernMobile || !Qt.inputMethod.visible)
+            return 0
+        var keyboard = Qt.inputMethod.keyboardRectangle
+        if (keyboard.height <= 0 || keyboard.width <= 0)
+            return 0
+        var top = keyboard.y
+        if (top <= 0) {
+            if (Qt.platform.os !== "ios")
+                return 0
+            top = window.height - keyboard.height
+        }
+        var localTop = wizardPage.mapFromItem(null, keyboard.x, top).y
+        return Math.max(0, Math.min(wizardPage.height, wizardPage.height - localTop))
+    }
+
+    function dismissKeyboard() {
+        if (!modernMobile || !Qt.inputMethod.visible)
+            return
+        // Focus-out commits editable SpinBox values before Next saves them.
+        keyboardDismissFocus.forceActiveFocus()
+        Qt.inputMethod.hide()
+    }
+
+    Item {
+        id: keyboardDismissFocus
+    }
 
     // Called by main.qml on the Android back button: go back one wizard step
     function handleBack() {
@@ -98,8 +130,27 @@ Page {
         id: stackViewLocal
         anchors.fill: parent
         anchors.topMargin: window.ui.modern ? 4 : 0
+        anchors.bottomMargin: wizardPage.keyboardOverlap
 
         initialItem: welcomeComponent
+
+        // Passive tap recognition: do not intercept the scroll view, buttons or
+        // other input controls. A tap inside the focused editor keeps it open.
+        TapHandler {
+            enabled: wizardPage.modernMobile && Qt.inputMethod.visible
+            gesturePolicy: TapHandler.DragThreshold
+            onTapped: function(eventPoint, button) {
+                var editor = window.activeFocusItem
+                if (editor && typeof editor.inputMethodComposing !== "undefined") {
+                    var pos = editor.mapFromItem(stackViewLocal,
+                                                 eventPoint.position.x, eventPoint.position.y)
+                    if (pos.x >= 0 && pos.x < editor.width &&
+                            pos.y >= 0 && pos.y < editor.height)
+                        return
+                }
+                wizardPage.dismissKeyboard()
+            }
+        }
     }
 
     component WizardButton: Button {
@@ -246,7 +297,10 @@ Page {
             cardSurface: true
             wrapsText: true
             text: qsTr("Back")
-            onClicked: wizardBar.backClicked()
+            onClicked: {
+                wizardPage.dismissKeyboard()
+                wizardBar.backClicked()
+            }
         }
 
         UiButton {
@@ -257,7 +311,10 @@ Page {
             highlighted: true
             wrapsText: true
             text: wizardBar.primaryText
-            onClicked: wizardBar.primaryClicked()
+            onClicked: {
+                wizardPage.dismissKeyboard()
+                wizardBar.primaryClicked()
+            }
         }
     }
 
