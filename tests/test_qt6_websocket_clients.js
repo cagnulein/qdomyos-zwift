@@ -57,4 +57,25 @@ for (const [file, path] of [
         assert.equal(sockets[0].url, expected, `${file} uses the WebSocket port`);
     }
 }
+for (const template of ['debug', 'example']) {
+    const source = fs.readFileSync(`src/templates/${template}/sethtml.js`, 'utf8');
+    for (const [protocol, port, expected] of [
+        ['http:', '6666', 'ws://qz.local:6667'],
+        ['https:', '', 'wss://qz.local:444'],
+    ]) {
+        const sockets = [];
+        const timers = [];
+        class WebSocket { constructor(url) { this.url = url; sockets.push(this); } }
+        const context = {WebSocket, location: {protocol, port, hostname: 'qz.local'},
+            console: {log() {}}, setTimeout: callback => timers.push(callback)};
+        vm.createContext(context);
+        vm.runInContext(source, context);
+        assert.equal(sockets[0].url, expected, `${template} uses the WebSocket port`);
+        if (template === 'example') {
+            sockets[0].onclose({reason: 'test'});
+            timers.shift()();
+            assert.equal(sockets[1].url, expected, `${template} reconnects to the same port`);
+        }
+    }
+}
 console.log('Qt 6 WebSocket template client tests passed');

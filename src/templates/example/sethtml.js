@@ -20,7 +20,8 @@ let getClass = function(workout, field) {
 };
 
 function connect() {
-    let socket = new WebSocket("ws://" + location.host);
+    let wsPort = (parseInt(location.port, 10) || (location.protocol === 'https:' ? 443 : 80)) + 1;
+    let socket = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.hostname + ':' + wsPort);
     socket.onopen = function (event) {
         console.log("Upgrade HTTP connection OK");
     };

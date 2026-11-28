@@ -6,6 +6,8 @@ on:
       - 'src/inner_templates/**/main_ws_manager.js'
       - 'src/inner_templates/workoutpreview/preview.html'
       - 'src/inner_templates/trainingbrowser/browser.html'
+      - 'src/templates/debug/sethtml.js'
+      - 'src/templates/example/sethtml.js'
       - 'tests/test_qt6_websocket_clients.js'
       - '.github/workflows/qt6-websocket-clients.yml'
   workflow_dispatch:
