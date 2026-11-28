@@ -91,6 +91,10 @@ jobs:
           Write-Host "Checking qmlcachegen: $tool"
           if (-not (Test-Path -LiteralPath $tool -PathType Leaf)) { throw "qmlcachegen not found: $tool" }
           Get-Item -LiteralPath $tool | Select-Object FullName, Length, VersionInfo | Format-List
+          Add-Type 'using System.Runtime.InteropServices; public static class NativeErrorMode { [DllImport("kernel32.dll")] public static extern uint SetErrorMode(uint mode); }'
+          [void][NativeErrorMode]::SetErrorMode(0x8003)
+          Write-Host 'Native executable dependencies:'
+          & dumpbin /dependents $tool
           Write-Host 'Starting qmlcachegen --version'
           & $tool --version
           Write-Host "qmlcachegen --version exit: $LASTEXITCODE"
