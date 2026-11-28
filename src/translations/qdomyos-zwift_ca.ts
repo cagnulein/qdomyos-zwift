@@ -7249,6 +7249,18 @@ IMPORTANT NOTES:
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>Inclinació fixa de la cinta de córrer</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>Inclinació fixa (%)</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>Utilitza la inclinació fixa real de la cinta de córrer manual. Reinicia QZ després de canviar aquest ajust.</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation type="unfinished"></translation>
     </message>

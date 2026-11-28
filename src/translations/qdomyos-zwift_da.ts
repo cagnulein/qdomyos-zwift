@@ -7481,6 +7481,18 @@ VIGTIGT:
         <translation>Indstillinger for kadencesensor</translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>Fast hældning på løbebånd</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>Fast hældning (%)</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>Brug den faktiske faste hældning på dit manuelle løbebånd. Genstart QZ efter ændring af denne indstilling.</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation>Lad disse indstillinger være, hvis din cykel fungerer, som den skal!</translation>
     </message>

@@ -7249,6 +7249,18 @@ IMPORTANT NOTES:
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>Juoksumaton kiinteä kaltevuus</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>Kiinteä kaltevuus (%)</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>Käytä manuaalisen juoksumattosi todellista kiinteää kaltevuutta. Käynnistä QZ uudelleen tämän asetuksen muuttamisen jälkeen.</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation type="unfinished"></translation>
     </message>

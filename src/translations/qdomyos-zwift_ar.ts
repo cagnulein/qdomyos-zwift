@@ -7249,6 +7249,18 @@ IMPORTANT NOTES:
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>ميل ثابت لجهاز المشي</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>الميل الثابت (%)</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>استخدم الميل الثابت الفعلي لجهاز المشي اليدوي. أعد تشغيل QZ بعد تغيير هذا الإعداد.</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation type="unfinished"></translation>
     </message>

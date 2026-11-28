@@ -8010,6 +8010,18 @@ WICHTIGE HINWEISE:
         <translation>Kadenzsensor-Optionen</translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>Feste Laufbandsteigung</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>Feste Steigung (%)</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>Verwende die tatsächliche feste Steigung deines manuellen Laufbands. Starte QZ nach Änderung dieser Einstellung neu.</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation>Berühren Sie diese Einstellungen nicht, wenn Ihr Fahrrad einwandfrei funktioniert!</translation>
     </message>
