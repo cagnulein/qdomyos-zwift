@@ -2505,6 +2505,8 @@ ApplicationWindow {
                     id: modernOfferItem
                     text: qsTr("Try the new interface")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: text
                     contentItem: Row {
                         spacing: 12
                         UiIcon {
