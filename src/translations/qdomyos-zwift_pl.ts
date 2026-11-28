@@ -7529,6 +7529,18 @@ WAŻNE UWAGI:
         <translation>Opcje czujnika kadencji</translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>Stałe nachylenie bieżni</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>Stałe nachylenie (%)</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>Użyj rzeczywistego stałego nachylenia bieżni manualnej. Uruchom ponownie QZ po zmianie tego ustawienia.</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation>Nie zmieniaj tych ustawień, jeśli rower działa prawidłowo!</translation>
     </message>

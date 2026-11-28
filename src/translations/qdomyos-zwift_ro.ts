@@ -7249,6 +7249,18 @@ IMPORTANT NOTES:
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>Înclinație fixă a benzii de alergare</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>Înclinație fixă (%)</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>Utilizați înclinația fixă reală a benzii de alergare manuale. Reporniți QZ după modificarea acestei setări.</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation type="unfinished"></translation>
     </message>
