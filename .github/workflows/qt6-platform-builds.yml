@@ -95,7 +95,7 @@ jobs:
             if (-not (Test-Path -LiteralPath $output -PathType Leaf)) {
               throw "qmlcachegen exited successfully but did not create $output"
             }
-            Write-Host "Generated $output:" (Get-Item -LiteralPath $output).Length "bytes"
+            Write-Host "Generated ${output}:" (Get-Item -LiteralPath $output).Length "bytes"
           }
       - name: Build and run tests
         shell: cmd
