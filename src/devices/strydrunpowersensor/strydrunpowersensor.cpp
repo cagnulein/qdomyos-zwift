@@ -9,6 +9,7 @@
 #include <QSettings>
 #include <QThread>
 #include <math.h>
+#include <cmath>
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
@@ -77,7 +78,7 @@ bool strydrunpowersensor::applyFixedInclination() {
 
     bool ok = false;
     const double grade = settings.value(QZSettings::cadence_sensor_fixed_inclination, QZSettings::default_cadence_sensor_fixed_inclination).toDouble(&ok);
-    if (!ok || !qIsFinite(grade) || grade < 0.0 || grade > 100.0)
+    if (!ok || !std::isfinite(grade) || grade < 0.0 || grade > 100.0)
         return false;
 
     // Set measured grade directly: no command rounding or calibration mapping.
@@ -87,6 +88,17 @@ bool strydrunpowersensor::applyFixedInclination() {
     }
     requestInclination = -100;
     return true;
+}
+
+void strydrunpowersensor::changeInclination(double grade, double percentage) {
+    if (!applyFixedInclination())
+        treadmill::changeInclination(grade, percentage);
+}
+
+void strydrunpowersensor::clearStats() {
+    treadmill::clearStats();
+    lastFixedInclinationUpdate = QDateTime();
+    applyFixedInclination();
 }
 
 void strydrunpowersensor::update() {
@@ -112,9 +124,21 @@ void strydrunpowersensor::update() {
             settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill)
                 .toBool();
         const bool fixedInclination = applyFixedInclination();
-        if (fixedInclination && !powerReceived) {
-            m_watt = wattsCalc(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat(),
-                               Speed.value(), Inclination.value());
+        if (fixedInclination && !externalPowerMeasured()) {
+            const double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toDouble();
+            m_watt = wattsCalc(weight, Speed.value(), Inclination.value());
+
+            // CSC has no calorie field. Keep the existing legacy power-based estimate
+            // available when the treadmill calorie model or HR calories is not selected.
+            const QDateTime now = QDateTime::currentDateTime();
+            const double seconds = lastFixedInclinationUpdate.isValid()
+                ? lastFixedInclinationUpdate.msecsTo(now) / 1000.0 : 0.0;
+            lastFixedInclinationUpdate = now;
+            if (!paused && Speed.value() > 0.0 && seconds > 0.0 && seconds <= 2.0) {
+                KCal += ((0.048 * m_watt.value() + 1.19) * weight * 3.5 / 200.0) * seconds / 60.0;
+            }
+        } else {
+            lastFixedInclinationUpdate = QDateTime();
         }
         update_metrics(false, watts(), !(power_as_treadmill || cadence_as_treadmill));
 
@@ -535,7 +559,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
                          ((double)lastRefreshCadenceChanged.msecsTo(now)));
             emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-            if (fixedInclination && !powerReceived) {
+            if (fixedInclination && !externalPowerMeasured()) {
                 m_watt = wattsCalc(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat(),
                                    Speed.value(), Inclination.value());
             }
