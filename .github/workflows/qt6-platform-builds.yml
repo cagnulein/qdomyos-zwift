@@ -104,7 +104,7 @@ jobs:
         shell: cmd
         run: |
           lrelease src/qdomyos-zwift.pri
-          qmake qdomyos-zwift.pro
+          qmake -r qdomyos-zwift.pro CONFIG-=debug_and_release CONFIG+=debug
           nmake
           if errorlevel 1 exit /b %errorlevel%
           tst\debug\qdomyos-zwift-tests.exe
