@@ -66,7 +66,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         return;
     notif2AD9 = new CharacteristicNotifier2AD9(t, this);
     notif2AD2 = new CharacteristicNotifier2AD2(t, this);
-    notif2ACD = new CharacteristicNotifier2ACD(t, this);
+    notif2ACD = new CharacteristicNotifier2ACD(t, this, false);
     notif2A53 = new CharacteristicNotifier2A53(t, this, garminFootPod());
     notif2A37 = new CharacteristicNotifier2A37(t, this);
     writeP2AD9 = new CharacteristicWriteProcessor2AD9(bikeResistanceGain, bikeResistanceOffset, t, notif2AD9, this);
@@ -243,9 +243,9 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             value.append((char)0x00);
             value.append((char)0x00);
             if (forwardControlPointWrites) {
-                value = QByteArray::fromHex("0d14000003000000");
+                value = QByteArray::fromHex("0914000003000000");
                 if (bike_cadence_sensor)
-                    value[0] = 0x0c;
+                    value[0] = 0x08;
             }
             charData.setValue(value);
             charData.setProperties(QLowEnergyCharacteristic::Read);

@@ -3,8 +3,8 @@
 #include <qmath.h>
 #include <QTime> // Include QTime for Bike->elapsedTime()
 
-CharacteristicNotifier2ACD::CharacteristicNotifier2ACD(bluetoothdevice *Bike, QObject *parent)
-    : CharacteristicNotifier(0x2acd, parent), Bike(Bike) {}
+CharacteristicNotifier2ACD::CharacteristicNotifier2ACD(bluetoothdevice *Bike, QObject *parent, bool includeDistance)
+    : CharacteristicNotifier(0x2acd, parent), Bike(Bike), includeDistance(includeDistance) {}
 
 int CharacteristicNotifier2ACD::notify(QByteArray &value) {
     BLUETOOTH_TYPE dt = Bike->deviceType();
@@ -12,11 +12,10 @@ int CharacteristicNotifier2ACD::notify(QByteArray &value) {
         QSettings settings;
         bool bike_cadence_sensor = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
 
-        if (bike_cadence_sensor) {
-            value.append(0x0C);       // Inclination and distance available (old behavior)
-        } else {
-            value.append(0x0E);       // Inclination, distance and average speed available
-        }
+        // Total Distance is optional. The BLE virtual treadmill omits it so
+        // clients can integrate instantaneous speed across reconnects.
+        value.append(static_cast<char>(0x08 | (includeDistance ? 0x04 : 0x00) |
+                                       (bike_cadence_sensor ? 0x00 : 0x02)));
         //value.append((char)0x01); // heart rate available
         value.append((char)0x05); // HeartRate(8) | ElapsedTime(10)
 
@@ -105,7 +104,8 @@ int CharacteristicNotifier2ACD::notify(QByteArray &value) {
             value.append(averageSpeedBytes); // Average speed value.
         }
 
-        value.append(distanceBytes); // Actual value.
+        if (includeDistance)
+            value.append(distanceBytes); // Total Distance (UINT24), when advertised.
 
         value.append(inclineBytes); // incline
 

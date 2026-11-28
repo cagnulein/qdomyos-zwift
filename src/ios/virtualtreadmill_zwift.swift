@@ -8,7 +8,32 @@ let RSCControlPointUuid = CBUUID(string: "0x2a55");
 
 let treadmilldataUuid = CBUUID(string: "0x2ACD");
 
-let forwardedTreadmillFTMSFeatures = Data([0x0d, 0x14, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00])
+let forwardedTreadmillFTMSFeatures = Data([0x09, 0x14, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00])
+
+// Total Distance (flag bit 2, UINT24) is intentionally absent from FTMS
+// treadmill notifications; keep distance for average speed and RSC separately.
+func encodeVirtualTreadmillData(speed: UInt16, inclination: UInt16, heartRate: UInt8,
+                                elapsed: UInt16, distanceMeters: UInt64,
+                                includeAverageSpeed: Bool) -> Data {
+    func littleEndian(_ value: UInt16) -> [UInt8] {
+        return [UInt8(value & 0xFF), UInt8((value >> 8) & 0xFF)]
+    }
+    var bytes: [UInt8] = [includeAverageSpeed ? 0x0A : 0x08, 0x05]
+    bytes += littleEndian(speed)
+    if includeAverageSpeed {
+        var averageSpeed: UInt16 = 0
+        if elapsed > 0 {
+            let kmh = Double(distanceMeters) * 3.6 / Double(elapsed)
+            averageSpeed = UInt16(min(max(kmh * 100.0, 0), Double(UInt16.max)))
+        }
+        bytes += littleEndian(averageSpeed)
+    }
+    bytes += littleEndian(inclination)
+    bytes += littleEndian(inclination) // Preserve existing ramp-angle encoding.
+    bytes.append(heartRate)
+    bytes += littleEndian(elapsed)
+    return Data(bytes)
+}
 
 @objc public class virtualtreadmill_zwift: NSObject {
     private var peripheralManager: BLEPeripheralManagerTreadmillZwift!
@@ -463,39 +488,12 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     }
 
     func calculateTreadmillData() -> Data {
-        let flags0:UInt8 = bike_cadence_sensor ? 0x0C : 0x0E // old behavior (0x0C) vs new behavior with average speed (0x0E)
-        let flagsMSO:UInt8 = 0x05 // HR (bit 0 of MSO) | ElapsedTime (bit 2 of MSO)
-
-        var treadmillData: [UInt8]
-
-        if bike_cadence_sensor {
-            // Old behavior: no average speed
-            treadmillData = [flags0, flagsMSO, (UInt8)(self.NormalizeSpeed & 0xFF), (UInt8)((self.NormalizeSpeed >> 8) & 0xFF),
-                            (UInt8)(self.CurrentDistance & 0xFF), (UInt8)((self.CurrentDistance >> 8) & 0xFF), (UInt8)((self.CurrentDistance >> 16) & 0xFF),
-                            (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
-                            (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
-                            self.heartRate,
-                            (UInt8)(self.ElapsedTimeSeconds & 0xFF), (UInt8)((self.ElapsedTimeSeconds >> 8) & 0xFF)]
-        } else {
-            // New behavior: include average speed
-            var avgSpeed: UInt16 = 0
-            if self.ElapsedTimeSeconds > 0 {
-                let distanceMeters = Double(self.CurrentDistance)
-                let kmh = (distanceMeters * 3.6) / Double(self.ElapsedTimeSeconds)
-                avgSpeed = UInt16(min(max(kmh * 100.0, 0), Double(UInt16.max)))
-            }
-
-            treadmillData = [flags0, flagsMSO, (UInt8)(self.NormalizeSpeed & 0xFF), (UInt8)((self.NormalizeSpeed >> 8) & 0xFF),
-                            (UInt8)(avgSpeed & 0xFF), (UInt8)((avgSpeed >> 8) & 0xFF),
-                            (UInt8)(self.CurrentDistance & 0xFF), (UInt8)((self.CurrentDistance >> 8) & 0xFF), (UInt8)((self.CurrentDistance >> 16) & 0xFF),
-                            (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
-                            (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
-                            self.heartRate,
-                            (UInt8)(self.ElapsedTimeSeconds & 0xFF), (UInt8)((self.ElapsedTimeSeconds >> 8) & 0xFF)]
-        }
-
-      let treadmillDataData = Data(bytes: &treadmillData, count: treadmillData.count)
-      return treadmillDataData
+        return encodeVirtualTreadmillData(speed: self.NormalizeSpeed,
+                                          inclination: self.CurrentInclination,
+                                          heartRate: self.heartRate,
+                                          elapsed: self.ElapsedTimeSeconds,
+                                          distanceMeters: self.CurrentDistance,
+                                          includeAverageSpeed: !bike_cadence_sensor)
     }
 
     func calculateRSCMeasurement() -> Data {
