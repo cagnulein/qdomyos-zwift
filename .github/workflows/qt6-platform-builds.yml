@@ -87,7 +87,13 @@ jobs:
             @{ Arguments = @("--resource=$qrc", '-o', (Join-Path $sourceDir 'qmlcache_settings-tiles_qml.cpp'), (Join-Path $sourceDir 'settings-tiles.qml')); Output = 'qmlcache_settings-tiles_qml.cpp' },
             @{ Arguments = @("--resource-file-mapping=$qrc", '-o', (Join-Path $sourceDir 'settings_qmlcache_loader.cpp'), $qrc); Output = 'settings_qmlcache_loader.cpp' }
           )
+          $env:PATH = (Join-Path $env:QT_ROOT_DIR 'bin') + ';' + $env:PATH
+          Write-Host "Checking qmlcachegen: $tool"
+          if (-not (Test-Path -LiteralPath $tool -PathType Leaf)) { throw "qmlcachegen not found: $tool" }
+          Get-Item -LiteralPath $tool | Select-Object FullName, Length, VersionInfo | Format-List
+          Write-Host 'Starting qmlcachegen --version'
           & $tool --version
+          Write-Host "qmlcachegen --version exit: $LASTEXITCODE"
           if ($LASTEXITCODE -ne 0) { throw "qmlcachegen --version failed with $LASTEXITCODE" }
           foreach ($job in $jobs) {
             $arguments = $job.Arguments
