@@ -6206,6 +6206,22 @@ Vill du tillåta att QZ ändrar värdet?
         <translation>Välj vilka diagram som ska visas längst ned: både puls- och effektdiagram, bara pulsdiagram eller bara effektdiagram.</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines:</source>
+        <translation>Jämna ut diagramlinjer:</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
+    <message>
+        <source>%1 s</source>
+        <translation>%1 s</translation>
+    </message>
+    <message>
+        <source>On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
+        <translation>På sidan Diagram och i diagrammen i träningsmejlet ritas linjerna för effekt, kadens och hastighet som ett glidande medelvärde över det valda fönstret i stället för de råa värdena sekund för sekund. Auto: 3 sekunder under träningen; efter Stopp 3 sekunder plus 2 för varje hel halvtimme av träningen, högst 15. Medelvärden, maxvärden, zoner, effektfördelningen och FIT-filen använder fortfarande de råa värdena. Standard är Av.</translation>
+    </message>
+    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>Vänster mätvärde för iOS-liveaktivitet:</translation>
     </message>

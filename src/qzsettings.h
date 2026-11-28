@@ -3553,6 +3553,13 @@ class QZSettings {
     static const QString ui_modern_offer_pending;
     static constexpr bool default_ui_modern_offer_pending = false;
 
+    // Smooth Chart Lines: the Charts page (chartjs/dochart.js, also the charts of the workout email) draws
+    // the power, cadence and speed lines as a moving average. The index in the list of settings.qml:
+    // 0 Off, 1 Auto, 2..6 a window of 3, 5, 10, 15, 30 seconds. Only the lines: the averages, maximums,
+    // zones and the FIT file stay on the raw values
+    static const QString chart_smooth_lines;
+    static constexpr int default_chart_smooth_lines = 0;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

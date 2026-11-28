@@ -6246,6 +6246,22 @@ QZ&apos;nin bu değeri değiştirmesine izin verilsin mi?
         <translation>Ekranın altında hangi grafiklerin gösterileceğini seçin: nabız ve güç grafikleri, yalnızca nabız grafiği veya yalnızca güç grafiği.</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines:</source>
+        <translation>Grafik çizgilerini yumuşat:</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Otomatik</translation>
+    </message>
+    <message>
+        <source>%1 s</source>
+        <translation>%1 sn</translation>
+    </message>
+    <message>
+        <source>On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
+        <translation>Grafikler sayfasında ve antrenman e-postasının grafiklerinde güç, kadans ve hız çizgileri saniye saniye ham değerler yerine seçilen pencere üzerinden hareketli ortalama olarak çizilir. Otomatik: antrenman sırasında 3 saniye; Durdur&apos;dan sonra 3 saniye ve antrenmanın her tam 30 dakikası için 2 saniye daha, en fazla 15. Ortalamalar, maksimumlar, bölgeler, güç dağılımı ve FIT dosyası yine ham değerleri kullanır. Varsayılan: Kapalı.</translation>
+    </message>
+    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>Canlı Etkinlik sol değeri (iOS):</translation>
     </message>

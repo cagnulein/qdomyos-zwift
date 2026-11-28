@@ -6591,6 +6591,22 @@ Consentire a QZ di modificare questo valore?
         <translation>Scegli quali grafici visualizzare nel piè di pagina: grafico frequenza cardiaca e potenza, solo grafico frequenza cardiaca, o solo grafico potenza.</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines:</source>
+        <translation>Linee dei grafici smussate:</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
+    <message>
+        <source>%1 s</source>
+        <translation>%1 s</translation>
+    </message>
+    <message>
+        <source>On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
+        <translation>Nella pagina Grafici e nei grafici dell’e-mail dell’allenamento, disegna le linee di potenza, cadenza e velocità come media mobile sulla finestra scelta invece dei valori grezzi secondo per secondo. Auto: 3 secondi durante l’allenamento; dopo Stop 3 secondi più 2 per ogni 30 minuti completi di allenamento, fino a 15. Medie, massimi, zone, distribuzione della potenza e file FIT usano sempre i valori grezzi. Predefinito: Off.</translation>
+    </message>
+    <message>
         <source>Please choose a color</source>
         <translation>Seleziona un colore</translation>
     </message>

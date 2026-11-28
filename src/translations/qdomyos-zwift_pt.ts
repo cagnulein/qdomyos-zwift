@@ -6098,6 +6098,22 @@ Permitir que o QZ altere esse valor?
         <translation>Escolha quais gráficos exibir no rodapé: gráficos de frequência cardíaca e potência, apenas gráfico de frequência cardíaca ou apenas gráfico de potência.</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines:</source>
+        <translation>Suavizar linhas dos gráficos:</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
+    <message>
+        <source>%1 s</source>
+        <translation>%1 s</translation>
+    </message>
+    <message>
+        <source>On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
+        <translation>Na página Gráficos e nos gráficos do e-mail do treino, desenha as linhas de potência, cadência e velocidade como uma média móvel sobre a janela escolhida em vez dos valores brutos segundo a segundo. Auto: 3 segundos durante o treino; depois de Parar, 3 segundos mais 2 por cada 30 minutos completos do treino, até 15. As médias, os máximos, as zonas, a distribuição de potência e o ficheiro FIT continuam a usar os valores brutos. Predefinição: Desligado.</translation>
+    </message>
+    <message>
         <source>UI Themes</source>
         <translation>Temas da Interface</translation>
     </message>
