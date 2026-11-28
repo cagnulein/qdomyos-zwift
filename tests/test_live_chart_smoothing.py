@@ -9,8 +9,8 @@ opening) and after every 'workout' message.
 
 - Off (and a setting not saved yet, or unknown) draws the raw points, as master does.
 - On, the line is the trailing moving average over the window in seconds of the elapsed time:
-  a point drawn once does not change when the next ones arrive. Auto is 3 s (a live chart is
-  shown only while the workout runs).
+  a point drawn once does not change when the next ones arrive. Auto is 3 s, the window of Auto
+  on the Charts page during a workout (the live chart follows the running workout).
 
 Run: python3 -m unittest tests/test_live_chart_smoothing.py
 """
@@ -129,10 +129,10 @@ def trailing(line, seconds, digits):
         if not isinstance(p["y"], (int, float)):  # no value: a gap, as on the Charts page
             out.append(p)
             continue
-        # only the points after the last one with a later x: a new workout starts x from 0 again
+        # only the points after the last place where x goes back: a new workout starts x from 0
         start = 0
         for k in range(i - 1, -1, -1):
-            if line[k]["x"] > p["x"]:
+            if line[k]["x"] > line[k + 1]["x"]:
                 start = k + 1
                 break
         last = {}  # the last value of every x so far: a pause repeats the x
@@ -263,17 +263,21 @@ class LiveChartSmoothing(unittest.TestCase):
     def test_new_workout_on_the_open_page(self):
         # Stop and Start again while the chart stays shown: the page is not reloaded and the x of
         # the new workout starts from 0 again; its average does not take the last workout in
+        # (seconds of the last workout, setting, window): a long one, and one shorter than the window,
+        # whose last points have a smaller x than the later points of the new workout
+        cases = ((30, "4", 10), (10, "6", 30))
         for page in (BIKE, TREADMILL):
-            with self.subTest(page=page["script"]):
-                session, live = workout(page, 30, 10, seed=17)
-                busy = 300 if page["field"] == "watts" else 15
-                again = [point(page, s, busy) for s in range(1, 13)]
-                lines = harness(page, "4", session, live + again)  # 10 s
-                drawn = lines[-1]["points"]
-                self.assertEqual(drawn, trailing(raw_line(page, session + live + again), 10,
-                                                 page["digits"]))
-                # the new workout: its own points only, all at the same value
-                self.assertEqual({p["y"] for p in drawn[-len(again):]}, {busy})
+            for last_seconds, smooth, seconds in cases:
+                with self.subTest(page=page["script"], last=last_seconds):
+                    session, live = workout(page, last_seconds, 10 if last_seconds > 10 else 0, seed=17)
+                    busy = 300 if page["field"] == "watts" else 15
+                    again = [point(page, s, busy) for s in range(1, 41)]
+                    lines = harness(page, smooth, session, live + again)
+                    drawn = lines[-1]["points"]
+                    self.assertEqual(drawn, trailing(raw_line(page, session + live + again), seconds,
+                                                     page["digits"]))
+                    # the new workout: its own points only, all at the same value
+                    self.assertEqual({p["y"] for p in drawn[-len(again):]}, {busy})
 
     def test_pause_does_not_weigh_in(self):
         # paused, the elapsed time stands still and the messages keep coming every second with

@@ -25,13 +25,15 @@ function isLiveValue(y) {
 // `digits` decimals. A point with no value stays a gap, as on the Charts page. While the workout
 // is paused the elapsed time stands still and the points keep coming with the same x: only the
 // last point of each x counts, as the one row per second of the session, so the whole pause
-// counts as one second and does not pull the line down for a window after it. A point with a later
-// x ends the window: a new workout started while the page stays open draws its x from 0 again
+// counts as one second and does not pull the line down for a window after it. The window also ends
+// where x goes back: a new workout started while the page stays open draws its x from 0 again
 function trailingAverage(row, i, seconds, digits) {
     if (!isLiveValue(row[i].y))
         return row[i].y;
     let k = Math.pow(10, digits || 0), sum = 0, count = 0;
-    for (let j = i; j >= 0 && row[j].x <= row[i].x && row[j].x > row[i].x - seconds; j--) {
+    for (let j = i; j >= 0 && row[j].x > row[i].x - seconds; j--) {
+        if (j < i && row[j].x > row[j + 1].x)
+            break; // the last point of the workout before
         if (j < i && row[j + 1].x === row[j].x)
             continue; // not the last point of its x
         if (isLiveValue(row[j].y)) {
