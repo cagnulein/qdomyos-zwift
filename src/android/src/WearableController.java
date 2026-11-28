@@ -39,4 +39,142 @@ public class WearableController {
         public static int getHeart() {
             return WearableMessageListenerService.getHeart();
         }
+
+        // Watches whose QZ app sleeps between workouts declare this capability (res/values/wear.xml
+        // of QZ_WearOS). The phone declares qz_hr_wake_sleep in its own wear.xml, which the watch
+        // checks at run time.
+        static final String WATCH_CAPABILITY = "qz_hr_sleep_between_workouts";
+        // Watches with that capability, kept up to date by one capability listener, so that
+        // setWatchAwake makes no Wear OS call at all when there is no such watch
+        static final java.util.Set<String> capableNodes = java.util.concurrent.ConcurrentHashMap.newKeySet();
+        static boolean capabilityWatched = false;
+        static boolean listenerPending = false;
+        static boolean capabilityKnown = false;
+        static boolean discoveryPending = false;
+        static long lastCapabilityAttempt = -60000;
+        static final com.google.android.gms.wearable.CapabilityClient.OnCapabilityChangedListener capabilityListener =
+            info -> setCapableNodes(info.getNodes());
+
+        static synchronized void watchCapability(Context ctx) {
+            if (capabilityWatched && capabilityKnown)
+                return;
+            final long now = android.os.SystemClock.elapsedRealtime();
+            if (now - lastCapabilityAttempt < 60000)
+                return;
+            lastCapabilityAttempt = now;
+            com.google.android.gms.wearable.CapabilityClient client =
+                com.google.android.gms.wearable.Wearable.getCapabilityClient(ctx);
+            if (!capabilityWatched && !listenerPending) {
+                // Nodes may have changed while the listener was unavailable; refresh the snapshot.
+                capabilityKnown = false;
+                listenerPending = true;
+                client.addListener(capabilityListener, WATCH_CAPABILITY)
+                    .addOnSuccessListener(ignored -> {
+                        synchronized (WearableController.class) {
+                            capabilityWatched = true;
+                            listenerPending = false;
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        synchronized (WearableController.class) {
+                            listenerPending = false;
+                        }
+                        QLog.w("WearableController", "capability listener failed: " + e);
+                    });
+            }
+            if (!capabilityKnown && !discoveryPending) {
+                discoveryPending = true;
+                client.getCapability(WATCH_CAPABILITY, com.google.android.gms.wearable.CapabilityClient.FILTER_REACHABLE)
+                    .addOnSuccessListener(info -> {
+                        synchronized (WearableController.class) {
+                            discoveryPending = false;
+                            // A listener update received in the meantime is newer than this query.
+                            if (!capabilityKnown)
+                                setCapableNodes(info.getNodes());
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        synchronized (WearableController.class) {
+                            discoveryPending = false;
+                        }
+                        QLog.w("WearableController", "getCapability failed: " + e);
+                    });
+            }
+        }
+
+        // The watch should be awake (last setWatchAwake), and the watches that got this workout's
+        // /qz/hr/start. A watch that shows up later (discovery still running when the workout
+        // started, or reconnected during it) gets the start if it missed it, otherwise a keep-alive.
+        static boolean lastAwake = false;
+        static final java.util.Set<String> startedNodes = new java.util.HashSet<>();
+        static final java.util.Set<String> startingNodes = new java.util.HashSet<>();
+        static long workoutGeneration = 0;
+
+        static synchronized void setCapableNodes(java.util.Set<com.google.android.gms.wearable.Node> nodes) {
+            capabilityKnown = true;
+            java.util.Set<String> ids = new java.util.HashSet<>();
+            for (com.google.android.gms.wearable.Node node : nodes)
+                ids.add(node.getId());
+            capableNodes.retainAll(ids);
+            for (String id : ids) {
+                if (capableNodes.add(id) && appContext != null)
+                    send(appContext, id, !startedNodes.contains(id));
+            }
+            QLog.v("WearableController", WATCH_CAPABILITY + ": " + capableNodes.size() + " watch(es)");
+        }
+
+        static android.content.Context appContext = null;
+
+        // start=true: /qz/hr/start, else the keep-alive /qz/hr/wake
+        static void send(Context ctx, String nodeId, boolean start) {
+            final String path = !lastAwake ? "/qz/hr/sleep" : (start ? "/qz/hr/start" : "/qz/hr/wake");
+            final boolean sendingStart = lastAwake && start;
+            final long generation = workoutGeneration;
+            if (sendingStart && !startingNodes.add(nodeId))
+                return;
+            com.google.android.gms.wearable.Wearable.getMessageClient(ctx)
+                .sendMessage(nodeId, path, new byte[0])
+                .addOnSuccessListener(result -> {
+                    if (sendingStart) {
+                        synchronized (WearableController.class) {
+                            if (generation == workoutGeneration) {
+                                startingNodes.remove(nodeId);
+                                startedNodes.add(nodeId);
+                            }
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (sendingStart) {
+                        synchronized (WearableController.class) {
+                            if (generation == workoutGeneration)
+                                startingNodes.remove(nodeId);
+                        }
+                    }
+                    QLog.w("WearableController", path + " failed: " + e);
+                });
+        }
+
+        // Wakes the QZ watch app's heart-rate service (awake=true) or puts it to sleep. start=true
+        // when a workout starts: the watch then ignores a STOP pressed on it during the previous
+        // one, while keep-alives respect it. Sent only to watches whose QZ app understands it;
+        // older watch apps and phones without a watch get nothing.
+        public static synchronized void setWatchAwake(Context context, final boolean awake, final boolean start) {
+            final Context ctx = context.getApplicationContext();
+            appContext = ctx;
+            watchCapability(ctx);
+            lastAwake = awake;
+            // Sleep is not a new workout: preserve START delivery across pauses/idle.
+            if (start) {
+                ++workoutGeneration;
+                startedNodes.clear();
+                startingNodes.clear();
+            }
+            if (capableNodes.isEmpty())
+                return;
+            for (String nodeId : capableNodes)
+                send(ctx, nodeId, start || !startedNodes.contains(nodeId));
+            QLog.v("WearableController", (awake ? (start ? "start" : "wake") : "sleep") + " sent to "
+                + capableNodes.size() + " watch(es)");
+        }
 }

@@ -1385,10 +1385,11 @@ const QString QZSettings::treadmill_calories_model = QStringLiteral("treadmill_c
 
 const QString QZSettings::ui_modern_new_install_checked = QStringLiteral("ui_modern_new_install_checked");
 const QString QZSettings::ui_modern_offer_pending = QStringLiteral("ui_modern_offer_pending");
+const QString QZSettings::wear_hr_auto_sleep = QStringLiteral("wear_hr_auto_sleep");
 
 const QString QZSettings::chart_smooth_lines = QStringLiteral("chart_smooth_lines");
 
-const uint32_t allSettingsCount = 1079;
+const uint32_t allSettingsCount = 1080;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2495,6 +2496,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::wahoo_without_wheel_diameter, QZSettings::default_wahoo_without_wheel_diameter},
     {QZSettings::nordictrack_vr21, QZSettings::default_nordictrack_vr21},
     {QZSettings::chart_smooth_lines, QZSettings::default_chart_smooth_lines},
+    {QZSettings::wear_hr_auto_sleep, QZSettings::default_wear_hr_auto_sleep},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

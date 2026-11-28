@@ -3028,6 +3028,7 @@ import AndroidStatusBar 1.0
             property bool ui_modern_new_install_checked: false
             property bool ui_modern_offer_pending: false
             property int chart_smooth_lines: 0
+            property bool wear_hr_auto_sleep: true
 
         }
 
@@ -4530,6 +4531,36 @@ import AndroidStatusBar 1.0
 
                     Label {
                         text: qsTr("Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.")
+                        font.bold: !window.ui.modern
+                        font.italic: !window.ui.modern
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: switchWearHrAutoSleepDelegate
+                        text: qsTr("Wear OS Watch Heart Rate Sleeps Between Workouts")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.wear_hr_auto_sleep
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.wear_hr_auto_sleep = checked
+                        Accessible.onPressAction: { toggle(); settings.wear_hr_auto_sleep = checked }
+                    }
+
+                    Label {
+                        text: qsTr("With the QZ app on a Wear OS watch, the watch measures heart rate only during a workout and sleeps in between, which saves its battery. Turn off to keep it measuring whenever QZ is open on the phone, for example for workouts where the equipment reports no speed or cadence.")
                         font.bold: !window.ui.modern
                         font.italic: !window.ui.modern
                         font.pixelSize: window.fontHint

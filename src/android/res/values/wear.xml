@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:keep="@array/android_wear_capabilities">
+    <!-- QZ for Wear OS checks this at run time: with it, the watch sleeps between workouts and
+         waits for /qz/hr/wake and /qz/hr/sleep; without it (older phone app) the watch keeps
+         its heart rate on as before -->
+    <string-array name="android_wear_capabilities">
+        <item>qz_hr_wake_sleep</item>
+    </string-array>
+</resources>
