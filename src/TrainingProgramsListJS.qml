@@ -27,8 +27,8 @@ ColumnLayout {
     property var selectedFileUrl: ""
     property bool isSearching: false
 
-    // Modern look: a filled search field, the workouts as cards and pill buttons; the classic
-    // look keeps its list and buttons
+    // Modern look: a filled search field, the workouts as cards, pill buttons and the
+    // preview page in the app theme; the classic look keeps its list and buttons
     readonly property int modernMargin: Math.max(16, window.contentSideMargin)
 
     Connections {
@@ -82,7 +82,7 @@ ColumnLayout {
         isSearching = true
 
         // Call C++ FileSearcher for fast recursive search
-        var results = fileSearcher.searchRecursively(folderUrl, filter, ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr"])
+        var results = fileSearcher.searchRecursively(folderUrl, filter, ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr", "*.fit", "*.FIT"])
 
         // Populate search results model
         for (var i = 0; i < results.length; i++) {
@@ -98,7 +98,7 @@ ColumnLayout {
                 id: fileDialog
                 title: qsTr("Please choose a file")
                 folder: shortcuts.home
-                nameFilters: [qsTr("Training programs (*.xml *.zwo *.mrc *.erg *.json *.xsr)"), qsTr("All files (*)")]
+                nameFilters: [qsTr("Training programs") + " (*.xml *.zwo *.mrc *.erg *.json *.xsr *.fit *.FIT)", qsTr("All files (*)")]
                 visible: true
                 onAccepted: {
                     var chosenFile = fileDialog.fileUrl || fileDialog.file || (fileDialog.fileUrls && fileDialog.fileUrls.length > 0 ? fileDialog.fileUrls[0] : "")
@@ -218,7 +218,7 @@ ColumnLayout {
                                 isSearching = false
                             } else {
                                 // Trigger recursive C++ search
-                                var baseFolder = "file://" + rootItem.getWritableAppDir() + 'training'
+                                var baseFolder = rootItem.getWritableAppDir() + 'training'
                                 searchRecursively(baseFolder, text)
                             }
                         }
@@ -256,6 +256,17 @@ ColumnLayout {
                     }
                 }
 
+                // the restore of a previous install: above the list, which moves down for that time
+                UiProgress {
+                    id: restoreProgress
+                    Layout.fillWidth: true
+                    Layout.leftMargin: window.ui.modern ? programsPage.modernMargin : 16
+                    Layout.rightMargin: window.ui.modern ? programsPage.modernMargin : 16
+                    topPadding: window.ui.modern ? 0 : 8
+                    done: rootItem.folderRestoreDone
+                    total: rootItem.folderRestoreTotal
+                }
+
                 // The list in a box of the full page width: in the modern look the cards keep the page
                 // margin and the scroll bar goes into it, at the screen edge as on the settings page,
                 // not over the right edge of the cards
@@ -263,6 +274,8 @@ ColumnLayout {
                     id: listBox
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    // the gap above the list is in the progress while it shows (UiProgress)
+                    Layout.topMargin: restoreProgress.visible ? -parent.spacing : 0
 
                     ListView {
                         anchors.fill: parent
@@ -285,8 +298,8 @@ ColumnLayout {
 
                         FolderListModel {
                             id: folderModel
-                            nameFilters: ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr"]
-                            folder: "file://" + rootItem.getWritableAppDir() + 'training'
+                            nameFilters: ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr", "*.fit", "*.FIT"]
+                            folder: rootItem.localFileUrl(rootItem.getWritableAppDir() + 'training')
                             showDotAndDotDot: false
                             showDirs: true
                             sortField: "Name"
@@ -432,9 +445,11 @@ ColumnLayout {
                         Label {
                             parent: list
                             anchors.centerIn: parent
-                            // only once the folder is read: the model fills in asynchronously
+                            // only once the folder is read: the model fills in asynchronously; not while
+                            // a restore copies the files of a previous install into it
                             visible: window.ui.modern && list.count === 0
                                      && (isSearching || folderModel.status === FolderListModel.Ready)
+                                     && rootItem.folderRestoreTotal === 0
                             text: isSearching ? qsTr("No workouts found") : qsTr("No workouts here")
                             color: window.ui.textMuted
                         }
@@ -480,6 +495,12 @@ ColumnLayout {
                         Layout.fillHeight: window.ui.modern
                         wrapsText: true
                         visible: rootItem.qzFolderRestorable && !rootItem.qzFolderGrantSaved
+                        // greyed out while a restore runs: a second one is refused
+                        // (CustomQtActivity.openRestoreFolderPicker); hidden after it, with the grant
+                        enabled: rootItem.folderRestoreTotal === 0
+                        // Qt 5.15 does not report a disabled item to TalkBack (fixed in Qt 6 by
+                        // qtdeclarative 20fd2902a6): left in, it would be read as a button that works
+                        Accessible.ignored: !enabled
                         text: qsTr("Restore files")
                         onClicked: rootItem.offerFolderRestore()
                     }
@@ -794,12 +815,20 @@ ColumnLayout {
                             Layout.margins: 5
                             Layout.leftMargin: 5
                             Layout.rightMargin: window.ui.modern ? programsPage.modernMargin : 5
+                            // modern look: the chart card right under the buttons (15 to the pill: the
+                            // inset of the pill in its button and the spacing), not 28 with this margin
+                            Layout.bottomMargin: window.ui.modern ? 0 : 5
                             sourceComponent: detailButtons
                         }
 
                         Item {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
+                            // Modern look: the chart card 16 from the sides of the page, as the cards of
+                            // the other pages (the web page draws the card edge to edge); side by side
+                            // 8 from the text column - its spacing 6 and 2 here
+                            Layout.leftMargin: window.ui.modern ? (detailBody.split ? 2 : programsPage.modernMargin) : 0
+                            Layout.rightMargin: window.ui.modern ? programsPage.modernMargin : 0
 
                             // Modern look: the native view is white until the page is loaded, so it is
                             // kept hidden till then, as in WorkoutEditor.qml. It is also drawn above every
@@ -814,16 +843,26 @@ ColumnLayout {
                                 id: previewWebView
                                 anchors.fill: parent
                                 visible: !window.ui.modern || (pageLoaded && !deleteDialog.visible)
-                                // modern look: the page colour for the frame around the chart, so it merges
-                                // with the page; the classic look keeps the dark frame of the page
+                                // modern look: the page in the app theme (qz-theme-bridge.js), so the frame
+                                // merges with the page; the classic look keeps the dark frame of the page.
+                                // The theme reaches the page in the URL fragment; a later change of the theme
+                                // only moves the fragment (no reload), so it also goes through runJavaScript.
+                                // Switching the modern look off drops the fragment and loads the page again,
+                                // which asks for its program itself (below)
                                 url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
-                                    + (window.ui.modern ? "?bg=" + encodeURIComponent(String(window.ui.bg)) : "")
+                                    + window.ui.webThemeFragment()
                                 property bool pageLoaded: false
+                                // null (the modern look switched off) takes the theme off the page
+                                readonly property var pageTheme: window.ui.webTheme
+                                onPageThemeChanged: if (pageLoaded) runJavaScript(window.ui.webThemeScript())
                                 // a failed load is shown too: the page tells why, not an endless spinner
                                 onLoadingChanged: {
                                     if (loadRequest.status === WebView.LoadSucceededStatus
-                                            || loadRequest.status === WebView.LoadFailedStatus)
+                                            || loadRequest.status === WebView.LoadFailedStatus) {
                                         pageLoaded = true
+                                        if (pageTheme)
+                                            runJavaScript(window.ui.webThemeScript())
+                                    }
                                 }
 
                                 // a new app language: the page takes its texts when loaded and asks the server

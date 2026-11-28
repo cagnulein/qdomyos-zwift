@@ -20,6 +20,21 @@
       -ms-user-select: none;
   }
   </style>
+  <!-- Modern look of the app: GoogleMap.qml passes its theme in the URL fragment and calls
+       qzApplyTheme() when it changes (qz-theme-bridge.js). Without the fragment - the classic
+       look - the page keeps its own look. -->
+  <script src="../chartjs/qz-theme-bridge.js"></script>
+  <style>
+    html.modern, html.modern body { background: var(--qz-bg, #111); }
+    /* The metrics box and the chart in the theme colours instead of the green box */
+    html.modern .metrics { background: var(--qz-surface) !important; border: 1px solid var(--qz-outline) !important;
+                           color: var(--qz-text) !important; border-radius: 16px !important; }
+    /* 15 = the 16 of the box minus its 1 px border (23 = 25 - 2 in the classic look); 12 - the
+       medium shape of Material 3 for the small chart, 16 would cut its corners */
+    html.modern #resizeHandle { border-bottom-right-radius: 15px !important; color: var(--qz-text) !important;
+                                background: linear-gradient(135deg, transparent 50%, var(--qz-outline) 50%) !important; }
+    html.modern #chartContainer { border-radius: 12px !important; background: var(--qz-surface); }
+  </style>
 </head>
 <body>
   <div id="cesiumContainer" style="display: block;
@@ -32,7 +47,11 @@
   <script>    
     // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
     const viewer = new Cesium.Viewer('cesiumContainer', {
-      terrainProvider: Cesium.createWorldTerrain()
+      terrainProvider: Cesium.createWorldTerrain(),
+      // No "?" button: Cesium cannot remember in localStorage that its help was shown (null in
+      // the Android WebView, a new port on every start), so the mouse help opened by itself at
+      // every app start, over the top of the map, in English only.
+      navigationHelpButton: false
     });
 
     $('.cesium-viewer-animationContainer').css("visibility", "hidden");

@@ -35,6 +35,28 @@ T.SpinBox {
         top: Math.max(control.from, control.to)
     }
 
+    // Typed text that SpinBox bounds back to the value it already has (age 1, typed 0) stays in the
+    // field on Qt 5.15.0 (Android): QQuickSpinBoxPrivate::setValue returns before it updates
+    // displayText, and the field keeps showing a number that was not saved (QTBUG-85719, fixed in
+    // 5.15.2). Put the text of the value back once SpinBox has taken the typed one - after its
+    // keyReleaseEvent on Return/Enter and after its focus-out (both call updateValue, the only
+    // two places where SpinBox 5.15.0 takes typed text).
+    function restoreDisplayText() {
+        if (contentItem.text !== displayText)
+            contentItem.text = Qt.binding(function() { return control.displayText })
+    }
+    Keys.priority: Keys.AfterItem
+    Keys.onReleased: (event) => {
+        if (editable && (event.key === Qt.Key_Return || event.key === Qt.Key_Enter))
+            restoreDisplayText()
+        // Not handled here: the key goes on to the parents as before
+        event.accepted = false
+    }
+    onActiveFocusChanged: {
+        if (editable && !activeFocus)
+            restoreDisplayText()
+    }
+
     contentItem: UiSpinInput {
         text: control.displayText
 

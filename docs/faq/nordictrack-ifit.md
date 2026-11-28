@@ -148,3 +148,29 @@ A rider explicitly confirmed that the direct-console setup worked. **Automatic t
 4. If another app should receive the data, configure QZ's virtual device and pair the training app to QZ rather than directly to the console.
 
 **Confirmed test:** cadence, power, speed and resistance control worked during a ten-minute ride with the FitPro USB bike build. The gRPC bike build had failed to control resistance on this console. This is evidence for the specified model and build, not a guarantee for every Studio Bike Pro 22 console revision. See the direct-console installation and FitPro/gRPC differences above.
+
+## QZ on my Android phone cannot reliably discover QZ FitPro USB on a NordicTrack treadmill over DIRCON. What should I check?
+
+For a setup with QZ FitPro USB on the treadmill console and a second QZ instance on an Android phone, check the phone's discovery configuration separately from the console's hardware connection.
+
+1. Confirm that QZ FitPro USB on the console receives live treadmill metrics, and that the phone and console are on the same local network.
+2. If you intend to connect using DIRCON rather than the older NordicTrack IP-based connection, clear any old NordicTrack 2950 IP setting (`nordictrack_2950_ip`) on the phone and restart QZ.
+3. If DIRCON discovery is intermittent or takes several minutes, temporarily turn off Android's system-wide **Battery Saver** (power-saving mode) on the phone, then restart QZ and retry discovery. Also check the app's battery restrictions; see the [Android FAQ](android.md).
+4. Verify that the phone connects to the console's virtual treadmill (in the confirmed setup, **Wahoo TREAD 0000**) and receives live metrics before testing small speed or incline changes. Keep the physical emergency stop accessible.
+
+**Confirmed support case:** On a NordicTrack X9i with QZ FitPro USB on the console and a Xiaomi Android phone, clearing the old IP setting restored the phone-to-console connection and speed/incline control. Discovery was still intermittent even though an Android service-browser app could see the advertised services. After disabling Battery Saver, QZ discovered the console within the first discovery window in two consecutive tests. This confirms the discovery workaround, not remote Start/Pause/Stop support, which was being tested separately.
+
+## My older NordicTrack treadmill sends live metrics but QZ Companion cannot control it. Can I use an external Android device over USB as a last resort?
+
+On a **NordicTrack T14.0 with an Android 5.1 console**, a user reported that QZ Companion could receive treadmill metrics but could not reliably send control gestures to iFIT. The user eventually reported success with an external Android device connected directly to the treadmill's control board through the internal mini-USB connection normally used by the original Android console.
+
+**Try the non-invasive approach first:** install the FitPro USB treadmill build directly on the original console and completely stop iFIT, as described above. This is a suggested alternative for the T14.0, not a confirmed result on that model.
+
+If that is not possible, the reported external-device setup used:
+
+- An Android phone or tablet connected by USB to the treadmill controller instead of the original Android console.
+- `android-debug-fitpro-treadmill.apk` from the [QZ nightly releases](https://github.com/cagnulein/qdomyos-zwift/releases). The user specifically reported that the NordicTrack (gRPC) and standard paid builds did not work for this connection.
+
+**Important — last resort only:** accessing internal wiring is not a normal QZ installation procedure. Have a qualified technician verify the connection, USB host compatibility and electrical suitability for your exact console revision; disconnect mains power before any hardware work. Do not bypass or modify safety circuits. Before using the treadmill, confirm that its physical stop controls and emergency safety key still work, then verify telemetry and only small speed/incline adjustments from a safe position without anyone on the belt. Do not use this setup if any safety function is unavailable. Opening the console may affect the warranty.
+
+The external USB setup was reported working on this specific T14.0; the report does not establish compatibility with other models or revisions, specify the required USB adapter, or separately confirm every control and safety function. No hardware modification should be attempted solely on the assumption that all NordicTrack consoles use the same USB connection.

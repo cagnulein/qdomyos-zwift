@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ko_KR">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>닫기</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -120,6 +127,22 @@
         <translation>다시 묻지 않음</translation>
     </message>
     <message>
+        <source>Strong signal</source>
+        <translation>강한 신호</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>양호한 신호</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>보통 신호</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>약한 신호</translation>
+    </message>
+    <message>
         <source>Choose a heart rate sensor</source>
         <translation>심박 센서 선택</translation>
     </message>
@@ -145,6 +168,22 @@
     <message>
         <source>Do you really want to stop the current workout?</source>
         <translation>현재 운동을 중지하시겠습니까?</translation>
+    </message>
+    <message>
+        <source>Auto Resistance is off</source>
+        <translation>자동 저항이 꺼져 있습니다</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>지금은 QZ가 저항을 바꾸지 않습니다. '적용': 저항, 목표 저항, 프리셋 타일의 레벨이 자동 저항이 꺼져 있는 동안 적용됩니다. 앱(예: Zwift)의 명령은 계속 무시됩니다.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>적용</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>자동 저항 켜기</translation>
     </message>
     <message>
         <source>Permissions Required</source>
@@ -179,6 +218,14 @@ GPS는 사용하지 않습니다.
 Would you like to do that now?</source>
         <translation>변경 사항을 적용하려면 앱을 다시 시작해야 합니다.
 지금 다시 시작하시겠습니까?</translation>
+    </message>
+    <message>
+        <source>Try the new interface?</source>
+        <translation>새 인터페이스를 사용해 보시겠습니까?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ의 메인 화면, 사이드 메뉴, 설정, 마법사가 새로운 모습으로 바뀌었습니다. 설정 &gt; 일반 UI 옵션에서 언제든지 되돌릴 수 있습니다.</translation>
     </message>
     <message>
         <source>Adjustable. Current value: </source>
@@ -308,6 +355,14 @@ Would you like to enable the required services?</source>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>다음에 Bluetooth 또는 위치 서비스를 켜도록 알림을 받으시겠습니까?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>앱에 돌려주기</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>부하 제어를 앱에 돌려줍니다</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -358,6 +413,14 @@ Would you like to enable the required services?</source>
     <message>
         <source>Not connecting?</source>
         <translation>연결되지 않나요?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>운동 기구를 찾을 수 없습니다</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>자전거, 트레드밀 또는 로잉 머신의 전원을 켠 다음 상단의 Bluetooth 아이콘을 눌러 다시 검색하세요.</translation>
     </message>
 </context>
 <context>
@@ -1121,6 +1184,10 @@ QZ 설정을 업데이트하시겠습니까?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>YPOO M5 초기화에 실패했습니다. 다시 연결해야 합니다</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S 연결됨!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1342,6 +1409,21 @@ QZ 설정을 업데이트하시겠습니까?</translation>
     </message>
 </context>
 <context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>구매 중...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>구매 완료</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>구매 실패</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -1517,6 +1599,17 @@ QZ 설정을 업데이트하시겠습니까?</translation>
     <message>
         <source>Cancel</source>
         <translation>취소</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>이전 설치의 파일 복원 중</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>이전 설치의 파일 복원 중: %1/%2</translation>
     </message>
 </context>
 <context>
@@ -2060,6 +2153,11 @@ QZ 설정을 업데이트하시겠습니까?</translation>
         <translation>경사도 (%)</translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>한 차트에:</translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation>평균 파워</translation>
@@ -2333,6 +2431,18 @@ QZ 설정을 업데이트하시겠습니까?</translation>
     <message>
         <source>1 Mile</source>
         <translation>1마일</translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation>전체 화면</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>전체 화면 종료</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>왼쪽이나 오른쪽으로 스와이프하여 그래프를 전환하세요</translation>
     </message>
     <message>
         <source>AVG</source>
@@ -2610,6 +2720,18 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <source>Next</source>
         <translation>다음</translation>
+    </message>
+    <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>운동 기구, 단위, 프로필을 단계별로 설정</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>주제를 골라 해당 설정으로 바로 이동</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>마법사 닫기</translation>
     </message>
     <message>
         <source>Custom Configurations</source>
@@ -2938,12 +3060,12 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>운동을 가져오는 중…</translation>
+        <translation type="vanished">운동을 가져오는 중…</translation>
     </message>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>운동 파일을 처리하는 중…
+        <translation type="vanished">운동 파일을 처리하는 중…
 처음 실행할 때는 시간이 조금 걸릴 수 있습니다.</translation>
     </message>
     <message>
@@ -3067,8 +3189,40 @@ This may take a few moments on first startup.</source>
         <translation>날짜로 필터</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>캘린더</translation>
+    </message>
+    <message>
         <source>Import workouts</source>
         <translation>운동 가져오기</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>운동을 기록에 추가하는 중</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>운동 파일 복사 중</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>운동을 기록에 추가하는 중: %1/%2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>운동 파일 복사 중: %1/%2</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>이 날에는 운동이 없습니다</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>아직 운동이 없습니다</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>완료한 운동이 여기에 표시됩니다. 운동을 열면 그래프를 볼 수 있습니다.</translation>
     </message>
     <message>
         <source>Open on Peloton</source>
@@ -3160,9 +3314,25 @@ This may take a few moments on first startup.</source>
         <source>Offset</source>
         <translation>보정값</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>기어 %1 보정값 줄이기</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>기어 %1 보정값 늘리기</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>%1 줄이기</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>%1 늘리기</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>사용자 지정 경사도-저항 표 사용</translation>
@@ -3178,6 +3348,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Resistance</source>
         <translation>저항</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>경사도 %1 점 삭제</translation>
     </message>
     <message>
         <source>Add Point</source>
@@ -3265,6 +3439,10 @@ This may take a few moments on first startup.</source>
 </context>
 <context>
     <name>homeform</name>
+    <message>
+        <source>No enabled metrics</source>
+        <translation>활성화된 지표가 없습니다</translation>
+    </message>
     <message>
         <source>Speed (%1/h)</source>
         <translation>속도 (%1/h)</translation>
@@ -3836,6 +4014,10 @@ This may take a few moments on first startup.</source>
         <translation>기기를 검색하는 중…</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>%1에 연결하는 중…</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>%1 찾음</translation>
     </message>
@@ -4188,9 +4370,17 @@ This may take a few moments on first startup.</source>
         <source>Unable to open an email application</source>
         <translation>이메일 앱을 열 수 없습니다</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth가 꺼져 있습니다</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>플로팅 지표 (화면 속 화면)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -4424,6 +4614,10 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>Settings</source>
         <translation>설정</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>새 인터페이스 사용해 보기</translation>
     </message>
     <message>
         <source>Workouts History</source>
@@ -4712,6 +4906,26 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
 QZ가 이 값을 변경하도록 허용하시겠습니까?
 
 [아니요]: QZ가 [휠 지름 없는 프로토콜]을 켜고([설정] &gt; [자전거 옵션] &gt; [Wahoo 옵션]), 가상 기어는 경사를 통해 작동합니다. [예]를 선택하면 나중에 같은 곳에서 되돌릴 수 있습니다. 이 옵션을 켜고 트레이너가 연결된 상태에서 [트레이너 기본 설정 복원]을 누르세요.</translation>
+    </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>가상 기기(%1)가 활성화되었습니다. 의도한 설정이 아니라면 설정에서 비활성화하세요.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>자전거</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>러닝머신</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>일립티컬</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>로잉머신</translation>
     </message>
 </context>
 <context>
@@ -5085,6 +5299,42 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>운동 기록에서 이 그래프의 순서입니다. 순서는 일반 UI 옵션의 위로/아래로 버튼으로 바꿉니다.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>설정을 초기화했습니다</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>초기화한 설정: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>모두 초기화</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>변경된 설정을 초기화하시겠습니까?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>기본값으로 돌아갈 설정: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>초기화</translation>
+    </message>
+    <message>
+        <source>Reset section?</source>
+        <translation>섹션을 초기화하시겠습니까?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>“%2”의 설정 %1개가 기본값으로 돌아갑니다.</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>섹션 초기화</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -6300,8 +6550,8 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
         <translation>Garmin Bluetooth 센서</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Mac에서 Garmin 기기로 측정값을 보내려면 이 설정을 켜세요. 그렇지 않으면 꺼 두세요.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Garmin 또는 다른 스포츠 시계가 QZ를 Bluetooth 센서로 사용할 수 있습니다. 트레드밀에서는 풋팟, 자전거에서는 파워미터가 됩니다(Android에서는 &apos;자전거 파워 센서&apos;도 켜세요). 시계는 QZ가 실행 중인 휴대폰 또는 태블릿과 Bluetooth로 페어링되어 있어야 합니다. 시계가 QZ를 찾지 못하면 한 번 페어링한 다음 시계에서 센서를 추가하고 페어링 요청을 수락하세요. 같은 휴대폰에서 Garmin Connect가 시계와 연결되어 있으면 시계가 연결되는 동안 Garmin Connect를 두세 번 연속으로 강제 중지하세요. Garmin Connect가 없는 별도의 휴대폰이나 태블릿이 더 쉽습니다. QZ가 시계용 센서로 작동하는 동안 Bluetooth로 연결된 Zwift는 QZ를 풋팟이나 파워미터로만 인식하며, 제어할 수 있는 기기로는 인식하지 않습니다.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -7115,6 +7365,14 @@ Please enter it below:</source>
         <translation>Strava 가상 활동 태그</translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Strava 합성 GPS 경로</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>GPS가 없는 가상 활동에 합성 GPS 경로를 기록합니다. Strava에 누적 상승고도가 표시될 수 있지만 실제 경로는 아닙니다.</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation>Strava 활동에 가상 태그 추가</translation>
     </message>
@@ -7241,6 +7499,14 @@ IMPORTANT NOTES:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>스마트 트레이너에서 경사도 대신 저항을 사용합니다. 기어를 바꿀 때 Wahoo Climb 같은 장치의 경사도가 바뀌지 않게 하는 데 도움이 됩니다. 기본값: 꺼짐</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>저항 호환성</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>QZ에서 저항을 변경할 때 자전거가 레벨 1 또는 최댓값으로만 설정된다면 활성화하세요. FTMS 저항 값을 10배로 전송합니다. 기본값: 비활성화.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>
@@ -8443,6 +8709,75 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
         <translation>실험적 기능: 트레드밀 드라이버가 기기 자체의 속도 측정값을 제공하는 경우, Runn/Stryd 피드백으로 QZ가 제어하는 트레드밀 속도를 점진적으로 보정합니다. [파워 센서의 속도 사용]이 필요합니다. 기본값: 꺼짐.</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>새 인터페이스</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>메인 화면, 사이드 메뉴, 설정, 마법사의 새로운 디자인입니다. 끄면 클래식 디자인으로 돌아갑니다.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>화면 모드</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>휴대폰 설정과 동일</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>다크</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>라이트</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>테마</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>그래파이트</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>검정 / 흰색</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>미드나이트 블루</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>강조 색상</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>보라</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>파랑</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>청록</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>초록</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>주황</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>분홍</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>타일 크기:</translation>
     </message>
@@ -8569,6 +8904,18 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>GPX 운동에서 이 값보다 작은 경사 변화는 무시하고, 마지막으로 전송한 값과의 차이가 설정된 임계값에 도달했을 때만 새 경사 명령을 보냅니다. 기본값: 0(비활성화).</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>콘솔 기어 사용</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>걷기/달리기 모델로 트레드밀 칼로리 계산</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>콘솔이 칼로리를 보내지 않는 트레드밀용입니다. 벨트 속도, 경사, 체중, 키, 나이, 성별로 칼로리를 계산하며, 키로 정해지는 걷기에서 달리기로 바뀌는 속도보다 느리면 걷기 모델, 빠르면 달리기 모델을 사용합니다. 끄면 대신 파워 기반 값을 사용합니다. 콘솔이 보내는 칼로리, 외부 파워 센서(Stryd 등), 켜져 있을 때의 심박수로 칼로리 계산이 계속 우선합니다.</translation>
     </message>
 </context>
 <context>

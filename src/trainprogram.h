@@ -164,6 +164,8 @@ class trainprogram : public QObject {
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded
     BLUETOOTH_TYPE loadedDeviceType = UNKNOWN;
+    bool isFitWorkout = false;
+    bool fitWorkoutMatchesDevice() const;
     QString description = "";
     QString tags = "";
     bool enabled = true;

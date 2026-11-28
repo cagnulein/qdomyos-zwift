@@ -8,6 +8,12 @@
 #include <QMutex>
 #include <QPointer>
 
+namespace QMdnsEngine {
+class Server;
+class Hostname;
+class Provider;
+}
+
 class QNoCookieJar : public QNetworkCookieJar {
     Q_OBJECT
   public:
@@ -25,11 +31,17 @@ class WebServerInfoSender : public TemplateInfoSender {
     virtual ~WebServerInfoSender();
     virtual bool isRunning() const;
     virtual bool send(const QString &data);
+    void stop() override;
 
   private:
     QHttpServer *httpServer = 0;
     QStringList folders;
     bool listen();
+    void startMdnsAdvertising();
+    void stopMdnsAdvertising();
+    QMdnsEngine::Server *mdnsServer = nullptr;
+    QMdnsEngine::Hostname *mdnsHostname = nullptr;
+    QMdnsEngine::Provider *mdnsProvider = nullptr;
     void processFetcher(QWebSocket *sender, const QByteArray &data);
     QTimer watchdogTimer;
 

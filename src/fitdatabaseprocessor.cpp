@@ -153,7 +153,11 @@ void FitDatabaseProcessor::importFiles(const QStringList& filePaths) {
     }
     // the counts are workouts, not files: copies of one workout (same bytes) count once
     QSet<QString> seenHashes;
+    const int total = filePaths.size();
+    int done = 0;
     for (const QString& filePath : filePaths) {
+        // the file under way, as the copy out of a folder counts it
+        emit progress(++done, total);
         const QString hash = getFileHash(filePath);
         if (!hash.isEmpty()) {
             if (seenHashes.contains(hash)) {
@@ -421,22 +425,33 @@ void FitDatabaseProcessor::doWork() {
 
     QDir dir(currentDirPath);
     QStringList fitFiles = dir.entryList(QStringList() << "*.fit" << "*.FIT", QDir::Files);
-    int totalFiles = fitFiles.size();
-    int processedFiles = 0;
 
+    // the files already in the history first: on most starts that is all of them, and the
+    // progress counts only the files really added (the history page shows it)
+    QStringList newFiles;
     for (const QString& fileName : fitFiles) {
         if (stopRequested.loadAcquire()) {
             break;
         }
+        if (!isFileProcessed(dir.absoluteFilePath(fileName))) {
+            newFiles << fileName;
+        }
+    }
+    // a line on every start, as the progress of every file was before: how many workouts the folder has
+    qDebug() << "FitDatabaseProcessor:" << fitFiles.size() << "files," << newFiles.size() << "new";
 
-        QString filePath = dir.absoluteFilePath(fileName);
-
-        if (processFitFile(filePath)) {
-            emit fileProcessed(fileName);
+    const int totalFiles = newFiles.size();
+    int processedFiles = 0;
+    for (const QString& fileName : newFiles) {
+        if (stopRequested.loadAcquire()) {
+            break;
         }
 
-        processedFiles++;
-        emit progress(processedFiles, totalFiles);
+        // the file under way, as the copy out of a folder counts it
+        emit progress(++processedFiles, totalFiles);
+        if (processFitFile(dir.absoluteFilePath(fileName))) {
+            emit fileProcessed(fileName);
+        }
     }
 
     emit processingStopped();

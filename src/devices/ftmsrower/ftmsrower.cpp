@@ -61,6 +61,28 @@ void ftmsrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStri
     loop.exec();
 }
 
+void ftmsrower::clearStats() {
+    rower::clearStats();
+    if (PM5 || pm5StrokeSource != PM5StrokeSource::None)
+        StrokesCount.clear(true);
+}
+
+void ftmsrower::updatePM5StrokeCount(uint16_t raw, PM5StrokeSource source) {
+    // Both services can report the same strokes. Keep the first source that sends a count.
+    if (pm5StrokeSource != PM5StrokeSource::None && pm5StrokeSource != source)
+        return;
+
+    const uint32_t delta = pm5StrokeSource == PM5StrokeSource::None || raw < pm5LastRawStrokeCount
+                               ? raw : raw - pm5LastRawStrokeCount;
+    pm5LastRawStrokeCount = raw;
+    pm5StrokeSource = source;
+    // Stroke count and RowState arrive in separate notifications.
+    if (delta > 0) {
+        StrokesCount += delta;
+        lastStroke = QDateTime::currentDateTime();
+    }
+}
+
 void ftmsrower::forceResistance(resistance_t requestResistance) {
 
     uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
@@ -154,11 +176,11 @@ void ftmsrower::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
-void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+void ftmsrower::parseConcept2Data(const QBluetoothUuid &uuid, const QByteArray &newValue) {
     QDateTime now = QDateTime::currentDateTime();
     QSettings settings;
     
-    QString charUuid = characteristic.uuid().toString();
+    QString charUuid = uuid.toString();
     
     if (charUuid == QStringLiteral("{ce060031-43e5-11e4-916c-0800200c9a66}")) {
         // Parse characteristic CE060031 - Based on go-row implementation
@@ -216,15 +238,9 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
     else if (charUuid == QStringLiteral("{ce060036-43e5-11e4-916c-0800200c9a66}")) {
         // Parse characteristic CE060036 - Power and stroke count (based on go-row implementation)
         if (newValue.length() >= 9) {
-            // Extract stroke count from bytes 7-8 (little endian)
-            uint16_t strokeCount = ((uint8_t)newValue.at(8) << 8) | (uint8_t)newValue.at(7);
-            if (strokeCount != StrokesCount.value()) {
-                // Only check RowState if we've received it at least once
-                if (!pm5RowStateReceived || pm5RowState != 0) {
-                    StrokesCount = strokeCount;
-                    lastStroke = now;
-                }
-            }
+            const uint16_t strokeCount = (static_cast<uint8_t>(newValue.at(8)) << 8) |
+                                         static_cast<uint8_t>(newValue.at(7));
+            updatePM5StrokeCount(strokeCount, PM5StrokeSource::Concept2);
 
             // Extract power from bytes 3-4 (little endian)
             uint16_t power = ((uint8_t)newValue.at(4) << 8) | (uint8_t)newValue.at(3);
@@ -317,7 +333,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
                 characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060035-43e5-11e4-916c-0800200c9a66")) ||
                 characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060036-43e5-11e4-916c-0800200c9a66")))) {
         
-        parseConcept2Data(characteristic, newValue);
+        parseConcept2Data(characteristic.uuid(), newValue);
         return;
     }
 
@@ -379,13 +395,17 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         }
         emit debug(QStringLiteral("Current Stroke Rate: ") + QString::number(Cadence.value()));
 
-        StrokesCount =
-            (((uint16_t)((uint8_t)newValue.at(index + 2)) << 8) | (uint16_t)((uint8_t)newValue.at(index + 1)));
-
-        if (lastStrokesCount != StrokesCount.value()) {
-            lastStroke = now;
+        const uint16_t strokeCount = (static_cast<uint8_t>(newValue.at(index + 2)) << 8) |
+                                     static_cast<uint8_t>(newValue.at(index + 1));
+        if (PM5) {
+            updatePM5StrokeCount(strokeCount, PM5StrokeSource::Ftms);
+        } else {
+            StrokesCount = strokeCount;
+            if (lastStrokesCount != StrokesCount.value()) {
+                lastStroke = now;
+            }
+            lastStrokesCount = StrokesCount.value();
         }
-        lastStrokesCount = StrokesCount.value();
 
         index += 3;
 

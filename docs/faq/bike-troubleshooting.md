@@ -1,5 +1,12 @@
 # Bike and trainer troubleshooting
 
+
+## My iConsole-compatible bike connects to QZ but cadence and power stay at zero. What should I try?
+
+If QZ discovers an iConsole-compatible bike (for example, a Stream UB VIII advertising as `i-Console+...`) but only the workout timer advances, open **QZ Settings > iConsole settings** and enable **iConsole bike**. Restart/reconnect QZ and pedal to check whether cadence, watts, and resistance now update. The iConsole setting is in its own settings section, not necessarily under the general Bike Options list.
+
+In a confirmed Stream UB VIII support case, enabling **iConsole bike** restored cadence and other metrics. If the heart-rate tile remains at zero, try setting QZ's **Heart Rate Belt Name** selection to **Disabled** when you want to use heart rate provided through the bike. The same rider confirmed that this restored both the handlebar heart-rate readings and readings from a compatible chest belt connected through the bike; resistance control also worked. If you instead want QZ to connect directly to a separate Bluetooth chest strap, select that strap explicitly.
+
 ## QZ detects my bike, but the bike metrics stay at zero. What should I try?
 
 If QZ recognizes the bike but cadence, power, speed, or other bike data are not updating while other sources such as heart rate still work:
@@ -10,6 +17,8 @@ If QZ recognizes the bike but cadence, power, speed, or other bike data are not 
 4. Reconnect the bike and start pedaling.
 
 This can restore the normal bike data stream when the Garmin ANT bike option interferes with the connection.
+
+If QZ is connected but **the bike itself is transmitting zeros for all metrics**, stop the session and restart the physical bike according to its normal power/reset procedure before reconnecting QZ. In a confirmed **Zipro Rave** case, resetting the bike restored live metrics after QZ had connected but received only zeros. This was separate from a resistance-control code change being tested; restarting the bike is not a fix for every resistance-control problem.
 
 ### Why can incline still show zero?
 
@@ -220,3 +229,17 @@ Check **QZ Settings > Advanced Settings > Manual Device** before reinstalling th
 If QZ detects a Hammer ErgoMotion bike but RPM does not update, first check **QZ Settings > iConsole settings** and enable the **iConsole bike** option. If this alone does not help, open **QZ Settings > Bike Options > FTMS Bike**, set the manually selected FTMS bike to **Disabled**, and confirm with **OK**. Reconnect the bike and pedal to check whether RPM updates.
 
 In a confirmed Hammer ErgoMotion support case, enabling the iConsole bike option alone did not fix the zero-RPM reading. After the rider disabled the forced **FTMS Bike** selection, they explicitly confirmed that QZ worked. This is a device-specific troubleshooting step: do not disable a correctly configured FTMS connection for other bikes without a reason.
+
+## My Echelon bike with an external cadence sensor shows cadence but no speed or watts in QZ. What should I check?
+
+If an Echelon bike relies on a separate cadence sensor, first make sure QZ is paired with the sensor in **cadence mode**, not its speed mode. Some dual-mode sensors advertise different Bluetooth names when their mode changes. Under **Settings > Accessories > Cadence Sensor**, select the name currently advertised in cadence mode; keep **Cadence Sensor as a Bike** and **Cadence Sensor as a Treadmill** disabled when the Echelon is the main bike. Close the sensor manufacturer's app before reconnecting QZ.
+
+If cadence starts updating but **Speed** and **Watt** remain zero, check **Advanced Settings**: disable **Speed Calculates on Power / Speed Power Based**, set **Watt Gain = 1**, **Watt Offset = 0**, and **Speed Offset = 0**. Disable **Automatic Virtual Shifting** and **Virtual Echelon** if they were enabled for an unrelated setup. Restart QZ and verify positive speed and watts **before** pairing QZ as the power and cadence source in Zwift on a second device.
+
+A rider with an Echelon Connect bike and a dual-mode external cadence sensor confirmed that this configuration restored QZ speed and power and made the Zwift avatar move. The thread involved several settings changes, so it does not isolate one universal cause. These steps are for this external-cadence setup, not a reason to reset calibrated settings on other bikes.
+
+## My BKOOL Smart Bike v1 connects to QZ but its virtual bike does not move in ROUVY. What should I check?
+
+If the **BKOOL Smart Bike v1** is the primary bike connected to QZ, check that you have **not also selected the same bike under Accessories > Power Sensor**. Set that external **Power Sensor** selection to **Disabled**, and clear any manually forced selection of the BKOOL under **Bike Options > FTMS Bike**. Confirm the changes and fully restart QZ. Connect the physical bike to QZ first, verify its live metrics, then connect ROUVY to the virtual QZ trainer on your other device.
+
+A BKOOL Smart Bike v1 rider reported that ROUVY began working after clearing these duplicate/manual sensor selections. Both selections were changed in the confirmed test, so their individual effects were not isolated. Do not remove a legitimate external power meter or a required FTMS selection on an unrelated trainer.

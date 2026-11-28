@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "devices/fitshowtreadmill/fitshowstartspeedgate.h"
+#include "devices/fitshowtreadmill/fitshowstopcommand.h"
 
 // The FitShow firmware may ACK speed commands while in its start countdown,
 // without applying those commands to the motor. Keep the queued workout target
@@ -62,4 +63,33 @@ TEST(FitShowStartSpeedGate, OrdinaryRunningSpeedChangesAreUnchanged) {
     FitShowStartSpeedGate gate;
     // Existing users controlling an already running treadmill are unaffected.
     EXPECT_TRUE(gate.canSendTarget(false, false));
+}
+
+TEST(FitShowStopCommand, ExplicitStopAlwaysUsesPhysicalStop) {
+    EXPECT_EQ(0x03, fitshowStopCommand(false, false));
+    EXPECT_EQ(0x03, fitshowStopCommand(false, true));
+}
+
+TEST(FitShowStopCommand, OrdinaryPauseAndMerachPauseAreUnchanged) {
+    EXPECT_EQ(0x06, fitshowStopCommand(true, false));
+    EXPECT_EQ(0x0a, fitshowStopCommand(true, true));
+}
+
+TEST(FitShowStopCommand, TimedOutStandardPauseFallsBackToPhysicalStop) {
+    EXPECT_TRUE(fitshowShouldFallbackToStop(FITSHOW_CONTROL_PAUSE, true));
+    EXPECT_EQ(0x50, 0x53 ^ FITSHOW_CONTROL_STOP); // 02 53 03 50 03
+}
+
+TEST(FitShowStopCommand, SupersededPauseDoesNotFallBack) {
+    EXPECT_FALSE(fitshowShouldFallbackToStop(FITSHOW_CONTROL_PAUSE, false));
+}
+
+TEST(FitShowStopCommand, MerachAndStopDoNotFallBack) {
+    EXPECT_FALSE(fitshowShouldFallbackToStop(FITSHOW_STATUS_PAUSED, true));
+    EXPECT_FALSE(fitshowShouldFallbackToStop(FITSHOW_CONTROL_STOP, true));
+}
+
+TEST(FitShowStopCommand, StopAfterPauseDoesNotReusePauseCommand) {
+    EXPECT_EQ(0x06, fitshowStopCommand(true, false));
+    EXPECT_EQ(0x03, fitshowStopCommand(false, false));
 }

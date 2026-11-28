@@ -37,6 +37,21 @@ function t(key, fallback) {
     return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
 }
 
+// The tooltip under a finger or the mouse: the time of the point (the x axis of the line charts
+// counts seconds, and so do the values of the zone bars) instead of the raw number
+function tooltipTime(seconds) {
+    let s = Math.round(seconds), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60);
+    return (h > 0 ? h + ":" + m.toString().padStart(2, "0") : m) + ":" + (s % 60).toString().padStart(2, "0");
+}
+
+function tooltipTimeTitle(items) {
+    return items.length ? tooltipTime(items[0].parsed.x) : "";
+}
+
+function tooltipTimeLabel(item) {
+    return tooltipTime(item.parsed.y);
+}
+
 function zoneLabel(number) {
     return t('chart.zoneNumber', 'zone {number}').replace('{number}', number);
 }
@@ -158,6 +173,17 @@ function process_arr(arr) {
         inclination.push(inclinationel);
     }
 
+    // With the animation off Chart.js 3.4.1 updates only the points up to the first one at the x
+    // axis max (the time of the last point): when the session ends with points of one second, the
+    // ones after the first kept their old place on a resize (full screen, a turn of the phone).
+    // The lines keep the first point of that second
+    let lines = [watts, reqpower, reqcadence, heart, cadence, resistance, reqresistance,
+                 pelotonresistance, pelotonreqresistance, speed, inclination];
+    while (watts.length > 1 && watts[watts.length - 2].x === maxEl) {
+        for (let line of lines)
+            line.pop();
+    }
+
     $('.workoutName').text(workoutName);
     $('.workoutStartDate').text(workoutStartDate);
     $('.instructorName').text((instructorName));
@@ -197,6 +223,19 @@ function process_arr(arr) {
     $('.summary_cadence_avg').text(Math.floor(cadence_avg) + ' ' + t('unit.rpm', 'rpm'));
     $('.summary_cadence_max').text(Math.floor(cadence_max) + ' ' + t('unit.rpm', 'rpm'));
     $('.summary_resistance_avg').text(avgResistance + ' ' + t('unit.level', 'lvl'));
+    // No resistance samples (e.g. a treadmill workout): hide the cell instead of "0 lvl"
+    $('.summary_resistance_avg, td[data-i18n="chart.avgResistance"]').css('visibility', validResistance > 0 ? '' : 'hidden');
+    // Same for the resistance charts: hide a chart without a single value above zero.
+    // The saved workout carries no Peloton resistance, so that chart was always empty here.
+    var hasPelotonResistance = false;
+    for (var r = 0; r < arr.length; r++) {
+        if (arr[r].peloton_resistance > 0)
+            hasPelotonResistance = true;
+    }
+    // Height 0, not display: none: a chart in a display: none box gets a zero size,
+    // and its resize then loops until "Maximum call stack size exceeded"
+    $('[data-history-chart="resistance"]').css({ height: validResistance > 0 ? '' : '0', overflow: 'hidden' });
+    $('[data-history-chart="pelotonResistance"]').css({ height: hasPelotonResistance ? '' : '0', overflow: 'hidden' });
     $('.summary_heart_avg').text(Math.floor(heart_avg) + ' ' + t('unit.bpm', 'bpm'));
     $('.summary_heart_max').text(Math.floor(heart_max) + ' ' + t('unit.bpm', 'bpm'));
     $('.summary_speed_avg').text((speed_avg * miles).toFixed(1) + ' ' + (miles === 1 ? t('unit.kmh', 'km/h') : t('unit.mph', 'mph')));
@@ -208,7 +247,7 @@ function process_arr(arr) {
         const ctx = chart.canvas.getContext('2d');
         ctx.save();
         ctx.globalCompositeOperation = 'destination-over';
-        ctx.fillStyle = 'white';
+        ctx.fillStyle = qzChartTheme.background(chart);
         ctx.fillRect(0, 0, chart.width, chart.height);
         ctx.restore();
       }
@@ -249,11 +288,10 @@ function process_arr(arr) {
             ]
         },
         options: {
-            animation: {
-              onComplete: function() {
-                  // Preview mode - no chart saving
-              }
-            },
+            // A finished workout has no live updates to animate, and Chart.js resolves the animation
+            // of every point of every line (thousands on a long workout) before it draws: no
+            // animation on any chart of the preview, so the page shows the charts at once
+            animation: false,
             responsive: true,
             aspectRatio: 1.5,
             grid: {
@@ -264,9 +302,10 @@ function process_arr(arr) {
                     display:true,
                     text:t('metric.watt', 'Watt')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false
@@ -339,6 +378,11 @@ function process_arr(arr) {
                         }
                       }
             },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
             hover: {
                 mode: 'nearest',
                 intersect: true
@@ -392,7 +436,7 @@ function process_arr(arr) {
     };
 
     let ctx = document.getElementById('canvas').getContext('2d');
-    var powerChart = new Chart(ctx, config);
+    var powerChart = qzChartTheme.create(ctx, config);
 
     const heartChartBottom = 50;
     const heartChartTop = Math.max(heartZones[3] + 10, maxHeartRate + 10, heart_max + 5, 200);
@@ -426,11 +470,7 @@ function process_arr(arr) {
             }]
         },
         options: {
-            animation: {
-              onComplete: function() {
-                  // Preview mode - no chart saving
-              }
-            },
+            animation: false,
             responsive: true,
             aspectRatio: 1.5,
             grid: {
@@ -441,9 +481,10 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.heartRate', 'Heart Rate')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false
@@ -498,6 +539,11 @@ function process_arr(arr) {
                     }
                 },
             },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
             hover: {
                 mode: 'nearest',
                 intersect: true
@@ -549,7 +595,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasHeart').getContext('2d');
-    var heartChart = new Chart(ctx, config);
+    var heartChart = qzChartTheme.create(ctx, config);
 
     config = {
         type: 'line',
@@ -579,11 +625,7 @@ function process_arr(arr) {
             ]
         },
         options: {
-            animation: {
-              onComplete: function() {
-                  // Preview mode - no chart saving
-              }
-            },
+            animation: false,
             responsive: true,
             aspectRatio: 1.5,
             grid: {
@@ -594,14 +636,20 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.resistanceVsTarget', 'Resistance vs Target Resistance')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false,
                     position: 'bottom',
                 },
+            },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',
@@ -649,7 +697,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasResistance').getContext('2d');
-    var resistanceChart = new Chart(ctx, config);
+    var resistanceChart = qzChartTheme.create(ctx, config);
 
     config = {
         type: 'line',
@@ -679,11 +727,7 @@ function process_arr(arr) {
             ]
         },
         options: {
-            animation: {
-              onComplete: function() {
-                  // Preview mode - no chart saving
-              }
-            },
+            animation: false,
             responsive: true,
             aspectRatio: 1.5,
             grid: {
@@ -694,14 +738,20 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.pelotonResistanceVsTarget', 'Peloton Resistance vs Target Peloton Resistance')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false,
                     position: 'bottom',
                 },
+            },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',
@@ -749,7 +799,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasPelotonResistance').getContext('2d');
-    var pelotonresistanceChart = new Chart(ctx, config);
+    var pelotonresistanceChart = qzChartTheme.create(ctx, config);
 
     config = {
         type: 'line',
@@ -779,11 +829,7 @@ function process_arr(arr) {
             ]
         },
         options: {
-            animation: {
-              onComplete: function() {
-                  // Preview mode - no chart saving
-              }
-            },
+            animation: false,
             responsive: true,
             aspectRatio: 1.5,
             grid: {
@@ -794,14 +840,20 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.cadenceVsTarget', 'Cadence vs Target Cadence')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false,
                     position: 'bottom',
                 },
+            },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',
@@ -849,7 +901,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasCadence').getContext('2d');
-    var cadenceChart = new Chart(ctx, config);
+    var cadenceChart = qzChartTheme.create(ctx, config);
 
     config = {
         type: 'bar',
@@ -866,11 +918,7 @@ function process_arr(arr) {
             ]
         },
         options: {
-            animation: {
-              onComplete: function() {
-                  // Preview mode - no chart saving
-              }
-            },
+            animation: false,
             responsive: true,
             aspectRatio: 1.5,
             plugins: {
@@ -878,14 +926,20 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.powerDistribution', 'Power Distribution')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        label: tooltipTimeLabel,
+                    },
                 },
                 legend: {
                     display: false,
                     position: 'right',
                 },
+            },
+            // Chart.js 3: the bar of the zone under the finger anywhere in its column, not only on the bar
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',
@@ -912,7 +966,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasPowerDistribution').getContext('2d');
-    var powerDistributionChart = new Chart(ctx, config);
+    var powerDistributionChart = qzChartTheme.create(ctx, config);
 
     config = {
         type: 'line',
@@ -942,11 +996,7 @@ function process_arr(arr) {
             ]
         },
         options: {
-            animation: {
-              onComplete: function() {
-                  // Preview mode - no chart saving
-              }
-            },
+            animation: false,
             responsive: true,
             aspectRatio: 1.5,
             grid: {
@@ -957,14 +1007,20 @@ function process_arr(arr) {
                     display:true,
                     text:t('chart.speedAndInclination', 'Speed and Inclination')
                 },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTimeTitle,
+                    },
                 },
                 legend: {
                     display: false,
                     position: 'bottom',
                 },
+            },
+            // Chart.js 3: the values of all lines at the time under the finger, not only on a point
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             hover: {
                 mode: 'nearest',
@@ -1012,7 +1068,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasSpeedInclination').getContext('2d');
-    var speedInclinationChart = new Chart(ctx, config);
+    var speedInclinationChart = qzChartTheme.create(ctx, config);
 }
 
 function dochart_init() {
@@ -1091,6 +1147,10 @@ function dochart_init() {
     }, 15000, 3);
     el.enqueue().then(process_arr).catch(function(err) {
         console.error('Error is ' + err);
+    }).then(function() {
+        // The summary and the charts show now, with their numbers (chart.htm, qz-loading).
+        // After a request that failed or timed out, or a failed drawing, too
+        document.documentElement.classList.remove('qz-loading');
     });
 }
 
@@ -1133,8 +1193,4 @@ $(window).on('load', function () {
            {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':19,'elapsed_h':0, 'heart':120, 'resistance': 10, 'req_resistance': 23, 'cadence': 80, 'req_cadence': 97, 'speed': 10, 'inclination': 1, 'workoutName': '45min Power Zone Ride', 'workoutStartDate': '20/12/2021', 'instructorName': "Roberto Viola", 'watts_avg': 200, 'watts_max' : 250, 'heart_avg': 120, 'heart_max' : 150},
             ]
     process_arr(arr);
-});
-
-$(document).ready(function () {
-    $('#loading').hide();
 });

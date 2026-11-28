@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       pr_number:
-        description: Number of the external pull request targeting master
+        description: PR number (external targeting master, or internal stacked PR)
         type: number
         required: true
       publish:
@@ -49,8 +49,11 @@ jobs:
           source_repo="$(jq -r '.head.repo.full_name // empty' <<< "$pr_json")"
           source_sha="$(jq -r '.head.sha' <<< "$pr_json")"
 
-          if [[ "$state" != "open" || "$base" != "master" || -z "$source_repo" ]]; then
-            echo "::error::PR #$PR_NUMBER must be open, have an accessible head, and target master."
+          # External fork PRs must still target master. A stacked PR can
+          # target another branch only when its head belongs to this repo.
+          if [[ "$state" != "open" || -z "$source_repo" ||
+                ( "$base" != "master" && "$source_repo" != "$GITHUB_REPOSITORY" ) ]]; then
+            echo "::error::PR #$PR_NUMBER must be open and target master, unless it is a stacked PR from this repository."
             exit 1
           fi
           if ! [[ "$source_sha" =~ ^[0-9a-f]{40}$ ]]; then

@@ -1,5 +1,11 @@
 # Heart rate
 
+## My heart rate from a Garmin HRM-Pro drops to zero during a workout. What setting should I check?
+
+Open **QZ Settings > Heart Rate Options > Heart Rate Belt Name** and select the detected **HRM-Pro** as the heart-rate source. Then repeat the workout and check whether the heart-rate tile stays live.
+
+In a confirmed support case, selecting the HRM-Pro in this setting stopped recurring zero-value heart-rate dropouts that had appeared around treadmill speed changes. This records the successful setting change; it does not establish that the speed commands caused the dropouts.
+
 ## My bike or treadmill connects to QZ as a heart-rate monitor, and QZ stops receiving its data. What should I try?
 
 Some bikes and treadmills automatically connect to any nearby Bluetooth heart-rate service. If QZ is also advertising its separate virtual heart-rate service, the machine may connect to QZ as if it were a heart-rate monitor, which can interfere with its normal data connection to QZ.
@@ -7,6 +13,12 @@ Some bikes and treadmills automatically connect to any nearby Bluetooth heart-ra
 As a diagnostic step, open **QZ Settings > Heart Rate Options** and turn **off** **Heart Rate service outside FTMS**, then fully close and restart QZ. This suppresses QZ's separate virtual heart-rate service. The virtual FTMS connection remains available; on the iOS virtual treadmill, heart rate is still included in FTMS Treadmill Data.
 
 If another app gets heart rate by pairing to QZ's separate virtual HR sensor, that sensor will no longer be available while this setting is off. If the bike or treadmill still does not send data, restore your previous setting and send a QZ debug log.
+
+**If the machine's metrics freeze only when Virtual Bluetooth Device is enabled:** Keep the virtual trainer enabled for the next diagnostic test rather than permanently disabling it (otherwise a Bluetooth training app cannot discover QZ). With the training app closed, change **Heart Rate service outside FTMS** to suppress the separate HR service, restart QZ completely, and test whether live power/cadence or speed updates when you start and stop moving. If the switch already appears to be in the desired position, record its current state, toggle it, restart, and collect a new debug log to verify the effective configuration.
+
+Also check **Heart Rate Belt Name**. If it is set to the physical fitness machine itself rather than an independent heart-rate sensor, try setting it to **Disabled** as a separate test and restart QZ. QZ's selected-belt discovery path can otherwise attempt an additional BLE connection to the machine. Change one HR setting at a time where possible; only reconnect the training app after confirming that QZ's own metrics remain live.
+
+For diagnosis on the Qt BLE virtual-bike path, `bike_heartrate_service` is passed as `noHeartService` in `main.cpp`: raw `true` suppresses the standalone BLE HR service, while raw `false` permits it in normal virtual-bike mode. This is the internal polarity, not necessarily the UI switch polarity. A log showing an incoming subscription to Heart Rate Measurement (`0x2A37`, service `0x180D`) before the training app subscribes to FTMS Indoor Bike Data (`0x2AD2`) is a useful clue, but it does not by itself identify the connecting device or establish causation. The extra belt-selection test is diagnostic guidance based on the connection code, not a confirmed fix for every machine.
 
 **Confirmed diagnostic result:** In one Domyos Run 500 case, the treadmill automatically selected an available Bluetooth heart-rate service; turning off QZ's separate HR service was part of the configuration in which treadmill data resumed. Another HR-related setting was also changed during that test, so this is a useful troubleshooting step, not proof that it is always the only cause.
 
@@ -69,3 +81,9 @@ QZ can expose a **separate virtual heart-rate sensor** in addition to its virtua
 4. Verify the heart-rate value updates in Zwift during the activity.
 
 In a confirmed treadmill setup, QZ already displayed the chest-strap heart rate and passed it to the treadmill console, but Zwift showed none. Selecting QZ's **virtual HR sensor** in Zwift made heart rate visible in **all three** places. This is a pairing issue, not evidence of a three-device heart-rate limit.
+
+## My Polar H10 was working in QZ on iPad, but heart rate suddenly disappeared. What can I try?
+
+First check that the chest strap is awake and not connected exclusively to another app. If QZ still cannot find the Polar H10, reset the iPad's Bluetooth connection and pair the strap again, then confirm the **Heart** tile updates in QZ before starting ROUVY or another training app.
+
+A rider confirmed that resetting Bluetooth on the iPad and reconnecting the Polar H10 restored heart rate in QZ. This does not establish a fix for unrelated virtual trainer, gearing, or ROUVY connection problems.

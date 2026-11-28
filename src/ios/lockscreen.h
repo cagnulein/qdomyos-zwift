@@ -43,6 +43,7 @@ class lockscreen {
     double virtualbike_getPowerRequested();
     bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance, unsigned short currentCadence, unsigned short currentWatt, unsigned short CrankRevolutions, unsigned short LastCrankEventTime, signed short Gears, unsigned short currentCalories, unsigned int Distance, unsigned char deviceType);
     int virtualbike_getLastFTMSMessage(unsigned char *message);
+    int virtualbike_getLatestFTMSMessage(unsigned char *message);
 
     // virtualrower
     void virtualrower_ios();
@@ -136,6 +137,25 @@ class lockscreen {
 
     // dark appearance of the system (iOS 13+); true before iOS 13
     static bool systemDarkMode();
+
+    // colour of the areas under the status bar and the home indicator, outside the Qt window,
+    // and the status bar text: light on a dark page, dark on a light one. From then on the status bar
+    // stays visible for a full screen window too
+    static void setSystemBarsColor(double red, double green, double blue, bool darkPage);
+
+    // safe area in points, as the UIWindow of Qt has it (status bar and cutout, home indicator),
+    // whatever the geometry of the Qt window inside it, and the size of that UIWindow (the screen, or
+    // the window of the app on an iPad with several apps on the screen)
+    static void safeAreaInsets(double *top, double *bottom, double *left, double *right, double *width,
+                               double *height);
+
+    // callback on the main thread each time UIKit changes the safe area of the view of a Qt window
+    // (status bar shown or hidden, the phone turned, the app window resized on an iPad)
+    static void setSafeAreaChangedCallback(void (*callback)());
+
+    // callback on the main thread each time the system switches between light and dark appearance
+    // (iOS 13+) while the app runs; systemDarkMode() may answer differently then
+    static void setSystemThemeChangedCallback(void (*callback)());
 
     // the share sheet with a file (a saved workout)
     static void shareFile(const char* path);

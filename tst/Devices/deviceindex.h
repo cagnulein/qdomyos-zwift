@@ -104,6 +104,7 @@ public:
     DEFINE_DEVICE(InspireBike, "Inspire Bike");
     DEFINE_DEVICE(KeepBike, "Keep Bike");
     DEFINE_DEVICE(KettlerClassicBike, "Kettler Classic Bike");
+    DEFINE_DEVICE(KettlerCoachRower, "Kettler Coach S Rower");
     DEFINE_DEVICE(KingsmithR1ProTreadmill, "Kingsmith R1 Pro Treadmill");
     DEFINE_DEVICE(KingsmithR2Treadmill, "Kingsmith R2 Treadmill");
     DEFINE_DEVICE(LifeFitnessTreadmill, "Life Fitness Treadmill");
@@ -166,6 +167,7 @@ public:
     DEFINE_DEVICE(ToorxAppGateUSBTreadmill, "Toorx AppGate USB Treadmill");
     DEFINE_DEVICE(TrxAppGateUSBEllipticalIConsole, "Toorx AppGate USB Elliptical IConsole+");
     DEFINE_DEVICE(ToorxTreadmill, "Toorx Treadmill");
+    DEFINE_DEVICE(TrixterXDreambike, "Trixter X-Dream Bike");
     DEFINE_DEVICE(TrueTreadmill, "True Treadmill");
     DEFINE_DEVICE(TrueTreadmill2, "True Treadmill 2");
     DEFINE_DEVICE(TrxAppGateUSBElliptical, "TrxAppGateUSB Elliptical");

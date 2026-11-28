@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="hu_HU">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Bezárás</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -120,6 +127,22 @@
         <translation>Ne kérdezze újra</translation>
     </message>
     <message>
+        <source>Strong signal</source>
+        <translation>Erős jel</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Jó jel</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Közepes jel</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Gyenge jel</translation>
+    </message>
+    <message>
         <source>Choose a heart rate sensor</source>
         <translation>Válasszon pulzusmérőt</translation>
     </message>
@@ -147,6 +170,22 @@
         <translation>Biztosan leállítja az aktuális edzést?</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>Az automatikus ellenállás ki van kapcsolva</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>A QZ most nem változtatja az ellenállást. „Alkalmazás”: az Ellenállás, a Célell. és az előbeállítás-csempék szintjei érvényesek, amíg az automatikus ellenállás ki van kapcsolva. Az alkalmazások (pl. Zwift) parancsait továbbra is figyelmen kívül hagyja.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Alkalmazás</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Automatikus ellenállás bekapcsolása</translation>
+    </message>
+    <message>
         <source>Permissions Required</source>
         <translation>Engedélyek szükségesek</translation>
     </message>
@@ -163,6 +202,14 @@
 Would you like to do that now?</source>
         <translation>A módosítások alkalmazásához újra kell indítania az alkalmazást.
 Szeretné most újraindítani?</translation>
+    </message>
+    <message>
+        <source>Try the new interface?</source>
+        <translation>Kipróbálja az új felületet?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>A QZ főképernyője, oldalsó menüje, beállításai és varázslója új megjelenést kapott. Bármikor visszaválthat a Beállítások &gt; A felület általános beállításai menüpontban.</translation>
     </message>
     <message>
         <source>Adjustable. Current value: </source>
@@ -292,6 +339,14 @@ Szeretné bekapcsolni a szükséges szolgáltatásokat?</translation>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Szeretne a következő alkalommal emlékeztetőt kapni a Bluetooth vagy a helyszolgáltatások bekapcsolásáról?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Vissza az alkalmazásnak</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Visszaadja a terhelés vezérlését az alkalmazásnak</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -342,6 +397,14 @@ Szeretné bekapcsolni a szükséges szolgáltatásokat?</translation>
     <message>
         <source>Not connecting?</source>
         <translation>Nem sikerül csatlakozni?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Az edzőgép nem található</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Kapcsolja be a kerékpárt, a futópadot vagy az evezőgépet, majd az újbóli kereséshez koppintson a felül található Bluetooth-ikonra.</translation>
     </message>
 </context>
 <context>
@@ -1105,6 +1168,10 @@ Szeretné frissíteni a QZ beállításait?</translation>
         <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
         <translation>%1 (pulzusérzékelő) nem található. Ellenőrizd, hogy be van-e kapcsolva és sugározza-e a pulzusadatokat.</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S csatlakoztatva!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1326,6 +1393,21 @@ Szeretné frissíteni a QZ beállításait?</translation>
     </message>
 </context>
 <context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Vásárlás...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Sikeres vásárlás</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Sikertelen vásárlás</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -1501,6 +1583,17 @@ Szeretné frissíteni a QZ beállításait?</translation>
     <message>
         <source>Cancel</source>
         <translation>Mégse</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>A korábbi telepítés fájljainak visszaállítása</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>A korábbi telepítés fájljainak visszaállítása: %1 / %2</translation>
     </message>
 </context>
 <context>
@@ -2044,6 +2137,11 @@ Szeretné frissíteni a QZ beállításait?</translation>
         <translation>Emelkedés (%)</translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>Egy grafikonon:</translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation>Átlagteljesítmény</translation>
@@ -2317,6 +2415,18 @@ Szeretné frissíteni a QZ beállításait?</translation>
     <message>
         <source>1 Mile</source>
         <translation>1 mérföld</translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation>Teljes képernyő</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Kilépés a teljes képernyőből</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>A diagramok közötti váltáshoz pöccintsen balra vagy jobbra</translation>
     </message>
     <message>
         <source>AVG</source>
@@ -2594,6 +2704,18 @@ A következő kérdésekkel a QZ-t az edzőgépéhez és a céljaihoz szabhatja.
     <message>
         <source>Next</source>
         <translation>Tovább</translation>
+    </message>
+    <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Edzőgép, mértékegységek és profil lépésről lépésre</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Válasszon témát, és lépjen közvetlenül a beállításaihoz</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>A varázsló bezárása</translation>
     </message>
     <message>
         <source>Custom Configurations</source>
@@ -2922,12 +3044,12 @@ A következő kérdésekkel a QZ-t az edzőgépéhez és a céljaihoz szabhatja.
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Edzések importálása...</translation>
+        <translation type="vanished">Edzések importálása...</translation>
     </message>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Edzésfájlok feldolgozása...
+        <translation type="vanished">Edzésfájlok feldolgozása...
 Az első indításkor ez eltarthat néhány pillanatig.</translation>
     </message>
     <message>
@@ -3051,8 +3173,40 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <translation>Szűrés dátum szerint</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Naptár</translation>
+    </message>
+    <message>
         <source>Import workouts</source>
         <translation>Edzések importálása</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>Edzések hozzáadása az előzményekhez</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Edzésfájlok másolása</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Edzések hozzáadása az előzményekhez: %1 / %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Edzésfájlok másolása: %1 / %2</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>Ezen a napon nincs edzés</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Még nincs edzés</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>A befejezett edzések itt jelennek meg: nyisson meg egyet a diagramjai megtekintéséhez.</translation>
     </message>
     <message>
         <source>Open on Peloton</source>
@@ -3144,9 +3298,25 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <source>Offset</source>
         <translation>Eltolás</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>%1. fokozat eltolásának csökkentése</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>%1. fokozat eltolásának növelése</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Csökkentés: %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Növelés: %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Egyéni emelkedés–ellenállás táblázat bekapcsolása</translation>
@@ -3162,6 +3332,10 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
     <message>
         <source>Resistance</source>
         <translation>Ellenállás</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Pont törlése (emelkedés: %1)</translation>
     </message>
     <message>
         <source>Add Point</source>
@@ -3249,6 +3423,10 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
 </context>
 <context>
     <name>homeform</name>
+    <message>
+        <source>No enabled metrics</source>
+        <translation>Nincs engedélyezett mérőszám</translation>
+    </message>
     <message>
         <source>Speed (%1/h)</source>
         <translation>Sebesség(%1/h)</translation>
@@ -3820,6 +3998,10 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <translation>Eszköz keresése...</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Csatlakozás: %1...</translation>
+    </message>
+    <message>
         <source>%1 found</source>
         <translation>Megtalálva: %1</translation>
     </message>
@@ -4172,9 +4354,17 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>A QZ fut</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>A Bluetooth ki van kapcsolva</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Lebegő mérőszámok (kép a képben)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -4408,6 +4598,10 @@ A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translati
     <message>
         <source>Settings</source>
         <translation>Beállítások</translation>
+    </message>
+    <message>
+        <source>Try the new interface</source>
+        <translation>Az új felület kipróbálása</translation>
     </message>
     <message>
         <source>Workouts History</source>
@@ -4696,6 +4890,26 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
 Engedélyezi, hogy a QZ módosítsa ezt az értéket?
 
 „Nem”: a QZ bekapcsolja a „Kerékátmérő-protokoll nélkül” lehetőséget (Beállítások &gt; Kerékpár beállításai &gt; Wahoo beállításai), és a virtuális fokozatok a meredekségen keresztül működnek. „Igen” esetén ezt később ugyanott visszavonhatja: kapcsolja be ezt a lehetőséget, majd csatlakoztatott edzőgép mellett koppintson az „Alapértelmezett beállítás visszaállítása az edzőgépen” gombra.</translation>
+    </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>A szimulált eszköz (%1) aktív. Ha ez nem volt szándékos, kapcsold ki a Beállításokban.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Kerékpár</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Futópad</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Elliptikus tréner</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Evezőpad</translation>
     </message>
 </context>
 <context>
@@ -5061,6 +5275,42 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
         <translation>A diagram sorszáma az edzéselőzményekben. A sorrend a felület általános beállításaiban, a fel és le gombokkal módosítható.</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Beállítás visszaállítva</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Visszaállított beállítások: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Összes visszaállítása</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Visszaállítja a módosított beállításokat?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Az alapértelmezett értékre visszaálló beállítások: %1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Visszaállítás</translation>
+    </message>
+    <message>
+        <source>Reset section?</source>
+        <translation>Visszaállítja a szakaszt?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>%1 beállítás visszaáll az alapértelmezett értékére itt: „%2”.</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Szakasz visszaállítása</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -6260,8 +6510,8 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
         <translation>Garmin Bluetooth-érzékelő</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Ha Mac gépről szeretne mérőszámokat küldeni a Garmin-eszközére, kapcsolja be. Egyébként hagyja kikapcsolva.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>A Garmin vagy más sportóra Bluetooth-érzékelőként használhatja a QZ-t: futópaddal lépésérzékelőként, kerékpárral teljesítménymérőként (Androidon kapcsolja be a „Kerékpár-teljesítményérzékelő” beállítást is). Az órát Bluetooth-on párosítani kell azzal a telefonnal vagy táblagéppel, amelyen a QZ fut: ha nem találja a QZ-t, párosítsa őket egyszer, majd adja hozzá az érzékelőt az órán, és fogadja el a párosítási kérést. Ha ugyanazon a telefonon a Garmin Connect össze van kapcsolva az órával, kényszerítse leállásra kétszer-háromszor egymás után, amíg az óra csatlakozik; egyszerűbb egy külön telefon vagy táblagép Garmin Connect nélkül. Amíg a QZ érzékelőként működik az órához, a Bluetooth-on csatlakozó Zwift csak lépésérzékelőként vagy teljesítménymérőként látja, nem vezérelhető gépként.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -7067,6 +7317,14 @@ Please enter it below:</source>
         <translation>Strava-címke virtuális tevékenységhez</translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Szintetikus GPS-útvonal Stravához</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Szintetikus GPS-nyomvonalat ad a GPS nélküli virtuális tevékenységekhez. A Strava így megjelenítheti a szintemelkedést, de az útvonal nem valós.</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation>Hozzáadja a virtuális címkét a Strava-tevékenységhez.</translation>
     </message>
@@ -7193,6 +7451,14 @@ FONTOS MEGJEGYZÉSEK:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>Okosgörgőknél ellenállást használ emelkedés helyett. Ez akkor segít, ha nem szeretné, hogy a Wahoo Climb vagy hasonló eszköz fokozatváltáskor módosítsa az emelkedést. Alapértelmezett: ki.</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>Ellenállás-kompatibilitás</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Kapcsold be, ha a QZ-ben állított ellenállás a kerékpárt csak az 1. vagy a maximális szintre állítja. Az FTMS-ellenállást tízszeres értékként küldi. Alapértelmezés: kikapcsolva.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>
@@ -8395,6 +8661,75 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
         <translation>Kísérleti: fokozatosan korrigálja a QZ által vezérelt futópad sebességét a Runn/Stryd visszajelzése alapján, ha az illesztőprogram független mérést ad a gép sebességéről. Szükséges hozzá a „Sebesség a teljesítményérzékelőtől” beállítás. Alapértelmezett: ki.</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Modern felület</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>A főképernyő, az oldalsó menü, a beállítások és a varázsló új megjelenése. Kapcsolja ki, ha vissza szeretné kapni a klasszikus megjelenést.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Megjelenés</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Mint a telefonon</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Sötét</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Világos</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Téma</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Grafit</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Fekete / fehér</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Éjkék</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Kiemelőszín</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Ibolya</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Kék</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Kékeszöld</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Zöld</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Narancs</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Rózsaszín</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Csempeméret:</translation>
     </message>
@@ -8545,6 +8880,18 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>GPX-edzéseknél az ennél kisebb dőlésszög-változásokat figyelmen kívül hagyja. Új parancsot csak akkor küld, ha az utoljára küldött értékhez képest a változás eléri a megadott küszöböt. Alapértelmezés: 0 (kikapcsolva).</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Konzol fokozatainak használata</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Futópad-kalória séta/futás modellből</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Olyan futópadokhoz, amelyek konzolja nem küld kalóriát. A kalória a szalag sebességéből, az emelkedésből, valamint a testsúlyodból, magasságodból, életkorodból és nemedből számolódik: a séta–futás váltási sebességed (a magasságod alapján) alatt sétamodellel, felette futómodellel. Kapcsold ki, ha inkább a teljesítmény alapú értéket használnád. A konzol kalóriája, egy külső teljesítménymérő (Stryd stb.) és a Kalória számítása pulzusból (ha be van kapcsolva) továbbra is elsőbbséget élvez.</translation>
     </message>
 </context>
 <context>

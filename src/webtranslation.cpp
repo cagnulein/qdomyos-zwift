@@ -151,6 +151,8 @@ const WebTranslationEntry entries[] = {
     {"chart.value", QT_TRANSLATE_NOOP("WebTranslations", "Value")},
     {"chart.cadenceRpmUpper", QT_TRANSLATE_NOOP("WebTranslations", "Cadence (RPM)")},
     {"chart.inclinationPercent", QT_TRANSLATE_NOOP("WebTranslations", "Inclination (%)")},
+    //: Workout charts: before the chips that put the selected metrics together on one chart.
+    {"chart.onOneChart", QT_TRANSLATE_NOOP("WebTranslations", "On one chart:")},
     //: Chart summary: average power during the workout, in watts.
     {"chart.avgOutput", QT_TRANSLATE_NOOP("WebTranslations", "Avg Output")},
     //: Chart summary: maximum power during the workout, in watts.
@@ -205,6 +207,9 @@ const WebTranslationEntry entries[] = {
     {"chart.pace10k", QT_TRANSLATE_NOOP("WebTranslations", "10K")},
     {"chart.pace5k", QT_TRANSLATE_NOOP("WebTranslations", "5K")},
     {"chart.pace1Mile", QT_TRANSLATE_NOOP("WebTranslations", "1 Mile")},
+    {"chart.fullScreen", QT_TRANSLATE_NOOP("WebTranslations", "Full screen")},
+    {"chart.exitFullScreen", QT_TRANSLATE_NOOP("WebTranslations", "Exit full screen")},
+    {"chart.swipeHint", QT_TRANSLATE_NOOP("WebTranslations", "Swipe left or right to switch charts")},
     {"floating.pelotonWorkoutProgress", QT_TRANSLATE_NOOP("WebTranslations", "Peloton Workout in progress!")},
     {"floating.followResistanceQuestion", QT_TRANSLATE_NOOP("WebTranslations", "Do you want to follow the resistance?")},
     {"floating.avg", QT_TRANSLATE_NOOP("WebTranslations", "AVG")},

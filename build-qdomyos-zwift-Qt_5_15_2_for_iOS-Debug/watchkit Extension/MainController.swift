@@ -7,6 +7,7 @@
 //
 
 import WatchKit
+import SwiftUI
 import HealthKit
 import CoreMotion
 
@@ -21,6 +22,7 @@ class MainController: WKInterfaceController {
     static var start: Bool! = false
     let pedometer = CMPedometer()
     var sport: Int = 0
+    private var stopConfirmationPresented = false
     
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
@@ -91,12 +93,32 @@ extension MainController {
             presentAlert(withTitle: "Start Workout", message: "Start \(workoutName) workout?", preferredStyle: .alert, actions: [cancelAction, startAction])
         }
         else {
-            MainController.start = false
-            startButton.setTitle("Start")
-            cmbSports.setEnabled(true)
-            cmbSports.setHidden(false)
-            WorkoutTracking.shared.stopWorkOut()
+            guard !stopConfirmationPresented else { return }
+            stopConfirmationPresented = true
+            let saveAction = WKAlertAction(title: "Save to Apple Health", style: .default) { [weak self] in
+                self?.finishWorkout(saveToHealth: true)
+            }
+            let discardAction = WKAlertAction(title: "Don't Save", style: .destructive) { [weak self] in
+                self?.finishWorkout(saveToHealth: false)
+            }
+            let cancelAction = WKAlertAction(title: "Cancel", style: .cancel) { [weak self] in
+                self?.stopConfirmationPresented = false
+            }
+            presentAlert(withTitle: "End Workout",
+                         message: "Save this workout to Apple Health?",
+                         preferredStyle: .alert,
+                         actions: [saveAction, discardAction, cancelAction])
         }
+    }
+
+    private func finishWorkout(saveToHealth: Bool) {
+        stopConfirmationPresented = false
+        guard MainController.start else { return }
+        MainController.start = false
+        startButton.setTitle("Start")
+        cmbSports.setEnabled(true)
+        cmbSports.setHidden(false)
+        WorkoutTracking.shared.stopWorkOut(saveToHealth: saveToHealth)
     }
 }
 
@@ -150,4 +172,13 @@ extension Locale
    {
       return (self as NSLocale).object(forKey: NSLocale.Key.measurementSystem) as? String
    }
+}
+
+// A dedicated, full-screen native music page. This controls whatever is
+// playing on the watch or its paired iPhone, without changing QZ's workout.
+// MusicKit's SystemMusicPlayer is not available on watchOS.
+final class NowPlayingController: WKHostingController<NowPlayingView> {
+    override var body: NowPlayingView {
+        NowPlayingView()
+    }
 }

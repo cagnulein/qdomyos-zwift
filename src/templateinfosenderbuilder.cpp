@@ -26,6 +26,7 @@
 #include "tcpclientinfosender.h"
 #include "trainprogram.h"
 #include "zwiftworkout.h"
+#include "workoutimport.h"
 #include "qzsettings.h"
 #include <chrono>
 
@@ -533,7 +534,8 @@ void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue &msgCont
     // The Workout Editor needs to see workouts saved in source/type subfolders
     // such as ride/Garmin and run/Garmin, not only files in training/.
     QDirIterator it(fullPath,
-                    QStringList() << QStringLiteral("*.xml") << QStringLiteral("*.zwo"),
+                    QStringList() << QStringLiteral("*.xml") << QStringLiteral("*.zwo")
+                                  << QStringLiteral("*.fit") << QStringLiteral("*.FIT"),
                     QDir::Files | QDir::NoDotAndDotDot,
                     QDirIterator::Subdirectories);
     QList<QFileInfo> files;
@@ -574,8 +576,26 @@ void TemplateInfoSenderBuilder::onGetTrainingProgram(const QJsonValue &msgConten
     QJsonArray outArr;
     QJsonObject outObj;
     QString fileXml;
-    if (homeform::singleton() && homeform::singleton()->trainingProgram()) {
-        QList<trainrow> lst = homeform::singleton()->trainingProgram()->loadedRows;
+    QList<trainrow> lst;
+    BLUETOOTH_TYPE programDevice = UNKNOWN;
+    const QString requestedUrl = msgContent.toObject().value(QStringLiteral("url")).toString();
+    if (!requestedUrl.isEmpty()) {
+        // Read a FIT for editing without replacing the active workout or requiring a matching device.
+        // Accept only files inside the training directory, including its subfolders.
+        const QString root = QDir(homeform::getWritableAppDir() + QStringLiteral("training")).canonicalPath();
+        const QFileInfo info(QQmlFile::urlToLocalFileOrQrc(QUrl(requestedUrl)));
+        const QString path = info.canonicalFilePath();
+        if (!root.isEmpty() && !path.isEmpty() && info.isFile() &&
+            path.startsWith(root + QStringLiteral("/")) &&
+            info.suffix().compare(QStringLiteral("FIT"), Qt::CaseInsensitive) == 0) {
+            lst = workoutimport::load(path, QStringLiteral("FIT"), nullptr, &programDevice);
+            fileXml = QDir(root).relativeFilePath(path);
+        }
+    } else if (homeform::singleton() && homeform::singleton()->trainingProgram()) {
+        lst = homeform::singleton()->trainingProgram()->loadedRows;
+        programDevice = homeform::singleton()->trainingProgram()->loadedDeviceType;
+    }
+    if (!lst.isEmpty()) {
         int idx = 0;
         while (idx < lst.size()) {
             const trainrow &curRow = lst[idx];
@@ -629,8 +649,7 @@ void TemplateInfoSenderBuilder::onGetTrainingProgram(const QJsonValue &msgConten
                 idx++;
             }
         }
-        outObj[QStringLiteral("device")] =
-            trainprogram::deviceTypeToXmlKey(homeform::singleton()->trainingProgram()->loadedDeviceType);
+        outObj[QStringLiteral("device")] = trainprogram::deviceTypeToXmlKey(programDevice);
     }
     outObj[QStringLiteral("list")] = outArr;
     outObj[QStringLiteral("name")] = fileXml;
@@ -658,7 +677,11 @@ void TemplateInfoSenderBuilder::onTrainingProgramPreview(const QJsonValue &msgCo
     QJsonObject main;
     QJsonObject outObj;
 
-    if (zwiftworkout::isZwiftWorkoutFile(filePath, extension)) {
+    if (extension == QStringLiteral("FIT")) {
+        BLUETOOTH_TYPE fitDevice = UNKNOWN;
+        rows = workoutimport::load(filePath, extension, &description, &fitDevice);
+        outObj[QStringLiteral("device")] = trainprogram::deviceTypeToXmlKey(fitDevice);
+    } else if (zwiftworkout::isZwiftWorkoutFile(filePath, extension)) {
         rows = zwiftworkout::load(filePath, &description, &tags);
     } else {
         const BLUETOOTH_TYPE fallback = device ? device->deviceType() : BIKE;
@@ -1035,10 +1058,24 @@ void TemplateInfoSenderBuilder::onGetPreviewSessionArray(TemplateInfoSender *tem
     tempSender->send(out.toJson());
 }
 
-void TemplateInfoSenderBuilder::onGetSessionArray(TemplateInfoSender *tempSender) {
+void TemplateInfoSenderBuilder::onGetSessionArray(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     QJsonObject main;
-    main[QStringLiteral("content")] = sessionArray;
-    main[QStringLiteral("msg")] = QStringLiteral("R_getsessionarray");
+    // {"from": n} asks only for the points from index n on (the live update of the charts page):
+    // the whole session of a long workout is megabytes. A part has its own answer name with
+    // "from": the answer goes to every open page, and the other pages take R_getsessionarray
+    // as the whole session
+    int from = msgContent.toObject().value(QStringLiteral("from")).toInt(-1);
+    if (from >= 0 && from <= sessionArray.size()) {
+        QJsonArray part;
+        for (int i = from; i < sessionArray.size(); i++)
+            part.append(sessionArray.at(i));
+        main[QStringLiteral("content")] = part;
+        main[QStringLiteral("from")] = from;
+        main[QStringLiteral("msg")] = QStringLiteral("R_getsessionarraypart");
+    } else {
+        main[QStringLiteral("content")] = sessionArray;
+        main[QStringLiteral("msg")] = QStringLiteral("R_getsessionarray");
+    }
     QJsonDocument out(main);
     tempSender->send(out.toJson());
 }
@@ -1187,11 +1224,20 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
             if (row.contains(QStringLiteral("cadence"))) {
                 tR.cadence = row[QStringLiteral("cadence")].toInt();
             }
+            if (row.contains(QStringLiteral("lower_cadence"))) {
+                tR.lower_cadence = row[QStringLiteral("lower_cadence")].toInt();
+            }
+            if (row.contains(QStringLiteral("upper_cadence"))) {
+                tR.upper_cadence = row[QStringLiteral("upper_cadence")].toInt();
+            }
             if (row.contains(QStringLiteral("mets"))) {
                 tR.mets = row[QStringLiteral("mets")].toInt();
             }
             if (row.contains(QStringLiteral("forcespeed"))) {
                 tR.forcespeed = row.value(QStringLiteral("forcespeed")).toVariant().toBool();
+            }
+            if (row.contains(QStringLiteral("waitForLap"))) {
+                tR.waitForLap = row.value(QStringLiteral("waitForLap")).toBool();
             }
             if (row.contains(QStringLiteral("loopTimeHR"))) {
                 tR.loopTimeHR = row[QStringLiteral("loopTimeHR")].toInt();
@@ -1249,6 +1295,9 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
     if (!dir.exists()) {
         dir.mkpath(QStringLiteral("."));
     }
+    // Explicit Save on a FIT creates an editable XML copy; never replace an unrelated XML.
+    if (content.value(QStringLiteral("sourceFit")).toBool())
+        fileName = uniqueTrainingProgramName(trainingDir, fileName);
     outObj[QStringLiteral("name")] = fileName;
     if (trainprogram::saveXML(trainingDir + fileName + QStringLiteral(".xml"), trainRows, programDevice)) {
         outObj[QStringLiteral("list")] = trainRows.size();
@@ -1359,6 +1408,7 @@ void TemplateInfoSenderBuilder::onDeleteTrainingProgram(const QJsonValue &msgCon
             if (markerFile.open(QIODevice::WriteOnly)) {
                 markerFile.write("This file was intentionally deleted by the user");
                 markerFile.close();
+                homeform::hideDeletionMarker(markerPath);
                 qDebug() << "onDeleteTrainingProgram: created deletion marker at" << markerPath;
             } else {
                 qDebug() << "onDeleteTrainingProgram: failed to create deletion marker at" << markerPath;
@@ -1690,7 +1740,7 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                     onAutoresistance(jsonObject[QStringLiteral("content")], sender);
                     return;
                 } else if (msg == QStringLiteral("getsessionarray")) {
-                    onGetSessionArray(sender);
+                    onGetSessionArray(jsonObject[QStringLiteral("content")], sender);
                     return;
                 } else if (msg == QStringLiteral("getpreviewsessionarray")) {
                     onGetPreviewSessionArray(sender);

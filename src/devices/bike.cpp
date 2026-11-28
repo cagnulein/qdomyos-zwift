@@ -56,6 +56,54 @@ bool bike::targetPowerOverridesExternalApp(qint64 lastAppFrame, qint64 now, bool
     return autoResistance && externalControllerActive && !appErgMode;
 }
 
+bool bike::targetPowerReleaseAvailable() {
+    return targetPowerReleaseSupported() && m_targetPowerOverrideActive && autoResistanceEnable &&
+           m_lastAppCommand != AppCommand::None;
+}
+
+void bike::changeResistanceFromApp(resistance_t resistance) {
+    m_lastAppCommand = AppCommand::Resistance;
+    m_lastAppResistance = resistance;
+    // with auto resistance off changeResistance() only records the request, as before
+    if (targetPowerReleaseSupported() && m_targetPowerOverrideActive && autoResistanceEnable) {
+        qDebug() << QStringLiteral("app resistance kept for Return to app, target power tile in control")
+                 << resistance;
+        return;
+    }
+    changeResistance(resistance);
+}
+
+void bike::rememberAppPower(int32_t power) {
+    m_lastAppCommand = AppCommand::Power;
+    m_lastAppPower = power;
+}
+
+bool bike::releaseTargetPowerToApp() {
+    m_targetPowerOverrideActive = false;
+    QSettings settings;
+    if (m_lastAppCommand == AppCommand::Resistance) {
+        qDebug() << QStringLiteral("Return to app: app resistance restored") << m_lastAppResistance;
+        settings.setValue(QZSettings::zwift_erg, false);
+        changeResistance(m_lastAppResistance);
+        return true;
+    }
+    if (m_lastAppCommand == AppCommand::Power) {
+        qDebug() << QStringLiteral("Return to app: app target power restored") << m_lastAppPower;
+        settings.setValue(QZSettings::zwift_erg, true);
+        changePower(m_lastAppPower);
+        return true;
+    }
+    qDebug() << QStringLiteral("Return to app: no app command to restore");
+    return false;
+}
+
+void bike::forgetAppCommand() {
+    if (m_lastAppCommand != AppCommand::None) {
+        qDebug() << QStringLiteral("app disconnected: stored app command dropped");
+    }
+    m_lastAppCommand = AppCommand::None;
+}
+
 virtualbike *bike::VirtualBike() { return dynamic_cast<virtualbike*>(this->VirtualDevice()); }
 
 void bike::changeResistance(resistance_t resistance) {
@@ -104,6 +152,19 @@ uint16_t bike::powerFromResistanceRequest(resistance_t requestResistance) {
 
 void bike::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
 void bike::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
+int32_t bike::powerTargetWithExternalSensorDelta(int32_t target, double referencePower,
+                                                  double externalPower, double maxDifference) {
+    if (target <= 0 || referencePower <= 0 || externalPower <= 0 || maxDifference <= 0 ||
+        !std::isfinite(referencePower) || !std::isfinite(externalPower)) {
+        return target;
+    }
+
+    const double delta = referencePower - externalPower;
+    if (std::abs(delta) >= maxDifference)
+        return target;
+    return static_cast<int32_t>(target + delta);
+}
+
 void bike::changePower(int32_t power) {
 
     RequestedPower = power; // in order to paint in any case the request power on the charts
@@ -129,10 +190,15 @@ void bike::changePower(int32_t power) {
 
     requestPower = power; // used by some bikes that have ERG mode builtin
     
-    if(power_sensor && ergModeSupported && m_rawWatt.value() > 0 && m_watt.value() > 0 && fabs(requestPower - m_watt.average5s()) < qMax(erg_filter_upper, erg_filter_lower)) {
-        qDebug() << "applying delta watt to power request m_rawWatt" << m_rawWatt.average5s() << "watt" << m_watt.average5s() << "req" << requestPower;
-        // the concept here is to trying to add or decrease the delta from the power sensor
-        requestPower += (requestPower - m_watt.average5s());
+    if (power_sensor && ergModeSupported && m_rawWatt.value() > 0 && m_watt.value() > 0) {
+        // Preserve the existing FTMS delta/threshold calculation, now shared with Tacx-style trainers.
+        const int32_t corrected = powerTargetWithExternalSensorDelta(
+            requestPower, requestPower, m_watt.average5s(), qMax(erg_filter_upper, erg_filter_lower));
+        if (corrected != requestPower) {
+            qDebug() << "applying delta watt to power request m_rawWatt" << m_rawWatt.average5s()
+                     << "watt" << m_watt.average5s() << "req" << requestPower;
+            requestPower = corrected;
+        }
     }
         
     bool force_resistance =

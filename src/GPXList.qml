@@ -179,9 +179,28 @@ ColumnLayout {
             Layout.preferredWidth: 100
             Layout.preferredHeight: gpxPage.sideBySide ? -1 : gpxPage.height * 0.4
 
+            // The restore of a previous install above the list, which moves down for that time: in
+            // the cell of the list, not a row of its own. Side by side the map spans the rows on the
+            // right, and a row it spans is kept and given a share of its height even with nothing
+            // else in it (QGridLayoutEngine::fillRowData), so a hidden progress there would leave an
+            // empty gap above the list. In portrait the cell keeps its height, so the map does not move
+            UiProgress {
+                id: modernProgress
+                shown: window.ui.modern
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.leftMargin: gpxPage.modernMargin
+                anchors.rightMargin: gpxPage.modernRightMargin
+                done: rootItem.folderRestoreDone
+                total: rootItem.folderRestoreTotal
+            }
+
             ListView {
                 id: modernList
                 anchors.fill: parent
+                // the gap under the progress is its own (UiProgress)
+                anchors.topMargin: modernProgress.height
                 anchors.leftMargin: gpxPage.modernMargin
                 anchors.rightMargin: gpxPage.modernRightMargin
                 clip: true
@@ -292,8 +311,10 @@ ColumnLayout {
                     // On the list itself: children of a ListView land in its content item, empty here
                     parent: modernList
                     anchors.centerIn: parent
-                    // only once the folder is read: the model fills in asynchronously
+                    // only once the folder is read: the model fills in asynchronously; not while a
+                    // restore copies the files of a previous install into it
                     visible: modernList.count === 0 && folderModel.status === FolderListModel.Ready
+                             && rootItem.folderRestoreTotal === 0
                     text: qsTr("No GPX files here")
                     color: window.ui.textMuted
                 }
@@ -334,6 +355,17 @@ ColumnLayout {
                 }
             }
 
+            // the restore of a previous install: above the list, which moves down for that time
+            UiProgress {
+                shown: !window.ui.modern
+                Layout.fillWidth: true
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+                topPadding: 8
+                done: rootItem.folderRestoreDone
+                total: rootItem.folderRestoreTotal
+            }
+
             ListView {
                 Layout.fillWidth: true
                 Layout.minimumWidth: 50
@@ -345,7 +377,7 @@ ColumnLayout {
                 FolderListModel {
                     id: folderModel
                     nameFilters: ["*.gpx", "*.GPX"]
-                    folder: "file://" + rootItem.getWritableAppDir() + 'gpx'
+                    folder: rootItem.localFileUrl(rootItem.getWritableAppDir() + 'gpx')
                     showDotAndDotDot: false
                     showDirs: true
                     sortField: "Name"
@@ -540,9 +572,26 @@ ColumnLayout {
                         line.width: window.ui.modern ? 4 : 3
                         line.color: window.ui.modern ? window.ui.accent : 'red'
                     }
+                    // Modern look: rounded corners, 16 like the cards. Qt Quick clips to rectangles
+                    // only, so a radius on a parent does not round the map; a frame in the page colour
+                    // over the map covers the corners instead (a layer mask would render the map into
+                    // a texture on every frame of a pan). The inner edge of the frame is the corner;
+                    // the outer part lies outside the map, which clips its children. The copyright notice
+                    // of the map stays on top: the map puts it above all its map items (z 1 over this z 0).
+                    Rectangle {
+                        visible: window.ui.modern
+                        anchors.fill: parent
+                        anchors.margins: -border.width
+                        // 8 is enough: the outer arc (radius 24) still covers the corner of the map
+                        border.width: 8
+                        border.color: window.ui.bg
+                        radius: 16 + border.width
+                        color: "transparent"
+                    }
                     Component.onCompleted: {
                         console.log("Dimensions: ", width, height)
                     }
+                    onMapReadyChanged: row.fitRoute()
                 }
 
                 function loadPath(){
@@ -560,17 +609,40 @@ ColumnLayout {
                     return lines;
                 }
 
+                // Room around the route, in pixels: the copyright notice of the map covers its bottom
+                // edge. fitViewportToGeoShape takes one margin for all four sides.
+                readonly property int routeMargin: 24
+
+                // Show the whole route: the map takes the bounding box of the track instead of a fixed
+                // zoom level. Before the map is ready (mapReady) it has no size to fit into, and
+                // onMapReadyChanged does the fit. Not visibleRegion for that: its queued fit runs after
+                // mapReadyChanged and would replace routeMargin with the default margin
+                // (QDeclarativeGeoMap::geometryChanged). Not fitViewportToMapItems: it fits the on-screen
+                // size of the items (QTBUG-65646).
+                function fitRoute() {
+                    if (!map.mapReady || pathController.geopath.size() < 2)
+                        return
+                    map.fitViewportToGeoShape(pathController.geopath, routeMargin)
+                }
+
                 Connections{
                     target: pathController
                     onGeopathChanged: {
                         pl.path = row.loadPath();
+                        row.fitRoute();
                     }
+                    // the new center comes after the new path (homeform::gpxpreview_open_clicked) and moves
+                    // the map off the fitted view: fit again
                     onCenterChanged: {
                         map.center = pathController.center;
+                        row.fitRoute();
                     }
                 }
 
-                Component.onCompleted: pl.path = loadPath()
+                Component.onCompleted: {
+                    pl.path = loadPath()
+                    fitRoute()
+                }
             }
         }
 
@@ -606,6 +678,12 @@ ColumnLayout {
                 Layout.fillHeight: true
                 wrapsText: true
                 visible: rootItem.qzFolderRestorable && !rootItem.qzFolderGrantSaved
+                // greyed out while a restore runs: a second one is refused
+                // (CustomQtActivity.openRestoreFolderPicker); hidden after it, with the grant
+                enabled: rootItem.folderRestoreTotal === 0
+                // Qt 5.15 does not report a disabled item to TalkBack (fixed in Qt 6 by
+                // qtdeclarative 20fd2902a6): left in, it would be read as a button that works
+                Accessible.ignored: !enabled
                 text: qsTr("Restore files")
                 onClicked: rootItem.offerFolderRestore()
             }
@@ -631,6 +709,12 @@ ColumnLayout {
             Layout.fillWidth: true
             Layout.preferredHeight: 50
             visible: rootItem.qzFolderRestorable && !rootItem.qzFolderGrantSaved
+            // greyed out while a restore runs: a second one is refused
+            // (CustomQtActivity.openRestoreFolderPicker); hidden after it, with the grant
+            enabled: rootItem.folderRestoreTotal === 0
+            // Qt 5.15 does not report a disabled item to TalkBack (fixed in Qt 6 by
+            // qtdeclarative 20fd2902a6): left in, it would be read as a button that works
+            Accessible.ignored: !enabled
             text: qsTr("Restore files")
             onClicked: rootItem.offerFolderRestore()
         }

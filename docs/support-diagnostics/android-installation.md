@@ -76,3 +76,21 @@
 ### Why it matters
 
 - Android system logs may expose serial-port access or process conflicts when QZ's own logging is unavailable.
+
+## QZ on a console shows live metrics, but a second QZ instance cannot connect
+
+### Provide first
+
+- Identify the console hardware, exact console APK variant and build, and the platform/build of the second QZ instance. Describe which instance connects to the physical machine and which is expected to connect to a published virtual device.
+- Confirm that cadence/power (bike) or speed/incline (treadmill) are already live on the console before attempting the second connection.
+- For NordicTrack/ProForm bike installations, report **TDF Companion IP** separately on the console and the receiving phone/computer; distinguish a local `localhost` value used by the FitPro console from a saved legacy Companion IP on the receiver. Screenshot the receiver's **Manual Device** selection and the actual virtual-device name it discovers.
+
+### If still unclear
+
+- If the receiver is intended to connect to the console's QZ virtual device rather than legacy Companion, compare a receiver-only restart with the old Companion IP cleared and the intended advertised virtual device selected. Leave the working console settings unchanged; do not clear a Companion IP that is required by an intentionally different setup.
+- Record whether the receiver obtains live metrics before opening any other training app. If it still fails, collect a receiver debug log from startup through discovery and pairing, and a corresponding console log if its publishing stage is uncertain.
+
+### Why it matters
+
+- The legacy Companion IP can select a different connection path before discovery of the intended virtual device. In a confirmed console-to-Mac case, clearing the receiver's old IP and selecting the virtual device restored cadence and power without changing the console.
+- A working direct-console hardware link does not establish that its virtual-device client works; resolving those stages independently avoids changing a healthy USB connection. See the [NordicTrack/ProForm console FAQ](../faq/nordictrack-ifit.md) for the separate console setup requirements.

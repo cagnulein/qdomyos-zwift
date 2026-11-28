@@ -951,6 +951,7 @@ void lifefitnesstreadmill::characteristicChanged(const QLowEnergyCharacteristic 
             emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         }
         if (data.hasEnergy) {
+            caloriesFromConsole = true; // the console reports the calories (treadmill calorie model)
             KCal = data.totalEnergyKcal;
         } else if (firstDistanceCalculated && watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) {
             KCal += ((((0.048 *
@@ -1090,6 +1091,7 @@ void lifefitnesstreadmill::characteristicChanged(const QLowEnergyCharacteristic 
         }
 
         if (Flags.expEnergy && newValue.length() > index + 1) {
+            caloriesFromConsole = true; // the console reports the calories (treadmill calorie model)
             KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                              (uint16_t)((uint8_t)newValue.at(index))));
             index += 2;

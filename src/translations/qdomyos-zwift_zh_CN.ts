@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="zh_CN">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>关闭</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -120,6 +127,22 @@
         <translation>不再询问</translation>
     </message>
     <message>
+        <source>Strong signal</source>
+        <translation>信号强</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>信号良好</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>信号一般</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>信号弱</translation>
+    </message>
+    <message>
         <source>Choose a heart rate sensor</source>
         <translation>选择心率传感器</translation>
     </message>
@@ -149,6 +172,22 @@
     <message>
         <source>Stop</source>
         <translation>停止</translation>
+    </message>
+    <message>
+        <source>Auto Resistance is off</source>
+        <translation>自动阻力已关闭</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ 当前不会改变阻力。“应用”：阻力、目标阻力和预设磁贴的档位在自动阻力关闭期间生效。来自应用（例如 Zwift）的指令仍会被忽略。</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>应用</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>开启自动阻力</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -273,6 +312,14 @@ Would you like to do that now?</source>
 现在是否重启？</translation>
     </message>
     <message>
+        <source>Try the new interface?</source>
+        <translation>要试用新界面吗？</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ 的主屏幕、侧边菜单、设置和向导采用了全新外观。您可以随时在 设置 &gt; 通用 UI 选项 中切换回来。</translation>
+    </message>
+    <message>
         <source>Adjustable. Current value: </source>
         <translation>可调。当前值： </translation>
     </message>
@@ -307,6 +354,14 @@ Would you like to enable the required services?</source>
     <message>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>下次是否需要提醒您启用蓝牙或定位服务？</translation>
+    </message>
+    <message>
+        <source>Return to app</source>
+        <translation>交还给应用</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>将负载控制权交还给应用</translation>
     </message>
 </context>
 <context>
@@ -358,6 +413,14 @@ Would you like to enable the required services?</source>
     <message>
         <source>Not connecting?</source>
         <translation>无法连接？</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>未找到设备</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>请打开您的单车、跑步机或划船机，然后点击顶部的蓝牙图标重新搜索。</translation>
     </message>
 </context>
 <context>
@@ -1121,6 +1184,10 @@ Do you want to update QZ settings?</source>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>YPOO M5 初始化失败，需要重新连接</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S 已连接！</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1342,6 +1409,21 @@ Do you want to update QZ settings?</source>
     </message>
 </context>
 <context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>正在购买...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>购买成功</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>购买失败</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -1517,6 +1599,17 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Cancel</source>
         <translation>取消</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>正在恢复以前安装的文件</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>正在恢复以前安装的文件：%1/%2</translation>
     </message>
 </context>
 <context>
@@ -2112,6 +2205,11 @@ Do you want to update QZ settings?</source>
         <translation>坡度 (%)</translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>合并到一张图表：</translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation>平均输出</translation>
@@ -2313,6 +2411,18 @@ Do you want to update QZ settings?</source>
     <message>
         <source>1 Mile</source>
         <translation>1 英里</translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation>全屏</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>退出全屏</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>左右滑动切换图表</translation>
     </message>
     <message>
         <source>Peloton Workout in progress!</source>
@@ -2648,6 +2758,18 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>下一步</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>设备、单位和档案，逐步设置</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>选择一个主题，直接进入其设置</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>关闭向导</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>自定义配置</translation>
     </message>
@@ -2939,7 +3061,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>正在处理训练文件...
+        <translation type="vanished">正在处理训练文件...
 首次启动时可能需要一些时间。</translation>
     </message>
     <message>
@@ -3031,6 +3153,22 @@ This may take a few moments on first startup.</source>
         <translation>连续 %1 天</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>日历</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>这一天没有训练</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>还没有训练</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>已完成的训练会显示在这里：打开任意一项即可查看图表。</translation>
+    </message>
+    <message>
         <source>Personal best: %1 days</source>
         <translation>个人最佳：%1 天</translation>
     </message>
@@ -3072,7 +3210,7 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>正在导入训练...</translation>
+        <translation type="vanished">正在导入训练...</translation>
     </message>
     <message>
         <source>Filter by date</source>
@@ -3089,6 +3227,22 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Open on Peloton</source>
         <translation>在 Peloton 中打开</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>正在将训练添加到历史记录</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>正在复制训练文件</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>正在将训练添加到历史记录：%1/%2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>正在复制训练文件：%1/%2</translation>
     </message>
     <message>
         <source>Previous month</source>
@@ -3160,9 +3314,25 @@ This may take a few moments on first startup.</source>
         <source>Offset</source>
         <translation>偏移</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>减小档位 %1 的偏移</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>增大档位 %1 的偏移</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>减小%1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>增大%1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>启用自定义坡度-阻力表</translation>
@@ -3178,6 +3348,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Resistance</source>
         <translation>阻力</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>删除坡度为 %1 的点</translation>
     </message>
     <message>
         <source>Add Point</source>
@@ -3265,6 +3439,10 @@ This may take a few moments on first startup.</source>
 </context>
 <context>
     <name>homeform</name>
+    <message>
+        <source>No enabled metrics</source>
+        <translation>没有已启用的指标</translation>
+    </message>
     <message>
         <source>Speed (%1/h)</source>
         <translation>速度 (%1/h)</translation>
@@ -3916,6 +4094,10 @@ This may take a few moments on first startup.</source>
         <translation>正在搜索设备...</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>正在连接 %1...</translation>
+    </message>
+    <message>
         <source>Search stopped, tap the Bluetooth icon</source>
         <translation>搜索已停止，请点击蓝牙图标</translation>
     </message>
@@ -4204,9 +4386,17 @@ This may take a few moments on first startup.</source>
         <source>Unable to open an email application</source>
         <translation>无法打开电子邮件应用</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>蓝牙已关闭</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>浮动指标（画中画）</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -4544,6 +4734,10 @@ In the next window, allow access to the QZ folder.</source>
         <translation>设置</translation>
     </message>
     <message>
+        <source>Try the new interface</source>
+        <translation>试用新界面</translation>
+    </message>
+    <message>
         <source>Workouts History</source>
         <translation>训练历史</translation>
     </message>
@@ -4729,6 +4923,26 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
 
 “否”：QZ 将开启“无车轮直径协议”（设置 &gt; 自行车选项 &gt; Wahoo 选项），虚拟变速通过坡度实现。选择“是”后，以后可在同一位置撤销：开启该选项，然后在骑行台已连接时点按“将骑行台恢复为默认设置”。</translation>
     </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>模拟设备（%1）已启用。如果并非有意启用，请在设置中关闭。</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>健身车</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>跑步机</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>椭圆机</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>划船机</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -4885,6 +5099,18 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     <message>
         <source>cm</source>
         <translation>cm</translation>
+    </message>
+    <message>
+        <source>Reset section?</source>
+        <translation>重置此部分？</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>“%2”中的 %1 项设置将恢复为默认值。</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>重置此部分</translation>
     </message>
     <message>
         <source>Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet&apos;inches&quot; format (e.g., 5&apos;10&quot;) for imperial units.</source>
@@ -6212,6 +6438,75 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation type="vanished">打开</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>现代界面</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>主屏幕、侧边菜单、设置和向导的新外观。关闭后恢复经典外观。</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>外观</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>跟随系统</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>深色</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>浅色</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>主题</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>石墨</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>黑 / 白</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>午夜蓝</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>强调色</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>紫色</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>蓝色</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>青色</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>绿色</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>橙色</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>粉色</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>卡片大小：</translation>
     </message>
@@ -6222,6 +6517,30 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     <message>
         <source>App Language:</source>
         <translation>应用语言:</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>设置已重置</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>已重置的设置：%1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>全部重置</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>重置已更改的设置？</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>将恢复为默认值的设置：%1</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>重置</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -6524,8 +6843,8 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Garmin 蓝牙传感器</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>如果您想从 Mac 将数据发送到您的 Garmin 设备，请启用此项。否则请保持禁用。</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>让您的 Garmin 或其他运动手表把 QZ 当作蓝牙传感器使用：跑步机时为步频传感器，单车时为功率计（在 Android 上还需打开“自行车功率传感器”）。手表需要与运行 QZ 的手机或平板进行蓝牙配对：如果找不到 QZ，请先配对一次，然后在手表上添加传感器并接受配对请求。如果同一部手机上的 Garmin Connect 已与手表连接，请在手表连接时连续强制停止 Garmin Connect 两到三次；使用一部没有 Garmin Connect 的单独手机或平板更简单。当 QZ 作为手表的传感器工作时，通过蓝牙连接的 Zwift 只会把它识别为步频传感器或功率计，而不是可以控制的设备。</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -7475,6 +7794,14 @@ Please enter it below:</source>
         <translation>Strava 虚拟活动标签</translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Strava 模拟 GPS 轨迹</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>为没有 GPS 的虚拟活动写入模拟 GPS 轨迹。Strava 可能因此显示爬升高度，但路线并非真实路线。</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation>将虚拟标签附加到 Strava 活动</translation>
     </message>
@@ -7613,6 +7940,14 @@ IMPORTANT NOTES:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>对于智能训练器，请使用阻力而不是坡度。如果您不希望 Wahoo Climb 或类似设备在换档时改变坡度，使用此设置会有帮助。默认：禁用</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>阻力兼容模式</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>如果在 QZ 中调整阻力时，单车只能跳到 1 级或最大级别，请启用此选项。FTMS 阻力值将乘以 10 后发送。默认：关闭。</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>
@@ -8629,6 +8964,18 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>在 GPX 训练中，忽略小于此值的坡度变化。只有与上次发送的数值之差达到设置的阈值时，才发送新的坡度指令。默认：0（禁用）。</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>使用控制台档位</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>跑步机卡路里：步行/跑步模型</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>适用于控制台不报告卡路里的跑步机。卡路里根据跑带速度、坡度以及您的体重、身高、年龄和性别计算：低于由身高决定的步行转跑步速度时使用步行模型，高于时使用跑步模型。关闭后改用基于功率的数值。控制台报告的卡路里、外部功率传感器（Stryd 等）以及开启时的“根据心率计算卡路里”仍然优先。</translation>
     </message>
 </context>
 <context>

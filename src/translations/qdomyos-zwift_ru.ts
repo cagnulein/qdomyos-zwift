@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ru_RU">
 <context>
+    <name>ChartJsTest</name>
+    <message>
+        <source>Close</source>
+        <translation>Закрыть</translation>
+    </message>
+</context>
+<context>
     <name>ChartsEndWorkoutForm.ui</name>
     <message>
         <source>Power</source>
@@ -120,6 +127,22 @@
         <translation>Больше не спрашивать</translation>
     </message>
     <message>
+        <source>Strong signal</source>
+        <translation>Сильный сигнал</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Хороший сигнал</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Средний сигнал</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Слабый сигнал</translation>
+    </message>
+    <message>
         <source>Choose a heart rate sensor</source>
         <translation>Выберите пульсометр</translation>
     </message>
@@ -149,6 +172,22 @@
     <message>
         <source>Stop</source>
         <translation>Стоп</translation>
+    </message>
+    <message>
+        <source>Auto Resistance is off</source>
+        <translation>Автосопротивление выключено</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>Сейчас QZ не меняет сопротивление тренажёра. «Применить» – уровни с плиток «Сопротивление», «Цель сопр.» и пресетов будут действовать, пока автосопротивление выключено. Команды приложений (например, Zwift) по-прежнему игнорируются.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Применить</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Включить автосопротивление</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -273,6 +312,14 @@ Would you like to do that now?</source>
 Перезапустить сейчас?</translation>
     </message>
     <message>
+        <source>Try the new interface?</source>
+        <translation>Попробовать новый интерфейс?</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>У QZ новый вид главного экрана, бокового меню, настроек и мастера. Вернуть прежний можно в любой момент: Настройки &gt; Общие параметры интерфейса.</translation>
+    </message>
+    <message>
         <source>Adjustable. Current value: </source>
         <translation>Регулируется. Текущее значение: </translation>
     </message>
@@ -307,6 +354,14 @@ Would you like to enable the required services?</source>
     <message>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Напомнить о включении Bluetooth или служб геолокации в следующий раз?</translation>
+    </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Вернуть приложению</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Возвращает управление нагрузкой приложению</translation>
     </message>
 </context>
 <context>
@@ -358,6 +413,14 @@ Would you like to enable the required services?</source>
     <message>
         <source>Not connecting?</source>
         <translation>Не подключается?</translation>
+    </message>
+    <message>
+        <source>Equipment not found</source>
+        <translation>Тренажёр не найден</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower, then tap the Bluetooth icon at the top to search again.</source>
+        <translation>Включите велотренажёр, беговую дорожку или гребной тренажёр и нажмите значок Bluetooth вверху, чтобы искать снова.</translation>
     </message>
 </context>
 <context>
@@ -1121,6 +1184,10 @@ Do you want to update QZ settings?</source>
         <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
         <translation>Пульсометр рядом не найден. Проверьте, что он включён и транслирует пульс.</translation>
     </message>
+    <message>
+        <source>Coach S connected!</source>
+        <translation>Coach S подключён!</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1342,6 +1409,21 @@ Do you want to update QZ settings?</source>
     </message>
 </context>
 <context>
+    <name>SwagBagItem</name>
+    <message>
+        <source>Purchasing...</source>
+        <translation>Оформляем покупку...</translation>
+    </message>
+    <message>
+        <source>Purchase Succeeded</source>
+        <translation>Покупка прошла успешно</translation>
+    </message>
+    <message>
+        <source>Purchase Failed</source>
+        <translation>Не удалось оплатить</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -1517,6 +1599,17 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Cancel</source>
         <translation>Отмена</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>Восстановление файлов прошлой установки</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>Восстановление файлов прошлой установки: %1 из %2</translation>
     </message>
 </context>
 <context>
@@ -2112,6 +2205,11 @@ Do you want to update QZ settings?</source>
         <translation>Наклон (%)</translation>
     </message>
     <message>
+        <source>On one chart:</source>
+        <extracomment>Workout charts: before the chips that put the selected metrics together on one chart.</extracomment>
+        <translation>На одном графике:</translation>
+    </message>
+    <message>
         <source>Avg Output</source>
         <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation>Ср. мощность</translation>
@@ -2313,6 +2411,18 @@ Do you want to update QZ settings?</source>
     <message>
         <source>1 Mile</source>
         <translation>1 миля</translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation>На весь экран</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>Свернуть</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>Листайте влево или вправо, чтобы переключать графики</translation>
     </message>
     <message>
         <source>Peloton Workout in progress!</source>
@@ -2648,6 +2758,18 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>Далее</translation>
     </message>
     <message>
+        <source>Your equipment, units and profile, step by step</source>
+        <translation>Тренажёр, единицы измерения и профиль – по шагам</translation>
+    </message>
+    <message>
+        <source>Pick a topic and go straight to its settings</source>
+        <translation>Выберите тему и сразу перейдите к её настройкам</translation>
+    </message>
+    <message>
+        <source>Close the wizard</source>
+        <translation>Закрыть мастер</translation>
+    </message>
+    <message>
         <source>Custom Configurations</source>
         <translation>Индивидуальные настройки</translation>
     </message>
@@ -2939,7 +3061,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Обработка файлов тренировок...
+        <translation type="vanished">Обработка файлов тренировок...
 При первом запуске это может занять некоторое время.</translation>
     </message>
     <message>
@@ -3011,6 +3133,22 @@ This may take a few moments on first startup.</source>
         <translation>Серия: %1 дн.</translation>
     </message>
     <message>
+        <source>Calendar</source>
+        <translation>Календарь</translation>
+    </message>
+    <message>
+        <source>No workouts on this day</source>
+        <translation>В этот день тренировок нет</translation>
+    </message>
+    <message>
+        <source>No workouts yet</source>
+        <translation>Тренировок пока нет</translation>
+    </message>
+    <message>
+        <source>Finished workouts appear here: open one to see its charts.</source>
+        <translation>Здесь появятся завершённые тренировки: откройте любую, чтобы посмотреть графики.</translation>
+    </message>
+    <message>
         <source>Personal best: %1 days</source>
         <translation>Рекорд: %1 дн.</translation>
     </message>
@@ -3055,6 +3193,22 @@ This may take a few moments on first startup.</source>
         <translation>Импортировать файл FIT...</translation>
     </message>
     <message>
+        <source>Adding workouts to the history</source>
+        <translation>Добавление тренировок в историю</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Копирование файлов тренировок</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Добавление тренировок в историю: %1 из %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Копирование файлов тренировок: %1 из %2</translation>
+    </message>
+    <message>
         <source>Import from QZ Folder...</source>
         <translation>Импортировать из папки QZ...</translation>
     </message>
@@ -3072,7 +3226,7 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Импорт тренировок...</translation>
+        <translation type="vanished">Импорт тренировок...</translation>
     </message>
     <message>
         <source>Filter by date</source>
@@ -3160,9 +3314,25 @@ This may take a few moments on first startup.</source>
         <source>Offset</source>
         <translation>Смещение</translation>
     </message>
+    <message>
+        <source>Decrease the offset of gear %1</source>
+        <translation>Уменьшить смещение передачи %1</translation>
+    </message>
+    <message>
+        <source>Increase the offset of gear %1</source>
+        <translation>Увеличить смещение передачи %1</translation>
+    </message>
 </context>
 <context>
     <name>custominclinationresistance</name>
+    <message>
+        <source>Decrease %1</source>
+        <translation>Уменьшить: %1</translation>
+    </message>
+    <message>
+        <source>Increase %1</source>
+        <translation>Увеличить: %1</translation>
+    </message>
     <message>
         <source>Enable Custom Inclination to Resistance Table</source>
         <translation>Включить свою таблицу «наклон – сопротивление»</translation>
@@ -3178,6 +3348,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Resistance</source>
         <translation>Сопротивление</translation>
+    </message>
+    <message>
+        <source>Remove the point at inclination %1</source>
+        <translation>Удалить точку с наклоном %1</translation>
     </message>
     <message>
         <source>Add Point</source>
@@ -3265,6 +3439,10 @@ This may take a few moments on first startup.</source>
 </context>
 <context>
     <name>homeform</name>
+    <message>
+        <source>No enabled metrics</source>
+        <translation>Нет включённых показателей</translation>
+    </message>
     <message>
         <source>Speed (%1/h)</source>
         <translation>Скорость (%1/ч)</translation>
@@ -3900,6 +4078,10 @@ This may take a few moments on first startup.</source>
         <translation>Поиск тренажёра…</translation>
     </message>
     <message>
+        <source>Connecting to %1...</source>
+        <translation>Подключение к %1…</translation>
+    </message>
+    <message>
         <source>Search stopped, tap the Bluetooth icon</source>
         <translation>Поиск остановлен, нажмите значок Bluetooth</translation>
     </message>
@@ -4188,9 +4370,17 @@ This may take a few moments on first startup.</source>
         <source>Unable to open an email application</source>
         <translation>Не удалось открыть почтовое приложение</translation>
     </message>
+    <message>
+        <source>Bluetooth is off</source>
+        <translation>Bluetooth выключен</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
+    <message>
+        <source>Floating Metrics (Picture in Picture)</source>
+        <translation>Плавающие показатели (картинка в картинке)</translation>
+    </message>
     <message>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
@@ -4528,6 +4718,10 @@ In the next window, allow access to the QZ folder.</source>
         <translation>Настройки</translation>
     </message>
     <message>
+        <source>Try the new interface</source>
+        <translation>Попробовать новый интерфейс</translation>
+    </message>
+    <message>
         <source>Workouts History</source>
         <translation>История тренировок</translation>
     </message>
@@ -4712,6 +4906,26 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
 Разрешить QZ менять это значение?
 
 «Нет»: QZ включит «Без протокола диаметра колеса» (Настройки &gt; Параметры велотренажёра &gt; Параметры Wahoo), и виртуальные передачи будут работать через уклон. Если выбрать «Да», это можно позже отменить там же: включите эту настройку и при подключённом тренажёре нажмите «Восстановить настройки тренажёра по умолчанию».</translation>
+    </message>
+    <message>
+        <source>Fake device (%1) is active. If this was unintentional, disable it in Settings.</source>
+        <translation>Виртуальное устройство (%1) активно. Если вы включили его случайно, отключите его в настройках.</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Велотренажёр</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Беговая дорожка</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Эллиптический тренажёр</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Гребной тренажёр</translation>
     </message>
 </context>
 <context>
@@ -5017,6 +5231,42 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     <message>
         <source>App Language:</source>
         <translation>Язык приложения:</translation>
+    </message>
+    <message>
+        <source>Setting reset</source>
+        <translation>Настройка сброшена</translation>
+    </message>
+    <message>
+        <source>Settings reset: %1</source>
+        <translation>Сброшено настроек: %1</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>Сбросить все</translation>
+    </message>
+    <message>
+        <source>Reset changed settings?</source>
+        <translation>Сбросить изменённые настройки?</translation>
+    </message>
+    <message>
+        <source>Settings that go back to their default values: %1</source>
+        <translation>Изменённые настройки (%1) вернутся к значениям по умолчанию.</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Сбросить</translation>
+    </message>
+    <message>
+        <source>Reset section?</source>
+        <translation>Сбросить раздел?</translation>
+    </message>
+    <message>
+        <source>Settings in “%2” that go back to their default values: %1</source>
+        <translation>Настройки раздела «%2» (%1) вернутся к значениям по умолчанию.</translation>
+    </message>
+    <message>
+        <source>Reset section</source>
+        <translation>Сбросить раздел</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -6472,8 +6722,8 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Bluetooth-датчик Garmin</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>Включите, если хотите передавать показатели с Mac на устройство Garmin. Иначе оставьте выключенным.</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>Часы Garmin и другие спортивные часы смогут брать данные у QZ как у датчика Bluetooth: шагомер на дорожке, датчик мощности на велосипеде (на Android включите ещё «Датчик мощности велосипеда»). Часам нужно сопряжение с телефоном или планшетом, где работает QZ: если часы не находят QZ, один раз выполните сопряжение, затем добавьте датчик на часах и примите запрос на сопряжение. Если на этом телефоне Garmin Connect связан с часами, принудительно остановите его 2–3 раза подряд, пока часы подключаются; проще отдельный телефон или планшет без Garmin Connect. Пока QZ работает датчиком для часов, Zwift по Bluetooth видит его только как шагомер или датчик мощности, а не как тренажёр, которым он управляет.</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -7043,6 +7293,75 @@ Please enter it below:</source>
         <translation>Номер этого графика в истории тренировок. Порядок меняется кнопками вверх и вниз в разделе «Общие параметры интерфейса».</translation>
     </message>
     <message>
+        <source>Modern interface</source>
+        <translation>Новый интерфейс</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>Новый вид главного экрана, бокового меню, настроек и мастера. Выключите, чтобы вернуть классический вид.</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Оформление</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>Как в системе</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Тёмное</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>Светлое</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Тема</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>Графит</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>Чёрная / белая</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>Тёмно-синяя</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>Акцентный цвет</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>Фиолетовый</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Синий</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>Бирюзовый</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Зелёный</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Оранжевый</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>Розовый</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Размер плиток:</translation>
     </message>
@@ -7499,6 +7818,14 @@ Please enter it below:</source>
         <translation>Метка виртуальной активности Strava</translation>
     </message>
     <message>
+        <source>Strava Synthetic GPS Track</source>
+        <translation>Синтетический GPS-трек для Strava</translation>
+    </message>
+    <message>
+        <source>Write a synthetic GPS track to virtual activities without GPS. Strava may then show elevation, but the route is not real.</source>
+        <translation>Добавляет синтетический GPS-трек к виртуальным тренировкам без GPS. Strava может показать набор высоты, но маршрут не настоящий.</translation>
+    </message>
+    <message>
         <source>Append the Virtual Tag to the Strava Activity</source>
         <translation>Добавлять к активности Strava метку виртуальной активности</translation>
     </message>
@@ -7637,6 +7964,14 @@ IMPORTANT NOTES:
     <message>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>Для смарт-тренажёров: использовать сопротивление вместо наклона. Помогает, если вы не хотите, чтобы Wahoo Climb или аналог менял наклон при переключении передач. По умолчанию: выключено</translation>
+    </message>
+    <message>
+        <source>Resistance Compatibility</source>
+        <translation>Совместимость сопротивления</translation>
+    </message>
+    <message>
+        <source>Enable this if changing resistance in QZ only sets the bike to level 1 or maximum. Sends FTMS resistance multiplied by 10. Default: disabled.</source>
+        <translation>Включите, если при изменении сопротивления в QZ велосипед устанавливает только уровень 1 или максимум. Передаёт значение сопротивления FTMS, умноженное на 10. По умолчанию: выключено.</translation>
     </message>
     <message>
         <source>AutoLap on Distance:</source>
@@ -8573,6 +8908,18 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>В тренировках GPX изменения наклона меньше указанного значения игнорируются. Новая команда отправляется только тогда, когда разница с последним отправленным значением достигает заданного порога. По умолчанию: 0 (отключено).</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Использовать передачи консоли</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>Калории беговой дорожки по модели ходьбы/бега</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>Для беговых дорожек, консоль которых не передаёт калории. Калории рассчитываются по скорости полотна, наклону, а также по вашему весу, росту, возрасту и полу: ниже вашей скорости перехода от ходьбы к бегу (зависит от роста) — по модели ходьбы, выше — по модели бега. Выключите, чтобы использовать значение на основе мощности. Калории консоли, внешний датчик мощности (Stryd и т. п.) и «Расчёт калорий по пульсу» (если включён) по-прежнему имеют приоритет.</translation>
     </message>
 </context>
 <context>
