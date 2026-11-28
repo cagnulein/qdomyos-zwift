@@ -1,0 +1,85 @@
+name: Qt 6 Android and Windows builds
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  android-arm64:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install Android SDK and NDK
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0" "ndk;25.1.8937393"
+      - name: Install Qt host tools
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.5.1'
+          host: linux
+          target: desktop
+          modules: 'qtcharts qtnetworkauth qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qtwebview qtspeech qthttpserver qtserialport'
+          cache: true
+          install-deps: true
+      - name: Record Qt host path
+        run: echo "QT_HOST_PATH=$QT_ROOT_DIR" >> "$GITHUB_ENV"
+      - name: Install Qt for Android arm64
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.5.1'
+          host: linux
+          target: android
+          arch: android_arm64_v8a
+          modules: 'qtcharts qtnetworkauth qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qtwebview qtspeech qthttpserver qtserialport'
+          cache: true
+      - name: Compile Android arm64
+        run: |
+          export ANDROID_NDK_ROOT="$ANDROID_HOME/ndk/25.1.8937393"
+          "$QT_HOST_PATH/bin/lrelease" src/qdomyos-zwift.pri
+          "$QT_ROOT_DIR/bin/qmake" -spec android-clang 'ANDROID_ABIS=arm64-v8a' "ANDROID_NDK_ROOT=$ANDROID_NDK_ROOT" qdomyos-zwift.pro
+          make -j2
+
+  windows-msvc:
+    runs-on: windows-2022
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout Qt 6 SMTP client
+        uses: actions/checkout@v4
+        with:
+          repository: bluetiger9/SmtpClient-for-Qt
+          ref: 72cf2e6a70a16e5224db546d96147446aa1f3feb
+          path: src/smtpclient
+      - name: Checkout Google Test
+        uses: actions/checkout@v4
+        with:
+          repository: google/googletest
+          ref: release-1.12.1
+          path: tst/googletest
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+      - name: Install Qt 6
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.2'
+          host: windows
+          target: desktop
+          arch: win64_msvc2022_64
+          modules: 'qtnetworkauth qtcharts qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qtwebview qtspeech qthttpserver qtserialport'
+          cache: true
+      - name: Build and run tests
+        shell: cmd
+        run: |
+          lrelease src/qdomyos-zwift.pri
+          qmake qdomyos-zwift.pro
+          nmake
+          if errorlevel 1 exit /b %errorlevel%
+          tst\debug\qdomyos-zwift-tests.exe

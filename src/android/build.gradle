@@ -26,7 +26,7 @@ if (androidCompileSdk.contains('-ext')) {
     androidCompileSdk = androidCompileSdk.split('-')[1]
 }
 def androidBuildTools = project.findProperty('androidBuildToolsVersion')
-def qtAndroidDir = project.findProperty('qt5AndroidDir') ?: System.getenv('QT_ANDROID_DIR')
+def qtAndroidDir = project.findProperty('qtAndroidDir') ?: System.getenv('QT_ANDROID_DIR') ?: project.findProperty('qt5AndroidDir')
 println(amazon)
 def qtAndroidBaseDir = qtAndroidDir ? qtAndroidDir.toString().replaceAll('/src/android/java/?$', '') : null
 def qtAndroidJavaRootDir = qtAndroidDir?.toString()?.endsWith('/src/android/java') ? qtAndroidDir.toString() : (qtAndroidBaseDir ? qtAndroidBaseDir + '/src/android/java' : null)
@@ -204,7 +204,7 @@ android {
     }
 
     if (!qtAndroidDir) {
-        throw new GradleException("qt5AndroidDir is not set. Install Qt for Android and set qt5AndroidDir in gradle.properties or via the QT_ANDROID_DIR environment variable.")
+        throw new GradleException("Qt Android directory is not set. Set qtAndroidDir or QT_ANDROID_DIR.")
     }
 }
 
