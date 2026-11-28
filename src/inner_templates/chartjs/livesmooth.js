@@ -16,11 +16,22 @@ function liveSmoothWindow(setting) {
 
 // A trailing moving average of the point i of row over the last `seconds` of the elapsed time (x):
 // the points from x - seconds + 1 to x. Trailing, not centered as on the Charts page: a point
-// drawn once does not change when the next ones arrive. Rounded to `digits` decimals
+// drawn once does not change when the next ones arrive. Rounded to `digits` decimals.
+// A point with no value stays a gap, as on the Charts page. While the workout is paused the
+// elapsed time stands still and the points keep coming with the same x: only the last point of
+// each x counts, as the one row per second of the session, so the pause does not weigh in
+function isLiveValue(y) {
+    return typeof y === 'number' && y === y; // y === y: not NaN
+}
+
 function trailingAverage(row, i, seconds, digits) {
+    if (!isLiveValue(row[i].y))
+        return row[i].y;
     let k = Math.pow(10, digits || 0), sum = 0, count = 0;
     for (let j = i; j >= 0 && row[j].x > row[i].x - seconds; j--) {
-        if (typeof row[j].y === 'number' && row[j].y === row[j].y) { // y === y: not NaN
+        if (j < i && row[j + 1].x === row[j].x)
+            continue; // not the last point of its x
+        if (isLiveValue(row[j].y)) {
             sum += row[j].y;
             count++;
         }

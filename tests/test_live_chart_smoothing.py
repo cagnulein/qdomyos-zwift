@@ -122,7 +122,13 @@ def trailing(line, seconds, digits):
     """The trailing average written once more, without livesmooth.js."""
     out = []
     for i, p in enumerate(line):
-        values = [q["y"] for q in line[:i + 1] if q["x"] > p["x"] - seconds]
+        if not isinstance(p["y"], (int, float)):  # no value: a gap, as on the Charts page
+            out.append(p)
+            continue
+        last = {}  # the last value of every x so far: a pause repeats the x
+        for q in line[:i + 1]:
+            last[q["x"]] = q["y"]
+        values = [y for x, y in last.items() if x > p["x"] - seconds and isinstance(y, (int, float))]
         out.append({"x": p["x"], "y": js_round(sum(values) / len(values), digits)})
     return out
 
@@ -197,6 +203,31 @@ class LiveChartSmoothing(unittest.TestCase):
                 lines = harness(page, "3", [], live)
                 raw = raw_line(page, live)
                 self.assertEqual(lines[-1]["points"], trailing(raw, 5, page["digits"]))
+
+    def test_pause_does_not_weigh_in(self):
+        # paused, the elapsed time stands still and the messages keep coming every second with
+        # the same x; after the resume the line is the average of the seconds before, as if the
+        # pause was one point
+        for page in (BIKE, TREADMILL):
+            with self.subTest(page=page["script"]):
+                session, live = workout(page, 30, 0, seed=11)
+                busy = 200 if page["field"] == "watts" else 10
+                live = [point(page, 30, 0) for _ in range(40)]
+                live += [point(page, 30 + s, busy) for s in range(1, 8)]
+                # a message without the value: the power is drawn as it comes (a gap); the speed
+                # page multiplies it by the unit, and null * 1 is 0 there, as on master
+                bike = page["field"] == "watts"
+                live.append(point(page, 38, None if bike else busy))
+                live.append(point(page, 39, busy))
+                lines = harness(page, "6", session, live)  # 30 s
+                raw = raw_line(page, session + live)
+                expected = trailing(raw, 30, page["digits"])
+                self.assertEqual(lines[-1]["points"], expected)
+                # the pause counts once: 7 s of busy in a 30 s window, not pulled to 0 by 40 zeros
+                after = expected[len(session) + 40 + 6]["y"]
+                self.assertGreater(after, busy * 7 / 30 * 0.8)
+                if bike:
+                    self.assertIsNone(lines[-1]["points"][-2]["y"])
 
 
 if __name__ == "__main__":
