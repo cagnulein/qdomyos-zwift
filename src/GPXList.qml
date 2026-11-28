@@ -136,7 +136,8 @@ ColumnLayout {
                 Accessible.name: qsTr("Filter") + ": " + text
                 inputMethodHints: Qt.ImhNoPredictiveText
                 leftPadding: 44
-                onTextChanged: gpxPage.applyFilter(text)
+                // displayText, not text: also the word still being composed (underlined)
+                onDisplayTextChanged: gpxPage.applyFilter(displayText)
                 UiIcon {
                     anchors.left: parent.left
                     anchors.leftMargin: 10
@@ -342,10 +343,11 @@ ColumnLayout {
                 {
                     function updateFilter()
                     {
-                        gpxPage.applyFilter(filterField.text)
+                        gpxPage.applyFilter(filterField.displayText)
                     }
                     id: filterField
-                    onTextChanged: updateFilter()
+                    // displayText, not text: also the word still being composed (underlined)
+                    onDisplayTextChanged: updateFilter()
                 }
                 Button {
                      anchors.left: mainRect.right
