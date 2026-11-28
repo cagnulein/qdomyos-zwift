@@ -1,3 +1,4 @@
+#include <chrono>
 #include "TrixterXDreamPacketInterpreterTests.h"
 
 uint32_t TrixterXDreamPacketInterpreterTests::getTime()
