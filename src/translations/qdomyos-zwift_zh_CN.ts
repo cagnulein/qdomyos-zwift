@@ -6158,8 +6158,8 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>%1 秒</translation>
     </message>
     <message>
-        <source>On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
-        <translation>在“图表”页面和训练邮件的图表中，功率、踏频和速度曲线按所选窗口的移动平均绘制，而不是逐秒的原始值。自动：训练中为 3 秒；停止后为 3 秒，训练每满 30 分钟再加 2 秒，最多 15 秒。平均值、最大值、区间、功率分布和 FIT 文件仍使用原始值。默认为关。</translation>
+        <source>On the Charts page, on the live chart of the main screen and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. On the live chart it is the average of the seconds before each point. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
+        <translation>在“图表”页面、主屏幕的实时图表和训练邮件的图表中，功率、踏频和速度曲线按所选窗口的移动平均绘制，而不是逐秒的原始值。主屏幕的实时图表取每个点之前若干秒的平均值。自动：训练中为 3 秒；停止后为 3 秒，训练每满 30 分钟再加 2 秒，最多 15 秒。平均值、最大值、区间、功率分布和 FIT 文件仍使用原始值。默认为关。</translation>
     </message>
     <message>
         <source>UI Themes</source>

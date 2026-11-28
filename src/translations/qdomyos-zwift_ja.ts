@@ -6094,8 +6094,8 @@ QZ がこの値を変更することを許可しますか？
         <translation>%1 秒</translation>
     </message>
     <message>
-        <source>On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
-        <translation>「グラフ」ページとトレーニングのメールのグラフで、パワー、ケイデンス、速度の線を 1 秒ごとの生の値ではなく、選んだ幅の移動平均で描きます。自動: トレーニング中は 3 秒、停止後は 3 秒にトレーニングの 30 分ごとに 2 秒を加えた値（最大 15 秒）。平均、最大、ゾーン、パワー分布、FIT ファイルは引き続き生の値を使います。既定はオフです。</translation>
+        <source>On the Charts page, on the live chart of the main screen and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. On the live chart it is the average of the seconds before each point. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
+        <translation>「グラフ」ページ、メイン画面のライブグラフ、トレーニングのメールのグラフで、パワー、ケイデンス、速度の線を 1 秒ごとの生の値ではなく、選んだ幅の移動平均で描きます。ライブグラフでは各点の前の秒の平均です。自動: トレーニング中は 3 秒、停止後は 3 秒にトレーニングの 30 分ごとに 2 秒を加えた値（最大 15 秒）。平均、最大、ゾーン、パワー分布、FIT ファイルは引き続き生の値を使います。既定はオフです。</translation>
     </message>
     <message>
         <source>UI Themes</source>

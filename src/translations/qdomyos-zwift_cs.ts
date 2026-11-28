@@ -6258,8 +6258,8 @@ Povolit QZ tuto hodnotu měnit?
         <translation>%1 s</translation>
     </message>
     <message>
-        <source>On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
-        <translation>Na stránce Grafy a v grafech e-mailu o tréninku kreslí čáry výkonu, kadence a rychlosti jako klouzavý průměr za zvolené okno místo surových hodnot po sekundách. Auto: 3 sekundy během tréninku; po Stop 3 sekundy plus 2 za každých celých 30 minut tréninku, nejvýše 15. Průměry, maxima, zóny, rozložení výkonu a soubor FIT dál používají surové hodnoty. Výchozí je Vypnuto.</translation>
+        <source>On the Charts page, on the live chart of the main screen and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. On the live chart it is the average of the seconds before each point. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
+        <translation>Na stránce Grafy, v živém grafu na hlavní obrazovce a v grafech e-mailu o tréninku kreslí čáry výkonu, kadence a rychlosti jako klouzavý průměr za zvolené okno místo surových hodnot po sekundách. V živém grafu je to průměr sekund před každým bodem. Auto: 3 sekundy během tréninku; po Stop 3 sekundy plus 2 za každých celých 30 minut tréninku, nejvýše 15. Průměry, maxima, zóny, rozložení výkonu a soubor FIT dál používají surové hodnoty. Výchozí je Vypnuto.</translation>
     </message>
     <message>
         <source>iOS Live Activity Left Metric:</source>

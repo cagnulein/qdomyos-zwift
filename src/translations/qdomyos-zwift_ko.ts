@@ -6258,8 +6258,8 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
         <translation>%1초</translation>
     </message>
     <message>
-        <source>On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
-        <translation>그래프 페이지와 운동 이메일의 그래프에서 파워, 케이던스, 속도 선을 초 단위 원시 값 대신 선택한 구간의 이동 평균으로 그립니다. 자동: 운동 중에는 3초, 정지 후에는 3초에 운동 30분마다 2초를 더한 값(최대 15초). 평균, 최대값, 구간, 파워 분포와 FIT 파일은 계속 원시 값을 사용합니다. 기본값은 끔입니다.</translation>
+        <source>On the Charts page, on the live chart of the main screen and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. On the live chart it is the average of the seconds before each point. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
+        <translation>그래프 페이지, 메인 화면의 실시간 그래프와 운동 이메일의 그래프에서 파워, 케이던스, 속도 선을 초 단위 원시 값 대신 선택한 구간의 이동 평균으로 그립니다. 실시간 그래프에서는 각 지점 이전 초의 평균입니다. 자동: 운동 중에는 3초, 정지 후에는 3초에 운동 30분마다 2초를 더한 값(최대 15초). 평균, 최대값, 구간, 파워 분포와 FIT 파일은 계속 원시 값을 사용합니다. 기본값은 끔입니다.</translation>
     </message>
     <message>
         <source>iOS Live Activity Left Metric:</source>
