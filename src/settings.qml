@@ -3002,9 +3002,6 @@ import AndroidStatusBar 1.0
             property bool treadmill_calories_model: false
             property bool ui_modern_new_install_checked: false
             property bool ui_modern_offer_pending: false
-            property bool log_debug_first_setup: false
-            property string log_debug_first_setup_since: ""
-            property bool wahoo_wheel_question_answered: false
 
         }
 

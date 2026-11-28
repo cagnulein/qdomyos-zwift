@@ -2,9 +2,8 @@
 """Check that every setting key added by a pull request is also a property of the persistent
 Settings { id: settings } block in src/settings.qml.
 
-A key that lives only in C++ (src/qzsettings.cpp) corrupts the settings file on iOS, so a new
-QZSettings key needs a property named as the key (the text of its QStringLiteral, which is not
-always the name of the constant) in settings.qml.
+A new QZSettings key normally needs a property named as the key in settings.qml. The documented
+C++-only flags below are exceptions: adding them to QML would overwrite their current values.
 
 Only the keys added against the base ref are checked: keys already in the base are left alone.
 The default values (QZSettings::default_*) are not keys. The properties are read the same way as
@@ -20,6 +19,21 @@ from check_settings_property_order import settings_properties
 QZSETTINGS_PATH = "src/qzsettings.cpp"
 SETTINGS_PATH = "src/settings.qml"
 KEY_START = "const QString QZSettings::"
+
+# These master-branch flags are deliberately written only by C++. A QML Settings
+# instance saves all of its properties after any change, so including these would
+# restore stale values and interfere with first-setup logging and the Wahoo prompt.
+CPP_ONLY_KEYS = frozenset({
+    "log_debug_first_setup",
+    "log_debug_first_setup_since",
+    "wahoo_wheel_question_answered",
+})
+
+
+def classify_keys(added, properties):
+    missing = [key for key in added if key not in properties and key not in CPP_ONLY_KEYS]
+    unsafe = [key for key in sorted(CPP_ONLY_KEYS) if key in properties]
+    return missing, unsafe
 
 
 def read_base_file(base_ref, path):
@@ -70,7 +84,11 @@ def main():
         properties = set(settings_properties(f.read()))
 
     added = [key for key in current_keys if key not in base_keys]
-    missing = [key for key in added if key not in properties]
+    missing, unsafe = classify_keys(added, properties)
+
+    if unsafe:
+        print("ERROR: C++-only settings must not be added to QML: " + ", ".join(unsafe), file=sys.stderr)
+        return 1
 
     if missing:
         print("ERROR: every new QZSettings key needs a property named as the key in the "
@@ -81,7 +99,7 @@ def main():
         return 1
 
     if added:
-        print("OK: the new settings keys are properties of src/settings.qml:")
+        print("OK: new settings keys have the required QML properties or are documented C++-only flags:")
         for key in added:
             print("  + %s" % key)
     else:
