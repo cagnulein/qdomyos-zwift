@@ -73,7 +73,7 @@ jobs:
           host: windows
           target: desktop
           arch: win64_msvc2022_64
-          modules: 'qtnetworkauth qtcharts qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qtwebview qtspeech qthttpserver qtserialport'
+          modules: 'qtnetworkauth qtcharts qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qtwebview qtwebengine qtwebchannel qtspeech qthttpserver qtserialport'
           cache: true
       - name: Build and run tests
         shell: cmd
