@@ -1,4 +1,5 @@
 #include "horizontreadmill.h"
+#include "paragonxtelemetry.h"
 #include "homeform.h"
 #include "devices/ftmsbike/ftmsbike.h"
 #include "virtualdevices/virtualbike.h"
@@ -85,6 +86,38 @@ void horizontreadmill::waitForAPacket() {
     connect(this, &horizontreadmill::packetReceived, &loop, &QEventLoop::quit);
     timeout.singleShot(3000, &loop, SLOT(quit()));
     loop.exec();
+}
+
+ParagonXTelemetry::NotificationResult
+horizontreadmill::processParagonNotification(const QByteArray &newValue) {
+    // This is the real production notification path. Unit tests call it with
+    // captured BLE fragments and observe the driver's packetReceived signal.
+    auto result = paragonPacketAssembler.accept(
+        reinterpret_cast<const uint8_t *>(newValue.constData()),
+        static_cast<std::size_t>(newValue.size()), [this]() {
+            initPacketRecv = true;
+            emit packetReceived();
+        });
+    const auto &buffer = paragonPacketAssembler.frame();
+    lastPacketComplete = QByteArray(reinterpret_cast<const char *>(buffer.data()),
+                                    static_cast<int>(buffer.size()));
+    customRecv = paragonPacketAssembler.remaining();
+    if (result.recovered) {
+        qDebug() << "Paragon X: recovered truncated status frame at next BLE header";
+    }
+    if (result.completed) {
+        emit debug(QStringLiteral(" << FULL ") + " " + lastPacketComplete.toHex(' '));
+        qDebug() << "full custom packet received";
+    }
+    return result;
+}
+
+void horizontreadmill::applyParagonTelemetry(const ParagonXTelemetry::Metrics &metrics) {
+    // Preserve the raw speed for diagnostics while exposing a true zero to
+    // Zwift when the belt reports Pause/Stop (0x02/0x04).
+    paragonSessionState.observe(metrics.machineState);
+    parseSpeed(paragonSessionState.publishedSpeed(metrics.speedKmh));
+    parseInclination(treadmillInclinationOverride(metrics.inclinePercent));
 }
 
 void horizontreadmill::btinit() {
@@ -950,6 +983,26 @@ void horizontreadmill::update() {
             settings.value(QZSettings::moovio_lynx_konect_2_0, QZSettings::default_moovio_lynx_konect_2_0).toBool();
         bool treadmill_direct_distance =
             settings.value(QZSettings::treadmill_direct_distance, QZSettings::default_treadmill_direct_distance).toBool();
+        // Paragon X (not Omega Z): the console continues to report the last
+        // speed while paused. Hold outgoing virtual speed at zero immediately
+        // after a local Stop/Pause; do not let a Zwift grade or speed request
+        // move the belt until the user resumes.
+        const bool paragonOnly =
+            gattCustomService &&
+            settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool() &&
+            !horizon_treadmill_omega_z;
+        if (paragonOnly) {
+            if (requestStop != -1) {
+                paragonSessionState.stopRequested();
+                Speed = 0;
+            } else if (requestStart != -1) {
+                paragonSessionState.startRequested();
+            }
+            if (paragonSessionState.commandsSuspended() && requestStart == -1) {
+                requestSpeed = -1;
+                requestInclination = -100;
+            }
+        }
         update_metrics(!powerReceivedFromPowerSensor, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         if (firstDistanceCalculated) {
@@ -1667,21 +1720,32 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
+    const bool paragonOnly =
+        settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool() &&
+        !settings.value(QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z).toBool();
+    ParagonXTelemetry::NotificationResult paragonNotification{};
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4)) {
-        if (newValue.at(0) == 0x55 && newValue.length() > 7) {
-            lastPacketComplete.clear();
-            customRecv = (((uint16_t)((uint8_t)newValue.at(7)) << 8) | (uint16_t)((uint8_t)newValue.at(6))) + 10;
-            qDebug() << "new custom packet received. Len expected: " << customRecv;
-        }
+        if (paragonOnly) {
+            paragonNotification = processParagonNotification(newValue);
+        } else {
+            // Keep the original frame assembly and completion signals for
+            // other Horizon models completely unchanged.
+            if (newValue.at(0) == 0x55 && newValue.length() > 7) {
+                lastPacketComplete.clear();
+                customRecv = (((uint16_t)((uint8_t)newValue.at(7)) << 8) |
+                              (uint16_t)((uint8_t)newValue.at(6))) + 10;
+                qDebug() << "new custom packet received. Len expected: " << customRecv;
+            }
 
-        lastPacketComplete.append(newValue);
-        customRecv -= newValue.length();
-        if (customRecv <= 0) {
-            emit debug(QStringLiteral(" << FULL ") + " " + lastPacketComplete.toHex(' '));
-            qDebug() << "full custom packet received";
-            initPacketRecv = true;
-            customRecv = 0;
-            emit packetReceived();
+            lastPacketComplete.append(newValue);
+            customRecv -= newValue.length();
+            if (customRecv <= 0) {
+                emit debug(QStringLiteral(" << FULL ") + " " + lastPacketComplete.toHex(' '));
+                qDebug() << "full custom packet received";
+                initPacketRecv = true;
+                customRecv = 0;
+                emit packetReceived();
+            }
         }
     }
 
@@ -1693,15 +1757,36 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         return;
     }
 
-    if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && lastPacketComplete.length() > 70 &&
-        lastPacketComplete.at(0) == 0x55 && lastPacketComplete.at(5) == 0x17) {
-        parseSpeed((((double)(((uint16_t)((uint8_t)lastPacketComplete.at(25)) << 8) |
-                           (uint16_t)((uint8_t)lastPacketComplete.at(24)))) /
-                 100.0) *
-                1.60934); // miles/h
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) &&
+        ((paragonOnly && (paragonNotification.recovered ||
+                         (paragonNotification.completed && lastPacketComplete.size() > 70 &&
+                          lastPacketComplete.at(0) == 0x55 && lastPacketComplete.at(5) == 0x17))) ||
+         (!paragonOnly && lastPacketComplete.length() > 70 &&
+          lastPacketComplete.at(0) == 0x55 && lastPacketComplete.at(5) == 0x17))) {
+        ParagonXTelemetry::Metrics metrics{};
+        const bool decoded =
+            paragonOnly &&
+            (paragonNotification.recovered
+                 ? (metrics = paragonNotification.recoveredMetrics, true)
+                 : ParagonXTelemetry::decode(
+                       reinterpret_cast<const uint8_t *>(lastPacketComplete.constData()),
+                       static_cast<std::size_t>(lastPacketComplete.size()), false, metrics));
+        if (decoded) {
+            applyParagonTelemetry(metrics);
+        } else {
+            // Retain the preexisting complete-frame parsing for every other
+            // Horizon model (and any Paragon frame of an older format).
+            double speedKmh = (((double)(((uint16_t)((uint8_t)lastPacketComplete.at(25)) << 8) |
+                                           (uint16_t)((uint8_t)lastPacketComplete.at(24)))) /
+                                100.0) * 1.60934;
+            if (paragonOnly) {
+                paragonSessionState.observe(static_cast<uint8_t>(lastPacketComplete.at(14)));
+                speedKmh = paragonSessionState.publishedSpeed(speedKmh);
+            }
+            parseSpeed(speedKmh);
+            parseInclination(treadmillInclinationOverride((double)((uint8_t)lastPacketComplete.at(30)) / 10.0));
+        }
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-
-        parseInclination(treadmillInclinationOverride((double)((uint8_t)lastPacketComplete.at(30)) / 10.0));
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
 
         if (firstDistanceCalculated && watts(weight))

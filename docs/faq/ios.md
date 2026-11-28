@@ -40,6 +40,8 @@ On older QZ iPhone builds, if **1.20** is not saved, try **1,20** instead, press
 3. Open **Zwift or MyWhoosh** on that same iPhone/iPad and connect the training app to QZ's virtual trainer rather than directly to the physical trainer.
 4. Verify that power, cadence, trainer control and (if used) virtual shifting continue updating while the training app is in the foreground.
 
+A confirmed alternative to an unreliable two-device Wi-Fi bridge is to run both QZ and MyWhoosh on the same iPad. In the tested Domyos setup, MyWhoosh discovered Wahoo KICKR 0000 over LAN but received zero power/cadence. Installing the iOS beta on the iPad, enabling **iOS Background Keep Alive**, restarting QZ, activating the cast icon at the top left of QZ and then opening MyWhoosh on that same iPad restored the connection. This confirms the same-device workaround, not a fix for the original LAN connection.
+
 **Important:** This is an **iOS beta feature**, not a guarantee for older stable versions or Android. iOS background execution and initial virtual-trainer discovery can behave differently from an established connection; test pairing and stability before a long workout. If Zwift cannot initially discover QZ when QZ is backgrounded, see the [Zwift background discovery FAQ](zwift.md).
 
 ## Can I also keep QZ on one iOS device and run MyWhoosh on another?

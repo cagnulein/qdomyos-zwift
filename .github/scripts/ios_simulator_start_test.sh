@@ -69,13 +69,15 @@ xcrun simctl install "$UDID" "$APP" || fail "simctl install failed"
 
 # QSettings on iOS: the CFPreferences domain com.<organizationDomain, dots as dashes>.<applicationName>
 # (main.cpp) in the app container. A last device closes the first-run wizard, the Apple Watch fake
-# device shows the tiles without a bike, log_debug writes the debug log
+# device shows the tiles without a bike, log_debug writes the debug log; ui_modern_new_install_checked:
+# the look was already decided, so the classic look without "Try the new interface?" over the app
 DATA=$(xcrun simctl get_app_container "$UDID" "$BID" data)
 PREFS="$DATA/Library/Preferences/com.robertoviola-cloud.qDomyos-Zwift.plist"
 mkdir -p "$DATA/Library/Preferences"
 /usr/libexec/PlistBuddy -c 'Add :bluetooth_lastdevice_name string TestBike' "$PREFS"
 /usr/libexec/PlistBuddy -c 'Add :applewatch_fakedevice bool true' "$PREFS"
 /usr/libexec/PlistBuddy -c 'Add :log_debug bool true' "$PREFS"
+/usr/libexec/PlistBuddy -c 'Add :ui_modern_new_install_checked bool true' "$PREFS"
 
 # simctl launch prints "<bundle id>: <pid>"
 LAUNCH=$(xcrun simctl launch --stdout="$PWD/$OUT/stdout.txt" --stderr="$PWD/$OUT/stderr.txt" "$UDID" "$BID") || fail "simctl launch failed"

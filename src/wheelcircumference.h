@@ -20,6 +20,7 @@
 #include <QDebug>
 
 #include "qzsettings.h"
+#include "rouvygearing.h"
 
 class wheelCircumference : public QObject {
 
@@ -38,6 +39,19 @@ class wheelCircumference : public QObject {
     }
 
     static QString gearsInfo(int gear) {
+        QSettings settings;
+        // Rouvy sequential virtual gearing has 24 positions per profile. The user-defined
+        // physical gear table below typically has only 12, and would show 0/0 from gear 13.
+        // Keep this presentation lookup separate from the wheel-diameter/resistance logic.
+        if (gear >= 1 && gear <= RouvyGearing::GearCount &&
+            settings.value(QZSettings::rouvy_compatibility, QZSettings::default_rouvy_compatibility).toBool()) {
+            const int profile = settings.value(QZSettings::rouvy_virtual_gearing_profile,
+                                               QZSettings::default_rouvy_virtual_gearing_profile).toInt();
+            const int protocolRatio = RouvyGearing::ratioForGear(profile, gear);
+            if (protocolRatio > 0)
+                return QString::number(protocolRatio / 10000.0, 'f', 4);
+        }
+
         GearTable table;
         GearTable::GearInfo g = table.getGear((int)gear);
         return QString::number(g.crankset, 'f' , 0) + "/" + QString::number(g.rearCog, 'f' , 0);

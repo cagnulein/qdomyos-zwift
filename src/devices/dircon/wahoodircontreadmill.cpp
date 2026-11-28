@@ -473,6 +473,7 @@ void wahoodircontreadmill::parseTreadmillData(const QByteArray &value) {
 
     // Expanded Energy (Total, Per Hour, Per Minute)
     if (Flags.expEnergy && index + 5 < value.length()) {
+        caloriesFromConsole = true; // the console reports the calories (treadmill calorie model)
         KCal = ((double)(((uint16_t)((uint8_t)value.at(index + 1)) << 8) |
                          (uint16_t)((uint8_t)value.at(index))));
         index += 6;

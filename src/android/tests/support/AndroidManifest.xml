@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Only merged into the debug APK; no test entry point in release builds. -->
+    <instrumentation
+        android:name="org.cagnulen.qdomyoszwift.SplitBluetoothTestInstrumentation"
+        android:targetPackage="org.cagnulen.qdomyoszwift"
+        android:label="QZ split Bluetooth regression (debug only)" />
     <application>
         <activity android:name="org.cagnulen.qdomyoszwift.SupportEmailTestActivity"
                   android:exported="true"

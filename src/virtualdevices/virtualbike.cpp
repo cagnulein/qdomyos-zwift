@@ -465,7 +465,8 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     charData.setUuid(QBluetoothUuid::CharacteristicType::CyclingPowerFeature);
                     charData.setProperties(QLowEnergyCharacteristic::Read);
                     QByteArray value;
-                    value.append((char)0x08); // crank supported
+                    // crank supported; for a Garmin watch also wheel, which CharacteristicNotifier2A63 always sends
+                    value.append((char)(garminPowerMeter() ? 0x0C : 0x08));
                     value.append((char)0x00);
                     value.append((char)0x00);
                     value.append((char)0x00);
@@ -745,6 +746,11 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                                                       "(Landroid/content/Context;Ljava/lang/String;)V",
                                                       QtAndroid::androidContext().object(),
                                                       QAndroidJniObject::fromString(echelonAdvertisingName).object<jstring>());
+        } else if (garminPowerMeter()) {
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+                                                      "startAdvertisingCyclingPower",
+                                                      "(Landroid/content/Context;)V",
+                                                      QtAndroid::androidContext().object());
         } else {
             leController->startAdvertising(pars, advertisingData, advertisingData);
         }
@@ -849,30 +855,6 @@ virtualbike::VarintResult virtualbike::decodeVarint(const QByteArray& bytes, int
    return {result, bytesRead};
 }
 
-// Decode a protobuf sint value from a byte array
-// Expects a field header (0x22), length byte, inner header (0x10) and varint value
-qint32 virtualbike::decodeSInt(const QByteArray& bytes) {
-   // Check field header (0x22 = field number 4, wire type 2)
-   if (static_cast<quint8>(bytes.at(0)) != 0x22) {
-       qFatal("Invalid field header");
-   }
-   
-   // Get content length
-   int length = static_cast<quint8>(bytes.at(1));
-   
-   // Check inner header (0x10 = field number 2, wire type 0)
-   if (static_cast<quint8>(bytes.at(2)) != 0x10) {
-       qFatal("Invalid inner header");
-   }
-   
-   // Decode the varint value
-   VarintResult varint = decodeVarint(bytes, 3);
-   
-   // Apply ZigZag decoding to get the original signed value
-   qint32 decoded = (varint.value >> 1) ^ -(varint.value & 1);
-   
-   return decoded;
-}
 
 quint8 virtualbike::tacxAntChecksum(const QByteArray &payload) {
     quint8 checksum = 0;
@@ -1497,7 +1479,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         else if (receivedData.startsWith(expectedHexArray3)) {
             qDebug() << "Zwift Play Ask 3";
 
-            QByteArray response = QByteArray::fromHex("3c0888041206 0a0440c0bb01");
+            QByteArray response = writeP0003->gearStatusResponse();
             writeCharacteristic(serviceZwiftPlayBike, zwiftPlayIndicate, response);
         }
         else if (receivedData.startsWith(expectedHexArray4)) {
@@ -1515,7 +1497,10 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         else if (receivedData.startsWith(expectedHexArray5)) {
             qDebug() << "Zwift Play Ask 5";
 
-            double slopefloat = decodeSInt(receivedData.mid(1));
+            qint32 slopeValue = 0;
+            if (!CharacteristicWriteProcessor0003::decodeSInt(receivedData.mid(1), slopeValue))
+                return; // Ignore invalid slope; do not apply a bogus zero grade.
+            double slopefloat = slopeValue;
             QByteArray slope(2, 0);
             slope[0] = quint8(qint16(slopefloat) & 0xFF);
             slope[1] = quint8((qint16(slopefloat) >> 8) & 0x00FF);
@@ -1545,6 +1530,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         else if (receivedData.startsWith(expectedHexArray6)) {
             qDebug() << "Zwift Play Ask 6";
 
+            if (receivedData.size() < 7) return;
             QByteArray response = QByteArray::fromHex("3c0888041206 0a0440c0bb01");
             response[9] = receivedData[4];
             response[10] = receivedData[5];
@@ -1561,9 +1547,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             QByteArray response = QByteArray::fromHex("03080010001827e7 2000 28 00 3093ed01");
             writeCharacteristic(serviceZwiftPlayBike, zwiftPlayRead, response);
 
-            response = QByteArray::fromHex("3c088804120503408c60");
-            response[9] = receivedData[4];
-            response[10] = receivedData[5];
+            if (receivedData.size() < 6) return;
+            response = writeP0003->gearAckResponse(receivedData.mid(4, 2));
             writeP0003->handleZwiftGear(receivedData.mid(4));
             writeCharacteristic(serviceZwiftPlayBike, zwiftPlayIndicate, response);
         }
@@ -1927,6 +1912,11 @@ void virtualbike::reconnect() {
                                                   "(Landroid/content/Context;Ljava/lang/String;)V",
                                                   QtAndroid::androidContext().object(),
                                                   QAndroidJniObject::fromString(echelonAdvertisingName).object<jstring>());
+    } else if (garminPowerMeter()) {
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+                                                  "startAdvertisingCyclingPower",
+                                                  "(Landroid/content/Context;)V",
+                                                  QtAndroid::androidContext().object());
     } else {
         leController->startAdvertising(pars, advertisingData, advertisingData);
     }
@@ -1952,6 +1942,23 @@ void virtualbike::applyIosAppCommands(CharacteristicWriteProcessor2AD9 *writeP, 
         qDebug() << QStringLiteral("zwift is not sending the power anymore, let's continue with the last value");
         writeP->changePower(device->lastRequestedPower().value());
     }
+}
+
+// A Garmin watch takes a power meter, not FTMS; on Android it is found only with the Java advertiser.
+// Bikes only: CharacteristicNotifier2A63 sends no power for ellipticals and rowers, so they keep the Qt advertiser.
+bool virtualbike::garminPowerMeter() const {
+#ifdef Q_OS_ANDROID
+    QSettings settings;
+    return Bike->deviceType() == BIKE &&
+           settings.value(QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility).toBool() &&
+           settings.value(QZSettings::bike_power_sensor, QZSettings::default_bike_power_sensor).toBool() &&
+           !settings.value(QZSettings::virtual_device_tacx, QZSettings::default_virtual_device_tacx).toBool() &&
+           !settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool() &&
+           !settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool() &&
+           !isEchelonVirtualEnabled();
+#else
+    return false;
+#endif
 }
 
 void virtualbike::bikeProvider() {

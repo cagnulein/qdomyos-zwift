@@ -174,6 +174,22 @@
         <translation>停止</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>自动阻力已关闭</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect while Auto Resistance stays off. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ 当前不会改变阻力。“应用”：阻力、目标阻力和预设磁贴的档位在自动阻力关闭期间生效。来自应用（例如 Zwift）的指令仍会被忽略。</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>应用</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>开启自动阻力</translation>
+    </message>
+    <message>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
@@ -294,6 +310,14 @@ Would you like to enable them?</source>
 Would you like to do that now?</source>
         <translation>应用更改需要重启。
 现在是否重启？</translation>
+    </message>
+    <message>
+        <source>Try the new interface?</source>
+        <translation>要试用新界面吗？</translation>
+    </message>
+    <message>
+        <source>QZ has a new look for the main screen, the side menu, the settings and the wizard. You can switch back anytime in Settings &gt; General UI Options.</source>
+        <translation>QZ 的主屏幕、侧边菜单、设置和向导采用了全新外观。您可以随时在 设置 &gt; 通用 UI 选项 中切换回来。</translation>
     </message>
     <message>
         <source>Adjustable. Current value: </source>
@@ -2564,6 +2588,18 @@ Do you want to update QZ settings?</source>
     <message>
         <source>1 Mile</source>
         <translation>1 英里</translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation>全屏</translation>
+    </message>
+    <message>
+        <source>Exit full screen</source>
+        <translation>退出全屏</translation>
+    </message>
+    <message>
+        <source>Swipe left or right to switch charts</source>
+        <translation>左右滑动切换图表</translation>
     </message>
     <message>
         <source>Peloton Workout in progress!</source>
@@ -5023,6 +5059,10 @@ In the next window, allow access to the QZ folder.</source>
         <translation>设置</translation>
     </message>
     <message>
+        <source>Try the new interface</source>
+        <translation>试用新界面</translation>
+    </message>
+    <message>
         <source>Workouts History</source>
         <translation>训练历史</translation>
     </message>
@@ -6983,6 +7023,22 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>选择在页脚显示的图表：心率和功率图表，仅心率图表，或仅功率图表。</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines:</source>
+        <translation>平滑图表曲线：</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>自动</translation>
+    </message>
+    <message>
+        <source>%1 s</source>
+        <translation>%1 秒</translation>
+    </message>
+    <message>
+        <source>On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
+        <translation>在“图表”页面和训练邮件的图表中，功率、踏频和速度曲线按所选窗口的移动平均绘制，而不是逐秒的原始值。自动：训练中为 3 秒；停止后为 3 秒，训练每满 30 分钟再加 2 秒，最多 15 秒。平均值、最大值、区间、功率分布和 FIT 文件仍使用原始值。默认为关。</translation>
+    </message>
+    <message>
         <source>iOS Live Activity Left Metric</source>
         <translation>iOS 实时活动左侧指标</translation>
     </message>
@@ -7361,6 +7417,75 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     <message>
         <source>Open</source>
         <translation type="vanished">打开</translation>
+    </message>
+    <message>
+        <source>Modern interface</source>
+        <translation>现代界面</translation>
+    </message>
+    <message>
+        <source>New look of the main screen, the side menu, the settings and the wizard. Turn it off to get the classic look back.</source>
+        <translation>主屏幕、侧边菜单、设置和向导的新外观。关闭后恢复经典外观。</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>外观</translation>
+    </message>
+    <message>
+        <source>As on the phone</source>
+        <translation>跟随系统</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>深色</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <extracomment>Colour theme: the light one (not &quot;easy&quot; as in the effort scale)</extracomment>
+        <translation>浅色</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>主题</translation>
+    </message>
+    <message>
+        <source>Graphite</source>
+        <translation>石墨</translation>
+    </message>
+    <message>
+        <source>Black / white</source>
+        <translation>黑 / 白</translation>
+    </message>
+    <message>
+        <source>Midnight blue</source>
+        <translation>午夜蓝</translation>
+    </message>
+    <message>
+        <source>Accent color</source>
+        <translation>强调色</translation>
+    </message>
+    <message>
+        <source>Violet</source>
+        <translation>紫色</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>蓝色</translation>
+    </message>
+    <message>
+        <source>Teal</source>
+        <translation>青色</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>绿色</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>橙色</translation>
+    </message>
+    <message>
+        <source>Pink</source>
+        <translation>粉色</translation>
     </message>
     <message>
         <source>Tile size:</source>
@@ -7803,8 +7928,8 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Garmin 蓝牙传感器</translation>
     </message>
     <message>
-        <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation>如果您想从 Mac 将数据发送到您的 Garmin 设备，请启用此项。否则请保持禁用。</translation>
+        <source>Lets your Garmin or another sports watch use QZ as a Bluetooth sensor: a foot pod with a treadmill, a power meter with a bike (on Android, also turn on Bike Power Sensor). The watch needs a Bluetooth pairing with the phone or tablet that runs QZ: if it does not find QZ, pair them once, then add the sensor on the watch and accept the pairing request. If Garmin Connect on the same phone is linked to the watch, force stop it two or three times while the watch is connecting; a separate phone or tablet without Garmin Connect is easier. While QZ works as a sensor for the watch, Zwift over Bluetooth sees it only as a foot pod or a power meter, not as a machine it can control.</source>
+        <translation>让您的 Garmin 或其他运动手表把 QZ 当作蓝牙传感器使用：跑步机时为步频传感器，单车时为功率计（在 Android 上还需打开“自行车功率传感器”）。手表需要与运行 QZ 的手机或平板进行蓝牙配对：如果找不到 QZ，请先配对一次，然后在手表上添加传感器并接受配对请求。如果同一部手机上的 Garmin Connect 已与手表连接，请在手表连接时连续强制停止 Garmin Connect 两到三次；使用一部没有 Garmin Connect 的单独手机或平板更简单。当 QZ 作为手表的传感器工作时，通过蓝牙连接的 Zwift 只会把它识别为步频传感器或功率计，而不是可以控制的设备。</translation>
     </message>
     <message>
         <source>Enable Companion App</source>
@@ -10568,6 +10693,14 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Use Console Gears</source>
         <translation>使用控制台档位</translation>
+    </message>
+    <message>
+        <source>Treadmill Calories from Walking/Running Model</source>
+        <translation>跑步机卡路里：步行/跑步模型</translation>
+    </message>
+    <message>
+        <source>Treadmills whose console does not report calories. Calories come from belt speed, incline and your weight, height, age and sex, using a walking model below your walk-to-run speed (set by your height) and a running model above it. Turn off to use the power-based value instead. A console that reports calories, an external power sensor (Stryd etc.), and Calculate Calories from Heart Rate when it is on, still take priority.</source>
+        <translation>适用于控制台不报告卡路里的跑步机。卡路里根据跑带速度、坡度以及您的体重、身高、年龄和性别计算：低于由身高决定的步行转跑步速度时使用步行模型，高于时使用跑步模型。关闭后改用基于功率的数值。控制台报告的卡路里、外部功率传感器（Stryd 等）以及开启时的“根据心率计算卡路里”仍然优先。</translation>
     </message>
 </context>
 <context>

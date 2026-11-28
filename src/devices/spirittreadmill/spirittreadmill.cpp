@@ -288,6 +288,7 @@ void spirittreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     lastTimeCharChanged = QTime::currentTime();
 
     Speed = speed;
+    caloriesFromConsole = true; // the console reports the calories (treadmill calorie model)
     KCal = kcal;
 }
 

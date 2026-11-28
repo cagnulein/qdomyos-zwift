@@ -196,7 +196,8 @@ done
 
 # Use simulated bike; no physical exercise equipment is ever attached to this CI.
 adb shell am force-stop "$PKG"
-printf '[General]\napplewatch_fakedevice=true\nbluetooth_lastdevice_name=Fake\nskipLocationServicesDialog=true\n' > qz-talkback.conf
+# ui_modern_new_install_checked: a user whose look was already decided, so no "Try the new interface?" over the app
+printf '[General]\napplewatch_fakedevice=true\nbluetooth_lastdevice_name=Fake\nskipLocationServicesDialog=true\nui_modern_new_install_checked=true\n' > qz-talkback.conf
 adb push qz-talkback.conf /data/local/tmp/qz-talkback.conf >/dev/null
 adb shell "run-as $PKG mkdir -p 'files/.config/Roberto Viola'"
 adb shell "run-as $PKG cp /data/local/tmp/qz-talkback.conf 'files/.config/Roberto Viola/qDomyos-Zwift.conf'"

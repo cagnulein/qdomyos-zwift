@@ -1,0 +1,29 @@
+name: Chart smoothing
+
+on:
+  pull_request:
+    paths:
+      - 'src/inner_templates/chartjs/dochart.js'
+      - 'tests/test_chart_smoothing.py'
+      - 'tests/chart_smoothing_harness.js'
+      - 'tests/fixtures/chart_smoothing_master.json'
+      - '.github/workflows/chart-smoothing.yml'
+  workflow_dispatch:
+
+jobs:
+  chart-smoothing:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # Smooth Chart Lines off must draw the Charts page and the charts of the workout email
+      # exactly as before; on, only the power, cadence and speed lines change
+      - name: Test the smoothing of the chart lines
+        run: python3 -m unittest -v tests/test_chart_smoothing.py

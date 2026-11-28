@@ -5115,10 +5115,6 @@ ScrollView {
                 Accessible.name: text
                 Accessible.checkable: true
                 Accessible.checked: checked
-                Accessible.onPressAction: {
-                    checked = !checked
-                    clicked()
-                }
                 spacing: 0
                 bottomPadding: 0
                 topPadding: 0

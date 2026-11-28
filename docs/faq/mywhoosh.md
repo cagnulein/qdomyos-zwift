@@ -20,6 +20,34 @@ If the Click changes resistance in QZ but the gear shown inside MyWhoosh does no
 
 If MyWhoosh does not discover the OpenBikeControl service at all, verify local-network permissions, that both devices are on the same network, and then restart both QZ and MyWhoosh before collecting a QZ debug log.
 
+## Can I use QZ's own virtual gears with Zwift Ride and KICKR CORE in MyWhoosh, instead of MyWhoosh's MyShift?
+
+Yes. This is a different configuration from the OpenBikeControl setup above: QZ owns the gear number and applies the resistance change to the physical trainer.
+
+1. Connect the physical KICKR CORE to QZ. Enable **Zwift Play** under **Accessories**, and leave **Get Gears from Zwift** disabled.
+2. In **Bike Options > Wahoo Options**, select **Reality Bender (24 even spaced)** if you want 24 virtual gears instead of the 13-gear Explorer preset. Set the physical chainring and cog sizes to match the actual drivetrain; see the [Wahoo gearing FAQ](zwift.md).
+3. Enable **Buttons debouncing** if one press skips multiple gears. Disable **MyWhoosh Link / OpenBikeControl** for this QZ-local shifting configuration, restart QZ with the handlebars awake, and enable the **Gears** tile.
+4. On a second device, pair MyWhoosh to QZ's virtual trainer as power, cadence and controllable trainer, rather than pairing the physical KICKR directly.
+
+A rider confirmed single-step shifting after configuring the controller and later confirmed that physical effort changed while shifting on a nearly flat MyWhoosh route. In this mode, read the current gear in QZ; MyWhoosh's own gear display is not necessarily synchronized.
+
+## HAMMER SX8 BT connects to QZ, but MyWhoosh cannot find QZ or the metrics stop. What setup worked?
+
+A rider confirmed a two-device Android setup with a **HAMMER SX8 BT**. QZ connected to the bike through its i-Console Bluetooth service (the tested session advertised `i-Console+0716`; the suffix can vary). Starting the bike from its console and using the following QZ options restored live values in QZ and allowed the MyWhoosh avatar to move:
+
+| QZ setting | Confirmed value |
+| --- | --- |
+| Heart Rate service outside FTMS | **ON** (switch it from OFF for this case) |
+| Enable Virtual Device | **ON** |
+| Virtual Device Bluetooth | **ON** |
+| Zwift Force Resistance | **ON** |
+| Wahoo direct connect | **ON** |
+| MyWhoosh Compatibility | **ON** |
+
+Apply the settings, fully restart QZ, and press **Start** on the SX8 BT console. Run QZ and MyWhoosh on separate devices for this tested setup. In MyWhoosh, select QZ's advertised virtual trainer (the Wahoo-compatible trainer), not the physical SX8 BT. Keep both devices on the same local network when using Wahoo direct connect.
+
+**Confirmed result:** with this configuration, the rider reported that QZ values rose and fell with pedaling, returned to zero when pedaling stopped, and MyWhoosh's avatar moved. The successful log still had the bike's i-Console entry selected as the heart-rate belt; disabling **Heart Rate Belt Name** was not needed for this confirmed run. This is one tested setup, not proof that every listed switch is individually required on every bike. **MyWhoosh Compatibility** is MyWhoosh-specific; disable it when switching to Zwift.
+
 ## My Elite Rizer connects to QZ but does not follow hills in MyWhoosh. What should I check?
 
 **Check MyWhoosh's own Gradient / trainer difficulty setting before changing QZ's incline mapping.** If that setting is at **0%**, MyWhoosh may not send the route's actual grade changes to QZ, even though the course visibly climbs and descends.

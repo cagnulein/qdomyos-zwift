@@ -12,6 +12,35 @@
     var NEUTRAL = ['black', '#000', '#000000', '#666', '#666666', 'rgb(0,0,0)'];
     var charts = [];
 
+    // A touch that scrolls the page is not a look at a chart. Chart.js shows the tooltip on
+    // touchmove (and on the mousemove and click of a tap) and hides it only on mouseout, so a
+    // swipe across a chart left the tooltip of the last point under the finger, and a live
+    // redraw (an update in place replays the last event) kept it. Once the page scrolls, the
+    // charts drop their tooltip and last event the way a mouse leaving does and skip the rest of
+    // the touch, up to the next first finger; a tap and a held finger show it as before
+    var touchScrolled = false;
+    document.addEventListener('touchstart', function (e) {
+        if (e.touches.length === 1)
+            touchScrolled = false;
+    }, { capture: true, passive: true });
+    document.addEventListener('scroll', function () {
+        if (touchScrolled)
+            return;
+        touchScrolled = true;
+        charts.forEach(function (chart) {
+            if (chart.canvas)
+                chart.canvas.dispatchEvent(new MouseEvent('mouseout'));
+        });
+    }, true);
+    var scrollGuard = {
+        id: 'qzScrollGuard',
+        beforeEvent: function (chart, args) {
+            var e = args.event.native;
+            if (touchScrolled && e && e.type.indexOf('touch') === 0)
+                return false;
+        }
+    };
+
     // Sport pictures of the summary (a lime drawing on a grey disc) and the icons of the
     // app's set (Material Symbols Rounded, the paths of ShapeIcon.qml) drawn instead in the modern look
     var SPORT_ICONS = {
@@ -177,6 +206,14 @@
         });
     }
 
+    // Full screen charts (chartfullscreen.js), on the pages that load it: every chart made or
+    // redrawn here gets its button and, while spread, the big look
+    function fullscreen(hook, a, b) {
+        if (window.qzChartFullscreen) {
+            window.qzChartFullscreen[hook](a, b);
+        }
+    }
+
     function rootOf(chart) {
         return { options: chart.config.options, data: chart.config.data };
     }
@@ -185,20 +222,31 @@
         create: function (ctx, config) {
             var list = patches(config);
             var pal = palette();
+            // Without an animation Chart.js draws the chart inside new Chart(), and the canvas
+            // fill of the page (background()) reads the palette in that draw: the chart takes
+            // it at its init, before the first draw, or the first look has a white fill
+            var themeOf = {
+                id: 'qzChartTheme',
+                beforeInit: function (chart) {
+                    chart.$qzPatches = list;
+                    chart.$qzPalette = pal;
+                }
+            };
+            config.plugins = (config.plugins || []).concat(scrollGuard, themeOf);
             apply(config, list, pal);
+            fullscreen('prepare', ctx.canvas, config.options);
             var chart = new Chart(ctx, config);
-            chart.$qzPatches = list;
-            chart.$qzPalette = pal;
             // Pages that recreate their chart drop the destroyed ones here
             charts = charts.filter(function (c) { return !!c.canvas; });
             charts.push(chart);
+            fullscreen('chartChanged'); // the full screen button of its card
             return chart;
         },
 
-        // A chart made by create() takes the config of a redraw in place (new scales and
-        // datasets from qzmetriccharts.js): they get the chart's palette and become its patches,
-        // so refresh() and withLight() keep working on them. The rest of the options are the ones
-        // already themed: their patches keep the original values
+        // A chart made by create() takes the config of a redraw in place (the live update of
+        // dochart.js, new scales and datasets from qzmetriccharts.js): they get the chart's
+        // palette and become its patches, so refresh() and withLight() keep working on them.
+        // The rest of the options are the ones already themed: their patches keep the original values
         restyle: function (chart, config) {
             var kept = {};
             (chart.$qzPatches || []).forEach(function (p) {
@@ -210,6 +258,8 @@
             });
             apply(config, list, chart.$qzPalette);
             chart.$qzPatches = list;
+            fullscreen('prepare', chart.canvas, config.options); // a spread chart stays big
+            fullscreen('chartChanged'); // a card shown by the new data counts in "i / n"
         },
 
         // The fill of the canvas, drawn by dochart.js under each chart: the card colour of the
