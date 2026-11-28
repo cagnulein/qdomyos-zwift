@@ -7249,6 +7249,18 @@ IMPORTANT NOTES:
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>ความชันคงที่ของลู่วิ่ง</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>ความชันคงที่ (%)</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>ใช้ความชันคงที่จริงของลู่วิ่งแบบไม่ใช้มอเตอร์ของคุณ เริ่ม QZ ใหม่หลังจากเปลี่ยนการตั้งค่านี้</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation type="unfinished"></translation>
     </message>

@@ -7982,6 +7982,18 @@ IMPORTANT NOTES:
         <translation>踏频传感器选项</translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>跑步机固定坡度</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>固定坡度 (%)</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>使用手动跑步机的实际固定坡度。更改此设置后，请重新启动 QZ。</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation>如果自行车运行正常，请勿更改这些设置。</translation>
     </message>

@@ -8006,6 +8006,18 @@ IMPORTANT NOTES:
         <translation>Параметри датчика каденсу</translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>Фіксований нахил бігової доріжки</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>Фіксований нахил (%)</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>Використовуйте фактичний фіксований нахил механічної бігової доріжки. Перезапустіть QZ після зміни цього налаштування.</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation>Не змінюйте цих налаштувань, якщо велотренажер працює нормально!</translation>
     </message>
