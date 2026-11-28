@@ -3,6 +3,7 @@
 #import <AVKit/AVKit.h>
 #import <UIKit/UIKit.h>
 #include <QDebug>
+#include <QColor>
 #include "ios/ios_floating_metrics.h"
 
 // Draw the complete text on one line, scaling it to fit rather than truncating it.
@@ -80,12 +81,14 @@ API_AVAILABLE(ios(15.0))
     if (!self.controller) { qWarning() << "Floating metrics: controller creation failed"; [self finish]; return; }
     self.controller.delegate = self;
     self.controller.requiresLinearPlayback = YES;
-    self.controller.canStartPictureInPictureAutomaticallyFromInline = YES;
     self.pending = UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad;
+    // On iPad the toolbar starts PiP explicitly. Keep AVKit from also starting it during an app switch.
+    self.controller.canStartPictureInPictureAutomaticallyFromInline = !self.pending;
     [self render];
     [self.controller addObserver:self forKeyPath:@"pictureInPicturePossible" options:NSKeyValueObservingOptionNew context:NULL];
     self.observing = YES;
-    qDebug() << "Floating metrics: controller ready; PiP possible" << self.controller.isPictureInPicturePossible << "layer status" << (int)self.layer.status;
+    qDebug() << "Floating metrics: controller ready" << (__bridge const void *)self.controller
+             << "PiP possible" << self.controller.isPictureInPicturePossible << "layer status" << (int)self.layer.status;
     if (self.pending) {
         qDebug() << "Floating metrics: iPad foreground start scheduled";
         [self scheduleForegroundStart:0 controller:self.controller];
@@ -95,20 +98,22 @@ API_AVAILABLE(ios(15.0))
 }
 - (void)scheduleForegroundStart:(NSUInteger)attempt controller:(AVPictureInPictureController *)controller {
     if (attempt >= 8) {
-        if (self.controller == controller) {
+        if (self.controller == controller && self.pending) {
             self.pending = NO;
-            qWarning() << "Floating metrics: foreground PiP unavailable after 8 attempts; automatic background start remains armed";
+            controller.canStartPictureInPictureAutomaticallyFromInline = YES;
+            qWarning() << "Floating metrics: foreground PiP unavailable after 8 attempts; armed automatic background start"
+                       << (__bridge const void *)controller;
         }
         return;
     }
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        if (self.controller != controller || controller.isPictureInPictureActive) return;
+        if (self.controller != controller || !self.pending || controller.isPictureInPictureActive) return;
         qDebug() << "Floating metrics: foreground start check" << (int)attempt + 1
                  << "possible" << controller.isPictureInPicturePossible << "layer status" << (int)self.layer.status
                  << "ready" << self.layer.readyForMoreMediaData;
         if (controller.isPictureInPicturePossible) {
             self.pending = NO;
-            qDebug() << "Floating metrics: requesting foreground PiP";
+            qDebug() << "Floating metrics: requesting foreground PiP" << (__bridge const void *)controller;
             [controller startPictureInPicture];
         } else {
             [self scheduleForegroundStart:attempt + 1 controller:controller];
@@ -123,9 +128,12 @@ API_AVAILABLE(ios(15.0))
 - (void)render {
     if (!self.layer) return;
     NSArray<NSArray<NSString *> *> *all = self.metrics ?: @[];
-    const NSUInteger columns = 4;
-    const NSUInteger rows = 3;
-    const NSUInteger metricsPerPage = columns * rows;
+    // Keep pagination independent of the adaptive grid. Use the same layout
+    // on every page so that the last (possibly partial) page does not jump.
+    const NSUInteger metricsPerPage = 12;
+    const NSUInteger tileCount = MIN(all.count, metricsPerPage);
+    const NSUInteger columns = tileCount <= 1 ? 1 : tileCount <= 4 ? 2 : tileCount <= 6 ? 3 : 4;
+    const NSUInteger rows = MAX((NSUInteger)1, (tileCount + columns - 1) / columns);
     NSUInteger pages = MAX((NSUInteger)1, (all.count + metricsPerPage - 1) / metricsPerPage);
     NSUInteger page = ((NSUInteger)(NSDate.date.timeIntervalSince1970 / 6)) % pages;
     NSUInteger offset = MIN(page * metricsPerPage, all.count);
@@ -145,19 +153,44 @@ API_AVAILABLE(ios(15.0))
     CGContextTranslateCTM(ctx, 0, 270); CGContextScaleCTM(ctx, 1, -1);
     UIGraphicsPushContext(ctx);
     [[UIColor colorWithWhite:0.06 alpha:1] setFill]; UIRectFill(CGRectMake(0, 0, 480, 270));
-    UIFont *labelFont = [UIFont systemFontOfSize:17 weight:UIFontWeightMedium];
-    UIFont *valueFont = [UIFont monospacedDigitSystemFontOfSize:31 weight:UIFontWeightBold];
-    // Twelve metrics: 4 columns and 3 rows. Reserve a separate footer for the page number.
-    const CGFloat cellWidth = 480.0 / columns;
+    // Fit the selected metrics into the full 16:9 source frame. AVKit
+    // scales this frame to the actual PiP window; its minimum size is OS-owned.
+    const CGFloat frameWidth = 480.0;
+    const CGFloat frameHeight = 270.0;
+    const CGFloat topPadding = 8.0;
+    const CGFloat bottomPadding = 8.0;
+    const CGFloat footerHeight = pages > 1 ? 22.0 : 0.0;
+    const CGFloat cellWidth = frameWidth / columns;
+    const CGFloat cellHeight = (frameHeight - topPadding - bottomPadding - footerHeight) / rows;
     const CGFloat horizontalPadding = 3.0;
     const CGFloat textWidth = cellWidth - 2 * horizontalPadding;
+    const CGFloat labelHeight = cellHeight * 0.29;
+    const CGFloat valueHeight = cellHeight * 0.60;
+    const CGFloat gap = cellHeight * 0.03;
+    const CGFloat verticalPadding = (cellHeight - labelHeight - valueHeight - gap) / 2.0;
+
+    // Base sizes depend only on the layout, not the current metric values.
+    // The existing single-line fitting helper still shrinks unusually long text.
+    const CGFloat labelSize = MIN(labelHeight * 0.75, textWidth * 0.30);
+    const CGFloat valueSize = MIN(valueHeight * 0.70, textWidth * 0.55);
+    UIFont *labelFont = [UIFont systemFontOfSize:labelSize weight:UIFontWeightMedium];
+    UIFont *valueFont = [UIFont monospacedDigitSystemFontOfSize:valueSize weight:UIFontWeightBold];
     for (NSUInteger i = 0; i < shown.count; ++i) {
-        CGFloat x = (i % columns) * cellWidth, y = 9 + (i / columns) * 80;
-        QZDrawFittedText(shown[i][0], CGRectMake(x + horizontalPadding, y, textWidth, 22), labelFont, UIColor.lightGrayColor);
-        QZDrawFittedText(shown[i][1], CGRectMake(x + horizontalPadding, y + 23, textWidth, 45), valueFont, UIColor.whiteColor);
+        CGFloat x = (i % columns) * cellWidth + horizontalPadding;
+        CGFloat y = topPadding + (i / columns) * cellHeight + verticalPadding;
+        QZDrawFittedText(shown[i][0], CGRectMake(x, y, textWidth, labelHeight), labelFont, UIColor.lightGrayColor);
+        // Qt parses the same named and hexadecimal colors used by QML.
+        // The PiP always has a dark background, like the original dark QZ tiles.
+        const QColor color(QString::fromUtf8(shown[i][2].UTF8String));
+        UIColor *valueColor = color.isValid()
+            ? [UIColor colorWithRed:color.redF() green:color.greenF() blue:color.blueF() alpha:color.alphaF()]
+            : UIColor.whiteColor;
+        QZDrawFittedText(shown[i][1], CGRectMake(x, y + labelHeight + gap, textWidth, valueHeight), valueFont, valueColor);
     }
-    if (shown.count == 0) QZDrawFittedText(self.emptyLabel ?: @"", CGRectMake(10, 110, 460, 30), labelFont, UIColor.lightGrayColor);
-    if (pages > 1) QZDrawFittedText([NSString stringWithFormat:@"%lu / %lu", (unsigned long)page + 1, (unsigned long)pages], CGRectMake(10, 250, 460, 17), labelFont, UIColor.lightGrayColor);
+    // Keep the empty state and page indicator at their original nominal size.
+    UIFont *smallFont = [UIFont systemFontOfSize:17 weight:UIFontWeightMedium];
+    if (shown.count == 0) QZDrawFittedText(self.emptyLabel ?: @"", CGRectMake(10, 110, 460, 30), smallFont, UIColor.lightGrayColor);
+    if (pages > 1) QZDrawFittedText([NSString stringWithFormat:@"%lu / %lu", (unsigned long)page + 1, (unsigned long)pages], CGRectMake(10, 250, 460, 17), smallFont, UIColor.lightGrayColor);
     UIGraphicsPopContext(); CGContextRelease(ctx);
     CVPixelBufferUnlockBaseAddress(pixel, 0);
     CMVideoFormatDescriptionRef format = NULL; CMSampleBufferRef sample = NULL;
@@ -182,17 +215,36 @@ API_AVAILABLE(ios(15.0))
     CVPixelBufferRelease(pixel);
 }
 - (void)finish {
-    qDebug() << "Floating metrics: cleanup";
+    qDebug() << "Floating metrics: cleanup" << (__bridge const void *)self.controller;
     self.pending = NO;
+    self.controller.canStartPictureInPictureAutomaticallyFromInline = NO;
     if (self.observing) { [self.controller removeObserver:self forKeyPath:@"pictureInPicturePossible"]; self.observing = NO; }
     [self.preview removeFromSuperview]; self.preview = nil; self.layer = nil; self.controller = nil; self.lastFrame = nil;
 }
-- (void)pictureInPictureControllerWillStartPictureInPicture:(AVPictureInPictureController *)controller { Q_UNUSED(controller); qDebug() << "Floating metrics: PiP will start"; }
-- (void)pictureInPictureControllerWillStopPictureInPicture:(AVPictureInPictureController *)controller { Q_UNUSED(controller); qDebug() << "Floating metrics: PiP will stop"; }
-- (void)pictureInPictureControllerDidStartPictureInPicture:(AVPictureInPictureController *)controller { Q_UNUSED(controller); qDebug() << "Floating metrics: PiP started"; self.preview.alpha = 0.01; }
+- (void)pictureInPictureControllerWillStartPictureInPicture:(AVPictureInPictureController *)controller {
+    qDebug() << "Floating metrics: PiP will start" << (__bridge const void *)controller;
+}
+- (void)pictureInPictureControllerWillStopPictureInPicture:(AVPictureInPictureController *)controller {
+    qDebug() << "Floating metrics: PiP will stop" << (__bridge const void *)controller;
+}
+- (void)pictureInPictureControllerDidStartPictureInPicture:(AVPictureInPictureController *)controller {
+    qDebug() << "Floating metrics: PiP started" << (__bridge const void *)controller
+             << "current" << (self.controller == controller);
+    if (self.controller != controller) return;
+    self.pending = NO;
+    self.preview.alpha = 0.01;
+}
 - (void)pictureInPictureController:(AVPictureInPictureController *)controller restoreUserInterfaceForPictureInPictureStopWithCompletionHandler:(void (^)(BOOL))completion { Q_UNUSED(controller); completion(YES); }
-- (void)pictureInPictureControllerDidStopPictureInPicture:(AVPictureInPictureController *)controller { Q_UNUSED(controller); qDebug() << "Floating metrics: PiP stopped"; [self finish]; }
-- (void)pictureInPictureController:(AVPictureInPictureController *)controller failedToStartPictureInPictureWithError:(NSError *)error { Q_UNUSED(controller); qWarning() << "Floating metrics: PiP start failed" << error.localizedDescription.UTF8String; [self finish]; }
+- (void)pictureInPictureControllerDidStopPictureInPicture:(AVPictureInPictureController *)controller {
+    qDebug() << "Floating metrics: PiP stopped" << (__bridge const void *)controller
+             << "current" << (self.controller == controller) << "active" << controller.isPictureInPictureActive;
+    if (self.controller == controller) [self finish];
+}
+- (void)pictureInPictureController:(AVPictureInPictureController *)controller failedToStartPictureInPictureWithError:(NSError *)error {
+    qWarning() << "Floating metrics: PiP start failed" << (__bridge const void *)controller
+               << "current" << (self.controller == controller) << error.localizedDescription.UTF8String;
+    if (self.controller == controller) [self finish];
+}
 - (void)pictureInPictureController:(AVPictureInPictureController *)controller setPlaying:(BOOL)playing { Q_UNUSED(controller); Q_UNUSED(playing); }
 - (CMTimeRange)pictureInPictureControllerTimeRangeForPlayback:(AVPictureInPictureController *)controller { Q_UNUSED(controller); return CMTimeRangeMake(kCMTimeZero, kCMTimePositiveInfinity); }
 - (BOOL)pictureInPictureControllerIsPlaybackPaused:(AVPictureInPictureController *)controller { Q_UNUSED(controller); return NO; }
@@ -207,10 +259,16 @@ bool iosFloatingMetrics::supported() {
 void iosFloatingMetrics::start() { if (@available(iOS 15.0, *)) dispatch_async(dispatch_get_main_queue(), ^{ [[QZFloatingMetrics shared] start]; }); }
 void iosFloatingMetrics::stop() { if (@available(iOS 15.0, *)) dispatch_async(dispatch_get_main_queue(), ^{ QZFloatingMetrics *pip = [QZFloatingMetrics shared]; if (pip.controller.isPictureInPictureActive) [pip.controller stopPictureInPicture]; else [pip finish]; }); }
 bool iosFloatingMetrics::running() { if (@available(iOS 15.0, *)) return [QZFloatingMetrics shared].controller != nil; return false; }
-void iosFloatingMetrics::update(const QList<QPair<QString, QString>> &metrics, const QString &emptyLabel) {
+void iosFloatingMetrics::update(const QList<iosFloatingMetrics::Metric> &metrics, const QString &emptyLabel) {
     if (@available(iOS 15.0, *)) {
         NSMutableArray *items = [NSMutableArray arrayWithCapacity:metrics.size()];
-        for (const auto &metric : metrics) [items addObject:@[[NSString stringWithUTF8String:metric.first.toUtf8().constData()], [NSString stringWithUTF8String:metric.second.toUtf8().constData()]]];
+        // Include the color in the frame signature as well as the display data:
+        // a zone/color change must refresh even when the formatted value is unchanged.
+        for (const auto &metric : metrics) {
+            [items addObject:@[[NSString stringWithUTF8String:metric.name.toUtf8().constData()],
+                               [NSString stringWithUTF8String:metric.value.toUtf8().constData()],
+                               [NSString stringWithUTF8String:metric.valueFontColor.toUtf8().constData()]]];
+        }
         NSString *emptyText = [NSString stringWithUTF8String:emptyLabel.toUtf8().constData()];
         dispatch_async(dispatch_get_main_queue(), ^{ [QZFloatingMetrics shared].metrics = items; [QZFloatingMetrics shared].emptyLabel = emptyText; [[QZFloatingMetrics shared] render]; });
     }
