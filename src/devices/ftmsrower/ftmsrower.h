@@ -42,6 +42,7 @@ class ftmsrower : public rower {
     void clearStats() override;
 
   protected:
+    static double correctedInstantPace(const QString &deviceName, double pace);
     void parseConcept2Data(const QBluetoothUuid &uuid, const QByteArray &newValue);
     enum class PM5StrokeSource { None, Concept2, Ftms };
     void updatePM5StrokeCount(uint16_t raw, PM5StrokeSource source);

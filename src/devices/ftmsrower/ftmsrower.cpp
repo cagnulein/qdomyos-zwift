@@ -313,6 +313,15 @@ void ftmsrower::parseConcept2Data(const QBluetoothUuid &uuid, const QByteArray &
               QStringLiteral(" RowState: ") + QString::number(pm5RowState));
 }
 
+double ftmsrower::correctedInstantPace(const QString &deviceName, double pace) {
+    // MRK-CRYDN reports instantaneous pace at half the time per 500 m.
+    // Its average pace and distance are already in the expected units.
+    if (pace > 0 && pace < 65535 &&
+        deviceName.trimmed().startsWith(QStringLiteral("MRK-CRYDN-"), Qt::CaseInsensitive))
+        return pace * 2.0;
+    return pace;
+}
+
 void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QDateTime now = QDateTime::currentDateTime();
 
@@ -466,9 +475,13 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
         emit debug(QStringLiteral("Current Pace: ") + QString::number(instantPace));
+        const double rawPace = instantPace;
+        instantPace = correctedInstantPace(bluetoothDevice.name(), rawPace);
+        if (instantPace != rawPace)
+            qDebug() << "MRK-CRYDN corrected instantaneous pace:" << instantPace;
 
         // Always handle invalid pace values to prevent division by zero
-        if(instantPace == 0 || instantPace == 65535) {
+        if(rawPace == 0 || rawPace == 65535) {
             Speed = 0;
         } else {
             if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R)
