@@ -76,6 +76,7 @@ jobs:
           modules: 'qtnetworkauth qtcharts qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qtwebview qtwebengine qtwebchannel qtspeech qthttpserver qtserialport'
           cache: true
       - name: Generate Windows QML cache sources
+        timeout-minutes: 5
         shell: pwsh
         run: |
           $tool = Join-Path $env:QT_ROOT_DIR 'bin/qmlcachegen.exe'
