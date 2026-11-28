@@ -31,6 +31,7 @@ OFF, AUTO = 0, 1
 WINDOWS = {AUTO: 3, 2: 3, 3: 5, 4: 10, 5: 15, 6: 30}
 
 BIKE = {
+    "htm": "chartlive.htm",
     "script": "dochartlive.js",
     "dataset": 0,  # Watts
     "field": "watts",
@@ -44,6 +45,7 @@ BIKE = {
     "interpolation": lambda smoothed: "monotone",  # the power line is a curve on master too
 }
 TREADMILL = {
+    "htm": "treadmillchartlive.htm",
     "script": "dotreadmillchartlive.js",
     "dataset": 2,  # Speed (actual)
     "field": "speed",
@@ -133,6 +135,24 @@ def trailing(line, seconds, digits):
     return out
 
 
+def htm_scripts(page):
+    """The src of every <script src="..."> of the page, in the order the .htm loads them."""
+    text = (CHARTJS / page["htm"]).read_text(encoding="utf-8")
+    scripts = []
+    for part in text.split("<script")[1:]:
+        tag = part.split(">", 1)[0]
+        if 'src="' in tag:
+            scripts.append(tag.split('src="', 1)[1].split('"', 1)[0])
+    return scripts
+
+
+def page_sources(page):
+    """The scripts the harness runs, in the order of the .htm: the moving average, the page
+    script and the heart chart below it, which shares the globals of the page."""
+    wanted = ("livesmooth.js", page["script"], "dochartliveheart.js")
+    return [name for name in htm_scripts(page) if name in wanted]
+
+
 def harness(page, smooth, session, live):
     node = shutil.which("node")
     if node is None:
@@ -140,9 +160,7 @@ def harness(page, smooth, session, live):
     settings = dict(page["settings"])
     settings["chart_smooth_lines"] = smooth
     request = {
-        # the scripts as the .htm loads them: the heart chart below shares the globals of the page
-        "sources": [str(CHARTJS / "livesmooth.js"), str(CHARTJS / page["script"]),
-                    str(CHARTJS / "dochartliveheart.js")],
+        "sources": [str(CHARTJS / name) for name in page_sources(page)],
         "inits": ["dochart_init", "dochartheart_init"],
         "canvas": "canvas",
         "dataset": page["dataset"],
@@ -161,6 +179,17 @@ def harness(page, smooth, session, live):
 
 
 class LiveChartSmoothing(unittest.TestCase):
+    def test_page_loads_the_moving_average(self):
+        # the .htm loads livesmooth.js before the page script, and the app has it in its
+        # resources: the page is served from qml.qrc
+        qrc = (ROOT / "src/qml.qrc").read_text(encoding="utf-8")
+        for page in (BIKE, TREADMILL):
+            with self.subTest(page=page["htm"]):
+                sources = page_sources(page)
+                self.assertEqual(sources, ["livesmooth.js", page["script"], "dochartliveheart.js"])
+                for name in [page["htm"]] + sources:
+                    self.assertIn("<file>inner_templates/chartjs/%s</file>" % name, qrc)
+
     def check_page(self, page, smooth, seconds):
         session, live = workout(page, 60, 20, seed=7)
         lines = harness(page, smooth, session, live)
