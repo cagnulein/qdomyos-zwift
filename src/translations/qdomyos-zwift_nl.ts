@@ -6246,6 +6246,22 @@ Mag QZ deze waarde wijzigen?
         <translation>Kies welke grafieken onderaan worden getoond: hartslag en vermogen, alleen hartslag of alleen vermogen.</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines:</source>
+        <translation>Grafieklijnen afvlakken:</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
+    <message>
+        <source>%1 s</source>
+        <translation>%1 s</translation>
+    </message>
+    <message>
+        <source>On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
+        <translation>Op de pagina Grafieken en in de grafieken van de trainingsmail worden de lijnen voor vermogen, cadans en snelheid getekend als voortschrijdend gemiddelde over het gekozen venster in plaats van de ruwe waarden per seconde. Auto: 3 seconden tijdens de training; na Stop 3 seconden plus 2 voor elk volledig halfuur van de training, tot 15. Gemiddelden, maxima, zones, de vermogensverdeling en het FIT-bestand gebruiken nog steeds de ruwe waarden. Standaard is Uit.</translation>
+    </message>
+    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>Linker waarde Live Activity (iOS):</translation>
     </message>

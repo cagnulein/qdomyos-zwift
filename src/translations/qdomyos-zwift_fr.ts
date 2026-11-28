@@ -6066,6 +6066,22 @@ Autoriser QZ à modifier cette valeur ?
         <translation>Choisissez les graphiques à afficher dans le pied de page : fréquence cardiaque et puissance, uniquement la fréquence cardiaque, ou uniquement la puissance.</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines:</source>
+        <translation>Lisser les courbes des graphiques :</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
+    <message>
+        <source>%1 s</source>
+        <translation>%1 s</translation>
+    </message>
+    <message>
+        <source>On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
+        <translation>Sur la page Graphiques et dans les graphiques de l’e-mail d’entraînement, trace les courbes de puissance, de cadence et de vitesse en moyenne glissante sur la fenêtre choisie au lieu des valeurs brutes seconde par seconde. Auto : 3 secondes pendant l’entraînement ; après Stop, 3 secondes plus 2 pour chaque tranche complète de 30 minutes d’entraînement, jusqu’à 15. Les moyennes, les maximums, les zones, la répartition de la puissance et le fichier FIT utilisent toujours les valeurs brutes. Par défaut : Désactivé.</translation>
+    </message>
+    <message>
         <source>UI Themes</source>
         <translation>Thèmes de l&apos;interface</translation>
     </message>

@@ -6246,6 +6246,22 @@ Povolit QZ tuto hodnotu měnit?
         <translation>Vyberte, které grafy se zobrazí v dolní části obrazovky: tep i výkon, jen tep, nebo jen výkon.</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines:</source>
+        <translation>Vyhladit čáry grafů:</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
+    <message>
+        <source>%1 s</source>
+        <translation>%1 s</translation>
+    </message>
+    <message>
+        <source>On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
+        <translation>Na stránce Grafy a v grafech e-mailu o tréninku kreslí čáry výkonu, kadence a rychlosti jako klouzavý průměr za zvolené okno místo surových hodnot po sekundách. Auto: 3 sekundy během tréninku; po Stop 3 sekundy plus 2 za každých celých 30 minut tréninku, nejvýše 15. Průměry, maxima, zóny, rozložení výkonu a soubor FIT dál používají surové hodnoty. Výchozí je Vypnuto.</translation>
+    </message>
+    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>Levý údaj Live Activity (iOS):</translation>
     </message>

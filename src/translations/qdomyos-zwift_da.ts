@@ -6206,6 +6206,22 @@ Må QZ ændre værdien?
         <translation>Vælg, hvilke grafer der skal vises i bunden af skærmen: både puls og effekt, kun puls eller kun effekt.</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines:</source>
+        <translation>Udjævn graflinjer:</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
+    <message>
+        <source>%1 s</source>
+        <translation>%1 s</translation>
+    </message>
+    <message>
+        <source>On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
+        <translation>På siden Grafer og i graferne i træningsmailen tegnes linjerne for effekt, kadence og hastighed som et glidende gennemsnit over det valgte vindue i stedet for de rå værdier sekund for sekund. Auto: 3 sekunder under træningen; efter Stop 3 sekunder plus 2 for hver hele 30 minutter af træningen, højst 15. Gennemsnit, maksimum, zoner, effektfordelingen og FIT-filen bruger stadig de rå værdier. Standard er Fra.</translation>
+    </message>
+    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>Venstre måleværdi i Liveaktivitet (iOS):</translation>
     </message>

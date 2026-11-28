@@ -6246,6 +6246,22 @@ Zezwolić QZ na zmianę tej wartości?
         <translation>Wybierz, które wykresy mają być wyświetlane w stopce: zarówno wykresy tętna, jak i mocy, tylko wykres tętna lub tylko wykres mocy.</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines:</source>
+        <translation>Wygładzaj linie wykresów:</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
+    <message>
+        <source>%1 s</source>
+        <translation>%1 s</translation>
+    </message>
+    <message>
+        <source>On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
+        <translation>Na stronie Wykresy i na wykresach w e-mailu z treningu linie mocy, kadencji i prędkości są rysowane jako średnia krocząca z wybranego okna zamiast surowych wartości z każdej sekundy. Auto: 3 sekundy w trakcie treningu; po Stop 3 sekundy plus 2 za każde pełne 30 minut treningu, najwyżej 15. Średnie, maksima, strefy, rozkład mocy i plik FIT nadal korzystają z surowych wartości. Domyślnie: Wył.</translation>
+    </message>
+    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>Lewy wskaźnik funkcji Live Activity w iOS:</translation>
     </message>

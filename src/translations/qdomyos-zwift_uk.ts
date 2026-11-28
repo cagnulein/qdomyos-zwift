@@ -6390,6 +6390,22 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Виберіть, які графіки показувати внизу екрана: пульс і потужність, лише пульс або лише потужність.</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines:</source>
+        <translation>Згладжувати лінії графіків:</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Авто</translation>
+    </message>
+    <message>
+        <source>%1 s</source>
+        <translation>%1 с</translation>
+    </message>
+    <message>
+        <source>On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
+        <translation>На сторінці «Графіки» і в графіках листа про тренування лінії потужності, каденсу та швидкості малюються ковзним середнім за вибране вікно, а не посекундними вихідними значеннями. «Авто»: під час тренування – 3 секунди; після «Стоп» – 3 секунди й ще 2 за кожні повні 30 хвилин тренування, не більше 15. Середні, максимуми, зони, розподіл потужності та файл FIT і далі рахуються за вихідними значеннями. Типово – «Вимк.».</translation>
+    </message>
+    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>Лівий показник Live Activity (iOS):</translation>
     </message>

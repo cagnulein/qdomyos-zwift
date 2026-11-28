@@ -6146,6 +6146,22 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>选择在页脚显示的图表：心率和功率图表，仅心率图表，或仅功率图表。</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines:</source>
+        <translation>平滑图表曲线：</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>自动</translation>
+    </message>
+    <message>
+        <source>%1 s</source>
+        <translation>%1 秒</translation>
+    </message>
+    <message>
+        <source>On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
+        <translation>在“图表”页面和训练邮件的图表中，功率、踏频和速度曲线按所选窗口的移动平均绘制，而不是逐秒的原始值。自动：训练中为 3 秒；停止后为 3 秒，训练每满 30 分钟再加 2 秒，最多 15 秒。平均值、最大值、区间、功率分布和 FIT 文件仍使用原始值。默认为关。</translation>
+    </message>
+    <message>
         <source>UI Themes</source>
         <translation>主题</translation>
     </message>

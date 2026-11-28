@@ -6206,6 +6206,22 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
         <translation>Válassza ki, mely diagramok jelenjenek meg a láblécben: a pulzus- és a teljesítménydiagram is, csak a pulzusdiagram vagy csak a teljesítménydiagram.</translation>
     </message>
     <message>
+        <source>Smooth Chart Lines:</source>
+        <translation>Diagramvonalak simítása:</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Automatikus</translation>
+    </message>
+    <message>
+        <source>%1 s</source>
+        <translation>%1 mp</translation>
+    </message>
+    <message>
+        <source>On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.</source>
+        <translation>A Diagramok oldalon és az edzésről szóló e-mail diagramjain a teljesítmény, a pedálfordulat és a sebesség vonalát a választott ablakra vett mozgóátlagként rajzolja a másodpercenkénti nyers értékek helyett. Automatikus: edzés közben 3 másodperc; Stop után 3 másodperc, plusz 2 az edzés minden teljes 30 percéért, legfeljebb 15. Az átlagok, a maximumok, a zónák, a teljesítményeloszlás és a FIT-fájl továbbra is a nyers értékeket használja. Alapértelmezés: Ki.</translation>
+    </message>
+    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>iOS Élő tevékenység, bal oldali mérőszám:</translation>
     </message>
