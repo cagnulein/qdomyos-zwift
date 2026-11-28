@@ -113,7 +113,11 @@ void volavabike::update() {
                m_control->state() == QLowEnergyController::DiscoveredState &&
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotifyCharacteristic.isValid() && initDone) {
-        update_metrics(true, watts());
+        // BLE power readings already have watt gain/offset applied.
+        // Preserve the periodic zero-power reset without reprocessing positive power.
+        const uint16_t currentWatts = watts();
+        const bool resetPower = currentWatts == 0 || (!paused && currentSpeed().value() == 0);
+        update_metrics(resetPower, resetPower ? 0 : currentWatts);
 
         if (requestResistance != -1) {
             requestResistance = -1;
