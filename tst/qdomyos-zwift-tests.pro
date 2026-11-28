@@ -10,6 +10,7 @@ RESOURCES += Devices/ypoom5distance.qrc
 CONFIG += console c++17
 CONFIG -= app_bundle
 CONFIG += thread
+win32: DEFINES += NOMINMAX
 
 SOURCES += \
         Devices/TrixterXDreamBike/TrixterXDreamPacketInterpreterTests.cpp \
