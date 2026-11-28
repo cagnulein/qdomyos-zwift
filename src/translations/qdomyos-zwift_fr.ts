@@ -5257,10 +5257,6 @@ Autoriser QZ à modifier cette valeur ?
         <translation>Estimer la puissance du rameur FTMS à partir de la fréquence cardiaque</translation>
     </message>
     <message>
-        <source>Calculate FTMS rowing speed and distance from power (Concept2)</source>
-        <translation>Calculer la vitesse et la distance de rameur FTMS à partir de la puissance (Concept2)</translation>
-    </message>
-    <message>
         <source>Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.</source>
         <translation>Facultatif : remplace la puissance en watts transmise par le rameur FTMS par une estimation basée sur les deux points d’étalonnage de fréquence cardiaque ci-dessous. Il ne s’agit pas d’une puissance mesurée. Une fréquence cardiaque valide et un mouvement de rame sont nécessaires ; sinon, la puissance estimée est nulle. La puissance des PM5 natifs et des capteurs de puissance externes sélectionnés n’est pas remplacée. Désactivé par défaut.</translation>
     </message>

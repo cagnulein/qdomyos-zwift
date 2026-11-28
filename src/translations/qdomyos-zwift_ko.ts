@@ -5565,10 +5565,6 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
         <translation>심박수로 FTMS 로잉 머신의 파워 추정</translation>
     </message>
     <message>
-        <source>Calculate FTMS rowing speed and distance from power (Concept2)</source>
-        <translation>파워로 FTMS 로잉 속도 및 거리 계산 (Concept2)</translation>
-    </message>
-    <message>
         <source>Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.</source>
         <translation>선택 사항: FTMS 로잉 머신에서 전송한 와트 값을 아래 두 심박수 보정 지점을 기반으로 한 추정값으로 대체합니다. 실제 측정된 파워가 아닙니다. 유효한 심박수와 로잉 동작이 필요하며, 그렇지 않으면 추정 파워는 0입니다. 기본 PM5 및 선택한 외부 파워 센서의 값은 덮어쓰지 않습니다. 기본값은 꺼짐입니다.</translation>
     </message>

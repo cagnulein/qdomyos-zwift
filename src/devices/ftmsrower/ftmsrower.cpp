@@ -368,7 +368,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
             .toString().startsWith(QStringLiteral("Disabled"));
     const bool calculateSpeedFromPower = !PM5 &&
-        settings.value(QZSettings::rower_speed_from_power, QZSettings::default_rower_speed_from_power).toBool();
+        settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool();
 
     union flags {
         struct {

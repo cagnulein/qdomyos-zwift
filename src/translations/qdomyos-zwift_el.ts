@@ -5318,10 +5318,6 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Εκτίμηση ισχύος κωπηλατικού FTMS από τον καρδιακό ρυθμό</translation>
     </message>
     <message>
-        <source>Calculate FTMS rowing speed and distance from power (Concept2)</source>
-        <translation>Υπολογισμός ταχύτητας και απόστασης κωπηλασίας FTMS από την ισχύ (Concept2)</translation>
-    </message>
-    <message>
         <source>Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.</source>
         <translation>Προαιρετικό: αντικαθιστά τα watt που αναφέρει το κωπηλατικό FTMS με εκτίμηση βάσει των δύο παρακάτω σημείων βαθμονόμησης καρδιακού ρυθμού. Δεν πρόκειται για μετρημένη ισχύ. Απαιτεί έγκυρο καρδιακό ρυθμό και κίνηση κωπηλασίας· διαφορετικά η εκτιμώμενη ισχύς είναι μηδέν. Η ισχύς των εγγενών συσκευών PM5 και των επιλεγμένων εξωτερικών αισθητήρων ισχύος δεν αντικαθίσταται. Απενεργοποιημένο από προεπιλογή.</translation>
     </message>

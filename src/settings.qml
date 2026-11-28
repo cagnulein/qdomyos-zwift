@@ -3012,7 +3012,6 @@ import AndroidStatusBar 1.0
             property bool ui_modern_offer_pending: false
             property int chart_smooth_lines: 0
             property bool rower_power_from_hr: false
-            property bool rower_speed_from_power: false
 
         }
 
@@ -4889,12 +4888,6 @@ import AndroidStatusBar 1.0
                                         checked: settings.rower_power_from_hr
                                         Layout.fillWidth: true
                                         onClicked: settings.rower_power_from_hr = checked
-                                    }
-                                    IndicatorOnlySwitch {
-                                        text: qsTr("Calculate FTMS rowing speed and distance from power (Concept2)")
-                                        checked: settings.rower_speed_from_power
-                                        Layout.fillWidth: true
-                                        onClicked: settings.rower_speed_from_power = checked
                                     }
                                     Label {
                                         text: qsTr("Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.")

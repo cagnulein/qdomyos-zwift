@@ -5241,10 +5241,6 @@ Consentire a QZ di modificare questo valore?
         <translation>Stima la potenza del vogatore FTMS dalla frequenza cardiaca</translation>
     </message>
     <message>
-        <source>Calculate FTMS rowing speed and distance from power (Concept2)</source>
-        <translation>Calcola velocità e distanza del vogatore FTMS dalla potenza (Concept2)</translation>
-    </message>
-    <message>
         <source>Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.</source>
         <translation>Opzionale: sostituisce i watt del vogatore FTMS con una stima basata sui due punti di calibrazione della frequenza cardiaca riportati sotto. Non è una potenza misurata. Richiede una frequenza cardiaca valida e il movimento di vogata; altrimenti la potenza stimata è zero. La potenza dei PM5 nativi e dei sensori di potenza esterni selezionati non viene sovrascritta. Disattivato per impostazione predefinita.</translation>
     </message>

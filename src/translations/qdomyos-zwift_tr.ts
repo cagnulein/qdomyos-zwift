@@ -5565,10 +5565,6 @@ QZ&apos;nin bu değeri değiştirmesine izin verilsin mi?
         <translation>FTMS kürek cihazının gücünü kalp hızından tahmin et</translation>
     </message>
     <message>
-        <source>Calculate FTMS rowing speed and distance from power (Concept2)</source>
-        <translation>FTMS kürek hızını ve mesafesini güçten hesapla (Concept2)</translation>
-    </message>
-    <message>
         <source>Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.</source>
         <translation>İsteğe bağlı: FTMS kürek cihazının bildirdiği watt değerini aşağıdaki iki kalp hızı kalibrasyon noktasına dayalı bir tahminle değiştirir. Bu, ölçülen güç değildir. Geçerli bir kalp hızı ve kürek çekme hareketi gerekir; aksi halde tahmini güç sıfırdır. Yerel PM5 cihazlarının ve seçili harici güç sensörlerinin değerleri değiştirilmez. Varsayılan olarak kapalıdır.</translation>
     </message>
