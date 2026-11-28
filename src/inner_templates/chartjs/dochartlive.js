@@ -706,7 +706,9 @@ function process_workout(arr) {
 }
 
 function dochart_init() {
-    keys_arr = ['ftp', 'miles_unit', 'age', 'heart_rate_zone1', 'heart_rate_zone2', 'heart_rate_zone3', 'heart_rate_zone4', 'heart_max_override_enable', 'heart_max_override_value', 'chart_smooth_lines']
+    // own list: dochartliveheart.js on the same page sets a global keys_arr of its own before the
+    // answer comes, and chart_smooth_lines is not in it
+    const keys_arr = ['ftp', 'miles_unit', 'age', 'heart_rate_zone1', 'heart_rate_zone2', 'heart_rate_zone3', 'heart_rate_zone4', 'heart_max_override_enable', 'heart_max_override_value', 'chart_smooth_lines']
 
     function load_training_program() {
         let el = new MainWSQueueElement({

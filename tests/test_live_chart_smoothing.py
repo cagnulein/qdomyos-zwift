@@ -140,7 +140,11 @@ def harness(page, smooth, session, live):
     settings = dict(page["settings"])
     settings["chart_smooth_lines"] = smooth
     request = {
-        "sources": [str(CHARTJS / "livesmooth.js"), str(CHARTJS / page["script"])],
+        # the scripts as the .htm loads them: the heart chart below shares the globals of the page
+        "sources": [str(CHARTJS / "livesmooth.js"), str(CHARTJS / page["script"]),
+                    str(CHARTJS / "dochartliveheart.js")],
+        "inits": ["dochart_init", "dochartheart_init"],
+        "canvas": "canvas",
         "dataset": page["dataset"],
         "settings": settings,
         "session": session,

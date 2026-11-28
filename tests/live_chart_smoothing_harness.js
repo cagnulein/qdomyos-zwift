@@ -2,9 +2,12 @@
 // treadmillchartlive.htm) with livesmooth.js in Node without a browser, for
 // tests/test_live_chart_smoothing.py.
 //
-// stdin: {"sources": [<livesmooth.js>, <page script>], "dataset": <index of the line in the chart>,
+// stdin: {"sources": [<the scripts in the order of the .htm>], "inits": [<their init functions in
+//         the same order, as the window 'load' handlers call them>], "canvas": <id of the canvas of
+//         the checked chart>, "dataset": <index of the line in the chart>,
 //         "settings": {<key>: <value as the app sends it>}, "session": [<points of getsessionarray>],
-//         "workouts": [<the 'workout' messages, one per poll of the page>]}
+//         "workouts": [<the 'workout' messages, one per poll of each chart: the app sends every
+//         message to all the charts of the page>]}
 // stdout: {"lines": [{"points": [...], "cubicInterpolationMode": ...}, ...], "errors": [...]} –
 //   the line as Chart.js gets it: when the chart is made (the session drawn at the page opening)
 //   and at every update after a 'workout' message. jQuery, Chart.js and the app server are stubs:
@@ -35,7 +38,7 @@ function Chart(ctx, config) {
             snapshot();
     };
     this.destroy = function () {};
-    if (config.data.datasets.length > input.dataset && chart === null) {
+    if (ctx && ctx.canvas && ctx.canvas.id === input.canvas && chart === null) {
         chart = this;
         snapshot();
     }
@@ -56,36 +59,68 @@ function jquery() {
     return chain;
 }
 
-const canvas = {
-    offsetParent: {},
-    style: {},
-    getContext() { return { canvas: canvas }; },
-};
+const elements = {};
+function element(id) {
+    if (!elements[id]) {
+        const el = { id: id, offsetParent: {}, style: {} };
+        el.getContext = function () { return { canvas: el }; };
+        elements[id] = el;
+    }
+    return elements[id];
+}
 
-let workoutIndex = 0;
+// the 'workout' messages: each chart of the page gets all of them, so the next one is counted per
+// poller (refresh of dochartlive.js, refresh_heart of dochartliveheart.js...), told by the caller
+const workoutIndex = {};
+function poller() {
+    const frames = String(new Error().stack).split('\n');
+    // [0] Error, [1] poller, [2] enqueue, [3] the function that polls
+    return frames.length > 3 ? frames[3].trim().split(' ')[1] : '';
+}
+
 // the app server: the settings, the session and the 'workout' messages; anything else (the
 // training program) is not answered
 function MainWSQueueElement(request, handler) {
     this.enqueue = function () {
         const msg = request && request.msg;
         let answer = null;
-        if (msg === 'getsettings')
-            answer = { msg: 'R_getsettings', content: input.settings };
+        if (msg === 'getsettings') {
+            // as onGetSettings of templateinfosenderbuilder.cpp: the asked keys, null when not saved
+            const content = {};
+            for (const key of request.content.keys)
+                content[key] = key in input.settings ? input.settings[key] : null;
+            answer = { msg: 'R_getsettings', content: content };
+        }
         else if (msg === 'getsessionarray')
             answer = { msg: 'R_getsessionarray', content: input.session };
-        else if (msg === null && workoutIndex < input.workouts.length)
-            answer = { msg: 'workout', content: input.workouts[workoutIndex++] };
+        else if (msg === null) {
+            const who = poller();
+            const n = workoutIndex[who] || 0;
+            if (n < input.workouts.length) {
+                workoutIndex[who] = n + 1;
+                answer = { msg: 'workout', content: input.workouts[n] };
+            }
+        }
         if (answer === null)
             return new Promise(function () {});
-        const result = handler(answer);
-        return result === null ? Promise.reject(new Error('no answer to ' + msg)) : Promise.resolve(result);
+        // the answer comes later, as over the WebSocket: after the other charts of the page have
+        // started too (their init in the same window 'load' event)
+        return new Promise(function (resolve, reject) {
+            setImmediate(function () {
+                const result = handler(answer);
+                if (result === null)
+                    reject(new Error('no answer to ' + msg));
+                else
+                    resolve(result);
+            });
+        });
     };
 }
 
 const context = {
     window: {},
     document: {
-        getElementById() { return canvas; },
+        getElementById: element,
         addEventListener() {},
     },
     $: jquery,
@@ -110,8 +145,9 @@ function settle() {
 }
 
 (async function () {
-    context.dochart_init();
-    for (let i = 0; i < 20 + 5 * input.workouts.length; i++)
+    for (const init of input.inits)
+        context[init]();
+    for (let i = 0; i < 20 + 10 * input.workouts.length; i++)
         await settle();
     process.stdout.write(JSON.stringify({ lines: lines, errors: errors }));
 })().catch(function (err) {
