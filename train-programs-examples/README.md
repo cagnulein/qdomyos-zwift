@@ -23,11 +23,11 @@
 | `speed` | km/h | Fixed speed target. |
 | `speedfrom` / `speedto` | km/h | Speed ramp — QZ auto-splits into 0.1 km/h, 1-second increments. |
 | `inclination` | % | Treadmill incline. |
-| `forcespeed` | `1` | Force the treadmill to the target speed (without this, speed is advisory only). Do **not** combine with `zonehr` — use `zonehr="0"` on every `forcespeed="1"` row (see §2 below). If you need HR targeting, use `hrmin`/`hrmax` instead. |
-| `zonehr` | 1–5 | Target HR zone (Karvonen). PID controller adjusts speed to reach the zone. Make sure you correctly set your max heart rate (Settings > Heart Rate Options > Heart Rate Zone Options > Heart Rate Max Override > Max Heart Rate). Do **not** use in conjunction with `forcespeed="1"` (see §2). Do not use zonehr 1 (see §1). |
-| `hrmin` / `hrmax` | bpm | Custom HR target range (alternative to `zonehr`, more precise). PID targets the midpoint. Do not use together with `forcespeed="1"`. |
+| `forcespeed` | `1` | Request the programmed treadmill speed when the row starts (without this, speed is advisory only). This does not lock out other automatic controllers. See §2 for HR PID settings. |
+| `zonehr` | 0–5 | `0` explicitly disables HR zone control; `1`–`5` select an HR target zone. Omit the attribute to leave the current HR zone setting unchanged. Make sure you correctly set your max heart rate (Settings > Heart Rate Options > Heart Rate Zone Options > Heart Rate Max Override > Max Heart Rate). See §1 and §2. |
+| `hrmin` / `hrmax` | bpm | Custom HR target range (alternative to `zonehr`, more precise). PID targets the midpoint. Avoid combining a fixed-speed target with HR-driven speed adjustments unless that is intentional. |
 | `looptimehr` | seconds | How often the HR PID adjusts speed (default 10). Lower = more responsive. |
-| `minspeed` / `maxspeed` | km/h | Speed bounds for HR PID adjustments. **Always set these on `zonehr` rows.** |
+| `minspeed` / `maxspeed` | km/h | Speed bounds for HR PID adjustments. **Always set these on HR-zone-controlled speed rows (`zonehr` 1–5).** |
 | `resistance` | 1–100 | Bike resistance. |
 | `cadence` | RPM | Target cadence (bike/rower). |
 | `power` | watts | Power target. |
@@ -60,23 +60,28 @@ The PID HR controller adjusts speed **up** when HR is below target and **down** 
 <row duration="00:03:00" speed="5.5" inclination="0" forcespeed="1" zonehr="0"/>
 ```
 
-### 2. Always Use `zonehr="0"` on Rows with `forcespeed="1"`
+### 2. Fixed Speed, HR Zones and the Workout Editor
 
-`forcespeed="1"` locks the treadmill to a fixed target speed. Adding `zonehr` to the same row is contradictory — the HR PID controller actively adjusts speed to chase a heart rate zone while the treadmill is simultaneously forced to a fixed speed. The two systems fight each other, producing unpredictable and often uncomfortable speed oscillations.
+There are three distinct ways to specify HR zone control:
 
-Apply `zonehr="0"` to **every** row with `forcespeed="1"` regardless of row type — warm-up ramps, cool-downs, fixed-speed rows, speed seeds, and ramp-ups. Even for short seed rows (5 seconds) where the PID barely has time to react, setting `zonehr="0"` is cleaner and keeps the programme consistent with no special-case exceptions.
+- **Omit `zonehr`:** leave the current HR zone setting unchanged. For a speed/incline-only workout, this is sufficient if the HR zone PID is already disabled and global HR min/max control is also off.
+- **`zonehr="0"`:** explicitly disable HR zone control. This is important when switching from an HR-zone interval to a fixed-speed recovery or cool-down; otherwise the preceding HR zone can remain active (see #4671 and #4672).
+- **`zonehr="1"` through `"5"`:** select a heart-rate target. A forced speed can intentionally seed the HR controller, or be used with the Inclination HR PID actuator. It does not by itself prevent subsequent speed adjustments.
 
-This is particularly relevant for warm-ups and cooldowns: zonehr 1 does not work well (see §1) ➞ forcespeed="1" required ➞ zonehr="0" required.
+The built-in **Workout Editor** automatically sets `forcespeed="1"` when a treadmill speed/pace is enabled. It does not automatically add `zonehr="0"`. For a mixed workout, set **HR Zone** to 0 in Advanced options on intervals where HR zone control should be explicitly disabled. Leaving that field unset is not equivalent to setting it to zero.
+
+**Important — unexpected speed changes on incline transitions:** Even with `zonehr="0"`, the current incline-related PID compensation can still issue speed commands when the incline changes (see [#5520](https://github.com/cagnulein/qdomyos-zwift/issues/5520)). Before running fixed-speed workouts that change incline, enable **Settings > Training Program Options > PID Ignore Inclination** and fully restart QZ. This is a verified workaround, not a change to the controller. It is separate from **Treadmill Auto-adjust speed by power**. Verify the workout at a safe low speed with the safety stop accessible before relying on automatic control.
 
 ```xml
-<!-- WRONG — HR PID fights the forced speed -->
-<row duration="00:05:00" speedfrom="5.0" speedto="8.0" forcespeed="1" zonehr="2"/>
-<row duration="00:00:05" speed="8.0" inclination="0" forcespeed="1"/>
+<!-- Speed/incline-only workout: HR zone PID already disabled, HR min/max off -->
+<row duration="00:03:00" speed="5.5" inclination="0" forcespeed="1"/>
 
-<!-- RIGHT — disable HR zone on forced-speed rows -->
-<row duration="00:05:00" speedfrom="5.0" speedto="8.0" forcespeed="1" zonehr="0"/>
-<row duration="00:00:05" speed="8.0" inclination="0" forcespeed="1" zonehr="0"/>
+<!-- Mixed workout: explicitly disable the previous HR zone for recovery -->
+<row duration="00:05:00" zonehr="2" minspeed="6.0" maxspeed="8.0"/>
+<row duration="00:03:00" speed="5.5" inclination="0" forcespeed="1" zonehr="0"/>
 ```
+
+For fixed-speed intervals, also leave global HR min/max control disabled unless deliberately using HR control. `zonehr="0"` is a zone-control directive, not a general override for every automatic speed-control feature.
 
 ### 3. Seed Speed Before HR Zone Rows (Especially when there are large speed changes)
 
@@ -114,7 +119,7 @@ Speed ramps (`speedfrom`/`speedto`) are expanded internally by QZ into 1-second 
 
 - You **must** include `forcespeed="1"` on the original ramp row in your XML — QZ copies this flag to the expanded micro-rows.
 - **Ramp duration affects smoothness.** QZ splits ramps into 0.1 km/h steps. If the duration is long enough, each step gets multiple seconds (smooth). If the duration is short relative to the speed delta, multiple steps are packed per second (still works, just feels more abrupt).
-- **Do not combine ramps with `zonehr`** in the same row.
+- For fixed-speed ramps, avoid positive HR zone targets unless HR control is intentional. Use `zonehr="0"` when explicitly disabling a preceding HR zone (see §2).
 
 ### 6. Repeat Blocks
 
@@ -141,7 +146,7 @@ Before running a training programme, review these PID-related settings in **Sett
 |---------|-------------|---------|-----|
 | **PID on HR min / PID on HR max** | Leave at 0 | 0 | Alternative to "PID on Heart Zone" for specifying a custom HR range globally. Same rule: leave disabled when using training programmes. |
 | **PID 'Pushy'** | ✅ Enabled (default) | ✅ Enabled | When enabled, the PID targets the **midpoint** between lower and upper HR limit of the zone. See "How the PID Targets Heart Rate" below. |
-| **PID Ignore Inclination** | ✅ Enabled | ❌ Disabled | When disabled, the PID factors inclination into its speed adjustments. Training programmes already set inclination explicitly per row, so the PID's inclination compensation creates unexpected speed corrections. **Enable this** so the PID only adjusts speed based on HR, not inclination. |
+| **PID Ignore Inclination** | ✅ Enabled for fixed-speed incline-changing workouts | ❌ Disabled | Prevents the incline-related PID speed compensation, including the known `zonehr="0"` issue (#5520). Enable it and restart QZ before using such workouts. Leave other intentional PID configurations unchanged unless needed. |
 
 ### How the PID Targets Heart Rate
 
@@ -162,6 +167,8 @@ If you want the PID to settle to a precise sub-zone of an HR zone, use `hrmin`/`
 ---
 
 ## Recommended Programme Structure
+
+The example below assumes a mixed HR/fixed-speed workout and the recommended settings above. For speed-only workouts with HR control already disabled, `zonehr` may be omitted.
 
 ```
 1. Warm-up ramp         — speedfrom/speedto + `forcespeed="1"` + `zonehr="0"`

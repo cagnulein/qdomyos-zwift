@@ -5,46 +5,87 @@ include(gtest_dependency.pri)
 
 TEMPLATE = app
 
-CONFIG += console c++11
+RESOURCES += Devices/ypoom5distance.qrc
+
+CONFIG += console c++17
 CONFIG -= app_bundle
 CONFIG += thread
+win32: DEFINES += NOMINMAX
+win32: LIBS += -luser32
 
 SOURCES += \
+        Devices/TrixterXDreamBike/TrixterXDreamPacketInterpreterTests.cpp \
+        Devices/TrixterXDreamBike/trixterxdreambikestub.cpp \
+        Devices/TrixterXDreamBike/trixterxdreambiketestsuite.cpp \
         Devices/bluetoothdevicetestdata.cpp \
         Devices/bluetoothdevicetestdatabuilder.cpp \
         Devices/bluetoothdevicetestsuite.cpp \
         Devices/bluetoothsignalreceiver.cpp \
         Devices/devicediscoveryinfo.cpp \
+        Devices/dirconloopbacktestsuite.cpp \
         Devices/deviceindex.cpp \
         Devices/devicenamepatterngroup.cpp \
         Devices/devicetestdataindex.cpp \
         Erg/ergtabletestsuite.cpp \
         GarminConnect/garminconnecttestsuite.cpp \
         TrainingProgram/trainprogramtestsuite.cpp \
+        TrainingProgram/trainingprogrampathtests.cpp \
         ToolTests/qfittestsuite.cpp \
+        ToolTests/metrictestsuite.cpp \
+        ToolTests/treadmillrunnclosedlooptests.cpp \
+        ToolTests/treadmillcaloriestests.cpp \
+        ToolTests/ksespinclinationtests.cpp \
+        ToolTests/fitshowstartspeedgatetests.cpp \
+        ToolTests/targetzonetiletests.cpp \
         ToolTests/testsettingstestsuite.cpp \
         ToolTests/testsettingssecuritytestsuite.cpp \
         ToolTests/testtrainingloadtestsuite.cpp \
         ToolTests/zwiftworkouttestsuite.cpp \
+        ToolTests/workoutimporttestsuite.cpp \
         Tools/testsettings.cpp \
         Tools/typeidgenerator.cpp \
         Devices/TestSchwinn411510EParser.cpp \
+        Devices/TestKettlerUSBProtocol.cpp \
         Devices/TestZwiftRideController.cpp \
         Devices/TestApexBikeParser.cpp \
+        Devices/TestEchelonUnlock.cpp \
+        Devices/TestNautilusTreadmillParser.cpp \
+        Devices/TestFtmsBikeResistance.cpp \
+        Devices/TestYpooM5Control.cpp \
+        Devices/TestYpooTreadmill.cpp \
+        Devices/TestYpooM5Distance.cpp \
+        Devices/TestFtmsTreadmillControl.cpp \
+        Devices/TestParagonXTelemetry.cpp \
         Devices/TestTrxAppGateUsBellipticalParser.cpp \
         Devices/TestTrxAppGateUsTreadmillParser.cpp \
+        Devices/TestTrxAppGateUsRowerParser.cpp \
         Devices/TestKeepBikeParser.cpp \
+        Devices/TestSportsPlusBikeParser.cpp \
         Devices/TestWahooKickrRunParser.cpp \
+        Devices/TestLifeFitness95TParser.cpp \
+        Devices/TestLifeFitnessWorkout.cpp \
         Devices/TestRenphoBikeKnobGears.cpp \
         Devices/TestNordictrackEllipticalS700Parser.cpp \
         Devices/TestXcxBikeParser.cpp \
+        Devices/TestFtmsBikeParser.cpp \
         Devices/TestRowerTargetResistance.cpp \
+        Devices/TestBkoolStandaloneResistance.cpp \
+        Devices/TestPafersRowerRouting.cpp \
+        Devices/TestHeartRateSensorOffer.cpp \
         Devices/TestFreebeatBoomBikeParser.cpp \
+        Devices/TestKettlerClassicProtocol.cpp \
+        Devices/TestFitPlusBikeResistance.cpp \
+        Devices/TestTargetPowerOverride.cpp \
+        Devices/TestExternalPowerErg.cpp \
+        Devices/TestTargetPowerRelease.cpp \
+        Devices/TestPausePower.cpp \
+        Devices/TestRowerWorkoutCounters.cpp \
+        VirtualRowerCadenceTest.cpp \
         main.cpp
 
 # Avoid the "File too big" error building in Windows. This has happened when a template class is used with Google Test / typed tests
 # to produce a large number of classes.
-win32:QMAKE_CXXFLAGS += -Wa,-mbig-obj
+win32-g++:QMAKE_CXXFLAGS += -Wa,-mbig-obj
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../src/release/ -lqdomyos-zwift
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../src/debug/ -lqdomyos-zwift
@@ -60,23 +101,36 @@ else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/
 else:unix: PRE_TARGETDEPS += $$OUT_PWD/../src/libqdomyos-zwift.a
 
 HEADERS += \
+    Devices/TrixterXDreamBike/ActivationMonitorTests.h \
+    Devices/TrixterXDreamBike/TrixterXDreamPacketInterpreterTests.h \
+    Devices/TrixterXDreamBike/trixterxdreambikestub.h \
+    Devices/TrixterXDreamBike/trixterxdreambiketestsuite.h \
     Devices/bluetoothdevicetestdata.h \
     Devices/bluetoothdevicetestdatabuilder.h \
     Devices/bluetoothdevicetestsuite.h \
     Devices/bluetoothsignalreceiver.h \
     Devices/devicediscoveryinfo.h \
+    Devices/dirconloopbacktestsuite.h \
     Devices/deviceindex.h \
     Devices/devicenamepatterngroup.h \
     Devices/devicetestdataindex.h \
     Devices/TestSchwinn411510EParser.h \
+    Devices/TestKettlerUSBProtocol.h \
     Devices/TestApexBikeParser.h \
+    Devices/TestEchelonUnlock.h \
+    Devices/TestNautilusTreadmillParser.h \
+    Devices/TestFtmsBikeResistance.h \
     Devices/TestTrxAppGateUsBellipticalParser.h \
     Devices/TestTrxAppGateUsTreadmillParser.h \
     Devices/TestKeepBikeParser.h \
+    Devices/TestSportsPlusBikeParser.h \
     Devices/TestWahooKickrRunParser.h \
+    Devices/TestLifeFitness95TParser.h \
+    Devices/TestLifeFitnessWorkout.h \
     Devices/TestRenphoBikeKnobGears.h \
     Devices/TestNordictrackEllipticalS700Parser.h \
     Devices/TestXcxBikeParser.h \
+    Devices/TestFtmsBikeParser.h \
     Devices/TestOctaneTreadmillZR8.h \
     Devices/TestSunnyfitStepper.h \
     Erg/ergtabletestsuite.h \

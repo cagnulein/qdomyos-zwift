@@ -143,7 +143,7 @@ void xcxbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
 
 void xcxbike::serviceStateChanged(QLowEnergyService::ServiceState state) {
     qDebug() << QStringLiteral("XCX FFF0 service state") << state;
-    if (state != QLowEnergyService::ServiceDiscovered)
+    if (state != QLowEnergyService::RemoteServiceDiscovered)
         return;
 
     fff5WriteCharacteristic = fff0Service->characteristic(fff5Uuid);
@@ -209,7 +209,7 @@ void xcxbike::controllerStateChanged(QLowEnergyController::ControllerState state
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         notificationEnabled = false;
         lastTelemetryTime = QDateTime();
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 

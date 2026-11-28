@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- QStandardPaths::CacheLocation: only the generated, temporary support log is shared. -->
+    <cache-path name="support_log" path="." />
+</paths>

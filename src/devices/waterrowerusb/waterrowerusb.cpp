@@ -1,4 +1,8 @@
 #include "waterrowerusb.h"
+#ifdef Q_OS_ANDROID
+#include <QCoreApplication>
+#include <QJniObject>
+#endif
 #include <QBluetoothLocalDevice>
 #include <QEventLoop>
 #include <QFile>
@@ -12,8 +16,7 @@
 #include "virtualdevices/virtualrower.h"
 
 #ifdef Q_OS_ANDROID
-#include <QAndroidJniEnvironment>
-#include <QtAndroid>
+#include <QJniEnvironment>
 #endif
 
 using namespace std::chrono_literals;
@@ -31,7 +34,7 @@ void waterrowerusbThread::run() {
 
     while (running) {
 #ifdef Q_OS_ANDROID
-        bool isConnected = QAndroidJniObject::callStaticMethod<jboolean>(
+        bool isConnected = QJniObject::callStaticMethod<jboolean>(
             "org/cagnulen/qdomyoszwift/WaterRowerBridge",
             "isConnected",
             "()Z");
@@ -65,14 +68,14 @@ void waterrowerusbThread::initializeWaterRower() {
     emit onDebug(QStringLiteral("Initializing WaterRower USB connection..."));
     
     // Call the Java WaterRower initialization
-    QAndroidJniEnvironment env;
+    QJniEnvironment env;
     
     // Get the device path
-    QAndroidJniObject devicePathObject = QAndroidJniObject::callStaticObjectMethod(
+    QJniObject devicePathObject = QJniObject::callStaticObjectMethod(
         "org/cagnulen/qdomyoszwift/WaterRowerBridge",
         "getDevicePath",
         "(Landroid/content/Context;)Ljava/lang/String;",
-        QtAndroid::androidContext().object());
+        QNativeInterface::QAndroidApplication::context().object());
 
     if (env->ExceptionCheck()) {
         env->ExceptionClear();
@@ -89,11 +92,11 @@ void waterrowerusbThread::initializeWaterRower() {
     emit onDebug(QStringLiteral("WaterRower device found at: ") + devicePath);
 
     // Create WaterRower instance through JNI
-    QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
+    QJniObject result = QJniObject::callStaticObjectMethod(
         "org/cagnulen/qdomyoszwift/WaterRowerBridge", 
         "connect", 
         "(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;",
-        QtAndroid::androidContext().object(), QAndroidJniObject::fromString(devicePath).object<jstring>());
+        QNativeInterface::QAndroidApplication::context().object(), QJniObject::fromString(devicePath).object<jstring>());
     
     if (env->ExceptionCheck()) {
         env->ExceptionClear();
@@ -113,10 +116,10 @@ void waterrowerusbThread::initializeWaterRower() {
 }
 
 void waterrowerusbThread::processWaterRowerData() {
-    QAndroidJniEnvironment env;
+    QJniEnvironment env;
     
     // Get stroke data from Java
-    QAndroidJniObject strokeData = QAndroidJniObject::callStaticObjectMethod(
+    QJniObject strokeData = QJniObject::callStaticObjectMethod(
         "org/cagnulen/qdomyoszwift/WaterRowerBridge",
         "getStrokeData",
         "()Ljava/lang/String;");
@@ -143,7 +146,7 @@ void waterrowerusbThread::processWaterRowerData() {
     }
     
     // Check connection status
-    bool isConnected = QAndroidJniObject::callStaticMethod<jboolean>(
+    bool isConnected = QJniObject::callStaticMethod<jboolean>(
         "org/cagnulen/qdomyoszwift/WaterRowerBridge",
         "isConnected",
         "()Z");
@@ -165,7 +168,7 @@ void waterrowerusbThread::shutdownWaterRower() {
     emit onDebug(QStringLiteral("Shutting down WaterRower connection..."));
     
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject::callStaticMethod<void>(
+    QJniObject::callStaticMethod<void>(
         "org/cagnulen/qdomyoszwift/WaterRowerBridge",
         "shutdown",
         "()V");

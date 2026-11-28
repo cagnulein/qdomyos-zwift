@@ -1,0 +1,39 @@
+name: Accessibility
+
+on:
+  pull_request:
+    paths:
+      - 'src/**.qml'
+      - 'tools/check_accessibility.py'
+      - 'tools/check_accessibility_exceptions.json'
+      - 'tests/test_check_accessibility.py'
+      - '.github/workflows/accessibility.yml'
+  workflow_dispatch:
+
+jobs:
+  check-accessibility:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # the head of the pull request, not the merge commit: the line numbers of the
+          # annotations are then those of the "Files changed" tab
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Test the checker
+        run: python3 -m unittest tests/test_check_accessibility.py
+
+      - name: Fetch pull request base
+        if: github.event_name == 'pull_request'
+        run: git fetch origin "${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}"
+
+      - name: Check accessibility of the changed QML
+        if: github.event_name == 'pull_request'
+        run: python3 tools/check_accessibility.py "origin/${{ github.base_ref }}" --github
+
+      - name: Check script on manual run
+        if: github.event_name == 'workflow_dispatch'
+        run: python3 tools/check_accessibility.py "HEAD^" --github

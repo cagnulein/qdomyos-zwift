@@ -384,7 +384,7 @@ void wahookickruntreadmill::stateChanged(QLowEnergyService::ServiceState state) 
 
     // Wait until all services are discovered
     for (QLowEnergyService *s : qAsConst(gattServices)) {
-        if (s->state() != QLowEnergyService::ServiceDiscovered &&
+        if (s->state() != QLowEnergyService::RemoteServiceDiscovered &&
             s->state() != QLowEnergyService::InvalidService) {
             return;
         }
@@ -393,7 +393,7 @@ void wahookickruntreadmill::stateChanged(QLowEnergyService::ServiceState state) 
     emit debug(QStringLiteral("all services discovered"));
 
     for (QLowEnergyService *s : qAsConst(gattServices)) {
-        if (s->state() != QLowEnergyService::ServiceDiscovered)
+        if (s->state() != QLowEnergyService::RemoteServiceDiscovered)
             continue;
 
         connect(s, &QLowEnergyService::characteristicChanged, this,
@@ -540,7 +540,7 @@ void wahookickruntreadmill::controllerStateChanged(QLowEnergyController::Control
         gattFTMSService = nullptr;
         qDeleteAll(gattServices);
         gattServices.clear();
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 

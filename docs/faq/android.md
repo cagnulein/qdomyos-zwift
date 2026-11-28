@@ -12,7 +12,7 @@ The exact Android menu names vary by device and manufacturer. On some devices, t
 
 The QZ Android Notification setting helps keep QZ active while Zwift is in the foreground, but Android's own battery management can still suspend or stop QZ in the background. In a confirmed support case, QZ repeatedly disconnected after roughly 2 to 5 minutes until the user found the additional Android battery setting and changed QZ to unrestricted battery usage. See [issue #5034](https://github.com/cagnulein/qdomyos-zwift/issues/5034).
 
-This workaround is Android-specific. iOS does not provide QZ with the same background mechanism; if your iOS setup requires QZ and the training app to remain active at the same time, use separate devices.
+This workaround is Android-specific. **iOS uses a different background mechanism:** the newer QZ iOS beta supports running QZ with Zwift or MyWhoosh on the **same iPhone or iPad** when **Experimental Settings > iOS Background Keep Alive** is enabled. See the [iOS FAQ](ios.md).
 
 ## Debug logging is enabled, but QZ has stopped creating new log files. What should I try?
 
@@ -31,3 +31,55 @@ QZ can write completed workouts to **Google Health Connect** on Android 8 / API 
 5. Start a workout in QZ, record some activity, and then **stop the workout in QZ**. The Health Connect workout is written when the completed session is saved, not merely when live metrics begin updating.
 
 In a confirmed support case, an older Play Store build did not appear in Health Connect; after updating to the beta that contained the integration, QZ immediately requested the Health Connect permissions and became available for workout export.
+
+
+## QZ cannot find my Bluetooth fitness device on Android. Which permissions should I check?
+
+If the device is powered on, is not connected to another app, and still does not appear in QZ on Android, verify that Bluetooth and Location are enabled and that QZ has the requested Bluetooth and location permissions. If Android offers precise location access, allow it, then return to QZ and refresh the device list.
+
+QZ's Android build requests Bluetooth discovery/connection and location permissions. In a confirmed support case, a bike that was otherwise ready to connect appeared immediately after precise location permission was granted.
+
+## How can I resize QZ's floating window on Android to show more metrics?
+
+If QZ's floating window is too short and you have to scroll to see the metrics, change the window dimensions rather than pinching its contents:
+
+1. Open **QZ Settings > General UI Options**.
+2. Increase **Floating Window Height** from the default **210** to, for example, **400** or **450**. Adjust **Floating Window Width** if necessary.
+3. Save the settings, then close and reopen the floating window.
+
+Pinching changes the displayed content size, not the floating window dimensions. The width and height settings are implemented in QZ's Android floating-window code. This is verified setup guidance; a customer confirmation is not yet available.
+
+## A QZ Android test build will not extract or says it conflicts with the installed package. What should I do?
+
+Two different installation problems need different fixes:
+
+1. If the downloaded artifact ZIP reports **Unexpected end of archive** or fails to extract completely, **download it again** from the build's original GitHub Actions artifact link and extract the new download before installing the APK.
+2. If the APK extracts but Android reports that the new package **conflicts with the existing package**, an existing QZ installation may use a different signing certificate. Android will not install a differently signed APK as an in-place update.
+3. **Back up or export important QZ settings, profiles, and workout data first**, if they are stored locally and you need to keep them. Uninstalling the current QZ app can delete its local data.
+4. Only if the normal update is blocked by that package/signature conflict, uninstall the existing QZ installation, install the extracted test APK, and restore your saved settings as needed.
+
+Normally, compatible QZ Android builds can be installed over an existing installation without losing settings. **Do not uninstall by default.** In a confirmed support case, downloading the artifact again fixed the incomplete ZIP, and removing the conflicting existing installation allowed the test APK to be installed and run.
+
+## My Echelon console running QZ disconnects from the bike about 30 seconds after connecting. Could the virtual Bluetooth device be involved?
+
+If QZ runs **directly on an older Android-based Echelon console** and already connects to/unlocks the bike, check whether its **Virtual Device Bluetooth** feature is enabled unnecessarily.
+
+1. First confirm that QZ itself receives the bike's live cadence/resistance and that the physical bike connection works.
+2. If you are using QZ **locally on the console** and **do not need another app/device to connect to QZ's Bluetooth advertisement**, disable **Virtual Device Bluetooth** in QZ's virtual-device settings.
+3. Restart QZ and test whether the physical bike connection remains stable for several minutes.
+
+In a confirmed Android 9 Echelon-console A/B test, the physical Bluetooth link disconnected after roughly **31.6–31.8 seconds** in two runs with virtual Bluetooth advertising enabled. With it disabled, the connection remained stable for **at least 68 seconds**, until QZ was deliberately closed. Android battery-optimization changes alone had not solved that specific issue.
+
+**Important:** Disabling virtual Bluetooth also removes that Bluetooth bridge for downstream apps/devices. Do **not** use this workaround if Zwift, MyWhoosh, or another app needs QZ's advertised Bluetooth trainer; investigate the connection issue or use an appropriately configured alternative bridge instead. This is a targeted workaround on the tested older console, not a universal cure for Bluetooth disconnects.
+
+## Some QZ settings switches do not respond when Android uses a right-to-left language. What can I try?
+
+If QZ settings switches (for example, switches in the Garmin settings) appear mirrored or do not respond to taps while Android is using a right-to-left (RTL) language, temporarily switch the **Android device language to English**, then reopen QZ and try the switches again. Tap the switch itself rather than the surrounding settings row.
+
+A user confirmed that the switches became usable after changing the Android system language from an RTL language to English. This is a **temporary workaround**, not a confirmed fix for QZ's RTL layout; switch back to your preferred language after configuring QZ and check whether the setting remains effective. If the issue recurs, report the QZ version, Android version, language and affected switch so the RTL behavior can be corrected.
+
+## Workout History stays blank after switching between a nightly APK and the Play Store app. What can I try?
+
+If **Workout History** no longer loads after uninstalling a nightly/test build and installing the Google Play version, first **back up the QZ folder and any workouts or settings you want to retain** to another location. Then close QZ, remove the old **QZ folder** from the phone's file storage, and reopen QZ to let it recreate its local data. Deleting this folder may permanently remove locally stored workout files, settings, or history, so do not do it without a backup.
+
+In a confirmed Android support case, clearing the old QZ folder restored the Workout History screen after a switch from a nightly build to the Play Store release. This is a workaround for that particular stale-data situation, not a general recommendation to delete QZ data for every history problem.

@@ -620,6 +620,6 @@ void smartrowrower::controllerStateChanged(QLowEnergyController::ControllerState
         smartRowV3 = false;
         smartRowV3ChallengeRequested = false;
         pendingSmartRowWrite.clear();
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

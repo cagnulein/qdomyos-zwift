@@ -1,0 +1,45 @@
+Subject: [PATCH] Android: reset the hovered accessibility node on ACTION_HOVER_EXIT
+
+On a lift of the finger QtAccessibilityDelegate kept the node under it as the hovered one,
+so the next touch on the same node sent TalkBack no TYPE_VIEW_HOVER_ENTER, and TalkBack did
+not focus it again once a swipe had moved the focus elsewhere. Reset it and send
+TYPE_VIEW_HOVER_EXIT, as ExploreByTouchHelper of AndroidX does (the same code is still in
+Qt 6.8 and dev). setHoveredVirtualViewId sends no hover exit when no node was hovered, so
+the touch after a lift logs no "sendEventForVirtualViewId for invalid view". Applied to qtbase v5.15.0; jar/QtAndroid.jar is built with build_qtandroid_jar.sh.
+---
+--- a/src/android/jar/src/org/qtproject/qt5/android/accessibility/QtAccessibilityDelegate.java
++++ b/src/android/jar/src/org/qtproject/qt5/android/accessibility/QtAccessibilityDelegate.java
+@@ -184,7 +184,19 @@
+                 setHoveredVirtualViewId(virtualViewId);
+                 break;
+             case MotionEvent.ACTION_HOVER_EXIT:
+-                setHoveredVirtualViewId(virtualViewId);
++                // The finger lifted: no node is hovered any more, as ExploreByTouchHelper of
++                // AndroidX does. Kept as hovered, the node got no TYPE_VIEW_HOVER_ENTER on the next
++                // touch on it (setHoveredVirtualViewId sends nothing for the same node), and
++                // TalkBack did not focus it again once a swipe had moved the focus elsewhere.
++                // Not through setHoveredVirtualViewId(INVALID_ID): it would also send a hover enter
++                // for the invalid view, which sendEventForVirtualViewId drops with a warning.
++                // The next touch starts from INVALID_ID, so setHoveredVirtualViewId skips the
++                // hover exit for it.
++                if (m_hoveredVirtualViewId != INVALID_ID) {
++                    final int previousVirtualViewId = m_hoveredVirtualViewId;
++                    m_hoveredVirtualViewId = INVALID_ID;
++                    sendEventForVirtualViewId(previousVirtualViewId, AccessibilityEvent.TYPE_VIEW_HOVER_EXIT);
++                }
+                 break;
+         }
+ 
+@@ -223,7 +235,11 @@
+         final int previousVirtualViewId = m_hoveredVirtualViewId;
+         m_hoveredVirtualViewId = virtualViewId;
+         sendEventForVirtualViewId(virtualViewId, AccessibilityEvent.TYPE_VIEW_HOVER_ENTER);
+-        sendEventForVirtualViewId(previousVirtualViewId, AccessibilityEvent.TYPE_VIEW_HOVER_EXIT);
++        // No node was hovered (the first touch, or the finger lifted): nothing to exit, as in
++        // ExploreByTouchHelper; sendEventForVirtualViewId would only log a warning for it.
++        if (previousVirtualViewId != INVALID_ID) {
++            sendEventForVirtualViewId(previousVirtualViewId, AccessibilityEvent.TYPE_VIEW_HOVER_EXIT);
++        }
+     }
+ 
+     private AccessibilityEvent getEventForVirtualViewId(int virtualViewId, int eventType)

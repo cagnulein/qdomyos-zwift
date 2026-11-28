@@ -351,7 +351,7 @@ void echelonstairclimber::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     qDebug() << QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state));
 
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
         // qDebug() << gattCommunicationChannelService->characteristics();
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
@@ -466,7 +466,7 @@ void echelonstairclimber::controllerStateChanged(QLowEnergyController::Controlle
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 

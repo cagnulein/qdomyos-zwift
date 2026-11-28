@@ -14,8 +14,9 @@ ColumnLayout {
         id: hostRow
         Label {
             id: labelTcpClientIp
-            text: qsTr(rootElement.templateId + " Host:")
+            text: qsTr("%1 Host:").arg(rootElement.templateId)
             Layout.fillWidth: true
+            wrapMode: window.labelWrap
         }
         function doSaveHost(text) {
             let ipHostCheck = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)+([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$/g;
@@ -26,16 +27,21 @@ ColumnLayout {
             }
         }
 
-        TextField {
+        UiTextField {
             id:textTcpClientIp
             text: settings.value("template_"+rootElement.templateId+"_ip","127.0.0.1")
             horizontalAlignment: Text.AlignRight
+            // modern look: a value wider than the text area (127.0.0.1 at 170 %) takes the inner padding,
+            // 14 down to 0 (the text area of the plain TextField), instead of losing its start; the field
+            // keeps its width, so the label does not move; the 2 is the room of the cursor
+            leftPadding: window.ui.modern ? Math.max(0, Math.min(14, (width - contentWidth - 2) / 2)) : padding
+            rightPadding: leftPadding
             Layout.fillHeight: false
             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
             //inputMethodHints: Qt.ImhFormattedNumbersOnly
             onAccepted: hostRow.doSaveHost(text)
         }
-        Button {
+        UiButton {
             id: buttonTcpClientIp
             text: "OK"
             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -47,8 +53,9 @@ ColumnLayout {
         id: portRow
         Label {
             id: labelTcpClientPort
-            text: qsTr(rootElement.templateId + " Port:")
+            text: qsTr("%1 Port:").arg(rootElement.templateId)
             Layout.fillWidth: true
+            wrapMode: window.labelWrap
         }
         function doSavePort(text) {
             let port = parseInt(text);
@@ -57,16 +64,21 @@ ColumnLayout {
                 settings.setValue("template_"+rootElement.templateId+"_port", port);
         }
 
-        TextField {
+        UiTextField {
             id: textTcpClientPort
+            // modern look: the narrow field of the other number fields
+            numberField: true
             text: settings.value("template_"+rootElement.templateId+"_port",4321) + "";
             horizontalAlignment: Text.AlignRight
+            // modern look: a 5-digit port at a large text size - the inner padding shrinks, as for the host above
+            leftPadding: window.ui.modern ? Math.max(0, Math.min(14, (width - contentWidth - 2) / 2)) : padding
+            rightPadding: leftPadding
             Layout.fillHeight: false
             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
             inputMethodHints: Qt.ImhDigitsOnly
             onAccepted: portRow.doSavePort(text)
         }
-        Button {
+        UiButton {
             id: buttonlabelTcpClientPort
             text: "OK"
             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter

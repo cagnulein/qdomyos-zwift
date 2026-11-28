@@ -218,6 +218,6 @@ void thinkridercontroller::controllerStateChanged(QLowEnergyController::Controll
         initDone = false;
 
         if (m_control)
-            m_control->connectToDevice();
+            connectBackLater();
     }
 }

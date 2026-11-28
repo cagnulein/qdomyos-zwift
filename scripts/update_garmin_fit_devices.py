@@ -100,7 +100,7 @@ def locate_control(qml: str) -> tuple[int, int]:
     anchors = list(re.finditer(r"^\s*id:\s*garminDeviceComboBoxDelegate\s*$", qml, re.MULTILINE))
     if len(anchors) != 1:
         raise UpdateError(f"expected one Garmin ComboBox id, found {len(anchors)}")
-    starts = list(re.finditer(r"^\s*ComboBox\s*\{", qml[: anchors[0].start()], re.MULTILINE))
+    starts = list(re.finditer(r"^\s*(?:Ui)?ComboBox\s*\{", qml[: anchors[0].start()], re.MULTILINE))
     if not starts:
         raise UpdateError("Garmin id is not inside a ComboBox")
     start = starts[-1].start()
@@ -186,6 +186,9 @@ def update_qml(qml: str, catalog: dict[str, int]) -> tuple[str, list[Device], li
     # applied to new entries above. Sort afterwards so the visible QML model and
     # both index mappings always remain in the same alphabetical order.
     devices = sorted(real + added + special, key=lambda d: (d.display.casefold(), d.macro))
+    fallback_index = next((i for i, d in enumerate(devices) if d.macro == "EDGE_830"), None)
+    if fallback_index is None:
+        raise UpdateError("default Garmin device EDGE_830 is missing")
     indent = re.search(r"(?m)^(\s*)model:", control).group(1)
     item_indent = indent + "    "
     model_body = "\n".join(f'{item_indent}"{d.display}"{"," if i < len(devices)-1 else ""}' for i, d in enumerate(devices))
@@ -198,8 +201,8 @@ def update_qml(qml: str, catalog: dict[str, int]) -> tuple[str, list[Device], li
         for i, d in enumerate(devices)
     )
     control, count = re.subn(
-        r"(?ms)(\s*currentIndex:\s*\{\n).*?(^[ \t]*return \d+;[ \t]*// Default to Edge 830)",
-        lambda m: m.group(1)+current_lines+"\n"+m.group(2), control, count=1,
+        r"(?ms)(\s*currentIndex:\s*\{\n).*?(^[ \t]*return )\d+(;[ \t]*// Default to Edge 830)",
+        lambda m: m.group(1)+current_lines+"\n"+m.group(2)+str(fallback_index)+m.group(3), control, count=1,
     )
     if count != 1:
         raise UpdateError("failed to replace Garmin currentIndex mapping")
@@ -208,16 +211,25 @@ def update_qml(qml: str, catalog: dict[str, int]) -> tuple[str, list[Device], li
         f"{case_indent}case {i}: settings.fit_file_garmin_device_training_effect_device = {d.product}; break;  // {d.macro}"
         for i, d in enumerate(devices)
     )
+    # Only an explicit user selection should persist an ID. During startup,
+    # currentIndex can change as the model is initialized or restored.
+    # Accept the old handler as input and keep onActivated on future updates.
     control, count = re.subn(
-        r"(?ms)(\s*onCurrentIndexChanged:\s*\{\n\s*switch\(currentIndex\)\s*\{\n).*?(^[ \t]*\}\n[ \t]*\})",
-        lambda m: m.group(1)+case_lines+"\n"+m.group(2), control, count=1,
+        r"(?ms)(\s*(?:onCurrentIndexChanged|onActivated):\s*\{\n\s*switch\(currentIndex\)\s*\{\n).*?(^[ \t]*\}\n[ \t]*\})",
+        lambda m: m.group(1).replace("onCurrentIndexChanged", "onActivated", 1)+case_lines+"\n"+m.group(2),
+        control, count=1,
     )
     if count != 1:
         raise UpdateError("failed to replace Garmin switch mapping")
     updated = qml[:start] + control + qml[end:]
     if updated[:start] != qml[:start] or updated[start + len(control):] != qml[end:]:
         raise UpdateError("content outside Garmin ComboBox changed")
-    parse_current(control)
+    generated = parse_current(control)
+    if generated != devices:
+        raise UpdateError("generated Garmin index mappings do not match the device list")
+    generated_ids = {d.macro: d.product for d in generated}
+    if any(generated_ids.get(d.macro) != d.product for d in current):
+        raise UpdateError("existing Garmin product IDs must be preserved")
     return updated, added, current
 
 

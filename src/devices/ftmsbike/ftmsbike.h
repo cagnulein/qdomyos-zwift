@@ -73,14 +73,69 @@ class ftmsbike : public bike {
   public:
     ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset, double bikeResistanceGain);
     ~ftmsbike();
+    static bool parseFsIb50Resistance(const QByteArray &packet, resistance_t *resistance);
+    static bool fsIb50ResistanceGearDelta(resistance_t previousResistance, resistance_t currentResistance,
+                                           qint64 msecsSinceInclinationCommand,
+                                           qint64 msecsSinceInclinationMetricChange, resistance_t *delta);
+    static double applyFsIb50GearGain(resistance_t gearDelta, double gearsGain);
+    // Reusable classifier; currently enabled only for the H9110 BI9200.
+    struct PhysicalResistanceGearLimits {
+        resistance_t minimumLevel;
+        resistance_t maximumLevel;
+        resistance_t maximumStep;
+        qint64 controlEchoGuardMs;
+    };
+    static bool physicalResistanceGearsEnabled(const QString &deviceName, bool optionEnabled);
+    static bool physicalResistanceGearDelta(resistance_t previousResistance, resistance_t currentResistance,
+                                            qint64 millisecondsSinceControlCommand,
+                                            const PhysicalResistanceGearLimits &limits, resistance_t *delta);
+    static bool shouldReplayPhysicalGearChange(bool featureEnabled, bool physicalShiftPending);
+    static bool shouldUseRelativeResistanceControl(bool featureEnabled, bool resistanceLevelMode,
+                                                    bool autoResistanceEnabled, bool zwiftFtmsConnected,
+                                                    int requestPower);
+    // Generic command history: an FTMS resistance notification may be a delayed
+    // response to ANY recent target, not just the most recent one.
+    struct PhysicalResistanceCommand {
+        resistance_t fromLevel;
+        resistance_t targetLevel;
+        qint64 sentAtMs;
+    };
+    static bool matchesRecentResistanceCommand(resistance_t nativeLevel,
+                                                const QList<PhysicalResistanceCommand> &commands,
+                                                qint64 nowMs, qint64 guardMs);
+    static bool isPhysicalResistanceCommandSettling(qint64 elapsedSinceWriteMs,
+                                                     qint64 settlingWindowMs);
+    static resistance_t relativeResistanceTarget(resistance_t desiredLevel, resistance_t oldGradeBase,
+                                                  resistance_t newGradeBase);
+    static resistance_t reanchorResistanceTarget(resistance_t observedLevel, resistance_t previousDesired,
+                                                 resistance_t lastCommandedLevel);
+    static resistance_t limitedResistanceTarget(resistance_t anchorLevel, resistance_t desiredLevel,
+                                                 resistance_t maxStep);
+    static bool isExpectedResistanceCommandEcho(resistance_t nativeLevel, resistance_t levelBeforeCommand,
+                                               resistance_t targetLevel, qint64 millisecondsSinceCommand,
+                                               qint64 echoGuardMs);
+    static bool shouldWriteResistanceTarget(resistance_t targetLevel, resistance_t previousTargetLevel,
+                                           resistance_t nativeLevel);
+    static QByteArray ftmsResistanceTargetPacket(resistance_t targetLevel, resistance_t minimumLevel,
+                                                 resistance_t maximumLevel);
+    static resistance_t effectiveRequestedResistance(resistance_t request, resistance_t additionalGearResistance,
+                                                     bool alreadyIncludesGear);
     bool connected() override;
+
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     resistance_t maxResistance() override { return max_resistance; }
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
     void changePower(int32_t power) override;
+    void changeInclination(double grade, double percentage) override;
+    static bool usesSlopePowerForDevice(const QString &deviceName);
     double maxGears() override;
     double minGears() override;
     void enableManualResistancePowerAdjustment(resistance_t resistance);
+    static resistance_t normalizedResistanceForDevice(const QString &deviceName, double rawResistance);
+    static resistance_t rawResistanceForDevice(const QString &deviceName, resistance_t displayedResistance);
+    static bool uses16BitResistanceForDevice(const QString &deviceName);
+    static bool isMatchingFtmsControlResponse(const QBluetoothUuid &characteristicUuid,
+                                              const QByteArray &response, uint8_t requestedOpcode);
 
     // Most FTMS bikes can use QZ's software ERG emulation, but FS-YK devices
     // should stay on direct resistance control because it doesn't send the current resistance value and it conflicts
@@ -116,6 +171,7 @@ class ftmsbike : public bike {
     void forceResistance(resistance_t requestResistance);
     void forcePower(int16_t requestPower);
     void forceInclination(double requestInclination);
+    void stopBodytoneSlopePower();
     void sendZwiftPlayInclination(double inclination);
     uint16_t wattsFromResistance(double resistance);
     bool isManualResistanceBike() const;
@@ -155,6 +211,14 @@ class ftmsbike : public bike {
     bool initDone = false;
     bool initRequest = false;
 
+    // Matrix R30 XR (MX-RB prefix): do not send target resistance until 2AD9 indications
+    // are enabled and Request Control has been acknowledged by the bike.
+    bool matrixControlPointIndicationsReady = false;
+    bool matrixControlGranted = false;
+    bool matrixControlRequestPending = false;
+    QDateTime matrixNextControlAttempt;
+    resistance_t matrixLastResistanceCommand = -1;
+
     bool noWriteResistance = false;
     bool noHeartService = false;
 
@@ -170,6 +234,26 @@ class ftmsbike : public bike {
     bool resistance_received = false;
     bool native_resistance_received = false;
     QDateTime calculatedResistanceFallbackSince;
+    resistance_t lastFsIb50Resistance = -1;
+    QDateTime lastFsIb50InclinationCommand;
+    bool fsIb50PhysicalGearChangePending = false;
+
+    // BI9200 FTMS resistance notifications can represent physical handlebar shifts.
+    resistance_t lastPhysicalGearResistance = -1;
+    QDateTime lastPhysicalGearControlCommand;
+    // Last desired native level prevents repeated 0x04 writes on every Zwift slope update.
+    resistance_t lastPhysicalGearTarget = -1;
+    // Last Zwift grade-derived level without gear offset, for local UI shifts.
+    resistance_t lastPhysicalGearAutomaticBase = -1;
+    // BI9200-only state. Stored command trajectories prevent delayed responses
+    // to older targets from being misclassified as handlebar presses.
+    QList<PhysicalResistanceCommand> recentPhysicalResistanceCommands;
+    QDateTime lastPhysicalResistanceWrite;
+    QDateTime lastPhysicalGearOtherControlCommand;
+    resistance_t desiredPhysicalResistance = -1;
+    bool lastPhysicalGearAutomaticBaseValid = false;
+    bool physicalGearChangePending = false;
+
     inclinationResistanceTable _inclinationResistanceTable;
 
     // D500V2 workaround: track if we're awaiting start simulation command after request control
@@ -188,6 +272,7 @@ class ftmsbike : public bike {
     bool VFSPINBIKE = false;
     bool SS2K = false;
     bool DIRETO_XR = false;
+    bool INCONDI_S150I = false;
     bool JFBK5_0 = false;
     bool BIKE_ = false;
     bool SMB1 = false;
@@ -209,10 +294,14 @@ class ftmsbike : public bike {
     bool MRK_S28 = false;
     bool MRK_S36C = false;
     bool HAMMER = false;
+    bool HS_5000L = false;
     bool H9115 = false;
+    bool DRUMFIT = false;
     bool YPBM = false;
     bool SPORT01 = false;
     bool FS_YK = false;
+    bool FS_IB50 = false;
+    bool FS_SB_RCR = false;
     bool S18 = false;
     bool ZIPRO_RAVE = false;
     bool SPEEDRACEX = false;
@@ -223,6 +312,8 @@ class ftmsbike : public bike {
     bool TX_500MB_IRON = false;
     bool MOK_FITNESS = false;
     bool TUNTURI_E50_168 = false;
+    bool SOLE_B94 = false;
+    bool VIFHTR = false;
 
     uint8_t secondsToResetTimer = 5;
 

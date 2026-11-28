@@ -49,7 +49,7 @@ void volavabike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStr
     }
 
     if (!gattCommunicationChannelService ||
-        gattCommunicationChannelService->state() != QLowEnergyService::ServiceDiscovered ||
+        gattCommunicationChannelService->state() != QLowEnergyService::RemoteServiceDiscovered ||
         m_control->state() == QLowEnergyController::UnconnectedState) {
         qDebug() << QStringLiteral("volavabike::writeCharacteristic: connection closed");
         return;
@@ -216,7 +216,7 @@ void volavabike::stateChanged(QLowEnergyService::ServiceState state) {
     qDebug() << QStringLiteral("volavabike stateChanged ")
              + QString::fromLocal8Bit(metaEnum.valueToKey(state));
 
-    if (state != QLowEnergyService::ServiceDiscovered)
+    if (state != QLowEnergyService::RemoteServiceDiscovered)
         return;
 
     QBluetoothUuid notifyUuid(VOLAVA_NOTIFY_UUID);
@@ -374,6 +374,6 @@ void volavabike::controllerStateChanged(QLowEnergyController::ControllerState st
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("volavabike: reconnecting...");
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

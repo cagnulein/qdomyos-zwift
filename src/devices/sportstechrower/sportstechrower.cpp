@@ -253,7 +253,7 @@ void sportstechrower::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
         auto characteristics_list = gattCommunicationChannelService->characteristics();
         for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
             emit debug(QStringLiteral("characteristic ") + c.uuid().toString());
@@ -407,7 +407,7 @@ void sportstechrower::controllerStateChanged(QLowEnergyController::ControllerSta
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 

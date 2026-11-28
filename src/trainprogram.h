@@ -21,6 +21,12 @@
 #endif
 #endif
 
+enum class treadmill_pid_hr_mode : int8_t {
+    Default = -1,
+    Speed = 0,
+    Inclination = 1
+};
+
 class trainrow {
   public:
     QTime duration = QTime(0, 0, 0, 0);
@@ -54,10 +60,12 @@ class trainrow {
     int8_t zoneHR = -1;
     int16_t HRmin = -1;
     int16_t HRmax = -1;
+    treadmill_pid_hr_mode pidHrMode = treadmill_pid_hr_mode::Default;
     int16_t HRabove = -1;
     int16_t HRbelow = -1;
     double maxSpeed = -1;
     double minSpeed = -1;
+    double maxInclination = -1;
     int8_t maxResistance = -1;
     int32_t power = -1;
     bool rampIsFtpFraction = false;
@@ -130,7 +138,11 @@ class trainprogram : public QObject {
     bool advanceLapButtonStep();
     static int firstBlockingLapButtonRow(const QList<trainrow> &rows, int currentStep, int candidateStep);
     static int firstBlockingTransitionRow(const QList<trainrow> &rows, int currentStep, int candidateStep);
+    static bool shouldSendGpxInclination(double lastSentInclination, double nextInclination, double filter);
     static bool isBlockingTransitionRow(const trainrow &row);
+    static QString pidHrModeToString(treadmill_pid_hr_mode mode);
+    static treadmill_pid_hr_mode pidHrModeFromString(const QString &value);
+    static treadmill_pid_hr_mode effectivePidHrMode(const trainrow &row, treadmill_pid_hr_mode globalMode);
     bool powerzoneWorkout() {
         foreach(trainrow r, rows) {
             if(r.power != -1) return true;
@@ -154,6 +166,8 @@ class trainprogram : public QObject {
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded
     BLUETOOTH_TYPE loadedDeviceType = UNKNOWN;
+    bool isFitWorkout = false;
+    bool fitWorkoutMatchesDevice() const;
     QString description = "";
     QString tags = "";
     bool enabled = true;

@@ -630,9 +630,10 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             requestResistanceCompleted = true;
             Resistance = res;
             emit resistanceRead(Resistance.value());
-            if (merach_MRK || sportstech_sx600) {
-                // if we change this, also change the wattsFromResistance function. We can create a standard function in
-                // order to have all the costants in one place (I WANT MORE TIME!!!)
+            if (sportstech_sx600) {
+                // Sportstech SX600 does not expose a Peloton-compatible resistance level;
+                // estimate it from power and cadence instead.
+                // If this is changed, also change the wattsFromResistance function.
                 double ac = 0.01243107769;
                 double bc = 1.145964912;
                 double cc = -23.50977444;
@@ -650,6 +651,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                      settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
                     settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
             } else {
+                // Merach MRK sends its native resistance level in the packet.
                 m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
             }
 
@@ -690,8 +692,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                 qDebug() << QStringLiteral("Virtufit Etappe data layout detected, setting enabled");
                 if (homeform::singleton())
                     homeform::singleton()->requestRestartToApply(
-                        "QZ has detected the data format of this bike and enabled \"Virtufit Etappe 2.0 Bike\" in the "
-                        "settings. QZ must be restarted to read the bike data.");
+                        QObject::tr("QZ has detected the data format of this bike and enabled \"Virtufit Etappe 2.0 Bike\" in the settings. QZ must be restarted to read the bike data."));
             }
             return;
         }
@@ -776,10 +777,17 @@ resistance_t fitplusbike::pelotonToBikeResistance(int pelotonResistance) {
     return (adjustedPelotonResistance * max_resistance) / 100;
 }
 
+double fitplusbike::pelotonResistanceFromBikeLevel(double resistance, double maxResistance, double gain, double offset) {
+    return (((resistance * 100) / maxResistance) * gain) + offset;
+}
+
 double fitplusbike::bikeResistanceToPeloton(double resistance) {
     QSettings settings;
-    return (((resistance * 100) / max_resistance) * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
-           settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+    return pelotonResistanceFromBikeLevel(
+        resistance,
+        max_resistance,
+        settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble(),
+        settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble());
 }
 
 void fitplusbike::btinit() {
@@ -1023,7 +1031,7 @@ void fitplusbike::serviceScanDone(void) {
             settings.setValue(QZSettings::ftms_bike, bluetoothDevice.name());
             qDebug() << "forcing FTMS bike since it has FTMS";
             if(homeform::singleton())
-                homeform::singleton()->setToastRequested("FTMS bike found, restart the app to apply the change!");
+                homeform::singleton()->setToastRequested(QObject::tr("FTMS bike found, restart the app to apply the change!"));
         }
     }
 }
@@ -1048,6 +1056,10 @@ void fitplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         if (device.name().startsWith(QStringLiteral("MRK-"))) {
             qDebug() << QStringLiteral("merach_MRK workaround enabled!");
             merach_MRK = true;
+            if (device.name().startsWith(QStringLiteral("MRK-S29M-"))) {
+                max_resistance = 16;
+                qDebug() << QStringLiteral("MRK-S29M max resistance set to 16");
+            }
         } else if (device.name().startsWith(QStringLiteral("X100-"))) {
             qDebug() << QStringLiteral("VirtuFit Etappe 2.0i workaround enabled!");
             virtufitEtappe = true;
@@ -1111,7 +1123,7 @@ void fitplusbike::controllerStateChanged(QLowEnergyController::ControllerState s
         lastResistanceBeforeDisconnection = Resistance.value();
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 
@@ -1180,4 +1192,11 @@ uint16_t fitplusbike::wattsFromResistance(double resistance) {
 
 resistance_t fitplusbike::resistanceFromPowerRequest(uint16_t power) {
     return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), max_resistance);
+}
+
+bool fitplusbike::targetPowerReleaseSupported() {
+    // issue 5316: the T.Power(W) tile and the app's grade fought over the level on the Virtufit Etappe
+    // layout (FS-495B40) until the console stopped the workout
+    QSettings settings;
+    return virtufitEtappe || settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
 }

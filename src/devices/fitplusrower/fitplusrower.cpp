@@ -305,7 +305,7 @@ void fitplusrower::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     qDebug() << QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state));
 
-    if (state != QLowEnergyService::ServiceDiscovered)
+    if (state != QLowEnergyService::RemoteServiceDiscovered)
         return;
 
     gattWriteCharacteristic = gattCommunicationChannelService->characteristic(gattWriteCharacteristicId);
@@ -384,7 +384,7 @@ void fitplusrower::serviceScanDone() {
         settings.setValue(QZSettings::ftms_rower, bluetoothDevice.name());
         qDebug() << "forcing FTMS rower since it has FTMS";
         if (homeform::singleton())
-            homeform::singleton()->setToastRequested("FTMS rower found, restart the app to apply the change!");
+            homeform::singleton()->setToastRequested(QObject::tr("FTMS rower found, restart the app to apply the change!"));
     }
 }
 
@@ -448,6 +448,6 @@ void fitplusrower::controllerStateChanged(QLowEnergyController::ControllerState 
         lastResistanceBeforeDisconnection = Resistance.value();
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

@@ -59,7 +59,7 @@ void coresensor::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')';
 
     if(homeform::singleton())
-        homeform::singleton()->setToastRequested(device.name() + QStringLiteral(" connected!"));
+        homeform::singleton()->setToastRequested(QObject::tr("%1 connected!").arg(device.name()));
 
     {
         bluetoothDevice = device;
@@ -129,7 +129,7 @@ void coresensor::serviceStateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     qDebug() << QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state));
 
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
         auto characteristics_list = m_coreService->characteristics();
         for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
             qDebug() << QStringLiteral("characteristic ") + c.uuid().toString();
@@ -357,7 +357,7 @@ void coresensor::controllerStateChanged(QLowEnergyController::ControllerState st
 
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 

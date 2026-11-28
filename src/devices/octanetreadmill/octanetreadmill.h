@@ -74,6 +74,7 @@ class octanetreadmill : public treadmill {
     // Packet reassembly buffer for fragmented BLE messages
     QByteArray packetBuffer;
     int expectedPacketLength = 0;
+    bool zr8StoppedByCadence = false;
 
     QTimer *refresh;
 

@@ -56,7 +56,7 @@ echo "Running qmake for iOS Debug build..."
 # Use release config since precompiled Qt doesn't have debug libs
 # Force iphoneos SDK for device builds (not simulator)
 export QMAKE_XCODE_DEVELOPER_PATH="/Applications/Xcode.app/Contents/Developer"
-export QMAKE_IOS_DEPLOYMENT_TARGET=12.0
+export QMAKE_IOS_DEPLOYMENT_TARGET=15.0
 qmake -spec macx-ios-clang CONFIG+=release CONFIG+=device CONFIG-=simulator CONFIG+=iphoneos "QMAKE_APPLE_DEVICE_ARCHS=arm64"
 
 echo "qmake completed successfully"
@@ -255,9 +255,16 @@ cd "$PROJECT_ROOT/src"
 
 # Copy all generated files (cpp, o, json, a) but exclude directories
 echo "Looking for generated files in: $(pwd)"
-find . -maxdepth 1 -type f \( -name "moc_*.cpp" -o -name "moc_*.cpp.json" -o -name "qrc_*.cpp" -o -name "*.o" -o -name "*.a" -o -name "*_qmltyperegistrations.*" -o -name "*.qmltypes" -o -name "*_metatypes.json" -o -name "*_plugin_import.cpp" \) -print -exec cp {} "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/" \;
+find . -maxdepth 1 -type f \( -name "moc_*.cpp" -o -name "moc_*.cpp.json" -o -name "qrc_*.cpp" -o -name "*.o" -o -name "*.a" -o -name "*_qmltyperegistrations.*" -o -name "*.qmltypes" -o -name "*_metatypes.json" -o -name "*_plugin_import.cpp" -o -name "qmlcache_*.cpp" -o -name "*_qmlcache_loader.cpp" \) -print -exec cp {} "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/" \;
 
 echo "Generated files copied to build directory"
+
+# The settings pages compiled at build time (qmlcachegen, qdomyos-zwift.pri); the Xcode project
+# compiles these three files
+echo "Verifying the compiled settings pages exist:"
+ls -la "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/"qmlcache_settings_qml.cpp \
+       "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/"qmlcache_settings-tiles_qml.cpp \
+       "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/"settings_qmlcache_loader.cpp 2>&1
 
 # CRITICAL FIX: Rename qdomyos-zwift_qmltyperegistrations.cpp to qdomyoszwift_qmltyperegistrations.cpp
 # qmake generates the file with a hyphen but Xcode project expects it without hyphen
