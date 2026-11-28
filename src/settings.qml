@@ -280,6 +280,23 @@ import AndroidStatusBar 1.0
             }
         }
 
+        // A tap on empty space of the page (between the sections, beside a description, below the
+        // last search result) drops the focus too, as in other apps: nothing there ever takes it.
+        // An item of the Flickable behind its content, as big as the page - not a handler declared
+        // here: the Flickable gives such a handler to its content item (addPointerHandler,
+        // qquickflickable.cpp), which is only as tall as the content, and a tap below a short list
+        // of results would miss it. The content is above this item, so a tap on a switch, a field
+        // or a section goes to that control as before; the grab of the handler is passive and the
+        // Flickable filters the touches of its children, so a drag still scrolls the page.
+        Item {
+            parent: settingsPane.contentItem
+            anchors.fill: parent
+            z: -1
+            Handlers.TapHandler {
+                onTapped: settingsPane.dropTextFocus()
+            }
+        }
+
         function currentSearch(viaPush) {
             return { query: settingsSearchTextField.displayText, changedOnly: changedOnly,
                      results: filteredSettings, scroll: contentItem.contentY, viaPush: viaPush,
