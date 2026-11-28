@@ -83,3 +83,40 @@ jobs:
           nmake
           if errorlevel 1 exit /b %errorlevel%
           tst\debug\qdomyos-zwift-tests.exe
+
+  ios-simulator:
+    runs-on: macos-14
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout Qt 6 SMTP client
+        uses: actions/checkout@v4
+        with:
+          repository: bluetiger9/SmtpClient-for-Qt
+          ref: 72cf2e6a70a16e5224db546d96147446aa1f3feb
+          path: src/smtpclient
+      - name: Install Qt host tools
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.5.1'
+          host: mac
+          target: desktop
+          modules: 'qtcharts qtnetworkauth qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qtwebview qtspeech qthttpserver'
+          cache: true
+      - name: Record Qt host path
+        run: echo "QT_HOST_PATH=$QT_ROOT_DIR" >> "$GITHUB_ENV"
+      - name: Install Qt for iOS
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.5.1'
+          host: mac
+          target: ios
+          modules: 'qtcharts qtnetworkauth qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qtwebview qtspeech qthttpserver'
+          cache: true
+      - name: Build for iOS simulator
+        env:
+          CODE_SIGNING_ALLOWED: 'NO'
+        run: |
+          "$QT_HOST_PATH/bin/lrelease" src/qdomyos-zwift.pri
+          "$QT_ROOT_DIR/bin/qmake" CONFIG+=debug CONFIG+=iphonesimulator qdomyos-zwift.pro
+          make -j2
