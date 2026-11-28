@@ -34,6 +34,10 @@ var heartZones = [];
 var miles = 1;
 var powerChart = null;
 var watts_max = 0;
+// the raw power points of the line; the line itself is them or their trailing average
+// (Smooth Chart Lines, livesmooth.js), see pushPowerPoint
+var rawWatts = [];
+var smoothSeconds = 0;
 
 function t(key, fallback) {
     return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
@@ -323,6 +327,7 @@ function process_arr(arr) {
         }
     }
 
+    rawWatts = watts;
     const powerChartTop = (watts_max > ftpZones[3] * 2 ? watts_max + 10 : ftpZones[3] * 2);
     const powerZoneLabelPositions = [
         Math.round(ftpZones[0] / 2),
@@ -355,7 +360,7 @@ function process_arr(arr) {
                 backgroundColor: window.chartColors.red,
                 borderColor: window.chartColors.red,
                 cubicInterpolationMode: 'monotone',
-                data: watts,
+                data: smoothTrailing(watts, smoothSeconds),
                 fill: false,
                 pointRadius: 0,
                 borderWidth: 2,
@@ -665,12 +670,21 @@ function refresh() {
     });    
 }
 
+// A new power point: to rawWatts, and to the line as it is (the line is rawWatts itself when the
+// smoothing is off) or as the trailing average with the points before it
+function pushPowerPoint(point) {
+    rawWatts.push(point);
+    if (powerChart.data.datasets[0].data !== rawWatts)
+        powerChart.data.datasets[0].data.push({x: point.x, y: trailingAverage(rawWatts, rawWatts.length - 1, smoothSeconds)});
+}
+
 function process_workout(arr) {    
     let elapsed = arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600);
     if(arr.target_power > 0) { // in order to add only metrics of the training program
         if(firstElapsedTargetPower === 0) {
             firstElapsedTargetPower = elapsed;
-            powerChart.data.datasets[0].data = [];
+            rawWatts = [];
+            powerChart.data.datasets[0].data = smoothTrailing(rawWatts, smoothSeconds);
         }
     }
 
@@ -678,7 +692,7 @@ function process_workout(arr) {
     if (arr.target_power > 0) {
         syncTrainingProgramTimeline(arr, workoutElapsed);
     }
-    powerChart.data.datasets[0].data.push({x: workoutElapsed, y: arr.watts});
+    pushPowerPoint({x: workoutElapsed, y: arr.watts});
     if (normalXScales.power.max !== undefined && workoutElapsed > normalXScales.power.max) {
         setNormalXScale('power', normalXScales.power.min, workoutElapsed);
         if (!isZoomedPower) {
@@ -692,7 +706,9 @@ function process_workout(arr) {
 }
 
 function dochart_init() {
-    keys_arr = ['ftp', 'miles_unit', 'age', 'heart_rate_zone1', 'heart_rate_zone2', 'heart_rate_zone3', 'heart_rate_zone4', 'heart_max_override_enable', 'heart_max_override_value']
+    // own list: dochartliveheart.js on the same page sets a global keys_arr of its own before the
+    // answer comes, and chart_smooth_lines is not in it
+    const keys_arr = ['ftp', 'miles_unit', 'age', 'heart_rate_zone1', 'heart_rate_zone2', 'heart_rate_zone3', 'heart_rate_zone4', 'heart_max_override_enable', 'heart_max_override_value', 'chart_smooth_lines']
 
     function load_training_program() {
         let el = new MainWSQueueElement({
@@ -772,6 +788,8 @@ function dochart_init() {
                     } else if (key === 'miles_unit') {
                         if(msg.content[key] === true || msg.content[key] === 'true')
                             miles = 0.621371;
+                    } else if (key === 'chart_smooth_lines') {
+                        smoothSeconds = liveSmoothWindow(msg.content[key]);
                     }
                 }
                 if(heart_max_override_enable) {

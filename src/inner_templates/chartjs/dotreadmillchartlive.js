@@ -27,6 +27,10 @@ var treadmillChart = null;
 var speed_max = 0;
 var incline_max = 0;
 var miles = 1; // 1 = km, 0.621371 = miles
+// the raw points of the actual speed line; the line itself is them or their trailing average
+// (Smooth Chart Lines, livesmooth.js), see pushSpeedPoint
+var rawSpeed = [];
+var smoothSeconds = 0;
 
 // Whole-workout target curve, pre-rendered from the training program (mirrors dochartlive.js'
 // reqpower/rebuildTrainingProgramTarget) so the user sees the entire planned speed/inclination
@@ -251,6 +255,7 @@ function process_arr(arr) {
     }
     speed_max = Math.ceil(speed_max * 1.1);
     incline_max = Math.ceil(incline_max * 1.1);
+    rawSpeed = speed;
 
     const backgroundFill = {
         id: 'custom_canvas_background_color',
@@ -301,7 +306,7 @@ function process_arr(arr) {
                 label: miles === 1 ? t('workoutEditor.speedKmh', 'Speed (km/h)') : t('workoutEditor.speedMph', 'Speed (mph)'),
                 backgroundColor: window.chartColors.black,
                 borderColor: window.chartColors.black,
-                data: speed,
+                data: smoothTrailing(speed, smoothSeconds, 1),
                 fill: false,
                 pointRadius: 0,
                 borderWidth: 3,
@@ -393,6 +398,8 @@ function process_arr(arr) {
         }
     };
 
+    if (smoothSeconds > 1)
+        config.data.datasets[2].cubicInterpolationMode = 'monotone'; // the smoothed speed line, as on the Charts page
     treadmillChart = new Chart(ctx, config);
 
     refresh();
@@ -413,6 +420,14 @@ function refresh() {
     });
 }
 
+// A new actual speed point: to rawSpeed, and to the line as it is (the line is rawSpeed itself when
+// the smoothing is off) or as the trailing average with the points before it
+function pushSpeedPoint(point) {
+    rawSpeed.push(point);
+    if (treadmillChart.data.datasets[2].data !== rawSpeed)
+        treadmillChart.data.datasets[2].data.push({x: point.x, y: trailingAverage(rawSpeed, rawSpeed.length - 1, smoothSeconds, 1)});
+}
+
 function process_workout(arr) {
     // Dataset order: 0=Target Speed, 1=Target Incline, 2=Speed (actual), 3=Incline (actual).
     // The target datasets are owned by rebuildTrainingProgramTarget()/syncTrainingProgramTimeline()
@@ -422,7 +437,8 @@ function process_workout(arr) {
 
     if (arr.target_speed !== undefined && arr.target_speed !== -1 && firstElapsedTargetSpeed === 0) {
         firstElapsedTargetSpeed = elapsed;
-        treadmillChart.data.datasets[2].data = [];
+        rawSpeed = [];
+        treadmillChart.data.datasets[2].data = smoothTrailing(rawSpeed, smoothSeconds, 1);
         treadmillChart.data.datasets[3].data = [];
     }
 
@@ -436,7 +452,7 @@ function process_workout(arr) {
     syncTrainingProgramTimeline(arr, workoutElapsed);
 
     // Update speed data (actual)
-    treadmillChart.data.datasets[2].data.push({x: workoutElapsed, y: arr.speed * miles});
+    pushSpeedPoint({x: workoutElapsed, y: arr.speed * miles});
     if (speed_max < arr.speed * miles) {
         speed_max = Math.ceil(arr.speed * miles * 1.1);
         treadmillChart.options.scales['y-speed'].max = speed_max;
@@ -492,7 +508,7 @@ function loadTrainingProgram() {
 function dochart_init() {
     // Fetch miles_unit and the user's race pace settings first, since paceZones/miles need to be
     // resolved before the chart (and its zone backgrounds/labels) is built.
-    const keys_arr = ['miles_unit', 'pacef_1mile', 'pacef_5km', 'pacef_10km', 'pacef_halfmarathon', 'pacef_marathon'];
+    const keys_arr = ['miles_unit', 'pacef_1mile', 'pacef_5km', 'pacef_10km', 'pacef_halfmarathon', 'pacef_marathon', 'chart_smooth_lines'];
     let el = new MainWSQueueElement({
         msg: 'getsettings',
         content: {
@@ -511,6 +527,7 @@ function dochart_init() {
         if (settings['miles_unit'] === true || settings['miles_unit'] === 'true') {
             miles = 0.621371;
         }
+        smoothSeconds = liveSmoothWindow(settings['chart_smooth_lines']);
         const paceToSpeed = pacef => (3600 / Number(pacef)) * miles;
         paceZones = [
             paceToSpeed(settings['pacef_marathon']),

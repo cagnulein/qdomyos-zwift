@@ -9139,7 +9139,8 @@ import AndroidStatusBar 1.0
                         UiComboBox {
                             id: chartSmoothLinesComboBox
                             // the order is the index saved in chart_smooth_lines, read by
-                            // SMOOTH_WINDOWS in inner_templates/chartjs/dochart.js
+                            // SMOOTH_WINDOWS in inner_templates/chartjs/dochart.js and
+                            // LIVE_SMOOTH_WINDOWS in inner_templates/chartjs/livesmooth.js
                             model: [qsTr("Off"), qsTr("Auto"), qsTr("%1 s").arg(3), qsTr("%1 s").arg(5),
                                 qsTr("%1 s").arg(10), qsTr("%1 s").arg(15), qsTr("%1 s").arg(30)]
                             savedIndex: settings.chart_smooth_lines
@@ -9158,7 +9159,7 @@ import AndroidStatusBar 1.0
                     }
 
                     Label {
-                        text: qsTr("On the Charts page and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.")
+                        text: qsTr("On the Charts page, on the live chart of the main screen and in the charts of the workout email, draw the power, cadence and speed lines as a moving average over the chosen window instead of the raw second-by-second values. On the live chart it is the average of the last seconds up to each point. Auto: 3 seconds during the workout; after Stop 3 seconds plus 2 for every full 30 minutes of the workout, up to 15. Averages, maximums, zones, the power distribution and the FIT file still use the raw values. Default is Off.")
                         font.bold: !window.ui.modern
                         font.italic: !window.ui.modern
                         font.pixelSize: window.fontHint
