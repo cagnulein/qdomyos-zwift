@@ -7249,6 +7249,18 @@ IMPORTANT NOTES:
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>Kemiringan tetap treadmill</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>Kemiringan tetap (%)</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>Gunakan kemiringan tetap yang sebenarnya pada treadmill manual Anda. Mulai ulang QZ setelah mengubah pengaturan ini.</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation type="unfinished"></translation>
     </message>

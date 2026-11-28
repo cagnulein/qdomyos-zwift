@@ -7529,6 +7529,18 @@ IMPORTANT NOTES:
         <translation>케이던스 센서 옵션</translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>트레드밀 고정 경사도</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>고정 경사도 (%)</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>수동 트레드밀의 실제 고정 경사도를 사용하세요. 이 설정을 변경한 후 QZ를 다시 시작하세요.</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation>자전거가 정상적으로 작동한다면 이 설정을 변경하지 마세요!</translation>
     </message>

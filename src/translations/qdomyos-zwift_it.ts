@@ -8150,6 +8150,18 @@ NOTE IMPORTANTI:
         <translation>Opzioni sensore cadenza</translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>Inclinazione fissa del tapis roulant</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>Inclinazione fissa (%)</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>Usa l’inclinazione fissa effettiva del tuo tapis roulant manuale. Riavvia QZ dopo aver modificato questa impostazione.</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation>Non toccare queste impostazioni se la tua bici funziona correttamente!</translation>
     </message>

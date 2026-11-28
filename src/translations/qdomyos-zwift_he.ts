@@ -7249,6 +7249,18 @@ IMPORTANT NOTES:
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>שיפוע קבוע של מסילת הריצה</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>שיפוע קבוע (%)</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>השתמשו בשיפוע הקבוע בפועל של מסילת הריצה הידנית. הפעילו מחדש את QZ לאחר שינוי הגדרה זו.</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation type="unfinished"></translation>
     </message>

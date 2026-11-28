@@ -7249,6 +7249,18 @@ IMPORTANT NOTES:
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>ट्रेडमिल का निश्चित झुकाव</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>निश्चित झुकाव (%)</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>अपने मैनुअल ट्रेडमिल के वास्तविक निश्चित झुकाव का उपयोग करें। यह सेटिंग बदलने के बाद QZ को पुनः शुरू करें।</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation type="unfinished"></translation>
     </message>

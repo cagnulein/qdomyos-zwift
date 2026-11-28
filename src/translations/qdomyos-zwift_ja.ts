@@ -8058,6 +8058,18 @@ IMPORTANT NOTES:
         <translation>ケイデンスセンサー設定</translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>トレッドミルの固定傾斜</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>固定傾斜（%）</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>自走式トレッドミルの実際の固定傾斜を使用します。この設定を変更した後は QZ を再起動してください。</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation>自転車が正常に動作している場合は、これらの設定は変更しないでください。</translation>
     </message>

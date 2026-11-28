@@ -7481,6 +7481,18 @@ FONTOS MEGJEGYZÉSEK:
         <translation>Kadenciaérzékelő beállításai</translation>
     </message>
     <message>
+        <source>Fixed Treadmill Inclination</source>
+        <translation>Futópad rögzített dőlésszöge</translation>
+    </message>
+    <message>
+        <source>Fixed Inclination (%)</source>
+        <translation>Rögzített emelkedés (%)</translation>
+    </message>
+    <message>
+        <source>Use the actual fixed incline of your manual treadmill. Restart QZ after changing this setting.</source>
+        <translation>Használd a kézi futópad tényleges, rögzített emelkedését. A beállítás módosítása után indítsd újra a QZ-t.</translation>
+    </message>
+    <message>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation>Ne módosítsa ezeket a beállításokat, ha a kerékpár megfelelően működik!</translation>
     </message>
