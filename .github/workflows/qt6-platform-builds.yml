@@ -75,22 +75,28 @@ jobs:
           arch: win64_msvc2022_64
           modules: 'qtnetworkauth qtcharts qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qtwebview qtwebengine qtwebchannel qtspeech qthttpserver qtserialport'
           cache: true
-      - name: Diagnose Windows QML cache generation
+      - name: Generate Windows QML cache sources
         shell: pwsh
         run: |
           $tool = Join-Path $env:QT_ROOT_DIR 'bin/qmlcachegen.exe'
-          $qrc = Join-Path $env:GITHUB_WORKSPACE 'src/settings-qmlcache.qrc'
-          $qml = Join-Path $env:GITHUB_WORKSPACE 'src/settings.qml'
-          $output = Join-Path $env:RUNNER_TEMP 'qmlcache_settings_qml.cpp'
-          Write-Host "Checking $tool"
+          $sourceDir = Join-Path $env:GITHUB_WORKSPACE 'src'
+          $qrc = Join-Path $sourceDir 'settings-qmlcache.qrc'
+          $jobs = @(
+            @{ Arguments = @("--resource=$qrc", '-o', (Join-Path $sourceDir 'qmlcache_settings_qml.cpp'), (Join-Path $sourceDir 'settings.qml')); Output = 'qmlcache_settings_qml.cpp' },
+            @{ Arguments = @("--resource=$qrc", '-o', (Join-Path $sourceDir 'qmlcache_settings-tiles_qml.cpp'), (Join-Path $sourceDir 'settings-tiles.qml')); Output = 'qmlcache_settings-tiles_qml.cpp' },
+            @{ Arguments = @("--resource-file-mapping=$qrc", '-o', (Join-Path $sourceDir 'settings_qmlcache_loader.cpp'), $qrc); Output = 'settings_qmlcache_loader.cpp' }
+          )
           & $tool --version
           if ($LASTEXITCODE -ne 0) { throw "qmlcachegen --version failed with $LASTEXITCODE" }
-          & $tool "--resource=$qrc" -o $output $qml
-          if ($LASTEXITCODE -ne 0) { throw "qmlcachegen failed with $LASTEXITCODE" }
-          if (-not (Test-Path -LiteralPath $output -PathType Leaf)) {
-            throw "qmlcachegen exited successfully but did not create $output"
+          foreach ($job in $jobs) {
+            & $tool @($job.Arguments)
+            if ($LASTEXITCODE -ne 0) { throw "qmlcachegen failed for $($job.Output) with $LASTEXITCODE" }
+            $output = Join-Path $sourceDir $job.Output
+            if (-not (Test-Path -LiteralPath $output -PathType Leaf)) {
+              throw "qmlcachegen exited successfully but did not create $output"
+            }
+            Write-Host "Generated $output:" (Get-Item -LiteralPath $output).Length "bytes"
           }
-          Write-Host "Generated QML cache:" (Get-Item -LiteralPath $output).Length "bytes"
       - name: Build and run tests
         shell: cmd
         run: |
