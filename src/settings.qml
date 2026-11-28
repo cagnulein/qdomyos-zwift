@@ -4542,7 +4542,6 @@ import AndroidStatusBar 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.treadmill_calories_model = checked
-                        Accessible.onPressAction: { toggle(); settings.treadmill_calories_model = checked }
                     }
 
                     Label {
@@ -8801,9 +8800,6 @@ import AndroidStatusBar 1.0
                         checked: window.ui.modern
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        // in Qt 5.15 the role of a SwitchDelegate has no action: a double tap of the
-                        // screen reader did nothing
-                        Accessible.onPressAction: { toggle(); clicked(); }
                         onClicked: settingsPane.setUiOption("ui_modern", checked)
                     }
                     Label {
@@ -9007,9 +9003,6 @@ import AndroidStatusBar 1.0
                         checked: settings.ui_text_scale_system
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        // in Qt 5.15 the role of a SwitchDelegate has no action: a double tap of the
-                        // screen reader did nothing
-                        Accessible.onPressAction: { toggle(); clicked(); }
                         onClicked: {
                             settings.ui_text_scale_system = checked;
                             window.setTextScaleOption("ui_text_scale_system", checked);
@@ -13967,7 +13960,6 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                         // in Qt 5.15 the role of a SwitchDelegate has no action: a double tap of the
                         // screen reader did nothing
-                        Accessible.onPressAction: { toggle(); clicked(); }
                         onClicked: settings.treadmill_direct_distance_increment = checked
                     }
 
@@ -16498,7 +16490,6 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                         // in Qt 5.15 the role of a SwitchDelegate has no action: a double tap of the
                         // screen reader did nothing
-                        Accessible.onPressAction: { toggle(); clicked(); }
                         onClicked: { settings.waterrower_usb = checked; window.settings_restart_to_apply = true; }
                     }
 

@@ -365,10 +365,6 @@ ScrollView {
                     Accessible.name: text
                     Accessible.checkable: true
                     Accessible.checked: checked
-                    Accessible.onPressAction: {
-                        checked = !checked
-                        clicked()
-                    }
                     text: qsTr("Without Wheel Diameter Protocol")
                     spacing: 0
                     bottomPadding: 0
