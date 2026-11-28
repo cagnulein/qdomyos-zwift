@@ -47,6 +47,7 @@ class strydrunpowersensor : public treadmill {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
+    bool applyFixedInclination();
     uint16_t watts();
 
     QTimer *refresh;
