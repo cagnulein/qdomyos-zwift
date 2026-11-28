@@ -17471,6 +17471,7 @@ import AndroidStatusBar 1.0
                             IndicatorOnlySwitch {
                                 id: cadenceFixedInclinationSwitch
                                 text: qsTr("Fixed Treadmill Inclination")
+                                Accessible.onPressAction: { toggle(); clicked(); }
                                 visible: settings.cadence_sensor_as_treadmill
                                 spacing: 0
                                 bottomPadding: 0
@@ -17499,6 +17500,7 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: cadenceFixedInclinationField
+                                    Accessible.name: labelCadenceFixedInclination.text + ": " + text
                                     savedText: settings.cadence_sensor_fixed_inclination
                                     decimals: 2
                                     minimum: 0
