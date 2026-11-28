@@ -5561,6 +5561,14 @@ Zezwolić QZ na zmianę tej wartości?
         <translation>Opcje obliczania mocy na podstawie tętna</translation>
     </message>
     <message>
+        <source>Estimate FTMS rower power from heart rate</source>
+        <translation>Szacuj moc wioślarza FTMS na podstawie tętna</translation>
+    </message>
+    <message>
+        <source>Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.</source>
+        <translation>Opcjonalnie: zastępuje moc w watach zgłaszaną przez wioślarz FTMS wartością szacowaną na podstawie dwóch poniższych punktów kalibracji tętna. Nie jest to moc zmierzona. Wymaga prawidłowego tętna i ruchu wiosłowania; w przeciwnym razie szacowana moc wynosi zero. Moc natywnych urządzeń PM5 i wybranych zewnętrznych czujników mocy nie jest zastępowana. Domyślnie wyłączone.</translation>
+    </message>
+    <message>
         <source>Session 1 Watt:</source>
         <translation>Sesja 1 – moc:</translation>
     </message>

@@ -5245,6 +5245,14 @@ Darf QZ diesen Wert ändern?
         <translation>Optionen: Leistung aus Herzfrequenz</translation>
     </message>
     <message>
+        <source>Estimate FTMS rower power from heart rate</source>
+        <translation>FTMS-Ruderleistung aus der Herzfrequenz schätzen</translation>
+    </message>
+    <message>
+        <source>Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.</source>
+        <translation>Optional: Ersetzt die gemeldete FTMS-Ruderleistung durch eine Schätzung anhand der beiden unten angegebenen Herzfrequenz-Kalibrierpunkte. Dies ist keine gemessene Leistung. Erfordert eine gültige Herzfrequenz und eine Ruderbewegung; andernfalls beträgt die geschätzte Leistung null. Die Leistung nativer PM5-Geräte und ausgewählter externer Leistungssensoren wird nicht überschrieben. Standardmäßig deaktiviert.</translation>
+    </message>
+    <message>
         <source>Session 1 Watt:</source>
         <translation>Sitzung 1 Watt:</translation>
     </message>

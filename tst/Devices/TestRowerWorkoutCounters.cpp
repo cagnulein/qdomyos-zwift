@@ -1,3 +1,4 @@
+#include <cmath>
 #include <gtest/gtest.h>
 #include "devices/ftmsrower/ftmsrower.h"
 #include "virtualdevices/virtualrower.h"
@@ -6,6 +7,7 @@ namespace {
 class ReplayRower : public ftmsrower {
 public:
     ReplayRower() : ftmsrower(true, true) {}
+    using ftmsrower::correctedInstantPace;
     void concept2Stroke(const QByteArray &packet) {
         parseConcept2Data(QBluetoothUuid(QStringLiteral("ce060036-43e5-11e4-916c-0800200c9a66")), packet);
     }
@@ -160,4 +162,49 @@ TEST(RowerWorkoutCounters, KeepsVirtualStrokeCountWhenRawHardwareCounterResets) 
     EXPECT_EQ(QByteArray::fromHex("06 02"), strokes.field(hardware, 0));
     hardware = 1;
     EXPECT_EQ(QByteArray::fromHex("07 02"), strokes.field(hardware, 0));
+}
+
+
+TEST(RowerHeartRatePower, InterpolatesCalibrationAndHandlesReversedPoints) {
+    EXPECT_EQ(110u, rower::calculateWattsFromHeartRate(109, 24, 10, 109, 110, 155, 230));
+    EXPECT_EQ(230u, rower::calculateWattsFromHeartRate(155, 24, 10, 109, 110, 155, 230));
+    EXPECT_EQ(170u, rower::calculateWattsFromHeartRate(132, 24, 10, 109, 110, 155, 230));
+    EXPECT_EQ(170u, rower::calculateWattsFromHeartRate(132, 24, 10, 155, 230, 109, 110));
+}
+
+TEST(RowerHeartRatePower, MissingHeartRateOrMotionProducesZero) {
+    EXPECT_EQ(0u, rower::calculateWattsFromHeartRate(0, 24, 10, 109, 110, 155, 230));
+    EXPECT_EQ(0u, rower::calculateWattsFromHeartRate(132, 0, 10, 109, 110, 155, 230));
+    EXPECT_EQ(0u, rower::calculateWattsFromHeartRate(132, 24, 0, 109, 110, 155, 230));
+}
+
+TEST(RowerHeartRatePower, RejectsInvalidCalibrationAndClampsExtrapolation) {
+    EXPECT_EQ(0u, rower::calculateWattsFromHeartRate(132, 24, 10, 109, 110, 109, 230));
+    EXPECT_EQ(0u, rower::calculateWattsFromHeartRate(132, 24, 10, 109, -110, 155, 230));
+    EXPECT_EQ(0u, rower::calculateWattsFromHeartRate(40, 24, 10, 109, 110, 155, 230));
+    EXPECT_EQ(2000u, rower::calculateWattsFromHeartRate(200, 24, 10, 109, 110, 110, 230));
+}
+
+TEST(RowerInstantPace, CorrectsMerachCrydnReportedHalfPace) {
+    // Recorded MRK-CRYDN-33A8 FTMS packet at 22:11:24, 27 Nov.
+    const double pace = ReplayRower::correctedInstantPace(QStringLiteral("MRK-CRYDN-33A8"), 85);
+    EXPECT_DOUBLE_EQ(170.0, pace);
+    EXPECT_NEAR(10.588235, 1800.0 / pace, 0.000001);
+    EXPECT_DOUBLE_EQ(180.0, ReplayRower::correctedInstantPace(QStringLiteral("mrk-crydn-test"), 90));
+}
+
+TEST(RowerInstantPace, PreservesOtherModelsAndInvalidSentinels) {
+    EXPECT_DOUBLE_EQ(85.0, ReplayRower::correctedInstantPace(QStringLiteral("MRK-R26-33A8"), 85));
+    EXPECT_DOUBLE_EQ(85.0, ReplayRower::correctedInstantPace(QStringLiteral("PM5 12345"), 85));
+    EXPECT_DOUBLE_EQ(85.0, ReplayRower::correctedInstantPace(QStringLiteral("OTHER"), 85));
+    EXPECT_DOUBLE_EQ(0.0, ReplayRower::correctedInstantPace(QStringLiteral("MRK-CRYDN-33A8"), 0));
+    EXPECT_DOUBLE_EQ(65535.0, ReplayRower::correctedInstantPace(QStringLiteral("MRK-CRYDN-33A8"), 65535));
+}
+
+TEST(RowerPowerToSpeed, InvertsConcept2PaceAndRespondsToPower) {
+    EXPECT_NEAR(15.0, rower::calculateSpeedFromPower(rower::calculateWattsFromPace(120.0)), 1e-9);
+    EXPECT_NEAR(3.6 * std::cbrt(139.0 / 2.8), rower::calculateSpeedFromPower(139), 1e-9);
+    EXPECT_GT(rower::calculateSpeedFromPower(196), rower::calculateSpeedFromPower(139));
+    EXPECT_DOUBLE_EQ(0.0, rower::calculateSpeedFromPower(0));
+    EXPECT_DOUBLE_EQ(0.0, rower::calculateSpeedFromPower(-1));
 }

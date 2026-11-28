@@ -313,6 +313,15 @@ void ftmsrower::parseConcept2Data(const QBluetoothUuid &uuid, const QByteArray &
               QStringLiteral(" RowState: ") + QString::number(pm5RowState));
 }
 
+double ftmsrower::correctedInstantPace(const QString &deviceName, double pace) {
+    // MRK-CRYDN reports instantaneous pace at half the time per 500 m.
+    // Its average pace and distance are already in the expected units.
+    if (pace > 0 && pace < 65535 &&
+        deviceName.trimmed().startsWith(QStringLiteral("MRK-CRYDN-"), Qt::CaseInsensitive))
+        return pace * 2.0;
+    return pace;
+}
+
 void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QDateTime now = QDateTime::currentDateTime();
 
@@ -352,6 +361,14 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     }
 
     lastPacket = newValue;
+
+    // A separate opt-in keeps the native FTMS and PM5 power paths unchanged by default.
+    const bool estimatePowerFromHeartRate = !PM5 &&
+        settings.value(QZSettings::rower_power_from_hr, QZSettings::default_rower_power_from_hr).toBool() &&
+        settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+            .toString().startsWith(QStringLiteral("Disabled"));
+    const bool calculateSpeedFromPower = !PM5 &&
+        settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool();
 
     union flags {
         struct {
@@ -427,7 +444,11 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         emit debug(QStringLiteral("Current Average Stroke: ") + QString::number(avgStroke));
     }
 
-    if (Flags.totDistance) {
+    if (calculateSpeedFromPower) {
+        // Consume the native distance field but integrate the derived speed after power is updated.
+        if (Flags.totDistance)
+            index += 3;
+    } else if (Flags.totDistance) {
         if (ICONSOLE_PLUS || FITSHOW || MRK_R11S) {
             // For ICONSOLE+/FITSHOW/MRK_R11S, always calculate distance from speed instead of using characteristic data
             Distance += ((Speed.value() / 3600000.0) *
@@ -445,12 +466,13 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
                      ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
     }
 
-    emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
+    if (!calculateSpeedFromPower)
+        emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
     double instantPace = 0;
     const bool mrkR26 = bluetoothDevice.name().trimmed().toUpper().startsWith(QStringLiteral("MRK-R26-"));
 
-    if (mrkR26 && !Flags.moreData) {
+    if (!estimatePowerFromHeartRate && mrkR26 && !Flags.moreData) {
         const int manualResistance = qBound(1, qRound(Resistance.value()), 18);
         const double resistanceMultiplier = 1.0 + (0.05 * (manualResistance - 9));
         const double baseWatt = qMax(0.0, (9.0 * Cadence.value()) - 85.0);
@@ -466,16 +488,22 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
         emit debug(QStringLiteral("Current Pace: ") + QString::number(instantPace));
+        const double rawPace = instantPace;
+        instantPace = correctedInstantPace(bluetoothDevice.name(), rawPace);
+        if (instantPace != rawPace)
+            qDebug() << "MRK-CRYDN corrected instantaneous pace:" << instantPace;
 
-        // Always handle invalid pace values to prevent division by zero
-        if(instantPace == 0 || instantPace == 65535) {
-            Speed = 0;
-        } else {
-            if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R)
-                Speed = (60.0 / instantPace) * 30.0; // translating pace (min/500m) to km/h in order to match the pace function in the rower.cpp
+        // Native pace is still parsed for devices that derive their watts from it.
+        if (!calculateSpeedFromPower) {
+            // Always handle invalid pace values to prevent division by zero
+            if(rawPace == 0 || rawPace == 65535) {
+                Speed = 0;
+            } else {
+                if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R)
+                    Speed = (60.0 / instantPace) * 30.0; // translating pace (min/500m) to km/h in order to match the pace function in the rower.cpp
+            }
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         }
-
-        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     }
 
     if (Flags.avgPace) {
@@ -491,7 +519,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         double watt =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
-        if (!mrkR26) {
+        if (!estimatePowerFromHeartRate && !mrkR26) {
             if (WDK_PACE_POWER && instantPace > 0 && instantPace != 65535 && Cadence.value() > 0) {
                 m_watt = rower::calculateWattsFromPace(instantPace);
             } else if (!filterWattNull || watt != 0) {
@@ -499,7 +527,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
                     m_watt = watt;
             }
         }
-    } else if(!mrkR26 && !PM5 && Flags.instantPace) {
+    } else if(!estimatePowerFromHeartRate && !mrkR26 && !PM5 && Flags.instantPace) {
         qDebug() << "rower doesn't send wattage, let's calculate it...";
         if(instantPace > 0 && instantPace != 65535) {
             double estimatedWatt = rower::calculateWattsFromPace(instantPace);
@@ -508,7 +536,8 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
             m_watt = 0;
     }
 
-    emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
+    if (!estimatePowerFromHeartRate)
+        emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
 
     if (Flags.avgPower) {
 
@@ -552,16 +581,20 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         }
     }
 
-    if (useCalculatedKCal && watts())
-        KCal +=
-            ((((0.048 * ((double)watts()) + 1.19) *
-               settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-              200.0) /
-             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                            now)))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                              // kg * 3.5) / 200 ) / 60
+    const auto updateCalories = [&]() {
+        if (useCalculatedKCal && watts())
+            KCal +=
+                ((((0.048 * ((double)watts()) + 1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                  200.0) /
+                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                  // kg * 3.5) / 200 ) / 60
 
-    emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+        emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+    };
+    if (!estimatePowerFromHeartRate)
+        updateCalories();
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
@@ -579,6 +612,29 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         } else if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
            update_hr_from_external();
         }
+    }
+
+    if (estimatePowerFromHeartRate) {
+        // When pace depends on power, use stroke activity as the motion gate to avoid a circular dependency.
+        const double motionSpeed = calculateSpeedFromPower ? (Cadence.value() > 0 ? 1.0 : 0.0) : Speed.value();
+        m_watt = rower::calculateWattsFromHeartRate(
+            Heart.value(), Cadence.value(), motionSpeed,
+            settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble(),
+            settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble(),
+            settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble(),
+            settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble());
+        emit debug(QStringLiteral("Current Watt from HR: ") + QString::number(m_watt.value()));
+        updateCalories();
+    }
+
+    if (calculateSpeedFromPower) {
+        Speed = rower::calculateSpeedFromPower(watts());
+        const qint64 elapsedMs = lastRefreshCharacteristicChanged.msecsTo(now);
+        // Do not invent distance across reconnects, long notification gaps or clock changes.
+        if (elapsedMs > 0 && elapsedMs <= 3000)
+            Distance += Speed.value() * static_cast<double>(elapsedMs) / 3600000.0;
+        emit debug(QStringLiteral("Current Speed from power: ") + QString::number(Speed.value()));
+        emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
     }
 
     if (Flags.metabolic) {

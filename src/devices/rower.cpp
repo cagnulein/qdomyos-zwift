@@ -2,6 +2,7 @@
 #include "rower.h"
 #include "qdebugfixup.h"
 #include <QSettings>
+#include <cmath>
 
 rower::rower() {}
 
@@ -67,6 +68,27 @@ resistance_t rower::resistanceFromPowerRequest(uint16_t power) { return power / 
 void rower::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
 void rower::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
 double rower::requestedSpeed() { return requestSpeed; }
+
+uint16_t rower::calculateWattsFromHeartRate(double heartRate, double cadence, double speed,
+                                          double hr1, double watts1, double hr2, double watts2) {
+    if (!std::isfinite(heartRate) || !std::isfinite(cadence) || !std::isfinite(speed) ||
+        !std::isfinite(hr1) || !std::isfinite(hr2) || !std::isfinite(watts1) || !std::isfinite(watts2) ||
+        heartRate <= 0 || cadence <= 0 || speed <= 0 || hr1 <= 0 || hr2 <= 0 ||
+        hr1 == hr2 || watts1 < 0 || watts2 < 0) {
+        return 0;
+    }
+    const double estimate = watts1 + (heartRate - hr1) * (watts2 - watts1) / (hr2 - hr1);
+    if (!std::isfinite(estimate))
+        return 0;
+    return static_cast<uint16_t>(qRound(qBound(0.0, estimate, 2000.0)));
+}
+
+double rower::calculateSpeedFromPower(double watts) {
+    if (!std::isfinite(watts) || watts <= 0)
+        return 0.0;
+    // Concept2: watts = 2.8 * (meters/second)^3; convert m/s to km/h.
+    return 3.6 * std::cbrt(watts / 2.8);
+}
 
 double rower::calculateWattsFromPace(double paceSeconds) {
     // Concept2 Rowing Power Formula: Watts = 2.8 / (pace_in_seconds / 500)^3
