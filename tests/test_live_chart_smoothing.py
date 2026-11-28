@@ -70,11 +70,13 @@ class Noise:
         return self.state / 2147483648
 
 
-def point(page, elapsed, value):
-    target, target_value = page["target"]
+def point(page, elapsed, value, target_value=None):
+    """A row of the session or a 'workout' message; target_value: the target of the program
+    (None: the target of the page)."""
+    target, page_target = page["target"]
     return {
         page["field"]: value,
-        target: target_value,
+        target: page_target if target_value is None else target_value,
         "inclination": 1,
         "elapsed_s": elapsed % 60,
         "elapsed_m": (elapsed // 60) % 60,
@@ -236,6 +238,21 @@ class LiveChartSmoothing(unittest.TestCase):
                 lines = harness(page, "3", [], live)
                 raw = raw_line(page, live)
                 self.assertEqual(lines[-1]["points"], trailing(raw, 5, page["digits"]))
+
+    def test_points_before_the_first_target_are_dropped(self):
+        # the page opened before the program has a target: the line starts again at the first
+        # message with a target, x from it, as on master (off and on)
+        no_target = {"watts": 0, "speed": -1}  # the app sends -1 for no target speed
+        for page in (BIKE, TREADMILL):
+            for smooth, seconds in ((str(OFF), 0), ("3", 5)):  # index 3: 5 s
+                with self.subTest(page=page["script"], smooth=smooth):
+                    _, live = workout(page, 10, 12, seed=13)
+                    before = [point(page, s, 120 if page["field"] == "watts" else 8,
+                                    no_target[page["field"]]) for s in range(1, 11)]
+                    lines = harness(page, smooth, [], before + live)
+                    raw = raw_line(page, live)
+                    expected = trailing(raw, seconds, page["digits"]) if seconds > 1 else raw
+                    self.assertEqual(lines[-1]["points"], expected)
 
     def test_pause_does_not_weigh_in(self):
         # paused, the elapsed time stands still and the messages keep coming every second with
