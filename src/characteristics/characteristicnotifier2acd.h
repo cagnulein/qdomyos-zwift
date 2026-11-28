@@ -5,9 +5,10 @@
 
 class CharacteristicNotifier2ACD : public CharacteristicNotifier {
     bluetoothdevice *Bike;
+    const bool includeDistance;
 
   public:
-    explicit CharacteristicNotifier2ACD(bluetoothdevice *Bike, QObject *parent = nullptr);
+    explicit CharacteristicNotifier2ACD(bluetoothdevice *Bike, QObject *parent = nullptr, bool includeDistance = true);
     int notify(QByteArray &out) override;
 };
 

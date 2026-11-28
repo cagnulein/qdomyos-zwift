@@ -6,6 +6,18 @@ import Foundation
 struct TestYpooM5ControlPointQueue {
     static func main() {
         precondition(forwardedTreadmillFTMSFeatures[4] == 0x03) // Speed and incline target support.
+        precondition((forwardedTreadmillFTMSFeatures[0] & 0x04) == 0)
+        // Both FTMS packet layouts omit the distance field, including after reconnect.
+        for distance: UInt64 in [2720, 3710] {
+            let legacy = encodeVirtualTreadmillData(speed: 500, inclination: 20, heartRate: 80,
+                                                    elapsed: 1800, distanceMeters: distance, includeAverageSpeed: false)
+            precondition(legacy == Data([0x08, 0x05, 0xf4, 0x01, 20, 0, 20, 0, 80, 0x08, 0x07]))
+            let modern = encodeVirtualTreadmillData(speed: 500, inclination: 20, heartRate: 80,
+                                                    elapsed: 1800, distanceMeters: distance, includeAverageSpeed: true)
+            let average = UInt16(Double(distance) * 3.6 / 1800 * 100)
+            precondition(modern == Data([0x0a, 0x05, 0xf4, 0x01, UInt8(average & 0xff),
+                                         UInt8(average >> 8), 20, 0, 20, 0, 80, 0x08, 0x07]))
+        }
         // Keep the Objective-C selector used by lockscreen.mm aligned with Swift.
         let forwarding = #selector(virtualtreadmill_zwift.enableControlPointForwarding(speedRange:inclineRange:))
         precondition(NSStringFromSelector(forwarding) == "enableControlPointForwardingWithSpeedRange:inclineRange:")

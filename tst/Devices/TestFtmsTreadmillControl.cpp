@@ -17,6 +17,7 @@ class ControlPointTestTreadmill : public treadmill {
     void stop(bool) override { ++stopCalls; }
     void reportIncline(double value) { Inclination = value; }
     void setStepCountForTest(double steps) { StepCount = steps; }
+    void setDistanceForTest(double km) { Distance = km; }
     void addStepsForTest(double steps) { StepCount += steps; }
     double receivedSpeed = -1;
     double receivedIncline = -100;
@@ -128,4 +129,32 @@ TEST_F(FtmsTreadmillControlTest, NewWorkoutStartsStepCountAtZero) {
     EXPECT_DOUBLE_EQ(treadmill.currentStepCount().value(), 0.0);
     treadmill.addStepsForTest(8.0);
     EXPECT_DOUBLE_EQ(treadmill.currentStepCount().value(), 8.0);
+}
+
+TEST_F(FtmsTreadmillControlTest, BleTreadmillOmitsTotalDistanceWithoutShiftingOtherFields) {
+    settings.qsettings.setValue(QZSettings::real_inclination_to_virtual_treamill_bridge, false);
+    treadmill.reportIncline(-6);
+    CharacteristicNotifier2ACD legacyNotifier(&treadmill);
+    CharacteristicNotifier2ACD bleNotifier(&treadmill, nullptr, false);
+    for (bool legacyCadence : {false, true}) {
+        settings.qsettings.setValue(QZSettings::bike_cadence_sensor, legacyCadence);
+        for (double km : {2.72, 3.71}) {
+            treadmill.setDistanceForTest(km);
+            QByteArray legacy, ble;
+            ASSERT_EQ(legacyNotifier.notify(legacy), CN_OK);
+            ASSERT_EQ(bleNotifier.notify(ble), CN_OK);
+            ASSERT_EQ(legacy.size(), legacyCadence ? 14 : 16);
+            EXPECT_EQ(static_cast<uint8_t>(ble.at(0)), legacyCadence ? 0x08 : 0x0A);
+            EXPECT_EQ(static_cast<uint8_t>(ble.at(1)), 0x05);
+            EXPECT_EQ(ble.size(), legacy.size() - 3);
+            legacy[0] = static_cast<char>(static_cast<uint8_t>(legacy.at(0)) & ~0x04);
+            legacy.remove(legacyCadence ? 4 : 6, 3);
+            EXPECT_EQ(ble, legacy);
+            double speed = 0, incline = 0;
+            ASSERT_TRUE(YpooM5Control::readTelemetry(reinterpret_cast<const uint8_t *>(ble.constData()),
+                                                    ble.size(), speed, incline));
+            EXPECT_DOUBLE_EQ(incline, -6.0);
+            EXPECT_DOUBLE_EQ(treadmill.odometer(), km);
+        }
+    }
 }
