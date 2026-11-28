@@ -1,5 +1,11 @@
 # Zwift and virtual gearing
 
+## Can I use keyboard shortcuts to change QZ virtual gears?
+
+Yes. When QZ is running on a computer with a keyboard, open **QZ Settings > Tiles > Keyboard Shortcuts**, enable keyboard shortcuts, and assign keys to **Gears +** and **Gears -**. Pressing those keys changes QZ's virtual gear in the same way as the on-screen gear controls.
+
+The shortcut fields are available in QZ's current settings UI, and the assigned keys invoke QZ's gear-increase and gear-decrease actions. This controls QZ's virtual gearing; it does not send a gear command directly to ROUVY.
+
 ## Zwift Click v2 disconnects or freezes about one minute after QZ connects on iOS. What should I try?
 
 When using the Zwift Click v2 handshake workaround on iOS, do not leave the official Zwift app as soon as the controllers first appear connected.
