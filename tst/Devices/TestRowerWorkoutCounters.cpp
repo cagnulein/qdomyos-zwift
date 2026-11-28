@@ -1,3 +1,4 @@
+#include <cmath>
 #include <gtest/gtest.h>
 #include "devices/ftmsrower/ftmsrower.h"
 #include "virtualdevices/virtualrower.h"
@@ -198,4 +199,12 @@ TEST(RowerInstantPace, PreservesOtherModelsAndInvalidSentinels) {
     EXPECT_DOUBLE_EQ(85.0, ReplayRower::correctedInstantPace(QStringLiteral("OTHER"), 85));
     EXPECT_DOUBLE_EQ(0.0, ReplayRower::correctedInstantPace(QStringLiteral("MRK-CRYDN-33A8"), 0));
     EXPECT_DOUBLE_EQ(65535.0, ReplayRower::correctedInstantPace(QStringLiteral("MRK-CRYDN-33A8"), 65535));
+}
+
+TEST(RowerPowerToSpeed, InvertsConcept2PaceAndRespondsToPower) {
+    EXPECT_NEAR(15.0, rower::calculateSpeedFromPower(rower::calculateWattsFromPace(120.0)), 1e-9);
+    EXPECT_NEAR(3.6 * std::cbrt(139.0 / 2.8), rower::calculateSpeedFromPower(139), 1e-9);
+    EXPECT_GT(rower::calculateSpeedFromPower(196), rower::calculateSpeedFromPower(139));
+    EXPECT_DOUBLE_EQ(0.0, rower::calculateSpeedFromPower(0));
+    EXPECT_DOUBLE_EQ(0.0, rower::calculateSpeedFromPower(-1));
 }

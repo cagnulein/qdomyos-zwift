@@ -5565,6 +5565,10 @@ Mag QZ deze waarde wijzigen?
         <translation>FTMS-roeivermogen schatten op basis van hartslag</translation>
     </message>
     <message>
+        <source>Calculate FTMS rowing speed and distance from power (Concept2)</source>
+        <translation>FTMS-roeisnelheid en afstand berekenen uit vermogen (Concept2)</translation>
+    </message>
+    <message>
         <source>Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.</source>
         <translation>Optioneel: vervangt het door de FTMS-roeitrainer gemelde wattage door een schatting op basis van de twee onderstaande hartslagkalibratiepunten. Dit is geen gemeten vermogen. Een geldige hartslag en roeibeweging zijn vereist; anders is het geschatte vermogen nul. Het vermogen van native PM5-apparaten en geselecteerde externe vermogenssensoren wordt niet overschreven. Standaard uitgeschakeld.</translation>
     </message>

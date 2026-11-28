@@ -5318,6 +5318,10 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>हृदय गति से FTMS रोइंग मशीन की शक्ति का अनुमान लगाएँ</translation>
     </message>
     <message>
+        <source>Calculate FTMS rowing speed and distance from power (Concept2)</source>
+        <translation>पावर से FTMS रोइंग की गति और दूरी की गणना करें (Concept2)</translation>
+    </message>
+    <message>
         <source>Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.</source>
         <translation>वैकल्पिक: FTMS रोइंग मशीन से प्राप्त वाट को नीचे दिए गए दो हृदय गति अंशांकन बिंदुओं पर आधारित अनुमान से बदलता है। यह मापी गई शक्ति नहीं है। मान्य हृदय गति और रोइंग की गति आवश्यक हैं; अन्यथा अनुमानित शक्ति शून्य होगी। मूल PM5 और चुने गए बाहरी शक्ति सेंसर की शक्ति नहीं बदली जाती। डिफ़ॉल्ट रूप से बंद है।</translation>
     </message>

@@ -5318,6 +5318,10 @@ Jos valitset Ei, QZ ottaa käyttöön asetuksen Without Wheel Diameter Protocol 
         <translation>Arvioi FTMS-soutulaitteen teho sykkeen perusteella</translation>
     </message>
     <message>
+        <source>Calculate FTMS rowing speed and distance from power (Concept2)</source>
+        <translation>Laske FTMS-soutunopeus ja -matka tehosta (Concept2)</translation>
+    </message>
+    <message>
         <source>Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.</source>
         <translation>Valinnainen: korvaa FTMS-soutulaitteen ilmoittamat watit alla oleviin kahteen sykkeen kalibrointipisteeseen perustuvalla arviolla. Tämä ei ole mitattua tehoa. Edellyttää kelvollista sykettä ja soutuliikettä; muuten arvioitu teho on nolla. Alkuperäisten PM5-laitteiden ja valittujen ulkoisten tehoanturien arvoja ei korvata. Oletuksena pois käytöstä.</translation>
     </message>

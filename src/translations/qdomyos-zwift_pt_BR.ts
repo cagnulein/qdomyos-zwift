@@ -5318,6 +5318,10 @@ Não: o QZ ativa Without Wheel Diameter Protocol (Configurações &gt; Opções 
         <translation>Estimar a potência do remo FTMS pela frequência cardíaca</translation>
     </message>
     <message>
+        <source>Calculate FTMS rowing speed and distance from power (Concept2)</source>
+        <translation>Calcular a velocidade e a distância do remo FTMS a partir da potência (Concept2)</translation>
+    </message>
+    <message>
         <source>Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.</source>
         <translation>Opcional: substitui os watts informados pelo remo FTMS por uma estimativa baseada nos dois pontos de calibração da frequência cardíaca abaixo. Não é uma potência medida. Requer uma frequência cardíaca válida e movimento de remo; caso contrário, a potência estimada é zero. A potência dos PM5 nativos e dos sensores de potência externos selecionados não é sobrescrita. Desativado por padrão.</translation>
     </message>

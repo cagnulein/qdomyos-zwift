@@ -5318,6 +5318,10 @@ Jika memilih Tidak, QZ mengaktifkan Without Wheel Diameter Protocol (Pengaturan 
         <translation>Perkirakan daya mesin dayung FTMS dari detak jantung</translation>
     </message>
     <message>
+        <source>Calculate FTMS rowing speed and distance from power (Concept2)</source>
+        <translation>Hitung kecepatan dan jarak mendayung FTMS dari daya (Concept2)</translation>
+    </message>
+    <message>
         <source>Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.</source>
         <translation>Opsional: mengganti watt yang dilaporkan mesin dayung FTMS dengan perkiraan berdasarkan dua titik kalibrasi detak jantung di bawah ini. Ini bukan daya yang diukur. Memerlukan detak jantung yang valid dan gerakan mendayung; jika tidak, perkiraan daya adalah nol. Daya dari PM5 asli dan sensor daya eksternal yang dipilih tidak ditimpa. Nonaktif secara default.</translation>
     </message>

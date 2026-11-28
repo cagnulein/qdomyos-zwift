@@ -5318,6 +5318,10 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>根據心率估算 FTMS 划船機功率</translation>
     </message>
     <message>
+        <source>Calculate FTMS rowing speed and distance from power (Concept2)</source>
+        <translation>根據功率計算 FTMS 划船速度和距離（Concept2）</translation>
+    </message>
+    <message>
         <source>Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.</source>
         <translation>選用：根據下方兩個心率校準點估算功率，取代 FTMS 划船機回報的瓦數。這不是實測功率。需要有效的心率和划船動作，否則估算功率為零。原生 PM5 和已選取的外部功率感測器的功率不會被覆寫。預設關閉。</translation>
     </message>

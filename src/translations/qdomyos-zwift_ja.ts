@@ -5297,6 +5297,10 @@ QZ がこの値を変更することを許可しますか？
         <translation>心拍数から FTMS ローイングマシンのパワーを推定</translation>
     </message>
     <message>
+        <source>Calculate FTMS rowing speed and distance from power (Concept2)</source>
+        <translation>パワーからFTMSローイングの速度と距離を計算する（Concept2）</translation>
+    </message>
+    <message>
         <source>Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.</source>
         <translation>オプション：FTMS ローイングマシンが報告するワット数を、以下の2つの心拍数校正ポイントに基づく推定値に置き換えます。これは実測パワーではありません。有効な心拍数とローイング動作が必要で、いずれかがない場合は推定パワーがゼロになります。ネイティブ PM5 や選択済みの外部パワーセンサーの値は上書きされません。デフォルトはオフです。</translation>
     </message>

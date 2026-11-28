@@ -5541,6 +5541,10 @@ Vill du tillåta att QZ ändrar värdet?
         <translation>Uppskatta FTMS-roddmaskinens effekt utifrån puls</translation>
     </message>
     <message>
+        <source>Calculate FTMS rowing speed and distance from power (Concept2)</source>
+        <translation>Beräkna FTMS-roddhastighet och distans från effekt (Concept2)</translation>
+    </message>
+    <message>
         <source>Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.</source>
         <translation>Valfritt: ersätter den effekt i watt som FTMS-roddmaskinen rapporterar med en uppskattning utifrån de två pulskalibreringspunkterna nedan. Detta är inte uppmätt effekt. Kräver giltig puls och roddrörelse; annars är den uppskattade effekten noll. Effekt från inbyggda PM5-enheter och valda externa effektgivare skrivs inte över. Av som standard.</translation>
     </message>

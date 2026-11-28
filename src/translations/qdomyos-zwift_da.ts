@@ -5541,6 +5541,10 @@ Må QZ ændre værdien?
         <translation>Estimér FTMS-romaskinens effekt ud fra puls</translation>
     </message>
     <message>
+        <source>Calculate FTMS rowing speed and distance from power (Concept2)</source>
+        <translation>Beregn FTMS-rohastighed og distance ud fra effekt (Concept2)</translation>
+    </message>
+    <message>
         <source>Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.</source>
         <translation>Valgfrit: erstatter wattværdien rapporteret af FTMS-romaskinen med et estimat baseret på de to pulskalibreringspunkter nedenfor. Dette er ikke målt effekt. Kræver gyldig puls og robevægelse; ellers er den estimerede effekt nul. Effekt fra native PM5-enheder og valgte eksterne effektmålere overskrives ikke. Slået fra som standard.</translation>
     </message>

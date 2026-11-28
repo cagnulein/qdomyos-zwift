@@ -5541,6 +5541,10 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
         <translation>FTMS evezőpad teljesítményének becslése pulzus alapján</translation>
     </message>
     <message>
+        <source>Calculate FTMS rowing speed and distance from power (Concept2)</source>
+        <translation>FTMS evezési sebesség és távolság számítása teljesítményből (Concept2)</translation>
+    </message>
+    <message>
         <source>Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.</source>
         <translation>Opcionális: az FTMS evezőpad által jelentett wattértéket az alábbi két pulzuskalibrációs pont alapján becsült értékre cseréli. Ez nem mért teljesítmény. Érvényes pulzusadat és evezőmozgás szükséges; ellenkező esetben a becsült teljesítmény nulla. A natív PM5 eszközök és a kiválasztott külső teljesítménymérők értékeit nem írja felül. Alapértelmezetten kikapcsolva.</translation>
     </message>

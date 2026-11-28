@@ -83,6 +83,13 @@ uint16_t rower::calculateWattsFromHeartRate(double heartRate, double cadence, do
     return static_cast<uint16_t>(qRound(qBound(0.0, estimate, 2000.0)));
 }
 
+double rower::calculateSpeedFromPower(double watts) {
+    if (!std::isfinite(watts) || watts <= 0)
+        return 0.0;
+    // Concept2: watts = 2.8 * (meters/second)^3; convert m/s to km/h.
+    return 3.6 * std::cbrt(watts / 2.8);
+}
+
 double rower::calculateWattsFromPace(double paceSeconds) {
     // Concept2 Rowing Power Formula: Watts = 2.8 / (pace_in_seconds / 500)^3
     // Which simplifies to: Watts = 2.8 * (500 / pace_in_seconds)^3

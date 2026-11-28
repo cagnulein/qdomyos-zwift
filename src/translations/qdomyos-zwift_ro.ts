@@ -5318,6 +5318,10 @@ Dacă alegi Nu, QZ activează Without Wheel Diameter Protocol (Setări &gt; Opț
         <translation>Estimează puterea aparatului de vâslit FTMS din ritmul cardiac</translation>
     </message>
     <message>
+        <source>Calculate FTMS rowing speed and distance from power (Concept2)</source>
+        <translation>Calculează viteza și distanța de vâslire FTMS pe baza puterii (Concept2)</translation>
+    </message>
+    <message>
         <source>Optional: replace reported FTMS rowing watts with an estimate from the two heart-rate calibration points below. This is not measured power. Requires a valid heart rate and rowing motion; otherwise estimated power is zero. Native PM5 and selected external power sensors are not overridden. Default is off.</source>
         <translation>Opțional: înlocuiește puterea în wați raportată de aparatul de vâslit FTMS cu o estimare bazată pe cele două puncte de calibrare a ritmului cardiac de mai jos. Aceasta nu este o putere măsurată. Necesită un ritm cardiac valid și mișcare de vâslire; în caz contrar, puterea estimată este zero. Puterea dispozitivelor PM5 native și a senzorilor externi de putere selectați nu este suprascrisă. Dezactivat implicit.</translation>
     </message>

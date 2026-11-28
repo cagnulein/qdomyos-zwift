@@ -1072,6 +1072,8 @@ class QZSettings {
 
     static const QString rower_power_from_hr;
     static constexpr bool default_rower_power_from_hr = false;
+    static const QString rower_speed_from_power;
+    static constexpr bool default_rower_speed_from_power = false;
 
     static const QString power_sensor_name;
     static const QString default_power_sensor_name;
