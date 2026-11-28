@@ -11,6 +11,7 @@ CONFIG += console c++17
 CONFIG -= app_bundle
 CONFIG += thread
 win32: DEFINES += NOMINMAX
+win32: LIBS += -luser32
 
 SOURCES += \
         Devices/TrixterXDreamBike/TrixterXDreamPacketInterpreterTests.cpp \
