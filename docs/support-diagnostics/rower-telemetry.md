@@ -60,3 +60,22 @@
 
 - A simulated rower profile can mask the intended physical-device selection. In one support log, the enabled fake rower option was identified after a recognized FTMS rower showed no values and Start briefly flashed; the configuration mismatch was confirmed, although a successful retest was not yet established.
 - Verifying the physical-versus-simulated device choice before requesting protocol traces avoids investigating a BLE parser that QZ may not be using.
+
+## Rower power is present but seems too low, or pace and speed disagree
+
+### Provide first
+
+- Exact rower model, QZ build and platform, and whether resistance is manually adjusted or transmitted electronically. Report whether QZ displays measured or estimated watts, and whether an external power source or HR-based estimation is configured (if available for this build and device).
+- During a steady comfortable effort, report live watts, stroke rate, **Pace Last 500m**, and speed in QZ, with the units and the corresponding rower-console values if shown. Identify separately instantaneous, average and other summary fields in the receiving app.
+- State whether a direct connection to a known working app displays similarly low power, or whether the discrepancy appears only with QZ. Do not connect two apps to the physical rower simultaneously for this comparison.
+
+### If still unclear
+
+- Enable the Pace Last 500m tile if not visible, and provide time-matched screenshots or readings from QZ and the receiving app; identify whether the receiving app uses the QZ virtual PM5 or another profile.
+- Send a short QZ debug log of the steady effort. If HR-based power is explicitly being tested on a build that supports it, provide the configured calibration pairs, live HR and displayed estimated watts; keep that separate from the baseline raw-power test.
+
+### Why it matters
+
+- A low watt value reported by both a direct reference app and QZ can originate upstream at the rower, rather than from QZ's virtual-device path. A reviewed case used this comparison to establish similarly low readings.
+- Pace in minutes per 500 m and speed in km/h may describe the same quantity (for example, 1:30/500 m is 20 km/h); comparing like-for-like values prevents a unit conversion from being mistaken for a decoding problem. Different summary or instantaneous fields need not agree, and the receiving app's calculation may be unknown.
+- Estimated power is not measured power. Check the installed build and selected input path before treating a calibration as evidence of a telemetry defect.

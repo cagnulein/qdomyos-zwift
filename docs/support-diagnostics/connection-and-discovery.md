@@ -55,7 +55,7 @@
 - Exact machine model, Bluetooth name, and firmware revision if available.
 - QZ version and screenshots of relevant machine-specific and generic FTMS settings.
 - Screenshot **Advanced Settings > Manual Device** with its exact selected device or connection mode; confirm it matches the actual machine rather than an unrelated Wi-Fi or other protocol option.
-- On Android, whether **Garmin Options > ANT Bike Garmin** is enabled, particularly when a supported FTMS bike is detected but power and cadence remain zero.
+- On Android **and iOS**, whether **Garmin Options > ANT Bike Garmin** is enabled, particularly when a supported Bluetooth bike is detected but power and cadence remain zero. Distinguish this setting from a Garmin Connect account linked for completed-workout uploads or a Garmin watch used only as a heart-rate source.
 - Identify which QZ metrics update during a short workout.
 
 ### If still unclear
@@ -70,7 +70,7 @@
 - A successful Bluetooth connection does not guarantee that the correct protocol handler was selected.
 - In a confirmed case, selecting an unrelated Wi-Fi mode under Manual Device prevented bike metrics; choosing the matching bike mode restored the data. Recording the exact selected value is more useful than knowing only that a manual device was configured.
 - Conflicting model-specific and generic settings can route a device to an unsuitable parser.
-- A confirmed Android FTMS bike case recovered its metrics after disabling ANT Bike Garmin; collecting that option value helps distinguish a settings interaction from a missing Bluetooth advertisement.
+- Confirmed Bluetooth bike cases on both Android and iOS recovered their metrics after disabling ANT Bike Garmin. Collecting that option value helps distinguish an unintended device-selection path from a missing Bluetooth advertisement; linking Garmin Connect alone does not mean that ANT Bike Garmin is needed.
 
 ## BLE device advertises FTMS but QZ connects without usable metrics
 

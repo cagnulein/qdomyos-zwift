@@ -211,7 +211,7 @@ ColumnLayout {
                         }
 
                         function updateFilter() {
-                            var text = filterField.text.trim()
+                            var text = filterField.displayText.trim()
 
                             if (text === "") {
                                 // No filter - use normal folder browsing
@@ -223,7 +223,15 @@ ColumnLayout {
                             }
                         }
 
-                        onTextChanged: {
+                        // The text the search below was last started for
+                        property string searchedText: ""
+                        // displayText, not text: also the word still being composed (underlined).
+                        // Its signal comes for every input method event, also with the text
+                        // unchanged: the same text is not searched again
+                        onDisplayTextChanged: {
+                            if (displayText === searchedText)
+                                return
+                            searchedText = displayText
                             searchTimer.restart()
                         }
 
