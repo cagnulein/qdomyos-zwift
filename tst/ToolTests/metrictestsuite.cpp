@@ -121,3 +121,66 @@ TEST(MetricNonFiniteTest, InfinitiesAreKeptOutOfStats) {
     EXPECT_DOUBLE_EQ(speed.min(), 5.0);
     EXPECT_DOUBLE_EQ(speed.max(), 7.0);
 }
+
+class MetricPowerSpeedTest : public MetricMaxWattTest {
+protected:
+    void SetUp() override {
+        MetricMaxWattTest::SetUp();
+        QSettings settings;
+        settings.setValue(QZSettings::weight, 75.0);
+        settings.setValue(QZSettings::bike_weight, 10.0);
+        settings.setValue(QZSettings::rolling_resistance, 0.005);
+        settings.setValue(QZSettings::speed_gain, 1.0);
+        settings.setValue(QZSettings::speed_offset, 0.0);
+    }
+};
+
+TEST_F(MetricPowerSpeedTest, CoastDecelerationUsesForceNotPower) {
+    const double v = 30.0 / 3.6;
+    const double force = 85.0 * 9.8 * 0.005 + 0.22691607640851885 * v * v;
+    const double expected = (v - force / 85.0 * 0.1) * 3.6;
+    EXPECT_NEAR(metric::calculateSpeedFromPower(0, 0, 30, 0.1, 0), expected, 1e-6);
+}
+
+TEST_F(MetricPowerSpeedTest, StartsFromRestWithFiniteEnergy) {
+    QSettings settings;
+    settings.setValue(QZSettings::rolling_resistance, 0.0);
+    const double expected = std::sqrt(2.0 * 0.95 * 250.0 * 0.1 / 85.0) * 3.6;
+    EXPECT_NEAR(metric::calculateSpeedFromPower(250, 0, 0, 0.1, 0), expected, 1e-6);
+    EXPECT_DOUBLE_EQ(metric::calculateSpeedFromPower(0, 0, 0, 1, 0), 0.0);
+}
+
+TEST_F(MetricPowerSpeedTest, CoastIsMonotonicAndDoesNotGoNegative) {
+    double speed = 30.0;
+    for (int i = 0; i < 300; ++i) {
+        const double next = metric::calculateSpeedFromPower(0, 0, speed, 1, 0);
+        ASSERT_TRUE(std::isfinite(next));
+        EXPECT_GE(next, 0.0);
+        EXPECT_LE(next, speed + 1e-9);
+        speed = next;
+    }
+    EXPECT_DOUBLE_EQ(speed, 0.0);
+}
+
+TEST_F(MetricPowerSpeedTest, EquilibriumAndDownhill) {
+    const double equilibriumPower = metric::calculatePowerFromSpeed(30, 0);
+    EXPECT_NEAR(metric::calculateSpeedFromPower(equilibriumPower, 0, 30, 5, 0), 30.0, 1e-8);
+    EXPECT_GT(metric::calculateSpeedFromPower(0, -5, 0, 1, 0), 0.0);
+    EXPECT_DOUBLE_EQ(metric::calculateSpeedFromPower(0, 5, 0, 1, 0), 0.0);
+}
+
+TEST_F(MetricPowerSpeedTest, ConsistentAcrossUpdateIntervals) {
+    double speed = 30.0;
+    for (int i = 0; i < 80; ++i)
+        speed = metric::calculateSpeedFromPower(0, 0, speed, 0.1, 0);
+    EXPECT_NEAR(metric::calculateSpeedFromPower(0, 0, 30, 8, 0), speed, 1e-8);
+    EXPECT_GT(speed, 15.0);
+}
+
+TEST_F(MetricPowerSpeedTest, PreservesLimitsAndCalibration) {
+    EXPECT_NEAR(metric::calculateSpeedFromPower(1000, 0, 19, 5, 20), 20.0, 1e-8);
+    QSettings settings;
+    settings.setValue(QZSettings::speed_gain, 2.0);
+    settings.setValue(QZSettings::speed_offset, 3.0);
+    EXPECT_NEAR(metric::calculateSpeedFromPower(0, 0, 63, 0, 0), 30.0, 1e-8);
+}
